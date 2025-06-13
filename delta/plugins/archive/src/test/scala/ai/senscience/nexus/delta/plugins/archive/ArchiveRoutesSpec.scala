@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.plugins.archive.routes.ArchiveRoutes
+import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
+import ai.senscience.nexus.delta.plugins.storage.files.routes.FilesRoutesSpec
+import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.MediaTypes.`application/zip`
@@ -13,16 +16,13 @@ import cats.effect.IO
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{StatefulUUIDF, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.generators.FileGen
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.{File, FileAttributes, MediaType}
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.routes.FilesRoutesSpec
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.schemas
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.StorageFixtures
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
+import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
+import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
+import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileAttributes, MediaType}
+import ai.senscience.nexus.delta.plugins.storage.files.schemas
+import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution

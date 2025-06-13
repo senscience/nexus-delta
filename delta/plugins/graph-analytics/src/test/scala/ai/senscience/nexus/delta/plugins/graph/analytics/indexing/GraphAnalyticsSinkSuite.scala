@@ -2,10 +2,11 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.Index
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
+import ai.senscience.nexus.delta.plugins.storage.files
+import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.nxvFile
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.delta.sdk.model.jsonld.RemoteContextRef
