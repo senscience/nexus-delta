@@ -1,9 +1,9 @@
 package ai.senscience.nexus.tests.iam
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
 import ai.senscience.nexus.tests.Identity.acls.Marge
 import ai.senscience.nexus.tests.Identity.testRealm
 import ai.senscience.nexus.tests.iam.types.{AclEntry, AclListing, Permission, User}
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
 import cats.implicits.*
 
 class AclsSpec extends BaseIntegrationSpec {

@@ -1,17 +1,17 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.tests.Identity.{ClientCredentials, UserCredentials}
+import ai.senscience.nexus.tests.Optics.*
 import akka.actor.ActorSystem
 import akka.http.javadsl.model.headers.HttpCredentials
-import akka.http.scaladsl.model.HttpMethods.*
 import akka.http.scaladsl.model.*
+import akka.http.scaladsl.model.HttpMethods.*
 import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.stream.Materializer
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import Identity.{ClientCredentials, UserCredentials}
-import Optics.*
 import io.circe.Json
 
 import scala.concurrent.ExecutionContext

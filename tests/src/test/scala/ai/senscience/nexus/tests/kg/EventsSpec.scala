@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.kg
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.ContentTypes.`application/json`
 import ai.senscience.nexus.tests.Identity.events.BugsBunny
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Resources}
+import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
+import akka.http.scaladsl.model.ContentTypes.`application/json`
 import io.circe.Json
 
 class EventsSpec extends BaseIntegrationSpec {

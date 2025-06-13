@@ -1,13 +1,13 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
-import akka.http.scaladsl.model.StatusCodes
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.projects.Bojack
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Projects, Resources}
-import io.circe.Json
+import akka.http.scaladsl.model.StatusCodes
 import cats.implicits.*
+import io.circe.Json
 
 final class GraphAnalyticsSpec extends BaseIntegrationSpec {
   private val org          = genId()

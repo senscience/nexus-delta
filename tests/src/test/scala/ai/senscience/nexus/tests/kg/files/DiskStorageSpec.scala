@@ -1,9 +1,9 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.iam.types.Permission
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
-import ai.senscience.nexus.tests.Identity.storages.Coyote
 import io.circe.Json
 import org.scalatest.Assertion
 

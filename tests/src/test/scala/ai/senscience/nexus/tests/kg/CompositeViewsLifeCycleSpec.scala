@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.kg
 
-import cats.data.NonEmptyMap
-import cats.effect.IO
+import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.compositeviews.Jerry
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Views}
-import CompositeViewsLifeCycleSpec.Spaces.ProjectionSpace
-import CompositeViewsLifeCycleSpec.{query, Spaces}
-import ai.senscience.nexus.tests.BaseIntegrationSpec
+import ai.senscience.nexus.tests.kg.CompositeViewsLifeCycleSpec.Spaces.ProjectionSpace
+import ai.senscience.nexus.tests.kg.CompositeViewsLifeCycleSpec.{Spaces, query}
+import cats.data.NonEmptyMap
+import cats.effect.IO
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.{Decoder, Json}
 import org.scalactic.source.Position

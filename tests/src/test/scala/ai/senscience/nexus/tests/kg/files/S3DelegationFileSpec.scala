@@ -1,15 +1,15 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.tests.Identity.Anonymous
+import ai.senscience.nexus.tests.Identity.storages.Coyote
+import ai.senscience.nexus.tests.Optics.filterMetadataKeys
+import ai.senscience.nexus.tests.kg.files.S3DelegationFileSpec.DelegationResponse
 import ai.senscience.nexus.tests.kg.files.model.FileInput
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.{digest as digestField, filename as filenameField}
-import ai.senscience.nexus.tests.Identity.Anonymous
-import ai.senscience.nexus.tests.Identity.storages.Coyote
-import ai.senscience.nexus.tests.Optics.filterMetadataKeys
-import S3DelegationFileSpec.DelegationResponse
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.jawn.parseByteBuffer
 import io.circe.syntax.KeyOps

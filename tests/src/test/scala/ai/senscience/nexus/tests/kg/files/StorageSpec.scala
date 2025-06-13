@@ -1,21 +1,21 @@
 package ai.senscience.nexus.tests.kg.files
 
-import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.headers.{`If-None-Match`, Accept, ETag}
-import akka.util.ByteString
-import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes
 import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
 import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.config.ConfigLoader.*
-import FilesAssertions.expectFileContent
-import FileInput.*
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
 import ai.senscience.nexus.tests.config.StorageConfig
 import ai.senscience.nexus.tests.iam.types.Permission
+import ai.senscience.nexus.tests.kg.files.FilesAssertions.expectFileContent
+import ai.senscience.nexus.tests.kg.files.model.FileInput
+import ai.senscience.nexus.tests.kg.files.model.FileInput.*
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
+import akka.http.scaladsl.model.*
+import akka.http.scaladsl.model.headers.{Accept, ETag, `If-None-Match`}
+import akka.util.ByteString
+import cats.effect.IO
+import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import io.circe.optics.JsonPath.root

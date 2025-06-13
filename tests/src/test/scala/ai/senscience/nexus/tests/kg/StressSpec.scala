@@ -1,10 +1,10 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
-import akka.http.scaladsl.model.StatusCodes
-import cats.implicits.*
 import ai.senscience.nexus.tests.Identity.listings.Bob
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
+import akka.http.scaladsl.model.StatusCodes
+import cats.implicits.*
 import io.circe.Json
 
 class StressSpec extends BaseIntegrationSpec {

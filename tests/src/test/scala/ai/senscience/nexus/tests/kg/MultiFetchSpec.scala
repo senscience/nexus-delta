@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.kg
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.iam.types.Permission.Resources
+import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
+import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import io.circe.Json
 import org.scalatest.Assertion
 

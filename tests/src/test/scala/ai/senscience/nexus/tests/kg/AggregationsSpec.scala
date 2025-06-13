@@ -1,13 +1,13 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
-import ai.senscience.nexus.tests.admin.ProjectPayload
-import akka.http.scaladsl.model.StatusCodes
-import cats.syntax.all.*
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.aggregations.{Charlie, Rose}
+import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources, Views}
 import ai.senscience.nexus.tests.resources.SimpleResource
+import akka.http.scaladsl.model.StatusCodes
+import cats.syntax.all.*
 import io.circe.Json
 
 final class AggregationsSpec extends BaseIntegrationSpec {

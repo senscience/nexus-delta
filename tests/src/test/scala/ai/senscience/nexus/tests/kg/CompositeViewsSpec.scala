@@ -1,17 +1,17 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.tests.BaseIntegrationSpec
+import ai.senscience.nexus.tests.HttpClient.*
+import ai.senscience.nexus.tests.Identity.compositeviews.Jerry
+import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.admin.ProjectPayload
+import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Views}
+import ai.senscience.nexus.tests.kg.CompositeViewsSpec.{albumQuery, bandQuery}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ai.senscience.nexus.tests.HttpClient.*
-import ai.senscience.nexus.tests.Identity.compositeviews.Jerry
-import ai.senscience.nexus.tests.Optics.*
-import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Views}
-import CompositeViewsSpec.{albumQuery, bandQuery}
-import ai.senscience.nexus.tests.BaseIntegrationSpec
 import io.circe.Json
 import io.circe.optics.JsonPath.*
 import org.scalatest.Assertion

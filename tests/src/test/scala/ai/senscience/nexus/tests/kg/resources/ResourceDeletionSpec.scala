@@ -1,14 +1,14 @@
 package ai.senscience.nexus.tests.kg.resources
 
+import ai.senscience.nexus.tests.Identity.listings.Bob
+import ai.senscience.nexus.tests.Optics.listing._total
+import ai.senscience.nexus.tests.Optics.sparql
 import ai.senscience.nexus.tests.iam.types.Permission
 import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ai.senscience.nexus.tests.Identity.listings.Bob
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import ai.senscience.nexus.tests.Optics.listing._total
-import ai.senscience.nexus.tests.Optics.sparql
 import io.circe.Json
 import org.scalactic.source.Position
 

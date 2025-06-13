@@ -1,6 +1,16 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
+import ai.senscience.nexus.tests.HttpClient.jsonHeaders
+import ai.senscience.nexus.tests.Identity.resources.{Morty, Rick}
+import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
+import ai.senscience.nexus.tests.Optics.admin._constrainedBy
+import ai.senscience.nexus.tests.Optics.listing._total
+import ai.senscience.nexus.tests.Optics.{_rev, filterKey, filterMetadataKeys}
 import ai.senscience.nexus.tests.admin.ProjectPayload
+import ai.senscience.nexus.tests.iam.types.Permission.Resources
+import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics, SchemaPayload}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
@@ -10,16 +20,6 @@ import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ResourceMatchers.deprecated
-import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
-import ai.senscience.nexus.tests.HttpClient.jsonHeaders
-import ai.senscience.nexus.tests.Identity.resources.{Morty, Rick}
-import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics, SchemaPayload}
-import ai.senscience.nexus.tests.Optics.admin._constrainedBy
-import ai.senscience.nexus.tests.Optics.listing._total
-import ai.senscience.nexus.tests.Optics.{_rev, filterKey, filterMetadataKeys}
-import ai.senscience.nexus.tests.iam.types.Permission.Resources
-import ai.senscience.nexus.tests.resources.SimpleResource
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}

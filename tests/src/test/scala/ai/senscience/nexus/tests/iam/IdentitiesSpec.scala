@@ -1,8 +1,8 @@
 package ai.senscience.nexus.tests.iam
 
+import ai.senscience.nexus.tests.HttpClient.tokensMap
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
 import akka.http.scaladsl.model.StatusCodes
-import ai.senscience.nexus.tests.HttpClient.tokensMap
 import io.circe.Json
 
 class IdentitiesSpec extends BaseIntegrationSpec {

@@ -1,13 +1,13 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
+import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
+import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
 import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
-import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import io.circe.{Decoder, Json}
 import org.scalatest.Assertion
 

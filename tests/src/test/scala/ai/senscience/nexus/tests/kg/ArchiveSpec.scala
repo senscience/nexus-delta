@@ -1,18 +1,18 @@
 package ai.senscience.nexus.tests.kg
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
+import ai.senscience.nexus.tests.HttpClient.*
+import ai.senscience.nexus.tests.Identity.archives.Tweety
+import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.admin.ProjectPayload
+import ai.senscience.nexus.tests.iam.types.Permission.{Projects, Resources}
+import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{MediaRanges, MediaTypes, StatusCodes, Uri}
 import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
 import akka.util.ByteString
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import ch.epfl.bluebrain.nexus.test.archive.ArchiveHelpers
-import ai.senscience.nexus.tests.HttpClient.*
-import ai.senscience.nexus.tests.Identity.archives.Tweety
-import ai.senscience.nexus.tests.Optics.*
-import ai.senscience.nexus.tests.iam.types.Permission.{Projects, Resources}
-import ai.senscience.nexus.tests.resources.SimpleResource
 import io.circe.Json
 
 import java.nio.file.Paths

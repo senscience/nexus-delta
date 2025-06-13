@@ -1,8 +1,8 @@
 package ai.senscience.nexus.tests.resources
 
+import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
 import akka.http.scaladsl.model.StatusCodes
-import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 

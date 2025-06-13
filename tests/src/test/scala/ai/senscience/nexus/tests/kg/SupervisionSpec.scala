@@ -1,10 +1,10 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
-import akka.http.scaladsl.model.StatusCodes
 import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
 import ai.senscience.nexus.tests.Optics.{filterKeys, projections}
 import ai.senscience.nexus.tests.iam.types.Permission.Supervision
+import akka.http.scaladsl.model.StatusCodes
 import io.circe.*
 
 class SupervisionSpec extends BaseIntegrationSpec {

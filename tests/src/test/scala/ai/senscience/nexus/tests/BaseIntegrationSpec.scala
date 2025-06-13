@@ -1,6 +1,17 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.tests.BaseIntegrationSpec.*
+import ai.senscience.nexus.tests.HttpClient.*
+import ai.senscience.nexus.tests.Identity.*
+import ai.senscience.nexus.tests.admin.{AdminDsl, ProjectPayload}
+import ai.senscience.nexus.tests.config.ConfigLoader.*
+import ai.senscience.nexus.tests.config.TestsConfig
 import ai.senscience.nexus.tests.iam.types.Permission
+import ai.senscience.nexus.tests.iam.types.Permission.Organizations
+import ai.senscience.nexus.tests.iam.{AclDsl, PermissionDsl}
+import ai.senscience.nexus.tests.kg.ElasticSearchViewsDsl
+import ai.senscience.nexus.tests.kg.VersionSpec.VersionBundle
+import ai.senscience.nexus.tests.kg.files.StoragesDsl
 import akka.http.javadsl.model.headers.HttpCredentials
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.headers.*
@@ -14,17 +25,6 @@ import ch.epfl.bluebrain.nexus.testkit.*
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
-import BaseIntegrationSpec.*
-import HttpClient.*
-import Identity.*
-import ai.senscience.nexus.tests.config.ConfigLoader.*
-import Permission.Organizations
-import ai.senscience.nexus.tests.admin.{AdminDsl, ProjectPayload}
-import ai.senscience.nexus.tests.config.TestsConfig
-import ai.senscience.nexus.tests.iam.{AclDsl, PermissionDsl}
-import ai.senscience.nexus.tests.kg.ElasticSearchViewsDsl
-import ai.senscience.nexus.tests.kg.files.StoragesDsl
-import ai.senscience.nexus.tests.kg.VersionSpec.VersionBundle
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import org.scalactic.source.Position

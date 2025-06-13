@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.resources
 
-import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.resources.Rick
-import FileInput.CustomMetadata
+import ai.senscience.nexus.tests.kg.files.model.FileInput
+import ai.senscience.nexus.tests.kg.files.model.FileInput.CustomMetadata
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, Optics}
+import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
+import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import io.circe.Json
 
 class ResourceHistorySpec extends BaseIntegrationSpec {

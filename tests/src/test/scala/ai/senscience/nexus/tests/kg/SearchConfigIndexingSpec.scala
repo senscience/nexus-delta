@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.admin.ProjectPayload
+import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources}
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.implicits.*
-import ai.senscience.nexus.tests.Identity.resources.Rick
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources}
 import io.circe.Json
 import org.scalactic.source.Position
 import org.scalatest.Assertion

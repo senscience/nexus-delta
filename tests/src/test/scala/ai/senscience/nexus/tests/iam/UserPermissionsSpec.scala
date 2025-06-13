@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.iam
 
+import ai.senscience.nexus.tests.Identity.userPermissions.{UserWithNoPermissions, UserWithPermissions}
+import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission
+import ai.senscience.nexus.tests.iam.types.Permission.Resources
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
 import akka.http.scaladsl.model.StatusCodes
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ai.senscience.nexus.tests.Identity.userPermissions.{UserWithNoPermissions, UserWithPermissions}
-import Permission.Resources
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import ai.senscience.nexus.tests.admin.ProjectPayload
 import io.circe.Json
 import org.scalactic.source.Position
 

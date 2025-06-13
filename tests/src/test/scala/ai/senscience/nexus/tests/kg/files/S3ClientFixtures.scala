@@ -1,9 +1,9 @@
 package ai.senscience.nexus.tests.kg.files
 
-import cats.effect.IO
-import cats.syntax.all.*
 import ai.senscience.nexus.tests.config.ConfigLoader.*
 import ai.senscience.nexus.tests.config.StorageConfig
+import cats.effect.IO
+import cats.syntax.all.*
 import com.typesafe.config.ConfigFactory
 import eu.timepit.refined.types.all.NonEmptyString
 import fs2.Stream

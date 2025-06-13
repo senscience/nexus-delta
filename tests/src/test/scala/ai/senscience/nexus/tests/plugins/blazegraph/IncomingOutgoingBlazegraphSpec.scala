@@ -1,9 +1,9 @@
 package ai.senscience.nexus.tests.plugins.blazegraph
 
-import akka.http.scaladsl.model.StatusCodes
-import ai.senscience.nexus.tests.Identity.mash.Radar
-import IncomingOutgoingBlazegraphSpec.Reference
 import ai.senscience.nexus.tests.BaseIntegrationSpec
+import ai.senscience.nexus.tests.Identity.mash.Radar
+import ai.senscience.nexus.tests.plugins.blazegraph.IncomingOutgoingBlazegraphSpec.Reference
+import akka.http.scaladsl.model.StatusCodes
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.optics.JsonPath.root
 import io.circe.{Decoder, Json}

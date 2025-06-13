@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.schemas
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.Optics.filterNestedKeys
 import ai.senscience.nexus.tests.iam.types.Permission.Schemas
 import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
+import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
 
 final class SchemaValidationJobSpec extends BaseIntegrationSpec {

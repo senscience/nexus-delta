@@ -1,14 +1,14 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
-import akka.http.scaladsl.model.StatusCodes
-import cats.effect.IO
-import cats.effect.unsafe.implicits.*
-import cats.implicits.*
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.views.ScoobyDoo
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Views}
+import akka.http.scaladsl.model.StatusCodes
+import cats.effect.IO
+import cats.effect.unsafe.implicits.*
+import cats.implicits.*
 import io.circe.{ACursor, Json}
 import org.scalatest.Assertion
 

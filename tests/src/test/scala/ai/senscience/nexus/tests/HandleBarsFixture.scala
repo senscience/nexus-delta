@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.tests.Identity.Authenticated
 import ai.senscience.nexus.tests.config.TestsConfig
-import Identity.Authenticated
 
 /**
   * Utility methods for the handlebars templating

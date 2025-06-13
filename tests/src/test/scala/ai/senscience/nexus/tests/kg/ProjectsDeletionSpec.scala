@@ -1,14 +1,14 @@
 package ai.senscience.nexus.tests.kg
 
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
-import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.Identity.projects.{Bojack, PrincessCarolyn}
 import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
 import ai.senscience.nexus.tests.Optics.{_uuid, admin, listing, supervision}
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Projects, Resources}
+import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
+import akka.http.scaladsl.model.StatusCodes
+import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 

@@ -1,11 +1,11 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.tests.CacheAssertions.{expectConditionalCacheHeaders, expectNoConditionalCacheHeaders}
 import akka.http.scaladsl.coding.Coders
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.headers.*
 import akka.stream.Materializer
 import akka.util.ByteString
-import ai.senscience.nexus.tests.CacheAssertions.{expectConditionalCacheHeaders, expectNoConditionalCacheHeaders}
 import org.scalactic.source.Position
 import org.scalatest.*
 import org.scalatest.concurrent.ScalaFutures

@@ -1,5 +1,10 @@
 package ai.senscience.nexus.tests.admin
 
+import ai.senscience.nexus.tests.Identity.Authenticated
+import ai.senscience.nexus.tests.Identity.projects.{Bojack, PrincessCarolyn}
+import ai.senscience.nexus.tests.Identity.resources.Rick
+import ai.senscience.nexus.tests.Optics.*
+import ai.senscience.nexus.tests.{BaseIntegrationSpec, OpticsValidators}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{MediaRange, StatusCodes}
@@ -7,11 +12,6 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ProjectMatchers.deprecated
-import ai.senscience.nexus.tests.Identity.Authenticated
-import ai.senscience.nexus.tests.Identity.projects.{Bojack, PrincessCarolyn}
-import ai.senscience.nexus.tests.Identity.resources.Rick
-import ai.senscience.nexus.tests.Optics.*
-import ai.senscience.nexus.tests.{BaseIntegrationSpec, OpticsValidators}
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.scalactic.source.Position
