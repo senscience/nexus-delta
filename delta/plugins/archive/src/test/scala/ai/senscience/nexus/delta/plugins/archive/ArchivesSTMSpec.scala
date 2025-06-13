@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.ResourceReference
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveState, ArchiveValue, CreateArchive}
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceRepresentation.SourceJson
 import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User

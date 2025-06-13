@@ -607,7 +607,7 @@ lazy val storagePlugin = project
       kamonAkkaHttp % Provided
     ) ++ fs2Aws,
     buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ch.epfl.bluebrain.nexus.delta.plugins.storage",
+    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.storage",
     addCompilerPlugin(betterMonadicFor),
     addCompilerPlugin(kindProjector),
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases

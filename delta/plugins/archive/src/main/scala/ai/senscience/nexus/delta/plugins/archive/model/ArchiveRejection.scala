@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
+import ai.senscience.nexus.delta.plugins.storage.FileSelf
 import akka.http.scaladsl.model.StatusCodes
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.FileSelf
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileRejection
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection
+import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue

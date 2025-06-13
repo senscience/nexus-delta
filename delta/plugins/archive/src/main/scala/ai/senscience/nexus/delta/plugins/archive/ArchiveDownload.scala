@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound, WrappedFileRejection}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveReference, ArchiveValue, FullArchiveReference, Zip}
+import ai.senscience.nexus.delta.plugins.storage.FileSelf
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileId
 import akka.stream.alpakka.file.ArchiveMetadata
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -10,10 +12,9 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.FileSelf
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.FileSelf.ParsingError
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.Files
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.{FileId, FileRejection}
+import FileSelf.ParsingError
+import ai.senscience.nexus.delta.plugins.storage.files.Files
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection
 import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution

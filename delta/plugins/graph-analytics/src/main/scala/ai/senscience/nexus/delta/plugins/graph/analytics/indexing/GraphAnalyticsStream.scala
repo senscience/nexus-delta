@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.Files
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileState
+import ai.senscience.nexus.delta.plugins.storage.files.Files
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.sdk.resources.Resources
 import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.ResourceState

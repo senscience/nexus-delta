@@ -3,6 +3,10 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, ArchiveValue}
+import ai.senscience.nexus.delta.plugins.storage.{FileSelf, RemoteContextResolutionFixture}
+import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
+import ai.senscience.nexus.delta.plugins.storage.files.model.Digest
+import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.stream.scaladsl.Source
@@ -11,15 +15,12 @@ import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUri
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.FileSelf.ParsingError
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.generators.FileGen
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.model.{Digest, FileAttributes, MediaType}
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.schemas
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.StorageFixtures
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.storages.model.AbsolutePath
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.{FileSelf, RemoteContextResolutionFixture}
+import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
+import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, MediaType}
+import ai.senscience.nexus.delta.plugins.storage.files.schemas
+import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering

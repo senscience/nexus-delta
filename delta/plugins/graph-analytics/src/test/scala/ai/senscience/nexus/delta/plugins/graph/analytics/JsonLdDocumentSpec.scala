@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
+import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.storage.files.nxvFile
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
