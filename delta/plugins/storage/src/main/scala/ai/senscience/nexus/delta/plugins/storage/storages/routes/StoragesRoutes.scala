@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.routes
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.*
-import ai.senscience.nexus.delta.plugins.storage.storages.{Storages, StoragesStatistics, schemas}
+import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, Storages, StoragesStatistics}
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
 import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.server.*

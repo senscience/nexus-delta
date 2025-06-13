@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage
 
 import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, contexts as nxvContexts, schemas as nxvSchema}
+import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts as nxvContexts, nxv, schemas as nxvSchema}
 import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceF
 import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.resources
 import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission

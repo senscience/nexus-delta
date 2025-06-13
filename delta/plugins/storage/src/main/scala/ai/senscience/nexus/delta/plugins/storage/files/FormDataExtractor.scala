@@ -36,9 +36,9 @@ trait FormDataExtractor {
 }
 
 final case class UploadedFileInformation(
-                                          filename: String,
-                                          mediaType: Option[model.MediaType],
-                                          contents: FileData
+    filename: String,
+    mediaType: Option[model.MediaType],
+    contents: FileData
 )
 
 object FormDataExtractor {

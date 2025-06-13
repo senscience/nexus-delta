@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
-import ai.senscience.nexus.delta.plugins.storage.files.{Files, contexts, nxvFile}
+import ai.senscience.nexus.delta.plugins.storage.files.{contexts, nxvFile, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import cats.syntax.all.*
@@ -17,7 +17,7 @@ import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.IriEncoder
 import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
 import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.*
 import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.{SseEncoder, resourcesSelector}
+import ch.epfl.bluebrain.nexus.delta.sdk.sse.{resourcesSelector, SseEncoder}
 import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
 import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject

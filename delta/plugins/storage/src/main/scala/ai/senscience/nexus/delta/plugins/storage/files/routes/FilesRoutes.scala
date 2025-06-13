@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginException
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import akka.http.scaladsl.model.MediaRange
 import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.headers.{Accept, `Content-Length`}
+import akka.http.scaladsl.model.headers.{`Content-Length`, Accept}
 import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
 import cats.effect.IO

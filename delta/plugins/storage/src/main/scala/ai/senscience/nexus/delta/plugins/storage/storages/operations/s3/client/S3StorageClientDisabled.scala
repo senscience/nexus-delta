@@ -32,8 +32,8 @@ private[client] object S3StorageClientDisabled extends S3StorageClient {
   override def objectExists(bucket: String, key: String): IO[Boolean] = raiseDisabledErr
 
   override def uploadFile(
-                           putObjectRequest: s3.PutObjectRequest,
-                           data: FileData
+      putObjectRequest: s3.PutObjectRequest,
+      data: FileData
   ): IO[Unit] = raiseDisabledErr
 
   override def updateContentType(bucket: String, key: String, mediaType: MediaType): IO[S3OperationResult] =

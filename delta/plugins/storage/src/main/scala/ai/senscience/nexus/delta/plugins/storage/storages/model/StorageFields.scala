@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{Di
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.{JsonLdDecoder, Configuration as JsonLdConfiguration}
+import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.{Configuration as JsonLdConfiguration, JsonLdDecoder}
 import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder

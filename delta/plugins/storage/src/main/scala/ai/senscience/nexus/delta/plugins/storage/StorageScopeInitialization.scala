@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.ResourceAlreadyExists
-import ai.senscience.nexus.delta.plugins.storage.storages.{Storages, defaultS3StorageId, defaultStorageId}
+import ai.senscience.nexus.delta.plugins.storage.storages.{defaultS3StorageId, defaultStorageId, Storages}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent

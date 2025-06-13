@@ -47,8 +47,8 @@ trait S3StorageClient {
   ): IO[S3OperationResult]
 
   def uploadFile(
-                  put: s3.PutObjectRequest,
-                  fileData: FileData
+      put: s3.PutObjectRequest,
+      fileData: FileData
   ): IO[Unit]
 
   def updateContentType(bucket: String, key: String, media: MediaType): IO[S3OperationResult]

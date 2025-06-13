@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 
 import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.{DiskStorage, S3Storage}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{DiskStorageValue, S3StorageValue}
-import ai.senscience.nexus.delta.plugins.storage.storages.{StorageResource, schemas}
+import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, StorageResource}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 
 import ai.senscience.nexus.delta.plugins.storage.RemoteContextResolutionFixture
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.*
-import ai.senscience.nexus.delta.plugins.storage.storages.{StorageDecoderConfiguration, StorageFixtures, contexts}
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts, StorageDecoderConfiguration, StorageFixtures}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.Configuration

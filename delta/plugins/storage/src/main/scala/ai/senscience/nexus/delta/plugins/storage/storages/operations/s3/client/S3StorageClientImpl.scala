@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotAccessible
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
-import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, HeadObject, S3OperationResult, checksumAlgorithm}
+import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{checksumAlgorithm, CopyOptions, HeadObject, S3OperationResult}
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
@@ -170,8 +170,8 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
   }
 
   override def uploadFile(
-                           put: s3.PutObjectRequest,
-                           fileData: FileData
+      put: s3.PutObjectRequest,
+      fileData: FileData
   ): IO[Unit] =
     Stream
       .resource(fileData.toUnicastPublisher)

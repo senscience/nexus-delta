@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.model
 
-import ai.senscience.nexus.delta.plugins.storage.storages.{Storages, contexts, schemas}
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts, schemas, Storages}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
