@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.routes.SupervisionRoutes.{SupervisionBundle, allProjectsAreHealthy, healingSuccessfulResponse, unhealthyProjectsEncoder}
+import ai.senscience.nexus.delta.routes.SupervisionRoutes.{allProjectsAreHealthy, healingSuccessfulResponse, unhealthyProjectsEncoder, SupervisionBundle}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.*
 import cats.effect.IO

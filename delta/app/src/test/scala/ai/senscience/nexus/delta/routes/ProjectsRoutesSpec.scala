@@ -16,7 +16,7 @@ import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
 import ch.epfl.bluebrain.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ch.epfl.bluebrain.nexus.delta.sdk.organizations.model.Organization
 import ch.epfl.bluebrain.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.{resources, projects as projectsPermissions}
+import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.{projects as projectsPermissions, resources}
 import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
 import ch.epfl.bluebrain.nexus.delta.sdk.projects.ProjectScopeResolver.PermissionAccess
 import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.*

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
-import ai.senscience.nexus.delta.routes.VersionRoutes.{VersionBundle, emtyVersionBundle}
+import ai.senscience.nexus.delta.routes.VersionRoutes.{emtyVersionBundle, VersionBundle}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
