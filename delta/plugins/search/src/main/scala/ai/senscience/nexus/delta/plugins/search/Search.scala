@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
+import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.WrappedElasticSearchClientError
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSearchParams}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultViewId, SearchConfig}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.CompositeViews
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.indexing.projectionIndex
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.WrappedElasticSearchClientError
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSearchParams}
 import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck

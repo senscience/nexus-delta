@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewNotFound
+import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViews, CompositeViewsFixture, Fixtures}
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewNotFound
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.{CompositeViews, CompositeViewsFixture, Fixtures}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.delta.sdk.Defaults

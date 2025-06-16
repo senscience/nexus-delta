@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewAlreadyExists
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.CompositeViews
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewAlreadyExists
 import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.ServiceAccount
 import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri

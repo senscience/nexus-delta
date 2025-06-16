@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView
+import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeView
-import ch.epfl.bluebrain.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
