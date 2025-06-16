@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClient
 
 /**
   * Defines the operations to create and destroy the namespaces of a composite view

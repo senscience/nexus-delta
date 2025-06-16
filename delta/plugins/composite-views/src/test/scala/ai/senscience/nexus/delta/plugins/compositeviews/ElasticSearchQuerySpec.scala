@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, ex
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.model.permissions
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject

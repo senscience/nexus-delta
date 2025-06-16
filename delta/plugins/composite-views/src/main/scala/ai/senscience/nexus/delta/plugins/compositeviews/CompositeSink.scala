@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlQueryError
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{GraphResourceToNTriples, SparqlSink}
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.{BatchQueryGraph, SingleQueryGraph}
@@ -12,9 +15,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.error.HttpConnectivityError
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClient
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlQueryError
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.indexing.{GraphResourceToNTriples, SparqlSink}
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

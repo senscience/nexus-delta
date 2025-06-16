@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
@@ -15,7 +16,6 @@ import cats.effect.{IO, Ref}
 import cats.kernel.Semigroup
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTriples
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef, ViewRef}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef

@@ -534,7 +534,7 @@ lazy val blazegraphPlugin = project
     moduleName                 := "delta-blazegraph-plugin",
     libraryDependencies        += kamonAkkaHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ch.epfl.bluebrain.nexus.delta.plugins.blazegraph",
+    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.blazegraph",
     addCompilerPlugin(betterMonadicFor),
     assembly / assemblyJarName := "blazegraph.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),

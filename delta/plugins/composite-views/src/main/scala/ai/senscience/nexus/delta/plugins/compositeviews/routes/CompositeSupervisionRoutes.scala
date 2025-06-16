@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
+import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.supervision.CompositeViewsByNamespace
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClient
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck

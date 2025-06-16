@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
 import akka.http.scaladsl.model.MediaTypes.`text/html`
@@ -10,7 +11,6 @@ import akka.util.ByteString
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-query`
 import ch.epfl.bluebrain.nexus.akka.marshalling.{CirceMarshalling, RdfMediaTypes}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
