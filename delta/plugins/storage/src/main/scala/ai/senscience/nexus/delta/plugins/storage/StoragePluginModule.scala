@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage
 
+import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.plugins.storage.files.Files.FilesLog
 import ai.senscience.nexus.delta.plugins.storage.files.contexts.files as fileCtxId
 import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileEvent}
@@ -20,8 +22,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.metrics.MetricsIndexDef
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.delta.sdk.*

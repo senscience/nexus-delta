@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
+import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction
+import ai.senscience.nexus.delta.plugins.elasticsearch.client.Refresh.WaitFor
+import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{Edge, EdgePath, Node}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.Refresh.WaitFor
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schema
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax

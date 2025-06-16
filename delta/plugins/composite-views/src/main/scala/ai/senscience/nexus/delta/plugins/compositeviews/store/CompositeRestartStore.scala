@@ -14,8 +14,8 @@ import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
-import doobie.syntax.all.*
 import doobie.postgres.implicits.*
+import doobie.syntax.all.*
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 

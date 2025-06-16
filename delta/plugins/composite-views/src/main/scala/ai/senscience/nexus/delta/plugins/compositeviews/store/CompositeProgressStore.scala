@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeProgressS
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
 import cats.effect.{Clock, IO}
-import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef}
@@ -16,8 +15,8 @@ import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionProgress
 import doobie.*
-import doobie.syntax.all.*
 import doobie.postgres.implicits.*
+import doobie.syntax.all.*
 
 import java.time.Instant
 

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
-import cats.syntax.all.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.idTemplating
+import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery

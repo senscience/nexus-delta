@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.storage.statistics
 
+import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.{EventMetrics, EventMetricsIndex}
+import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
+import ai.senscience.nexus.delta.plugins.storage.statistics.StoragesStatisticsSuite.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesStatistics
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
-import ai.senscience.nexus.delta.plugins.storage.statistics.StoragesStatisticsSuite.*
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.metrics.{EventMetrics, EventMetricsIndex}
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.{Created, Deprecated, ProjectScopedMetric, TagDeleted, Tagged, Updated}

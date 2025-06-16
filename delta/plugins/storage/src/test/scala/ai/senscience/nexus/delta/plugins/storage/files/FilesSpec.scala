@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.storage.files
 import ai.senscience.nexus.delta.plugins.storage.RemoteContextResolutionFixture
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
