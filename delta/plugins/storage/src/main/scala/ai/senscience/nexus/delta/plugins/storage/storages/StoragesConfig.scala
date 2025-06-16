@@ -12,8 +12,8 @@ import org.http4s.Uri.Path
 import pureconfig.ConvertHelpers.optF
 import pureconfig.error.{CannotConvert, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto.*
-import pureconfig.{ConfigConvert, ConfigReader}
 import pureconfig.module.http4s.*
+import pureconfig.{ConfigConvert, ConfigReader}
 
 /**
   * Configuration for the Storages module.

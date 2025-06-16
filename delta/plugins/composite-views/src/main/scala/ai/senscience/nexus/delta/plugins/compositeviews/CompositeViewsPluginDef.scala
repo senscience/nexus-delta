@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
 import cats.effect.IO
-import ai.senscience.nexus.delta.plugins.compositeviews.BuildInfo
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ch.epfl.bluebrain.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import izumi.distage.model.Locator

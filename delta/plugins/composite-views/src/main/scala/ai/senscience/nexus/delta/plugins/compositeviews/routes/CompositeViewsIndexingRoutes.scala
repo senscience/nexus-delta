@@ -6,12 +6,12 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewRejection, ProjectionOffset, ProjectionStatistics}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.{ExpandId, FetchView}
+import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder

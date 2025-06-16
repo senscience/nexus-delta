@@ -514,7 +514,7 @@ lazy val elasticsearchPlugin = project
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     libraryDependencies        += kamonAkkaHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch",
+    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.elasticsearch",
     addCompilerPlugin(betterMonadicFor),
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},

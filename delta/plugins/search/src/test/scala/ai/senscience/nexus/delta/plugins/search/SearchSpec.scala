@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.ProjectSource
+import ai.senscience.nexus.delta.plugins.elasticsearch.Fixtures
+import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.plugins.search.Search.{ExecuteSearch, ListProjections, TargetProjection}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.Fixtures
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
-import ch.epfl.bluebrain.nexus.delta.plugins.elasticsearch.model.permissions
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery

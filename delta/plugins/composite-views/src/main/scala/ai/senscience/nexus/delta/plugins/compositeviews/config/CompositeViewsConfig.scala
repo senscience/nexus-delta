@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.config
 
-import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{BlazegraphAccess, RemoteSourceClientConfig, SourcesConfig}
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
+import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{BlazegraphAccess, RemoteSourceClientConfig, SourcesConfig}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlTarget
@@ -14,8 +14,8 @@ import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.error.CannotConvert
 import pureconfig.generic.auto.*
-import pureconfig.module.http4s.*
 import pureconfig.generic.semiauto.deriveReader
+import pureconfig.module.http4s.*
 import pureconfig.{ConfigReader, ConfigSource}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
