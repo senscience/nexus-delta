@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.supervision
 
+import ai.senscience.nexus.delta.plugins.blazegraph.supervision.ViewByNamespace
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.{commonNamespace, CompositeViewDef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.supervision.ViewByNamespace
 import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import fs2.Stream
 

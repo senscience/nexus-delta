@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
+import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClientError, SparqlQueryClient, SparqlQueryResponse}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.{ViewIsDeprecated, WrappedBlazegraphClientError}
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.{SparqlClientError, SparqlQueryClient, SparqlQueryResponse}
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
 import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment

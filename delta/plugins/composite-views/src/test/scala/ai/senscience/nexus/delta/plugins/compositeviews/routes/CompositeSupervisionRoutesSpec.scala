@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
+import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
 import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress

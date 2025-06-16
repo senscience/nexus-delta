@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
+import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.{commonNamespace, projectionNamespace}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
@@ -9,9 +12,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.Spa
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
 import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, expectIndexingView}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.model.permissions
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples

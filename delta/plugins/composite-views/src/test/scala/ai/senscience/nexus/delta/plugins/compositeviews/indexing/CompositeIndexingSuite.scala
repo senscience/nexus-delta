@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeIndexingSuite.{Album, Band, Music, Setup}
@@ -21,9 +24,6 @@ import cats.effect.{IO, Ref, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.SparqlClientSetup
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClient
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, rdf, rdfs, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph

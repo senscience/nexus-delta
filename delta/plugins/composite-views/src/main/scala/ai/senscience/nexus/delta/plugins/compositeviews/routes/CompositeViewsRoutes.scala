@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse
+import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewRejection, ViewResource}
@@ -11,8 +13,6 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering

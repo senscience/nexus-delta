@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.deletion.CompositeViewsDeletionTask
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphSt
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ch.epfl.bluebrain.nexus.delta.rdf.Triple
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.JsonLdOptions
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
