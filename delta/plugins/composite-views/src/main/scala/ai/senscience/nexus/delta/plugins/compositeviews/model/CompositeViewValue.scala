@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.RebuildStrategy
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import cats.data.NonEmptyMap
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.views.IndexingRev
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.{Codec, Decoder, Encoder}
@@ -53,7 +53,7 @@ object CompositeViewValue {
       deriveConfiguredCodec[CompositeViewSource]
 
     // No need to repeat the key (as it is included in the value) in the json result so we just encode the value
-    import ch.epfl.bluebrain.nexus.delta.sdk.circe.nonEmptyMap.*
+    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.*
 
     // Decoding and extracting the id/key back from the value
     implicit val nonEmptyMapProjectionDecoder: Decoder[NonEmptyMap[Iri, CompositeViewProjection]] =

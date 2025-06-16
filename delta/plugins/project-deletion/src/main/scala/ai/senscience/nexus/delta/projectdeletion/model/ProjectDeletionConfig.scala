@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.projectdeletion.model
 
+import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.HttpResponseFields
 import io.circe.{Encoder, Json, JsonObject}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert

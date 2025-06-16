@@ -1,17 +1,17 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
 import ai.senscience.nexus.delta.plugins.blazegraph.client.*
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.{commonNamespace, projectionNamespace}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.SparqlProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.WrappedBlazegraphClientError
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait BlazegraphQuery {

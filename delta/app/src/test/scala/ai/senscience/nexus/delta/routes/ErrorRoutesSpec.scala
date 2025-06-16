@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.BaseRouteSpec
 
 class ErrorRoutesSpec extends BaseRouteSpec {
 

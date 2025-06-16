@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.deletion
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.deletion.EventMetricsDeletionTask.report
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.EventMetrics
+import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
+import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ch.epfl.bluebrain.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef}
 
 /**

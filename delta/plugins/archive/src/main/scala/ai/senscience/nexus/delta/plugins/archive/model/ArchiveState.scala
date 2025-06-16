@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
 import ai.senscience.nexus.delta.plugins.archive.model
+import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF, ResourceRepresentation}
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.instances.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{ResourceAccess, ResourceF, ResourceRepresentation}
 import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}

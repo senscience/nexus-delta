@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalytics
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.plugins.storage.files.Files
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileState
+import ai.senscience.nexus.delta.sdk.resources.Resources
+import ai.senscience.nexus.delta.sdk.resources.model.ResourceState
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.Resources
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.ResourceState
 import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset

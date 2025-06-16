@@ -3,28 +3,28 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.Main.pluginsMinPriority
 import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.routes.ResourcesRoutes
+import ai.senscience.nexus.delta.sdk.*
+import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
+import ai.senscience.nexus.delta.sdk.projects.FetchContext
+import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
+import ai.senscience.nexus.delta.sdk.resolvers.{ResolverContextResolution, Resolvers, ResourceResolution}
+import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceDefinition, ResourceLog}
+import ai.senscience.nexus.delta.sdk.resources.*
+import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceEvent}
+import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
+import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.*
-import ch.epfl.bluebrain.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.FetchContext
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ApiMappings
-import ch.epfl.bluebrain.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.resolvers.{ResolverContextResolution, Resolvers, ResourceResolution}
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.*
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.Resources.{ResourceDefinition, ResourceLog}
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.{Resource, ResourceEvent}
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.FetchSchema
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.model.Schema
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.SseEncoder
 import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import izumi.distage.model.definition.{Id, ModuleDef}
 

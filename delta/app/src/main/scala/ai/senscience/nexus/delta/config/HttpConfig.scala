@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.config
 
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.*
 

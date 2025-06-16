@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.plugins.search.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.InvalidSparqlConstructQuery
+import ai.senscience.nexus.delta.sdk.Defaults
 import ch.epfl.bluebrain.nexus.delta.kernel.error.LoadFileError.{InvalidJson, UnaccessibleFile}
-import ch.epfl.bluebrain.nexus.delta.sdk.Defaults
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.ConfigFactory

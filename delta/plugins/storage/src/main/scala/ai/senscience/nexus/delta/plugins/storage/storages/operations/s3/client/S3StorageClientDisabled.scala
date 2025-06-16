@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, HeadObject, S3OperationResult}
+import ai.senscience.nexus.delta.sdk.FileData
+import ai.senscience.nexus.delta.sdk.error.ServiceError.FeatureDisabled
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.FeatureDisabled
 import fs2.Stream
 import software.amazon.awssdk.services.s3.model.*
 

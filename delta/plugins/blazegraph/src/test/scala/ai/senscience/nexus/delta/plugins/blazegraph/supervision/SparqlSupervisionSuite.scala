@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture

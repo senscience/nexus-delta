@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFile
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFile.{DiskUploadingFile, S3UploadingFile}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.S3FileOperations
+import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 import java.util.UUID

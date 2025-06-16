@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.{Bindings, Head}
+import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-results+json`
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.instances.*
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.RdfMarshalling
 import io.circe.generic.auto.*
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*

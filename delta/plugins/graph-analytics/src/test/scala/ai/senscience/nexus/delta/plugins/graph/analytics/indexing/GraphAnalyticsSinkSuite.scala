@@ -5,12 +5,12 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.Index
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
+import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
+import ai.senscience.nexus.delta.sdk.resources.Resources
+import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sdk.model.jsonld.RemoteContextRef
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.Resources
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset

@@ -4,6 +4,17 @@ import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.routes.ErrorRoutes
+import ai.senscience.nexus.delta.sdk.*
+import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
+import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
+import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.plugin.PluginDef
+import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ScopeInitializationErrorStore}
+import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning
 import akka.actor.{ActorSystem, BootstrapSetup}
 import akka.http.scaladsl.model.HttpMethods.*
 import akka.http.scaladsl.model.headers.Location
@@ -16,17 +27,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFu
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.*
-import ch.epfl.bluebrain.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclProvisioning
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.ServiceAccount
-import ch.epfl.bluebrain.nexus.delta.sdk.jws.JWSPayloadHelper
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.*
-import ch.epfl.bluebrain.nexus.delta.sdk.plugin.PluginDef
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.{ProjectsConfig, ScopeInitializationErrorStore}
-import ch.epfl.bluebrain.nexus.delta.sdk.realms.RealmProvisioning
 import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner

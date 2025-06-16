@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
 

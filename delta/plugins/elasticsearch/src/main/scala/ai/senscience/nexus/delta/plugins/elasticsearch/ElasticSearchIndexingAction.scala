@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.{ElasticSearchSink, IndexingViewDef}
+import ai.senscience.nexus.delta.sdk.IndexingAction
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.IndexingAction
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tag}
 import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*

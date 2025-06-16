@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.sdk.plugin.Plugin
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.plugin.Plugin
 
 object BlazegraphPlugin extends Plugin {
 

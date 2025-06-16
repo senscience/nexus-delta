@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.BulkResponse.Mixed
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.Refresh.WaitFor
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError}
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.ScoredResultEntry
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults.ScoredSearchResults
+import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, Sort, SortList}
+import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.ResultEntry.ScoredResultEntry
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.SearchResults.ScoredSearchResults
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.{SearchResults, Sort, SortList}
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.elasticsearch.ElasticSearchContainer
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig

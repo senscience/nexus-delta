@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.{DiskSto
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm, Storage}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection.FileContentLengthIsMissing
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
+import ai.senscience.nexus.delta.sdk.FileData
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 /**

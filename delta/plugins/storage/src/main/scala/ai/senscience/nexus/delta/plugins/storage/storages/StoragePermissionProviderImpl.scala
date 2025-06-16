@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
+import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
+import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider
+import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType.{Read, Write}
+import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegmentRef
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.StoragePermissionProvider
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType.{Read, Write}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 class StoragePermissionProviderImpl(storages: Storages) extends StoragePermissionProvider {

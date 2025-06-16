@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainProjectTargetAlias
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.WrappedElasticSearchClientError
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject}

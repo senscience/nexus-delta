@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.client
 
+import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import org.http4s.AuthScheme
 import org.http4s.Credentials.Token
 import org.http4s.client.Client

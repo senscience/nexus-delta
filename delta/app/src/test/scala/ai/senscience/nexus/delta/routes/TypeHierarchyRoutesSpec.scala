@@ -1,19 +1,19 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.sdk.TypeHierarchyResource
+import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
+import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy
+import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
+import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.TypeHierarchyDoesNotExist
+import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeHierarchyModel, TypeHierarchyState}
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sdk.TypeHierarchyResource
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.IdentitiesDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.typehierarchy
-import ch.epfl.bluebrain.nexus.delta.sdk.typehierarchy.TypeHierarchy
-import ch.epfl.bluebrain.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
-import ch.epfl.bluebrain.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.TypeHierarchyDoesNotExist
-import ch.epfl.bluebrain.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeHierarchyModel, TypeHierarchyState}
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.BaseRouteSpec
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
 import io.circe.syntax.EncoderOps

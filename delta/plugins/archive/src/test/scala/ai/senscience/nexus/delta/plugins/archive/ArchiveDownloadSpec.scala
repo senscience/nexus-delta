@@ -3,10 +3,28 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, ArchiveValue}
-import ai.senscience.nexus.delta.plugins.storage.{FileSelf, RemoteContextResolutionFixture}
+import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
-import ai.senscience.nexus.delta.plugins.storage.files.model.Digest
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
+import ai.senscience.nexus.delta.plugins.storage.files.model.{Digest, FileAttributes, MediaType}
+import ai.senscience.nexus.delta.plugins.storage.files.schemas
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
+import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.plugins.storage.{FileSelf, RemoteContextResolutionFixture}
+import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.FileResponse
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.generators.ProjectGen
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.{CompactedJsonLd, Dot, ExpandedJsonLd, NQuads, NTriples, SourceJson}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.stream.scaladsl.Source
@@ -15,28 +33,9 @@ import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUri
-import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
-import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, MediaType}
-import ai.senscience.nexus.delta.plugins.storage.files.schemas
-import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.FileResponse
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.FileResponse.AkkaSource
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ch.epfl.bluebrain.nexus.delta.sdk.generators.ProjectGen
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.JsonLdContent
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceRepresentation.{CompactedJsonLd, Dot, ExpandedJsonLd, NQuads, NTriples, SourceJson}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ApiMappings
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}

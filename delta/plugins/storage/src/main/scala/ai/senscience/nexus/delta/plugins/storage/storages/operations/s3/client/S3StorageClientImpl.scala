@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotAccessible
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{checksumAlgorithm, CopyOptions, HeadObject, S3OperationResult}
+import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
 import eu.timepit.refined.refineMV
 import eu.timepit.refined.types.string.NonEmptyString
 import fs2.Stream

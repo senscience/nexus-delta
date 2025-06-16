@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.config
 
+import ai.senscience.nexus.delta.sdk.model.Name
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.Name
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.deriveReader

@@ -3,25 +3,25 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.routes.ProjectsRoutes
+import ai.senscience.nexus.delta.sdk.*
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.acls.model.FlattenedAclStore
+import ai.senscience.nexus.delta.sdk.deletion.{ProjectDeletionCoordinator, ProjectDeletionTask}
+import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
+import ai.senscience.nexus.delta.sdk.projects.*
+import ai.senscience.nexus.delta.sdk.projects.job.ProjectHealthJob
+import ai.senscience.nexus.delta.sdk.projects.model.*
+import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.*
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.FlattenedAclStore
-import ch.epfl.bluebrain.nexus.delta.sdk.deletion.{ProjectDeletionCoordinator, ProjectDeletionTask}
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.ServiceAccount
-import ch.epfl.bluebrain.nexus.delta.sdk.model.*
-import ch.epfl.bluebrain.nexus.delta.sdk.organizations.FetchActiveOrganization
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.*
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.job.ProjectHealthJob
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.*
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.SseEncoder
 import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
 import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
 import ch.epfl.bluebrain.nexus.delta.sourcing.projections.ProjectLastUpdateStore

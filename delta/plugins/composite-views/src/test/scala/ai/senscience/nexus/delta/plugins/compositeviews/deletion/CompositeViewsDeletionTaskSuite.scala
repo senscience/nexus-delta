@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.compositeviews.deletion
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsFixture
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite

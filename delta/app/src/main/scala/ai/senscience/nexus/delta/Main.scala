@@ -4,6 +4,10 @@ import ai.senscience.nexus.delta.config.{AppConfig, BuildInfo, StrictEntity}
 import ai.senscience.nexus.delta.otel.OpenTelemetryInit
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.plugin.{PluginsLoader, WiringInitializer}
+import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.error.PluginError.PluginInitializationError
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import ai.senscience.nexus.delta.wiring.DeltaModule
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -14,10 +18,6 @@ import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMonitoring
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.IOFuture
-import ch.epfl.bluebrain.nexus.delta.sdk.PriorityRoute
-import ch.epfl.bluebrain.nexus.delta.sdk.error.PluginError.PluginInitializationError
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.DatabaseConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
@@ -127,7 +127,7 @@ object Main extends IOApp {
 
   private def routes(locator: Locator, clusterConfig: ClusterConfig): Route = {
     import akka.http.scaladsl.server.Directives.*
-    import ch.epfl.bluebrain.nexus.delta.sdk.directives.UriDirectives.*
+    import sdk.directives.UriDirectives.*
     val nodeHeader = RawHeader("X-Delta-Node", clusterConfig.nodeIndex.toString)
     respondWithHeader(nodeHeader) {
       cors(locator.get[CorsSettings]) {

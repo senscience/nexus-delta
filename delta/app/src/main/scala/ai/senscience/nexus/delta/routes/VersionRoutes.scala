@@ -2,6 +2,15 @@ package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.routes.VersionRoutes.{emtyVersionBundle, VersionBundle}
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, Name}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.version
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
@@ -11,15 +20,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.AuthDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaDirectives.*
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{BaseUri, Name}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.version
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

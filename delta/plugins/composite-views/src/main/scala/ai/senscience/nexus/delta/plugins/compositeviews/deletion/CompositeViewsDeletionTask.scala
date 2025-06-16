@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.deletion.CompositeViewsDeletionTask.{init, logger}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
+import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ch.epfl.bluebrain.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import fs2.Stream

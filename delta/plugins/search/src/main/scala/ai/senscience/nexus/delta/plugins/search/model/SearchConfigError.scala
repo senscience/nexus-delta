@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
-import ch.epfl.bluebrain.nexus.delta.sdk.error.SDKError
+import ai.senscience.nexus.delta.sdk.error.SDKError
 import pureconfig.error.ConfigReaderFailures
 
 import java.nio.file.Path

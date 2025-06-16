@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.InvalidResourceCollection
+import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import cats.data.NonEmptySet
 import cats.implicits.*
-import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder

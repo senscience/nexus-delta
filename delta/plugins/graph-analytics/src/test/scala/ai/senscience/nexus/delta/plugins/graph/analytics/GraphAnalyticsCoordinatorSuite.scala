@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.graph.analytics
 import ai.senscience.nexus.delta.plugins.graph.analytics.GraphAnalyticsCoordinator.ProjectDef
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.Noop
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{GraphAnalyticsResult, GraphAnalyticsStream}
+import ai.senscience.nexus.delta.sdk.projects.Projects
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.Projects
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*

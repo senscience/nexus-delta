@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import fs2.Stream
 
 /**

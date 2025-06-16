@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MainIndexingCoordinator.mainIndexingPipeline
+import ai.senscience.nexus.delta.sdk.IndexingAction
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.IndexingAction
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset.Start
 import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
