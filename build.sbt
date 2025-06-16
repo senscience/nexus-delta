@@ -556,7 +556,7 @@ lazy val compositeViewsPlugin = project
     moduleName                 := "delta-composite-views-plugin",
     libraryDependencies       ++= Seq(kamonAkkaHttp % Provided) ++ http4sServerTest,
     buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ch.epfl.bluebrain.nexus.delta.plugins.compositeviews",
+    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.compositeviews",
     addCompilerPlugin(betterMonadicFor),
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
     assembly / assemblyJarName := "composite-views.jar",
