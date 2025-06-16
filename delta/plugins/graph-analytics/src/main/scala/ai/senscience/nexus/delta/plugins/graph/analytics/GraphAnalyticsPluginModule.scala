@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClien
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStream
 import ai.senscience.nexus.delta.plugins.graph.analytics.routes.GraphAnalyticsRoutes
+import ai.senscience.nexus.delta.sdk.*
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.*
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.model.*
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
 import ch.epfl.bluebrain.nexus.delta.sourcing.projections.Projections
 import ch.epfl.bluebrain.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}

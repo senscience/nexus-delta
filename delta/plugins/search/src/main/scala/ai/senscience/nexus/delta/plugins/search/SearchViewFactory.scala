@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewFiel
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultSourceId}
+import ai.senscience.nexus.delta.sdk.Defaults
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.sdk.Defaults
 object SearchViewFactory {
 
   private val searchGroup = Some(IndexGroup.unsafe("search"))

@@ -4,6 +4,16 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution.ResolutionRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution.ResolutionResult.{MultipleResults, SingleResult}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
+import ai.senscience.nexus.delta.sdk.model.ResourceF.*
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
+import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
+import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
@@ -12,16 +22,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.JsonLdContent
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.HttpResponseFields
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceF.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.{SearchResults, SortList}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{BaseUri, ResourceF}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.resources
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.ProjectScopeResolver
 import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.JsonObject

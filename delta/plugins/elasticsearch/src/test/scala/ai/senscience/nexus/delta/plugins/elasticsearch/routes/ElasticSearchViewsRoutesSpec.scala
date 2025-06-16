@@ -3,6 +3,16 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions as esPermissions
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.model.ResourceAccess
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
+import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.*
+import ai.senscience.nexus.delta.sdk.views.ElasticSearchViewErrors.*
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
@@ -13,16 +23,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceAccess
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.events
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
-import ch.epfl.bluebrain.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.ResourceErrors.*
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ElasticSearchViewErrors.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PipeChain
 import io.circe.{Json, JsonObject}

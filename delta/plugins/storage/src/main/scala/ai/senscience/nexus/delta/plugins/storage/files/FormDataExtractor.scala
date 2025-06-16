@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.{FileTooLarge, InvalidMultipartFieldName, WrappedAkkaRejection}
+import ai.senscience.nexus.delta.sdk.stream.StreamConverter
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.*
@@ -15,7 +16,6 @@ import akka.util.ByteString
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.NotARejection
-import ch.epfl.bluebrain.nexus.delta.sdk.stream.StreamConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 

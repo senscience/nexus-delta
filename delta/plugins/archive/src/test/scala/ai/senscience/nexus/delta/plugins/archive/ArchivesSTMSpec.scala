@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.ResourceReference
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveState, ArchiveValue, CreateArchive}
-import cats.data.NonEmptySet
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceRepresentation.SourceJson
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.SourceJson
+import ai.senscience.nexus.delta.sdk.syntax.*
+import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec

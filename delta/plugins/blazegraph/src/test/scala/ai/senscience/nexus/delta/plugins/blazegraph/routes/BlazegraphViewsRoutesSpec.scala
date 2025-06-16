@@ -5,6 +5,15 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClientDum
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewNotFound
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, ResourceAccess}
+import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.resourceAlreadyExistsError
+import ai.senscience.nexus.delta.sdk.views.BlazegraphViewErrors.*
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
@@ -18,15 +27,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.SearchResults
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{IdSegment, ResourceAccess}
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.FetchContextDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.ResourceErrors.resourceAlreadyExistsError
-import ch.epfl.bluebrain.nexus.delta.sdk.views.BlazegraphViewErrors.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 import io.circe.syntax.*

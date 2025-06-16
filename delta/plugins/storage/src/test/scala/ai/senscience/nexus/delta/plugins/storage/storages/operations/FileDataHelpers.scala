@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations
 
+import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
 import fs2.Stream
 
 import java.nio.ByteBuffer

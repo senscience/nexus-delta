@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.plugins.compositeviews.config
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{BlazegraphAccess, RemoteSourceClientConfig, SourcesConfig}
+import ai.senscience.nexus.delta.sdk.auth
+import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.auth
-import ch.epfl.bluebrain.nexus.delta.sdk.instances.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.PaginationConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import com.typesafe.config.Config

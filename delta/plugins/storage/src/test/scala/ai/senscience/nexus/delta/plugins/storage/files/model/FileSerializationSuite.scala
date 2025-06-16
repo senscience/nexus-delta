@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.DiskStorage as DiskStorageType
+import ai.senscience.nexus.delta.sdk.SerializationSuite
+import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
+import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.SerializationSuite
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.*
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.SseEncoder.SseData
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}

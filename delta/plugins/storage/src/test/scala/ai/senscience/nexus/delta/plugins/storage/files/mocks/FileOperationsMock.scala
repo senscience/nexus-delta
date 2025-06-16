@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFi
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileOperations, S3LocationGenerator}
+import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sdk.FileData
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import org.http4s.Uri
 import org.http4s.Uri.Path

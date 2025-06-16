@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.model
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
+import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sdk.views.{PipeStep, ViewRef}
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sdk.views.{PipeStep, ViewRef}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef, Tags}
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.*

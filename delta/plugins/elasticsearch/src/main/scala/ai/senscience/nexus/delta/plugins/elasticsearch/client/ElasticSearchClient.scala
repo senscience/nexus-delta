@@ -2,6 +2,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
+import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
+import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
@@ -12,10 +16,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import io.circe.*
 import io.circe.literal.*
 import io.circe.syntax.*

@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.storage
 
 import ai.senscience.nexus.delta.plugins.storage.files.FilesConfig
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig
+import ai.senscience.nexus.delta.sdk.Defaults
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sdk.Defaults
 import com.typesafe.config.Config
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.{ConfigReader, ConfigSource}

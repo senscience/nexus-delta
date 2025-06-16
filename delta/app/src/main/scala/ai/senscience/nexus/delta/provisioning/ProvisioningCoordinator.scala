@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.provisioning
 
+import ai.senscience.nexus.delta.sdk.ProvisioningAction
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sdk.ProvisioningAction
 
 trait ProvisioningCoordinator
 

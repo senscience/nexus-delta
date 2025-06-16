@@ -2,14 +2,14 @@ package ai.senscience.nexus.delta.plugins.search
 
 import ai.senscience.nexus.delta.plugins.search.SearchRoutesSpec.{name, projects}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
+import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.IdentitiesDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.BaseRouteSpec
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}

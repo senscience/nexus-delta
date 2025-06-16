@@ -2,6 +2,11 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
+import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
+import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Directives.*
@@ -9,11 +14,6 @@ import akka.http.scaladsl.server.Route
 import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.{Sort, SortList}
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.RouteHelpers
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}

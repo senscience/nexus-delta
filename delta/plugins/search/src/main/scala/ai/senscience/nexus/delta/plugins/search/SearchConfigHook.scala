@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewFields
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
+import ai.senscience.nexus.delta.sdk.Defaults
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sdk.Defaults
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 
 final class SearchConfigHook(

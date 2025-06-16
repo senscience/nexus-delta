@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.deletion
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter

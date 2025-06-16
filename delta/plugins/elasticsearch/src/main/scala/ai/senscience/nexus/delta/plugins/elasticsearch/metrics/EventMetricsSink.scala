@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MarkElems
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.EventMetricsSink.empty
+import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink

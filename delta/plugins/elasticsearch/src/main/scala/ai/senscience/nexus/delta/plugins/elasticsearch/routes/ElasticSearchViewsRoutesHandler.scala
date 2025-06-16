@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.schema
+import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.http.scaladsl.server.Directives.concat
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
 
 /**
   * Transforms the incoming request to consume the baseUri prefix and rewrite the generic resource endpoint

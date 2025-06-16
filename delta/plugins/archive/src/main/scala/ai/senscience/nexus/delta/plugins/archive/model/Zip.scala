@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
+import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
 import akka.NotUsed
 import akka.http.scaladsl.model.{ContentType, MediaTypes}
 import akka.http.scaladsl.server.Directive
@@ -8,7 +9,6 @@ import akka.stream.alpakka.file.ArchiveMetadata
 import akka.stream.alpakka.file.scaladsl.Archive
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.HeadersUtils
 
 /**
   * Zip archive format

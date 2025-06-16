@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.*
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction.Index
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{BulkResponse, ElasticSearchClient, QueryBuilder, Refresh}
+import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
-import ch.epfl.bluebrain.nexus.delta.sdk.model.search.SearchResults
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.JsonObject
 import io.circe.literal.JsonStringContext

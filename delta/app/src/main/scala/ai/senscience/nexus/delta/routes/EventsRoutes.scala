@@ -1,21 +1,21 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, lastEventId}
+import ai.senscience.nexus.delta.sdk.directives.UriDirectives.*
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
+import ai.senscience.nexus.delta.sdk.sse.SseEventLog
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.AuthDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaDirectives.{emit, lastEventId}
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.UriDirectives.*
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.organizations.model.OrganizationRejection
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.events
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ProjectRejection
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.SseEventLog
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 /**

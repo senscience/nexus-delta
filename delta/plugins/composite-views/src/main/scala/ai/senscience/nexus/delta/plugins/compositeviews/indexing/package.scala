@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
-import ch.epfl.bluebrain.nexus.delta.sdk.views.IndexingRev
+import ai.senscience.nexus.delta.sdk.views.IndexingRev
 
 import java.util.UUID
 

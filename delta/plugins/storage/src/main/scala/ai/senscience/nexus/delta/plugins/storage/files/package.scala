@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.storage
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.File
+import ai.senscience.nexus.delta.sdk.model.ResourceF
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
+import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts as nxvContexts, nxv, schemas as nxvSchema}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceF
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.resources
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
 import fs2.Stream
 
 import java.nio.ByteBuffer

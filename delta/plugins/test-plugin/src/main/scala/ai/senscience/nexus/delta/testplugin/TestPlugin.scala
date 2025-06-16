@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.testplugin
 
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.plugin.Plugin
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.plugin.Plugin
 
 import scala.annotation.nowarn
 

@@ -2,14 +2,14 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.routes.MultiFetchRoutes
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.multifetch.MultiFetch
+import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest
+import ai.senscience.nexus.delta.sdk.{PriorityRoute, ResourceShifts}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.multifetch.MultiFetch
-import ch.epfl.bluebrain.nexus.delta.sdk.multifetch.model.MultiFetchRequest
-import ch.epfl.bluebrain.nexus.delta.sdk.{PriorityRoute, ResourceShifts}
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
 

@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MainIndexingCoordinator.ProjectDef
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.Projects
-import ch.epfl.bluebrain.nexus.delta.sdk.stream.GraphResourceStream
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter

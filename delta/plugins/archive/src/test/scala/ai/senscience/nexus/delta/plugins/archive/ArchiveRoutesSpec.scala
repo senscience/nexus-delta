@@ -1,9 +1,31 @@
 package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.plugins.archive.routes.ArchiveRoutes
+import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
+import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
+import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileAttributes, MediaType}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FilesRoutesSpec
+import ai.senscience.nexus.delta.plugins.storage.files.schemas
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
+import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
+import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.FileResponse
+import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.generators.ProjectGen
+import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
+import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.MediaTypes.`application/zip`
@@ -16,32 +38,10 @@ import cats.effect.IO
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{StatefulUUIDF, UUIDF}
-import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
-import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
-import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileAttributes, MediaType}
-import ai.senscience.nexus.delta.plugins.storage.files.schemas
-import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.FileResponse
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ch.epfl.bluebrain.nexus.delta.sdk.generators.ProjectGen
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.IdentitiesDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.JsonLdContent
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.FetchContextDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ApiMappings
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.BaseRouteSpec
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.EphemeralLogConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.*
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest

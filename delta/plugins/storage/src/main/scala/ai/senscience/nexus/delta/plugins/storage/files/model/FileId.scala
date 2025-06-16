@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileId.iriExpander
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.InvalidFileId
+import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.ExpandIri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ProjectContext
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 

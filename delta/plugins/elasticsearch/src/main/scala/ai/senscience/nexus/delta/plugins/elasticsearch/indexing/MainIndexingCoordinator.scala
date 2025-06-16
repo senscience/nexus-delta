@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
+import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.Projects
-import ch.epfl.bluebrain.nexus.delta.sdk.stream.GraphResourceStream
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter

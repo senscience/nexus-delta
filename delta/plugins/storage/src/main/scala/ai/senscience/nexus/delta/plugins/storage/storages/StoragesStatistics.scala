@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.storage.storages
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel}
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.literal.*
 import io.circe.{DecodingFailure, JsonObject}

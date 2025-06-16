@@ -4,7 +4,23 @@ import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileRef
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound, WrappedFileRejection}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveReference, ArchiveValue, FullArchiveReference, Zip}
 import ai.senscience.nexus.delta.plugins.storage.FileSelf
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileId
+import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
+import ai.senscience.nexus.delta.plugins.storage.files.Files
+import ai.senscience.nexus.delta.plugins.storage.files.model.{FileId, FileRejection}
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.FileResponse
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.directives.Response.Complete
+import ai.senscience.nexus.delta.sdk.error.SDKError
+import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.marshalling.OriginalSource
+import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.*
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
+import ai.senscience.nexus.delta.sdk.{JsonLdValue, ResourceShifts}
 import akka.stream.alpakka.file.ArchiveMetadata
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -12,28 +28,11 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import FileSelf.ParsingError
-import ai.senscience.nexus.delta.plugins.storage.files.Files
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection
 import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.model.AclAddress
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.FileResponse
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.FileResponse.AkkaSource
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.Response.Complete
-import ch.epfl.bluebrain.nexus.delta.sdk.error.SDKError
-import ch.epfl.bluebrain.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.jsonld.JsonLdContent
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.OriginalSource
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ResourceRepresentation.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.resources
-import ch.epfl.bluebrain.nexus.delta.sdk.{JsonLdValue, ResourceShifts}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, Printer}

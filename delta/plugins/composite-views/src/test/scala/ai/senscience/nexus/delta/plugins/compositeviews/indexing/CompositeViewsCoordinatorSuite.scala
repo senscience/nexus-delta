@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsFixture
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.util.UUID

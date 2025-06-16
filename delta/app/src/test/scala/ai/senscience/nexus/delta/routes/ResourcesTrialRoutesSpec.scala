@@ -1,27 +1,27 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.GenerateSchema
+import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.generators.SchemaGen
+import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sdk.resources.ValidationResult.*
+import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{ReservedResourceId, ResourceNotFound}
+import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
+import ai.senscience.nexus.delta.sdk.resources.*
+import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.*
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclSimpleCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.generators.SchemaGen
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.IdentitiesDummy
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.*
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.ValidationResult.*
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.ResourceRejection.{ReservedResourceId, ResourceNotFound}
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.model.Schema
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.model.SchemaRejection.*
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.BaseRouteSpec
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Revision
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 

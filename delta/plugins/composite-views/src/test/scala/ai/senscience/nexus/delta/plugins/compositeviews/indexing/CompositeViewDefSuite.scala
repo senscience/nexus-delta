@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsFixture
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeGraphStream
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource

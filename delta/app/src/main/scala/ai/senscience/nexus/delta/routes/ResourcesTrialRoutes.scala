@@ -2,6 +2,20 @@ package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.SchemaInput.{ExistingSchema, NewSchema}
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.{GenerateSchema, GenerationInput}
+import ai.senscience.nexus.delta.sdk.SchemaResource
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import ai.senscience.nexus.delta.sdk.model.IdSegment.IriSegment
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.write as Write
+import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
+import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
+import ai.senscience.nexus.delta.sdk.schemas.Schemas
+import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
@@ -9,20 +23,6 @@ import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.SchemaResource
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.AuthDirectives
-import ch.epfl.bluebrain.nexus.delta.sdk.directives.DeltaDirectives.*
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.Identities
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.RdfMarshalling
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment.IriSegment
-import ch.epfl.bluebrain.nexus.delta.sdk.model.{BaseUri, IdSegment}
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.Permissions.resources.write as Write
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.model.ResourceRejection
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.Schemas
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.model.SchemaRejection
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

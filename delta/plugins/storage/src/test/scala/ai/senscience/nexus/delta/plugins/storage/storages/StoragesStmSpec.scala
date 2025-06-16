@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.DiskStorage as DiskStorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{DiskStorageValue, S3StorageValue}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm}
+import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.model.Permission
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}

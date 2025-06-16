@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugin
 
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
+import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.PriorityRoute
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.impl.ConfigImpl
 import izumi.distage.model.definition.ModuleDef

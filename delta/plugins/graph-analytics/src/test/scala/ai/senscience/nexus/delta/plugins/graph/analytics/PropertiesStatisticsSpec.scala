@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.plugins.graph.analytics
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.propertiesDecoderFromEsAggregations
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class PropertiesStatisticsSpec extends CatsEffectSpec with ContextFixtures {

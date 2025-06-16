@@ -3,18 +3,18 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.routes.IdentitiesRoutes
+import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, OpenIdAuthService}
+import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesImpl}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.realms.Realms
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.PriorityRoute
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclCheck
-import ch.epfl.bluebrain.nexus.delta.sdk.auth.{AuthTokenProvider, OpenIdAuthService}
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.{Identities, IdentitiesImpl}
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.realms.Realms
 import izumi.distage.model.definition.{Id, ModuleDef}
 import org.http4s.client.Client
 

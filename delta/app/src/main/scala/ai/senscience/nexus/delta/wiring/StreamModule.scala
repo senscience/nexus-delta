@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.wiring
 
+import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import cats.effect.{Clock, IO, Sync}
-import ch.epfl.bluebrain.nexus.delta.sdk.ResourceShifts
-import ch.epfl.bluebrain.nexus.delta.sdk.stream.GraphResourceStream
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.ElemQueryConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections}
 import ch.epfl.bluebrain.nexus.delta.sourcing.query.ElemStreaming

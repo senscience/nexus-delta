@@ -3,15 +3,15 @@ package ai.senscience.nexus.delta.plugins.compositeviews.client
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheck.{RemoteCheckFailed, RemoteCheckTimeout, RemoteUnknownHost}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
+import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
+import ai.senscience.nexus.delta.sdk.error.SDKError
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.ResponseUtils
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RdfHttp4sMediaTypes}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
-import ch.epfl.bluebrain.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
-import ch.epfl.bluebrain.nexus.delta.sdk.error.SDKError
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.model.ProjectStatistics
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Tag}
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset

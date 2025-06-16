@@ -1,22 +1,22 @@
 package ai.senscience.nexus.delta.config
 
+import ai.senscience.nexus.delta.sdk.acls.AclsConfig
+import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.jws.JWSConfig
+import ai.senscience.nexus.delta.sdk.model.ServiceAccountConfig
+import ai.senscience.nexus.delta.sdk.organizations.OrganizationsConfig
+import ai.senscience.nexus.delta.sdk.permissions.PermissionsConfig
+import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig
+import ai.senscience.nexus.delta.sdk.realms.RealmsConfig
+import ai.senscience.nexus.delta.sdk.resolvers.ResolversConfig
+import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig
+import ai.senscience.nexus.delta.sdk.schemas.SchemasConfig
+import ai.senscience.nexus.delta.sdk.sse.SseConfig
+import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchyConfig
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.config.Configs
-import ch.epfl.bluebrain.nexus.delta.sdk.acls.AclsConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.fusion.FusionConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.jws.JWSConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.model.ServiceAccountConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.organizations.OrganizationsConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.permissions.PermissionsConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.projects.ProjectsConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.realms.RealmsConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.resolvers.ResolversConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.resources.ResourcesConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.schemas.SchemasConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.sse.SseConfig
-import ch.epfl.bluebrain.nexus.delta.sdk.typehierarchy.TypeHierarchyConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig}
 import ch.epfl.bluebrain.nexus.delta.sourcing.exporter.ExportConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}

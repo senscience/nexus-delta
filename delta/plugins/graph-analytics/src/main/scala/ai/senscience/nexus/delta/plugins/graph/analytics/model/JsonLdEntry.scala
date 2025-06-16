@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.model
 
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
+import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
+import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import cats.effect.IO
 import cats.effect.std.Env
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.EventMetric.*
-import ch.epfl.bluebrain.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ch.epfl.bluebrain.nexus.delta.sourcing.config.QueryConfig
 import ch.epfl.bluebrain.nexus.delta.sourcing.event.EventStreaming
 import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset

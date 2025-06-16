@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.query
 
+import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import akka.http.scaladsl.model.{StatusCode as AkkaStatusCode, StatusCodes}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
@@ -9,7 +10,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.HttpResponseFields
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
 import org.http4s.{Response, Status}

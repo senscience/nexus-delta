@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStreamSuite.Sample
+import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sdk.ConfigFixtures
 import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef, ResourceRef}

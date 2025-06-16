@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.model.SparqlSlowQuery
+import ai.senscience.nexus.delta.sdk.views.ViewRef
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sdk.views.ViewRef
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 
 import scala.concurrent.duration.{Duration, FiniteDuration}

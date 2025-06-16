@@ -4,6 +4,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Int
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.{InvalidRebuildStrategy, InvalidSparqlConstructQuery, InvalidSuites}
+import ai.senscience.nexus.delta.sdk.Defaults
+import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
@@ -13,8 +15,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sdk.Defaults
-import ch.epfl.bluebrain.nexus.delta.sdk.marshalling.HttpResponseFields
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import com.typesafe.config.Config
 import io.circe.syntax.KeyOps

@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViews, ElasticSearchQuery}
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.identities.model.Caller
-import ch.epfl.bluebrain.nexus.delta.sdk.model.IdSegment
 import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.{Json, JsonObject}
 import org.http4s.Query

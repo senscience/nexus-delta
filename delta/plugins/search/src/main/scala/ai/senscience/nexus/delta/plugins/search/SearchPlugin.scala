@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.sdk.plugin.Plugin
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sdk.plugin.Plugin
 
 object SearchPlugin extends Plugin {
 

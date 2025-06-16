@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
+import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.delta.sdk.syntax.*
 import io.circe.JsonObject
 import org.typelevel.log4cats
 

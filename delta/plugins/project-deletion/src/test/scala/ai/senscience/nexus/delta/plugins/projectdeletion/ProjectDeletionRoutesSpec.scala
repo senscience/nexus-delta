@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.projectdeletion
 
 import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRoutes
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import akka.http.scaladsl.model.StatusCodes
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.sdk.utils.RouteHelpers
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import scala.concurrent.duration.DurationInt
