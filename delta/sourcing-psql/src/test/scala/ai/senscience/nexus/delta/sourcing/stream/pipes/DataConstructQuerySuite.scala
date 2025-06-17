@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.pipes.DataConstructQuery.DataConstructQueryConfig
-import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, pipes}
+import ai.senscience.nexus.delta.sourcing.stream.{pipes, ReferenceRegistry}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant

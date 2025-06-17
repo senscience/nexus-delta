@@ -3,7 +3,7 @@ package io.circe
 import com.apicatalog.jsonld.json.JsonProvider
 import io.circe.syntax.EncoderOps
 import jakarta.json.JsonValue.ValueType as JakartaValueType
-import jakarta.json.{JsonString, JsonNumber as JakartaJsonNumber, JsonObject as JakartaJsonObject, JsonValue as JakartaJsonValue}
+import jakarta.json.{JsonNumber as JakartaJsonNumber, JsonObject as JakartaJsonObject, JsonString, JsonValue as JakartaJsonValue}
 
 import java.math.BigDecimal as JBigDecimal
 import scala.jdk.CollectionConverters.*

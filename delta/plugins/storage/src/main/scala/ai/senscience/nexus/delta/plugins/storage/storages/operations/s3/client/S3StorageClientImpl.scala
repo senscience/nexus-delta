@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotAccessible
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
-import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, HeadObject, S3OperationResult, checksumAlgorithm}
+import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{checksumAlgorithm, CopyOptions, HeadObject, S3OperationResult}
 import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
 import cats.implicits.*

@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.store
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{FullRebuild, FullRestart, PartialRebuild}
-import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeProgressStore.{CompositeProgressRow, logger}
+import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeProgressStore.{logger, CompositeProgressRow}
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri

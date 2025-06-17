@@ -1,6 +1,6 @@
 package ai.senscience.nexus.testkit
 
-import io.circe.{Json, JsonObject, parser}
+import io.circe.{parser, Json, JsonObject}
 
 trait CirceLiteral {
   implicit final def circeLiteralSyntax(sc: StringContext): CirceLiteralOps = new CirceLiteralOps(sc)

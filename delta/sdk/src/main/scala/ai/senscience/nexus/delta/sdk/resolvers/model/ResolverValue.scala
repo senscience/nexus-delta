@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
-import ai.senscience.nexus.delta.rdf.jsonld.decoder.{JsonLdDecoder, Configuration as JsonLdConfiguration}
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.{Configuration as JsonLdConfiguration, JsonLdDecoder}
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}

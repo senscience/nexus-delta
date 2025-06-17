@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyCon
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlWriteError
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlWriteQuery}
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{SparqlBulk, logger}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{logger, SparqlBulk}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError.InvalidIri
 import ai.senscience.nexus.delta.rdf.graph.NTriples

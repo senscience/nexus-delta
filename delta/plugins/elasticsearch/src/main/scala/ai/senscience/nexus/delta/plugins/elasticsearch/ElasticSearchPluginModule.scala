@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.deletion.{ElasticSearchDe
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.{ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
 import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewEvent, contexts}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.{contexts, ElasticSearchViewEvent}
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef

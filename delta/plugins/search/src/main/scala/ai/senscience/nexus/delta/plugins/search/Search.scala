@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, Co
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
-import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, defaultProjectionId, defaultViewId}
+import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultViewId, SearchConfig}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller

@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOidcErr
 import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
-import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{GroupsCache, RealmCache, extractGroups, logger}
+import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{extractGroups, logger, GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams

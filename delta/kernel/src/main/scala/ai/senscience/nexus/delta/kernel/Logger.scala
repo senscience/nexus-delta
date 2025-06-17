@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.kernel
 
 import cats.effect.IO
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import org.typelevel.log4cats.{LoggerName, Logger as Log4CatsLogger}
+import org.typelevel.log4cats.{Logger as Log4CatsLogger, LoggerName}
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.{classTag, ClassTag}
 
 object Logger {
 

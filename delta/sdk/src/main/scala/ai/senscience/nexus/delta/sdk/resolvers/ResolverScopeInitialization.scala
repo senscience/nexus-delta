@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
-import ai.senscience.nexus.delta.sdk.resolvers.ResolverScopeInitialization.{CreateResolver, logger}
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverScopeInitialization.{logger, CreateResolver}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResourceAlreadyExists
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.InProjectValue
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverValue}

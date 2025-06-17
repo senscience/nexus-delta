@@ -4,7 +4,7 @@ import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewNotFound
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.write as Write
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, permissions}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{permissions, BlazegraphViewRejection}
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords

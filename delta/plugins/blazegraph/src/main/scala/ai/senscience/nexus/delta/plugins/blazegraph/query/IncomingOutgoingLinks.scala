@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseTy
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlResults}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.InvalidResourceId
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, SparqlLink, defaultViewId}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{defaultViewId, BlazegraphViewRejection, SparqlLink}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri

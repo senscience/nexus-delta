@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewValue, contexts}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewValue}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
 import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.Cause
-import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStoreSuite.{SimpleResource, entityType}
+import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStoreSuite.{entityType, SimpleResource}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
 import doobie.syntax.all.*

@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ai.senscience.nexus.delta.sdk.circe.{JsonObjOps, dropNullValues}
+import ai.senscience.nexus.delta.sdk.circe.{dropNullValues, JsonObjOps}
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.jsonld.{IriEncoder, JsonLdAssembly}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.resources.Resources
-import ai.senscience.nexus.delta.sdk.sse.{SseEncoder, resourcesSelector}
+import ai.senscience.nexus.delta.sdk.sse.{resourcesSelector, SseEncoder}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject

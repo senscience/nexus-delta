@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.projectdeletion
 
-import ai.senscience.nexus.delta.plugins.projectdeletion.ShouldDeleteProjectSuite.{ThreeHoursAgo, TwoDaysAgo, assertDeleted, assertNotDeleted, configWhere, projectWhere, shouldBeDeleted}
+import ai.senscience.nexus.delta.plugins.projectdeletion.ShouldDeleteProjectSuite.{assertDeleted, assertNotDeleted, configWhere, projectWhere, shouldBeDeleted, ThreeHoursAgo, TwoDaysAgo}
 import ai.senscience.nexus.delta.projectdeletion.ShouldDeleteProject
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri

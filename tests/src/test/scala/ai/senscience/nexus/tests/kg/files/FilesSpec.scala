@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.kg.files
 
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ai.senscience.nexus.testkit.scalatest.FileMatchers.{keywords, description as descriptionField, name as nameField}
+import ai.senscience.nexus.testkit.scalatest.FileMatchers.{description as descriptionField, keywords, name as nameField}
 import ai.senscience.nexus.testkit.scalatest.ResourceMatchers.`@id`
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.files.Writer

@@ -18,7 +18,7 @@ import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import com.nimbusds.jwt.{JWTClaimsSet, PlainJWT}
-import io.circe.{Json, parser}
+import io.circe.{parser, Json}
 import org.http4s.client.UnexpectedStatus
 import org.http4s.{Credentials, Method, Status, Uri}
 

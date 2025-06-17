@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
-import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.{Cause, StateTombstone, logger}
+import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.{logger, Cause, StateTombstone}
 import cats.effect.IO
 import cats.syntax.all.*
 import doobie.*

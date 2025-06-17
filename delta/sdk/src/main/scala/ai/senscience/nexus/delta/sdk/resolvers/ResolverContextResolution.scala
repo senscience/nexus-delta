@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{ProjectRemoteContext, logger}
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{logger, ProjectRemoteContext}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sdk.resources.FetchResource

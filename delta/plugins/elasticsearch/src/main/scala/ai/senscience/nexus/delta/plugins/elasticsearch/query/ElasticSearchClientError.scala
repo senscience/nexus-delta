@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.{StatusCodes, StatusCode as AkkaStatusCode}
+import akka.http.scaladsl.model.{StatusCode as AkkaStatusCode, StatusCodes}
 import cats.effect.IO
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}

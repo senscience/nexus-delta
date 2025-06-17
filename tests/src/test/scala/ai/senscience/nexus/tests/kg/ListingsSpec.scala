@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath
 import ai.senscience.nexus.testkit.scalatest.ResourceMatchers.*
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Identity.{Anonymous, Delta}
-import ai.senscience.nexus.tests.Optics.{filterSearchMetadata, filterSearchMetadataAndLinks, listing, `@id` as atId}
+import ai.senscience.nexus.tests.Optics.{`@id` as atId, filterSearchMetadata, filterSearchMetadataAndLinks, listing}
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources, Views}
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}

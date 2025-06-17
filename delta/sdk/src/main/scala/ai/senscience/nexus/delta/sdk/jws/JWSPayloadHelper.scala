@@ -7,7 +7,7 @@ import com.nimbusds.jose.crypto.{RSASSASigner, RSASSAVerifier}
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.util.JSONObjectUtils
 import com.nimbusds.jose.{JWSAlgorithm, JWSHeader, JWSObjectJSON, Payload}
-import io.circe.{Decoder, Json, Printer, parser}
+import io.circe.{parser, Decoder, Json, Printer}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.ListHasAsScala

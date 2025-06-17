@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginException
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.*
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.storage.storages.{Storages, StoragesStatistics, schemas}
+import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, Storages, StoragesStatistics}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck

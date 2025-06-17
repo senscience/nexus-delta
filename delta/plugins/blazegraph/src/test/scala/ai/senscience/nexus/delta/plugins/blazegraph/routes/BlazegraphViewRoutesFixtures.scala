@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.delta.plugins.blazegraph.Fixtures
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{SparqlLink, schema}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{schema, SparqlLink}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.ConfigFixtures

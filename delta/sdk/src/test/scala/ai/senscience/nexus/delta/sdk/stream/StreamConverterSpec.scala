@@ -20,7 +20,7 @@ package ai.senscience.nexus.delta.sdk.stream
 
 import akka.Done
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{Keep, Flow as AkkaFlow, Sink as AkkaSink}
+import akka.stream.scaladsl.{Flow as AkkaFlow, Keep, Sink as AkkaSink}
 import akka.testkit.*
 import cats.effect.IO
 import fs2.*

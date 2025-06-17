@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream.utils
 import cats.effect.std.Hotswap
 import cats.effect.{IO, Resource}
 import fs2.io.file.*
-import fs2.{Pipe, Pull, Stream, text}
+import fs2.{text, Pipe, Pull, Stream}
 import io.circe.Encoder
 import io.circe.syntax.EncoderOps
 

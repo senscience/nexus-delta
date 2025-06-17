@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.schemas.Schemas.{SchemaLog, expandIri, kamonComponent}
+import ai.senscience.nexus.delta.sdk.schemas.Schemas.{expandIri, kamonComponent, SchemaLog}
 import ai.senscience.nexus.delta.sdk.schemas.SchemasImpl.SchemasLog
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound

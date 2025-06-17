@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.Quad.Quad
 import ai.senscience.nexus.delta.rdf.RdfError.{ParsingError, SparqlConstructQueryError, UnexpectedJsonLd}
-import ai.senscience.nexus.delta.rdf.Triple.{Triple, predicate, subject}
+import ai.senscience.nexus.delta.rdf.Triple.{predicate, subject, Triple}
 import ai.senscience.nexus.delta.rdf.Vocabulary.rdf
 import ai.senscience.nexus.delta.rdf.graph.Graph.fakeId
 import ai.senscience.nexus.delta.rdf.implicits.*

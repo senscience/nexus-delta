@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.InvalidFilePath
-import ai.senscience.nexus.delta.plugins.storage.files.{MediaTypeDetector, MediaTypeDetectorConfig, permissions}
+import ai.senscience.nexus.delta.plugins.storage.files.{permissions, MediaTypeDetector, MediaTypeDetectorConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.FetchStorage
 import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.S3Storage
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.S3StorageValue

@@ -11,8 +11,8 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceLog, expandIri, expandResourceRef, kamonComponent}
-import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{ResourcesLog, logger}
+import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, expandResourceRef, kamonComponent, ResourceLog}
+import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{logger, ResourcesLog}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{NoChangeDetected, ResourceNotFound}
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceCommand, ResourceEvent, ResourceRejection, ResourceState}

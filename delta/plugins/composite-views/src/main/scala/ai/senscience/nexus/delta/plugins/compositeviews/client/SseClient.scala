@@ -8,7 +8,7 @@ import org.http4s.Method.GET
 import org.http4s.ServerSentEvent.EventId
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
-import org.http4s.headers.{Accept, `Last-Event-Id`}
+import org.http4s.headers.{`Last-Event-Id`, Accept}
 import org.http4s.{EventStream, Header, MediaType, ServerSentEvent, Uri}
 
 import scala.concurrent.duration.FiniteDuration

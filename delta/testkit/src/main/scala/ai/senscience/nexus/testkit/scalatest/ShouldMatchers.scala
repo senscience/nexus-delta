@@ -1,6 +1,6 @@
 package ai.senscience.nexus.testkit.scalatest
 
-import org.scalactic.{Prettifier, source}
+import org.scalactic.{source, Prettifier}
 import org.scalatest.matchers.should.Matchers
 
 trait ShouldMatchers {

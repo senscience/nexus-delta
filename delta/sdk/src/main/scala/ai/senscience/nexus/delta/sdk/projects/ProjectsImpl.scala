@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{SearchParams, SearchResults}
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.Projects.entityType
-import ai.senscience.nexus.delta.sdk.projects.ProjectsImpl.{ProjectsLog, logger}
+import ai.senscience.nexus.delta.sdk.projects.ProjectsImpl.{logger, ProjectsLog}
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectCommand.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.*

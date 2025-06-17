@@ -1,6 +1,6 @@
 package ai.senscience.nexus.testkit
 
-import ai.senscience.nexus.testkit.CirceEq.{IgnoredArrayOrder, ignoreJsonKeyOrderEq}
+import ai.senscience.nexus.testkit.CirceEq.{ignoreJsonKeyOrderEq, IgnoredArrayOrder}
 import cats.Eq
 import cats.implicits.catsSyntaxEq
 import io.circe.*
