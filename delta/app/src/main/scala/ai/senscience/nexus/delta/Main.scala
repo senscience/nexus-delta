@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.error.PluginError.PluginInitializationError
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ai.senscience.nexus.delta.wiring.DeltaModule
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -19,7 +20,6 @@ import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMonitoring
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.IOFuture
-import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.config.Config

@@ -8,14 +8,13 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervis
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectInitializationFailed
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ai.senscience.nexus.delta.sourcing.stream.{ExecutionStatus, ExecutionStrategy, ProjectActivitySignals, ProjectionMetadata}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.*
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
-import ai.senscience.nexus.delta.sourcing.model.Identity.User
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.stream.*
 import fs2.concurrent.SignallingRef
 import org.scalatest.Assertion
 

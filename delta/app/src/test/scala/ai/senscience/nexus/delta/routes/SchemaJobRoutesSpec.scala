@@ -11,14 +11,14 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
+import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
-import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
 
 import java.time.Instant
 

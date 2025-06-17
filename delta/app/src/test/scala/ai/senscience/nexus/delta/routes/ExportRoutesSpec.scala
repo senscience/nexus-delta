@@ -5,11 +5,11 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.exporter.Exporter.ExportResult
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
-import ai.senscience.nexus.delta.sourcing.exporter.Exporter.ExportResult
 import fs2.io.file.Path
 
 class ExportRoutesSpec extends BaseRouteSpec {
