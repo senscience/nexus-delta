@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class FileSelfSuite extends NexusSuite {
 

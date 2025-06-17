@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class IdentityIriEncodingSpec extends BaseSpec {
 

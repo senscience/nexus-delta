@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.rdf.utils
 
 import ai.senscience.nexus.delta.rdf.Fixtures
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import io.circe.Json
 import io.circe.syntax.*
 

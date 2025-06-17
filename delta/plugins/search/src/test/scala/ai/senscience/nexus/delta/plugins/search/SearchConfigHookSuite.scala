@@ -12,8 +12,8 @@ import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.{Json, JsonObject}
 
 import java.util.UUID

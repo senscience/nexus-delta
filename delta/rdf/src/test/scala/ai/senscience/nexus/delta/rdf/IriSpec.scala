@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.rdf
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{owl, schema, xsd}
 import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import io.circe.Json
 import io.circe.syntax.*
 import org.http4s.Query

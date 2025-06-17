@@ -1,6 +1,10 @@
 package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
+import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
+import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral, Generators}
 import ai.senscience.nexus.tests.BaseIntegrationSpec.*
 import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.*
@@ -21,10 +25,6 @@ import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.testkit.*
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import org.scalactic.source.Position

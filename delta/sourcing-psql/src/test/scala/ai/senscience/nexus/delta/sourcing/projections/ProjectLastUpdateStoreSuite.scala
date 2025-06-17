@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 import java.time.Instant

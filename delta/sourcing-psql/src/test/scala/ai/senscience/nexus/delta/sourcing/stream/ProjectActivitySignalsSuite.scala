@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
+import ai.senscience.nexus.testkit.clock.MutableClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.clock.MutableClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 import munit.{AnyFixture, Location}
 

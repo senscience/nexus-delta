@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.testkit.CirceLiteral
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpHeader, StatusCode, StatusCodes}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.JsonLdEncoderSpec.Permissions
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget.{Blazegraph, Rdf4j}
+import ai.senscience.nexus.testkit.blazegraph.BlazegraphContainer
+import ai.senscience.nexus.testkit.rd4j.RDF4JContainer
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.testkit.blazegraph.BlazegraphContainer
-import ch.epfl.bluebrain.nexus.testkit.rd4j.RDF4JContainer
 import munit.CatsEffectSuite
 import munit.catseffect.IOFixture
 import org.http4s.Uri

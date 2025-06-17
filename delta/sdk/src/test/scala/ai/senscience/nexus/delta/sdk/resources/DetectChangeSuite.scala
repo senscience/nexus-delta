@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef.StaticContextRef
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
 

@@ -28,6 +28,10 @@ import ai.senscience.nexus.delta.sdk.{IndexingAction, NexusHeaders}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
+import ai.senscience.nexus.testkit.scalatest.FileMatchers.*
+import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.ContentTypes.`application/json`
 import akka.http.scaladsl.model.MediaRanges.*
@@ -35,10 +39,6 @@ import akka.http.scaladsl.model.MediaTypes.{`multipart/form-data`, `text/html`}
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsIOValues
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
 import org.scalatest.*

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.testkit.mu.ce.{CatsEffectEventually, PatienceConfig}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.{CatsEffectEventually, PatienceConfig}
 import munit.{Assertions, CatsEffectAssertions, Location}
 
 trait ProjectionAssertions extends CatsEffectEventually {

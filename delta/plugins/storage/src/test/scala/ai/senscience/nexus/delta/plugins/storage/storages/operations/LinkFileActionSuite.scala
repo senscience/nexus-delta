@@ -16,8 +16,8 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import org.http4s.Uri
 

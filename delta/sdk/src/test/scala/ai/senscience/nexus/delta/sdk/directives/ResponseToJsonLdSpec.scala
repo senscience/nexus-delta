@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.ResourceN
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{FileData, SimpleRejection, SimpleResource}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
@@ -18,7 +19,6 @@ import akka.http.scaladsl.model.{ContentType, StatusCodes}
 import akka.http.scaladsl.server.RouteConcatenation
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import fs2.Stream
 
 import java.nio.ByteBuffer

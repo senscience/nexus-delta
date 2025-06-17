@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervisio
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 class SparqlSupervisionSuite extends NexusSuite with SparqlClientSetup.Fixture {

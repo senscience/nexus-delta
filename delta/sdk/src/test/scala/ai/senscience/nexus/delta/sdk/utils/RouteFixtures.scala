@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.scalatest.ClasspathResources
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
 import org.http4s.implicits.http4sLiteralsSyntax
 
 trait RouteFixtures {

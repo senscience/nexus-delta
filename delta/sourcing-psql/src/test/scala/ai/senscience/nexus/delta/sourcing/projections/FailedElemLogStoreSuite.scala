@@ -10,12 +10,12 @@ import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
+import ai.senscience.nexus.testkit.clock.MutableClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
-import ch.epfl.bluebrain.nexus.testkit.clock.MutableClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.{AnyFixture, Location}
 
 import java.time.Instant

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse
 
 class HeadObjectSuite extends NexusSuite {

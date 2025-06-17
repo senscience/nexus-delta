@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ProjectRejectionSpec extends CatsEffectSpec with Fixtures {
 

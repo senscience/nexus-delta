@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ResourceFSpec extends CatsEffectSpec with Fixtures {
 

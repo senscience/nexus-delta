@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.sdk.organizations
 
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationNonEmpty
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import cats.effect.kernel.Ref
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class OrganizationDeleterSuite extends NexusSuite {
 

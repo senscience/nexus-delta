@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderSpec.{AbsoluteI
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.*
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.semiauto.*
 import ai.senscience.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant
 import java.util.UUID

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.testkit.scalatest.FileMatchers.{description as descriptionField, keywords, name as nameField}
+import ai.senscience.nexus.testkit.scalatest.ResourceMatchers.`@id`
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.files.Writer
 import ai.senscience.nexus.tests.Optics.listing._total
@@ -10,8 +12,6 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.{description as descriptionField, keywords, name as nameField}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ResourceMatchers.`@id`
 import io.circe.Json
 import io.circe.syntax.*
 import org.scalatest.Assertion

@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.utils
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
+import ai.senscience.nexus.testkit.scalatest.ClasspathResources
 
 trait Fixtures {
   self: ClasspathResources =>

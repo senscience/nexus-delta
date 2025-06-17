@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.sdk.model.metrics.EventMetricSpec.SimpleEvent
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
 

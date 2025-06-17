@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.views
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral.circeLiteralSyntax
+import ai.senscience.nexus.testkit.CirceLiteral.circeLiteralSyntax
 import io.circe.Json
 
 trait ViewErrors {

@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.routes.AclsRoutes.{PatchAcl, ReplaceAcl}
 import ai.senscience.nexus.delta.sdk.acls.model.AclValues
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import io.circe.literal.*
 
 class AclsRoutesPayloadSpec extends BaseSpec {

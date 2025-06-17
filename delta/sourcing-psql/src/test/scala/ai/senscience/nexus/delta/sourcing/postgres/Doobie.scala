@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sourcing.postgres
 
 import ai.senscience.nexus.delta.sourcing.partition.{DatabasePartitioner, PartitionStrategy}
 import ai.senscience.nexus.delta.sourcing.{DDLLoader, Transactors}
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.postgres.PostgresContainer
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.postgres.PostgresContainer
 import doobie.Fragment
 import doobie.postgres.sqlstate
 import doobie.syntax.all.*

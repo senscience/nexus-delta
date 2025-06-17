@@ -11,8 +11,8 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.NoopSink
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import io.circe.Json
 
 import java.time.Instant

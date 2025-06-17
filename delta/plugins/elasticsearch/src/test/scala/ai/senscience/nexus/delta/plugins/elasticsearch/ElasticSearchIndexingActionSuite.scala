@@ -20,9 +20,9 @@ import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
 import ai.senscience.nexus.delta.sourcing.stream.{NoopSink, PipeChain, PipeRef, SuccessElemStream}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream
 import io.circe.Json
 

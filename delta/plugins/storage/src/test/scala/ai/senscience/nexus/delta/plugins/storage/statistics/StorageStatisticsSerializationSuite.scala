@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.statistics
 
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class StorageStatisticsSerializationSuite extends NexusSuite {
 

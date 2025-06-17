@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.{OrganizationSearchParams, ProjectSearchParams, RealmSearchParams}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class SearchParamsSpec extends CatsEffectSpec {
 

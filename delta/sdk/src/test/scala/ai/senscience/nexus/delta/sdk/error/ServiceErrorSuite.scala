@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class ServiceErrorSuite extends NexusSuite with CirceLiteral with Fixtures {
 

@@ -25,10 +25,10 @@ import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, T
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterByType, FilterDeprecated}
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion

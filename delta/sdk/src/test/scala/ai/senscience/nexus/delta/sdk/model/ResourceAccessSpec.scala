@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess.{EphemeralAccess, InProjectAccess}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class ResourceAccessSpec extends BaseSpec {
 

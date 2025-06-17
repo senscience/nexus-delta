@@ -29,11 +29,11 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticat
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.decodeUri
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 import org.scalatest.Assertion
 import org.scalatest.concurrent.{Eventually, ScalaFutures}

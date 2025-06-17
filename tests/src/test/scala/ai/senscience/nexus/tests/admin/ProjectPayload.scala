@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.admin
 
+import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.tests.config.TestsConfig
-import ch.epfl.bluebrain.nexus.testkit.Generators
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
 

@@ -20,10 +20,10 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, 
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 import org.scalatest.Assertion
 import org.scalatest.matchers.{BeMatcher, MatchResult}

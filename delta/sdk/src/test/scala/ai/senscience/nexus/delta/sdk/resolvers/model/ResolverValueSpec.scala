@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProject
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ResolverValueSpec extends CatsEffectSpec with Fixtures {
 

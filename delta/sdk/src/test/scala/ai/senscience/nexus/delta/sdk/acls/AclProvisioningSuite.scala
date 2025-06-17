@@ -9,9 +9,9 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.file.TempDirectory
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.file.TempDirectory
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 import java.nio.file.Files

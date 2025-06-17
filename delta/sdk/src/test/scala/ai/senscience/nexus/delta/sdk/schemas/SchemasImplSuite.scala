@@ -22,9 +22,9 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, Tags}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import munit.AnyFixture
 

@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.CirceLiteral
 import munit.AnyFixture
 import org.http4s.Query
 

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 import scala.concurrent.duration.{Duration, DurationInt}
 

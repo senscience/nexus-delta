@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.{RealmCreated, Real
 import ai.senscience.nexus.delta.sdk.realms.model.RealmState
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, OptionAssertions}
+import ai.senscience.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 
 import java.time.Instant
 

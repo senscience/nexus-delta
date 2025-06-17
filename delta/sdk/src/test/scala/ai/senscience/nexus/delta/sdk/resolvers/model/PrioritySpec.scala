@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.ResolverPriorityIntervalError
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class PrioritySpec extends BaseSpec {
 

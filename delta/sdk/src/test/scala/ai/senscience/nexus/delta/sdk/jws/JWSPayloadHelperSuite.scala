@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.jws
 
 import ai.senscience.nexus.delta.sdk.jws.JWSError.JWSSignatureExpired
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper.JWSPayloadHelperImpl
+import ai.senscience.nexus.testkit.Generators
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.Generators
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import io.circe.Json

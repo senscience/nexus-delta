@@ -1,6 +1,6 @@
 package ai.senscience.nexus.tests
 
-import ch.epfl.bluebrain.nexus.testkit.Generators
+import ai.senscience.nexus.testkit.Generators
 
 sealed trait Identity extends Product with Serializable
 

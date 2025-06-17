@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsCommand.*
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsEvent.*
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection.*
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant
 

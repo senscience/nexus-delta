@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.FailureReason
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.CirceLiteral
 import fs2.Chunk
 import io.circe.Json
 import munit.AnyFixture

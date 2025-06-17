@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.{noo
 import ai.senscience.nexus.delta.sdk.{OrganizationResource, ScopeInitializer}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class ProjectHealerSuite extends NexusSuite {
 

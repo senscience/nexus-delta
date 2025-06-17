@@ -15,6 +15,8 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
 import akka.http.scaladsl.server.Directives.*
@@ -22,8 +24,6 @@ import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.AuthToken
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.InvalidAccessToken
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import org.scalatest.matchers.should.Matchers
 
 class AuthDirectivesSpec extends BaseSpec with RouteHelpers with CatsEffectSpec with Matchers with CatsIOValues {

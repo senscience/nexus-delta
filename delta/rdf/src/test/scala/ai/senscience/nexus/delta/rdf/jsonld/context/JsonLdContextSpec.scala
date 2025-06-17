@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld.context
 import ai.senscience.nexus.delta.rdf.Fixtures
 import ai.senscience.nexus.delta.rdf.Vocabulary.{rdf, schema, xsd}
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class JsonLdContextSpec extends CatsEffectSpec with Fixtures {
 

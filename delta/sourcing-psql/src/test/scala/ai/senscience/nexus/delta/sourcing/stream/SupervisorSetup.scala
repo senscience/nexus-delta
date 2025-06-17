@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Project
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{Clock, IO, Resource}
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.catseffect.IOFixture
 
 import scala.concurrent.duration.*

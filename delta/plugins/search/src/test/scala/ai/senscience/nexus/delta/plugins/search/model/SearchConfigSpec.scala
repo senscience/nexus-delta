@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Inte
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.InvalidSparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ch.epfl.bluebrain.nexus.delta.kernel.error.LoadFileError.{InvalidJson, UnaccessibleFile}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration.DurationInt

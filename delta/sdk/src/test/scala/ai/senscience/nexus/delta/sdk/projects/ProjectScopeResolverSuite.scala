@@ -8,9 +8,9 @@ import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import fs2.Stream
 import munit.AnyFixture

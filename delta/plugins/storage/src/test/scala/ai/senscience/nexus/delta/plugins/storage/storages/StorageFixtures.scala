@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, D
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.ClasspathResources
 import ch.epfl.bluebrain.nexus.delta.kernel.Secret
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
 import org.http4s.Uri
 
 import java.nio.file.{Files, Paths}

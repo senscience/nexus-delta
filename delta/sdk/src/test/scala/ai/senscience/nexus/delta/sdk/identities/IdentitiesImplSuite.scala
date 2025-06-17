@@ -6,14 +6,14 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.ce.IOFromMap
+import ai.senscience.nexus.testkit.jwt.TokenGenerator
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.*
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
-import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
-import ch.epfl.bluebrain.nexus.testkit.jwt.TokenGenerator
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator

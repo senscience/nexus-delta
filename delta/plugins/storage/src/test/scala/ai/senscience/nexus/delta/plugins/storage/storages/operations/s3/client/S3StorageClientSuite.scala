@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.S3StorageConfig
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, LocalStackS3StorageClient, S3Helpers, S3OperationResult}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.AnyFixture
 

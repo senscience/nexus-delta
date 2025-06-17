@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream.utils
 
+import ai.senscience.nexus.testkit.file.TempDirectory
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.file.TempDirectory
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 import fs2.io.file.Files
 import munit.AnyFixture

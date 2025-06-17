@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import akka.http.scaladsl.model.ContentType
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.Location
 
 class FileResponseSuite extends NexusSuite {

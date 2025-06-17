@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.testkit.scalatest.ResourceMatchers.*
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Identity.{Anonymous, Delta}
 import ai.senscience.nexus.tests.Optics.{`@id` as atId, filterSearchMetadata, filterSearchMetadataAndLinks, listing}
@@ -9,7 +10,6 @@ import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath, encodeUriQuery}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ResourceMatchers.*
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 import org.scalatest.Assertion

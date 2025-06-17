@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.realms
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.realms.model.RealmFields
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import org.http4s.implicits.http4sLiteralsSyntax
 import pureconfig.ConfigSource
 

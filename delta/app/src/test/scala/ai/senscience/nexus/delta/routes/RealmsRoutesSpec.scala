@@ -13,10 +13,10 @@ import ai.senscience.nexus.delta.sdk.realms.{RealmsConfig, RealmsImpl, RealmsPro
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.ce.IOFromMap
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import io.circe.Json
 import org.http4s.Uri
 

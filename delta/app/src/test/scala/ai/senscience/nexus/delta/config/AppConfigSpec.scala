@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.config
 
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.impl.ConfigImpl
 import org.scalatest.BeforeAndAfterAll
 

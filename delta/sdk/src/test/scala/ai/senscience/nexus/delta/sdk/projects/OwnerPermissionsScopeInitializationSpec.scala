@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class OwnerPermissionsScopeInitializationSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures {
 

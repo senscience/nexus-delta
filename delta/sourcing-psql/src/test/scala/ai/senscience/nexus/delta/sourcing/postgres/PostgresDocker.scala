@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.postgres
 
 import ai.senscience.nexus.delta.sourcing.postgres.PostgresDocker.PostgresHostConfig
-import ch.epfl.bluebrain.nexus.testkit.postgres.PostgresContainer
+import ai.senscience.nexus.testkit.postgres.PostgresContainer
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
 import scala.concurrent.duration.*

@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverType.{CrossProject, InProject}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 
 class ResolversEvaluateSuite extends NexusSuite with ResolverStateMachineFixture {

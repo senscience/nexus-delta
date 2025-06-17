@@ -23,12 +23,12 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.EncoderOps
 import munit.{AnyFixture, Location}
 

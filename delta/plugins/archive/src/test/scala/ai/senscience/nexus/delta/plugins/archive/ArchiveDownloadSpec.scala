@@ -32,6 +32,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.test.archive.ArchiveHelpers
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.stream.scaladsl.Source
@@ -40,7 +41,6 @@ import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUri
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.EncoderOps
 import org.http4s.Uri
 import org.scalactic.source.Position

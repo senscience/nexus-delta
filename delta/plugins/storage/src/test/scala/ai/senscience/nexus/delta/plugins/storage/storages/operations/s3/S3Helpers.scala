@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
+import ai.senscience.nexus.testkit.Generators
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.Generators
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import software.amazon.awssdk.services.s3.model.{CreateBucketRequest, DeleteBucketRequest, DeleteObjectRequest}
 

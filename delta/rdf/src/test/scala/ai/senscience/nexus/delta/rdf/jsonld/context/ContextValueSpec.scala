@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld.context
 import ai.senscience.nexus.delta.rdf.Fixtures
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import io.circe.Json
 
 class ContextValueSpec extends BaseSpec with Fixtures {

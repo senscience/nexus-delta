@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner.Differen
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie.resource
 import ai.senscience.nexus.delta.sourcing.postgres.{PartitionQueries, ScopedEventQueries, ScopedStateQueries}
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Transactors}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.catseffect.IOFixture
 import munit.{AnyFixture, Location}

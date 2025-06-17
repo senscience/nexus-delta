@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.projects
 import ai.senscience.nexus.delta.sdk.error.ServiceError
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.ScopeInitErrorRow
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant
 

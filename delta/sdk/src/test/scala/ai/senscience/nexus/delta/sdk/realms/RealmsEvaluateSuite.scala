@@ -8,9 +8,9 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.ce.IOFromMap
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import org.http4s.Uri
 import org.http4s.implicits.http4sLiteralsSyntax
 

@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 import java.time.Instant

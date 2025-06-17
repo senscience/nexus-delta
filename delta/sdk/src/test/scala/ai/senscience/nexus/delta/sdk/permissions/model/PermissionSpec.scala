@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.permissions.model
 
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.IllegalPermissionFormatError
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import io.circe.Json
 import io.circe.syntax.*
 

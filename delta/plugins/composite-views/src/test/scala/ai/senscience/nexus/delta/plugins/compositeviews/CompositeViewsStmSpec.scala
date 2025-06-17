@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 
 import java.time.Instant

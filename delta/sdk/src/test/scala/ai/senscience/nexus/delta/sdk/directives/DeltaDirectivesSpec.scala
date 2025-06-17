@@ -21,6 +21,9 @@ import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{SimpleRejection, SimpleResource}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.HttpMethods.GET
 import akka.http.scaladsl.model.MediaRange.*
@@ -32,9 +35,6 @@ import akka.http.scaladsl.model.headers.HttpEncodings.gzip
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 import org.scalatest.Inspectors

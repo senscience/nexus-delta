@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class SchemaSuite extends NexusSuite with Fixtures {
 

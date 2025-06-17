@@ -4,11 +4,11 @@ import ai.senscience.nexus.delta.rdf.syntax.JsonSyntax
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{IllegalEndpointFormat, IllegalIssuerFormat, IllegalJwkFormat, IllegalJwksUriFormat, NoValidKeysFound, UnsuccessfulJwksResponse, UnsuccessfulOpenIdConfigResponse}
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.ce.IOFromMap
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import io.circe.Json
 import io.circe.syntax.KeyOps

@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sourcing.postgres
 
 import ai.senscience.nexus.delta.sourcing.partition.{DatabasePartitioner, PartitionStrategy}
 import ai.senscience.nexus.delta.sourcing.{DDLLoader, Transactors}
+import ai.senscience.nexus.testkit.Generators
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.Generators
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsIOValues
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
 trait DoobieScalaTestFixture

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugin
 
 import ai.senscience.nexus.delta.testplugin.ClassLoaderTestClassImpl
-import ch.epfl.bluebrain.nexus.testkit.plugin.ClassLoaderTestClass
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.plugin.ClassLoaderTestClass
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import org.scalatest.BeforeAndAfterAll
 
 import java.nio.file.Path

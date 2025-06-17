@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.elasticsearch.ElasticSearchContainer
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.elasticsearch.ElasticSearchContainer
 import munit.catseffect.IOFixture
 import org.http4s.Uri
 

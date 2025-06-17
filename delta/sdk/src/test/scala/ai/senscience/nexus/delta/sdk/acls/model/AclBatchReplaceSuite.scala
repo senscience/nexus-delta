@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.acls.model
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{acls, projects, resources}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class AclBatchReplaceSuite extends NexusSuite {
 

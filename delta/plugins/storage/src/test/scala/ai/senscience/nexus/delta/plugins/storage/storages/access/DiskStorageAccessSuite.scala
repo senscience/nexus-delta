@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.access
 import ai.senscience.nexus.delta.plugins.storage.storages.access.DiskStorageAccess.checkVolumeExists
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotAccessible
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 import java.nio.file.{Files, Path}
 

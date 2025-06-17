@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances.{read, write}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.mu.{EitherAssertions, JsonAssertions, NexusSuite}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.{ClasspathResources, MUnitExtractValue}
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.mu.{EitherAssertions, JsonAssertions, NexusSuite}
+import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, MUnitExtractValue}
 import io.circe.{Json, JsonObject}
 import munit.{Assertions, Location}
 

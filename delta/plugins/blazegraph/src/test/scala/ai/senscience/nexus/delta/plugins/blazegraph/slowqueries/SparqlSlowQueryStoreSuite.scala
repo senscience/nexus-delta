@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 import java.time.temporal.ChronoUnit

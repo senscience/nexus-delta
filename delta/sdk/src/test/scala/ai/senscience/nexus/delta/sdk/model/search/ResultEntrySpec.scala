@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model.search
 
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import cats.syntax.functor.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class ResultEntrySpec extends BaseSpec {
 

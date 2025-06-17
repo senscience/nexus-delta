@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture
 

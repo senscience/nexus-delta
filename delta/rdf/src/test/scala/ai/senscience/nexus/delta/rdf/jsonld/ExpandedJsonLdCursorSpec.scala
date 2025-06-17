@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure.KeyMissingFailure
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.{DecodingFailure, ParsingFailure}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.CursorOp.{DownArray, DownField}
 
 class ExpandedJsonLdCursorSpec extends CatsEffectSpec {

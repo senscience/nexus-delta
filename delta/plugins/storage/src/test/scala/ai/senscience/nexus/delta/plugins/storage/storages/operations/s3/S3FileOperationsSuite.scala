@@ -10,10 +10,10 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFi
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.{StorageFixtures, UUIDFFixtures}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Hex
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.AnyFixture
 import org.http4s.Uri

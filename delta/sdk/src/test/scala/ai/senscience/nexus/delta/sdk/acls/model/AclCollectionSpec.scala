@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.{Organization, Projec
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddressFilter.{AnyOrganization, AnyOrganizationAnyProject, AnyProject}
 import ai.senscience.nexus.delta.sdk.generators.AclGen
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import cats.syntax.functor.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class AclCollectionSpec extends BaseSpec with AclFixtures {
 

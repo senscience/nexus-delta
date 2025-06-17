@@ -12,8 +12,8 @@ import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.ProjectRemoteContext
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.testkit.CirceLiteral
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import io.circe.{Json, JsonObject}
 
 trait ResourceInstanceFixture extends CirceLiteral {

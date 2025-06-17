@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.InProjectValu
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverValue}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class ResolverScopeInitializationSuite extends NexusSuite {
 
