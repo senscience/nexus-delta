@@ -1,7 +1,7 @@
-package ch.epfl.bluebrain.nexus.akka.marshalling
+package ai.senscience.nexus.akka.marshalling
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.*
+import io.circe.{Decoder, Encoder}
 
 import java.time.Instant
 

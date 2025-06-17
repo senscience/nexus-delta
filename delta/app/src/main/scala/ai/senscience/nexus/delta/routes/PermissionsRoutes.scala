@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions.{Append, Replace, Subtract}
 import ai.senscience.nexus.delta.sdk.PermissionsResource
@@ -16,7 +17,6 @@ import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsR
 import akka.http.scaladsl.server.{MalformedRequestContentRejection, Route}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

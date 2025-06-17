@@ -1,10 +1,10 @@
-package ch.epfl.bluebrain.nexus.test.archive
+package ai.senscience.nexus.test.archive
 
+import ai.senscience.nexus.test.archive.ArchiveHelpers.ArchiveContent
 import akka.stream.Materializer
 import akka.stream.alpakka.file.scaladsl.Archive
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-import ArchiveHelpers.ArchiveContent
 import io.circe.Json
 import io.circe.parser.parse
 import org.scalactic.source.Position

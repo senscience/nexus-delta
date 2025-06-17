@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.akka.marshalling.CirceMarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.schema as elasticSearchSchema
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceMarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.testkit.*
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}

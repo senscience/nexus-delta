@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViewsQuery
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.*
@@ -23,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Project
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

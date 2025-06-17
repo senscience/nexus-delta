@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainIndexingProjection
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions.read as Read
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{defaultViewId, permissions, ElasticSearchViewRejection}
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.{Directive, Route}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

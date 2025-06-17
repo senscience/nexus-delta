@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
 import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
 import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.storages.Coyote
@@ -15,7 +16,6 @@ import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.headers.{`If-None-Match`, Accept, ETag}
 import akka.util.ByteString
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import io.circe.optics.JsonPath.root

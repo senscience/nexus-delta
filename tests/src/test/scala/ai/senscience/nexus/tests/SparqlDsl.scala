@@ -1,11 +1,11 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.akka.marshalling.{CirceUnmarshalling, RdfMediaTypes}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods.GET
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.headers.Accept
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.{CirceUnmarshalling, RdfMediaTypes}
 import io.circe.optics.JsonPath.root
 import org.scalatest.matchers.should.Matchers
 

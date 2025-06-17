@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.NamedSuite
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.implicits.catsSyntaxApplicativeError
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.{Json, JsonObject}

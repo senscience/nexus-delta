@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.sdk.JsonLdValue
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.{Complete, Reject}
@@ -18,7 +19,6 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder

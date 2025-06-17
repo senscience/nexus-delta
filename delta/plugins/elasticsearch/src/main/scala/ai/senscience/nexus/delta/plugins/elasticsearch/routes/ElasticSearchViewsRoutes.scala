@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.PointInTime
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions.{read as Read, write as Write}
@@ -19,7 +20,6 @@ import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.syntax.EncoderOps
