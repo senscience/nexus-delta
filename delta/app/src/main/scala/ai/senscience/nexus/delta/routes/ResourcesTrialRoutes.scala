@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
@@ -23,7 +24,6 @@ import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.{Decoder, Json}

@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Encoder, Json}
 
@@ -85,7 +85,7 @@ object GraphAnalyticsResult {
       new Index(project, id, remoteContexts, rev, true, types, createdAt, createdBy, updatedAt, updatedBy, None)
 
     implicit val encoder: Encoder[Index] = Encoder.instance { i =>
-      import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
       Json
         .obj(
           keywords.id      := i.id,

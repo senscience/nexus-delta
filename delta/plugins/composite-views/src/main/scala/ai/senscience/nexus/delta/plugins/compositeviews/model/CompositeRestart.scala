@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
@@ -83,7 +83,7 @@ object CompositeRestart {
   }
 
   implicit val compositeRestartCodec: Codec.AsObject[CompositeRestart] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration = Serializer.circeConfiguration
     deriveConfiguredCodec[CompositeRestart]
   }

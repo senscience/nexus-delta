@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFaile
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.{noopStore, ScopeInitErrorRow}
 import ai.senscience.nexus.delta.sdk.{OrganizationResource, ScopeInitializer}
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class ProjectHealerSuite extends NexusSuite {

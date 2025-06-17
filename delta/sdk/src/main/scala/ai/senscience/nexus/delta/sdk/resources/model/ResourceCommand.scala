@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.sdk.resources.model
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 /**
   * Enumeration of resource commands

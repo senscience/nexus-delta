@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphView.Metadat
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.syntax.*

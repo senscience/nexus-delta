@@ -8,17 +8,17 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.FailedElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
+import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
 
 import java.time.Instant
 

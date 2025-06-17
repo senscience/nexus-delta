@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tag}
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 

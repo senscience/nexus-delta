@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.FetchHistory
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.JsonObject
 import io.circe.syntax.KeyOps
 

@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.instances
 
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ch.epfl.bluebrain.nexus.delta.sourcing.ProgressStatistics
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tags
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.RemainingElems
+import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sourcing.model.Tags
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 
 trait HttpResponseFieldsInstances {
   implicit val offsetResponseFields: HttpResponseFields[Offset] = HttpResponseFields.defaultOk

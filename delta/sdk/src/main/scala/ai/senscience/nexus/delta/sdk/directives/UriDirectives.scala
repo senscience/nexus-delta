@@ -8,6 +8,9 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidResourceId
 import ai.senscience.nexus.delta.sdk.{IndexingMode, OrderingFields}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import akka.http.javadsl.server.Rejections.validationRejection
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
@@ -18,9 +21,6 @@ import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import io.circe.Json
 
 import java.util.UUID

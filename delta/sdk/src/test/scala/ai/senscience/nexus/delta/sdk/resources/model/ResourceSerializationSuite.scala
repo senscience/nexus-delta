@@ -6,12 +6,12 @@ import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.resources.ResourceInstanceFixture
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceEvent.*
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Revision
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tags}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Revision
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, Tags}
 import io.circe.JsonObject
 
 import java.time.Instant

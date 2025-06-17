@@ -11,6 +11,9 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcement
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
@@ -18,9 +21,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdAp
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import munit.Location

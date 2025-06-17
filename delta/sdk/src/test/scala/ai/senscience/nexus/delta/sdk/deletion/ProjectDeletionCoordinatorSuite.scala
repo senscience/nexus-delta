@@ -14,20 +14,20 @@ import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, PrefixIri, Pro
 import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ProjectsImpl}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ScopeInitializer}
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.partition.{DatabasePartitioner, PartitionStrategy}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie.resource
+import ai.senscience.nexus.delta.sourcing.postgres.{ScopedEventQueries, ScopedStateQueries}
+import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream}
+import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.{DatabasePartitioner, PartitionStrategy}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie.resource
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.{ScopedEventQueries, ScopedStateQueries}
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.model.ProjectLastUpdate
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream}
-import ch.epfl.bluebrain.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import munit.catseffect.IOFixture

@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sdk.stream
 
 import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.{ElemStream, RemainingElems}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ElemStream, RemainingElems}
 import fs2.Stream
 
 trait GraphResourceStream {

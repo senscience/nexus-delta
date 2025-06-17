@@ -5,11 +5,11 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewComma
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewEvent.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewState, CompositeViewValue}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 

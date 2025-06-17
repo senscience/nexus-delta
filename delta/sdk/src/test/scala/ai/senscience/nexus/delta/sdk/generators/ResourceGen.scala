@@ -5,6 +5,9 @@ import ai.senscience.nexus.delta.sdk.jsonld.{JsonLdAssembly, JsonLdContent}
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceState}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
@@ -12,9 +15,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import io.circe.Json
 
 import java.time.Instant

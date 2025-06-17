@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewVa
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.nextIndexingRev
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, PipeStep}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.stream.pipes.FilterDeprecated
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.FilterDeprecated
 import io.circe.JsonObject
 import munit.FunSuite
 

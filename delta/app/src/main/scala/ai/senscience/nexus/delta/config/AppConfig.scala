@@ -13,13 +13,13 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig
 import ai.senscience.nexus.delta.sdk.schemas.SchemasConfig
 import ai.senscience.nexus.delta.sdk.sse.SseConfig
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchyConfig
+import ai.senscience.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig}
+import ai.senscience.nexus.delta.sourcing.exporter.ExportConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.config.Configs
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.exporter.ExportConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import com.typesafe.config.Config
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader

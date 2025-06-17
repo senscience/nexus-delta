@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import doobie.syntax.all.*
 import munit.AfterEach
 import munit.catseffect.IOFixture

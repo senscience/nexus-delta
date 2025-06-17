@@ -11,13 +11,13 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri

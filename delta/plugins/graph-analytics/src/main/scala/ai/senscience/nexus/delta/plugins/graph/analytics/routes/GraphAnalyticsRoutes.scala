@@ -11,13 +11,13 @@ import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
+import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.ProgressStatistics
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.JsonObject
 
 /**

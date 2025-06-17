@@ -6,14 +6,14 @@ import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyCommand.{C
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyEvent.{TypeHierarchyCreated, TypeHierarchyUpdated}
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.{IncorrectRev, RevisionNotFound, TypeHierarchyAlreadyExists, TypeHierarchyDoesNotExist}
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchyCommand, TypeHierarchyEvent, TypeHierarchyRejection, TypeHierarchyState}
+import ai.senscience.nexus.delta.sourcing.implicits.IriInstances.*
+import ai.senscience.nexus.delta.sourcing.model.EntityType
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, GlobalEventLog, StateMachine, Transactors}
 import cats.effect.IO
 import cats.effect.kernel.Clock
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.IriInstances.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityType
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.{GlobalEntityDefinition, GlobalEventLog, StateMachine, Transactors}
 
 trait TypeHierarchy {
 

@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, D
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection.FileContentLengthIsMissing
 import ai.senscience.nexus.delta.sdk.FileData
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 
 /**
   * Represents a file being uploaded with one implementing by storage type

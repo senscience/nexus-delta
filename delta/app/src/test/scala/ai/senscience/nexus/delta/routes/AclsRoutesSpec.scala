@@ -9,14 +9,14 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{acls as aclsPermissions, *}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import io.circe.Json
 import io.circe.syntax.KeyOps
 

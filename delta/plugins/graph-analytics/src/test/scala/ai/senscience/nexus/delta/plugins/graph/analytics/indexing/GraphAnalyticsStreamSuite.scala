@@ -2,16 +2,16 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStreamSuite.Sample
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.state.ScopedStateStore
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.ScopedStateStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.Codec

@@ -18,15 +18,15 @@ import ai.senscience.nexus.delta.sdk.schemas.Schemas.{SchemaDefinition, SchemaLo
 import ai.senscience.nexus.delta.sdk.schemas.job.{SchemaValidationCoordinator, SchemaValidationStream}
 import ai.senscience.nexus.delta.sdk.schemas.model.{Schema, SchemaEvent}
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.stream.Supervisor
+import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Supervisor
-import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

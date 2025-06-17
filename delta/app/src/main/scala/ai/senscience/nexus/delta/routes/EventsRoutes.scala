@@ -11,12 +11,12 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 /**
   * The global events route.

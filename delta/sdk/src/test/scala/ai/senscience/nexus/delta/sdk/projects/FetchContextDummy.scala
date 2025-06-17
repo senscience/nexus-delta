@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, Project, ProjectContext, ProjectRejection}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 class FetchContextDummy private (
     expected: Map[ProjectRef, ProjectContext],

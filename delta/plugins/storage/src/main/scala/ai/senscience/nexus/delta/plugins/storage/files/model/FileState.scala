@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.plugins.storage.files.{nxvFile, schemas, FileRe
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder}
@@ -92,7 +92,7 @@ final case class FileState(
 object FileState {
 
   implicit val serializer: Serializer[Iri, FileState] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                        = Serializer.circeConfiguration.withDefaults
     implicit val digestCodec: Codec.AsObject[Digest]                 =
       deriveConfiguredCodec[Digest]

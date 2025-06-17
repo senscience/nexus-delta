@@ -2,17 +2,17 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
+import ai.senscience.nexus.delta.sourcing.config.QueryConfig
+import ai.senscience.nexus.delta.sourcing.event.EventStreaming
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.effect.IO
 import cats.effect.std.Env
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.QueryConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.EventStreaming
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.Projections
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 
 trait EventMetricsProjection
 

@@ -5,15 +5,15 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.InvalidJsonLdFormat
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.RdfError
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}
@@ -104,9 +104,9 @@ final case class ResourceState(
 object ResourceState {
 
   implicit val serializer: Serializer[Iri, ResourceState] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
     import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.

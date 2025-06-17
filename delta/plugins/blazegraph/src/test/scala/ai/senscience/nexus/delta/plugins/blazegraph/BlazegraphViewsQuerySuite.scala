@@ -17,6 +17,10 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.effect.kernel.Resource
@@ -24,10 +28,6 @@ import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.EncoderOps
 import munit.{AnyFixture, Location}

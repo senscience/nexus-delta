@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.{RealmCreated, RealmDeprecated, RealmUpdated}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import io.circe.Json
 import org.http4s.Uri
 import org.http4s.implicits.http4sLiteralsSyntax

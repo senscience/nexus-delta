@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.routes.AclsRoutes.PatchAcl.{Append, Subtract}
 import ai.senscience.nexus.delta.routes.AclsRoutes.{PatchAcl, ReplaceAcl}
 import ai.senscience.nexus.delta.sdk.acls.model.AclValues
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import io.circe.literal.*
 

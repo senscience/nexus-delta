@@ -6,16 +6,16 @@ import ai.senscience.nexus.delta.plugins.storage.files.Files
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileState
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceState
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.stream.ElemStream
+import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ElemStream
-import ch.epfl.bluebrain.nexus.delta.sourcing.{Scope, Transactors}
 import doobie.*
 import doobie.syntax.all.*
 import io.circe.Json

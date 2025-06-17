@@ -9,10 +9,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 
 /**
   * Defines the sinks for the indexing progress for a composite view

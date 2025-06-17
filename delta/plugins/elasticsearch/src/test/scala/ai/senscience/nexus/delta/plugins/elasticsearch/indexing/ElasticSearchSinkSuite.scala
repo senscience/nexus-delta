@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{IndexLabel, QueryBuilder, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.FailureReason
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.FailureReason
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import fs2.Chunk
 import io.circe.Json

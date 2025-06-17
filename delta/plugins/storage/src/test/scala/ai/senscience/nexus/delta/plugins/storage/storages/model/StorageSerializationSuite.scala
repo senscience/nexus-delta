@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageEvent.*
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.DiskStorage as DiskStorageType
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 
 import java.time.Instant
 import scala.collection.immutable.VectorMap

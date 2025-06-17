@@ -9,10 +9,10 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ValidateAggregate}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ProjectionErr}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{PipeChain, ProjectionErr}
 import io.circe.JsonObject
 
 import java.util.UUID

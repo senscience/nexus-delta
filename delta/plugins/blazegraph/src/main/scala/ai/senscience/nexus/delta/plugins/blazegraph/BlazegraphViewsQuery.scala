@@ -16,12 +16,12 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait BlazegraphViewsQuery {
 

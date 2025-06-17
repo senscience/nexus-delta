@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.compositeviews.supervision
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsFixture
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 

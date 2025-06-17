@@ -8,14 +8,14 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.sse.{ServerSentEventStream, SseEventLog}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import akka.http.scaladsl.model.headers.`Last-Event-ID`
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.model.{MediaTypes, StatusCodes}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset.{At, Start}
+import Offset.{At, Start}
 import fs2.Stream
 
 class EventsRoutesSpec extends BaseRouteSpec {

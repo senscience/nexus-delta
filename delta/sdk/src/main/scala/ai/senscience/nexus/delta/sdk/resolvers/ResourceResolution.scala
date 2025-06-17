@@ -11,9 +11,9 @@ import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 
 object ResourceResolution {
 

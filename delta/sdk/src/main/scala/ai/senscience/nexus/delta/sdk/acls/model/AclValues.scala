@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

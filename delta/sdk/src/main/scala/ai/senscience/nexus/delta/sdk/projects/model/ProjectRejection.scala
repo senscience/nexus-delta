@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.sdk.projects.model
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectIsReferenced.ReferencesByProject
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.ReferencedBy
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
@@ -11,8 +13,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.ReferencedBy
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

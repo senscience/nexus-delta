@@ -11,14 +11,14 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{IdentityRealm, Subject}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.state.ProjectionStateSave
+import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{IdentityRealm, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.ProjectionStateSave
-import ch.epfl.bluebrain.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import fs2.Stream
 
 import java.time.Instant

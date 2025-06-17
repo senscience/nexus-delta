@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.sdk.model.Fetch.Fetch
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.DeprecationCheck
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 
 object ResolverResolutionGen {
 

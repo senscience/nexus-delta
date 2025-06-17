@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.deletion.EventMetricsDele
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.EventMetrics
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef}
 
 /**
   * Creates a project deletion task that deletes event metrics pushed for this project

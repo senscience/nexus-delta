@@ -7,10 +7,10 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcement
 import ai.senscience.nexus.delta.sdk.resources.SchemaClaim.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidSchemaRejection, SchemaIsDeprecated, SchemaIsMandatory}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 trait SchemaClaimResolver {
 

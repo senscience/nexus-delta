@@ -8,6 +8,8 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.StatusCodes
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
@@ -16,8 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

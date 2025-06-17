@@ -13,17 +13,17 @@ import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, DataResource}
+import ai.senscience.nexus.delta.sourcing.ScopedEventLog
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.*
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.ScopedEventLog
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.{Assertion, CancelAfterFailure}

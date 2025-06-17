@@ -8,14 +8,14 @@ import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import fs2.Chunk
 import io.circe.Json
 import munit.AnyFixture

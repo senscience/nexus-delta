@@ -11,11 +11,11 @@ import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.data.NonEmptySeq
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.{Decoder, JsonObject}
 import org.http4s.Query
 

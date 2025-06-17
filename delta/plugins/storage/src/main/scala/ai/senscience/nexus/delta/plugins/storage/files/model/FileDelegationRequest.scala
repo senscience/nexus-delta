@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec

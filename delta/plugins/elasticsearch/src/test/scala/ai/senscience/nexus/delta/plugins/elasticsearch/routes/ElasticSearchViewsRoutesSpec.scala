@@ -13,6 +13,8 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.*
 import ai.senscience.nexus.delta.sdk.views.ElasticSearchViewErrors.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
@@ -23,8 +25,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PipeChain
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion
 

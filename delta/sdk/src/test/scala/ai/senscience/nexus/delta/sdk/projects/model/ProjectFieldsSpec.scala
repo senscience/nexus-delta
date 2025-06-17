@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class ProjectFieldsSpec extends BaseSpec {

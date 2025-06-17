@@ -4,11 +4,11 @@ import ai.senscience.nexus.delta.sdk.acls.model.Acl.Metadata
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
@@ -142,7 +142,7 @@ object Acl {
   object Database {
 
     implicit val aclCodec: Codec[Acl] = {
-      import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
       implicit val configuration: Configuration            = Serializer.circeConfiguration
       final case class AclEntry(identity: Identity, permissions: Set[Permission])
       implicit val aclEntryCodec: Codec.AsObject[AclEntry] = deriveConfiguredCodec[AclEntry]

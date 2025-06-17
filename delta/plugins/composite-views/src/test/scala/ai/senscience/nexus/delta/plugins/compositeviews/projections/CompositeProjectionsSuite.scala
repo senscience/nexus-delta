@@ -6,14 +6,14 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.R
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionProgress
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

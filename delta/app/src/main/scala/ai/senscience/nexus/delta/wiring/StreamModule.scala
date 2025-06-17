@@ -2,16 +2,16 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
+import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
+import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
+import ai.senscience.nexus.delta.sourcing.stream.pipes.*
+import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
+import ai.senscience.nexus.delta.sourcing.{DeleteExpired, PurgeElemFailures, Transactors}
 import cats.effect.{Clock, IO, Sync}
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.ElemQueryConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.ElemStreaming
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.tombstone.StateTombstoneStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.{DeleteExpired, PurgeElemFailures, Transactors}
 import izumi.distage.model.definition.ModuleDef
 
 /**

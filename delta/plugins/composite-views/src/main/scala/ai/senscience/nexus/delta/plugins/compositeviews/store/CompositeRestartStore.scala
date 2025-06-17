@@ -4,16 +4,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.entityType
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore.logger
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ProjectionMetadata}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.PurgeConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import io.circe.Json

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.identities.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 
 /**
   * A service account backed by a subject.

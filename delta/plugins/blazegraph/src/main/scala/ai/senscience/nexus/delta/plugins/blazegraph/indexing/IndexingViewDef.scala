@@ -4,15 +4,15 @@ import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewState
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
 
 /**
   * Definition of a Blazegraph view to build a projection

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.projects.model
 
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

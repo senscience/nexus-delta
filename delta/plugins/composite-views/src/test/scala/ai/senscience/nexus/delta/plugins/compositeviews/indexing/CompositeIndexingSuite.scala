@@ -22,6 +22,18 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
+import ai.senscience.nexus.delta.sourcing.config.QueryConfig
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterByType, FilterDeprecated}
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.Semigroup
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
@@ -36,18 +48,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.QueryConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, IriFilter, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.RefreshStrategy
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterByType, FilterDeprecated}
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import ch.epfl.bluebrain.nexus.testkit.mu.{JsonAssertions, NexusSuite, TextAssertions}

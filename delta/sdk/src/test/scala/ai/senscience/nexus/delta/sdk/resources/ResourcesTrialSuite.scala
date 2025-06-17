@@ -11,12 +11,12 @@ import ai.senscience.nexus.delta.sdk.resources.ValidationResult.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidResource, ReservedResourceId}
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Revision
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Revision
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.Location
 

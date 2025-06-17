@@ -11,6 +11,11 @@ import ai.senscience.nexus.delta.sdk.schemas.model.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaEvent.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.*
+import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.{ScopedEntityDefinition, ScopedEventLog, StateMachine}
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
@@ -18,11 +23,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEntityDefinition, ScopedEventLog, StateMachine}
 import io.circe.Json
 
 /**

@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{events, resources}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture

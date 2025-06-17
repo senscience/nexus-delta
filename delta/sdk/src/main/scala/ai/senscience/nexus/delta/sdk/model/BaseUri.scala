@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.IllegalAbsoluteIRIFormatError
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Label.IllegalLabelFormat
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.instances.UriInstances
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label.IllegalLabelFormat
 import io.circe.{Decoder, Encoder}
 import org.http4s.{Query, Uri}
 import pureconfig.ConfigReader

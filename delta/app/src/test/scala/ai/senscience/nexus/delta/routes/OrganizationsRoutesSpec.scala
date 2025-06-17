@@ -15,8 +15,8 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import io.circe.Json
 import org.scalactic.source.Position

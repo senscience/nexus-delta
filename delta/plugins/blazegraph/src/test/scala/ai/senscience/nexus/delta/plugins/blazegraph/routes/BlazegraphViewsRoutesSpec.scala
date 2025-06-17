@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.resourceAlreadyExistsError
 import ai.senscience.nexus.delta.sdk.views.BlazegraphViewErrors.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
@@ -27,7 +28,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 import io.circe.syntax.*
 import org.scalatest.Assertion

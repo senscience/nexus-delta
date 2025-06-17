@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
@@ -16,7 +17,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ch.epfl.bluebrain.nexus.delta.rdf.{ExplainResult, RdfError}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 

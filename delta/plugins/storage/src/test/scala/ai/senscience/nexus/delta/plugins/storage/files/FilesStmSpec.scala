@@ -11,10 +11,10 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, Me
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.{DiskStorage as DiskStorageType, RemoteDiskStorage as RemoteStorageType}
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef, Tags}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef, Tags}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 

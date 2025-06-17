@@ -34,14 +34,14 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}
 import org.http4s.Uri.Path

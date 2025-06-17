@@ -6,11 +6,11 @@ import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 import org.http4s.Query

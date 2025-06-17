@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.O
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.ScopeInitErrorRow
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectInitializationFailed
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant

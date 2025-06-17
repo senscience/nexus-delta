@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk
 
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 
 /**
   * Lifecycle hook for organization and project initialization. It's meant to be used for plugins to preconfigure an

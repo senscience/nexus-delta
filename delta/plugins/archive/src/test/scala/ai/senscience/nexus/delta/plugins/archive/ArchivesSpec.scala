@@ -10,17 +10,17 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess.EphemeralAccess
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.stream.scaladsl.Source
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema}
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EphemeralLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 import org.http4s.Uri

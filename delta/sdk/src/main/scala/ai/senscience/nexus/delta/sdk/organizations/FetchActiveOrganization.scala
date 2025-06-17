@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sdk.organizations
 
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationState}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.state.GlobalStateGet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GlobalStateGet
 import doobie.syntax.all.*
 import doobie.{Get, Put}
 

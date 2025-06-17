@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainProjectTargetAlias
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import io.circe.parser.parse
 
 final class MainIndexDeletionTask(client: ElasticSearchClient, mainIndex: IndexLabel) extends ProjectDeletionTask {

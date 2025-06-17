@@ -8,13 +8,13 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcement
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{SchemaIsDeprecated, SchemaIsMandatory}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class SchemaClaimResolverSuite extends NexusSuite {

@@ -5,14 +5,14 @@ import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*
@@ -289,7 +289,7 @@ object ProjectEvent {
   ) extends ProjectEvent
 
   val serializer: Serializer[ProjectRef, ProjectEvent] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.
     implicit val configuration: Configuration = Serializer.circeConfiguration.withDefaults

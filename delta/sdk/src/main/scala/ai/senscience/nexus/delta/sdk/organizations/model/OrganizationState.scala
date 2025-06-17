@@ -3,13 +3,13 @@ package ai.senscience.nexus.delta.sdk.organizations.model
 import ai.senscience.nexus.delta.sdk.OrganizationResource
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.organizations.Organizations
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.GlobalState
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
@@ -69,7 +69,7 @@ final case class OrganizationState(
 object OrganizationState {
 
   val serializer: Serializer[Label, OrganizationState] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration             = Serializer.circeConfiguration
     implicit val coder: Codec.AsObject[OrganizationState] = deriveConfiguredCodec[OrganizationState]
     Serializer(Organizations.encodeId)

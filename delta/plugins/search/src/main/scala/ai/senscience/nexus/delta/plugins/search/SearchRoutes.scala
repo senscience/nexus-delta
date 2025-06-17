@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.implicits.catsSyntaxApplicativeError
 import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.{Json, JsonObject}
 import kamon.instrumentation.akka.http.TracingDirectives.operationName
 

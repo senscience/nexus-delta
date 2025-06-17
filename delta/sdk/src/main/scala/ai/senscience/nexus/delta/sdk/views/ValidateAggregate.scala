@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.views
 
 import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sourcing.model.EntityType
+import ai.senscience.nexus.delta.sourcing.{EntityCheck, EntityDependencyStore, Transactors}
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityType
-import ch.epfl.bluebrain.nexus.delta.sourcing.{EntityCheck, EntityDependencyStore, Transactors}
 
 trait ValidateAggregate[Rejection] {
 

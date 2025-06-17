@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationRejection}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.effect.IO
@@ -24,7 +25,6 @@ import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

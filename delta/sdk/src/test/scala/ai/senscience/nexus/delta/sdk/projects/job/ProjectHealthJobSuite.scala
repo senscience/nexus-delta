@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.projects.job
 
 import ai.senscience.nexus.delta.sdk.projects.ProjectHealer
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 

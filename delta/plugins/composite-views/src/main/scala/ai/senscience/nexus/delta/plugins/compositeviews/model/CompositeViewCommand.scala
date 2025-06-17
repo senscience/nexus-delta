@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 
 /**

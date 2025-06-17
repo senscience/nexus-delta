@@ -5,11 +5,11 @@ import ai.senscience.nexus.delta.sdk.generators.PermissionsGen.minimum
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection.{CannotAppendEmptyCollection, CannotDeleteMinimumCollection, CannotReplaceWithEmptyCollection, CannotSubtractEmptyCollection, CannotSubtractFromMinimumCollection, CannotSubtractUndefinedPermissions, IncorrectRev, RevisionNotFound}
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.CancelAfterFailure
 

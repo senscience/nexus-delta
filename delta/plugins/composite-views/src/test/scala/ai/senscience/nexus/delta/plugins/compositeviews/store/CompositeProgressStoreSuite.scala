@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionProgress
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 

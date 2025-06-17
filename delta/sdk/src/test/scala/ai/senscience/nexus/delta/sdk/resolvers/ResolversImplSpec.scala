@@ -15,17 +15,17 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.{Incorrec
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ResolverResource}
+import ai.senscience.nexus.delta.sourcing.EntityDependencyStore
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.EntityDependencyStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.CancelAfterFailure
 

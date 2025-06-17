@@ -10,17 +10,17 @@ import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectCommand.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
+import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.SuccessElemStream
 import fs2.Stream
 
 final class ProjectsImpl private (

@@ -6,6 +6,8 @@ import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, JsonLdForm
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import akka.http.scaladsl.coding.Coders
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`}
@@ -18,8 +20,6 @@ import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
 import io.circe.Encoder
 import org.http4s.Uri
 

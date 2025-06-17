@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.organizations.model
 
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationEvent.{OrganizationCreated, OrganizationDeprecated, OrganizationUndeprecated, OrganizationUpdated}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 
 import java.time.Instant
 import java.util.UUID

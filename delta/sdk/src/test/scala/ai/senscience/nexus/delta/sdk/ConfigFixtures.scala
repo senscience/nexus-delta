@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.RefreshStrategy
 
 import scala.concurrent.duration.*
 

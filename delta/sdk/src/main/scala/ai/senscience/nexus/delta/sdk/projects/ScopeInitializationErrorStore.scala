@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.ScopeInitErrorRow
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import doobie.generic.auto.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

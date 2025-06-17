@@ -14,16 +14,16 @@ import ai.senscience.nexus.delta.sdk.schemas.SchemasImpl.SchemasLog
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
 import ai.senscience.nexus.delta.sdk.schemas.model.{SchemaCommand, SchemaEvent, SchemaRejection, SchemaState}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.Json
 
 final class SchemasImpl private (

@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmCommand.{CreateRealm, Dep
 import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.{RealmCreated, RealmDeprecated, RealmUpdated}
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{IncorrectRev, RealmAlreadyDeprecated, RealmAlreadyExists, RealmNotFound}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label}
+import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label}
-import ch.epfl.bluebrain.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import org.http4s.Uri
 
 /**

@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.{ElasticSearchSink, IndexingViewDef}
 import ai.senscience.nexus.delta.sdk.IndexingAction
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration

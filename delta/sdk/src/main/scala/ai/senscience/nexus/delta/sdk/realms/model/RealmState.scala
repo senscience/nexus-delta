@@ -3,14 +3,14 @@ package ai.senscience.nexus.delta.sdk.realms.model
 import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.model.{Name, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.realms.Realms
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.GlobalState
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}
@@ -143,7 +143,7 @@ object RealmState {
   val serializer: Serializer[Label, RealmState] = {
     import GrantType.Camel.*
     import ai.senscience.nexus.delta.sdk.instances.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration      = Serializer.circeConfiguration
     implicit val coder: Codec.AsObject[RealmState] = deriveConfiguredCodec[RealmState]
     Serializer(Realms.encodeId)

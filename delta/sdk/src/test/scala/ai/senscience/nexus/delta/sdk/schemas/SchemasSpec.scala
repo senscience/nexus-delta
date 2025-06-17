@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.{IncorrectRev
 import ai.senscience.nexus.delta.sdk.schemas.model.{SchemaCommand, SchemaEvent, SchemaState}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, Tags}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, Tags}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 

@@ -6,16 +6,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourc
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, IriFilter, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 import io.circe.syntax.EncoderOps

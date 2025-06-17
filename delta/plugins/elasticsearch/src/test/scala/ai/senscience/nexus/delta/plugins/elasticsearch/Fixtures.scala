@@ -2,14 +2,14 @@ package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts.{elasticsearch, elasticsearchMetadata}
+import ai.senscience.nexus.delta.sourcing.stream.ReferenceRegistry
+import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ReferenceRegistry
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.*
 
 object Fixtures {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader()

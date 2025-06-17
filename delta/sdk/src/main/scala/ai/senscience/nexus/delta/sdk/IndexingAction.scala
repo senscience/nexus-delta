@@ -4,6 +4,11 @@ import ai.senscience.nexus.delta.sdk.IndexingAction.logger
 import ai.senscience.nexus.delta.sdk.IndexingMode.{Async, Sync}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.IndexingFailed
 import ai.senscience.nexus.delta.sdk.model.ResourceF
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, Elem, ElemStream, Projection}
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
@@ -11,11 +16,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{CompiledProjection, Elem, ElemStream, Projection}
 
 import scala.concurrent.duration.*
 

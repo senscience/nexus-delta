@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sdk.projects.job
 
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, Projects}
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.effect.std.Env
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import fs2.Stream
 
 trait ProjectHealthJob

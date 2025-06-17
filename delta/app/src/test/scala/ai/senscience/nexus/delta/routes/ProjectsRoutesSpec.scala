@@ -16,15 +16,15 @@ import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver.PermissionAcc
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, ProjectsConfig, ProjectsImpl, ProjectsStatistics}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import io.circe.Json
 import org.scalactic.source.Position

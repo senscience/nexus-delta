@@ -14,18 +14,18 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.{ResolverContextResolution, Resolvers, ResourceResolution}
-import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceDefinition, ResourceLog}
 import ai.senscience.nexus.delta.sdk.resources.*
+import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceDefinition, ResourceLog}
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceEvent}
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

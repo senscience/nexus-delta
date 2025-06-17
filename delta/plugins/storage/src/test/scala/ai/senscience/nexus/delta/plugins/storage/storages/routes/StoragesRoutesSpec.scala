@@ -18,6 +18,8 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
@@ -28,8 +30,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.Json
 import org.scalatest.Assertion
 

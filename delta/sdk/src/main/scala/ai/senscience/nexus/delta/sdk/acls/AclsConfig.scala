@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.acls
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

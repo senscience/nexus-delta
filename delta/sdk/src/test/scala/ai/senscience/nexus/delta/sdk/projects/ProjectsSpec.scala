@@ -10,11 +10,11 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectEvent.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.*
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, PrefixIri, ProjectFields}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema, xsd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant

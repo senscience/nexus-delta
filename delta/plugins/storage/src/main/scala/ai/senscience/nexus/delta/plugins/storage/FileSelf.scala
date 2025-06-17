@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.*
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import org.http4s.Uri
 
 /**

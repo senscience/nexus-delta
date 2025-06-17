@@ -5,6 +5,8 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess.{EphemeralAccess, InProjectAccess, RootAccess}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.Functor
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
@@ -14,8 +16,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyEvent.{TypeHierarchyCreated, TypeHierarchyUpdated}
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchyEvent, TypeHierarchyState}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 import java.time.Instant
 

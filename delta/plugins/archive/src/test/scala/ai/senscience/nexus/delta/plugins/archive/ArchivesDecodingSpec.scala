@@ -5,13 +5,13 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.{AnnotatedSourceJson, CompactedJsonLd, Dot, ExpandedJsonLd, NTriples, SourceJson}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 

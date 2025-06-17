@@ -15,6 +15,10 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ScopeInitializationErrorStore}
 import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
+import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import akka.actor.{ActorSystem, BootstrapSetup}
 import akka.http.scaladsl.model.HttpMethods.*
 import akka.http.scaladsl.model.headers.Location
@@ -27,10 +31,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFu
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}

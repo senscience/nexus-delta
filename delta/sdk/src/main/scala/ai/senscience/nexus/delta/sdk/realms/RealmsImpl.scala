@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.realms.model.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmCommand.{CreateRealm, DeprecateRealm, UpdateRealm}
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{RealmNotFound, RevisionNotFound}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import org.http4s.Uri
 
 final class RealmsImpl private (log: RealmsLog) extends Realms {

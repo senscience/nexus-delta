@@ -9,11 +9,11 @@ import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.InvalidSchemaResolution
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 

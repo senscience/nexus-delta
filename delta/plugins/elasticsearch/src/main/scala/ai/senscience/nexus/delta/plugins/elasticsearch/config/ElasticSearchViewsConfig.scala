@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.config
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.Refresh
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.error.CannotConvert

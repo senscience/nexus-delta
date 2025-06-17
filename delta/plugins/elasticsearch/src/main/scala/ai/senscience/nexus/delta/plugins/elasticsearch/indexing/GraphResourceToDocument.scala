@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Pipe
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, PipeRef}
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 import shapeless.Typeable

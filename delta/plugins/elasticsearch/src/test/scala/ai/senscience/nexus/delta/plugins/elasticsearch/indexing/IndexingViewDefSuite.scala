@@ -9,20 +9,20 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, Fixt
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, PipeStep, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef, Tags}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindTypedPipeErr
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.pipes.FilterByType.FilterByTypeConfig
+import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterByType, FilterDeprecated}
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindTypedPipeErr
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.FilterByType.FilterByTypeConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.{FilterByType, FilterDeprecated}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig

@@ -5,12 +5,12 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{Provide
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent.{ResolverCreated, ResolverDeprecated, ResolverTagAdded, ResolverUpdated}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import io.circe.Json
 
 import java.time.Instant

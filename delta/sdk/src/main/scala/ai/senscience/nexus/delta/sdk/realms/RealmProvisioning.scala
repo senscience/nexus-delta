@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.sdk.ProvisioningAction.Outcome
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning.logger
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.RealmAlreadyExists
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 
 /**
   * Provision the different realms provided in the configuration

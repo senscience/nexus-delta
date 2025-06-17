@@ -3,12 +3,12 @@ package ai.senscience.nexus.delta.sdk.resolvers.model
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ResolverValueSpec extends CatsEffectSpec with Fixtures {

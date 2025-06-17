@@ -22,14 +22,14 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ServiceDependency
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

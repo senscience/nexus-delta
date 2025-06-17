@@ -7,12 +7,12 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFaile
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, IriFilter, ProjectRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 
 /**
   * The default creation of the default SparqlView as part of the project initialization.

@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.sdk.generators
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.schemas.model.{Schema, SchemaState}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
@@ -10,8 +12,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import io.circe.Json
 
 import java.time.Instant

@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.identities
 
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.AuthToken
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.InvalidAccessToken
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 
 /**
   * Dummy implementation of [[Identities]] passing the expected results in a map

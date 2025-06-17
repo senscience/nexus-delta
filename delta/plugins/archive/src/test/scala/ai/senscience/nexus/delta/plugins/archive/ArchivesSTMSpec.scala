@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveState, ArchiveVal
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.SourceJson
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.nio.file.Paths

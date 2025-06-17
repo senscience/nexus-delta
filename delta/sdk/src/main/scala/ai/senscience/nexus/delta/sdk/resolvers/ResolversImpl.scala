@@ -14,14 +14,14 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolversImpl.ResolversLog
 import ai.senscience.nexus.delta.sdk.resolvers.model.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverCommand.{CreateResolver, DeprecateResolver, UpdateResolver}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.{FetchByTagNotSupported, ResolverNotFound, RevisionNotFound}
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import io.circe.Json
 
 final class ResolversImpl private (

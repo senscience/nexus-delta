@@ -3,14 +3,14 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MarkElems
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.EventMetricsSink.empty
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import shapeless.Typeable
 
 final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfig: BatchConfig) extends Sink {

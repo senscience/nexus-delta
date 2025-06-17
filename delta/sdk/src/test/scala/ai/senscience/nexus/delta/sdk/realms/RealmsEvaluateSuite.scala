@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.sdk.realms.Realms.evaluate
 import ai.senscience.nexus.delta.sdk.realms.model.RealmCommand.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import org.http4s.Uri

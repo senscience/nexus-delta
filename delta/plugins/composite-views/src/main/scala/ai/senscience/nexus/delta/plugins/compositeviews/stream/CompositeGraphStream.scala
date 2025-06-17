@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.plugins.compositeviews.stream
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, ProjectSource, RemoteProjectSource}
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.{ElemPipe, RemainingElems, Source}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ElemPipe, RemainingElems, Source}
 import io.circe.Json
 
 /**

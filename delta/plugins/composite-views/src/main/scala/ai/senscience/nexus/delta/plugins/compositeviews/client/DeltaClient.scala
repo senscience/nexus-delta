@@ -6,16 +6,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
+import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Tag}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.ResponseUtils
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RdfHttp4sMediaTypes}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Tag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems}
 import io.circe.Json
 import io.circe.parser.decode
 import org.http4s.Method.{GET, HEAD}

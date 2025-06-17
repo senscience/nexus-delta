@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.generators
 
 import ai.senscience.nexus.delta.sdk.AclResource
 import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclState}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 
 import java.time.Instant
 

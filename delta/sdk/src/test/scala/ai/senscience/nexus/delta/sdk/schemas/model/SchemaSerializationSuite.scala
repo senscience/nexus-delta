@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.sdk.schemas.model
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.generators.SchemaGen
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaEvent.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tags}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, Tags}
 
 import java.time.Instant
 

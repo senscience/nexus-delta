@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import fs2.Stream
 
 /**

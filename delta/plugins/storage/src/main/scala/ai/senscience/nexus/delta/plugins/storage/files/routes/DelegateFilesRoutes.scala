@@ -14,6 +14,8 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.StatusCodes.{Created, OK}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
@@ -21,8 +23,6 @@ import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.akka.marshalling.{CirceMarshalling, CirceUnmarshalling}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 

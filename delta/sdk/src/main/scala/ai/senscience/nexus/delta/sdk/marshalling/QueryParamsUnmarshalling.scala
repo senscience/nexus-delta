@@ -6,12 +6,12 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.Json
 import io.circe.parser.parse
 

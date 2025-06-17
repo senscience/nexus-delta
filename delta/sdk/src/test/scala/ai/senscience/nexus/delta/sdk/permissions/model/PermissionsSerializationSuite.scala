@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.permissions.model
 
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsEvent.{PermissionsAppended, PermissionsDeleted, PermissionsReplaced, PermissionsSubtracted}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 
 import java.time.Instant
 

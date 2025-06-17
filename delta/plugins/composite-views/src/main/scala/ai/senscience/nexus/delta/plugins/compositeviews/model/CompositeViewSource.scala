@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourc
 import ai.senscience.nexus.delta.plugins.compositeviews.model.SourceType.{CrossProjectSourceType, ProjectSourceType, RemoteProjectSourceType}
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, IriFilter, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PipeChain
 import io.circe.Encoder
 import org.http4s.Uri
 

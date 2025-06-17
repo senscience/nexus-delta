@@ -14,11 +14,12 @@ import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 /**
   * Allow to attempt resolutions for data resources and schemas
+  *
   * @param fetchProject
   *   how to fetch a project
   * @param resourceResolution

@@ -20,13 +20,13 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Label}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.JsonObject
 import org.scalatest.CancelAfterFailure

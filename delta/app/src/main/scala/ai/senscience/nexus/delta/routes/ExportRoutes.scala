@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
 
 class ExportRoutes(identities: Identities, aclCheck: AclCheck, exporter: Exporter)(implicit
     baseUri: BaseUri,

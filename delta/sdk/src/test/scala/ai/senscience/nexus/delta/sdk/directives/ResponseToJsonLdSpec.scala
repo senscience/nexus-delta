@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{FileData, SimpleRejection, SimpleResource}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
@@ -17,7 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.JsonSyntax
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import fs2.Stream
 

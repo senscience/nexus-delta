@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClien
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.WrappedElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
 import ai.senscience.nexus.delta.sdk.model.search.SortList
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 

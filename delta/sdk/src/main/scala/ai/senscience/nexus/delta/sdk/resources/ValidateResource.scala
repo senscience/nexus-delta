@@ -7,13 +7,13 @@ import ai.senscience.nexus.delta.sdk.resources.Resources.kamonComponent
 import ai.senscience.nexus.delta.sdk.resources.ValidationResult.{NoValidation, Validated}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidResource, NoTargetedNode, ReservedResourceId, ReservedResourceTypes, ResourceShaclEngineRejection}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.{ValidateShacl, ValidationReport}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef
 
 /**
   * Allows to validate the resource:

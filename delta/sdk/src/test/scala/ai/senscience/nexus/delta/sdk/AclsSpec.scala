@@ -8,9 +8,9 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclEvent.{AclAppended, AclDelete
 import ai.senscience.nexus.delta.sdk.acls.model.AclRejection.*
 import ai.senscience.nexus.delta.sdk.acls.{AclFixtures, Acls}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant

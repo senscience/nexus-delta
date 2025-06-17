@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sdk.acls.{Acls, AclsImpl}
 import ai.senscience.nexus.delta.sdk.generators.{OrganizationGen, PermissionsGen, ProjectGen}
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class OwnerPermissionsScopeInitializationSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures {

@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 
 /**
   * The default creation of ACLs for newly created organizations and projects.

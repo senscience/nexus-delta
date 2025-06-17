@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Label
 import pureconfig.ConfigReader
 
 /**

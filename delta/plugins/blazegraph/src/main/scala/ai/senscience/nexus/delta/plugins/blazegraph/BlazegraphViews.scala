@@ -20,19 +20,19 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
+import ai.senscience.nexus.delta.sourcing.*
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import io.circe.Json
 
 import java.util.UUID

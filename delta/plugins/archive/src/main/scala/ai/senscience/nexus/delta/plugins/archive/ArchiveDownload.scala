@@ -21,6 +21,7 @@ import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.{JsonLdValue, ResourceShifts}
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import akka.stream.alpakka.file.ArchiveMetadata
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -33,7 +34,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdAp
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, Printer}
 

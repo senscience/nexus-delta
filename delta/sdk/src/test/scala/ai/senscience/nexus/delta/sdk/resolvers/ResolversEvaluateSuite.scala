@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent.{ResolverCrea
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverType.{CrossProject, InProject}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 

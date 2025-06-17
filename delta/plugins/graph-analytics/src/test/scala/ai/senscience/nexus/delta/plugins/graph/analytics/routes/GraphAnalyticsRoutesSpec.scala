@@ -14,14 +14,14 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schema
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.ProgressStatistics
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import org.scalatest.CancelAfterFailure
 
 import java.time.Instant

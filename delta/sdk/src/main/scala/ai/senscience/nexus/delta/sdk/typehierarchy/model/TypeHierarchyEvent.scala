@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sdk.typehierarchy.model
 
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy.typeHierarchyId
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.GlobalEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.GlobalEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
@@ -65,7 +65,7 @@ object TypeHierarchyEvent {
   ) extends TypeHierarchyEvent
 
   val serializer: Serializer[Iri, TypeHierarchyEvent] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration              = Serializer.circeConfiguration
     implicit val coder: Codec.AsObject[TypeHierarchyEvent] = deriveConfiguredCodec[TypeHierarchyEvent]
     Serializer(identity)

@@ -7,11 +7,11 @@ import ai.senscience.nexus.delta.sdk.permissions.model.*
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsCommand.*
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection.{RevisionNotFound, UnexpectedState}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 final class PermissionsImpl private (
     override val minimum: Set[Permission],

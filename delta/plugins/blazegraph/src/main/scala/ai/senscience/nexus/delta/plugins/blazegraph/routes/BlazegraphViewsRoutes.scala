@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.{Directive0, Route}
@@ -27,7 +28,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteCon
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 
 /**

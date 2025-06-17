@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
@@ -20,7 +21,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 import java.util.regex.Pattern.quote
 

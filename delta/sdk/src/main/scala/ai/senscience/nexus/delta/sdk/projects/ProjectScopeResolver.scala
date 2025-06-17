@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver.PermissionAccess
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import fs2.Stream
 
 /**

@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result.itemEncoder
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
@@ -13,7 +14,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdAp
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json, JsonObject}
 

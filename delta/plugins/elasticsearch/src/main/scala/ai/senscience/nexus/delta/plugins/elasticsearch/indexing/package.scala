@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{IndexAlias, IndexLabel}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionMetadata
 import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
 

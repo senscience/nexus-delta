@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.multifetch.model
 
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest.Input
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.Decoder
 
 /**

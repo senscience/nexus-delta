@@ -4,11 +4,11 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import io.circe.{Encoder, JsonObject}
 
 /**

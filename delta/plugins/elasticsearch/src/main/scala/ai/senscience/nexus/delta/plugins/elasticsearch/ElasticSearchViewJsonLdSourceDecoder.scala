@@ -9,6 +9,9 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.{PipeStep, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.implicits.*
@@ -22,9 +25,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.Parsi
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.{Configuration, JsonLdDecoder}
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.*
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 

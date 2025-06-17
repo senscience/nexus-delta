@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration

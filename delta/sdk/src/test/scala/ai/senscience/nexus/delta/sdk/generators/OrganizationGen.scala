@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.generators
 
 import ai.senscience.nexus.delta.sdk.OrganizationResource
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationState}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.Label
 
 import java.time.Instant
 import java.util.UUID

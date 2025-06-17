@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclAddress}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{acls, resolvers}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import org.scalatest.Suite
 
 import java.time.Instant

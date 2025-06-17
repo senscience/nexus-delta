@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.acls.model
 import ai.senscience.nexus.delta.sdk.acls.AclFixtures
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.*
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddressFilter.{AnyOrganization, AnyOrganizationAnyProject, AnyProject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class AclAddressFilterSpec extends BaseSpec with AclFixtures {

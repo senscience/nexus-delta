@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import cats.data.OptionT
 import cats.effect.IO
 import cats.syntax.all.*
@@ -17,7 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOid
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import com.nimbusds.jose.jwk.{JWK, JWKSet}
 import io.circe.{Decoder, HCursor, Json}
 import org.http4s.Method.GET

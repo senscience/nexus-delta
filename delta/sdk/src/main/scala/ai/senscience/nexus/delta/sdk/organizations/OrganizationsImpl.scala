@@ -8,14 +8,14 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{OrganizationCommand, OrganizationEvent, OrganizationRejection, OrganizationState}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{OrganizationResource, ScopeInitializer}
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 final class OrganizationsImpl private (
     log: OrganizationsLog,

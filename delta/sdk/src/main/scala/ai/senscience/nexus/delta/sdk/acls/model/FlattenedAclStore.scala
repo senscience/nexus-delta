@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
 import doobie.*
 import doobie.syntax.all.*
 

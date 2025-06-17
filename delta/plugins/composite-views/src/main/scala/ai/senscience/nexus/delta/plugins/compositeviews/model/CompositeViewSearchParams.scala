@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 /**
   * Search parameters for Composite views.

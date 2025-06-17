@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.{RevisionNotFound, SchemaNotFound, TagNotFound}
 import ai.senscience.nexus.delta.sdk.schemas.model.{Schema, SchemaRejection, SchemaState}
+import ai.senscience.nexus.delta.sourcing.ScopedEventLogReadOnly
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.ScopedEventLogReadOnly
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 trait FetchSchema {
 

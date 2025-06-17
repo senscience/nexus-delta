@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextRemoteIri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.{EncoderOps, KeyOps}

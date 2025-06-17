@@ -13,11 +13,11 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.search.SortList
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 
