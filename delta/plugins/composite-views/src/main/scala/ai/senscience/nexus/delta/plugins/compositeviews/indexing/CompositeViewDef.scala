@@ -10,6 +10,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewProj
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeGraphStream, CompositeProgress}
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef, ViewRef}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.data.{NonEmptyChain, NonEmptyMap}
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.kernel.Resource.ExitCase.{Canceled, Errored, Succeeded}
@@ -18,10 +22,6 @@ import cats.kernel.Semigroup
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
 import fs2.{Pipe, Stream}
 
 import java.util.UUID

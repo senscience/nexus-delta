@@ -7,13 +7,13 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourc
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, IriFilter, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.{Json, JsonObject}
 import org.http4s.Uri

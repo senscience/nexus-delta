@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResourceAlreadyExists
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.InProjectValue
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverValue}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class ResolverScopeInitializationSuite extends NexusSuite {

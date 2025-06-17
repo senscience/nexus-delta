@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts as nxvContexts, nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
 
 package object model {
 

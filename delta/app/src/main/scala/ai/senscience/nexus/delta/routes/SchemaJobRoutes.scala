@@ -10,17 +10,17 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.implicits.catsSyntaxApplicativeError
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.utils.StreamingUtils
 
 import java.nio.ByteBuffer
 

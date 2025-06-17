@@ -9,17 +9,17 @@ import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.sse.{resourcesSelector, SseEncoder}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredDecoder, deriveConfiguredEncoder}
@@ -414,9 +414,9 @@ object ResourceEvent {
   ) extends ResourceEvent
 
   val serializer: Serializer[Iri, ResourceEvent] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
     import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.

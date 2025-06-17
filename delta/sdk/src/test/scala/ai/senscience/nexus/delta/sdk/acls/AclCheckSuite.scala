@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class AclCheckSuite extends NexusSuite {

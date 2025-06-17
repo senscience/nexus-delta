@@ -4,11 +4,11 @@ import ai.senscience.nexus.delta.sdk.acls.Acls
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationNonEmpty
 import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sourcing.Scope.Org
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope.Org
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
 
 trait OrganizationDeleter {
   def apply(org: Label): IO[Unit]

@@ -3,14 +3,14 @@ package ai.senscience.nexus.delta.sdk.schemas.job
 import ai.senscience.nexus.delta.sdk.resources.ValidateResource
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceRejection, ResourceState}
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.{ElemStream, FailureReason, SuccessElemStream}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ElemStream, FailureReason, SuccessElemStream}
 import fs2.Stream
 
 /**

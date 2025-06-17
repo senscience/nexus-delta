@@ -19,18 +19,18 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchRe
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tags}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
+import ai.senscience.nexus.delta.sourcing.*
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import io.circe.Json
 
 import scala.concurrent.duration.FiniteDuration

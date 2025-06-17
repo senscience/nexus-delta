@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sdk.acls.model.{AclAddressFilter, FlattenedAclS
 import ai.senscience.nexus.delta.sdk.generators.PermissionsGen
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.file.TempDirectory
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture

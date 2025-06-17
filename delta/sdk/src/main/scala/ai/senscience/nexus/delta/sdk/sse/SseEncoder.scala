@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.sse
 
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import io.circe.{Decoder, Encoder, JsonObject}
 
 abstract class SseEncoder[E <: ScopedEvent] {

@@ -2,11 +2,11 @@ package ai.senscience.nexus.delta.sdk.resolvers.model
 
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.ResolverReport
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.syntax.*

@@ -10,6 +10,10 @@ import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseElemStream
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Route
@@ -17,10 +21,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.RemainingElems
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

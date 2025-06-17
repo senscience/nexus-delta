@@ -11,10 +11,10 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.Organizations
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.sse.{SseElemStream, SseEncoder, SseEventLog}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.ElemStreaming
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

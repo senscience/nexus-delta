@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.Provided
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent.{ResolverCreated, ResolverDeprecated, ResolverTagAdded, ResolverUpdated}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverState, ResolverType}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 import io.circe.Json
 

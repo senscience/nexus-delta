@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.schemas.job
 
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
 
 /**
   * Allows to run a revalidation of the different data resouces in the given project

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.permissions.model
 
 import ai.senscience.nexus.delta.sdk.generators.PermissionsGen
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 import java.time.Instant

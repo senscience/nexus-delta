@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta
 
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
+import ai.senscience.nexus.delta.sourcing.postgres.{PostgresDb, PostgresPassword, PostgresUser}
 import ai.senscience.nexus.delta.wiring.DeltaModule
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.{PostgresDb, PostgresPassword, PostgresUser}
 import ch.epfl.bluebrain.nexus.testkit.config.SystemPropertyOverride
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.postgres.PostgresContainer

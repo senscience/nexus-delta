@@ -3,17 +3,17 @@ package ai.senscience.nexus.delta.sdk.sse
 import ai.senscience.nexus.delta.sdk.error.ServiceError.UnknownSseLabel
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultPrinter
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
+import ai.senscience.nexus.delta.sourcing.event.EventStreaming
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.EventStreaming
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import fs2.Stream
 import io.circe.syntax.EncoderOps
 

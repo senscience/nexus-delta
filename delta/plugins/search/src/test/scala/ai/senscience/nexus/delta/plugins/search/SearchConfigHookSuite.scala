@@ -8,11 +8,11 @@ import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.{Json, JsonObject}
 

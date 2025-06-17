@@ -6,16 +6,16 @@ import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.DeletionConfig
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectState
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsConfig}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
+import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
 
 /**
   * Stream to delete project from the system after those are marked as deleted

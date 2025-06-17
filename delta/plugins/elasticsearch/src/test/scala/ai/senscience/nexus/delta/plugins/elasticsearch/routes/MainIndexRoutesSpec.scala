@@ -5,14 +5,14 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.{defaultViewId, per
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.Projections
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionProgress
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 

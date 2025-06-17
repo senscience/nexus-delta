@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.realms.model
 
 import ai.senscience.nexus.delta.sdk.model.Name
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import org.http4s.Uri
 
 /**

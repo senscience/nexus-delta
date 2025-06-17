@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins
 
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 package object compositeviews {
 

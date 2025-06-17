@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}
@@ -98,7 +98,7 @@ final case class CompositeViewState(
 object CompositeViewState {
 
   implicit val serializer: Serializer[Iri, CompositeViewState] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                       = Serializer.circeConfiguration
     implicit val compositeViewValueCodec: Codec[CompositeViewValue] = CompositeViewValue.databaseCodec()
     implicit val codec: Codec.AsObject[CompositeViewState]          = deriveConfiguredCodec[CompositeViewState]

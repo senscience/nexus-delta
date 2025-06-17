@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 class CompositeSupervisionRoutesSpec extends BaseRouteSpec {
 

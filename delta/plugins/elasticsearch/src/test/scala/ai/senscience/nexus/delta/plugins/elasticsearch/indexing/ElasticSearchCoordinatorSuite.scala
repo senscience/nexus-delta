@@ -5,17 +5,17 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
+import ai.senscience.nexus.delta.sourcing.PullRequest
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
+import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.PullRequest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig

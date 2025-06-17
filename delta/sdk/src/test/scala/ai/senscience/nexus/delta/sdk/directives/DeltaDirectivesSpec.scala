@@ -11,6 +11,8 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{SimpleRejection, SimpleResource}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.HttpMethods.GET
 import akka.http.scaladsl.model.MediaRange.*
@@ -30,8 +32,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdAp
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec

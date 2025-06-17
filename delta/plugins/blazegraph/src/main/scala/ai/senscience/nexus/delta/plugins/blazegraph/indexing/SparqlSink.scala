@@ -5,6 +5,9 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.Spa
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlWriteQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{logger, SparqlBulk}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.error.HttpConnectivityError
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
@@ -14,9 +17,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.RdfError.InvalidIri
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import org.http4s.Uri
 import shapeless.Typeable
 

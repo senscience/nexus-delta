@@ -10,15 +10,15 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectCommand.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectEvent.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{IncorrectRev, ProjectAlreadyExists, ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectIsNotDeprecated, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
+import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.SuccessElemStream
-import ch.epfl.bluebrain.nexus.delta.sourcing.{Scope, ScopedEntityDefinition, StateMachine}
 import fs2.Stream
 
 trait Projects {

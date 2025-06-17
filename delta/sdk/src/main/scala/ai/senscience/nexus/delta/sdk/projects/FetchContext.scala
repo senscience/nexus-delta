@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext, ProjectState}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.state.ScopedStateGet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.ScopedStateGet
 import doobie.syntax.all.*
 import doobie.{Get, Put}
 

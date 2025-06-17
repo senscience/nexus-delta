@@ -4,18 +4,18 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, SourceAsText}
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, SourceAsText}
 
 sealed trait MainIndexingCoordinator
 

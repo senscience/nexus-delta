@@ -13,10 +13,10 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.Resolver.{CrossProjectResol
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverResolutionRejection.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.{ResolverFailedReport, ResolverReport, ResolverSuccessReport}
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Resolver, ResolverRejection, ResolverResolutionRejection, ResourceResolutionReport}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 
 import scala.collection.immutable.VectorMap
 

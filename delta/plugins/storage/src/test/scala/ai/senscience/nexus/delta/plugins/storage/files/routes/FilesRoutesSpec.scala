@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageCo
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesDummy}
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
+import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesDummy}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
@@ -20,6 +20,9 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.{IndexingAction, NexusHeaders}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.ContentTypes.`application/json`
 import akka.http.scaladsl.model.MediaRanges.*
@@ -32,9 +35,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.*

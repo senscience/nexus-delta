@@ -11,6 +11,11 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.sse.{resourcesSelector, SseEncoder}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
@@ -18,11 +23,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.generic.semiauto.deriveEncoder
@@ -353,7 +353,7 @@ object FileEvent {
   ) extends FileEvent
 
   val serializer: Serializer[Iri, FileEvent] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                        = Serializer.circeConfiguration
     implicit val digestCodec: Codec.AsObject[Digest]                 =
       deriveConfiguredCodec[Digest]

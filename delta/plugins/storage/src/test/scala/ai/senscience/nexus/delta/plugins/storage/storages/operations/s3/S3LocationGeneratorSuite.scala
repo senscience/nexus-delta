@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import org.http4s.Uri
 import org.http4s.Uri.Path

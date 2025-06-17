@@ -5,12 +5,12 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingDecoder
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 import io.circe.syntax.*
 

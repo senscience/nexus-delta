@@ -4,10 +4,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeGraphStream
+import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.TransientSingleNode
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChain}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ExecutionStrategy.TransientSingleNode
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{CompiledProjection, PipeChain}
 
 /**
   * Handle the different life stages of a composite view projection

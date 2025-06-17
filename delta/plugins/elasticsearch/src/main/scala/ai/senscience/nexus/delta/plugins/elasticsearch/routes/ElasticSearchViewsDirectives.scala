@@ -8,11 +8,11 @@ import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.IriBas
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.{Directive, Directive0, Directive1, MalformedQueryParamRejection}
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
 import io.circe.parser
 import org.http4s.Query
 

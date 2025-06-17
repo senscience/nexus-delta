@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.query.{MainIndexQuery, Ma
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.DummyMainIndexQuery.{aggregationResponse, allowedPage, listResponse}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral.circeLiteralSyntax
 import io.circe.{Json, JsonObject}
 import org.http4s.Query

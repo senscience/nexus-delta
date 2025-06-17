@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.*
@@ -37,8 +37,7 @@ object IdentityResolution {
   }
 
   object Database {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
-
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit private val configuration: Configuration                        = Serializer.circeConfiguration
     implicit val identityResolutionCodec: Codec.AsObject[IdentityResolution] =
       deriveConfiguredCodec[IdentityResolution]

@@ -10,6 +10,8 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfExceptionHandler
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
 import akka.http.scaladsl.server.Directives.*
@@ -20,8 +22,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.InvalidAccessToke
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import org.scalatest.matchers.should.Matchers

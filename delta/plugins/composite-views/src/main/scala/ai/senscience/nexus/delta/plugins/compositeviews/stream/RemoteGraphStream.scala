@@ -6,15 +6,15 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.MetadataPredica
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.RemoteGraphStream.fromNQuads
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems, Source}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.RdfError.MissingPredicate
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.{Graph, NQuads}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems, Source}
 import fs2.Stream
 import io.circe.Json
 

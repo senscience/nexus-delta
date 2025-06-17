@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sdk.organizations.model
 
 import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization.Metadata
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import io.circe.Encoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder

@@ -10,6 +10,11 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.{ElasticSearchSink, GraphResourceToDocument}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.HttpConnectivityError
@@ -21,11 +26,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, T
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import fs2.Chunk
 import shapeless.Typeable
 

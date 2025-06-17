@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.model.routes
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

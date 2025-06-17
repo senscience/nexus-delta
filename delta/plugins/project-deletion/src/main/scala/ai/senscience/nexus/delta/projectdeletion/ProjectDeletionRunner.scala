@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
+import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import fs2.Stream
 
 import java.time.Instant

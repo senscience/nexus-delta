@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejectio
 import ai.senscience.nexus.delta.plugins.blazegraph.{BlazegraphViews, BlazegraphViewsQuery}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 private[routes] class BlazegraphViewsQueryDummy(
     client: SparqlQueryClient,

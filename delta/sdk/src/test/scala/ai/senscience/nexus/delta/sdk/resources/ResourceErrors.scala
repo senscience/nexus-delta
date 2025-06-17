@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral.circeLiteralSyntax
 import io.circe.Json
 

@@ -2,6 +2,13 @@ package ai.senscience.nexus.delta.sdk
 
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
+import ai.senscience.nexus.delta.sourcing.stream.Elem
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
@@ -12,13 +19,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import io.circe.Json
 
 /**

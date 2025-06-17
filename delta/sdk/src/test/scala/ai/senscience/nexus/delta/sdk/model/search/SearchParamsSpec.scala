@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.sdk.model.search
 import ai.senscience.nexus.delta.sdk.generators.{OrganizationGen, ProjectGen, RealmGen, WellKnownGen}
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.{OrganizationSearchParams, ProjectSearchParams, RealmSearchParams}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class SearchParamsSpec extends CatsEffectSpec {

@@ -11,13 +11,13 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{IncorrectRev, ProjectAlreadyExists, ProjectIsDeprecated, ProjectIsReferenced, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.CancelAfterFailure
 

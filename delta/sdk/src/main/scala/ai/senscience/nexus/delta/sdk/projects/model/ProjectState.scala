@@ -3,13 +3,13 @@ package ai.senscience.nexus.delta.sdk.projects.model
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.ScopedState
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Decoder, Encoder}
@@ -125,7 +125,7 @@ final case class ProjectState(
 object ProjectState {
 
   implicit val serializer: Serializer[ProjectRef, ProjectState] = {
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.
     implicit val configuration: Configuration = Serializer.circeConfiguration.withDefaults

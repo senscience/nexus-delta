@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.ScopeInitializer
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait ProjectHealer {
 

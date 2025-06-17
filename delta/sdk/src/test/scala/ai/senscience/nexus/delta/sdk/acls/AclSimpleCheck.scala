@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.sdk.acls
 import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclAddress}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
 
 import scala.collection.immutable
 

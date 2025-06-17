@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.sdk.views
 
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 /**
   * View reference for indexing purposes
+  *
   * @param ref
   *   the id and the project of the view
   * @param indexingRev

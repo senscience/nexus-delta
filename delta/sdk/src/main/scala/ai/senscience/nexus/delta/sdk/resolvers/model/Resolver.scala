@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
 

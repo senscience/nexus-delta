@@ -4,16 +4,16 @@ import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlQueryResponseType}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.RdfError.InvalidIri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.{Graph, NTriples}
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Chunk
 import munit.AnyFixture

@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.generators
 
 import ai.senscience.nexus.delta.sdk.PermissionsResource
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsState}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 
 import java.time.Instant
 

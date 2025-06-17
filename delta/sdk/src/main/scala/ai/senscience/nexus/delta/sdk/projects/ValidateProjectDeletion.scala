@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectDeletionIsDisabled, ProjectIsReferenced}
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.ReferencedBy
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.ReferencedBy
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 
 /**
   * Validate if a project can be deleted

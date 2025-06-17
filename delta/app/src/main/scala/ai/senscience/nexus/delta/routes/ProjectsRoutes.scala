@@ -17,6 +17,8 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as R
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsConfig, ProjectsStatistics}
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.server.*
 import cats.data.OptionT
@@ -25,8 +27,6 @@ import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 
 /**
   * The project routes

@@ -15,19 +15,19 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsD
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, Project}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, PipeStep, ViewRef}
+import ai.senscience.nexus.delta.sourcing.EntityDependencyStore
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, Tags}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.delta.sourcing.stream.PipeChain
+import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterByType, FilterDeprecated}
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema}
-import ch.epfl.bluebrain.nexus.delta.sourcing.EntityDependencyStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Group, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PipeChain
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterByType, FilterDeprecated}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 import io.circe.{Json, JsonObject}

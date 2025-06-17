@@ -12,9 +12,9 @@ import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defa
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 

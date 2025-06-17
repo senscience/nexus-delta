@@ -10,10 +10,10 @@ import ai.senscience.nexus.delta.sdk.generators.PermissionsGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import doobie.syntax.all.*
 import org.scalatest.CancelAfterFailure

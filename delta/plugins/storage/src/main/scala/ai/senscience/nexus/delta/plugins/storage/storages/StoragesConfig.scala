@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.Storage
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm, StorageType}
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Secret
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
 import org.http4s.Uri
 import org.http4s.Uri.Path
 import pureconfig.ConvertHelpers.optF

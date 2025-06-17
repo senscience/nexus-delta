@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.ProjectionProgress
 
 /**
   * Describes the overall indexing progress of a composite views

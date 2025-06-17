@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, D
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection.ResourceAlreadyExists
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFile.DiskUploadingFile
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 import org.scalatest.BeforeAndAfterAll

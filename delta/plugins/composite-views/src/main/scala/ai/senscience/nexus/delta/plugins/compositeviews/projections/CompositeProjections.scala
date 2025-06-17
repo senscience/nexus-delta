@@ -6,16 +6,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{
 import ai.senscience.nexus.delta.plugins.compositeviews.store.{CompositeProgressStore, CompositeRestartStore}
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
 import ai.senscience.nexus.delta.sdk.views.{IndexingViewRef, ViewRef}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.config.QueryConfig
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.projections.FailedElemLogStore
+import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.QueryConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.FailedElemLogStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import fs2.{Pipe, Stream}
 
 import java.time.Instant

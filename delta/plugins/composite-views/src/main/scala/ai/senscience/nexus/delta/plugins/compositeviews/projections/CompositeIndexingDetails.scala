@@ -9,16 +9,17 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.R
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeGraphStream, CompositeProgress}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.views.IndexingViewRef
+import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.ProgressStatistics
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.RemainingElems
 
 /**
   * Allow to list offsets and compute statistics for composite views
+  *
   * @param fetchProgress
   *   to get the progress
   * @param fetchRemaining

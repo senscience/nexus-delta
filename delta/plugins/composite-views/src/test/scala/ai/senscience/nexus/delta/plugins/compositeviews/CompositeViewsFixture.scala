@@ -9,14 +9,14 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{permissions, Comp
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, IriFilter, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import io.circe.{Json, JsonObject}
 import org.http4s.Uri
 

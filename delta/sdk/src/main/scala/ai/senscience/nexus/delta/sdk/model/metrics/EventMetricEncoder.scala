@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.model.metrics
 
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityType
+import ai.senscience.nexus.delta.sourcing.event.Event
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.EntityType
 import io.circe.Decoder
 
 /**

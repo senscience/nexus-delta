@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.sdk
 
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.{EntityCheck, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.{EntityCheck, Transactors}
 import io.circe.Json
 
 /**

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.permissions.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 
 /**
   * Enumeration of Permissions command types.

@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.literal.*
 import io.circe.{DecodingFailure, JsonObject}
 import org.http4s.Query

@@ -14,14 +14,14 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverCommand.{CreateReso
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent.{ResolverCreated, ResolverDeprecated, ResolverTagAdded, ResolverUpdated}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.{DifferentResolverType, IncorrectRev, InvalidIdentities, InvalidResolverId, NoIdentities, ResolverIsDeprecated, ResolverNotFound, ResourceAlreadyExists}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
+import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.{ScopedEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.{ScopedEntityDefinition, StateMachine}
 import io.circe.Json
 
 /**

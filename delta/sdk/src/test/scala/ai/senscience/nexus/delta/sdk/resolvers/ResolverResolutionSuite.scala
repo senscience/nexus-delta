@@ -13,13 +13,13 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.CrossProjectV
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.ResolverReport
 import ai.senscience.nexus.delta.sdk.resolvers.model.{IdentityResolution, Priority, Resolver, ResourceResolutionReport}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 

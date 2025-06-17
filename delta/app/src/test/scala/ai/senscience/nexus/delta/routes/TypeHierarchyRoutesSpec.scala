@@ -10,12 +10,12 @@ import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHiera
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.TypeHierarchyDoesNotExist
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeHierarchyModel, TypeHierarchyState}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
 import io.circe.syntax.EncoderOps
 import org.scalatest.{Assertion, BeforeAndAfterEach}
 

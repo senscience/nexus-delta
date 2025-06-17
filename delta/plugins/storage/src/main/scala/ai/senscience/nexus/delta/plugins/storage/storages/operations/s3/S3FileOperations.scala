@@ -10,11 +10,11 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.S3FileOp
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.sdk.FileData
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import org.http4s.Uri
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 

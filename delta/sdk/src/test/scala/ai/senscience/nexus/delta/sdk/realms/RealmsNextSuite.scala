@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.realms.Realms.next
 import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.{RealmCreated, RealmDeprecated, RealmUpdated}
 import ai.senscience.nexus.delta.sdk.realms.model.RealmState
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 
 import java.time.Instant

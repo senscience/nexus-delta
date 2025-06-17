@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.Projections
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Supervisor
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

@@ -3,18 +3,18 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphView.{AggregateBlazegraphView, IndexingBlazegraphView}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewNotFound
-import ai.senscience.nexus.delta.sdk.{ConfigFixtures, Defaults}
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sdk.{ConfigFixtures, Defaults}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema as schemaorg}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, Label}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.util.UUID

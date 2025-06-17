@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.IriVocab
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
+import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.Uri.Path./
 import akka.http.scaladsl.server.Directives.*
@@ -12,10 +13,10 @@ import akka.http.scaladsl.server.{Directive0, Directive1}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
 
 /**
   * Directives requiring interactions with the projects and organizations modules
+  *
   * @param fetchContext
   *   fetch the context for a project
   */

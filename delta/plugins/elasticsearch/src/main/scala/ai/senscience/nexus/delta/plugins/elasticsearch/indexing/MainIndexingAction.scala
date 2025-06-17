@@ -4,16 +4,16 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClie
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MainIndexingCoordinator.mainIndexingPipeline
 import ai.senscience.nexus.delta.sdk.IndexingAction
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset.Start
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset.Start
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Operation.Sink
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import fs2.Stream
 
 import java.time.Instant

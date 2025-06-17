@@ -9,21 +9,21 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import ai.senscience.nexus.delta.sdk.resources.*
 import ai.senscience.nexus.delta.sdk.resources.ValidationResult.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{ReservedResourceId, ResourceNotFound}
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
-import ai.senscience.nexus.delta.sdk.resources.*
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.*
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Revision
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Revision
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 
 import java.time.Instant
 

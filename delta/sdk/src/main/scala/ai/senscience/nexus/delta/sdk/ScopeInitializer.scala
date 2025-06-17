@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.O
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.noopStore
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectInitializationFailed
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait ScopeInitializer {
 

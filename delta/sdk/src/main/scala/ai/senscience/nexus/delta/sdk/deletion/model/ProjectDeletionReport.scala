@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.deletion.model
 
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport.Stage
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import doobie.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
@@ -40,7 +40,7 @@ object ProjectDeletionReport {
 
   implicit val projectDeletionReportCodec: Codec[ProjectDeletionReport] = {
     implicit val config: Configuration = Configuration.default
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     deriveConfiguredCodec[ProjectDeletionReport]
   }
 

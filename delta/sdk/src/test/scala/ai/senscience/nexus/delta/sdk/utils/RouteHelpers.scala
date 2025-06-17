@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.utils
 
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.HttpEntity.ChunkStreamPart
 import akka.http.scaladsl.model.MediaTypes.`application/json`
@@ -9,7 +10,6 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.testkit.TestDuration
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject, Printer}

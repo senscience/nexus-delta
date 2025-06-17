@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.resources.model.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{ResourceNotFound, RevisionNotFound, TagNotFound}
+import ai.senscience.nexus.delta.sourcing.ScopedEventLogReadOnly
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.ScopedEventLogReadOnly
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 trait FetchResource {
 

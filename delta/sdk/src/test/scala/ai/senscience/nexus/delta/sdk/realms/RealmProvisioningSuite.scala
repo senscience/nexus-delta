@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.realms.model.RealmFields
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{RealmNotFound, UnsuccessfulOpenIdConfigResponse}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture

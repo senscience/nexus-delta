@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class FetchContextSuite extends NexusSuite {

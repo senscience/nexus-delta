@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.sdk.resolvers
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.Priority
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.PriorityAlreadyExists
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import doobie.syntax.all.*
 
 trait ValidatePriority {

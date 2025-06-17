@@ -13,13 +13,13 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJso
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.server.*
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
 

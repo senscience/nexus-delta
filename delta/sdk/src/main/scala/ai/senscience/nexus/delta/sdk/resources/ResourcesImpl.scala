@@ -13,16 +13,16 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{logger, ResourcesL
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{NoChangeDetected, ResourceNotFound}
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceCommand, ResourceEvent, ResourceRejection, ResourceState}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
+import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.SuccessElemStream
 import io.circe.Json
 
 final class ResourcesImpl private (

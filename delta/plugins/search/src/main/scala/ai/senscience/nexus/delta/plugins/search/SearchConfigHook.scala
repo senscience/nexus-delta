@@ -8,9 +8,9 @@ import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfi
 import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 
 final class SearchConfigHook(
     defaults: Defaults,

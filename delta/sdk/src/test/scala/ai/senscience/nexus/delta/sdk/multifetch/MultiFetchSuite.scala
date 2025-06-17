@@ -9,12 +9,12 @@ import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result.
 import ai.senscience.nexus.delta.sdk.multifetch.model.{MultiFetchRequest, MultiFetchResponse}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 class MultiFetchSuite extends NexusSuite with Fixtures {

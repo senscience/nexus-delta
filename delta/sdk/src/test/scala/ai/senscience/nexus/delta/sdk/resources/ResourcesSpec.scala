@@ -11,13 +11,13 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceEvent.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceCommand, ResourceEvent, ResourceState}
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef, Tags}
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef, Tags}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EphemeralLogConfig
 import com.typesafe.config.Config
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.{ConfigReader, ConfigSource}

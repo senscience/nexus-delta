@@ -15,12 +15,12 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ch.epfl.bluebrain.nexus.testkit.{CirceEq, CirceLiteral}
 import org.scalatest.{BeforeAndAfterAll, CancelAfterFailure, Inspectors}

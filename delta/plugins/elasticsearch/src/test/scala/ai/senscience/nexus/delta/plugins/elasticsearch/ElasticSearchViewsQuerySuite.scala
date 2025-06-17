@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions, ElasticSearchViewType}
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
-import ai.senscience.nexus.delta.sdk.{ConfigFixtures, DataResource}
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
@@ -18,6 +17,11 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.{PipeStep, ViewRef}
+import ai.senscience.nexus.delta.sdk.{ConfigFixtures, DataResource}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterDeprecated}
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.syntax.all.*
@@ -26,10 +30,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterDeprecated}
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}
 import org.http4s.Query

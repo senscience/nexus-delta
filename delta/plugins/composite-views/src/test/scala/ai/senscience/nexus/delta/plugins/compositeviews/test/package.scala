@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.{InvalidCompositeViewId, ViewNotFound}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 package object test {
 

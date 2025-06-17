@@ -14,6 +14,8 @@ import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, SortList}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
@@ -22,8 +24,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.JsonObject
 
 trait IdResolution {

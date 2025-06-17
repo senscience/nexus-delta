@@ -10,11 +10,11 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.Resources.expandResourceRef
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tags}
 
 /**
   * Operations allowing to perform read-only operations on resources

@@ -7,6 +7,9 @@ import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.ProjectRemoteContext
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
+import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
@@ -15,9 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContext.StaticCont
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotAccessible
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.User
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import io.circe.syntax.*

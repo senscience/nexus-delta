@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.resources
 
 import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcementConfig
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

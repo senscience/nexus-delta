@@ -8,16 +8,16 @@ import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator.projectionMetadata
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
+import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejec
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 class BlazegraphQueryDummy(client: SparqlQueryClient, views: CompositeViews) extends BlazegraphQuery {
 

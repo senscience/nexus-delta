@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.sse
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.QueryConfig
+import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

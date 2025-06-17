@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.instances
 
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import munit.FunSuite
 
 class ProjectRefInstanceSuite extends FunSuite {

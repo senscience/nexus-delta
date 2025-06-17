@@ -5,13 +5,13 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Int
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeGraphStream
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.pipes.FilterDeprecated
+import ai.senscience.nexus.delta.sourcing.stream.{ElemStream, NoopSink, RemainingElems, Source}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.GraphResource
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.pipes.FilterDeprecated
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ElemStream, NoopSink, RemainingElems, Source}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

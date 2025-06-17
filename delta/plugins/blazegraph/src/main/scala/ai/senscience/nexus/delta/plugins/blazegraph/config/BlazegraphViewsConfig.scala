@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.generic.auto.*

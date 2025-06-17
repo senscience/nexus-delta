@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait BlazegraphQuery {
 

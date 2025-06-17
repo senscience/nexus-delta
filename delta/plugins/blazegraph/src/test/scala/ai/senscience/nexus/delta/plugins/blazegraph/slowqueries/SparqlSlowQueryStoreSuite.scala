@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryStoreSuite.{view, OldQuery, OneWeekAgo, RecentQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.model.SparqlSlowQuery
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 

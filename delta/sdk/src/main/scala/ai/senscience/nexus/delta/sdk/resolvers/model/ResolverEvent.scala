@@ -5,15 +5,15 @@ import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.resolvers.Resolvers
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.ScopedEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*
@@ -160,7 +160,7 @@ object ResolverEvent {
 
   val serializer: Serializer[Iri, ResolverEvent] = {
     import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.Database.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                      = Serializer.circeConfiguration
     implicit val resolverValueCodec: Codec.AsObject[ResolverValue] = deriveConfiguredCodec[ResolverValue]
     implicit val coder: Codec.AsObject[ResolverEvent]              = deriveConfiguredCodec[ResolverEvent]

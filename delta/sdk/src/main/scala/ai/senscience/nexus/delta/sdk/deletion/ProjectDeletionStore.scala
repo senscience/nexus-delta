@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.deletion
 
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
+import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
-import ch.epfl.bluebrain.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import doobie.ConnectionIO
 import doobie.syntax.all.*
 import io.circe.syntax.EncoderOps

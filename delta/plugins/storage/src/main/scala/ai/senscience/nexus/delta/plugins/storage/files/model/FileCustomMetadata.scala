@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Label
 import io.circe.Codec
 import io.circe.generic.semiauto.deriveCodec
 

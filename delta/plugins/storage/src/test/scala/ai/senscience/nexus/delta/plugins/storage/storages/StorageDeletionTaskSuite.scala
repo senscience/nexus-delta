@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.{DigestAlgorithm
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFile.DiskUploadingFile
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 

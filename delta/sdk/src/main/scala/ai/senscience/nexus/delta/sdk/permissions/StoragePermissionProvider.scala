@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.permissions
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 /**
   * Provides the permission a user needs to have in order to access files on this storage

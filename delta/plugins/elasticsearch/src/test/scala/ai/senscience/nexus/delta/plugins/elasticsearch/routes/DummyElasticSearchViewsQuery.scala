@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral.*
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}

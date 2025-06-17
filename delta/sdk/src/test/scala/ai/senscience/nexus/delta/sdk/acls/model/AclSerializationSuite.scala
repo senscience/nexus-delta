@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.acls.model
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.acls.model.AclEvent.{AclAppended, AclDeleted, AclReplaced, AclSubtracted}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 
 import java.time.Instant
 

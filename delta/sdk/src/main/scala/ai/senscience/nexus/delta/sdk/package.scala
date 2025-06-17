@@ -11,8 +11,8 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.{Resolver, ResourceResoluti
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import fs2.Stream
 
 import java.nio.ByteBuffer

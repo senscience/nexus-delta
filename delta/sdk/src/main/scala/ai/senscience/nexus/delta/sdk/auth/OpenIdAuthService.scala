@@ -6,12 +6,12 @@ import ai.senscience.nexus.delta.sdk.error.AuthTokenError.{AuthTokenHttpError, A
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, Secret}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import io.circe.Json
 import org.http4s.Method.POST
 import org.http4s.client.Client

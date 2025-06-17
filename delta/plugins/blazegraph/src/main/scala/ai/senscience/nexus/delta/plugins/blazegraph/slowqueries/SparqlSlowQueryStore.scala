@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.model.SparqlSlowQuery
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import io.circe.syntax.EncoderOps

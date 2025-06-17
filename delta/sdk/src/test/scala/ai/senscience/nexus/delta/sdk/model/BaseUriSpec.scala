@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import pureconfig.ConfigSource
 

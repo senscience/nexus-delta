@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.permissions
 
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*

@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph.model
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.Binding
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json, JsonObject}
 

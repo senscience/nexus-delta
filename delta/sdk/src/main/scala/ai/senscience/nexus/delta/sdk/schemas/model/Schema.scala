@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.sdk.ResourceShift
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
@@ -17,7 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteCon
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import io.circe.Json
 
 /**

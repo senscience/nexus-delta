@@ -8,15 +8,15 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.sse.{ServerSentEventStream, SseElemStream}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import akka.http.scaladsl.model.headers.`Last-Event-ID`
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.model.{MediaTypes, StatusCodes}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.SelectFilter
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.RemainingElems
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import fs2.Stream
 

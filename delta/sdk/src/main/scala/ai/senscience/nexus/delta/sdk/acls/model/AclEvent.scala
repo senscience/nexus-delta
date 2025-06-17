@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.acls.Acls
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.event.Event.GlobalEvent
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.event.Event.GlobalEvent
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.syntax.EncoderOps
@@ -116,7 +116,7 @@ object AclEvent {
 
   val serializer: Serializer[AclAddress, AclEvent] = {
     import Acl.Database.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration    = Serializer.circeConfiguration
     implicit val coder: Codec.AsObject[AclEvent] = Codec.AsObject.from(
       deriveConfiguredDecoder[AclEvent],

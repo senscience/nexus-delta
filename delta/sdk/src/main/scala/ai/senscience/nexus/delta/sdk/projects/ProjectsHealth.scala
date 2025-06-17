@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 
 trait ProjectsHealth {
 

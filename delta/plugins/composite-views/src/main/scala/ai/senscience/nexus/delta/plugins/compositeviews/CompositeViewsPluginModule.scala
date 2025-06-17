@@ -24,17 +24,17 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
+import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
+import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.Triple
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.JsonLdOptions
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.ProjectionErrors
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.ProjectionConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
 

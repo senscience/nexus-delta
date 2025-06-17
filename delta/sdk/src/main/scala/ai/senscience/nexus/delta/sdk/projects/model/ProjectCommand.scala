@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 
 /**
   * Enumeration of Project command types.

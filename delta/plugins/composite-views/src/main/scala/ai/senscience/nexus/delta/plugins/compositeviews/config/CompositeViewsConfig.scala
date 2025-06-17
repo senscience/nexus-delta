@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsCon
 import ai.senscience.nexus.delta.sdk.auth
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
+import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.config.BatchConfig
 import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.error.CannotConvert

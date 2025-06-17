@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.InvalidSchemaResolution
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.owl
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 
 /**
   * Resolves the OWL imports from a Schema

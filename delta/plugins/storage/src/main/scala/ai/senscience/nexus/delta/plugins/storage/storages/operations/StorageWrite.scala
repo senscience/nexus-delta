@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations
 
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 
 /**
   * Result on a write operation on a storage
+  *
   * @param storage
   *   the reference of the storage
   * @param tpe

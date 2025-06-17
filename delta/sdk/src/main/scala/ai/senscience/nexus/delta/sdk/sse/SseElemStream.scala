@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.sdk.sse
 
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultPrinter
+import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Scope
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import io.circe.syntax.EncoderOps
 
 trait SseElemStream {

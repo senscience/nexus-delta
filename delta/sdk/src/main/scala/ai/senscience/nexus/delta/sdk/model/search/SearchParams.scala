@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.projects.model.Project
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas as nxvschemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
 
 /**
   * Enumeration of the possible Search Parameters

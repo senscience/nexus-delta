@@ -12,6 +12,8 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, SupervisedDescription}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.*
 import cats.effect.IO
@@ -21,8 +23,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.{ProjectActivitySignals, SupervisedDescription}
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Encoder, Json}

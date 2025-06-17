@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.realms
 
 import ai.senscience.nexus.delta.sdk.realms.model.RealmFields
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Label
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

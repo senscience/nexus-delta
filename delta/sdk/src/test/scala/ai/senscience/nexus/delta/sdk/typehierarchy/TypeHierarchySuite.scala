@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.sdk.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.{RevisionNotFound, TypeHierarchyAlreadyExists, TypeHierarchyDoesNotExist}
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, TypeHierarchyResource}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.Doobie
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture

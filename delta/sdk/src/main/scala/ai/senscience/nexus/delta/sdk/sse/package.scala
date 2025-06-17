@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import fs2.Stream
 
 package object sse {

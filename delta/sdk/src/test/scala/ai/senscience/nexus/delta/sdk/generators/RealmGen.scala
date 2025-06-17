@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.realms.model
 import ai.senscience.nexus.delta.sdk.realms.model.{Realm, RealmState, WellKnown}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import org.http4s.Uri
 
 import java.time.Instant

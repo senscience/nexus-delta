@@ -18,6 +18,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resolvers.{read as 
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
 import ai.senscience.nexus.delta.sdk.resolvers.model.{MultiResolutionResult, Resolver, ResolverRejection}
 import ai.senscience.nexus.delta.sdk.resolvers.{MultiResolution, Resolvers}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
@@ -28,7 +29,6 @@ import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, schemas}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Json
 
 /**

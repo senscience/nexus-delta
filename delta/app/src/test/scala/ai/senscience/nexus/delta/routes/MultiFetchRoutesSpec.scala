@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.multifetch.MultiFetch
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
 import io.circe.Json
 
 class MultiFetchRoutesSpec extends BaseRouteSpec {

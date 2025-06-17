@@ -9,10 +9,10 @@ import ai.senscience.nexus.delta.sdk.resources.ValidationResult.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidSchemaRejection
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidationReport
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import io.circe.Json
 import io.circe.syntax.KeyOps
 

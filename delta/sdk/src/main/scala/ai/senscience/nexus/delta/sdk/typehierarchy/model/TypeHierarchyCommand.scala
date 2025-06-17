@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.typehierarchy.model
 
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 
 /**
   * Enumeration of TypeHierarchy collection command types.

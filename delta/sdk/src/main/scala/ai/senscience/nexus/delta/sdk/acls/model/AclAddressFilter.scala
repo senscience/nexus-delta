@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.Label
 
 /**
   * Enumeration of possible ACL address filtering. An ACL filter address is a filter which can match multiple

@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.sdk.AclResource
 import ai.senscience.nexus.delta.sdk.acls.Acls
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.Serializer
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.sourcing.Serializer
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Subject
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Identity, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.sourcing.state.State.GlobalState
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.syntax.EncoderOps
@@ -88,7 +88,7 @@ object AclState {
 
   val serializer: Serializer[AclAddress, AclState] = {
     import Acl.Database.*
-    import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration    = Serializer.circeConfiguration
     implicit val coder: Codec.AsObject[AclState] = Codec.AsObject.from(
       deriveConfiguredDecoder[AclState],

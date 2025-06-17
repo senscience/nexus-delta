@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.realms.model
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{IncorrectRev, RealmAlreadyExists}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 

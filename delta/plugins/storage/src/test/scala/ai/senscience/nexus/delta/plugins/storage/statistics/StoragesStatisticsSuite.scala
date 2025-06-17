@@ -8,11 +8,11 @@ import ai.senscience.nexus.delta.plugins.storage.statistics.StoragesStatisticsSu
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesStatistics
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.{Created, Deprecated, ProjectScopedMetric, TagDeleted, Tagged, Updated}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.Anonymous
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ProjectRef}
 import io.circe.JsonObject
 import io.circe.syntax.KeyOps
 import munit.AnyFixture

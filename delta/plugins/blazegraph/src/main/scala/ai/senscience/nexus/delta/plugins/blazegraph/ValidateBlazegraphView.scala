@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.ValidateAggregate
+import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
 
 /**
   * Validate an [[BlazegraphViewValue]] during command evaluation

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.utils
 
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
-import ch.epfl.bluebrain.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ch.epfl.bluebrain.nexus.testkit.*
 import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import ch.epfl.bluebrain.nexus.testkit.scalatest.TestMatchers

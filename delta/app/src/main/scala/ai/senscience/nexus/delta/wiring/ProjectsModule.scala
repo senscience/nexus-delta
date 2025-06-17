@@ -17,15 +17,15 @@ import ai.senscience.nexus.delta.sdk.projects.*
 import ai.senscience.nexus.delta.sdk.projects.job.ProjectHealthJob
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
+import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
+import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
-import ch.epfl.bluebrain.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ch.epfl.bluebrain.nexus.delta.sourcing.stream.Supervisor
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

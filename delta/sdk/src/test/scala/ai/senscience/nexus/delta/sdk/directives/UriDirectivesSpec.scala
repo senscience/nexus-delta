@@ -7,6 +7,8 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{IndexingMode, OrderingFields}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import akka.http.javadsl.server.InvalidRequiredValueForQueryParamRejection
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
@@ -16,8 +18,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.{FromPagination, S
 import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import io.circe.literal.*
 import org.scalatest.Inspectors

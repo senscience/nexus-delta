@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.MetadataContextValue
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations, OrganizationsImpl}
 import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.partition.DatabasePartitioner
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

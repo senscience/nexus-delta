@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.AclResource
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity
 import cats.syntax.functor.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity
 
 import scala.collection.immutable.SortedMap
 

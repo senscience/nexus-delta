@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.realms
 
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.RealmOpenIdConfigAlreadyExists
+import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.sourcing.Transactors
-import ch.epfl.bluebrain.nexus.delta.sourcing.implicits.*
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import doobie.syntax.all.*
 import org.http4s.Uri
 

@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.sdk.generators.{RealmGen, WellKnownGen}
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.*
 import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
-import ch.epfl.bluebrain.nexus.delta.sourcing.model.Label
 import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import ch.epfl.bluebrain.nexus.testkit.jwt.TokenGenerator
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
