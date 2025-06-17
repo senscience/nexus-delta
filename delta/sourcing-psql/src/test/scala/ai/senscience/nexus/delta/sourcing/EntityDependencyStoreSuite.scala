@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateStore
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.Decoder

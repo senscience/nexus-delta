@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.deletion
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionCoordinator.{Active, Noop}
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen.defaultApiMappings
@@ -27,7 +28,6 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, P
 import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import munit.catseffect.IOFixture

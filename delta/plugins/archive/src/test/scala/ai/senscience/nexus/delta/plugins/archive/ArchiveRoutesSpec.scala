@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.delta.plugins.archive.routes.ArchiveRoutes
 import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
@@ -11,6 +12,10 @@ import ai.senscience.nexus.delta.plugins.storage.files.routes.FilesRoutesSpec
 import ai.senscience.nexus.delta.plugins.storage.files.schemas
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.FileResponse
@@ -40,13 +45,8 @@ import akka.http.scaladsl.server.Route
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import cats.effect.IO
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{StatefulUUIDF, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.http4s.Uri

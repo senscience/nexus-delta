@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
 import ai.senscience.nexus.delta.sourcing.model.Label.IllegalLabelFormat
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import doobie.Put
 import doobie.syntax.all.*
 import doobie.util.Get

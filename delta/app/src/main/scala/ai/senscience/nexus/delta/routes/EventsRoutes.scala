@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -15,8 +17,6 @@ import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 
 /**
   * The global events route.

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.permissions
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.PermissionsResource
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.permissions.model.*
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label}
 import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 import java.time.Instant
 

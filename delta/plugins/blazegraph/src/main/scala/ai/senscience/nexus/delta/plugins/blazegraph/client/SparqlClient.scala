@@ -2,15 +2,15 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
+import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
+import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.http.client.middleware.BasicAuth
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.BNode
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import io.circe.Json
 import io.circe.syntax.*
 import org.http4s.ember.client.EmberClientBuilder

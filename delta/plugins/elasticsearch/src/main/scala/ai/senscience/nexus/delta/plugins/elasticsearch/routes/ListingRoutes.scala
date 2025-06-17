@@ -2,6 +2,9 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.{ElasticSearchClientError, MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
@@ -17,9 +20,6 @@ import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.server.*
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
 

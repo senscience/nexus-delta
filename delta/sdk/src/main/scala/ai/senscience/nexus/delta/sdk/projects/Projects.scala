@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
@@ -18,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEntityDefinition, StateM
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import fs2.Stream
 
 trait Projects {

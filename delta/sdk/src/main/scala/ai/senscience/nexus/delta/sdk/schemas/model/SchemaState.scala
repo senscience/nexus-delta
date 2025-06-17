@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk.schemas.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
@@ -8,9 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}
@@ -91,9 +91,9 @@ final case class SchemaState(
 object SchemaState {
 
   implicit val serializer: Serializer[Iri, SchemaState] = {
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
     implicit val configuration: Configuration       = Serializer.circeConfiguration
     implicit val codec: Codec.AsObject[SchemaState] = deriveConfiguredCodec[SchemaState]
     Serializer.dropNullsInjectType()

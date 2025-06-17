@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.ResolverPriorityIntervalError
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import io.circe.{Decoder, Encoder}
 
 /**

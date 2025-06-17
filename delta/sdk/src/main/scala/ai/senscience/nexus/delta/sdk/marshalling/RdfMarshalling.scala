@@ -1,6 +1,11 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
+import ai.senscience.nexus.delta.rdf.graph.{Dot, NQuads, NTriples}
+import ai.senscience.nexus.delta.rdf.jsonld.JsonLd
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultWriterConfig
 import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
@@ -9,11 +14,6 @@ import akka.http.scaladsl.model.ContentTypes.`application/json`
 import akka.http.scaladsl.model.MediaTypes.*
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromStringUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
 import akka.util.ByteString
-import RdfMediaTypes.*
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.{Dot, NQuads, NTriples}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.JsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import io.circe.{Json, Printer}

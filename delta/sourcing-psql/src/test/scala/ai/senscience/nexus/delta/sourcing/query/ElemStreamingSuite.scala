@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.query
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -18,9 +21,6 @@ import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Scope, Serializer}
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration

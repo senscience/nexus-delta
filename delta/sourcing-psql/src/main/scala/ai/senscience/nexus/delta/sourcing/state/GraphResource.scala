@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.state
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph
 import io.circe.Json
 
 /**

@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileId.iriExpander
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.InvalidFileId
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 final case class FileId(id: IdSegmentRef, project: ProjectRef) {
   def expandIri(fetchContext: ProjectRef => IO[ProjectContext]): IO[(Iri, ProjectContext)] =

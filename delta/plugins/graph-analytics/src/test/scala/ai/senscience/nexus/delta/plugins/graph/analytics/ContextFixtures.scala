@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
 
 trait ContextFixtures extends ClasspathResources {

@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterBySchema, FilterByType, FilterDeprecated}
 import cats.data.NonEmptyChain
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 
 /**
   * An identified collection of pipe references along with their configuration. It can be compiled into a single

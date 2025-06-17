@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.realms.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.model.{Name, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.realms.Realms
@@ -9,8 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}

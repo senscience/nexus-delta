@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
@@ -8,8 +10,6 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 
 /**
   * The identities routes

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.stream.OperationSuite.{double, half, u
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.OperationInOutMatchErr
 import ai.senscience.nexus.delta.sourcing.stream.pipes.GenericPipe
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 

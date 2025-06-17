@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sourcing.Arithmetic.ArithmeticCommand.{Add, Boom, Never, Subtract}
 import ai.senscience.nexus.delta.sourcing.Arithmetic.ArithmeticEvent.{Minus, Plus}
 import ai.senscience.nexus.delta.sourcing.Arithmetic.ArithmeticRejection.NegativeTotal
@@ -10,9 +13,6 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec

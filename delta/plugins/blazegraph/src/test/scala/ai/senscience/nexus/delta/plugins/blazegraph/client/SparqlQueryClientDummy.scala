@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy.bNode
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
+import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
+import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.BNode
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import io.circe.Json
 import org.http4s.Header
 

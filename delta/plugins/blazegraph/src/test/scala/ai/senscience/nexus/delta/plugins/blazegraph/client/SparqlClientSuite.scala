@@ -7,14 +7,14 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.S
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.Bindings
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlWriteQuery.replace
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, StringAssertions}
 import io.circe.Json
 import org.apache.jena.graph.Graph

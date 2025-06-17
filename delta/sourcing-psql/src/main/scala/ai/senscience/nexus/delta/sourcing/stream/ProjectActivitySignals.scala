@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStream
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import fs2.concurrent.SignallingRef
 import fs2.{Pipe, Stream}
 

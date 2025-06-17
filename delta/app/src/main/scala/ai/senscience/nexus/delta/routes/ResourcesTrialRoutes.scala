@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.SchemaInput.{ExistingSchema, NewSchema}
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.{GenerateSchema, GenerationInput}
 import ai.senscience.nexus.delta.sdk.SchemaResource
@@ -21,9 +24,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.{Decoder, Json}

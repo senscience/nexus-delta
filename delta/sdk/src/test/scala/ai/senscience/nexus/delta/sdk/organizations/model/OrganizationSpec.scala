@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.organizations.model
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.*
+import ai.senscience.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
 import ai.senscience.nexus.delta.sdk.generators.OrganizationGen
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.*
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 

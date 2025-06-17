@@ -4,6 +4,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClien
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStream
 import ai.senscience.nexus.delta.plugins.graph.analytics.routes.GraphAnalyticsRoutes
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

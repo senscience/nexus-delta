@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.model.{HttpHeader, StatusCode}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}
 

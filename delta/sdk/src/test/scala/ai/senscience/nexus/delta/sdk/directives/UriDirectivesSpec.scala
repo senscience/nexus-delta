@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.sdk.directives.UriDirectivesSpec.IntValue
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.*
@@ -17,7 +18,6 @@ import akka.http.scaladsl.server.{MalformedQueryParamRejection, Route, Validatio
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 import io.circe.literal.*
 import org.scalatest.Inspectors

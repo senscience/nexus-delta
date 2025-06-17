@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
 
 /**
   * A [[ContextValue]] that is specialized for metadata

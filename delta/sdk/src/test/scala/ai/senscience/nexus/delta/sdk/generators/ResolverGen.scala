@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.generators
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.ResolverResource
 import ai.senscience.nexus.delta.sdk.resolvers.model.Resolver.InProjectResolver
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.InProjectValue
@@ -7,8 +9,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverState, R
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.Json
 
 import java.time.Instant

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.*
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
 import ch.epfl.bluebrain.nexus.testkit.mu.EitherAssertions
 import io.circe.Json
 import io.circe.syntax.*

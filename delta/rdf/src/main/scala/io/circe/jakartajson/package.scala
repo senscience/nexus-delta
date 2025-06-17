@@ -5,8 +5,8 @@ import io.circe.syntax.EncoderOps
 import jakarta.json.JsonValue.ValueType as JakartaValueType
 import jakarta.json.{JsonNumber as JakartaJsonNumber, JsonObject as JakartaJsonObject, JsonString, JsonValue as JakartaJsonValue}
 
-import scala.jdk.CollectionConverters.*
 import java.math.BigDecimal as JBigDecimal
+import scala.jdk.CollectionConverters.*
 
 /**
   * Support for converting between Jakarta Json and Circe Based on

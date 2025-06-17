@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.{Get, Put}
 
 /**

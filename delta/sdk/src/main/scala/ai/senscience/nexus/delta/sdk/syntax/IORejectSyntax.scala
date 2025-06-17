@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.syntax
 
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.directives.{DeltaDirectives, Response}
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import io.circe.Encoder
 
 import scala.reflect.ClassTag

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.partition
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sourcing.implicits.{jsonbGet, jsonbPut}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import doobie.{Get, Put}
 import io.circe.Codec
 import io.circe.generic.extras.Configuration

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.state
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.EntityType
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import ai.senscience.nexus.delta.sourcing.{Serializer, Transactors}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

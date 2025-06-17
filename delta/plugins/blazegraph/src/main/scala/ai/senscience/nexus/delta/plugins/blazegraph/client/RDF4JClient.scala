@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlActionError, SparqlQueryError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlResultsJson
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes.*
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.Handlebars
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import org.http4s.Method.{DELETE, GET, POST, PUT}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*

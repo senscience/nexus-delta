@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema, schemas}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase}
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema, schemas}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class IdSegmentSpec extends BaseSpec {

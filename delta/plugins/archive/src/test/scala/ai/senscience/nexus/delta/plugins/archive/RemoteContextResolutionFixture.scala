@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.contexts
 import ai.senscience.nexus.delta.plugins.storage.files.contexts as fileContexts
 import ai.senscience.nexus.delta.plugins.storage.storages.contexts as storageContexts
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathLoader
 
 trait RemoteContextResolutionFixture extends ClasspathLoader {

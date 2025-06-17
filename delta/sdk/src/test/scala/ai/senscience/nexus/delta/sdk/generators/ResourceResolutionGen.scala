@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sdk.generators
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 object ResourceResolutionGen {
 

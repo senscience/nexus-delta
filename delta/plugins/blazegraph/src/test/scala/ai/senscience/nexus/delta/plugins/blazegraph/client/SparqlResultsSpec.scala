@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.*
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.CirceEq
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.*

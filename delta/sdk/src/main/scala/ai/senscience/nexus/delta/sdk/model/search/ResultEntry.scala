@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model.search
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import cats.Functor
 import cats.syntax.functor.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
 

@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
 import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
 

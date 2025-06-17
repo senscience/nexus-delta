@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.ResourceAlreadyExists
 import ai.senscience.nexus.delta.plugins.storage.storages.{defaultS3StorageId, defaultStorageId, Storages}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRe
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * The default creation of the default disk storage as part of the project initialization.

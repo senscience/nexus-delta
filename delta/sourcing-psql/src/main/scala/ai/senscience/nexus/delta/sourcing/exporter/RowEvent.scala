@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.exporter
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.Read
 import io.circe.{Codec, Decoder, Encoder, Json}
 

@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 class CompositeSupervisionRoutesSpec extends BaseRouteSpec {
 

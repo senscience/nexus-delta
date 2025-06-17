@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.views
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Serializer, Tr
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.Decoder
 
 trait ViewsStore[Rejection] {

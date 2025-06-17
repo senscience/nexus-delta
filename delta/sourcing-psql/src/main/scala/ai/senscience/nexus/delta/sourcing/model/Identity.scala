@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.*
 import io.circe.Decoder.Result
 import io.circe.generic.extras.Configuration

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
@@ -18,7 +19,6 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 import java.time.Instant
 

@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import munit.FunSuite
 
 import java.time.Instant

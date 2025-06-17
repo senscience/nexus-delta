@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.model
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewEvent.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewType.ElasticSearch as ElasticSearchType
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, T
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterByType, SourceAsText}
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import io.circe.Json
 
 import java.time.Instant

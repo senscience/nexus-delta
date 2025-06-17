@@ -7,6 +7,11 @@ import ai.senscience.nexus.delta.plugins.storage.FileSelf
 import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
 import ai.senscience.nexus.delta.plugins.storage.files.Files
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileId, FileRejection}
+import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.FileResponse
@@ -29,11 +34,6 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, Printer}
 

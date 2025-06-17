@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.{Organization, Project, Root}
 import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclAddress, FlattenedAclStore}
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls, AclsImpl}
@@ -16,7 +17,6 @@ import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.Json
 import io.circe.syntax.KeyOps
 

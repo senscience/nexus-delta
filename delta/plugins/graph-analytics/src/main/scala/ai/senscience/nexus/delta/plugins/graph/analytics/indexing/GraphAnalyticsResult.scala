@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Encoder, Json}
 

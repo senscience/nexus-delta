@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.error
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 object FormatErrors {
 

@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterBySchema, FilterByType, FilterDeprecated}
 import cats.data.NonEmptyChain
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import munit.FunSuite
 
 class PipeChainSuite extends FunSuite {

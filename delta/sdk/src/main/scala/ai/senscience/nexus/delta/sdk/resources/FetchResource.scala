@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{Resource
 import ai.senscience.nexus.delta.sourcing.ScopedEventLogReadOnly
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 trait FetchResource {
 

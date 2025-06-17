@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.archive
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.ArchiveNotFound
 import ai.senscience.nexus.delta.plugins.archive.model.{Archive, ArchiveValue}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -20,7 +21,6 @@ import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 import org.http4s.Uri

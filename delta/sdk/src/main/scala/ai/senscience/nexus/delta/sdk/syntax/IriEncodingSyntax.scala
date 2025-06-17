@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.syntax
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.jsonld.{IriDecoder, IriEncoder}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 trait IriEncodingSyntax {
   implicit final def toIriSyntax[A](value: A): ToIriOpts[A] =

@@ -3,6 +3,9 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ErrorRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
@@ -28,9 +31,6 @@ import cats.data.NonEmptyList
 import cats.effect.{Clock, IO, Resource, Sync}
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFuture, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}

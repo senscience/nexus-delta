@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.{Decoder, Encoder}
 
 /**

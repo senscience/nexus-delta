@@ -11,6 +11,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.routes.{CompositeSupervi
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphStream, RemoteGraphStream}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.rdf.Triple
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.auth.AuthTokenProvider
@@ -31,10 +35,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.rdf.Triple
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.JsonLdOptions
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
 

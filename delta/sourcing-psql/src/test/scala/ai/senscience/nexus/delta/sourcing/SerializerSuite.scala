@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.SerializerSuite.{Bar, Foo}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.*
 import doobie.syntax.all.*

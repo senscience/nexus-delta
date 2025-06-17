@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances.{jsonCodecDropNull, jsonSourceCodec}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import doobie.{Get, Put}
 import io.circe.generic.extras.Configuration

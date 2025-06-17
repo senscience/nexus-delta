@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.plugins.archive.model
 
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 import java.time.Instant
 

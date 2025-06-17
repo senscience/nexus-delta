@@ -18,6 +18,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileOperations, S3LocationGenerator}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -40,8 +42,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}
 import org.http4s.Uri.Path

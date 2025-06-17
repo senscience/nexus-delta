@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.{DependsOn, ReferencedBy}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tag}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.*
 import doobie.syntax.all.*
 import doobie.util.Put

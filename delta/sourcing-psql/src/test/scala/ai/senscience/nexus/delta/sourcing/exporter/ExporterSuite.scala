@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.exporter
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent.{PullRequestCreated, PullRequestMerged, PullRequestUpdated}
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.file.TempDirectory
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite

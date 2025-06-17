@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.partition
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent.PullRequestCreated
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sourcing.postgres.Doobie.resource
 import ai.senscience.nexus.delta.sourcing.postgres.{PartitionQueries, ScopedEventQueries, ScopedStateQueries}
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Transactors}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.catseffect.IOFixture
