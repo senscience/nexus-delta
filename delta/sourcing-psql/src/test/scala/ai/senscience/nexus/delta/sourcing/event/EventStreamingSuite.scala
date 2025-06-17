@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.event
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent.{PullRequestCreated, PullRequestUpdated}
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.tombstone.EventTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, PullRequest, Scope}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.Decoder

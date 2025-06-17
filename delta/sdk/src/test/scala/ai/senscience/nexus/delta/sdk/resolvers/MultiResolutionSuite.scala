@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.generators.{ResolverResolutionGen, ResourceGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
@@ -16,8 +18,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 

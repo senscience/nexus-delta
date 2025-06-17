@@ -4,6 +4,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejec
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViews, CompositeViewsFixture, Fixtures}
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.defaultViewId
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.JsonObject
 

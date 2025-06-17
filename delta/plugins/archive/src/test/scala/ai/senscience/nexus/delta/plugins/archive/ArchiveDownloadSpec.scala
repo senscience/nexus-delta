@@ -12,6 +12,9 @@ import ai.senscience.nexus.delta.plugins.storage.files.schemas
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.plugins.storage.{FileSelf, RemoteContextResolutionFixture}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.FileResponse
@@ -37,9 +40,6 @@ import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUri
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.EncoderOps
 import org.http4s.Uri

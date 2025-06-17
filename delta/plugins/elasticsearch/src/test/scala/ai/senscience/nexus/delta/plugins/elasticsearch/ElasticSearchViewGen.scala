@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue, ViewResource}
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.{Json, JsonObject}
 
 import java.time.Instant

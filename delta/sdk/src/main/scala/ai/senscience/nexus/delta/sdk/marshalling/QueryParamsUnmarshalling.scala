@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{IriBase, IriVocab}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
 import io.circe.Json
 import io.circe.parser.parse
 

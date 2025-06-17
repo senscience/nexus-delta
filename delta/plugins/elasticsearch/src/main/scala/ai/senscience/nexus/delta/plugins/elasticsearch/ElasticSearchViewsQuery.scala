@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions, ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType}
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 

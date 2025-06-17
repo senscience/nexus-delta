@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.tombstone
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.{logger,
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

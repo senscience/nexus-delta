@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 package object model {
 

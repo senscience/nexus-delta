@@ -4,13 +4,13 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec

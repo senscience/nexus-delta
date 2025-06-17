@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.TypeHierarchyResource
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import io.circe.syntax.EncoderOps
 import org.scalatest.{Assertion, BeforeAndAfterEach}
 

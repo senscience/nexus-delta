@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewState, BlazegraphViewValue, ViewResource}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.Json
 
 import java.time.Instant

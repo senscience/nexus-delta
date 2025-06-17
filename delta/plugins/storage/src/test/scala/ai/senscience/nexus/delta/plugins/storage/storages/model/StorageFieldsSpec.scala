@@ -3,12 +3,12 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 import ai.senscience.nexus.delta.plugins.storage.RemoteContextResolutionFixture
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.*
 import ai.senscience.nexus.delta.plugins.storage.storages.{contexts, StorageDecoderConfiguration, StorageFixtures}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceDecoder
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.Configuration
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class StorageFieldsSpec extends CatsEffectSpec with RemoteContextResolutionFixture with StorageFixtures {

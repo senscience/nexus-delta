@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.compositeviews.client
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheck.{RemoteCheckFailed, RemoteCheckTimeout, RemoteUnknownHost}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.graph.NQuads
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
@@ -14,8 +16,6 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.http.ResponseUtils
 import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RdfHttp4sMediaTypes}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
 import io.circe.Json
 import io.circe.parser.decode
 import org.http4s.Method.{GET, HEAD}

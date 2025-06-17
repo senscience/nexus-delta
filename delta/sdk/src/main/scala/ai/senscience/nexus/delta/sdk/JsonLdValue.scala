@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 
 /**
   * A definition of a value that can be converted to JSONLD

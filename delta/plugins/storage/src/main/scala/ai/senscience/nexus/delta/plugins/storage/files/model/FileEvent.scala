@@ -4,6 +4,11 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.File
 import ai.senscience.nexus.delta.plugins.storage.files.{contexts, nxvFile, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.circe.JsonObjOps
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
@@ -18,11 +23,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.generic.semiauto.deriveEncoder

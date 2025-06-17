@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}

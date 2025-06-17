@@ -3,13 +3,13 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.{DiskStorage, S3Storage}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{DiskStorageValue, S3StorageValue}
 import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, StorageResource}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Json}

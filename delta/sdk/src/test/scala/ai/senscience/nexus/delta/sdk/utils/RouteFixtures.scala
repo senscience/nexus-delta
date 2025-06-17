@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.sdk.utils
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -7,10 +11,6 @@ import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
 import org.http4s.implicits.http4sLiteralsSyntax
 

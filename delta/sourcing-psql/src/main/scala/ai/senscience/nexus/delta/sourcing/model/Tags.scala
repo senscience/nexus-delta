@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.BNode
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Encoder, Json, JsonObject}
 

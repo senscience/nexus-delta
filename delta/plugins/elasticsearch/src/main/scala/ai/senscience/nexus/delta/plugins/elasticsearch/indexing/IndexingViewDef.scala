@@ -4,19 +4,19 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewState
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
-import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import io.circe.JsonObject
 
 /**

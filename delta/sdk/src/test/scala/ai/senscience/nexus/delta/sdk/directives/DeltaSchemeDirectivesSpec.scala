@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
@@ -11,7 +12,6 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.TestMatchers
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec

@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCache, requestEncoding}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.directives.ResponseToJsonLd.UseRight
@@ -11,9 +14,6 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Encoder
 import io.circe.syntax.*
 

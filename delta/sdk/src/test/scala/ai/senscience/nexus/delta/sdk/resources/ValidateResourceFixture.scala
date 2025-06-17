@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.shacl.ValidationReport
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -11,8 +13,6 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidSc
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidationReport
 import io.circe.Json
 import io.circe.syntax.KeyOps
 

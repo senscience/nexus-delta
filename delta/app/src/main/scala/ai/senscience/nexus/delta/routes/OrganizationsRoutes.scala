@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.OrganizationsRoutes.OrganizationInput
 import ai.senscience.nexus.delta.sdk.OrganizationResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -22,9 +25,6 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder

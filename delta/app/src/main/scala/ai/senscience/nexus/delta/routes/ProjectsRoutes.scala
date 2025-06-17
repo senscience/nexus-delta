@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -24,9 +27,6 @@ import akka.http.scaladsl.model.*
 import akka.http.scaladsl.server.*
 import cats.data.OptionT
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 
 /**
   * The project routes

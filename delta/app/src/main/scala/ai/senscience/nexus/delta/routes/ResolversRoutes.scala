@@ -1,6 +1,10 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, schemas}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResolutionType.{AllResolversInProject, SingleResolver}
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -25,10 +29,6 @@ import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, schemas}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Json
 
 /**

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
+import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, Tags}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.event
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 import java.time.Instant
 

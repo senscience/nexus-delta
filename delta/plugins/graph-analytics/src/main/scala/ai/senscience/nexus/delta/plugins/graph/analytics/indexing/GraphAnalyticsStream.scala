@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalytics
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.plugins.storage.files.Files
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileState
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceState
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.*
 import doobie.syntax.all.*
 import io.circe.Json

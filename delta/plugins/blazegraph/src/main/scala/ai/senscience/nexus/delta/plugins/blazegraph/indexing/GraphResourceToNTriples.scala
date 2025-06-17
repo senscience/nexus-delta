@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
+import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
 import shapeless.Typeable
 
 /**

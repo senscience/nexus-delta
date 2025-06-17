@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.projectdeletion
 
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 
 /**
   * The project deletion routes that expose the current configuration of the plugin.

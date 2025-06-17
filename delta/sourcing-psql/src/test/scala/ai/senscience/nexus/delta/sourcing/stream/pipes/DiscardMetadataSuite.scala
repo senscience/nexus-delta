@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream.pipes
 
+import ai.senscience.nexus.delta.rdf.graph.Graph
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
@@ -8,9 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.ReferenceRegistry
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant

@@ -1,5 +1,10 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -19,11 +24,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, Ta
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.shacl.ValidateShacl
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import munit.AnyFixture

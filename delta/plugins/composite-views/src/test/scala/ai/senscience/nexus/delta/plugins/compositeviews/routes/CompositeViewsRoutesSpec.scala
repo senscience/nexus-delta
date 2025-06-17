@@ -1,9 +1,14 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-query`
 import ai.senscience.nexus.akka.marshalling.{CirceMarshalling, RdfMediaTypes}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
+import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
@@ -17,12 +22,7 @@ import akka.http.scaladsl.model.headers.{`Content-Type`, Accept, Location}
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import akka.util.ByteString
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-query`
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 import io.circe.syntax.*
 import org.scalatest.Assertion
 

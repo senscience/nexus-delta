@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.event.EventStreaming
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.effect.IO
 import cats.effect.std.Env

@@ -18,6 +18,14 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch,
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViewFactory, CompositeViews, Fixtures}
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchClientSetup
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, rdf, rdfs, schemas}
+import ai.senscience.nexus.delta.rdf.graph.Graph
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
@@ -30,24 +38,16 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterByType, FilterDeprecated}
-import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.Semigroup
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, rdf, rdfs, schemas}
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import ch.epfl.bluebrain.nexus.testkit.mu.{JsonAssertions, NexusSuite, TextAssertions}

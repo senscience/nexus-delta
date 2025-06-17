@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.realms
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import org.http4s.Uri
 
 /**

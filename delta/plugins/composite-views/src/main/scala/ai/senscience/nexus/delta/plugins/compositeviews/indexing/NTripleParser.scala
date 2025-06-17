@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.RdfError.ParsingError
+import ai.senscience.nexus.delta.rdf.graph.{Graph, NTriples}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.RdfError.ParsingError
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.{Graph, NTriples}
 
 object NTripleParser {
 

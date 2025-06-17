@@ -9,6 +9,9 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGr
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.plugins.search.Search.{ExecuteSearch, ListProjections, TargetProjection}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -19,9 +22,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, Tags}
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.EncoderOps

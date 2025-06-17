@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.RebuildStrategy
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 object CompositeViewFactory {
 

@@ -6,6 +6,10 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions, ElasticSearchViewType}
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
@@ -26,10 +30,6 @@ import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.JsonLdApi
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}
 import org.http4s.Query

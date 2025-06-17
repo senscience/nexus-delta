@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*

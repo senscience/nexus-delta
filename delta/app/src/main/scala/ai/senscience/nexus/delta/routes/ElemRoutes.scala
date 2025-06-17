@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
@@ -17,10 +21,6 @@ import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

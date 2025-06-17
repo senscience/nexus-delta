@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.projectdeletion
 import ai.senscience.nexus.delta.plugins.projectdeletion.ShouldDeleteProjectSuite.{assertDeleted, assertNotDeleted, configWhere, projectWhere, shouldBeDeleted, ThreeHoursAgo, TwoDaysAgo}
 import ai.senscience.nexus.delta.projectdeletion.ShouldDeleteProject
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.sdk.projects.model.Project
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ch.epfl.bluebrain.nexus.testkit.Generators
 import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite

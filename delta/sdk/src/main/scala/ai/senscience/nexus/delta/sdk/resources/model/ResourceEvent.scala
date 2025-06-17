@@ -1,5 +1,10 @@
 package ai.senscience.nexus.delta.sdk.resources.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.circe.{dropNullValues, JsonObjOps}
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.jsonld.{IriEncoder, JsonLdAssembly}
@@ -15,11 +20,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredDecoder, deriveConfiguredEncoder}
@@ -415,8 +415,8 @@ object ResourceEvent {
 
   val serializer: Serializer[Iri, ResourceEvent] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.

@@ -6,6 +6,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRe
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewRejection, ViewResource}
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
@@ -20,8 +22,6 @@ import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 

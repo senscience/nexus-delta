@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import doobie.*
 import doobie.postgres.implicits.*
 import io.circe.generic.semiauto.deriveEncoder

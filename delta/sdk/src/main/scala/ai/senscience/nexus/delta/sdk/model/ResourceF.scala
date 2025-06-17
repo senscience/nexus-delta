@@ -1,5 +1,12 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
@@ -9,13 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.Functor
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

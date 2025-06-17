@@ -1,6 +1,13 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.model
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchView.Metadata
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.{PipeStep, ViewRef}
@@ -9,13 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.data.NonEmptySet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.parser.parse

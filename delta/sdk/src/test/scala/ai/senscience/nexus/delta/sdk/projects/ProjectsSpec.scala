@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema, xsd}
 import ai.senscience.nexus.delta.sdk.generators.{OrganizationGen, ProjectGen}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema, xsd}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant

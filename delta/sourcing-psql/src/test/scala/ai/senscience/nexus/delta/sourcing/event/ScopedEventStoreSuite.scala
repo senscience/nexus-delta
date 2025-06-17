@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sourcing.event
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent.{PullRequestCreated, PullRequestMerged, PullRequestUpdated}
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture

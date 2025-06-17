@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartSt
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run.Main
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
 import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, expectIndexingView}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
@@ -19,13 +20,12 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectionProgress, RemainingElems}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionProgress, RemainingElems}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.Json
 import io.circe.syntax.*
 

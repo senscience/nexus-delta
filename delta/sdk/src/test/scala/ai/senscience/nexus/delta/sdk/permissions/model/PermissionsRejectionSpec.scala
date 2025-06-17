@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.permissions.model
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 

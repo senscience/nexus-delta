@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.resolvers.Resolvers.evaluate
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
 import ai.senscience.nexus.delta.sdk.resolvers.model.Priority
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 

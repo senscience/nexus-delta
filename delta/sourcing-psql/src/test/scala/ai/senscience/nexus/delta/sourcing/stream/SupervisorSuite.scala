@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSuite.UnstableDestroy
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

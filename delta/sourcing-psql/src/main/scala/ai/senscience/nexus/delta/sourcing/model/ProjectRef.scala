@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import cats.Order
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.MD5
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
 import pureconfig.ConfigReader

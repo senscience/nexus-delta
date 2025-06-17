@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.store
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.entityType
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore.logger
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.Purg
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ProjectionMetadata}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import io.circe.Json

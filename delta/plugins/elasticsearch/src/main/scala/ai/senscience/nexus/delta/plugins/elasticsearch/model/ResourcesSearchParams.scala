@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.model
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{iriFromStringUnmarshaller, iriVocabFromStringUnmarshaller as iriUnmarshaller}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * Search parameters for any generic resource type.

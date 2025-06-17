@@ -6,6 +6,11 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejectio
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.write as Write
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{permissions, BlazegraphViewRejection}
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -22,11 +27,6 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Project
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.*

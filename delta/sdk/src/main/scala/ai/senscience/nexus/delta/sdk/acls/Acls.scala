@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.acls
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.AclResource
 import ai.senscience.nexus.delta.sdk.acls.model.*
 import ai.senscience.nexus.delta.sdk.acls.model.AclCommand.{AppendAcl, DeleteAcl, ReplaceAcl, SubtractAcl}
@@ -18,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.state.ProjectionStateSave
 import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, StateMachine}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import fs2.Stream
 
 import java.time.Instant

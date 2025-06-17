@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotDecodePipeConfigErr
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import shapeless.Typeable
 
 /**

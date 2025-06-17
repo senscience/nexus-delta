@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViewsGen.resourceF
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.*
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -22,7 +23,6 @@ import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.data.NonEmptySet
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.Json
 import org.scalatest.Assertion

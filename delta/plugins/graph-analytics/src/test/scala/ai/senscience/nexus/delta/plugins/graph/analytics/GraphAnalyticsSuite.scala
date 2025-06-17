@@ -7,12 +7,12 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsCo
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{Edge, EdgePath, Node}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.schema
+import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schema
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import munit.AnyFixture
 
 import java.util.UUID

@@ -7,6 +7,8 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.storageParam
 import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ResponseToJsonLd}
@@ -21,8 +23,6 @@ import akka.http.scaladsl.model.StatusCodes.{Created, OK}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 

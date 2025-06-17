@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{FullRebuild, FullRestart, PartialRebuild}
 import ai.senscience.nexus.delta.plugins.compositeviews.store.{CompositeProgressStore, CompositeRestartStore}
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.views.{IndexingViewRef, ViewRef}
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import fs2.{Pipe, Stream}
 
 import java.time.Instant

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.generators.ResolverGen.{resolverResourceFor, sourceFrom, sourceWithoutId}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -24,8 +26,6 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.CancelAfterFailure
 

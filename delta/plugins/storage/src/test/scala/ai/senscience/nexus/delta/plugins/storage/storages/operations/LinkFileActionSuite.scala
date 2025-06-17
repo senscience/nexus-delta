@@ -9,14 +9,14 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.S3Storag
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.S3StorageValue
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{Storage, StorageType}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.S3FileOperations.{S3FileLink, S3FileMetadata}
+import ai.senscience.nexus.delta.rdf.IriOrBNode
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 import org.http4s.Uri

@@ -5,6 +5,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.Index
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.syntax.*
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import fs2.Chunk
 import io.circe.Json
 import munit.AnyFixture

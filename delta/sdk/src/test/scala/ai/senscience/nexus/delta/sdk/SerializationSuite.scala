@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances.{read, write}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.mu.{EitherAssertions, JsonAssertions, NexusSuite}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.{ClasspathResources, MUnitExtractValue}

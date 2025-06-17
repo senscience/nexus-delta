@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts as nxvContexts
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts as nxvContexts
 
 package object analytics {
   object contexts {

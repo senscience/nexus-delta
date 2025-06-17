@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.directives.FileResponse.{Content, Metadata}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
@@ -11,7 +12,6 @@ import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 
 import java.util.Locale
 import scala.reflect.ClassTag

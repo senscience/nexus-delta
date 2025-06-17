@@ -2,14 +2,14 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.AppConfig
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ExportRoutes
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.exporter.Exporter
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 // $COVERAGE-OFF$

@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.shacl.{ValidateShacl, ValidationReport}
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -10,10 +14,6 @@ import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.shacl.{ValidateShacl, ValidationReport}
 
 /**
   * Allows to validate the resource:

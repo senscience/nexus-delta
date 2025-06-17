@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.ProvidedIdentities
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProjectValue, InProjectValue}
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverState}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.Json
 
 import java.time.Instant

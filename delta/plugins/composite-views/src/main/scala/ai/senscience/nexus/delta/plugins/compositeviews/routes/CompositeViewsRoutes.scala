@@ -8,6 +8,9 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewRejection, ViewResource}
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews, ElasticSearchQuery}
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
@@ -20,9 +23,6 @@ import akka.http.scaladsl.model.StatusCodes.{Created, OK}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.{Json, JsonObject}
 
 /**

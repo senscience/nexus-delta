@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.DiskStorageValue
 import ai.senscience.nexus.delta.plugins.storage.storages.{StorageFixtures, Storages, StoragesConfig, UUIDFFixtures}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class StorageScopeInitializationSpec

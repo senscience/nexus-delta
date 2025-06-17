@@ -1,5 +1,13 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.{ExplainResult, RdfError}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
@@ -9,14 +17,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.{ExplainResult, RdfError}
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 

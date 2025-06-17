@@ -6,6 +6,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejectio
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.defaultViewId
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLogger
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -26,8 +28,6 @@ import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.EncoderOps
 import munit.{AnyFixture, Location}

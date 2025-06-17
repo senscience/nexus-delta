@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.event
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.Fragments
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

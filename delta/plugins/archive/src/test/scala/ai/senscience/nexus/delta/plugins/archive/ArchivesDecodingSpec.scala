@@ -2,6 +2,8 @@ package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.{AnnotatedSourceJson, CompactedJsonLd, Dot, ExpandedJsonLd, NTriples, SourceJson}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, T
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.implicits.*
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 

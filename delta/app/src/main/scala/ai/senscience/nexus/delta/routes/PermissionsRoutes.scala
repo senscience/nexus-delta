@@ -1,6 +1,11 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions.{Append, Replace, Subtract}
 import ai.senscience.nexus.delta.sdk.PermissionsResource
@@ -17,11 +22,6 @@ import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsR
 import akka.http.scaladsl.server.{MalformedRequestContentRejection, Route}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.syntax.*

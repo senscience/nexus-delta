@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
@@ -9,10 +13,6 @@ import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*

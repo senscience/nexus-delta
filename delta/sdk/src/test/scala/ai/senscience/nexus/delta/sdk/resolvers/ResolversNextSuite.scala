@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.resolvers.Resolvers.next
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.ProvidedIdentities
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent.{ResolverCreated, ResolverDeprecated, ResolverTagAdded, ResolverUpdated}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverState, R
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 import io.circe.Json
 

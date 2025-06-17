@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.schemas.job
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.generators.SchemaGen
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceState
@@ -12,12 +14,10 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
-import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

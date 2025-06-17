@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.state
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.{PullRequestActive, PullRequestClosed}
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -15,8 +17,6 @@ import ai.senscience.nexus.delta.sourcing.{EntityCheck, PullRequest, Scope}
 import cats.data.NonEmptySet
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.ThrowableValue
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture

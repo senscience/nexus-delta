@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.BlazegraphClient.time
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{InvalidCountRequest, SparqlActionError, SparqlQueryError, SparqlWriteError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.{Aux, SparqlResultsJson}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.NamespaceProperties
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import org.http4s.Method.{DELETE, GET, POST}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*

@@ -7,6 +7,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions as esPe
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
@@ -25,8 +27,6 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.JsonObject
 
 import java.time.Instant

@@ -2,6 +2,9 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -10,9 +13,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.literal.JsonStringContext
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}

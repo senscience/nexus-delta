@@ -5,6 +5,8 @@ import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViews
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.NamedSuite
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, SearchRejection}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.implicits.catsSyntaxApplicativeError
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.{Json, JsonObject}
 import kamon.instrumentation.akka.http.TracingDirectives.operationName
 

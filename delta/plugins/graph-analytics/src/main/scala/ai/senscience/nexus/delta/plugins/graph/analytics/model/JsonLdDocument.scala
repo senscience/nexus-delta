@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.model
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument.Reference
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdEntry.ObjectEntry
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import cats.Monoid
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.syntax.EncoderOps

@@ -1,5 +1,10 @@
 package ai.senscience.nexus.delta.sdk.schemas.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -11,11 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*
@@ -232,9 +232,9 @@ object SchemaEvent {
   ) extends SchemaEvent
 
   val serializer: Serializer[Iri, SchemaEvent] = {
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
     implicit val configuration: Configuration = Serializer.circeConfiguration
 
     implicit val coder: Codec.AsObject[SchemaEvent] = deriveConfiguredCodec[SchemaEvent]

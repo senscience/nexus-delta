@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectEvent.*
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 
 import java.time.Instant
 import java.util.UUID

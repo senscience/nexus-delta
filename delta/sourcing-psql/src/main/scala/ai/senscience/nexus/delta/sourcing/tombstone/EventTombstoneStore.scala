@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.tombstone
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, Pr
 import ai.senscience.nexus.delta.sourcing.tombstone.EventTombstoneStore.{EventTombstone, Value}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

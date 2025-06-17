@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.instances
 
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import doobie.{Get, Put}
 
 trait IriInstances {

@@ -2,12 +2,12 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.BulkResponse
 import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
 import munit.AnyFixture

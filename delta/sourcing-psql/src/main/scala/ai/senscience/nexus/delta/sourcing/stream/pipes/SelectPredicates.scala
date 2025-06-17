@@ -1,17 +1,17 @@
 package ai.senscience.nexus.delta.sourcing.stream.pipes
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Triple.{predicate, subject}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.pipes.SelectPredicates.SelectPredicatesConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Triple.{predicate, subject}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 import org.apache.jena.graph.Node

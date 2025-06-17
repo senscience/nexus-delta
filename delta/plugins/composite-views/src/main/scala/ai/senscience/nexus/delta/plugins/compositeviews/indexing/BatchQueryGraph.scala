@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.idTemplating
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.graph.Graph
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.Graph
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import fs2.Chunk
 
 import java.util.regex.Pattern.quote

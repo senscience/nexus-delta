@@ -3,6 +3,10 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingActionSuite.{emptyAcc, IdAcc}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.PullRequest
@@ -16,10 +20,6 @@ import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
 import ai.senscience.nexus.delta.sourcing.stream.{NoopSink, PipeChain, PipeRef, SuccessElemStream}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

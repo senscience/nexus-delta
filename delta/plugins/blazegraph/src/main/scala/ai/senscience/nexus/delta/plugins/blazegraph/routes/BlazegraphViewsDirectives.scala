@@ -2,6 +2,8 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryResponse, SparqlQueryResponseType}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.*
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
@@ -9,8 +11,6 @@ import akka.http.scaladsl.model.MediaType
 import akka.http.scaladsl.model.MediaTypes.`text/plain`
 import akka.http.scaladsl.server.Directives.{extractRequest, provide}
 import akka.http.scaladsl.server.{Directive, Directive1, Route}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import org.http4s.MediaType as Http4sMediaType
 
 trait BlazegraphViewsDirectives {

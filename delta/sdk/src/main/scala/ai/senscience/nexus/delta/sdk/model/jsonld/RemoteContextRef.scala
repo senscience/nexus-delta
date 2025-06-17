@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.sdk.model.jsonld
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef.ProjectRemoteContextRef.ResourceContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.ProjectRemoteContext
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.EncoderOps

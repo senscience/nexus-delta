@@ -1,16 +1,16 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.{Configuration as JsonLdConfiguration, JsonLdDecoder}
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.{Configuration as JsonLdConfiguration, JsonLdDecoder}
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
 

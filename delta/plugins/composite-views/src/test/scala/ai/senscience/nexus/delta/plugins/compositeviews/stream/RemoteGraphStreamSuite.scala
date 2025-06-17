@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.MetadataPredicates
+import ai.senscience.nexus.delta.rdf.RdfError.MissingPredicate
+import ai.senscience.nexus.delta.rdf.Triple
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.graph.NQuads
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.delta.rdf.RdfError.MissingPredicate
-import ch.epfl.bluebrain.nexus.delta.rdf.Triple
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant

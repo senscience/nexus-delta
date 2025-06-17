@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.plugins.storage.storages
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{DiskStorageConfig, S3StorageConfig, StorageTypeConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Secret
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ClasspathResources
 import org.http4s.Uri

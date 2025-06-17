@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.graph.NTriples
 import org.http4s.Uri
 
 /**

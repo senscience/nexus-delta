@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.BulkResponse
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.BulkResponse.{MixedOutcomes, Success}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk, FailureReason}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
 

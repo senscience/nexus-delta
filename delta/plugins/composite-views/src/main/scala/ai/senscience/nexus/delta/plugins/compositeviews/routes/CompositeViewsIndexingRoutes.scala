@@ -9,6 +9,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewReje
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.{ExpandId, FetchView}
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -25,10 +29,6 @@ import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 
 class CompositeViewsIndexingRoutes(
     identities: Identities,

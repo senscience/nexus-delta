@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{idSegment, projectRef}
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.IriVocab
@@ -12,7 +13,6 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.{Directive0, Directive1}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * Directives requiring interactions with the projects and organizations modules

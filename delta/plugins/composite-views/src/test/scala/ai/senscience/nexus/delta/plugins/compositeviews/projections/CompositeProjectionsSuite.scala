@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.F
 import ai.senscience.nexus.delta.plugins.compositeviews.store.{CompositeProgressStore, CompositeRestartStore}
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream

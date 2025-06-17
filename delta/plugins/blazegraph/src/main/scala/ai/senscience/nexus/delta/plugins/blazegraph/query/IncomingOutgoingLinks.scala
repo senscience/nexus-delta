@@ -6,6 +6,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, S
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.InvalidResourceId
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{defaultViewId, BlazegraphViewRejection, SparqlLink}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.IdSegment.IriSegment
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntry
@@ -19,8 +21,6 @@ import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
 
 import java.util.regex.Pattern.quote
 

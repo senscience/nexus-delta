@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionProgress, RemainingElems}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen.{defaultApiMappings, projectFromRef, resourceFor}
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.scalatest.CancelAfterFailure
 

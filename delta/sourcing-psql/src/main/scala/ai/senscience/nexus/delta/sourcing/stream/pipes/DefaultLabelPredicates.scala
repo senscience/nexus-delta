@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.stream.pipes
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.*
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.stream.pipes.SelectPredicates.SelectPredicatesConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeDef, PipeRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import shapeless.Typeable
 
 /**

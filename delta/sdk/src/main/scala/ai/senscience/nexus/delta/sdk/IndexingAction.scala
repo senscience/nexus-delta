@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.IndexingAction.logger
 import ai.senscience.nexus.delta.sdk.IndexingMode.{Async, Sync}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.IndexingFailed
@@ -15,7 +16,6 @@ import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 
 import scala.concurrent.duration.*
 

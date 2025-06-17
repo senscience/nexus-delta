@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas.job
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.sdk.resources.ValidateResource
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceRejection, ResourceState}
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sourcing.stream.{ElemStream, FailureReason, Suc
 import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.schemas
 import fs2.Stream
 
 /**

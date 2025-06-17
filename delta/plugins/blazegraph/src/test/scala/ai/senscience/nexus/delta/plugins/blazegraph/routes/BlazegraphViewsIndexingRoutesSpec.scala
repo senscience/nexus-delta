@@ -4,6 +4,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.Act
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewNotFound}
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
@@ -19,8 +21,6 @@ import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 import java.time.Instant
 

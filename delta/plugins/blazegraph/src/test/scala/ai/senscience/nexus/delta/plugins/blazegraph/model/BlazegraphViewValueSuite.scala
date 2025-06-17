@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.model
 
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{nextIndexingRev, IndexingBlazegraphViewValue}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import munit.FunSuite
 
 class BlazegraphViewValueSuite extends FunSuite {

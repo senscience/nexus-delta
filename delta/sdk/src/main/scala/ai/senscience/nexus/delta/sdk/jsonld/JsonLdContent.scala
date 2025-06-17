@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.JsonLdValue
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sourcing.model.Tags
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import io.circe.Json
 
 /**

@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.projectdeletion.model
 
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.ConfigFactory
 import pureconfig.ConfigSource

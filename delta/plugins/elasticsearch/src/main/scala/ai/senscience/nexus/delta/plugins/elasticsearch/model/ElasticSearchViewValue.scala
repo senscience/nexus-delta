@@ -2,22 +2,22 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.model
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.defaultPipeline
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, PipeStep, ViewRef}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, PipeRef}
 import ai.senscience.nexus.delta.sourcing.stream.pipes.FilterByType.FilterByTypeConfig
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, DiscardMetadata, FilterByType, FilterDeprecated}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, PipeRef}
 import cats.data.{NonEmptyChain, NonEmptySet}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.*

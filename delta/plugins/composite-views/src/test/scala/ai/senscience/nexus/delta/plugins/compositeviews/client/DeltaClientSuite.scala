@@ -4,6 +4,8 @@ import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.Remot
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClientSuite.token
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
+import ai.senscience.nexus.delta.rdf.graph.NQuads
+import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NQuads
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 import io.circe.syntax.EncoderOps

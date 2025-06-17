@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.model
 
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import io.circe.{Decoder, Encoder, Json}
 
 /**

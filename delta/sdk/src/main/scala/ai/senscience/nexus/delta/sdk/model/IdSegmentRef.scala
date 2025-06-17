@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * A segment from the positional API that should be an Id plus its revision/tag information

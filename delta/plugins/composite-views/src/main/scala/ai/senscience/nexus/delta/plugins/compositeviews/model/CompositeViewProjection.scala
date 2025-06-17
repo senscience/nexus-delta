@@ -5,15 +5,15 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.GraphResourceToDocument
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.stream.{Operation, PipeChain}
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import io.circe.{Encoder, JsonObject}
 
 import java.util.UUID

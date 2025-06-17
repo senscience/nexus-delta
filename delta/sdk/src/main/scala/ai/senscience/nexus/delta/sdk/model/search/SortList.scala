@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.model.search
 
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 
 /**
   * Data type of a collection of [[Sort]]

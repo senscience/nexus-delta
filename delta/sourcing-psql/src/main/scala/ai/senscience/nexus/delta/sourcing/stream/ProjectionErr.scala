@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 
 /**
   * Enumeration of recoverable errors for projection/stream definitions and compositions.

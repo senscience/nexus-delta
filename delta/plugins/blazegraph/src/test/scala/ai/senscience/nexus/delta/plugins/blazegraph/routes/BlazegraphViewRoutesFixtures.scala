@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 import ai.senscience.nexus.delta.plugins.blazegraph.Fixtures
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{schema, SparqlLink}
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
@@ -19,8 +21,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ch.epfl.bluebrain.nexus.testkit.{CirceEq, CirceLiteral}
 import org.scalatest.{BeforeAndAfterAll, CancelAfterFailure, Inspectors}

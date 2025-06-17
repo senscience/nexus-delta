@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
 import ai.senscience.nexus.delta.sdk.generators.{PermissionsGen, ResourceGen}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ResourceFSpec extends CatsEffectSpec with Fixtures {

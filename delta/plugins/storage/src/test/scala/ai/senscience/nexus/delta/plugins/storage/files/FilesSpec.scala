@@ -9,6 +9,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.{FetchStorage, StorageFixtures, Storages, StoragesConfig}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -31,8 +33,6 @@ import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.decodeUri
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 import org.scalatest.Assertion

@@ -8,6 +8,10 @@ import ai.senscience.nexus.delta.plugins.storage.files.{contexts as fileContexts
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContexts, permissions as storagesPermissions, FetchStorage, StorageFixtures, Storages, StoragesConfig}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
@@ -31,10 +35,6 @@ import akka.http.scaladsl.model.MediaTypes.{`multipart/form-data`, `text/html`}
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
 import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.*

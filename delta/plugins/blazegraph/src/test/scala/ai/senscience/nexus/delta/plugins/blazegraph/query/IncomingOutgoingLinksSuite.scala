@@ -5,6 +5,10 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntry
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
@@ -14,10 +18,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceR
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.graph.NTriples
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import munit.catseffect.IOFixture

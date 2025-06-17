@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.files
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileCustomMetadata}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
@@ -12,7 +13,6 @@ import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 import ch.epfl.bluebrain.nexus.testkit.Generators
 
 import java.util.{Base64, UUID}

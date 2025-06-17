@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotAccessible
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{logger, ProjectRemoteContext}
@@ -11,10 +15,6 @@ import ai.senscience.nexus.delta.sdk.{DataResource, Resolve}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotAccessible
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.jsonOpsSyntax
 import io.circe.syntax.*
 
 import scala.collection.concurrent

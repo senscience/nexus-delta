@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.views
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * View reference for indexing purposes

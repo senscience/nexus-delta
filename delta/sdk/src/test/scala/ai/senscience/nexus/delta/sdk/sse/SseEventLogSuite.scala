@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.sdk.sse
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem
 import akka.http.scaladsl.model.sse.ServerSentEvent
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.circe.JsonObject
 import io.circe.syntax.KeyOps

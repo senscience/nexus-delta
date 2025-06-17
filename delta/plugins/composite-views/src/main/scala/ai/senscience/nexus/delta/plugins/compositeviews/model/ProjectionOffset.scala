@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 

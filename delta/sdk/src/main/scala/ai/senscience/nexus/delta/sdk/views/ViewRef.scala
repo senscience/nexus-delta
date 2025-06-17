@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.views
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.Order
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
 import io.circe.Codec
 import io.circe.generic.semiauto.deriveCodec
 

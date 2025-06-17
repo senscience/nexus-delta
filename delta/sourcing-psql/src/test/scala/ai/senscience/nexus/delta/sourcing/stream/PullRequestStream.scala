@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.{PullRequestActive, PullRequestClosed}
@@ -8,8 +10,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.*
 import fs2.{Pure, Stream}
 
 import java.time.Instant

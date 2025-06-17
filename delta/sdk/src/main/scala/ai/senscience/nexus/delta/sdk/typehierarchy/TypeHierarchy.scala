@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.typehierarchy
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.TypeHierarchyResource
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyCommand.{CreateTypeHierarchy, UpdateTypeHierarchy}
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, GlobalEventLog, StateMachine, Transactors}
 import cats.effect.IO
 import cats.effect.kernel.Clock
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.nxv
 
 trait TypeHierarchy {
 

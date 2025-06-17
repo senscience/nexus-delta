@@ -6,6 +6,11 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejectio
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{query as Query, read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.{BlazegraphViews, BlazegraphViewsQuery}
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
@@ -23,11 +28,6 @@ import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.{Directive0, Route}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.Json
 
 /**

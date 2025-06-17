@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.model
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import cats.Order
-import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 
 /**
   * Defines a dependency to another entity

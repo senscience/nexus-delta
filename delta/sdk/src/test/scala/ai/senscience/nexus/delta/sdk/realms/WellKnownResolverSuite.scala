@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sdk.realms
 
+import ai.senscience.nexus.delta.rdf.syntax.JsonSyntax
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{IllegalEndpointFormat, IllegalIssuerFormat, IllegalJwkFormat, IllegalJwksUriFormat, NoValidKeysFound, UnsuccessfulJwksResponse, UnsuccessfulOpenIdConfigResponse}
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.delta.rdf.syntax.JsonSyntax
 import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
 import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite

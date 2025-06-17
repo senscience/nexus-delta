@@ -4,6 +4,11 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Int
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.{InvalidRebuildStrategy, InvalidSparqlConstructQuery, InvalidSuites}
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
@@ -11,11 +16,6 @@ import cats.effect.IO
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils.loadJsonAs
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import com.typesafe.config.Config
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}

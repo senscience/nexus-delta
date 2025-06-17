@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -11,8 +13,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import io.circe.syntax.EncoderOps
 
 class BlazegraphSupervisionRoutes(

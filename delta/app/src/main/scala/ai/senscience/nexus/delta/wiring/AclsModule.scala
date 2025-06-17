@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{AclsRoutes, UserPermissionsRoutes}
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.*
@@ -16,9 +19,6 @@ import akka.http.scaladsl.server.RouteConcatenation
 import cats.effect.{Clock, IO}
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.contexts
-import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.rdf.utils.JsonKeyOrdering
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**
