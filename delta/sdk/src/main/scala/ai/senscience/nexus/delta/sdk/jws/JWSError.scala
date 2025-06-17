@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.jws
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}
 

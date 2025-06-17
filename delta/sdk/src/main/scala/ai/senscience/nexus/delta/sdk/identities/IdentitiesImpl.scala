@@ -1,5 +1,12 @@
 package ai.senscience.nexus.delta.sdk.identities
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
+import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOidcError, InvalidAccessToken, UnknownAccessTokenIssuer}
+import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{extractGroups, logger, GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -11,13 +18,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticat
 import cats.data.OptionT
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOidcError, InvalidAccessToken, UnknownAccessTokenIssuer}
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import com.nimbusds.jose.jwk.{JWK, JWKSet}
 import io.circe.{Decoder, HCursor, Json}
 import org.http4s.Method.GET

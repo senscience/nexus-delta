@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.rdf.jsonld.context
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceError.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextArray, ContextRemoteIri}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceError.*
 import io.circe.Json
 
 trait RemoteContextResolution { self =>

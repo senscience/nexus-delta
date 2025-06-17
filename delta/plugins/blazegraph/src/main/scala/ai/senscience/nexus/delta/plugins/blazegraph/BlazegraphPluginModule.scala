@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.BlazegraphCoordinator
@@ -28,8 +30,6 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ServiceDependency
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

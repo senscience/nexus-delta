@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.{PluginDescription, ServiceDescription}
+import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.{PluginDescription, ServiceDescription}
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ServiceDependency
 
 class VersionRoutesSpec extends BaseRouteSpec {
 

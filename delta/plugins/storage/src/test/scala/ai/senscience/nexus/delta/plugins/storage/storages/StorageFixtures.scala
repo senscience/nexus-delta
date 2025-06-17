@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
+import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{DiskStorageConfig, S3StorageConfig, StorageTypeConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.ClasspathResources
-import ch.epfl.bluebrain.nexus.delta.kernel.Secret
 import org.http4s.Uri
 
 import java.nio.file.{Files, Paths}

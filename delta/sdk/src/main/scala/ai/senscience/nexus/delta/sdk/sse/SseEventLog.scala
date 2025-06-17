@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.sse
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.error.ServiceError.UnknownSseLabel
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.Stream
 import io.circe.syntax.EncoderOps
 

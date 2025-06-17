@@ -1,5 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlQueryError
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{GraphResourceToNTriples, SparqlSink}
@@ -22,10 +26,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.HttpConnectivityError
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import fs2.Chunk
 import shapeless.Typeable
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.organizations
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.acls.Acls
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationNonEmpty
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.Scope.Org
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 trait OrganizationDeleter {
   def apply(org: Label): IO[Unit]

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -24,7 +25,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, Ta
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 import munit.AnyFixture
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.routes
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.storage.files.contexts as fileContexts
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{DigestAlgorithm, StorageStatEntry, StorageType}
@@ -29,7 +30,6 @@ import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 import org.scalatest.Assertion
 

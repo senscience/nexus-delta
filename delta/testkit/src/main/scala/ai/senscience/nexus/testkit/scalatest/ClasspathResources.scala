@@ -1,9 +1,9 @@
 package ai.senscience.nexus.testkit.scalatest
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.testkit.mu.ce
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.{Json, JsonObject}
 import munit.Assertions as MUnitAssertions
 import org.scalatest.Assertions as ScalaTestAssertions

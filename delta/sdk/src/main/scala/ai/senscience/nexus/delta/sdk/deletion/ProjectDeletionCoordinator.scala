@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.deletion
 
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.DeletionConfig
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
 import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy}
 
 /**
   * Stream to delete project from the system after those are marked as deleted

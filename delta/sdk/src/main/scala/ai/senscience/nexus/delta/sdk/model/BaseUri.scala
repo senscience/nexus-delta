@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.instances.UriInstances
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.model.Label.IllegalLabelFormat
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import io.circe.{Decoder, Encoder}
 import org.http4s.{Query, Uri}
 import pureconfig.ConfigReader

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.syntax.*
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.Ignored
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
@@ -7,8 +9,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import cats.effect.*
 import cats.effect.std.Semaphore
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy}
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 

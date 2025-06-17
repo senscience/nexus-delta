@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.main
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.JsonObject
 
 /**

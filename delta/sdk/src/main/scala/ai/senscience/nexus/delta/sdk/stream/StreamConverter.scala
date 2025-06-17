@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.stream
 
+import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import akka.NotUsed
 import akka.stream.*
 import akka.stream.scaladsl.{Sink as AkkaSink, Source as AkkaSource, *}
 import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.IOFuture
 import fs2.*
 
 /**

@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk.auth
 
+import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
+import ai.senscience.nexus.delta.kernel.{Logger, Secret}
 import ai.senscience.nexus.delta.sdk.auth.Credentials.ClientCredentials
 import ai.senscience.nexus.delta.sdk.auth.OpenIdAuthService.logger
 import ai.senscience.nexus.delta.sdk.error.AuthTokenError.{AuthTokenHttpError, AuthTokenNotFoundInResponse, RealmIsDeprecated}
@@ -9,9 +12,6 @@ import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, Secret}
 import io.circe.Json
 import org.http4s.Method.POST
 import org.http4s.client.Client

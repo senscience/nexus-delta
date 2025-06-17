@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.projectdeletion
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 class ProjectDeletionModule(priority: Int) extends ModuleDef {

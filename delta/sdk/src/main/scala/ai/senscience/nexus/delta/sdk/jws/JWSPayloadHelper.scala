@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.jws
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.jws.JWSError.{InvalidJWSPayload, JWSSignatureExpired, UnconfiguredJWS}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import com.nimbusds.jose.crypto.{RSASSASigner, RSASSAVerifier}
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.util.JSONObjectUtils

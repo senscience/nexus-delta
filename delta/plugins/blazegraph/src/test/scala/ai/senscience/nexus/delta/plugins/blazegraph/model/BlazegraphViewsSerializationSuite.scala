@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.model
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewEvent.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewType.IndexingBlazegraphView as BlazegraphType
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.Json
 
 import java.time.Instant

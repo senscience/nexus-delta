@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.implicits
 
+import ai.senscience.nexus.delta.kernel.search.TimeRange
+import ai.senscience.nexus.delta.kernel.search.TimeRange.*
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import doobie.util.fragment.Fragment

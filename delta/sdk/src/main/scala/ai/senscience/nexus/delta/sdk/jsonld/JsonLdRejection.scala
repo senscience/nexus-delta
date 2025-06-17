@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError
 import ai.senscience.nexus.delta.rdf.RdfError.ConversionError
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

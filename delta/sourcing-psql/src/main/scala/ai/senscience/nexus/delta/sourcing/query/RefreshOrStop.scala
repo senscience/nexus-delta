@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.query
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig.{DelayConfig, PassivationConfig, StopConfig}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome.*
 import ai.senscience.nexus.delta.sourcing.stream.ProjectActivitySignals
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 

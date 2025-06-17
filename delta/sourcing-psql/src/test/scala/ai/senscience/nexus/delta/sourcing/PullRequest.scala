@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.error.ThrowableValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, rdfs, schemas}
 import ai.senscience.nexus.delta.rdf.graph.Graph
@@ -20,7 +21,6 @@ import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.state.{GraphResource, ScopedStateStore}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.ThrowableValue
 import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec

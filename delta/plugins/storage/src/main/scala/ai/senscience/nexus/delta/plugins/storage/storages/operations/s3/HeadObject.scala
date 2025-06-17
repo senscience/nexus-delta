@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
+import ai.senscience.nexus.delta.kernel.Hex
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.{Digest, MediaType}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
-import ch.epfl.bluebrain.nexus.delta.kernel.Hex
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse
 
 import java.util.Base64

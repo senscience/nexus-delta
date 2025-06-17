@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import munit.AnyFixture
 
 class BlazegraphClientSuite extends SparqlClientSuite {

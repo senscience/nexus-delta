@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
+import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
 import ai.senscience.nexus.delta.plugins.storage.files.{contexts, nxvFile, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
@@ -22,7 +23,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, ResourceRef}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder}
 import io.circe.generic.semiauto.deriveEncoder

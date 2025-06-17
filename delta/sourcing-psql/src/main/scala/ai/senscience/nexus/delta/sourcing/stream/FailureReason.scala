@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.utils.ThrowableUtils.stackTraceAsString
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ThrowableUtils.stackTraceAsString
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.{EncoderOps, KeyOps}

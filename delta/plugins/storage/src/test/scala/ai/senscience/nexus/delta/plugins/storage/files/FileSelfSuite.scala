@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.storage.FileSelf
 import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 
 class FileSelfSuite extends NexusSuite {
 

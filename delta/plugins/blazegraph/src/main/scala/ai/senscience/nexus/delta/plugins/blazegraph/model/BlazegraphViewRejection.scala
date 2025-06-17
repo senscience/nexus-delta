@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.model
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphErrorParser
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -16,8 +18,6 @@ import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 

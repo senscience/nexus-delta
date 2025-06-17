@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage
 
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.plugins.storage.files.Files.FilesLog
@@ -41,7 +42,6 @@ import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}
 import org.http4s.Uri.Path

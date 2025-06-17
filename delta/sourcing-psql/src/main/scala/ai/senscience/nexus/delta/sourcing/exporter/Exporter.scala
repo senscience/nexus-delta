@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.exporter
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.exporter.Exporter.ExportResult
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import ai.senscience.nexus.delta.sourcing.syntax.DoobieSyntax.FragmentEncoderOps
 import cats.effect.IO
 import cats.effect.std.Semaphore
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.Fragments
 import doobie.syntax.all.*
 import doobie.util.query.Query0

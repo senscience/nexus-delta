@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.store
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.entityType
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore.logger
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ProjectionMetadata}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import io.circe.Json

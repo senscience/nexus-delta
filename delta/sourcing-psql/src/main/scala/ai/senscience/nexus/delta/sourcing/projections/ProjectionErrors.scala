@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.projections
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -8,8 +10,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 import fs2.Stream
 
 trait ProjectionErrors {

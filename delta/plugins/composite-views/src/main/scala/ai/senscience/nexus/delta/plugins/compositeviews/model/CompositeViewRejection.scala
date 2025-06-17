@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheckError
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, RemoteProjectSource}
@@ -17,8 +19,6 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, Projection
 import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{Clock, IO, Resource}
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import munit.catseffect.IOFixture
 
 import scala.concurrent.duration.*

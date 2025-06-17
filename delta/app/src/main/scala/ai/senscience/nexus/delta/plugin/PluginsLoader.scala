@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugin
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.sdk.error.PluginError
 import ai.senscience.nexus.delta.sdk.error.PluginError.{ClassNotFoundError, MultiplePluginDefClassesFound, PluginLoadErrors}
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import io.github.classgraph.ClassGraph
 
 import java.io.{File, FilenameFilter}

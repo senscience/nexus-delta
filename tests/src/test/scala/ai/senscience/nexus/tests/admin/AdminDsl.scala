@@ -1,6 +1,8 @@
 package ai.senscience.nexus.tests.admin
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.tests.HttpClient
 import ai.senscience.nexus.tests.Identity.Authenticated
@@ -9,8 +11,6 @@ import ai.senscience.nexus.tests.config.TestsConfig
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.scalatest.matchers.should.Matchers

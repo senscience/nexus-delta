@@ -1,11 +1,11 @@
 package ai.senscience.nexus.tests.kg.resources
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.Bob
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 import io.circe.syntax.KeyOps

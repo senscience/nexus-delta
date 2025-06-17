@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution.ResolutionResult.SingleResult
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -12,7 +13,6 @@ import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Decoder
 
 class IdResolutionRoutesSpec extends ElasticSearchViewsRoutesFixtures {

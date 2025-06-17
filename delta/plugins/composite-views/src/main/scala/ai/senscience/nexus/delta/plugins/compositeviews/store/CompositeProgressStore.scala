@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.store
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{FullRebuild, FullRestart, PartialRebuild}
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeProgressStore.{logger, CompositeProgressRow}
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

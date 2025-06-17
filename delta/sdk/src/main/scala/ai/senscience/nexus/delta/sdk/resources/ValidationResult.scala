@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.shacl.ValidationReport
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Encoder, JsonObject}
 

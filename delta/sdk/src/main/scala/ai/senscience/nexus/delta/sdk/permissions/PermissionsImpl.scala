@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.permissions
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.sdk.PermissionsResource
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{entityType, labelId}
 import ai.senscience.nexus.delta.sdk.permissions.PermissionsImpl.PermissionsLog
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 
 final class PermissionsImpl private (
     override val minimum: Set[Permission],

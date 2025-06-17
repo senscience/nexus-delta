@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.cache.CacheConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

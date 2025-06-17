@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 
 final class ExpandIri[R <: Rejection](val onError: String => R) extends AnyVal {
 

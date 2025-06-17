@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 
 /**
   * The default creation of the InProject resolver as part of the project initialization.

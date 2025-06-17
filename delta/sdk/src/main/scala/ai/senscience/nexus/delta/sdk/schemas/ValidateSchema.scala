@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError
 import ai.senscience.nexus.delta.rdf.graph.Graph
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.schemas.Schemas.kamonComponent
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 
 trait ValidateSchema {
 

@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.projections
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -10,9 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetad
 import ai.senscience.nexus.delta.sourcing.{FragmentEncoder, Transactors}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 import doobie.*
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

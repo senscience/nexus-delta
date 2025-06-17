@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.disk
 
+import ai.senscience.nexus.delta.kernel.Hex
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
 import ai.senscience.nexus.delta.plugins.storage.files.model.{Digest, FileStorageMetadata}
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sdk.FileData
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Hex
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import fs2.hashing.{Hasher, Hashing}
 import fs2.io.file.*
 import fs2.{Chunk, Pipe, Pull, Stream}

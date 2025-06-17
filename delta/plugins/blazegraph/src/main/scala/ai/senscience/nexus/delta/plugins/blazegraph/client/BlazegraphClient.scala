@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
 import ai.senscience.nexus.delta.plugins.blazegraph.client.BlazegraphClient.timeoutHeader
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{InvalidCountRequest, SparqlActionError, SparqlQueryError, SparqlWriteError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.{Aux, SparqlResultsJson}
@@ -8,8 +10,6 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
 import org.http4s.Method.{DELETE, GET, POST}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
@@ -125,7 +125,7 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
     val namespacePredicate = "http://www.bigdata.com/rdf#/features/KB/Namespace"
     val describeEndpoint   = (endpoint / "namespace").withQueryParam("describe-each-named-graph", "false")
     val request            = GET(describeEndpoint, accept(SparqlResultsJson.mediaTypes))
-    import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
     client.expect[SparqlResults](request).map { response =>
       response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
         val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)

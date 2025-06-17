@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageDeletionTask.{init, logger}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{DiskStorageValue, S3StorageValue}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.Stream
 import org.typelevel.log4cats
 

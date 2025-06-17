@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources.model
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

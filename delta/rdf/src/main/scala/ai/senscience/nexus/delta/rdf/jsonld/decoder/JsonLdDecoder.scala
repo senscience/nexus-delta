@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.rdf.jsonld.decoder
 
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.{ExpandedJsonLd, ExpandedJsonLdCurso
 import cats.Order
 import cats.data.{NonEmptyList, NonEmptySet}
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 import io.circe.parser.parse
 import io.circe.{Json, JsonObject}
 

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.client
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.{Pull, Stream}
 import org.http4s.Method.GET
 import org.http4s.ServerSentEvent.EventId

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.projections
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.projections.ProjectionRestartStore.log
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import fs2.Stream

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution.ResolutionResult
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution.ResolutionResult.{MultipleResults, SingleResult}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams
@@ -23,7 +24,6 @@ import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import io.circe.JsonObject
 
 trait IdResolution {

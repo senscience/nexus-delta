@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.AppConfig
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -25,7 +26,6 @@ import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

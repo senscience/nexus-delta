@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMinPriority
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesTrial, ValidateResource}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
 

@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
+import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.S3StorageConfig
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions
 import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.testkit.localstack.LocalStackS3
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.delta.kernel.Secret
 import fs2.io.file.Path
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.CatsEffectSuite

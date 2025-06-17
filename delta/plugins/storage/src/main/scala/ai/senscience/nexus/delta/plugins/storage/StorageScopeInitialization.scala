@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.ResourceAlreadyExists
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 
 /**
   * The default creation of the default disk storage as part of the project initialization.

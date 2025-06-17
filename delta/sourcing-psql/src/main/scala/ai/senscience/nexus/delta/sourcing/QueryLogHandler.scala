@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.event.Event
 import ai.senscience.nexus.delta.sourcing.state.State
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.util.log
 import doobie.util.log.{LogEvent, LogHandler, Parameters}
 import io.circe.Json

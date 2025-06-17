@@ -1,10 +1,10 @@
 package ai.senscience.nexus.tests.resources
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.tests.Identity.Authenticated
 import ai.senscience.nexus.tests.config.TestsConfig
 import ai.senscience.nexus.tests.{HandleBarsFixture, SelfFixture}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.Json
 
 /**

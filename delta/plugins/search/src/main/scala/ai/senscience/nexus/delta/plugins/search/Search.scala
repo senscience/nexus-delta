@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
 

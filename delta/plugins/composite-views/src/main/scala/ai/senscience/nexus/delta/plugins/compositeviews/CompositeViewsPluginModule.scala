@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
@@ -34,7 +35,6 @@ import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.Purg
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
 

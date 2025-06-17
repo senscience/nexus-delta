@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.InvalidFilePath
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileStorageMetadata, MediaType}
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import org.http4s.Uri
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 

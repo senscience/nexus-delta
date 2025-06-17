@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.ScopedEventLogReadOnly
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 
 trait FetchSchema {
 

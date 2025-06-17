@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model.search
 
+import ai.senscience.nexus.delta.kernel.search.TimeRange.*
+import ai.senscience.nexus.delta.kernel.search.TimeRange.ParseError.{InvalidFormat, InvalidRange, InvalidValue}
 import ai.senscience.nexus.testkit.mu.EitherAssertions
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange.ParseError.{InvalidFormat, InvalidRange, InvalidValue}
 import munit.FunSuite
 
 import java.time.Instant

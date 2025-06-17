@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.cache.LocalCache
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
 
 sealed trait BlazegraphCoordinator
 

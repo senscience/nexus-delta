@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.disk
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileStorageMetadata
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.FetchFileRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.FetchFileRejection.UnexpectedLocationFormat
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFi
 import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import fs2.Stream
 import fs2.io.file.{Files, Path}
 import org.http4s.Uri

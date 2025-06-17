@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
+import ai.senscience.nexus.delta.kernel.RdfHttp4sMediaTypes.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import cats.data.NonEmptyList
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes.*
 import org.http4s.MediaType
 
 /**

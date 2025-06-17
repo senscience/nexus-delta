@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews.{entityType, expandIri, CompositeViewsLog}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
@@ -28,9 +31,6 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tags}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 import scala.concurrent.duration.FiniteDuration

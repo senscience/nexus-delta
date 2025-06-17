@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
+import ai.senscience.nexus.delta.kernel.utils.FileUtils
+import ai.senscience.nexus.delta.kernel.utils.FileUtils.loadJsonAs
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils.loadJsonAs
 import com.typesafe.config.Config
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}

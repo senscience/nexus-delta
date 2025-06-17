@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, TokenRejection}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.error.IdentityError.{AuthenticationFailed, InvalidToken}
@@ -13,7 +14,6 @@ import akka.http.scaladsl.server.directives.Credentials
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, TokenRejection}
 
 import scala.concurrent.Future
 

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.auth
 
+import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.delta.kernel.Secret
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

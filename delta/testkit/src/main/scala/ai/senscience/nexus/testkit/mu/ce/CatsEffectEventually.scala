@@ -1,10 +1,10 @@
 package ai.senscience.nexus.testkit.mu.ce
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig.MaximumCumulativeDelayConfig
+import ai.senscience.nexus.delta.kernel.syntax.*
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.testkit.mu.ce.CatsEffectEventually.logger
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig.MaximumCumulativeDelayConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy}
 import munit.{Assertions, CatsEffectAssertions, Location}
 
 trait CatsEffectEventually { self: Assertions with CatsEffectAssertions =>

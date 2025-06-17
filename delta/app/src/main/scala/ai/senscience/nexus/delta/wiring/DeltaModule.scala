@@ -2,6 +2,8 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFuture, UUIDF}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -29,8 +31,6 @@ import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.{Materializer, SystemMaterializer}
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO, Resource, Sync}
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFuture, UUIDF}
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}

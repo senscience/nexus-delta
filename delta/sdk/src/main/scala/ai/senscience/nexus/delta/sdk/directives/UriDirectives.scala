@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.*
+import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.marshalling.{JsonLdFormat, QueryParamsUnmarshalling}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.StringSegment
@@ -19,8 +21,6 @@ import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.directives.BasicDirectives.extractRequestContext
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
 import io.circe.Json
 
 import java.util.UUID

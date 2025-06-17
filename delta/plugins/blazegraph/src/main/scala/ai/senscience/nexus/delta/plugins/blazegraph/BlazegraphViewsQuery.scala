@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.entityType
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClientError, SparqlQueryClient, SparqlQueryResponse, SparqlQueryResponseType}
@@ -20,8 +22,6 @@ import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 
 trait BlazegraphViewsQuery {
 

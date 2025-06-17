@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.rdf.jsonld
 
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure.KeyMissingFailure
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.{DecodingFailure, ParsingFailure}
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.{JsonLdDecoder, JsonLdDecoderError}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 import io.circe.CursorOp.*
 import io.circe.{ACursor, CursorOp, Decoder, Json}
 

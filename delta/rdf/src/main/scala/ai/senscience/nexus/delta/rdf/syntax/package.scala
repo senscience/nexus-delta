@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.rdf
 
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, InstantSyntax}
+import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, InstantSyntax}
 
 package object syntax
     extends JsonSyntax

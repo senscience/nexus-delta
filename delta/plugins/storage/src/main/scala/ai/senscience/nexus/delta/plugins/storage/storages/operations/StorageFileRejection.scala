@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.sdk.NexusHeaders
 import akka.http.scaladsl.model.Uri
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 
 /**
   * Enumeration of Storage rejections related to file operations.

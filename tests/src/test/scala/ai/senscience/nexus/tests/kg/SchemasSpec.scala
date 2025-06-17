@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.Optics.sparql
@@ -7,7 +8,6 @@ import ai.senscience.nexus.tests.builders.SchemaPayloads
 import ai.senscience.nexus.tests.builders.SchemaPayloads.*
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
 import akka.http.scaladsl.model.StatusCodes
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 

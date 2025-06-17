@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphView.{AggregateBlazegraphView, IndexingBlazegraphView}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewNotFound
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 
 import java.util.UUID
 

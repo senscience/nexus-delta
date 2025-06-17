@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
+import ai.senscience.nexus.delta.kernel.RdfHttp4sMediaTypes.*
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.utils.Handlebars
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlActionError, SparqlQueryError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlResultsJson
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes.*
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.Handlebars
 import org.http4s.Method.{DELETE, GET, POST, PUT}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
@@ -57,7 +57,7 @@ final class RDF4JClient(client: Client[IO], endpoint: Uri, repositoryTemplate: S
 
   override def listNamespaces: IO[Vector[String]] = {
     val request = GET(repositoriesEndpoint, accept(SparqlResultsJson.mediaTypes))
-    import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
     client.expect[SparqlResults](request).map { response =>
       response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
         val namespaceName = binding.get("id").map(_.value)

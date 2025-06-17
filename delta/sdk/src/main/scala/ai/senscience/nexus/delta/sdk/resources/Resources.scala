@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.DataResource
@@ -21,8 +23,6 @@ import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.{ScopedEntityDefinition, ScopedEventLog, StateMachine}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import io.circe.Json
 
 /**

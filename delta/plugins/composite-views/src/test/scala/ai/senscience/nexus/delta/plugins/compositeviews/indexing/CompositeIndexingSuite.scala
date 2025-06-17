@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
@@ -49,8 +51,6 @@ import cats.Semigroup
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import fs2.Stream
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder

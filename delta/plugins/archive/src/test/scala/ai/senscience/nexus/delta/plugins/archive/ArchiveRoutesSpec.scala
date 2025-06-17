@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath}
+import ai.senscience.nexus.delta.kernel.utils.{StatefulUUIDF, UUIDF}
 import ai.senscience.nexus.delta.plugins.archive.routes.ArchiveRoutes
 import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError.InvalidPath
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
@@ -45,8 +47,6 @@ import akka.http.scaladsl.server.Route
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUri, encodeUriPath}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{StatefulUUIDF, UUIDF}
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.http4s.Uri

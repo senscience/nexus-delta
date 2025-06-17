@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.MarkElems
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.{Index, Noop, UpdateByQuery}
@@ -9,8 +11,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
 import io.circe.JsonObject
 import io.circe.literal.*
 import io.circe.syntax.EncoderOps

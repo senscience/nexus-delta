@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources.model
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -9,8 +11,6 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceGenerationResult.*
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{DataResource, SchemaResource}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.Json
 import io.circe.syntax.KeyOps
 

@@ -28,7 +28,7 @@ object WellKnownResolver {
   }
 
   def apply(client: Client[IO])(configUri: Uri): IO[WellKnown] = {
-    import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
+    import ai.senscience.nexus.delta.kernel.http.circe.*
     apply(uri => client.expect[Json](uri))(configUri)
   }
 

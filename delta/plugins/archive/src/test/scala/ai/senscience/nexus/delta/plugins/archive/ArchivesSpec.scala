@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.ArchiveNotFound
 import ai.senscience.nexus.delta.plugins.archive.model.{Archive, ArchiveValue}
@@ -20,8 +22,6 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.stream.scaladsl.Source
 import cats.data.NonEmptySet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.literal.*
 import org.http4s.Uri
 

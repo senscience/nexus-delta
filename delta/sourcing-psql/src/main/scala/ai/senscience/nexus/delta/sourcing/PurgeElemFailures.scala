@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.PurgeElemFailures.logger
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 

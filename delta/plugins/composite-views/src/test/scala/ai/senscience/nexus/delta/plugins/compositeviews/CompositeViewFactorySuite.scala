@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.*
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, Label, ProjectRef}
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.{Json, JsonObject}
 import org.http4s.Uri
 

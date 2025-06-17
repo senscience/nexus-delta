@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
@@ -16,7 +17,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, Label, Pro
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.{Json, JsonObject}
 import org.http4s.Uri
 

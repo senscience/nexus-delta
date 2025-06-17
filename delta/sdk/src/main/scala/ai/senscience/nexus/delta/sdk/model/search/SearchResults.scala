@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.model.search
 
+import ai.senscience.nexus.delta.kernel.search.Pagination
+import ai.senscience.nexus.delta.kernel.search.Pagination.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.instances.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
@@ -10,8 +12,6 @@ import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntr
 import cats.Functor
 import cats.effect.IO
 import cats.syntax.functor.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.*
 import fs2.Stream
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}

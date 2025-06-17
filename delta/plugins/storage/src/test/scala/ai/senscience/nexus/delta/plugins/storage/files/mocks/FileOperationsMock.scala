@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.mocks
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileStorageMetadata
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileOperations
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFile.{DiskUploadingFile, S3UploadingFile}
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileO
 import ai.senscience.nexus.delta.sdk.FileData
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import org.http4s.Uri
 import org.http4s.Uri.Path
 

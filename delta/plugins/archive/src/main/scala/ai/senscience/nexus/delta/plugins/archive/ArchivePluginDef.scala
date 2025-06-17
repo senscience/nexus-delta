@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import izumi.distage.model.Locator
 import izumi.distage.model.definition.ModuleDef
 class ArchivePluginDef extends PluginDef {

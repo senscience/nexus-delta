@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound, WrappedFileRejection}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveReference, ArchiveValue, FullArchiveReference, Zip}
@@ -33,7 +34,6 @@ import akka.util.ByteString
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, Printer}
 

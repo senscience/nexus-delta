@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.rdf.instances
 
+import ai.senscience.nexus.delta.kernel.http
+import ai.senscience.nexus.delta.kernel.http.circe
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ch.epfl.bluebrain.nexus.delta.kernel.http
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe
 import io.circe.{Decoder, Encoder}
 import org.http4s.Uri
 

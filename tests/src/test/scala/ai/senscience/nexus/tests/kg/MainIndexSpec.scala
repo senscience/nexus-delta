@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.{filterNestedKeys, hitProjects}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import ai.senscience.nexus.tests.resources.SimpleResource
 import akka.http.scaladsl.model.StatusCodes
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 
 class MainIndexSpec extends BaseIntegrationSpec {

@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk.identities
 
+import ai.senscience.nexus.delta.kernel.cache.LocalCache
+import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.*
+import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.sdk.generators.{RealmGen, WellKnownGen}
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -11,9 +14,6 @@ import ai.senscience.nexus.testkit.jwt.TokenGenerator
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.LocalCache
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.*
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator

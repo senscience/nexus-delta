@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.kernel.MD5
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import akka.http.scaladsl.model.MediaTypes
 import akka.http.scaladsl.model.headers.{EntityTag, HttpEncodings}
-import ch.epfl.bluebrain.nexus.delta.kernel.MD5
 
 class EtagUtilsTestSuite extends NexusSuite {
 

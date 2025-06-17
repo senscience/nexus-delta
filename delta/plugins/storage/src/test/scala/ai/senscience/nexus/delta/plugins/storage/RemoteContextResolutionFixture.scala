@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.storage
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.storage.files.contexts as fileContexts
 import ai.senscience.nexus.delta.plugins.storage.storages.contexts as storageContexts
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 
 trait RemoteContextResolutionFixture {
 

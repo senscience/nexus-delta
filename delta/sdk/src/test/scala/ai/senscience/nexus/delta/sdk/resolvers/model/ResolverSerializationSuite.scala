@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers.model
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticat
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.Json
 
 import java.time.Instant

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewAlreadyExists
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 
 final class SearchScopeInitialization(
     views: CompositeViews,

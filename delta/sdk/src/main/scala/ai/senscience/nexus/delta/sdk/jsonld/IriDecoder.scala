@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import io.circe.Decoder
 
 /**

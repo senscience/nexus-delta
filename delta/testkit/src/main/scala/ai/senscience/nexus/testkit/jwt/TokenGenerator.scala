@@ -1,8 +1,8 @@
 package ai.senscience.nexus.testkit.jwt
 
+import ai.senscience.nexus.delta.kernel.jwt.AuthToken
 import cats.data.NonEmptySet
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.AuthToken
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.{JWSAlgorithm, JWSHeader}

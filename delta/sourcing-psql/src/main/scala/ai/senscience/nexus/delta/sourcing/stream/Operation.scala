@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.OperationInOutMatchErr
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.{Pull, Stream}
 import shapeless.Typeable
 

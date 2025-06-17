@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -23,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 final class SchemasImpl private (

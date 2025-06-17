@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -21,8 +23,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 final class ResourcesImpl private (

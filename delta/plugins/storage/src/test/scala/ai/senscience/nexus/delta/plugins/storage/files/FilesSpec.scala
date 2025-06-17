@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.decodeUri
 import ai.senscience.nexus.delta.plugins.storage.RemoteContextResolutionFixture
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
@@ -33,7 +34,6 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.decodeUri
 import org.http4s.Uri
 import org.scalatest.Assertion
 import org.scalatest.concurrent.{Eventually, ScalaFutures}

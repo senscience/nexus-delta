@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import doobie.syntax.all.*
 import doobie.util.fragment.Fragment
 import io.github.classgraph.ClassGraph

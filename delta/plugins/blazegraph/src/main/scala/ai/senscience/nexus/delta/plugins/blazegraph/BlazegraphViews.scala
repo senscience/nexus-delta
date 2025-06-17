@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlClientError}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef
@@ -31,8 +33,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 import java.util.UUID

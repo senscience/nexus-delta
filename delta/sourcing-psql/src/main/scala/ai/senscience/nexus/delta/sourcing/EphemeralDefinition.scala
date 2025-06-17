@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTimeout
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 
 import scala.concurrent.duration.FiniteDuration
 

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.realms
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.model.search.{SearchParams, SearchResults}
 import ai.senscience.nexus.delta.sdk.realms.Realms.entityType
@@ -12,8 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import org.http4s.Uri
 
 final class RealmsImpl private (log: RealmsLog) extends Realms {

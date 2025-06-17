@@ -1,6 +1,7 @@
 package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.akka.marshalling.{CirceUnmarshalling, RdfMediaTypes}
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.HttpClient.{jsonHeaders, tokensMap}
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.kg.files.model.FileInput
@@ -17,7 +18,6 @@ import akka.stream.alpakka.sse.scaladsl.EventSource
 import akka.stream.scaladsl.Sink
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 import io.circe.parser.*
 import io.circe.syntax.*

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.plugins.search.SearchRoutesSpec.{name, projects}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 import org.http4s.Query

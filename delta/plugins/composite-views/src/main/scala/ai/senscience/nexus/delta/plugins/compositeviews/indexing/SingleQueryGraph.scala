@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.idTemplating
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 import java.util.regex.Pattern.quote
 

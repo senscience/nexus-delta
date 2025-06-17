@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
@@ -8,9 +11,6 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.http.client.middleware.BasicAuth
 import io.circe.Json
 import io.circe.syntax.*
 import org.http4s.ember.client.EmberClientBuilder
@@ -156,7 +156,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       q: SparqlQuery,
       additionalHeaders: Seq[Header.ToRaw]
   ): IO[SparqlResultsResponse] = {
-    import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
     namespace.toList
       .foldLeftM(SparqlResults.empty) { (results, namespace) =>
         queryRequest[SparqlResults](namespace, q, SparqlResultsJson.mediaTypes, additionalHeaders)
@@ -194,7 +194,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       q: SparqlQuery,
       additionalHeaders: Seq[Header.ToRaw]
   ): IO[SparqlJsonLdResponse] = {
-    import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
     namespaces.toList
       .foldLeftM(Vector.empty[Json]) { (results, namespace) =>
         queryRequest[Json](namespace, q, SparqlJsonLd.mediaTypes, additionalHeaders)
