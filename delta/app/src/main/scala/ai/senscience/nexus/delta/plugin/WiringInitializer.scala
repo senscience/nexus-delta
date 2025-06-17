@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugin
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.error.PluginError.PluginInitializationError
 import ai.senscience.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import cats.effect.{IO, Resource}
 import cats.syntax.traverse.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import distage.{Injector, Roots}
 import izumi.distage.model.Locator
 import izumi.distage.model.definition.ModuleDef

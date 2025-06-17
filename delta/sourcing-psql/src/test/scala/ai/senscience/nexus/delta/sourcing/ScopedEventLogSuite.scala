@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
-import ai.senscience.nexus.delta.sourcing.model.Tag.{latest, UserTag}
+import ai.senscience.nexus.delta.sourcing.model.Tag.{UserTag, latest}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy

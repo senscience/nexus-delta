@@ -1,9 +1,10 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.graph.analytics.GraphAnalytics.{index, projectionName}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
-import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{graphAnalyticsMappings, scriptContent, updateRelationshipsScriptId, GraphAnalyticsSink, GraphAnalyticsStream}
+import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{GraphAnalyticsSink, GraphAnalyticsStream, graphAnalyticsMappings, scriptContent, updateRelationshipsScriptId}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 sealed trait GraphAnalyticsCoordinator
 

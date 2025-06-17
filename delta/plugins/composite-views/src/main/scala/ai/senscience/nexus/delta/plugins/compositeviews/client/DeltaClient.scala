@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.client
 
+import ai.senscience.nexus.delta.kernel.http.ResponseUtils
+import ai.senscience.nexus.delta.kernel.{Logger, RdfHttp4sMediaTypes}
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheck.{RemoteCheckFailed, RemoteCheckTimeout, RemoteUnknownHost}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
@@ -14,8 +16,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.http.ResponseUtils
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RdfHttp4sMediaTypes}
 import io.circe.Json
 import io.circe.parser.decode
 import org.http4s.Method.{GET, HEAD}
@@ -111,7 +111,7 @@ object DeltaClient {
   final private class DeltaClientImpl(client: Client[IO], retryDelay: FiniteDuration) extends DeltaClient {
 
     override def projectStatistics(source: RemoteProjectSource): IO[ProjectStatistics] = {
-      import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
       val remoteOrg     = source.project.organization.value
       val remoteProject = source.project.project.value
       val endpoint      = source.endpoint / "projects" / remoteOrg / remoteProject / "statistics"
@@ -120,7 +120,7 @@ object DeltaClient {
     }
 
     override def remaining(source: RemoteProjectSource, offset: Offset): IO[RemainingElems] = {
-      import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
       SseClient.lastEventId(offset).flatMap { lastEventId =>
         val headers: Vector[Header.ToRaw] = Vector(accept, lastEventId)
         val request                       = GET(elemAddress(source) / "remaining", headers*)

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
@@ -28,7 +29,6 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterBy
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.literal.*
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion

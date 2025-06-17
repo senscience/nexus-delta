@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, T
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.literal.*
 
 import java.nio.file.Paths

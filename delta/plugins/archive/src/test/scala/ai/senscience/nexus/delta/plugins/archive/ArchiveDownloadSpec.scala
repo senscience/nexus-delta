@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUri
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, ArchiveValue}
@@ -40,7 +41,6 @@ import akka.testkit.TestKit
 import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUri
 import io.circe.syntax.EncoderOps
 import org.http4s.Uri
 import org.scalactic.source.Position

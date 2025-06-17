@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.projectdeletion.model
 
-import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
+import ai.senscience.nexus.delta.projectdeletion.model.{ProjectDeletionConfig, contexts}
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.implicits.*

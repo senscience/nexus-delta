@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin.Client
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileStorageMetadata
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.SaveFileRejection
@@ -7,8 +9,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFile
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFile.S3UploadingFile
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import org.http4s.{Status, Uri}
 import software.amazon.awssdk.services.s3.model.S3Exception
 

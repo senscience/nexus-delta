@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.resources
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.Optics._rev
 import ai.senscience.nexus.tests.Optics.admin._constrainedBy
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics, SchemaPayload}
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.Json
 
 class EnforcedSchemaSpec extends BaseIntegrationSpec {

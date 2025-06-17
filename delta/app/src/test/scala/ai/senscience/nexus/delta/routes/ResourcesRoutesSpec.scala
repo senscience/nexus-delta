@@ -1,7 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema as schemaOrg, schemas}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas, schema as schemaOrg}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.IndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
@@ -26,8 +28,6 @@ import akka.http.scaladsl.model.headers.{Accept, Location, RawHeader}
 import akka.http.scaladsl.model.{RequestEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.{Json, Printer}
 import org.scalatest.Assertion
 

@@ -1,11 +1,15 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.query
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlResultsJson
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlResults}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.InvalidResourceId
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink.{SparqlExternalLink, SparqlResourceLink}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{defaultViewId, BlazegraphViewRejection, SparqlLink}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, SparqlLink, defaultViewId}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
@@ -17,10 +21,6 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 
 import java.util.regex.Pattern.quote
 

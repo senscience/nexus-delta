@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.Refresh.WaitFor
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError}
@@ -12,8 +14,6 @@ import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.elasticsearch.ElasticSearchContainer
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
 import munit.AnyFixture

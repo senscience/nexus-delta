@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.dependency
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.sourcing.postgres.{DoobieScalaTestFixture, PostgresDocker}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 
 class PostgresServiceDependencySpec extends CatsEffectSpec with DoobieScalaTestFixture with PostgresDocker {
 

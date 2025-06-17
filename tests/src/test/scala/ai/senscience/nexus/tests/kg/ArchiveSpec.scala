@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.test.archive.ArchiveHelpers
 import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.archives.Tweety
@@ -12,7 +13,6 @@ import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{MediaRanges, MediaTypes, StatusCodes, Uri}
 import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import io.circe.Json
 
 import java.nio.file.Paths

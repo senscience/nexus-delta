@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.SimpleRejection.{badRequestRejection, conflictRejection, BadRequestRejection, ConflictRejection}
+import ai.senscience.nexus.delta.sdk.SimpleRejection.{BadRequestRejection, ConflictRejection, badRequestRejection, conflictRejection}
 import ai.senscience.nexus.delta.sdk.SimpleResource.rawHeader
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectivesSpec.SimpleResource2

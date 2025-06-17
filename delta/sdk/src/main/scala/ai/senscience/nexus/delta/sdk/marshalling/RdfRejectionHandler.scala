@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -13,7 +14,6 @@ import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.model.{ContentRange, EntityStreamSizeException, StatusCodes}
 import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.*
 import io.circe.{DecodingFailure, Encoder, JsonObject}
 

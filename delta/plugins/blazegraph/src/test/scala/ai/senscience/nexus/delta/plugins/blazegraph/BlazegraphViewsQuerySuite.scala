@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlJsonLd
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
@@ -28,7 +29,6 @@ import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.syntax.EncoderOps
 import munit.{AnyFixture, Location}
 

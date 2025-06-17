@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts.{elasticsearch, elasticsearchMetadata}
 import ai.senscience.nexus.delta.rdf.Vocabulary
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.sourcing.stream.ReferenceRegistry
 import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 
 object Fixtures {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader()

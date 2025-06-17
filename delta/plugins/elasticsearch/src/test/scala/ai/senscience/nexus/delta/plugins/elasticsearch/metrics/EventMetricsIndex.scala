@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.kernel.Resource
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import munit.CatsEffectSuite
 import munit.catseffect.IOFixture
 

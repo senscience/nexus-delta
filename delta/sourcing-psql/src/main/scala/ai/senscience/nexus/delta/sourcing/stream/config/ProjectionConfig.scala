@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream.config
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sourcing.config.{PurgeConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import pureconfig.ConfigReader
 import pureconfig.error.FailureReason
 import pureconfig.generic.semiauto.deriveReader

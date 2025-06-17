@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.IndexingAction.logger
 import ai.senscience.nexus.delta.sdk.IndexingMode.{Async, Sync}
@@ -13,9 +16,6 @@ import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, Elem, Elem
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 
 import scala.concurrent.duration.*
 

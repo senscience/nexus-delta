@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.query
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.kernel.Resource
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.Fragments
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

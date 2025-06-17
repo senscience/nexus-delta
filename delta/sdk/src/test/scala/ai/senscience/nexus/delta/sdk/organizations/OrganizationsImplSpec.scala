@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.organizations
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.generators.OrganizationGen.{organization, resourceFor}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntry
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import org.scalatest.CancelAfterFailure
 
 import java.time.Instant

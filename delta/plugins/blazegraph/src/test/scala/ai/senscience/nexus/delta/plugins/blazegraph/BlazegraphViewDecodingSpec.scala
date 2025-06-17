@@ -1,7 +1,8 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewValue}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewValue, contexts}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
 import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.literal.*
 
 import java.util.UUID

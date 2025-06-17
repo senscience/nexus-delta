@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.metrics
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.effect.IO
 import cats.effect.std.Env
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 trait EventMetricsProjection
 

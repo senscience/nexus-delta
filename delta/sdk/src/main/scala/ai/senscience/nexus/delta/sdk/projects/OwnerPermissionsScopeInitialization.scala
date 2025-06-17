@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.sdk.ScopeInitialization
 import ai.senscience.nexus.delta.sdk.acls.Acls
 import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclRejection}
@@ -11,9 +14,6 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 
 /**
   * The default creation of ACLs for newly created organizations and projects.

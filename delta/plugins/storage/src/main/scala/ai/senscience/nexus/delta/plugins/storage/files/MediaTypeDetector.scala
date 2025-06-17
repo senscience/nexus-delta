@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
+import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
 
 /**
   * Allows to detect a media type from incoming files from their extensions when the client has not provided one

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 
 import java.util.UUID
 

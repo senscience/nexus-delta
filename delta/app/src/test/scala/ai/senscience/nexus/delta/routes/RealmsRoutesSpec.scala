@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -16,7 +17,6 @@ import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.ce.IOFromMap
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import io.circe.Json
 import org.http4s.Uri
 

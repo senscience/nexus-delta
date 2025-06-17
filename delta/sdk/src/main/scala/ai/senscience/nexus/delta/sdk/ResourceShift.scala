@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Triple.{obj, predicate, subject, Triple}
+import ai.senscience.nexus.delta.rdf.Triple.{Triple, obj, predicate, subject}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords

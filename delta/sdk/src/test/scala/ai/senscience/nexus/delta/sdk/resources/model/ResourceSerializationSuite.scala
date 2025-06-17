@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources.model
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Revision
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tags}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.JsonObject
 
 import java.time.Instant

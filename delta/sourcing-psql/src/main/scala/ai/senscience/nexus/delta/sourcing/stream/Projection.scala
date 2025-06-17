@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.Projection.logger
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.concurrent.SignallingRef
 
 import scala.concurrent.duration.FiniteDuration

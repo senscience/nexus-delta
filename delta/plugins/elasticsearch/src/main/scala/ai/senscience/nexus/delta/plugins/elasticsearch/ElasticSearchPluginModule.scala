@@ -1,12 +1,14 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.ElasticSearchViewsConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.{ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
 import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.{contexts, ElasticSearchViewEvent}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewEvent, contexts}
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
@@ -32,8 +34,6 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ServiceDependency
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import izumi.distage.model.definition.{Id, ModuleDef}
 
 /**

@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing.partition
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.ConnectionIO
 import doobie.syntax.all.*
 import doobie.util.fragment.Fragment

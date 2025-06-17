@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.identities.model
 
+import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.sdk.error.IdentityError.*
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.TokenRejection.*
 
 class TokenRejectionSpec extends CatsEffectSpec with CirceLiteral with Fixtures {
 

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.config
 
+import ai.senscience.nexus.delta.kernel.cache.CacheConfig
+import ai.senscience.nexus.delta.kernel.config.Configs
 import ai.senscience.nexus.delta.sdk.acls.AclsConfig
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.jws.JWSConfig
@@ -18,8 +20,6 @@ import ai.senscience.nexus.delta.sourcing.exporter.ExportConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.config.Configs
 import com.typesafe.config.Config
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, T
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.Order
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import io.circe.Encoder
 import org.http4s.Uri
 

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -9,8 +11,8 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, expandResourceRef, kamonComponent, ResourceLog}
-import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{logger, ResourcesLog}
+import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceLog, expandIri, expandResourceRef, kamonComponent}
+import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{ResourcesLog, logger}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{NoChangeDetected, ResourceNotFound}
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceCommand, ResourceEvent, ResourceRejection, ResourceState}
@@ -21,8 +23,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 final class ResourcesImpl private (

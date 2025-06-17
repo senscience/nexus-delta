@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -22,7 +23,6 @@ import ai.senscience.nexus.delta.sourcing.{ScopedEntityDefinition, ScopedEventLo
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import io.circe.Json
 
 /**

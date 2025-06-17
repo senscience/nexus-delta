@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidR
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.*
 
 /**
   * Allows to validate the resource:

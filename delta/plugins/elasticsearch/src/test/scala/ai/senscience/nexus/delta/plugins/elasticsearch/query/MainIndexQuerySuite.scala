@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.query
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainIndexingAlias
@@ -23,8 +25,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}

@@ -1,11 +1,13 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.{PluginDescription, ServiceDescription}
+import ai.senscience.nexus.delta.kernel.dependency.{ComponentDescription, ServiceDependency}
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.routes.VersionRoutes.{emtyVersionBundle, VersionBundle}
+import ai.senscience.nexus.delta.routes.VersionRoutes.{VersionBundle, emtyVersionBundle}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -18,8 +20,6 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.version
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.{PluginDescription, ServiceDescription}
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.{ComponentDescription, ServiceDependency}
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 

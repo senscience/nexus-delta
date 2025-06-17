@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeProjectionLifeCycle
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.plugins.search.model.{defaulMappings, SearchConfig}
+import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, defaulMappings}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import com.typesafe.config.Config
 import distage.ModuleDef
 import io.circe.syntax.EncoderOps

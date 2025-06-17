@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.EphemeralStateStore
 import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
 import doobie.postgres.sqlstate
 import doobie.syntax.all.*
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
@@ -21,7 +22,6 @@ import cats.effect.kernel.Resource.ExitCase.{Canceled, Errored, Succeeded}
 import cats.effect.{IO, Ref}
 import cats.kernel.Semigroup
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.{Pipe, Stream}
 
 import java.util.UUID

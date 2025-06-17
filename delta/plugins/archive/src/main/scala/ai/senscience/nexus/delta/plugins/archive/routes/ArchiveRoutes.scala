@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.archive.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.archive.Archives
-import ai.senscience.nexus.delta.plugins.archive.model.{permissions, ArchiveRejection, ArchiveResource, Zip}
+import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, ArchiveResource, Zip, permissions}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryStoreSuite.{view, OldQuery, OneWeekAgo, RecentQuery}
+import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryStoreSuite.{OldQuery, OneWeekAgo, RecentQuery, view}
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.model.SparqlSlowQuery
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery

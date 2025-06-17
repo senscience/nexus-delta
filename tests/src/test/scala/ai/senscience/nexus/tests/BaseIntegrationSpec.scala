@@ -1,6 +1,7 @@
 package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
 import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
@@ -24,7 +25,6 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import org.scalactic.source.Position

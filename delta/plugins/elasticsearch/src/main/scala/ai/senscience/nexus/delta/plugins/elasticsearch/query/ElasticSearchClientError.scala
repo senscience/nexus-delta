@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.query
 
+import ai.senscience.nexus.delta.kernel.error.Rejection
+import ai.senscience.nexus.delta.kernel.http.ResponseUtils.decodeBodyAsJson
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.{StatusCode as AkkaStatusCode, StatusCodes}
+import akka.http.scaladsl.model.{StatusCodes, StatusCode as AkkaStatusCode}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.Rejection
-import ch.epfl.bluebrain.nexus.delta.kernel.http.ResponseUtils.decodeBodyAsJson
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
 import org.http4s.{Response, Status}

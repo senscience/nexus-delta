@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.config
 
+import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.DatabaseAccess
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
-import ch.epfl.bluebrain.nexus.delta.kernel.Secret
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 

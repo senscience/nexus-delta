@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.projectdeletion
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
@@ -9,8 +11,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import fs2.Stream
 
 import java.time.Instant

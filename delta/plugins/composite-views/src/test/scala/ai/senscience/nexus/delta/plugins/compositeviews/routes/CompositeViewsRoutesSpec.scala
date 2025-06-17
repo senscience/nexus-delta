@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-query`
 import ai.senscience.nexus.akka.marshalling.{CirceMarshalling, RdfMediaTypes}
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
@@ -18,11 +19,10 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.CompositeViewErrors.{viewIsDeprecatedError, viewIsNotDeprecatedError}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{`Content-Type`, Accept, Location}
+import akka.http.scaladsl.model.headers.{Accept, Location, `Content-Type`}
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
 import io.circe.syntax.*
 import org.scalatest.Assertion
 

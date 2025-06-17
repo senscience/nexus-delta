@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.syntax
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.syntax.ProjectionErrorsSyntax.ProjectionErrorsOps
 import ai.senscience.nexus.delta.sdk.views.ViewRef
@@ -7,8 +9,6 @@ import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.delta.kernel.search.TimeRange
 
 /**
   * Allows to extend the methods from [[ProjectionErrors]] by adding higher-level methods

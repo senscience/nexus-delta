@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.Json
 
 object SchemaPayload {

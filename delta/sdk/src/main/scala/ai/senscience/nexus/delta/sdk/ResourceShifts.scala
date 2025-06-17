@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.{EntityCheck, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import io.circe.Json
 
 /**

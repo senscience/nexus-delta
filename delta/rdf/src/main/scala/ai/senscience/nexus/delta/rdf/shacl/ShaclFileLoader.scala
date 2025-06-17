@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.rdf.shacl
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import org.apache.jena.graph.GraphMemFactory.createDefaultGraph
 import org.apache.jena.rdf.model.{Model, ModelFactory}
 import org.apache.jena.util.FileUtils

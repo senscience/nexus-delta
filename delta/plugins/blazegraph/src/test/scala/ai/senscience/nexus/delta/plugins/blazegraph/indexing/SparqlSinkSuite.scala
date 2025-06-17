@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlQueryResponseType}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -14,7 +15,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import fs2.Chunk
 import munit.AnyFixture
 

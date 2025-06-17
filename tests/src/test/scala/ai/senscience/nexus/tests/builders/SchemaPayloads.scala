@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.builders
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.Json
 object SchemaPayloads {
   private val loader                                                = ClasspathResourceLoader()

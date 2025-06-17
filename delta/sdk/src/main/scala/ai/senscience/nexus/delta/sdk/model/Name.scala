@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.model
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.IllegalNameFormatError
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import io.circe.{Decoder, Encoder}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert

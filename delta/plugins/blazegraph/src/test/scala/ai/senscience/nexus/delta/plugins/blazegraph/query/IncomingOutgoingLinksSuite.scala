@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.query
 
+import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.model.SparqlLink
@@ -18,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceR
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
 import munit.AnyFixture
 import munit.catseffect.IOFixture
 import org.http4s.Uri

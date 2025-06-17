@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.plugins.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, 
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 sealed trait MainIndexingCoordinator
 

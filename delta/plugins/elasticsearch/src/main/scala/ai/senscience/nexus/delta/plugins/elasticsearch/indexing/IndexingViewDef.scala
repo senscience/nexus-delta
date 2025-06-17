@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewState
@@ -16,7 +17,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import io.circe.JsonObject
 
 /**

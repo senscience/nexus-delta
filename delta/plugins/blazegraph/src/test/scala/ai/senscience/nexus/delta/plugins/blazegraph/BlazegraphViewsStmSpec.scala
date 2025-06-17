@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.{evaluate, next}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewCommand.{CreateBlazegraphView, DeprecateBlazegraphView, UndeprecateBlazegraphView, UpdateBlazegraphView}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewEvent.*
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 import java.time.Instant

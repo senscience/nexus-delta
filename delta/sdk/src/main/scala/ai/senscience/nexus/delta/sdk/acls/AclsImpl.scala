@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.acls
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.sdk.AclResource
 import ai.senscience.nexus.delta.sdk.acls.Acls.entityType
 import ai.senscience.nexus.delta.sdk.acls.AclsImpl.AclsLog
@@ -19,8 +21,6 @@ import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.std.Env
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import doobie.syntax.all.*
 import fs2.Stream
 

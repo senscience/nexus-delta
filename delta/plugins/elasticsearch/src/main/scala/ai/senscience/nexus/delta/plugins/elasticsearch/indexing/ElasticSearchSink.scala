@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.indexing
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
 import io.circe.Json
 import shapeless.Typeable
 

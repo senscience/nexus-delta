@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.IllegalAclAddressFormatError
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.data.NonEmptyList
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder, KeyDecoder}
 

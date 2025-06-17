@@ -1,11 +1,15 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.search.Pagination
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{SearchParams, SearchResults}
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.Projects.entityType
-import ai.senscience.nexus.delta.sdk.projects.ProjectsImpl.{logger, ProjectsLog}
+import ai.senscience.nexus.delta.sdk.projects.ProjectsImpl.{ProjectsLog, logger}
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectCommand.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.*
@@ -17,10 +21,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import fs2.Stream
 
 final class ProjectsImpl private (

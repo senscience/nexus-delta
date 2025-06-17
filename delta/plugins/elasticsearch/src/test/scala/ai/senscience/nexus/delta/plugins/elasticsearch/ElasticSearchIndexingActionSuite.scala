@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchIndexingActionSuite.{emptyAcc, IdAcc}
+import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchIndexingActionSuite.{IdAcc, emptyAcc}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}

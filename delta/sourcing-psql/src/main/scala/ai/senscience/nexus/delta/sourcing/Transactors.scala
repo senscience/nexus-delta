@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.DatabaseAccess
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.delta.kernel.Secret
 import com.zaxxer.hikari.HikariDataSource
 import doobie.hikari.HikariTransactor
 import doobie.util.ExecutionContexts

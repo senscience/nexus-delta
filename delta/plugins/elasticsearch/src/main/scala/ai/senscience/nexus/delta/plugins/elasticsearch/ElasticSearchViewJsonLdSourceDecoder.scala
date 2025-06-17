@@ -1,8 +1,9 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViewJsonLdSourceDecoder.{toValue, ElasticSearchViewFields}
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViewJsonLdSourceDecoder.{ElasticSearchViewFields, toValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.{contexts, permissions, ElasticSearchViewType, ElasticSearchViewValue}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewType, ElasticSearchViewValue, contexts, permissions}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
@@ -24,7 +25,6 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 

@@ -1,9 +1,13 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
+import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlWriteError
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlWriteQuery}
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{logger, SparqlBulk}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{SparqlBulk, logger}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError.InvalidIri
 import ai.senscience.nexus.delta.rdf.graph.NTriples
@@ -13,10 +17,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.error.HttpConnectivityError
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMetricComponent
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.kamonSyntax
-import ch.epfl.bluebrain.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import org.http4s.Uri
 import shapeless.Typeable
 

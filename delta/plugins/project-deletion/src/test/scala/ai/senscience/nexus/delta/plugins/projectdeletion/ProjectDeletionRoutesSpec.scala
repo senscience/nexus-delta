@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.projectdeletion
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
 import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRoutes
-import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
+import ai.senscience.nexus.delta.projectdeletion.model.{ProjectDeletionConfig, contexts}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.model.BaseUri

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeProjectionLifeCycle.Hook
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 final class SearchConfigHook(
     defaults: Defaults,

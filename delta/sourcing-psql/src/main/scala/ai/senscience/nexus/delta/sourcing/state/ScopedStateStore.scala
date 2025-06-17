@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.state
 
+import ai.senscience.nexus.delta.kernel.error.ThrowableValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import ai.senscience.nexus.delta.sourcing.{Scope, Serializer, Transactors}
 import cats.effect.IO
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.ThrowableValue
 import doobie.*
 import doobie.free.connection
 import doobie.postgres.implicits.*

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.instances
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.{IllegalIdentityIriFormatError, IllegalSubjectIriFormatError}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.jsonld.{IriDecoder, IriEncoder}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.{Encoder, Json}

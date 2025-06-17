@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.rdf.jsonld.context
 
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextObject, ContextRemoteIri}
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import com.apicatalog.jsonld.document.JsonDocument
 import io.circe.jakartajson.circeToJakarta
 import io.circe.syntax.*

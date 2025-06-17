@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsFixture
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewEvent.*
 import ai.senscience.nexus.delta.sdk.SerializationSuite
@@ -7,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.sse.SseEncoder.SseData
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.Tags
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 
 class CompositeViewsSerializationSuite extends SerializationSuite with CompositeViewsFixture {
 

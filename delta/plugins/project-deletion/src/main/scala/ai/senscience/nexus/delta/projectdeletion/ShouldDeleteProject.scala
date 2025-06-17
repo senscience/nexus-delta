@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.projectdeletion
 
+import ai.senscience.nexus.delta.kernel.syntax.instantSyntax
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import cats.Semigroup
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.syntax.instantSyntax
 
 import java.time.{Duration, Instant}
 

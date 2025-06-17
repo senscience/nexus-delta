@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileStorageMetadata
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{DigestAlgorithm, StorageValue}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import fs2.Stream
 
 class StorageDeletionTaskSuite extends NexusSuite with FileDataHelpers with StorageFixtures {

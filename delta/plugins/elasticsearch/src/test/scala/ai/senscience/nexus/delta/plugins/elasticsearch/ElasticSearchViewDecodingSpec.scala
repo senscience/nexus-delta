@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.JsonObject
 import io.circe.literal.*
 import io.circe.syntax.KeyOps

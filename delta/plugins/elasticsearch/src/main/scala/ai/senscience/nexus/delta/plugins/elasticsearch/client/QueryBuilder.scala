@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
+import ai.senscience.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
+import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -11,8 +13,6 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
-import ch.epfl.bluebrain.nexus.delta.kernel.search.{Pagination, TimeRange}
 import io.circe.literal.JsonStringContext
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}

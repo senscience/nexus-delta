@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.organizations
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.generators.OrganizationGen
 import ai.senscience.nexus.delta.sdk.organizations.Organizations.{evaluate, next}
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationCommand.*
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationState
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 
 import java.time.Instant
 

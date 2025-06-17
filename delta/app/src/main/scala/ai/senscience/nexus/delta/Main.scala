@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta
 
 import ai.senscience.nexus.delta.config.{AppConfig, BuildInfo, StrictEntity}
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.kamon.KamonMonitoring
+import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import ai.senscience.nexus.delta.otel.OpenTelemetryInit
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.plugin.{PluginsLoader, WiringInitializer}
@@ -17,9 +20,6 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RouteResult}
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.kamon.KamonMonitoring
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.IOFuture
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.config.Config

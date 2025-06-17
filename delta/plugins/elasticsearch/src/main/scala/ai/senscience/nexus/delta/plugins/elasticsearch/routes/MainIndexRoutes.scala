@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainIndexingProjection
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.permissions.read as Read
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.{defaultViewId, permissions, ElasticSearchViewRejection}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewRejection, defaultViewId, permissions}
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.rdf.Vocabulary

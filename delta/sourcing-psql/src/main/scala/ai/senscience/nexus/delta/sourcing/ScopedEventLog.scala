@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTagFailure
 import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.tombstone.{EventTombstoneStore, StateTombstoneStore}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.*
 import doobie.postgres.sqlstate
 import doobie.syntax.all.*

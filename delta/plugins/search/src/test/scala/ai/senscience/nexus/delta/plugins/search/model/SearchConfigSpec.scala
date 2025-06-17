@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
+import ai.senscience.nexus.delta.kernel.error.LoadFileError.{InvalidJson, UnaccessibleFile}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.InvalidSparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.delta.kernel.error.LoadFileError.{InvalidJson, UnaccessibleFile}
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration.DurationInt

@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViewsQuerySuite.Sample
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated, ViewNotFound}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions, ElasticSearchViewType}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.{ElasticSearchViewType, permissions}
 import ai.senscience.nexus.delta.plugins.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -29,7 +30,6 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterD
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}
 import org.http4s.Query

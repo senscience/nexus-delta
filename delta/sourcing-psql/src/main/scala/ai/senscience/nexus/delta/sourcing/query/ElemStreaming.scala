@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.query
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import doobie.Fragments
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*

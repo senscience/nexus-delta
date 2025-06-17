@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.otel
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
+import ai.senscience.nexus.delta.kernel.Logger
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.typelevel.otel4s.oteljava.OtelJava
 

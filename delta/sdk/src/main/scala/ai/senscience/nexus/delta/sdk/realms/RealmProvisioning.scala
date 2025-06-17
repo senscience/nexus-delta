@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.realms
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.ProvisioningAction
 import ai.senscience.nexus.delta.sdk.ProvisioningAction.Outcome
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
@@ -8,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.RealmAlreadyExi
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 
 /**
   * Provision the different realms provided in the configuration

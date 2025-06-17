@@ -16,7 +16,7 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import io.circe.{parser, DecodingFailure, JsonObject}
+import io.circe.{DecodingFailure, JsonObject, parser}
 import munit.{AnyFixture, Location}
 
 import java.time.Instant

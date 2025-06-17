@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.storage.files.generators.FileGen
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileCustomMetadata}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
@@ -12,8 +14,6 @@ import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.{HttpEntity, MessageEntity, Multipart}
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 
 import java.util.{Base64, UUID}
 

@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.serialization
 
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{contexts, CompositeViewFields}
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewFields, contexts}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
@@ -10,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 import io.circe.syntax.*
 

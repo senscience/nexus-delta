@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
+import ai.senscience.nexus.delta.kernel.search.Pagination
+import ai.senscience.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClientDummy, SparqlResults}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
@@ -26,8 +28,6 @@ import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import akka.util.ByteString
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import io.circe.Json
 import io.circe.syntax.*
 import org.scalatest.Assertion

@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.projects
 
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.DeletionConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.RetryStrategyConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.*
 

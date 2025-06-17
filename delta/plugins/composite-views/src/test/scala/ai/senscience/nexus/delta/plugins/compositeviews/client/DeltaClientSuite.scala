@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.client
 
+import ai.senscience.nexus.delta.kernel.RdfHttp4sMediaTypes
+import ai.senscience.nexus.delta.kernel.http.circe.*
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheckError
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClientSuite.token
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
@@ -15,8 +17,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
 import fs2.Stream
 import io.circe.syntax.EncoderOps
 import org.http4s.Method.GET

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.acls
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.sdk.ProvisioningAction
 import ai.senscience.nexus.delta.sdk.ProvisioningAction.Outcome
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning.logger
@@ -7,8 +9,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclBatchReplace
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.FileUtils
 
 /**
   * Provision the different acls provided in the file defined by the configuration

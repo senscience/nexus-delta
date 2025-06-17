@@ -2,6 +2,8 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.AppConfig
+import ai.senscience.nexus.delta.kernel.cache.CacheConfig
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -13,8 +15,6 @@ import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesImpl}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.delta.kernel.cache.CacheConfig
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import izumi.distage.model.definition.{Id, ModuleDef}
 import org.http4s.client.Client
 

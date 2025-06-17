@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts.searchMetadata
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions as esPermissions, schema as elasticSearchSchema}
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.DummyMainIndexQuery.{aggregationResponse, listResponse}
@@ -18,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 

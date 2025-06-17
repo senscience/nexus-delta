@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.{noopStore, ScopeInitErrorRow}
+import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.{ScopeInitErrorRow, noopStore}
 import ai.senscience.nexus.delta.sdk.{OrganizationResource, ScopeInitializer}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}

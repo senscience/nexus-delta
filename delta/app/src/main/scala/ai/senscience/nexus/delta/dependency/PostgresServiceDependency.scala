@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.dependency
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ServiceDependency
 import doobie.syntax.all.*
 
 import scala.concurrent.duration.*

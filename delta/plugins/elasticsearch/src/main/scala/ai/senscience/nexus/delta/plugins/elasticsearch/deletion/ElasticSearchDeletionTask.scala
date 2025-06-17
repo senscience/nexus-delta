@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.deletion
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.plugins.elasticsearch.deletion.ElasticSearchDeletionTask.{init, logger}
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.IndexingViewDef
@@ -9,7 +10,6 @@ import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import fs2.Stream
 
 /**

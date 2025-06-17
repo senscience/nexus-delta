@@ -1,5 +1,13 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
+import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
+import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
+import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient.*
 import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
@@ -8,14 +16,6 @@ import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, S
 import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
-import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
-import ch.epfl.bluebrain.nexus.delta.kernel.http.client.middleware.BasicAuth
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils
 import io.circe.*
 import io.circe.literal.*
 import io.circe.syntax.*

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.plugin
 
+import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigResolveOptions}
 import izumi.distage.model.Locator
 import izumi.distage.model.definition.ModuleDef

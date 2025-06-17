@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.sdk.identities
 
+import ai.senscience.nexus.delta.kernel.jwt.AuthToken
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.delta.kernel.jwt.AuthToken
 
 /**
   * Operations pertaining to authentication, token validation and identities.

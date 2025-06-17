@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk
 
+import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClassUtils
 
 object SSEUtils {
 

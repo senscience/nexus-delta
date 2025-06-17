@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -12,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.schemas.Schemas.{expandIri, kamonComponent, SchemaLog}
+import ai.senscience.nexus.delta.sdk.schemas.Schemas.{SchemaLog, expandIri, kamonComponent}
 import ai.senscience.nexus.delta.sdk.schemas.SchemasImpl.SchemasLog
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
@@ -23,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
 import io.circe.Json
 
 final class SchemasImpl private (

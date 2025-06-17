@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.client
 
+import ai.senscience.nexus.delta.kernel.error.FormatError
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.delta.kernel.error.FormatError
 import io.circe.{Decoder, Encoder}
 
 import java.util.UUID
