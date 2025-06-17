@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.TypeHierarchyDoesNotExist
-import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchyState, TypeHierarchy as TypeHierarchyModel}
+import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeHierarchyModel, TypeHierarchyState}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}

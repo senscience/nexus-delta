@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.routes.VersionRoutes.{VersionBundle, emtyVersionBundle}
+import ai.senscience.nexus.delta.routes.VersionRoutes.{emtyVersionBundle, VersionBundle}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives

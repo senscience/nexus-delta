@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas, schema as schemaOrg}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema as schemaOrg, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.IndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck

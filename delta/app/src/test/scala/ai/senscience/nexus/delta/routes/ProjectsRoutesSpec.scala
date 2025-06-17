@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
-import ai.senscience.nexus.delta.sdk.permissions.Permissions.{resources, projects as projectsPermissions}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects as projectsPermissions, resources}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver.PermissionAccess
 import ai.senscience.nexus.delta.sdk.projects.model.*
