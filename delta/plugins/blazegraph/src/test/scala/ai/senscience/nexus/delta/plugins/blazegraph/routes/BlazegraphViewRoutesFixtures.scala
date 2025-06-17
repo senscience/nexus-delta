@@ -20,9 +20,9 @@ import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.testkit.{CirceEq, CirceLiteral}
 import org.scalatest.{BeforeAndAfterAll, CancelAfterFailure, Inspectors}
 
 import java.time.Instant

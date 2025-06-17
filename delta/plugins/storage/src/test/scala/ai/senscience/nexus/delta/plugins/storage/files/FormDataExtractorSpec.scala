@@ -4,11 +4,11 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.{File
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.ContentTypes.*
 import akka.http.scaladsl.model.{ContentType, HttpEntity, Multipart}
 import akka.testkit.TestKit
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 

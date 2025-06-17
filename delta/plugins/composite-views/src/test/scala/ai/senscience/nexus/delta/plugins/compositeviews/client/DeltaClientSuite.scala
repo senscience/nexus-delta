@@ -13,10 +13,10 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter, ProjectR
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.RdfHttp4sMediaTypes
 import ch.epfl.bluebrain.nexus.delta.kernel.http.circe.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 import io.circe.syntax.EncoderOps
 import org.http4s.Method.GET

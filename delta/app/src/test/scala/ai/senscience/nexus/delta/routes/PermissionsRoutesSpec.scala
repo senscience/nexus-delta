@@ -11,11 +11,11 @@ import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Route
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsIOValues
 import io.circe.Json
 
 class PermissionsRoutesSpec extends BaseRouteSpec with CatsIOValues {

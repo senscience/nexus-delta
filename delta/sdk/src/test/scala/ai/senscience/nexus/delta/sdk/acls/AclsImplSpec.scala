@@ -13,8 +13,8 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import doobie.syntax.all.*
 import org.scalatest.CancelAfterFailure
 

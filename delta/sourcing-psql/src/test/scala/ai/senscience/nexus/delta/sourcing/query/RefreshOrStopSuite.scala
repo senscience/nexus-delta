@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig.{DelayConfig, PassivationConfig, StopConfig}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectActivitySignals
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.concurrent.SignallingRef
 
 import scala.concurrent.duration.DurationInt

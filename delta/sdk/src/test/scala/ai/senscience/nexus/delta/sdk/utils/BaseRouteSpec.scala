@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sdk.utils
 
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ch.epfl.bluebrain.nexus.testkit.*
-import ch.epfl.bluebrain.nexus.testkit.ce.IOFromMap
-import ch.epfl.bluebrain.nexus.testkit.scalatest.TestMatchers
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
+import ai.senscience.nexus.testkit.ce.IOFromMap
+import ai.senscience.nexus.testkit.scalatest.TestMatchers
+import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
+import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{Inspectors, OptionValues}
 

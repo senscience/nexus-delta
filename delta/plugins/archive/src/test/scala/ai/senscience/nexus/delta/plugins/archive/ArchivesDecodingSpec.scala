@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.literal.*
 
 import java.nio.file.Paths

@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.UploadingFi
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 
 class StorageDeletionTaskSuite extends NexusSuite with FileDataHelpers with StorageFixtures {

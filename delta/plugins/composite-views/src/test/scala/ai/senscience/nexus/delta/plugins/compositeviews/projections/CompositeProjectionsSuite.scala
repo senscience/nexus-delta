@@ -13,9 +13,9 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream
 import munit.AnyFixture
 

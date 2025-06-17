@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class MediaTypeDetectorSuite extends NexusSuite {
 

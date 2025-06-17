@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationEvent.*
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationState
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant
 

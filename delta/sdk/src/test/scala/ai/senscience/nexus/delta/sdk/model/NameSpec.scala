@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.IllegalNameFormatError
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class NameSpec extends BaseSpec {
 

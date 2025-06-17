@@ -9,12 +9,12 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.file.TempDirectory
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.file.TempDirectory
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.io.file.{Files, Path}
 import io.circe.{parser, DecodingFailure, JsonObject}
 import munit.{AnyFixture, Location}

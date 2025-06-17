@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 
 import java.util.UUID

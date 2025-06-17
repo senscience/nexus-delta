@@ -16,9 +16,9 @@ import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ProjectResource}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
+import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import ch.epfl.bluebrain.nexus.testkit.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import org.scalatest.CancelAfterFailure
 
 import java.util.UUID

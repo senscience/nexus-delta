@@ -13,11 +13,11 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.orgs.{create, delet
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import io.circe.Json
 import org.scalactic.source.Position
 

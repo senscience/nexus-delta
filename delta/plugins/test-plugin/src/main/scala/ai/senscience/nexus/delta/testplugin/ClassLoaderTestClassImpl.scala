@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.testplugin
 
-import ch.epfl.bluebrain.nexus.testkit.plugin.ClassLoaderTestClass
+import ai.senscience.nexus.testkit.plugin.ClassLoaderTestClass
 
 class ClassLoaderTestClassImpl extends ClassLoaderTestClass {
 

@@ -11,8 +11,8 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRe
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateStore
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.Codec
 import io.circe.generic.extras.Configuration

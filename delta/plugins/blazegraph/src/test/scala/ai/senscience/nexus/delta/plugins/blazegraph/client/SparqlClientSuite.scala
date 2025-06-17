@@ -14,8 +14,8 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.testkit.mu.{NexusSuite, StringAssertions}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, StringAssertions}
 import io.circe.Json
 import org.apache.jena.graph.Graph
 import org.apache.jena.query.DatasetFactory

@@ -11,10 +11,10 @@ import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, P
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress.NoProgress
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSuite.UnstableDestroy
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import fs2.Stream
 import munit.{AnyFixture, Location}
 

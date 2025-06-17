@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sourcing.Arithmetic.ArithmeticEvent.{Minus, Plu
 import ai.senscience.nexus.delta.sourcing.Arithmetic.ArithmeticRejection.NegativeTotal
 import ai.senscience.nexus.delta.sourcing.Arithmetic.Total
 import ai.senscience.nexus.delta.sourcing.EvaluationError.{EvaluationTimeout, InvalidState}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 
 import scala.concurrent.duration.*

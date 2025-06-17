@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.{IllegalIndexLabel, IndexGroup}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class IndexLabelSpec extends BaseSpec {
   "An IndexLabel" should {

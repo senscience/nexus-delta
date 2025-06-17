@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.Fixtures
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotFound
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class RemoteContextResolutionSpec extends CatsEffectSpec with Fixtures {
 

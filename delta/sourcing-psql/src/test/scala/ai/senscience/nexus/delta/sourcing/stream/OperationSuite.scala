@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.OperationSuite.{double, half, until}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.OperationInOutMatchErr
 import ai.senscience.nexus.delta.sourcing.stream.pipes.GenericPipe
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import fs2.Stream
 
 import java.time.Instant

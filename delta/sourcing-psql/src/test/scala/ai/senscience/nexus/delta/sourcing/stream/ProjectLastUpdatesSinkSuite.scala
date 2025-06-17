@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, P
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import fs2.Chunk
 import munit.AnyFixture
 

@@ -1,6 +1,7 @@
 package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.testkit.CirceLiteral
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods.{DELETE, GET}
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
@@ -8,7 +9,6 @@ import akka.http.scaladsl.model.{HttpRequest, StatusCode}
 import akka.stream.Materializer
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 

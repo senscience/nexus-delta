@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletio
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.ConfigFactory
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException

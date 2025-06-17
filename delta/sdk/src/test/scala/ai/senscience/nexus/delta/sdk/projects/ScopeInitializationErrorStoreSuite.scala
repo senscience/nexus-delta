@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFaile
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.ScopeInitErrorRow
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.clock.MutableClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.testkit.clock.MutableClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture
 

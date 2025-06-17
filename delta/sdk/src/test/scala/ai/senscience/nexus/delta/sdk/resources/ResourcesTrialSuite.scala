@@ -15,9 +15,9 @@ import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidR
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Revision
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.Location
 
 import java.util.UUID

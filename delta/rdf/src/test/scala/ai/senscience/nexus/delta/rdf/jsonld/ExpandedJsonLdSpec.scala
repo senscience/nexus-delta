@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.{Fixtures, GraphHelpers}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ExpandedJsonLdSpec extends CatsEffectSpec with Fixtures with GraphHelpers {
 

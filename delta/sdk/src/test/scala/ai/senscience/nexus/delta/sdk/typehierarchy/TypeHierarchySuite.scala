@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sdk.{ConfigFixtures, TypeHierarchyResource}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
 import java.time.Instant

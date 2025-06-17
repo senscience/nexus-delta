@@ -14,10 +14,10 @@ import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateStore.StateNotFound.{TagNotFound, UnknownState}
 import ai.senscience.nexus.delta.sourcing.stream.Elem
 import ai.senscience.nexus.delta.sourcing.{EntityCheck, PullRequest, Scope}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.error.ThrowableValue
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import munit.AnyFixture
 

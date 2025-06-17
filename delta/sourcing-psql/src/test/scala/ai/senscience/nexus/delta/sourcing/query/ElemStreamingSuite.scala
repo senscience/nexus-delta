@@ -19,9 +19,9 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, 
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Scope, Serializer}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec

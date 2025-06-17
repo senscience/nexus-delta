@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.acls.model
 
 import ai.senscience.nexus.delta.sdk.acls.AclFixtures
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.*
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
 
 class AclAddressSpec extends BaseSpec with AclFixtures {
 

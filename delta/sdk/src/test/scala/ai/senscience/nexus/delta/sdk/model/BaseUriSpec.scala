@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import pureconfig.ConfigSource
 
 class BaseUriSpec extends BaseSpec {

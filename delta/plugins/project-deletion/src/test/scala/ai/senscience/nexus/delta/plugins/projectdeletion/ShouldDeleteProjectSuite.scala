@@ -11,10 +11,10 @@ import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.projects.model.Project
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
+import ai.senscience.nexus.testkit.Generators
+import ai.senscience.nexus.testkit.clock.FixedClock
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{Clock, IO}
-import ch.epfl.bluebrain.nexus.testkit.Generators
-import ch.epfl.bluebrain.nexus.testkit.clock.FixedClock
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.{Assertions, CatsEffectAssertions, Location}
 
 import java.time.{Duration, Instant}

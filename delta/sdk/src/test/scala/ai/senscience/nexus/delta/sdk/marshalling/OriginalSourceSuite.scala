@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
 import munit.Location

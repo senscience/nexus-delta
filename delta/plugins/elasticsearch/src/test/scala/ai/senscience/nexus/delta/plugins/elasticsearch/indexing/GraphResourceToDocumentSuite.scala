@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Resourc
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ch.epfl.bluebrain.nexus.testkit.mu.{JsonAssertions, NexusSuite}
+import ai.senscience.nexus.testkit.mu.{JsonAssertions, NexusSuite}
 import io.circe.Json
 
 import java.time.Instant

@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.Storage.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class StorageSpec extends CatsEffectSpec with RemoteContextResolutionFixture with StorageFixtures {
 

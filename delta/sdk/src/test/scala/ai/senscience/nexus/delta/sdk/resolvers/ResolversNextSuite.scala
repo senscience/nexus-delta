@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.{CrossProject
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Priority, ResolverState, ResolverType}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 import cats.data.NonEmptyList
-import ch.epfl.bluebrain.nexus.testkit.mu.{NexusSuite, OptionAssertions}
 import io.circe.Json
 
 class ResolversNextSuite extends NexusSuite with ResolverStateMachineFixture with OptionAssertions {

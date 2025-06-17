@@ -16,10 +16,10 @@ import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptyList
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 
 import java.util.UUID

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import io.circe.Json
 
 class MediaTypeSuite extends NexusSuite {

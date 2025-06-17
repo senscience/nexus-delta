@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.disk
 import ai.senscience.nexus.delta.plugins.storage.storages.UUIDFFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.StorageFileRejection.FetchFileRejection
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.http4s.Uri
 
 import java.nio.file.Files

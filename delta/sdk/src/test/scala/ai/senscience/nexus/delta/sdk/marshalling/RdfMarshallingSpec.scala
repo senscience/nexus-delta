@@ -9,11 +9,11 @@ import ai.senscience.nexus.delta.sdk.SimpleResource
 import ai.senscience.nexus.delta.sdk.SimpleResource.{context, contextIri}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
+import ai.senscience.nexus.testkit.scalatest.{BaseSpec, TestMatchers}
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.*
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsIOValues
-import ch.epfl.bluebrain.nexus.testkit.scalatest.{BaseSpec, TestMatchers}
 import org.scalatest.matchers.should.Matchers
 
 import java.time.Instant

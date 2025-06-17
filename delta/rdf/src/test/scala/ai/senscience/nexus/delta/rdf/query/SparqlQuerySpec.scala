@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.rdf.query
 
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class SparqlQuerySpec extends BaseSpec {
 

@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.Scop
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectInitializationFailed
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 
 import java.time.Instant
 

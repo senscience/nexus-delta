@@ -26,9 +26,9 @@ import ai.senscience.nexus.delta.sourcing.postgres.{ScopedEventQueries, ScopedSt
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream}
 import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UUIDF
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import munit.catseffect.IOFixture
 

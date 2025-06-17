@@ -1,6 +1,7 @@
 package ai.senscience.nexus.tests.admin
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.tests.HttpClient
 import ai.senscience.nexus.tests.Identity.Authenticated
 import ai.senscience.nexus.tests.Optics.*
@@ -10,7 +11,6 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ch.epfl.bluebrain.nexus.testkit.Generators
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.scalatest.matchers.should.Matchers

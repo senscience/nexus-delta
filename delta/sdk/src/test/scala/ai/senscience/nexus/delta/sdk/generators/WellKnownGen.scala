@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.generators
 
 import ai.senscience.nexus.delta.sdk.realms.model
 import ai.senscience.nexus.delta.sdk.realms.model.{GrantType, WellKnown}
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.CirceLiteral
 import org.http4s.Uri
 
 object WellKnownGen extends CirceLiteral {

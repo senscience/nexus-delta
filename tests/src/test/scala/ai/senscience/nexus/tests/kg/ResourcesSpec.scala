@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.testkit.scalatest.ResourceMatchers.deprecated
 import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
 import ai.senscience.nexus.tests.HttpClient.jsonHeaders
 import ai.senscience.nexus.tests.Identity.resources.{Morty, Rick}
@@ -19,7 +20,6 @@ import akka.util.ByteString
 import cats.effect.IO
 import cats.implicits.*
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ResourceMatchers.deprecated
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}

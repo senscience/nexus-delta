@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
+import ai.senscience.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
 import cats.effect.kernel.Ref
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import munit.AnyFixture
 
 import java.time.Instant

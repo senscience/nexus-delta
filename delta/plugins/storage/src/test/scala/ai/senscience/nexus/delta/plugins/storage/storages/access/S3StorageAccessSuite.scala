@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.S3Stora
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotAccessible
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{LocalStackS3StorageClient, S3Helpers}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.AnyFixture
 

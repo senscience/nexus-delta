@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.identities.model
 
 import ai.senscience.nexus.delta.sourcing.model.Identity
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class CallerSpec extends BaseSpec {
 

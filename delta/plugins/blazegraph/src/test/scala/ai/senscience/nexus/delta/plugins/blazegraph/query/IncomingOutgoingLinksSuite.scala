@@ -15,10 +15,10 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import munit.catseffect.IOFixture
 import org.http4s.Uri

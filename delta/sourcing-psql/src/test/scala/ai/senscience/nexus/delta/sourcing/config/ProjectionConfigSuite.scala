@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.config
 
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
-import ch.epfl.bluebrain.nexus.testkit.mu.NexusSuite
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import pureconfig.ConfigSource
 
 class ProjectionConfigSuite extends NexusSuite {

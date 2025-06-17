@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ch.epfl.bluebrain.nexus.testkit.*
+import ai.senscience.nexus.testkit.CirceLiteral
 import org.scalatest.{Assertions, OptionValues}
 
 trait Fixtures extends CirceLiteral {

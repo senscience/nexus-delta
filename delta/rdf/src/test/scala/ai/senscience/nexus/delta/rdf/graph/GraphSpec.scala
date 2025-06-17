@@ -13,8 +13,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextEmpty, 
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import org.apache.jena.graph.Node
 
 class GraphSpec extends CatsEffectSpec with GraphHelpers with CirceLiteral {

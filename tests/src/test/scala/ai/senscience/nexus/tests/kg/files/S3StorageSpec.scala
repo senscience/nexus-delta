@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.testkit.scalatest.FileMatchers.{digest as digestField, filename as filenameField, mediaType as mediaTypeField}
 import ai.senscience.nexus.tests.HttpClient.acceptAll
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.Optics
@@ -11,7 +12,6 @@ import akka.http.scaladsl.model.{ContentTypes, MediaTypes, StatusCodes}
 import akka.util.ByteString
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.UrlUtils.{decodeUri, encodeUriPath}
-import ch.epfl.bluebrain.nexus.testkit.scalatest.FileMatchers.{digest as digestField, filename as filenameField, mediaType as mediaTypeField}
 import io.circe.Json
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp

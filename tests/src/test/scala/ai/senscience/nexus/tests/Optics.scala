@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests
 
+import ai.senscience.nexus.testkit.CirceEq
+import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, ScalaTestExtractValue}
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.Optics.admin.{apiMappings, effectiveApiMappings, enforceSchema}
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.config.TestsConfig
 import cats.syntax.all.*
-import ch.epfl.bluebrain.nexus.testkit.CirceEq
-import ch.epfl.bluebrain.nexus.testkit.scalatest.{ClasspathResources, ScalaTestExtractValue}
 import io.circe.optics.JsonPath.root
 import io.circe.{Json, JsonObject}
 import org.scalatest.matchers.should.Matchers

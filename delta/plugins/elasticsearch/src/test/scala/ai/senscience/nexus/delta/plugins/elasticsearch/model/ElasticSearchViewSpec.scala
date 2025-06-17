@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sdk.views.{PipeStep, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef, Tags}
 import ai.senscience.nexus.delta.sourcing.stream.pipes.*
+import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import cats.data.NonEmptySet
-import ch.epfl.bluebrain.nexus.testkit.scalatest.ce.CatsEffectSpec
-import ch.epfl.bluebrain.nexus.testkit.{CirceEq, CirceLiteral}
 
 import java.util.UUID
 

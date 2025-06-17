@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.rdf.utils
 
 import ai.senscience.nexus.delta.rdf.syntax.*
-import ch.epfl.bluebrain.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 import java.nio.file.Paths
 

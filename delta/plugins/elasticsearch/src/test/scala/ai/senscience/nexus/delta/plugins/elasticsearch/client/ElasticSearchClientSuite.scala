@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.ScoredResultEntry
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.ScoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, Sort, SortList}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.testkit.elasticsearch.ElasticSearchContainer
+import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ch.epfl.bluebrain.nexus.delta.kernel.search.Pagination.FromPagination
-import ch.epfl.bluebrain.nexus.testkit.CirceLiteral
-import ch.epfl.bluebrain.nexus.testkit.elasticsearch.ElasticSearchContainer
-import ch.epfl.bluebrain.nexus.testkit.mu.ce.PatienceConfig
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
 import munit.AnyFixture
