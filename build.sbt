@@ -356,6 +356,7 @@ lazy val sourcingPsql = project
       classgraph,
       distageCore
     ) ++ doobie,
+    Test / fork          := true,
     addCompilerPlugin(kindProjector)
   )
 
@@ -377,6 +378,7 @@ lazy val rdf = project
       titaniumJsonLd,
       topBraidShacl
     ),
+    Test / fork          := true,
     addCompilerPlugin(betterMonadicFor)
   )
 
@@ -539,7 +541,8 @@ lazy val blazegraphPlugin = project
     assembly / assemblyJarName := "blazegraph.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
-    addArtifact(Artifact("delta-blazegraph-plugin", "plugin"), assembly)
+    addArtifact(Artifact("delta-blazegraph-plugin", "plugin"), assembly),
+    Test / fork                := true
   )
 
 lazy val compositeViewsPlugin = project
@@ -907,7 +910,7 @@ ThisBuild / developers                   := List(
 Global / excludeLintKeys        += packageDoc / publishArtifact
 Global / excludeLintKeys        += docs / paradoxRoots
 Global / excludeLintKeys        += docs / Paradox / paradoxNavigationDepth
-Global / concurrentRestrictions += Tags.limit(Tags.Test, 3)
+Global / concurrentRestrictions += Tags.limit(Tags.Test, 1)
 
 addCommandAlias(
   "review",
