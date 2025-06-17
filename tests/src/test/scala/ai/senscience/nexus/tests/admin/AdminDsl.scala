@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.admin
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.tests.HttpClient
 import ai.senscience.nexus.tests.Identity.Authenticated
 import ai.senscience.nexus.tests.Optics.*
@@ -7,7 +8,6 @@ import ai.senscience.nexus.tests.config.TestsConfig
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.kernel.Logger
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.testkit.Generators

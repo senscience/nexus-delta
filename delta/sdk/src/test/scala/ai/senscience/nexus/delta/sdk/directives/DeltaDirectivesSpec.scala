@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.akka.marshalling.CirceMarshalling
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.sdk.SimpleRejection.{badRequestRejection, conflictRejection, BadRequestRejection, ConflictRejection}
 import ai.senscience.nexus.delta.sdk.SimpleResource.rawHeader
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
@@ -24,8 +26,6 @@ import akka.http.scaladsl.model.headers.HttpEncodings.gzip
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceMarshalling
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.*
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}

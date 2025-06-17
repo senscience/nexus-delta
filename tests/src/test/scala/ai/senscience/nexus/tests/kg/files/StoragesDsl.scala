@@ -1,11 +1,11 @@
 package ai.senscience.nexus.tests.kg.files
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.tests.HttpClient
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.Optics.{filterKey, filterMetadataKeys}
 import akka.http.scaladsl.model.*
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ch.epfl.bluebrain.nexus.testkit.CirceEq
 import io.circe.Json

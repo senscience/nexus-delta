@@ -1,10 +1,10 @@
-package ch.epfl.bluebrain.nexus.akka.marshalling
+package ai.senscience.nexus.akka.marshalling
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import akka.http.scaladsl.model.ContentTypeRange
 import akka.http.scaladsl.model.MediaTypes.`application/json`
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import io.circe.{Decoder, Json}

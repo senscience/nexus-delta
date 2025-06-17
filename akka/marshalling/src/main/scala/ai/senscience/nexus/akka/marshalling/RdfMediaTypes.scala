@@ -1,4 +1,4 @@
-package ch.epfl.bluebrain.nexus.akka.marshalling
+package ai.senscience.nexus.akka.marshalling
 
 import akka.http.scaladsl.model.HttpCharsets.*
 import akka.http.scaladsl.model.MediaType

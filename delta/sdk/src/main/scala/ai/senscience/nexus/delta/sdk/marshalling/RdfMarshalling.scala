@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultWriterConfig
 import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
@@ -8,8 +9,7 @@ import akka.http.scaladsl.model.ContentTypes.`application/json`
 import akka.http.scaladsl.model.MediaTypes.*
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromStringUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
 import akka.util.ByteString
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.*
+import RdfMediaTypes.*
 import ch.epfl.bluebrain.nexus.delta.rdf.graph.{Dot, NQuads, NTriples}
 import ch.epfl.bluebrain.nexus.delta.rdf.jsonld.JsonLd
 import ch.epfl.bluebrain.nexus.delta.rdf.query.SparqlQuery

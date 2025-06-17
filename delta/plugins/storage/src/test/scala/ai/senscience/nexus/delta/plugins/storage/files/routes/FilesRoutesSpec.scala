@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
+import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileId}
@@ -30,7 +31,6 @@ import akka.http.scaladsl.model.MediaTypes.{`multipart/form-data`, `text/html`}
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ch.epfl.bluebrain.nexus.delta.rdf.IriOrBNode.Iri
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary
 import ch.epfl.bluebrain.nexus.delta.rdf.Vocabulary.{contexts, nxv}

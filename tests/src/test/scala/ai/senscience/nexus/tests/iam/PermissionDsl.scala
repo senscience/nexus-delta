@@ -1,11 +1,11 @@
 package ai.senscience.nexus.tests.iam
 
+import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.tests.iam.types.{Permission, Permissions}
 import ai.senscience.nexus.tests.{HttpClient, Identity}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import ch.epfl.bluebrain.nexus.akka.marshalling.CirceUnmarshalling
 import ch.epfl.bluebrain.nexus.delta.kernel.utils.ClasspathResourceLoader
 import io.circe.Json
 import org.scalatest.Assertion
