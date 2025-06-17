@@ -115,6 +115,7 @@ object CompositeView {
 
   implicit private def compositeViewEncoder(implicit base: BaseUri): Encoder.AsObject[CompositeView] = {
     implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.*
     Encoder.encodeJsonObject.contramapObject { v =>
       deriveConfiguredEncoder[CompositeView]
         .encodeObject(v)
