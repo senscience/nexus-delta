@@ -30,7 +30,7 @@ services:
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
       - PARTITION_STRATEGY
-    image: bluebrain/nexus-delta:latest
+    image: ghcr.io/senscience/nexus-delta:latest
     entrypoint:
       - '/bin/bash'
       - '-c'
@@ -56,7 +56,7 @@ services:
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
       - PARTITION_STRATEGY
-    image: bluebrain/nexus-delta:latest
+    image: ghcr.io/senscience/nexus-delta:latest
     profiles:
       - "cluster"
     entrypoint:
@@ -82,7 +82,7 @@ services:
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
       - PARTITION_STRATEGY
-    image: bluebrain/nexus-delta:latest
+    image: ghcr.io/senscience/nexus-delta:latest
     profiles:
       - "cluster"
     entrypoint:

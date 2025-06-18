@@ -31,7 +31,7 @@ services:
       - PARTITION_STRATEGY
       - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
-    image: bluebrain/nexus-delta:latest
+    image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]
     ports:
       - 8080:8080
