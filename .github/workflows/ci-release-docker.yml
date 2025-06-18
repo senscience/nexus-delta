@@ -5,12 +5,11 @@ on:
   workflow_dispatch:
 jobs:
   release:
-    if: false  # Disabling the release workflow for now
-    #if: github.event_name == 'release'
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUILDX_NO_DEFAULT_ATTESTATIONS: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,8 +36,13 @@ jobs:
             env.http_proxy=${{ env.http_proxy }}
             env.https_proxy=${{ env.https_proxy }}
             "env.no_proxy='${{ env.no_proxy}}'"
-      - name: Publish To Dockerhub
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish To GitHub Container Registry
         run: |
-          echo ${{ secrets.DOCKER_PASS }} | docker login --username ${{ secrets.DOCKER_USER }} --password-stdin
           sbt -Dsbt.color=always -Dsbt.supershell=false \
             app/Docker/publish
