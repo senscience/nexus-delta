@@ -11,13 +11,9 @@ on:
       - '.github/workflows/ci-snapshot.yml'
 jobs:
   publish-snapshot:
-    if: false  # Disabling the snapshot workflow for now
-    #if: github.event_name == 'push'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    env:
-      GITHUB_ACTOR: ${{ github.actor }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +40,7 @@ jobs:
             env.http_proxy=${{ env.http_proxy }}
             env.https_proxy=${{ env.https_proxy }}
             "env.no_proxy='${{ env.no_proxy}}'"
-      - name: Publish To DockerHub
+      - name: Publish To Github packages
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login --username ${{ github.actor }} --password-stdin ghcr.io 
           sbt -Dsbt.color=always -Dsbt.supershell=false \
