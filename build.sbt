@@ -786,7 +786,7 @@ lazy val assertJavaVersion =
   )
 
 lazy val shared = Seq(
-  organization := "ch.epfl.bluebrain.nexus"
+  organization := "ai.senscience.nexus"
 )
 
 lazy val kamonSettings = Seq(
@@ -875,7 +875,7 @@ lazy val servicePackaging = {
   import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport.Universal
   Seq(
     // Docker publishing settings
-    Docker / maintainer   := "Nexus Team <noreply@epfl.ch>",
+    Docker / maintainer   := "Nexus Team <noreply@senscience.ai>",
     Docker / version      := {
       if (isSnapshot.value) "latest"
       else version.value
@@ -884,7 +884,8 @@ lazy val servicePackaging = {
     dockerBaseImage       := "eclipse-temurin:21-jre",
     dockerBuildxPlatforms := Seq("linux/arm64/v8", "linux/amd64"),
     dockerExposedPorts    := Seq(8080),
-    dockerUsername        := Some("bluebrain"),
+    dockerRepository      := Some("ghcr.io"),
+    dockerUsername        := Some("senscience"),
     dockerUpdateLatest    := false,
     dockerChmodType       := DockerChmodType.UserGroupWriteExecute
   )

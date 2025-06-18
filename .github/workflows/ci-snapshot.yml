@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
+      GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
@@ -45,6 +46,6 @@ jobs:
             "env.no_proxy='${{ env.no_proxy}}'"
       - name: Publish To DockerHub
         run: |
-          echo ${{ secrets.DOCKER_PASS }} | docker login --username ${{ secrets.DOCKER_USER }} --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login --username ${{ github.actor }} --password-stdin ghcr.io 
           sbt -Dsbt.color=always -Dsbt.supershell=false \
             app/Docker/publish

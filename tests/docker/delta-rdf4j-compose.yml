@@ -32,7 +32,7 @@ services:
       - PARTITION_STRATEGY
       - SPARQL_TARGET=rdf4j
       - SPARQL_ENDPOINT=http://rdf4j:8080/rdf4j-server
-    image: bluebrain/nexus-delta:latest
+    image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]
     ports:
       - 8080:8080
