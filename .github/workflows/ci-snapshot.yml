@@ -40,8 +40,13 @@ jobs:
             env.http_proxy=${{ env.http_proxy }}
             env.https_proxy=${{ env.https_proxy }}
             "env.no_proxy='${{ env.no_proxy}}'"
-      - name: Publish To Github packages
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish To GitHub Container Registry
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login --username ${{ github.actor }} --password-stdin ghcr.io 
           sbt -Dsbt.color=always -Dsbt.supershell=false \
             app/Docker/publish
