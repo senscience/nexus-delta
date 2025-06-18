@@ -5,14 +5,6 @@ set -e
 mkdir -p target
 rm -rf target/*
 
-
-# Build product page
-echo 'docker compose --compatibility "$@"' >> /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
-(cd product-page/src && make install && make build)
-cp -R ./product-page/src/site/* ./target
-
 # Build every version of docs
 current_version=v1.11.x
 
