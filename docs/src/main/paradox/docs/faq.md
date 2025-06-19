@@ -13,10 +13,6 @@ Yes, Nexus is a free, Open Source platform released under @link:[Apache Licence 
 
 ### How do I run Blue Brain Nexus?
 
-There are many ways to run Nexus. Our public Sandbox is running @link:[here](https://sandbox.bluebrainnexus.io){ open=new } 
-and you can use it to test Nexus on small, non-sensitive data. Our @ref:[tutorial](getting-started/try-nexus.md) can 
-help you to run Nexus step by step.
-
 Meanwhile if you want to run it locally you can do so using @ref:[Docker](running-nexus/index.md#docker). You can also deploy Nexus 
 @ref:[“on premise”](running-nexus/index.md#on-premise-cloud-deployment), as a single instance or as a cluster. 
 Blue Brain Nexus has also been deployed and tested on AWS using @link:[Kubernetes](https://kubernetes.io/){ open=new }.
@@ -159,6 +155,5 @@ Blue Brain Nexus can be used from Jupyter Notebooks using
 @link:[Nexus Forge](https://github.com/blueBrain/nexus-forge){ open=new } or 
 @link:[Nexus Python SDK](https://github.com/BlueBrain/nexus-python-sdk/){ open=new }. Alternatively, you can also use 
 any Python HTTP client and use Nexus REST API directly from the Jupyter Notebook.
-Please consider looking at our @ref:[tutorial](getting-started/try-nexus.md) to learn how to user Nexus Forge on the 
-Sandbox. Other examples are provided in the folder 
+Other examples are provided in the folder 
 @link:[Notebooks](https://github.com/BlueBrain/nexus-python-sdk/tree/master/notebooks){ open=new }.
