@@ -901,7 +901,7 @@ ThisBuild / scapegoatDisabledInspections := Seq(
   "RedundantFinalModifierOnMethod",
   "VariableShadowing"
 )
-ThisBuild / homepage                     := Some(url("https://senscience.github.io/nexus-delta/"))
+ThisBuild / homepage                     := Some(url("https://senscience.github.io/nexus-delta/docs/"))
 ThisBuild / licenses                     := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo                      := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
 ThisBuild / developers                   := List(
