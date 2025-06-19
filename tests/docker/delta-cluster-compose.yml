@@ -103,7 +103,7 @@ services:
 #  fusion:
 #    depends_on:
 #      - delta
-#    image: bluebrain/nexus-web:1.10.0-M2-fix-resource-update
+#    image: ghcr.io/senscience/nexus-fusion:latest
 #    environment:
 #      BASE_PATH: "/"
 #      HOST_NAME: "http://localhost"
