@@ -3,7 +3,7 @@
 
 # Senscience Nexus
 
-Originally created and maintained byt the Blue Brain Project, Senscience Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a Knowledge Graph. In addition to the products listed here, you’ll find a rich ecosystem of libraries and tools.
+Originally created and maintained by the Blue Brain Project, Senscience Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a Knowledge Graph. In addition to the products listed here, you’ll find a rich ecosystem of libraries and tools.
 
 ## Products
 
