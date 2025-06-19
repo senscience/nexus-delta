@@ -1,6 +1,0 @@
-{
-  "status": "Some projects are unhealthy.",
-  "unhealthyProjects": [
-    "myorg/myproject"
-  ]
-}

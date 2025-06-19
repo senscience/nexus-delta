@@ -91,7 +91,7 @@ Type to start searching
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
 <div class="md-header-nav__source">
-<a href="https://github.com/BlueBrain/nexus"
+<a href="https://github.com/senscience/nexus-delta"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -99,7 +99,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-BlueBrain/nexus
+senscience/nexus-delta
 </div>
 </a>
 
@@ -126,7 +126,7 @@ Blue Brain Nexus
 </a>
 </label>
 <div class="md-nav__source">
-<a href="https://github.com/BlueBrain/nexus"
+<a href="https://github.com/senscience/nexus-delta"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -134,7 +134,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-BlueBrain/nexus
+senscience/nexus-delta
 </div>
 </a>
 
@@ -144,8 +144,6 @@ BlueBrain/nexus
   <li><a href="../../../docs/getting-started/index.html" class="page">Getting Started</a>
   <ul>
     <li><a href="../../../docs/getting-started/understanding-knowledge-graphs.html" class="page">Understanding Knowledge Graphs</a></li>
-    <li><a href="../../../docs/getting-started/try-nexus.html" class="page">Try Nexus with Neuroscience Datasets</a></li>
-    <li><a href="../../../docs/getting-started/try-nexus-movielens.html" class="page">Try Nexus with the MovieLens Dataset</a></li>
   </ul></li>
   <li><a href="../../../docs/running-nexus/index.html" class="page">Running Nexus</a>
   <ul>
@@ -158,6 +156,8 @@ BlueBrain/nexus
   </ul></li>
   <li><a href="../../../docs/releases/index.html" class="page">Releases</a>
   <ul>
+    <li><a href="../../../docs/releases/v1.12-release-notes.html" class="page">v1.12 Release Notes</a></li>
+    <li><a href="../../../docs/releases/v1.11-to-v1.12-migration.html" class="page">v1.11 To v1.12 Migration</a></li>
     <li><a href="../../../docs/releases/v1.11-release-notes.html" class="page">v1.11 Release Notes</a></li>
     <li><a href="../../../docs/releases/v1.10-to-v1.11-migration.html" class="page">v1.10 To v1.11 Migration</a></li>
     <li><a href="../../../docs/releases/v1.10-release-notes.html" class="page">v1.10 Release Notes</a></li>
@@ -166,8 +166,6 @@ BlueBrain/nexus
     <li><a href="../../../docs/releases/v1.8-to-v1.9-migration.html" class="page">v1.8 To v1.9 Migration</a></li>
     <li><a href="../../../docs/releases/v1.8-release-notes.html" class="page">v1.8 Release Notes</a></li>
     <li><a href="../../../docs/releases/v1.7-to-v1.8-migration.html" class="page">v1.7 To v1.8 Migration</a></li>
-    <li><a href="../../../docs/releases/v1.7-release-notes.html" class="page">v1.7 Release Notes</a></li>
-    <li><a href="../../../docs/releases/v1.6-to-v1.7-migration.html" class="page">v1.6 To v1.7 Migration</a></li>
     <li><a href="../../../docs/releases/older-releases.html" class="page">Older releases</a></li>
   </ul></li>
   <li><a href="../../../docs/fusion/index.html" class="page">Nexus Fusion</a>
@@ -204,7 +202,6 @@ BlueBrain/nexus
       <li><a href="../../../docs/delta/api/user-permissions-api.html" class="page">User Permissions</a></li>
       <li><a href="../../../docs/delta/api/orgs-api.html" class="page">Organizations</a></li>
       <li><a href="../../../docs/delta/api/projects-api.html" class="page">Projects</a></li>
-      <li><a href="../../../docs/delta/api/quotas.html" class="page">Quotas</a></li>
       <li><a href="../../../docs/delta/api/schemas-api.html" class="page">Schemas</a></li>
       <li><a href="../../../docs/delta/api/resources-api.html" class="page">Resources</a></li>
       <li><a href="../../../docs/delta/api/trial.html" class="page">Trial</a></li>
@@ -222,7 +219,7 @@ BlueBrain/nexus
         <li><a href="../../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
       </ul></li>
       <li><a href="../../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
-      <li><a href="../../../docs/delta/api/files-api.html" class="page">Files</a></li>
+      <li><a href="../../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
       <li><a href="../../../docs/delta/api/archives-api.html" class="page">Archives</a></li>
       <li><a href="../../../docs/delta/api/search-api.html" class="page">Global search</a></li>
       <li><a href="../../../docs/delta/api/graph-analytics-api.html" class="page">Graph analytics</a></li>
@@ -232,7 +229,6 @@ BlueBrain/nexus
     <li><a href="../../../docs/delta/metadata.html" class="page">Nexus Metadata</a></li>
     <li><a href="../../../docs/delta/plugins/index.html" class="page">Plugins</a></li>
   </ul></li>
-  <li><a href="../../../docs/utilities/index.html" class="page">Utilities</a></li>
   <li><a href="../../../docs/faq.html" class="page">FAQ</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
@@ -259,7 +255,7 @@ BlueBrain/nexus
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> v1.11.x
+<i class="md-icon" title="Version">label_outline</i> Snapshot
 </label>
 </li>
 </ul>
@@ -294,6 +290,13 @@ BlueBrain/nexus
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
+<div class="callout note warning admonition" style="visibility: visible; margin-top: 0px">
+<div class="callout-title admonition-title">Snapshot version</div>
+<p>
+You are browsing the docs for the snapshot version of Nexus,
+the latest release is available <a href="https://senscience.github.io/nexus-delta/docs/" title="here">here</a>
+</p>
+</div>
 <div class="md-content__searchable">
 <h1><a href="#id-resolution" name="id-resolution" class="anchor"><span class="anchor-link"></span></a>Id Resolution</h1>
 <p>Id Resolution allows to resolve a resource by providing only a resource identifier (the <code>@id</code> value of a resource). In case there are multiple resources with the same identifier across different projects, the response provides all choices for disambiguation.</p><div class="callout note tip"><div class="callout-title">Authorization notes</div>
@@ -311,11 +314,11 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/request.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resolve/https%3A%2F%2Fexample.com%2FAlice&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/request.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resolve/https%3A%2F%2Fexample.com%2FAlice&quot;</code></pre></dd>
   <dt>Response (single resource)
   </dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/single-resolution-response.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/single-resolution-response.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     {
@@ -330,11 +333,8 @@ BlueBrain/nexus
   &quot;_createdAt&quot; : &quot;1970-01-01T00:00:00Z&quot;,
   &quot;_createdBy&quot; : &quot;http://localhost/v1/anonymous&quot;,
   &quot;_deprecated&quot; : false,
-  &quot;_incoming&quot; : &quot;http://localhost/v1/resources/myorg/myproject/_/https%3A%2F%2Fexample.com%2FAlice/incoming&quot;,
-  &quot;_outgoing&quot; : &quot;http://localhost/v1/resources/myorg/myproject/_/https%3A%2F%2Fexample.com%2FAlice/outgoing&quot;,
-  &quot;_project&quot; : &quot;http://localhost/v1/projects/myorg/myproject&quot;,
+  &quot;_project&quot; : &quot;myorg/myproject&quot;,
   &quot;_rev&quot; : 1,
-  &quot;_schemaProject&quot; : &quot;http://localhost/v1/projects/myorg/myproject&quot;,
   &quot;_self&quot; : &quot;http://localhost/v1/resources/myorg/myproject/_/https%3A%2F%2Fexample.com%2FAlice&quot;,
   &quot;_updatedAt&quot; : &quot;1970-01-01T00:00:00Z&quot;,
   &quot;_updatedBy&quot; : &quot;http://localhost/v1/anonymous&quot;
@@ -342,7 +342,7 @@ BlueBrain/nexus
   <dt>Response (multiple choices)
   </dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/multiple-resolution-response.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/multiple-resolution-response.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot; : [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     &quot;https://bluebrain.github.io/nexus/contexts/search.json&quot;
@@ -355,11 +355,8 @@ BlueBrain/nexus
       &quot;_createdAt&quot; : &quot;2023-09-22T13:55:33.493Z&quot;,
       &quot;_createdBy&quot; : &quot;http://localhost:8080/v1/realms/myrealm/users/bob&quot;,
       &quot;_deprecated&quot; : false,
-      &quot;_incoming&quot; : &quot;http://localhost:8080/v1/resources/myorg/myproject/_/https:%2F%2Fexample.com%2FAlice/incoming&quot;,
-      &quot;_outgoing&quot; : &quot;http://localhost:8080/v1/resources/myorg/myproject/_/https:%2F%2Fexample.com%2FAlice/outgoing&quot;,
-      &quot;_project&quot; : &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,
+      &quot;_project&quot; : &quot;myorg/myproject&quot;,
       &quot;_rev&quot; : 1,
-      &quot;_schemaProject&quot; : &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,
       &quot;_score&quot; : 0.0,
       &quot;_self&quot; : &quot;http://localhost:8080/v1/resources/myorg/myproject/_/https:%2F%2Fexample.com%2FAlice&quot;,
       &quot;_updatedAt&quot; : &quot;2023-09-22T13:55:33.493Z&quot;,
@@ -371,11 +368,8 @@ BlueBrain/nexus
       &quot;_createdAt&quot; : &quot;2023-09-22T13:55:33.459Z&quot;,
       &quot;_createdBy&quot; : &quot;http://localhost:8080/v1/realms/myrealm/users/bob&quot;,
       &quot;_deprecated&quot; : false,
-      &quot;_incoming&quot; : &quot;http://localhost:8080/v1/resources/myorg/secondproject/_/https:%2F%2Fexample.com%2FAlice/incoming&quot;,
-      &quot;_outgoing&quot; : &quot;http://localhost:8080/v1/resources/myorg/secondproject/_/https:%2F%2Fexample.com%2FAlice/outgoing&quot;,
-      &quot;_project&quot; : &quot;http://localhost:8080/v1/projects/myorg/secondproject&quot;,
+      &quot;_project&quot; : &quot;myorg/secondproject&quot;,
       &quot;_rev&quot; : 1,
-      &quot;_schemaProject&quot; : &quot;http://localhost:8080/v1/projects/myorg/secondproject&quot;,
       &quot;_score&quot; : 0.0,
       &quot;_self&quot; : &quot;http://localhost:8080/v1/resources/myorg/secondproject/_/https:%2F%2Fexample.com%2FAlice&quot;,
       &quot;_updatedAt&quot; : &quot;2023-09-22T13:55:33.459Z&quot;,
@@ -410,7 +404,7 @@ BlueBrain/nexus
   </li>
 </ol>
 <p>The Nexus Fusion resolve page allows the user to authenticate (if they are not already authenticated) and will perform a call to the Nexus Delta <code>/v1/resolve/{resourceId}</code> with the user&rsquo;s authentication token.</p>
-<p>All calls to the <code>/v1/resolve-proxy-pass</code> endpoint lead to <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303" title="303 See Other responses">303 See Other responses</a>.</p>
+<p>All calls to the <code>/v1/resolve-proxy-pass</code> endpoint lead to <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/303" title="303 See Other responses">303 See Other responses</a>.</p>
 <h3><a href="#example" name="example" class="anchor"><span class="anchor-link"></span></a>Example</h3>
 <p>The example below assumes that:</p>
 <ul>
@@ -421,17 +415,17 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-request.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resolve-proxy-pass/nexus/data/identifier&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-request.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resolve-proxy-pass/nexus/data/identifier&quot;</code></pre></dd>
   <dt>Redirect (when <code>Acccept:text/html</code> is provided)
   </dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-response-fusion.html" target="_blank" title="Go to snippet source">source</a><code class="language-html">303 See Other
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-response-fusion.html" target="_blank" title="Go to snippet source">source</a><code class="language-html">303 See Other
 The response to the request can be found under &lt;a href=&quot;http://localhost:8080/fusion/resolve/https:%2F%2Fexample.com%2Fnexus%2Fdata%2Fidentifier&quot;&gt;this URI&lt;/a&gt; using a
 GET method.</code></pre></dd>
   <dt>Redirect (no <code>Accept:text/html</code> provided)
   </dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-response-delta.html" target="_blank" title="Go to snippet source">source</a><code class="language-html">303 See Other
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/id-resolution/proxy-response-delta.html" target="_blank" title="Go to snippet source">source</a><code class="language-html">303 See Other
 The response to the request can be found under &lt;a href=&quot;https://localhost:8080/v1/resolve/https:%2F%2Fexample.com%2Fnexus%2Fdata%2Fidentifier&quot;&gt;this URI&lt;/a&gt; using a
 GET method.</code></pre></dd>
 </dl>
@@ -439,13 +433,13 @@ GET method.</code></pre></dd>
 <p>In your networking setup, if a proxy pass is enabled to map <code>https://example.com/nexus/data/*</code> to <code>https://localhost:8080/v1/resolve-proxy-pass/nexus/data/*</code>, the proxy pass allows to de facto resolve resource with identifier of the type <code>https://example.com/nexus/data/*</code> by simply querying their <code>@id</code>.</p>
 </div>
 <div>
-<a href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/id-resolution.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/id-resolution.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-v1.11.x
+Snapshot
 </span>
 </div>
 </article>
@@ -488,13 +482,14 @@ History of resources
 <div class="md-footer-copyright">
 <div class="md-footer-copyright__highlight">
 Nexus is Open Source and available under the Apache 2 License.<br/>
-© 2017-2025 <a href="https://epfl.ch/">EPFL</a>
- <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a>
+© 2017-2024 <a href="https://epfl.ch/">EPFL</a>
+ <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
+© 2025 <a href="https://www.senscience.ai/">Senscience</a>
 
 </div>
 </div>
 <div class="md-footer-social">
-<a href="https://github.com/BlueBrain" class="md-footer-social__link fa fa-github"></a><a href="https://github.com/BlueBrain/nexus/discussions" class="md-footer-social__link fa fa-github"></a>
+<a href="https://github.com/senscience" class="md-footer-social__link fa fa-github"></a><a href="https://github.com/senscience/nexus-delta/discussions" class="md-footer-social__link fa fa-github"></a>
 </div>
 
 </div>
@@ -512,6 +507,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
 window.prettyPrint && prettyPrint();
 });
 </script>
-<script src="../../.././public/js/gtm.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ services:
         condition: service_healthy
       postgres:
         condition: service_started
-    image: bluebrain/nexus-delta:1.11.0
+    image: ghcr.io/senscience/nexus-delta:latest
     environment:
       DELTA_PLUGINS: "/opt/docker/plugins/"
       DELTA_EXTERNAL_CONF: "/config/delta.conf"
@@ -24,7 +24,7 @@ services:
           memory: 1024M
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.16.1"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:9.0.1"
     environment:
       discovery.type: "single-node"
       bootstrap.memory_lock: "true"
@@ -44,7 +44,7 @@ services:
           memory: 512M
 
   postgres:
-    image: library/postgres:17.2
+    image: library/postgres:17.5
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
@@ -68,7 +68,7 @@ services:
   web:
     depends_on:
       - delta
-    image: bluebrain/nexus-web:1.10.0-M2-studio-open-tag-in-drawer
+    image: ghcr.io/senscience/nexus-fusion:2.0.1
     environment:
       BASE_PATH: "/"
       HOST_NAME: "http://localhost"

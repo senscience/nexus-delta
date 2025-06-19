@@ -1,1 +1,0 @@
-GET /v1/search/suite/suiteName

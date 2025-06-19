@@ -91,7 +91,7 @@ Type to start searching
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
 <div class="md-header-nav__source">
-<a href="https://github.com/BlueBrain/nexus"
+<a href="https://github.com/senscience/nexus-delta"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -99,7 +99,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-BlueBrain/nexus
+senscience/nexus-delta
 </div>
 </a>
 
@@ -126,7 +126,7 @@ Blue Brain Nexus
 </a>
 </label>
 <div class="md-nav__source">
-<a href="https://github.com/BlueBrain/nexus"
+<a href="https://github.com/senscience/nexus-delta"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -134,7 +134,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-BlueBrain/nexus
+senscience/nexus-delta
 </div>
 </a>
 
@@ -144,8 +144,6 @@ BlueBrain/nexus
   <li><a href="../../../docs/getting-started/index.html" class="page">Getting Started</a>
   <ul>
     <li><a href="../../../docs/getting-started/understanding-knowledge-graphs.html" class="page">Understanding Knowledge Graphs</a></li>
-    <li><a href="../../../docs/getting-started/try-nexus.html" class="page">Try Nexus with Neuroscience Datasets</a></li>
-    <li><a href="../../../docs/getting-started/try-nexus-movielens.html" class="page">Try Nexus with the MovieLens Dataset</a></li>
   </ul></li>
   <li><a href="../../../docs/running-nexus/index.html" class="page">Running Nexus</a>
   <ul>
@@ -158,6 +156,8 @@ BlueBrain/nexus
   </ul></li>
   <li><a href="../../../docs/releases/index.html" class="page">Releases</a>
   <ul>
+    <li><a href="../../../docs/releases/v1.12-release-notes.html" class="page">v1.12 Release Notes</a></li>
+    <li><a href="../../../docs/releases/v1.11-to-v1.12-migration.html" class="page">v1.11 To v1.12 Migration</a></li>
     <li><a href="../../../docs/releases/v1.11-release-notes.html" class="page">v1.11 Release Notes</a></li>
     <li><a href="../../../docs/releases/v1.10-to-v1.11-migration.html" class="page">v1.10 To v1.11 Migration</a></li>
     <li><a href="../../../docs/releases/v1.10-release-notes.html" class="page">v1.10 Release Notes</a></li>
@@ -166,8 +166,6 @@ BlueBrain/nexus
     <li><a href="../../../docs/releases/v1.8-to-v1.9-migration.html" class="page">v1.8 To v1.9 Migration</a></li>
     <li><a href="../../../docs/releases/v1.8-release-notes.html" class="page">v1.8 Release Notes</a></li>
     <li><a href="../../../docs/releases/v1.7-to-v1.8-migration.html" class="page">v1.7 To v1.8 Migration</a></li>
-    <li><a href="../../../docs/releases/v1.7-release-notes.html" class="page">v1.7 Release Notes</a></li>
-    <li><a href="../../../docs/releases/v1.6-to-v1.7-migration.html" class="page">v1.6 To v1.7 Migration</a></li>
     <li><a href="../../../docs/releases/older-releases.html" class="page">Older releases</a></li>
   </ul></li>
   <li><a href="../../../docs/fusion/index.html" class="page">Nexus Fusion</a>
@@ -204,7 +202,6 @@ BlueBrain/nexus
       <li><a href="../../../docs/delta/api/user-permissions-api.html" class="page">User Permissions</a></li>
       <li><a href="../../../docs/delta/api/orgs-api.html" class="page">Organizations</a></li>
       <li><a href="../../../docs/delta/api/projects-api.html" class="page">Projects</a></li>
-      <li><a href="../../../docs/delta/api/quotas.html" class="page">Quotas</a></li>
       <li><a href="../../../docs/delta/api/schemas-api.html" class="page">Schemas</a></li>
       <li><a href="../../../docs/delta/api/resources-api.html" class="active page">Resources</a></li>
       <li><a href="../../../docs/delta/api/trial.html" class="page">Trial</a></li>
@@ -222,7 +219,7 @@ BlueBrain/nexus
         <li><a href="../../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
       </ul></li>
       <li><a href="../../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
-      <li><a href="../../../docs/delta/api/files-api.html" class="page">Files</a></li>
+      <li><a href="../../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
       <li><a href="../../../docs/delta/api/archives-api.html" class="page">Archives</a></li>
       <li><a href="../../../docs/delta/api/search-api.html" class="page">Global search</a></li>
       <li><a href="../../../docs/delta/api/graph-analytics-api.html" class="page">Graph analytics</a></li>
@@ -232,7 +229,6 @@ BlueBrain/nexus
     <li><a href="../../../docs/delta/metadata.html" class="page">Nexus Metadata</a></li>
     <li><a href="../../../docs/delta/plugins/index.html" class="page">Plugins</a></li>
   </ul></li>
-  <li><a href="../../../docs/utilities/index.html" class="page">Utilities</a></li>
   <li><a href="../../../docs/faq.html" class="page">FAQ</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
@@ -250,6 +246,7 @@ BlueBrain/nexus
     <li><a href="../../../docs/delta/api/resources-api.html#remove-tag" class="header">Remove tag</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#deprecate" class="header">Deprecate</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#undeprecate" class="header">Undeprecate</a></li>
+    <li><a href="../../../docs/delta/api/resources-api.html#deletion" class="header">Deletion</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#change-schema" class="header">Change schema</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#fetch" class="header">Fetch</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#fetch-original-payload" class="header">Fetch original payload</a></li>
@@ -279,7 +276,7 @@ BlueBrain/nexus
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> v1.11.x
+<i class="md-icon" title="Version">label_outline</i> Snapshot
 </label>
 </li>
 </ul>
@@ -304,6 +301,7 @@ BlueBrain/nexus
     <li><a href="../../../docs/delta/api/resources-api.html#remove-tag" class="header">Remove tag</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#deprecate" class="header">Deprecate</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#undeprecate" class="header">Undeprecate</a></li>
+    <li><a href="../../../docs/delta/api/resources-api.html#deletion" class="header">Deletion</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#change-schema" class="header">Change schema</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#fetch" class="header">Fetch</a></li>
     <li><a href="../../../docs/delta/api/resources-api.html#fetch-original-payload" class="header">Fetch original payload</a></li>
@@ -334,6 +332,13 @@ BlueBrain/nexus
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
+<div class="callout note warning admonition" style="visibility: visible; margin-top: 0px">
+<div class="callout-title admonition-title">Snapshot version</div>
+<p>
+You are browsing the docs for the snapshot version of Nexus,
+the latest release is available <a href="https://senscience.github.io/nexus-delta/docs/" title="here">here</a>
+</p>
+</div>
 <div class="md-content__searchable">
 <h1><a href="#resources" name="resources" class="anchor"><span class="anchor-link"></span></a>Resources</h1>
 <p>Generic resources are rooted in the <code>/v1/resources/{org_label}/{project_label}/{schema_id}</code> collection.</p>
@@ -353,10 +358,7 @@ BlueBrain/nexus
 <p>When using the endpoints described on this page, the responses will contain global metadata described on the <a href="../metadata.html">Nexus Metadata</a> page. In addition, the following resource specific metadata can be present</p>
 <ul>
   <li><code>_project</code>: address of the resource&rsquo;s project</li>
-  <li><code>_incoming</code>: address to query to obtain the <a href="resources-api.html#list-incoming-links">list of incoming links</a></li>
-  <li><code>_outgoing</code>: address to query to obtain the <a href="resources-api.html#list-outgoing-links">list of outgoing links</a></li>
-  <li><code>_constrainedBy</code>: <code>@id</code> of the schema used to validate the resource; the schema can only be identified uniquely  together with <code>_schemaProject</code>. If no schema has been used to validate the resource, it will indicate the  unconstrained identifier.</li>
-  <li><code>_schemaProject</code>: address of the project where the <code>_constrainedBy</code> schema is found</li>
+  <li><code>_constrainedBy</code>: <code>@id</code> of the schema used to validate the resource. If no schema has been used to validate the resource, it will indicate the  unconstrained identifier.</li>
 </ul>
 <h2><a href="#indexing" name="indexing" class="anchor"><span class="anchor-link"></span></a>Indexing</h2>
 <p>All the API calls modifying a resource (creation, update, tagging, deprecation) can specify whether the resource should be indexed synchronously or in the background. This behaviour is controlled using <code>indexing</code> query param, which can be one of two values:</p>
@@ -383,7 +385,7 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/create.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X POST \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/create.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X POST \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema&quot; \
      -d \
@@ -399,7 +401,7 @@ BlueBrain/nexus
 }&#39;</code></pre></dd>
   <dt>Payload</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: {
     &quot;ex&quot;: &quot;http://localhost:8080/&quot;,
     &quot;@vocab&quot;: &quot;http://localhost:8080/&quot;
@@ -411,16 +413,13 @@ BlueBrain/nexus
 }</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/created.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/created.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 1,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -441,7 +440,7 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/create-put.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/create-put.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot; \
      -d \
@@ -457,7 +456,7 @@ BlueBrain/nexus
 }&#39;</code></pre></dd>
   <dt>Payload</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: {
     &quot;ex&quot;: &quot;http://localhost:8080/&quot;,
     &quot;@vocab&quot;: &quot;http://localhost:8080/&quot;
@@ -469,16 +468,13 @@ BlueBrain/nexus
 }</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/created.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/created.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 1,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -509,7 +505,7 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/update.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/update.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0?rev=1&quot; \
      -d \
@@ -525,7 +521,7 @@ BlueBrain/nexus
 }&#39;</code></pre></dd>
   <dt>Payload</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: {
     &quot;ex&quot;: &quot;http://localhost:8080/&quot;,
     &quot;@vocab&quot;: &quot;http://localhost:8080/&quot;
@@ -537,16 +533,13 @@ BlueBrain/nexus
 }</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/updated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/updated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 2,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -568,20 +561,17 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/refresh.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/refresh.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/updated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/updated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 2,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -609,7 +599,7 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tag.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X POST \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tag.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X POST \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/tags?rev=2&quot; \
      -d \
@@ -619,22 +609,19 @@ BlueBrain/nexus
 }&#39;</code></pre></dd>
   <dt>Payload</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/tag.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/tag.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;tag&quot;: &quot;mytag&quot;,
   &quot;rev&quot;: 1
 }</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tagged.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tagged.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 3,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -657,20 +644,17 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/delete-tag.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X DELETE \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/delete-tag.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X DELETE \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/tags/mytag?rev=2&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tagged.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tagged.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 3,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -689,21 +673,18 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/deprecate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X DELETE \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/deprecate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X DELETE \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0?rev=3&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/deprecated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/deprecated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 4,
   &quot;_deprecated&quot;: true,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -722,21 +703,18 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/undeprecate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/undeprecate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
      -H &quot;Content-Type: application/json&quot; \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/undeprecate?rev=3&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/undeprecated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/undeprecated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 5,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -744,6 +722,18 @@ BlueBrain/nexus
   &quot;_updatedAt&quot;: &quot;2021-04-17T15:02:42.939Z&quot;,
   &quot;_updatedBy&quot;: &quot;http://localhost:8080/v1/realms/myrealm/users/john&quot;
 }</code></pre></dd>
+</dl>
+<h2><a href="#deletion" name="deletion" class="anchor"><span class="anchor-link"></span></a>Deletion</h2>
+<p>Permanently deletes a resource, purging any reference to it in the system from the primary store to the target of the different projections.</p>
+<pre><code>DELETE /v1/resources/{org_label}/{project_label}/{schema_id}/{resource_id}?prune=true
+</code></pre>
+<p><strong>Example</strong></p>
+<dl>
+  <dt>Request</dt>
+  <dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/delete.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X DELETE \
+     -H &quot;Content-Type: application/json&quot; \
+     &quot;http://localhost:8080/v1/resources/myorg/myproj/_/fd8a2b32-170e-44e8-808f-44a8cbbc49b0?prune=true&quot;</code></pre></dd>
 </dl>
 <h2><a href="#change-schema" name="change-schema" class="anchor"><span class="anchor-link"></span></a>Change schema</h2>
 <p>This operation allows to only change the schema of a resource without providing any payload.</p>
@@ -753,20 +743,17 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-change.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-change.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl -X PUT \
      &quot;http://localhost:8080/v1/resources/myorg/myproj/myNewSchema/myId/update-schema&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-changed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-changed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
   &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myId&quot;,
   &quot;@type&quot;: &quot;http://localhost:8080/Custom&quot;,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myNewSchema/myId/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myNewSchema/myId/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myNewSchema/myId&quot;,
   &quot;_constrainedBy&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/_/myNewSchema&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 2,
   &quot;_deprecated&quot;: false,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -793,10 +780,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetch.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetch.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetched.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetched.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     {
@@ -809,12 +796,9 @@ BlueBrain/nexus
   &quot;bool&quot;: false,
   &quot;name&quot;: &quot;Alex&quot;,
   &quot;number&quot;: 24,
-  &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-  &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
   &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/base:fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
   &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-  &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-  &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+  &quot;_project&quot;: &quot;myorg/myproj&quot;,
   &quot;_rev&quot;: 4,
   &quot;_deprecated&quot;: true,
   &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -839,10 +823,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetchSource.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0?rev=4&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/fetchSource.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0?rev=4&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/payload.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: {
     &quot;ex&quot;: &quot;http://localhost:8080/&quot;,
     &quot;@vocab&quot;: &quot;http://localhost:8080/&quot;
@@ -872,10 +856,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/remote-contexts.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/org/proj/_/my-resource/remote-contexts&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/remote-contexts.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/org/proj/_/my-resource/remote-contexts&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/remote-contexts.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/remote-contexts.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/remote-contexts.json&quot;,
   &quot;remoteContexts&quot;: [
     {
@@ -907,10 +891,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tags.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/tags?rev=2&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/tags.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/tags?rev=2&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/tags.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/tags.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/tags.json&quot;,
   &quot;tags&quot;: [
     {
@@ -1009,10 +993,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/list.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/list.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/listed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/listed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     &quot;https://bluebrain.github.io/nexus/contexts/search.json&quot;,
@@ -1023,12 +1007,9 @@ BlueBrain/nexus
     {
       &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
       &quot;@type&quot;: &quot;http://localhost:8080/ustom&quot;,
-      &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-      &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
       &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
       &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-      &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-      &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+      &quot;_project&quot;: &quot;myorg/myproj&quot;,
       &quot;_rev&quot;: 4,
       &quot;_deprecated&quot;: true,
       &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -1041,21 +1022,21 @@ BlueBrain/nexus
 }</code></pre></dd>
   <dt>Aggregations request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/aggregate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg?aggregations=true&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/aggregate.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg?aggregations=true&quot;</code></pre></dd>
   <dt>Aggregations response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/aggregated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/aggregated.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/aggregations.json&quot;,
   &quot;aggregations&quot;: {
     &quot;projects&quot;: {
       &quot;buckets&quot;: [
         {
           &quot;doc_count&quot;: 5,
-          &quot;key&quot;: &quot;http://delta:8080/v1/projects/myorg/myproject&quot;
+          &quot;key&quot;: &quot;myorg/myproject&quot;
         },
         {
           &quot;doc_count&quot;: 5,
-          &quot;key&quot;: &quot;http://delta:8080/v1/projects/myorg/myproject2&quot;
+          &quot;key&quot;: &quot;myorg/myproject2&quot;
         }
       ],
       &quot;doc_count_error_upper_bound&quot;: 0,
@@ -1141,10 +1122,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-list.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/schema-list.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/listed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/listed.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     &quot;https://bluebrain.github.io/nexus/contexts/search.json&quot;,
@@ -1155,12 +1136,9 @@ BlueBrain/nexus
     {
       &quot;@id&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
       &quot;@type&quot;: &quot;http://localhost:8080/ustom&quot;,
-      &quot;_incoming&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;,
-      &quot;_outgoing&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing&quot;,
       &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0&quot;,
       &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/resource&quot;,
-      &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
-      &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproj&quot;,
+      &quot;_project&quot;: &quot;myorg/myproj&quot;,
       &quot;_rev&quot;: 4,
       &quot;_deprecated&quot;: true,
       &quot;_createdAt&quot;: &quot;2021-04-17T14:54:42.939Z&quot;,
@@ -1187,10 +1165,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/incoming.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/incoming.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/incoming&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/incoming.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/incoming.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     &quot;https://bluebrain.github.io/nexus/contexts/search.json&quot;
@@ -1207,7 +1185,7 @@ BlueBrain/nexus
       &quot;paths&quot;: &quot;http://localhost:8080/v1/vocabs/myorg/myproject/subject&quot;,
       &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproject/_/nxv:reconstruction1&quot;,
       &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,
-      &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,
+      &quot;_project&quot;: &quot;myorg/myproject&quot;,
       &quot;_rev&quot;: 4,
       &quot;_deprecated&quot;: false,
       &quot;_createdAt&quot;: &quot;2021-04-28T13:28:00.186Z&quot;,
@@ -1235,10 +1213,10 @@ BlueBrain/nexus
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/outgoing.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing?includeExternalLinks=true&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/outgoing.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/myorg/myproj/myschema/fd8a2b32-170e-44e8-808f-44a8cbbc49b0/outgoing?includeExternalLinks=true&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/outgoing.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/outgoing.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: [
     &quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,
     &quot;https://bluebrain.github.io/nexus/contexts/search.json&quot;
@@ -1254,7 +1232,7 @@ BlueBrain/nexus
       &quot;paths&quot;: &quot;http://localhost:8080/v1/vocabs/myorg/myproject/subject&quot;,
       &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/nxv:mouse1&quot;,
       &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,
-      &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,
+      &quot;_project&quot;: &quot;myorg/myproject&quot;,
       &quot;_rev&quot;: 1,
       &quot;_deprecated&quot;: false,
       &quot;_createdAt&quot;: &quot;2021-04-28T13:27:42.707Z&quot;,
@@ -1274,7 +1252,7 @@ BlueBrain/nexus
       ],
       &quot;_self&quot;: &quot;http://localhost:8080/v1/resources/myorg/myproject/_/nxv:jane&quot;,
       &quot;_constrainedBy&quot;: &quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,
-      &quot;_project&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,
+      &quot;_project&quot;: &quot;myorg/myproject&quot;,
       &quot;_rev&quot;: 1,
       &quot;_deprecated&quot;: false,
       &quot;_createdAt&quot;: &quot;2021-04-28T13:26:27.627Z&quot;,
@@ -1326,35 +1304,35 @@ id:{id}
 <dl>
   <dt>Request</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/sse.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/events&quot;</code></pre></dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/sse.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/resources/events&quot;</code></pre></dd>
   <dt>Response</dt>
   <dd>
-  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/sse.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceCreated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_source&quot;:{&quot;@type&quot;:&quot;Hobbit&quot;,&quot;age&quot;:23,&quot;name&quot;:&quot;Frodo&quot;},&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_constrainedBy&quot;:&quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,&quot;_project&quot;:&quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:35:47.447631Z&quot;,&quot;_rev&quot;: 1,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/resources/sse.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceCreated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_source&quot;:{&quot;@type&quot;:&quot;Hobbit&quot;,&quot;age&quot;:23,&quot;name&quot;:&quot;Frodo&quot;},&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_constrainedBy&quot;:&quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,&quot;_project&quot;:&quot;myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:35:47.447631Z&quot;,&quot;_rev&quot;: 1,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
 event:ResourceCreated
 id:aebbf8f4-9652-11e9-89a7-6d3c5701d287
 
-data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceUpdated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_source&quot;:{&quot;@type&quot;:&quot;Hobbit&quot;,&quot;age&quot;:25,&quot;name&quot;:&quot;Frodo&quot;},&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_constrainedBy&quot;:&quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,&quot;_project&quot;:&quot;http://localhost:8080/v1/projects/myorg/myproject&quot;, &quot;_schemaProject&quot;: &quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:36:27.130185Z&quot;,&quot;_rev&quot;:2,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
+data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceUpdated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_source&quot;:{&quot;@type&quot;:&quot;Hobbit&quot;,&quot;age&quot;:25,&quot;name&quot;:&quot;Frodo&quot;},&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_constrainedBy&quot;:&quot;https://bluebrain.github.io/nexus/schemas/unconstrained.json&quot;,&quot;_project&quot;:&quot;myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:36:27.130185Z&quot;,&quot;_rev&quot;:2,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
 event:ResourceUpdated
 id:c6642f90-9652-11e9-89a7-6d3c5701d287
 
 
-data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceTagAdded&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;tag&quot;:&quot;mytag&quot;,&quot;targetRev&quot;:1,&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_project&quot;:&quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:40:59.2813Z&quot;,&quot;_project&quot;:&quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_rev&quot;:3,&quot;_subject&quot;:&quot;http://localhost:8080/v1/anonymous&quot;}
+data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceTagAdded&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;tag&quot;:&quot;mytag&quot;,&quot;targetRev&quot;:1,&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_project&quot;:&quot;myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:40:59.2813Z&quot;,&quot;_project&quot;:&quot;myorg/myproject&quot;,&quot;_rev&quot;:3,&quot;_subject&quot;:&quot;http://localhost:8080/v1/anonymous&quot;}
 event:ResourceTagAdded
 id:e024e5f0-9652-11e9-89a7-6d3c5701d287
 
-data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceDeprecated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_project&quot;:&quot;http://localhost:8080/v1/projects/myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:45:12.558514Z&quot;,&quot;_rev&quot;:4,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
+data:{&quot;@context&quot;:&quot;https://bluebrain.github.io/nexus/contexts/metadata.json&quot;,&quot;@type&quot;:&quot;ResourceDeprecated&quot;,&quot;_resourceId&quot;:&quot;http://localhost:8080/v1/resources/myorg/myproject/_/7887416b-d501-4508-a625-2a6664dfca94&quot;,&quot;_types&quot;:[&quot;http://localhost:8080/v1/vocabs/myorg/myproject/Hobbit&quot;],&quot;_project&quot;:&quot;myorg/myproject&quot;,&quot;_instant&quot;:&quot;2021-04-24T07:45:12.558514Z&quot;,&quot;_rev&quot;:4,&quot;_subject&quot;:&quot;http://localhost:8080/v1/realms/github/users/myuser&quot;}
 event:ResourceDeprecated
 id:ce6549e0-9652-11e9-89a7-6d3c5701d287</code></pre></dd>
 </dl>
 </div>
 <div>
-<a href="https://github.com/BlueBrain/nexus/tree/master/docs/src/main/paradox/docs/delta/api/resources-api.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/resources-api.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-v1.11.x
+Snapshot
 </span>
 </div>
 </article>
@@ -1397,13 +1375,14 @@ Trial
 <div class="md-footer-copyright">
 <div class="md-footer-copyright__highlight">
 Nexus is Open Source and available under the Apache 2 License.<br/>
-© 2017-2025 <a href="https://epfl.ch/">EPFL</a>
- <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a>
+© 2017-2024 <a href="https://epfl.ch/">EPFL</a>
+ <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
+© 2025 <a href="https://www.senscience.ai/">Senscience</a>
 
 </div>
 </div>
 <div class="md-footer-social">
-<a href="https://github.com/BlueBrain" class="md-footer-social__link fa fa-github"></a><a href="https://github.com/BlueBrain/nexus/discussions" class="md-footer-social__link fa fa-github"></a>
+<a href="https://github.com/senscience" class="md-footer-social__link fa fa-github"></a><a href="https://github.com/senscience/nexus-delta/discussions" class="md-footer-social__link fa fa-github"></a>
 </div>
 
 </div>
@@ -1421,6 +1400,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
 window.prettyPrint && prettyPrint();
 });
 </script>
-<script src="../../.././public/js/gtm.js"></script>
 </body>
 </html>

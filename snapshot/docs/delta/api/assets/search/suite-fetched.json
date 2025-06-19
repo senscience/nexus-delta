@@ -1,8 +1,0 @@
-{
-  "@context": "https://bluebrain.github.io/nexus/contexts/suites.json",
-  "name": "suiteName",
-  "projects": [
-    "org/project",
-    "org2/project2"
-  ]
-}
