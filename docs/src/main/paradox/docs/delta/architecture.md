@@ -31,8 +31,7 @@ An overview of the Blue Brain Nexus ecosystem is presented in the figure below:
 @@@
 
 @ref:[Nexus Fusion] is a web interface that helps scientists with their day-to-day data-driven activities but also
-facilitates the system administrative tasks. It uses the Nexus.js (a javascript SDK) that provides as set of primitives
-for building web applications for Nexus Delta.
+facilitates the system administrative tasks.
 
 @ref:[Nexus Forge] is a domain-agnostic, generic and extensible Python framework that enables non-expert users to create
 and manage knowledge graphs using the Python programming language.

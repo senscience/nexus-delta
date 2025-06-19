@@ -7,7 +7,6 @@
 - [Nexus Fusion](fusion/index.md)
 - [Nexus Forge](forge.md)
 - [Nexus Delta](delta/index.md)
-- [Utilities](utilities/index.md)
 - [FAQ](faq.md)
 
 @@@
@@ -52,12 +51,6 @@ API to perform all your data management operations, this way it can easily integ
 advanced indexing capabilities automatically build views from your metadata.
 
 @ref:[Read more about Delta](delta/index.md)
-
-### Utilities
-
-The Nexus ecosystem leverages a set of smaller open-source utilities.
-
-@ref:[Discover the utilities](utilities/index.md)
 
 ## Quick Start Guide
 
