@@ -213,18 +213,18 @@ lazy val docs = project
           uri("https://github.com/senscience"),
           uri("https://github.com/senscience/nexus-delta/discussions")
         )
-        .withCustomJavaScript("./public/js/gtm.js")
         .withCopyright(s"""Nexus is Open Source and available under the Apache 2 License.<br/>
-                         |© 2017-${java.time.LocalDate.now.getYear()} <a href="https://epfl.ch/">EPFL</a>
-                         | <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a>
+                         |© 2017-2024 <a href="https://epfl.ch/">EPFL</a>
+                         | <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
+                         |© 2025 <a href="https://www.senscience.ai/">Senscience</a>
                          |""".stripMargin)
     },
     Compile / paradoxNavigationDepth := 4,
     Compile / paradoxProperties     ++=
       Map(
-        "github.base_url"       -> "https://github.com/BlueBrain/nexus/tree/master",
+        "github.base_url"       -> "https://github.com/senscience/nexus-delta/tree/master",
         "project.version.short" -> "Snapshot",
-        "current.url"           -> "https://bluebrainnexus.io/docs/",
+        "current.url"           -> "https://senscience.github.io/nexus-delta/docs/",
         "version.snapshot"      -> "true",
         "git.branch"            -> "master"
       ),
@@ -901,7 +901,7 @@ ThisBuild / scapegoatDisabledInspections := Seq(
   "RedundantFinalModifierOnMethod",
   "VariableShadowing"
 )
-ThisBuild / homepage                     := Some(url("https://bluebrainnexus.io"))
+ThisBuild / homepage                     := Some(url("https://senscience.github.io/nexus-delta/"))
 ThisBuild / licenses                     := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo                      := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
 ThisBuild / developers                   := List(
