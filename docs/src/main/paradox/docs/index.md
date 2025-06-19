@@ -11,14 +11,14 @@
 
 @@@
 
-# Blue Brain Nexus
+# Senscience Nexus
 
-Blue Brain Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a 
+Originally created and maintained by the BlueBrain project (EPFL), Senscience Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a 
 Knowledge Graph. In addition to the products listed here, you’ll find a rich ecosystem of libraries and tools.
 
 ## Products
 
-The Blue Brain Nexus ecosystem encompasses a broad range of capabilities that are brought to you across three 
+The Senscience Nexus ecosystem encompasses a broad range of capabilities that are brought to you across three 
 complementary products and a suite of utilities.
 
 ### Nexus Fusion
