@@ -97,5 +97,5 @@ If you are not part of Senscience, a Contributor License Agreement (CLA) must be
 to be accepted. Please contact the [Senscience Nexus team][nexus-team-email] to get the latest CLA version and
 instructions.
 
-[nexus-team-email]: info@senscience.ai
+[nexus-team-email]: mailto:info@senscience.ai
 [github]: https://github.com/senscience/nexus-delta
