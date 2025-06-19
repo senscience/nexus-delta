@@ -33,6 +33,6 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          deploy_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target
           publish_branch: gh-pages
