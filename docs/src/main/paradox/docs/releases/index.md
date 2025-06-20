@@ -16,7 +16,7 @@
 
 # Releases
 
-This section of the documentation lists the significant BlueBrain Nexus releases across all services and web
+This section of the documentation lists the significant Nexus releases across all services and web
 applications.
 
 TODO: update release date

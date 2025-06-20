@@ -82,13 +82,13 @@ for optimizations in terms of @link:[Performance](https://github.com/blazegraph/
 
 The Nexus repository gives also:
 
-* @link:[A jetty configuration](https://github.com/BlueBrain/nexus/blob/master/tests/docker/config/blazegraph/jetty.xml)
+* @link:[A jetty configuration](https://github.com/senscience/nexus-delta/blob/master/tests/docker/config/blazegraph/jetty.xml)
   allowing which allow to tune Blazegraph so as to handle better Nexus indexing/querying
-* @link:[A log4j configuration](https://github.com/BlueBrain/nexus/blob/master/tests/docker/config/blazegraph/log4j.properties)
+* @link:[A log4j configuration](https://github.com/senscience/nexus-delta/blob/master/tests/docker/config/blazegraph/log4j.properties)
   As the default one provided by Blazegraph is insufficient
-* @link:[The docker compose file](https://github.com/BlueBrain/nexus/blob/master/tests/docker/docker-compose.yml#L130)
+* @link:[The docker compose file](https://github.com/senscience/nexus-delta/blob/master/tests/docker/blazegraph.yml)
   for tests shows how to configure those files via system properties
-* @link:[A python script](https://github.com/BlueBrain/nexus/blob/master/blazegraph/prometheus-exporter/prometheus-blazegraph-exporter.py)
+* @link:[A python script](https://github.com/senscience/nexus-delta/blob/master/blazegraph/prometheus-exporter/prometheus-blazegraph-exporter.py)
   allowing to scrape Blazegraph metrics so as to push them to a Prometheus instance
 
 ## Backups
@@ -99,13 +99,13 @@ does not allow large payloads.
 So even if it is possible to repopulate a Blazegraph instance from the primary store, it is better to perform backup using
 @link:[the online backup api endpoint](https://github.com/blazegraph/database/wiki/REST_API#online-backup).
 
-@link:[Here](https://github.com/BlueBrain/nexus/blob/$git.branch$/kubernetes/blazegraph/backup-script.yaml) is an example of a backup script 
+@link:[Here](https://github.com/senscience/nexus-delta/blob/$git.branch$/kubernetes/blazegraph/backup-script.yaml) is an example of a backup script 
 using this endpoint, compressing the resulting file and creating a checksum out of it.
 
 The Nexus repository also provides:
 
-* @link:[A Kubernetes cronjob to run it provided](https://github.com/BlueBrain/nexus/blob/$git.branch$/kubernetes/blazegraph/backup-cronjob.yaml).
-* @link:[A Kubernetes cronjob allowing to delete old backups](https://github.com/BlueBrain/nexus/blob/$git.branch$/kubernetes/blazegraph/deleter-cronjob.yaml).
+* @link:[A Kubernetes cronjob to run it provided](https://github.com/senscience/nexus-delta/blob/$git.branch$/kubernetes/blazegraph/backup-cronjob.yaml).
+* @link:[A Kubernetes cronjob allowing to delete old backups](https://github.com/senscience/nexus-delta/blob/$git.branch$/kubernetes/blazegraph/deleter-cronjob.yaml).
 
 @@@ note
 

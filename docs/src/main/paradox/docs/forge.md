@@ -1,6 +1,6 @@
 # Nexus Forge
 
-Blue Brain Nexus Forge is a domain-agnostic, generic and extensible Python framework enabling non-expert users to create and manage knowledge graphs by making it easy to:
+Nexus Forge is a domain-agnostic, generic and extensible Python framework enabling non-expert users to create and manage knowledge graphs by making it easy to:
 
 * Discover and reuse available knowledge resources such as ontologies and schemas to shape, constraint, link and add semantics to datasets.
 * Build knowledge graphs from datasets generated from heterogenous sources and formats. Defining, executing and sharing data mappers to transform data from a source format to a target one conformant to schemas and ontologies.

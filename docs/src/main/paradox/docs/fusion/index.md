@@ -16,7 +16,7 @@
 
 # Nexus Fusion
 
-Nexus Fusion is the web interface of Blue Brain Nexus, powered by @ref:[Nexus Delta](../delta/index.md). It offers prebuilt data visualization, querying, data manipulation, and administration capabilities to help integrate, edit and visualize data and resources inside Nexus Delta projects.
+Nexus Fusion is the web interface of the Nexuse ecosystem, powered by @ref:[Nexus Delta](../delta/index.md). It offers prebuilt data visualization, querying, data manipulation, and administration capabilities to help integrate, edit and visualize data and resources inside Nexus Delta projects.
 
 ## Extensibility
 

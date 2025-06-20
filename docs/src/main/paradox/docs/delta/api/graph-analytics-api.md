@@ -78,7 +78,8 @@ It returns:
 
 - the dateTime of the latest consumed event (`lastProcessedEventDateTime`).
 - the number of consumed events (`eventsCount`).
-- the number of consumed resources (`resourcesCount`). A resource might be made of multiple events (create, update, deprecate), so this number will always be smaller or equal to `eventsCount`.
+- the number of consumed resources (`resourcesCount`). A resource might be made of multiple events (create, update, deprecate), 
+  so this number will always be smaller or equal to `eventsCount`.
 
 **Example**
 
@@ -97,7 +98,7 @@ POST /v1/graph-analytics/{org_label}/{project_label}/_search
 
 Search documents that are in a given project's Graph Analytics view.
 
-The supported payload is defined on the @link:[ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body){ open=new }.
+The supported payload is defined on the @link:[ElasticSearch documentation](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json){ open=new }.
 
 **Example**
 
@@ -111,7 +112,9 @@ Response
 
 In order to implement the described endpoints we needed a way to transform our data so that it would answer the desired questions in a performant manner.
 
-The proposed solution was to stream our data, transform it and push it to a dedicated ElasticSearch index (one index per project). Then at query time we can run [term aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html) in order to get the desired counts.
+The proposed solution was to stream our data, transform it and push it to a dedicated ElasticSearch index (one index per project). 
+Then at query time we can run [term aggregations](https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-terms-aggregation) 
+in order to get the desired counts.
 
 ### Document structure
 

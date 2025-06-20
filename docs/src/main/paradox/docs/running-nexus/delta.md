@@ -27,7 +27,7 @@ Nexus Delta relies on @link:[Kamon](https://kamon.io/) to also collect metrics a
 To enable Kamon in Delta, the `KAMON_ENABLED` env variable must be set to true.
 
 To monitor Nexus write activity like resource and file creation/updates, a dashboard is available in the 
-@link:[Nexus repo](https://github.com/BlueBrain/nexus/blob/$git.branch$/kibana/event-metrics/general.ndjson).
+@link:[Nexus repo](https://github.com/senscience/nexus-delta/blob/$git.branch$/kibana/event-metrics/general.ndjson).
 
 **Logs:**
 Nexus Delta relies on @link:[Logback](https://logback.qos.ch/) for logs which one of the popular logging

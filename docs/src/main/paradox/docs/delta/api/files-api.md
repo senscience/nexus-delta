@@ -216,7 +216,7 @@ Here Delta will provide bucket and path details for the upload. Users are then e
 The following diagram illustrates the process of uploading a large file using the delegation method:
 ![delegation](assets/files/multipart-upload.png "Multipart upload process")
 
-There is Delta @link:[configuration](https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf){ open=new } to be done prior to using this feature, in particular setting up the necessary RSA key to support secure communication between Delta and AWS and signing payloads.
+There is Delta @link:[configuration](https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf){ open=new } to be done prior to using this feature, in particular setting up the necessary RSA key to support secure communication between Delta and AWS and signing payloads.
 
 The configuration can be found under the following key `app.jws`. Please note that the allowed duration of the process is configured there with a default of 3h. Check the configuration key `app.jws.ttl` to change this value.
 

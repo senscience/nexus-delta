@@ -196,16 +196,14 @@ which can take seconds (or more) to execute.
 * A reading part which reads back those values in the database and computes for the different projects if those are active or not.
 This part is called by the different indexing routines so that they know if they have to get out of their passivation state.
 
-The default configuration is defined @link:[here](https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L54) 
+The default configuration is defined @link:[here](https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L54) 
 in the `elem-query` and `project-last-update` configuration keys.
 
 The values defined there are quite conservative and when passivation is enabled, the different delays and intervals can be 
 reduced according to your needs (they should not be lower than `200ms` though):
 
 * A shorter interval/delay will improve indexing speed but will increase the pressure on the primary store
-* A longer one will on the other hand reduce the pressure on the primary store but will also reduce indexing speed
-
-
+* A longer one will on the other hand reduce the pressure on the primary store but will also reduce indexing speed.
 
 ## Indexing failures
 

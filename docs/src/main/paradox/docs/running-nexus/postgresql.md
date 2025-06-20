@@ -81,7 +81,7 @@ Please refer to the @link:[PostgreSQL Table Partitioning documentation](https://
 
 ### Initializing the schema
 
-The different scripts are available @link:[here](https://github.com/BlueBrain/nexus/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init)
+The different scripts are available @link:[here](https://github.com/senscience/nexus-delta/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init)
 They must be run in the alphabetical order.
 
 ### Description

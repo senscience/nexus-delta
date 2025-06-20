@@ -6,11 +6,11 @@ on the tolerated time for a restore. Nexus can be instructed to rebuild all indi
 store_, but being an incremental indexing process it can take longer than restoring from a backup. Since it can be
 configured to host a number of replicas for each shard it can tolerate a number of node failures.
 
-The Elasticsearch @link:[setup documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html){ open=new }
+The Elasticsearch @link:[setup documentation](https://www.elastic.co/docs/deploy-manage/deploy/self-managed/installing-elasticsearch){ open=new }
 contains the necessary information on how to install and configure it, but recommendations on sizing the nodes and
 cluster are scarce because it depends on usage.
 
-@link:[This section of the documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/how-to.html) and @link:[the blog](https://www.elastic.co/blog) also gives useful recommendations on how to run Elasticsearch.
+@link:[This section of the documentation](https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance) and @link:[the blog](https://www.elastic.co/blog) also gives useful recommendations on how to run Elasticsearch.
 
 @@@ note { .info }
 Nexus is currently tested with Elasticsearch 8.x but should still work with the 7.x series.
