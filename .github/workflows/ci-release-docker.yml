@@ -8,6 +8,8 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      packages: write
     env:
       BUILDX_NO_DEFAULT_ATTESTATIONS: 1
     steps:
