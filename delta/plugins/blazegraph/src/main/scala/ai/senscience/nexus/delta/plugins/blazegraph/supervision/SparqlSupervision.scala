@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
 import ai.senscience.nexus.delta.sdk.views.ViewRef
@@ -16,6 +17,8 @@ trait SparqlSupervision {
 }
 
 object SparqlSupervision {
+
+  private val logger = Logger[SparqlSupervision]
 
   /**
     * Returns the number of triples
@@ -64,7 +67,9 @@ object SparqlSupervision {
           namespaces       <- client.listNamespaces
           viewsByNamespace <- viewsByNamespace.get
           result           <- namespaces.foldLeftM(SparqlNamespaceTriples.empty) { case (acc, namespace) =>
-                                client.count(namespace).map { count =>
+                                client.count(namespace) recoverWith { th =>
+                                  logger.error(th)(s"Error while getting triples for namespace $namespace").as(-1L)
+                                } map { count =>
                                   viewsByNamespace.get(namespace) match {
                                     case Some(view) => acc + (view, count)
                                     case None       => acc + (namespace, count)
