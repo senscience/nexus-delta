@@ -1,6 +1,6 @@
 # Nexus configuration
 
-Nexus Delta service can be highly customized using @link:[configuration file(s)](https://github.com/BlueBrain/nexus/tree/$git.branch$/delta/app/src/main/resources){ open=new }. Many things can be adapted to your deployment needs: port where the service is running, timeouts, pagination defaults, etc. 
+Nexus Delta service can be highly customized using @link:[configuration file(s)](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/app/src/main/resources){ open=new }. Many things can be adapted to your deployment needs: port where the service is running, timeouts, pagination defaults, etc. 
 
 There are 3 ways to modify the default configuration:
 
@@ -16,14 +16,14 @@ In order to successfully run Nexus Delta there is a minimum set of configuration
 
 ## Http configuration
 
-@link:[The `http` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L11){ open=new } of the configuration defines the binding address and port where the service will be listening.
+@link:[The `http` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L11){ open=new } of the configuration defines the binding address and port where the service will be listening.
 
 The configuration flag `akka.http.server.parsing.max-content-length` can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.
 
 ## Postgres configuration
 
 ### Database pool
-@link:[The `database` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L23){ open=new } of the configuration defines the postgres specific configuration. As Nexus Delta uses three separate pools ('read', 'write', 'streaming'), it is recommended to set the host, port, database name, username, and password via the `app.defaults.database` field, as it will apply to all pools. It is however possible to accommodate more advanced setups by configuring each pool separately by changing its respective `app.database.{read|write|streaming}` fields. 
+@link:[The `database` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L23){ open=new } of the configuration defines the postgres specific configuration. As Nexus Delta uses three separate pools ('read', 'write', 'streaming'), it is recommended to set the host, port, database name, username, and password via the `app.defaults.database` field, as it will apply to all pools. It is however possible to accommodate more advanced setups by configuring each pool separately by changing its respective `app.database.{read|write|streaming}` fields. 
 
 The pool size can be set using the `app.defaults.database.access.pool-size` setting for all pools, or individually for each pool (`app.database.{read|write|streaming}.access.pool-size`).
 
@@ -45,7 +45,7 @@ More information about partitioning is available @ref:[here](../postgresql.md).
 
 ### Init scripts
 
-Before running Nexus Delta, the @link:[init scripts](https://github.com/BlueBrain/nexus/tree/$git.branch$/delta/sourcing-psql/src/main/resources/scripts/postgres/init){ open=new } should be run in the lexicographical order.
+Before running Nexus Delta, the @link:[init scripts](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/sourcing-psql/src/main/resources/scripts/postgres/init){ open=new } should be run in the lexicographical order.
 
 The scripts in the subdirectory matching your partitioning strategy should be run first, followed by those in the common folder.
 
@@ -64,7 +64,7 @@ Nexus Delta uses a service account to perform automatic tasks under the hood. Ex
 - Granting default ACLs to the user creating a project.
 - Creating default views on project creation.
 
-@link:[The `service-account` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L427){ open=new } of the configuration defines the service account configuration.
+@link:[The `service-account` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L427){ open=new } of the configuration defines the service account configuration.
 
 ## Realm provisioning
 
@@ -85,7 +85,7 @@ realms {
          my-realm = {
           name = "My realm name"
           open-id-config = "https://.../path/.well-known/openid-configuration"
-          logo = "https://bbp.epfl.ch/path/favicon.png"
+          logo = "https://senscience.ai/path/favicon.png"
           accepted-audiences = ["audience1", "audience2"]
         }
       }
@@ -100,7 +100,7 @@ If a realm with the same identifier exists it will not be updated.
 
 @@@
 
-@link:[The `realms.provisioning` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf){ open=new } of the configuration defines it.
+@link:[The `realms.provisioning` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf){ open=new } of the configuration defines it.
 
 ## Acl provisioning
 
@@ -161,19 +161,19 @@ Acl provisioning will only run if none is create at the root level.
 
 @@@
 
-@link:[The `acls.provisioning` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf){ open=new } of the configuration defines it.
+@link:[The `acls.provisioning` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf){ open=new } of the configuration defines it.
 
 ## Fusion configuration
 
 When fetching a resource, Nexus Delta allows to return a redirection to its representation in Fusion by providing `text/html` in the `Accept` header.
 
-@link:[The `fusion` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L40){ open=new } of the configuration defines the fusion configuration.
+@link:[The `fusion` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L40){ open=new } of the configuration defines the fusion configuration.
 
 ## Projections configuration
 
 Projections in Nexus Delta are asynchronous processes that can replay the event log and process this information. For more information on projections, please refer to the @ref:[Architecture page](../../delta/architecture.md).
 
-@link:[The `projections` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L281) of the configuration allows to configure the projections.
+@link:[The `projections` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L281) of the configuration allows to configure the projections.
 
 In case of failure in a projection, Nexus Delta records the failure information inside the `public.failed_elem_logs` PostgreSQL table, which can be used for analysis, and ultimately resolution of the failures. The configuration allows to set how long the failure information is stored for (`app.projections.failed-elem-ttl`), and how often the projection deleting the expired failures is awoken (`app.projections.delete-expired-every`).
 
@@ -187,25 +187,25 @@ For more information about plugins, please refer to the @ref:[Plugins page](../.
 
 ### Elasticsearch views plugin configuration
 
-The elasticsearch plugin configuration can be found @link:[here](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf){ open=new }.
+The elasticsearch plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf){ open=new }.
 
 The most important flags are:
 * `plugins.elasticsearch.base` which defines the endpoint where the Elasticsearch service is running.
 * `plugins.elasticsearch.credentials.username` and `plugins.elasticsearch.credentials.password` to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.
 
-Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/secure-cluster.html) which describes the different steps to achieve this.
+Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/docs/deploy-manage/security) which describes the different steps to achieve this.
 
 ### Blazegraph views plugin configuration
 
-The blazegraph plugin configuration can be found @link:[here](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/blazegraph/src/main/resources/blazegraph.conf){ open=new }. 
+The blazegraph plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/blazegraph/src/main/resources/blazegraph.conf){ open=new }. 
 
 The most important flag is `plugins.blazegraph.base` which defines the endpoint where the Blazegraph service is running.
 
-The @link:[`plugins.blazegraph.slow-queries` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/blazegraph/src/main/resources/blazegraph.conf#L23) of the Blazegraph configuration defines what is considered a slow Blazegraph query, which will get logged in the `public.blazegraph_queries` PostgreSQL table. This can be used to understand which Blazegraph queries can be improved.
+The @link:[`plugins.blazegraph.slow-queries` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/blazegraph/src/main/resources/blazegraph.conf#L23) of the Blazegraph configuration defines what is considered a slow Blazegraph query, which will get logged in the `public.blazegraph_queries` PostgreSQL table. This can be used to understand which Blazegraph queries can be improved.
 
 ### Composite views plugin configuration
 
-The composite views plugin configuration can be found @link:[here](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/composite-views/src/main/resources/composite-views.conf){ open=new }. 
+The composite views plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/composite-views/src/main/resources/composite-views.conf){ open=new }. 
 
 There are several configuration flags related to tweaking the range of values allowed for sources, projections and rebuild interval.
 
@@ -238,7 +238,7 @@ This configuration tells Delta to log into the `internal` realm (which should ha
 
 ### Storage plugin configuration
 
-The storage plugin configuration can be found @link:[here](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/storage/src/main/resources/storage.conf){ open=new }. 
+The storage plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/storage/src/main/resources/storage.conf){ open=new }. 
 
 Nexus Delta supports 2 types of storages: 'disk', 'amazon' (s3 compatible).
 
@@ -300,7 +300,7 @@ To generate such a key in the correct format follow these steps:
 
 ### Archive plugin configuration
 
-The archive plugin configuration can be found @link:[here](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/plugins/archive/src/main/resources/archive.conf){ open=new }.
+The archive plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/archive/src/main/resources/archive.conf){ open=new }.
 
 ## Monitoring
 
@@ -310,7 +310,7 @@ For monitoring, Nexus Delta relies on @link:[Kamon](https://kamon.io/){ open=new
 
 Kamon can be disabled by passing the environment variable `KAMON_ENABLED` set to `false`.
 
-Delta configuration for Kamon is provided @link:[in the `monitoring` section](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L391){ open=new }.
+Delta configuration for Kamon is provided @link:[in the `monitoring` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L391){ open=new }.
 For a more complete description on the different options available, please look at the Kamon website.
 
 #### Instrumentation

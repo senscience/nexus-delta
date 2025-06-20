@@ -1,6 +1,6 @@
 # Project
 
-The Nexus Fusion project page allows you to manage your project in a given Blue Brain Nexus deployment.
+The Nexus Fusion project page allows you to manage your project in a given Nexus deployment.
 In particular, you can:
 
 - List, create, edit and deprecate projects within an Organization,
@@ -15,7 +15,7 @@ In particular, you can:
 # Creating a New Project
 
 When creating a Project, you can configure the Base, Vocab and through the "Advanced Settings" the API Mappings for the project.
-You can learn more about these settings in the [Delta Documentation](https://bluebrainnexus.io//docs/delta/api/projects-api.html#payload).
+You can learn more about these settings in the @ref:[Delta Documentation](../delta/api/projects-api.md#payload).
 The current version allows the user to create a Project in different main parts of the application, Organization page, projects page, and also in the global search types pages.
 
 @@@ div { .center }
@@ -195,7 +195,7 @@ This section allows users to list all configured Storages in this project.
 
 ### Resolvers
 
-This section allows users to list all configured Resolvers [(API reference)](https://bluebrainnexus.io/docs/delta/api/resolvers-api.html) in this project. They are also ordered by their priorities as in the ID resolution process.
+This section allows users to list all configured Resolvers @ref:[(API reference)](../delta/api/resolvers-api.md) in this project. They are also ordered by their priorities as in the ID resolution process.
 
 ![Resolvers](assets/Project-Settings-Resolvers.png)
 

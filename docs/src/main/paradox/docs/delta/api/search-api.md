@@ -1,7 +1,7 @@
 # Global search
 
 Nexus provides global search functionality across all projects through the
-@link:[search plugin](https://github.com/BlueBrain/nexus/tree/$git.branch$/delta/plugins/search/src){ open=new }.
+@link:[search plugin](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/search/src){ open=new }.
 
 @@@ warning
 The search plugin is experimental and its functionality and API can change without notice.
@@ -38,12 +38,12 @@ POST /v1/search/query
 {payload}
 ```
 ... where `{payload}` is a 
-@link:[Elasticsearch query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html){ open=new }
+@link:[Elasticsearch query](https://www.elastic.co/docs/explore-analyze/query-filter/languages/querydsl){ open=new }
 and the response is forwarded from the underlying Elasticsearch indices.
 
 ## Query a suite
 
-Nexus Delta allows to configure multiple search suites under @link:[`plugins.search.suites`](https://github.com/BlueBrain/nexus/blob/master/delta/plugins/search/src/main/resources/search.conf). Each suite is composed of one or more projects.
+Nexus Delta allows to configure multiple search suites under @link:[`plugins.search.suites`](https://github.com/senscience/nexus-delta/blob/master/delta/plugins/search/src/main/resources/search.conf). Each suite is composed of one or more projects.
 When querying using a suite, the query is only performed on the underlying Elasticsearch indices of the projects in the suite.
 
 ```
@@ -55,8 +55,8 @@ POST /v1/search/query/suite/{suiteName}?addProject={project}
 * `{suiteName}` is the name of the suite
 * `{project}`: Project - can be used to extend the scope of the suite by providing other projects under the format `org/project`. This parameter can appear
   multiple times, expanding further the scope of the search.
-* `{payload}` is a @link:[Elasticsearch query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html){ open=new }
-and the response is forwarded from the underlying Elasticsearch indices.
+* `{payload}` is a @link:[Elasticsearch query](https://www.elastic.co/docs/explore-analyze/query-filter/languages/querydsl){ open=new }
+  and the response is forwarded from the underlying Elasticsearch indices.
 
 ## Configuration
 

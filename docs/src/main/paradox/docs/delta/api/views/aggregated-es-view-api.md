@@ -3,14 +3,8 @@
 This view is an aggregate of ElasticSearchViews. The view itself does not create any index, but it references the 
 already existing indices of the linked ElasticSearchViews.
 
-@@@ note
-
-From Delta version 1.5.0,  `AggregateElasticSearchView` can point to other `AggregateElasticSearchView`s. 
-
-@@@
-
 When performing queries on the `_search` endpoint, this view will make use of the 
-@link:[multi-index](https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#api-multi-index){ open=new } query 
+@link:[multi-index](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/api-conventions){ open=new } query 
 capabilities of ElasticSearch in order to select the indices of every view present on this aggregate view.
 
 If the caller does not have the permission views/query (or from v1.5, the user-defined permission) on all the views defined on the aggregated view,
@@ -186,7 +180,7 @@ POST /v1/views/{org_label}/{project_label}/{view_id}/_search
   {...}
 ```
 The supported payload is defined on the 
-@link:[ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body){ open=new }
+@link:[ElasticSearch documentation](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json){ open=new }
 
 The string `documents` is used as a prefix of the default ElasticSearch `view_id`
 

@@ -1,8 +1,8 @@
 # Architecture
 
-Blue Brain Nexus is a collection of software components that address various organizational needs relating to data
-storage, management, analysis and consumption. It was designed to support the data-driven science iterative cycle at
-Blue Brain but its genericity allows for its use in arbitrary contexts.
+Nexus is a collection of software components that address various organizational needs relating to data
+storage, management, analysis and consumption. It was designed to support the data-driven science iterative cycle first at
+Blue Brain and now at SENSCIENCE but its genericity allows for its use in arbitrary contexts.
 
 This document focuses on the characteristics of the Nexus Delta and its design choices.
 
@@ -13,16 +13,7 @@ and knowledge graph lifecycles. It uses @link:[PostgreSQL]{ open=new } as a prim
 all the information in the system), @link:[Elasticsearch]{ open=new } for full text search and @link:[Blazegraph]{ open=new } 
 for graph based data access.
 
-@@@ note { .tip title="Change of primary store in Nexus 1.8" }
-
-Until 1.8, Cassandra was the preferred primary store for Nexus.
-
-Please visit @ref:[Release Notes for Nexus 1.8](../releases/v1.8-release-notes.md#new-primary-store) to learn more about the reasons behind 
-this change.
-
-@@@
-
-An overview of the Blue Brain Nexus ecosystem is presented in the figure below:
+An overview of the Nexus ecosystem is presented in the figure below:
 
 @@@ div { .half .center }
 
@@ -55,15 +46,6 @@ Adding and removing nodes requires for the moment to:
 @@@ div { .half .center }
 
 ![Clustering](assets/architecture-clustering.png)
-
-@@@
-
-@@@ note { .tip title="New clustering deployment" }
-
-Until 1.8, Nexus was relying on akka-cluster to run in a clustered way.
-
-Please visit @ref:[Release Notes for Nexus 1.8](../releases/v1.8-release-notes.md#new-clustering-deployment) to learn more about the reasons behind
-this change.
 
 @@@
 
@@ -194,7 +176,7 @@ The authorization flow is as follows:
 [PostgreSQL]: https://www.postgresql.org/
 [Elasticsearch]: https://www.elastic.co/elasticsearch
 [Blazegraph]: https://blazegraph.com/
-[cluster configuration]: https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L290
+[cluster configuration]: https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L290
 [CQRS]: https://martinfowler.com/bliki/CQRS.html
 [Server Sent Events]: https://html.spec.whatwg.org/multipage/server-sent-events.html
 [REST]: https://en.wikipedia.org/wiki/Representational_state_transfer

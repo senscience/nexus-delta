@@ -178,9 +178,9 @@ where...
 - `{elasticsearchIndexGroup}`: String - Allow to add a prefix to the name of the created index so as to make easier to query all of the indices
   with a same index group by using a wildcard (ex: `delta_mygroup_*`). This field is optional.
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the 
-  @link:[ElasticSearch mapping documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html){ open=new }.
+  @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticsearch settings_`: Json object - Defines the indexing configuration, as stated at the 
-  @link:[ElasticSearch settings documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings){ open=new }.
+  @link:[ElasticSearch settings documentation](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){ open=new }.
 - `_context_`: Json - the JSON-LD context value applied to the query results.
 - `{query}`: @link:[Sparql Construct Query](https://www.w3.org/TR/rdf-sparql-query/#construct){ open=new } - Defines the Sparql query to execute against the
   intermediate Sparql space for each target resource.
@@ -531,7 +531,7 @@ POST /v1/views/{org_label}/{project_label}/{view_id}/projections/{projection_id}
 where `{projection_id}` is the @id value of the target `ElasticSearch` projection. The reserved value `_`  means "every projection".
 
 The supported payload is defined on the 
-@link:[ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body){ open=new }
+@link:[ElasticSearch documentation](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json){ open=new }
 
 
 **Example**
