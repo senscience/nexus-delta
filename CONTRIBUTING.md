@@ -1,6 +1,6 @@
-# Contributing to the Blue Brain Nexus Platform
+# Contributing to the SENSCIENCE Nexus Platform
 
-We would love for you to contribute to the Blue Brain Nexus Platform and help make it even better than it is today! As a
+We would love for you to contribute to the Nexus Platform and help make it even better than it is today! As a
 contributor, here are the guidelines we would like you to follow:
  - [Question or Problem?](#question)
  - [Issues and Bugs](#issue)
@@ -10,7 +10,7 @@ contributor, here are the guidelines we would like you to follow:
  
 ## <a name="question"></a> Got a Question or Problem?
 
-Please do not hesitate to contact the [Blue Brain Nexus team by email][nexus-team-email].
+Please do not hesitate to contact the [Nexus team by email][nexus-team-email].
 
 ## <a name="issue"></a> Found a Bug?
 
@@ -93,9 +93,9 @@ repository:
     ```
 ## <a name="cla"></a> Signing the CLA
 
-If you are not part of the Blue Brain project, a Contributor License Agreement (CLA) must be signed for any code changes
-to be accepted. Please contact the [Blue Brain Nexus team][nexus-team-email] to get the latest CLA version and
+If you are not part of SENSCIENCE, a Contributor License Agreement (CLA) must be signed for any code changes
+to be accepted. Please contact the [Nexus team][nexus-team-email] to get the latest CLA version and
 instructions.
 
-[nexus-team-email]: mailto:bbp-nexus-support@groupes.epfl.ch
-[github]: https://github.com/BlueBrain/nexus
+[nexus-team-email]: mailto:info@senscience.ai
+[github]: https://github.com/senscience/nexus-delta
