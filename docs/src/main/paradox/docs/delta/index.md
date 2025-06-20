@@ -9,7 +9,7 @@
 
 # Nexus Delta
 
-Blue Brain Nexus Delta is a low latency, scalable and secure system that realizes a range of functions to support
+Nexus Delta is a low latency, scalable and secure system that realizes a range of functions to support
 data management and knowledge graph lifecycles.
 
 It is a central piece of the Nexus ecosystem of software components as it offers a set of foundational capabilities to
@@ -30,7 +30,7 @@ Please refer to the @ref:[architecture] and @ref:[api reference] sections for mo
 [Nexus Forge]: ../forge.md
 [architecture]: ./architecture.md
 [api reference]: api/index.md
-[in the open]: https://github.com/BlueBrain/nexus
+[in the open]: https://github.com/senscience/nexus-delta
 [Apache License, version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [OpenID Connect]: https://openid.net/developers/how-connect-works/
 [OAuth 2.0]: https://datatracker.ietf.org/doc/html/rfc6749

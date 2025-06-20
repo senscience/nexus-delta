@@ -2,41 +2,36 @@
 
 ## General FAQ
 
-### What is Blue Brain Nexus?
+### What is SENSCIENCE Nexus?
 
-Blue Brain Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a 
-Knowledge Graph. You can find out more information on our @link:[product home page](https://bluebrainnexus.io/){ open=new }. 
+SENSCIENCE Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a 
+Knowledge Graph.
 
-### Is Blue Brain Nexus free to use?
+### Is SENSCIENCE Nexus free to use?
 
 Yes, Nexus is a free, Open Source platform released under @link:[Apache Licence 2.0](https://www.apache.org/licenses/LICENSE-2.0){ open=new }
 
-### How do I run Blue Brain Nexus?
+### How do I run Nexus?
 
 Meanwhile if you want to run it locally you can do so using @ref:[Docker](running-nexus/index.md#docker). You can also deploy Nexus 
 @ref:[“on premise”](running-nexus/index.md#on-premise-cloud-deployment), as a single instance or as a cluster. 
-Blue Brain Nexus has also been deployed and tested on AWS using @link:[Kubernetes](https://kubernetes.io/){ open=new }.
-
-### How can I try Blue Brain Nexus without installing it? 
-
-The @link:[Sandbox](https://sandbox.bluebrainnexus.io){ open=new } provides a public instance that can serve as a 
-testbed. Be aware that the content of the Sandbox is regularly purged.
+Nexus has also been deployed and tested on AWS and Azure using @link:[Kubernetes](https://kubernetes.io/){ open=new }.
 
 ### What is the difference with a relational database like PostgreSQL?
 
-Although Blue Brain Nexus can be used as a regular database, it's flexibility and feature set are well beyond that. 
+Although Nexus can be used as a regular database, it's flexibility and feature set are well beyond that. 
 Just to mention some of the Nexus features:
 
-- Allows the user to define different constraints to different set of data at runtime
+- Allows the user to define different constraints to different sets of data at runtime
 - Provides automatic indexing into several indexers (currently ElasticSearch and Sparql), dealing with reindexing 
 strategies, retries and progress
 - Provides authentication
 - Comes with a flexible and granular authorization mechanism
 - Guarantees resources immutability, keeping track of a history of changes.
 
-### Is there a limit on the number of resources Blue Brain Nexus can store?
+### Is there a limit on the number of resources Nexus can store?
 
-Blue Brain Nexus leverages scalable open source technologies, therefore limitations and performance depends heavily on 
+Nexus leverages scalable open source technologies, therefore limitations and performance depends heavily on 
 the deployment setup where Nexus is running.
 
 ### What is a Knowledge Graph?
@@ -45,29 +40,28 @@ A Knowledge Graph is a modern approach to enabling the interlinked representatio
 activities or concepts). In order to find more information about Knowledge Graphs, please visit the section 
 @ref:["Understanding the Knowledge Graph"](getting-started/understanding-knowledge-graphs.md)
 
-Blue Brain Nexus employs a Knowledge Graph to enable validation, search, analysis and integration of data.
+Nexus employs a Knowledge Graph to enable validation, search, analysis and integration of data.
 
-### How do I report a bug? Which support Blue Brain Nexus team provide?
+### How do I report a bug? Which support Nexus team provide?
 
 There are several channels provided to address different issues:
 
 - **Bug report**: If you have found a bug while using the Nexus ecosystem, please create an issue 
-  @link:[here](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2FBlueBrain%2Fnexus%2Fissues%2Fnew%3Flabels%3Dbug){ open=new }.
-- **Questions**: if you need support, we will be reachable through the @link:[Github Discussions](https://github.com/BlueBrain/nexus/discussions){ open=new }
+  @link:[here](https://github.com/senscience/nexus-delta/issues/new/choose){ open=new }.
+- **Questions**: if you need support, we will be reachable through the @link:[Github Discussions](https://github.com/senscience/nexus-delta/discussions){ open=new }
 - **Documentation**: Technical documentation and 'Quick Start' to Nexus related concepts can be found 
   @link:[here](https://bluebrainnexus.io/docs/){ open=new }
-- **Feature request**: If there is a feature you would like to see in Blue Brain Nexus, please first consult the 
-  @link:[list of open feature requests](https://github.com/BlueBrain/nexus/issues?q=is%3Aopen+is%3Aissue+label%3Afeature){ open=new }. 
+- **Feature request**: If there is a feature you would like to see in Nexus, please first consult the 
+  @link:[list of open feature requests](https://github.com/senscience/nexus-delta/issues?q=is%3Aissue%20state%3Aopen%20label%3Aenhancement){ open=new }. 
   In case there isn't already one, please 
-  @link:[open a feature request](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2FBlueBrain%2Fnexus%2Fissues%2Fnew%3Flabels%3Dfeature){ open=new } describing 
+  @link:[open a feature request](https://github.com/senscience/nexus-delta/issues/new/choose){ open=new } describing 
   your feature with as much detail as possible.
 
 ## Technical FAQ  
 
-### What are the clients I can use with Blue Brain Nexus? What are the requirements to run Blue Brain Nexus locally?
+### What are the clients I can use with SENSCIENCE Nexus? What are the requirements to run Nexus locally?
 
-On macOS and Windows, Docker effectively runs containers inside a VM created by the system hypervisor. Nexus requires 
-at least 2 CPUs and 8 GB of memory in total. You can increase the limits in Docker settings in the menu 
+Nexus requires at least 2 CPUs and 8 GB of memory in total. You can increase the limits in Docker settings in the menu 
 _Preferences > Advanced_. More details are in the dedicated @ref:[page](running-nexus/index.md).
 
 ### What is JSON-LD?
@@ -93,7 +87,7 @@ context to be added would be:
 ```
 
 You can find more information about Sets and Lists in JSON-LD on the 
-@link:[Json-LD 1.0 specification](https://www.w3.org/TR/json-ld/#sets-and-lists){ open=new }
+@link:[Json-LD 1.1 specification](https://www.w3.org/TR/json-ld11/#lists-and-sets){ open=new }
 
 ### What is RDF?
 
@@ -113,7 +107,7 @@ exploration of trends and patterns.
 
 @link:[SHACL](https://www.w3.org/TR/shacl/){ open=new } (Shapes Constraint Language) is a language for validating RDF 
 graphs against a set of conditions. These conditions are provided as shapes and other constructs expressed in the form 
-of an RDF graph. SHACL is used in Blue Brain Nexus to constrain and control the payload that can be pushed into Nexus.
+of an RDF graph. SHACL is used in Nexus to constrain and control the payload that can be pushed into Nexus.
 You can use the @link:[SHACL Playground](https://shacl.org/playground/){ open=new } to test your schemas.
 
 ### Do I need to define SHACL schemas to bring data in?
@@ -129,7 +123,7 @@ decide whether to use schemas to constrain their data or not, depending on their
 Interest Group - @link:[Neuroshapes](https://github.com/INCF/neuroshapes){ open=new }, provides open schemas for 
 neuroscience data based on common use cases.
 
-### Why are RDF and JSON-LD important for Blue Brain Nexus?
+### Why are RDF and JSON-LD important for Nexus?
 
 RDF is the data model used to ingest data into the Knowledge Graph and it is also used for SHACL schema data validation. 
 JSON-LD is an RDF concrete syntax, and it is the main format we use for messages exchange. The choice of JSON-LD is due 
@@ -145,15 +139,14 @@ on the HTTP request, any SPARQL client should work.
 ### How can I create an organization as an anonymous user in the docker-compose file? What needs to be done to switch to "authenticated" mode?
 
 By default, the permissions used - for an authenticated user - when running Nexus Delta are the ones defined on the JVM 
-property @link:[app.permissions.minimum](https://github.com/BlueBrain/nexus/blob/$git.branch$/delta/app/src/main/resources/app.conf#L92){ open=new }.
+property @link:[app.permissions.minimum](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L155){ open=new }.
 In order to change that behaviour, please create some ACLs for the path `/`. For more details about ACLs creation, 
 visit the @ref:[ACLs page](delta/api/acls-api.md#create).
 
-### Can I use Blue Brain Nexus from Jupyter Notebooks?
+### Can I use Nexus from Jupyter Notebooks?
 
-Blue Brain Nexus can be used from Jupyter Notebooks using 
+Nexus can be used from Jupyter Notebooks using 
 @link:[Nexus Forge](https://github.com/blueBrain/nexus-forge){ open=new } or 
 @link:[Nexus Python SDK](https://github.com/BlueBrain/nexus-python-sdk/){ open=new }. Alternatively, you can also use 
 any Python HTTP client and use Nexus REST API directly from the Jupyter Notebook.
-Other examples are provided in the folder 
-@link:[Notebooks](https://github.com/BlueBrain/nexus-python-sdk/tree/master/notebooks){ open=new }.
+Other examples are provided in the folder @link:[Notebooks](https://github.com/BlueBrain/nexus-python-sdk/tree/master/notebooks){ open=new }.

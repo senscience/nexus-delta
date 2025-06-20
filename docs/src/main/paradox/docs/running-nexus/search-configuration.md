@@ -1,7 +1,7 @@
 # Search configuration
 
 Nexus provides global search functionality across all projects through the
-@link:[search plugin](https://github.com/BlueBrain/nexus/tree/$git.branch$/delta/plugins/search/src){ open=new }.
+@link:[search plugin](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/search/src){ open=new }.
 
 @@@ warning
 
@@ -48,7 +48,7 @@ More information about CompositeViews can be found in the
 The search plugin introduces a new namespace (`/v1/search`) with two sub-resources (`query` and `config`).
 
 The @ref:[query endpoint](../delta/api/search-api.md#query) accepts submitting an
-@link:[Elasticsearch query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
+@link:[Elasticsearch query](https://www.elastic.co/docs/explore-analyze/query-filter/languages/querydsl)
 via `POST`, similar to other views based on Elasticsearch, like `ElasticSearchView`, `AggregateElasticSearchView` or
 `CompositeView` with configured Elasticsearch projections. The query will be dispatched to all ElasticSearch indices
 managed by the CompositeViews created by the search plugin (the ones that share the id mentioned above) for which the
@@ -277,7 +277,7 @@ The next step is to define the Elasticsearch index setting (provided via the
 `plugins.search.indexing.settings={pathToFile}` setting) that will configure how fields are analysed, number of shards
 etc. The following example would work for most cases where values are word split, trimmed and set to lowercase. The
 number of shards depends on the volume of data that will be indexed (see the
-@link:[Elasticsearch recommendation](https://www.elastic.co/guide/en/elasticsearch/reference/current/size-your-shards.html)).
+@link:[Elasticsearch recommendation](https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards)).
 
 ```json
 {
@@ -444,4 +444,4 @@ that the `/v1/search/config` endpoint will return as means of data model discove
 This completes the configuration required to enable Global Search capabilities into Nexus. It may seem quite cumbersome,
 but all the configuration options presented are required for a good end-user experience. A different, more complex
 configuration example can be found in the
-@link:[test project](https://github.com/BlueBrain/nexus/tree/$git.branch$/tests/docker/config).
+@link:[test project](https://github.com/senscience/nexus-delta/tree/$git.branch$/tests/docker/config).

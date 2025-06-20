@@ -82,11 +82,10 @@ where...
 - _pipe_config_ : Json object - Configuration for the pipe `{pipeName}`. This field can be optional depending on `{pipeName}`
 - ._context_ : Json - Additional JSON-LD context value applied when compacting the resource before indexing it to Elasticsearch.
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the
-  @link:[ElasticSearch mapping documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html#indices-put-mapping){
-  open=new }.
+  @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticssearch settings_`: Json object - defines Elasticsearch
-  @link:[index settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings){
-  open=new } for the underlying Elasticsearch index. Default settings are applied, if not specified.
+  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){ open=new } 
+  for the underlying Elasticsearch index. Default settings are applied, if not specified.
 - `{someid}`: Iri - The @id value for this view.
 - `{permission}`: String - permission required to query this view. Defaults to `views/query`.
 
@@ -120,10 +119,9 @@ where...
 - `{resourceType}`: Iri - Select only resources of the provided type Iri. This field is optional.
 - `{tag}`: String - Selects only resources with the provided tag. This field is optional.
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the
-  @link:[ElasticSearch mapping documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html#indices-put-mapping){
-  open=new }.
+  @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticssearch settings_`: Json object - defines Elasticsearch
-  @link:[index settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings){
+  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){
   open=new } for the underlying Elasticsearch index. Default settings are applied, if not specified.
 - `{sourceAsText}`: Boolean - If true, the resource's payload will be stored in the ElasticSearch document as a single
   escaped string value under the key `_original_source`. If false, the resource's payload will be stored normally in the
@@ -362,7 +360,7 @@ POST /v1/views/{org_label}/{project_label}/{view_id}/_search
 ```
 
 The supported payload is defined on the
-@link:[ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body){
+@link:[ElasticSearch documentation](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json){
 open=new }
 
 The string `documents` is used as a prefix of the default ElasticSearch `view_id`
@@ -382,7 +380,7 @@ Response
 
 Creates a point in time on the underlying index of the view to be used in further search requests.
 
-@link:[See the Elasticsearch documentation for more details](https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html)
+@link:[See the Elasticsearch documentation for more details](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-open-point-in-time)
 
 ```
 POST /v1/views/{org_label}/{project_label}/{view_id}/_pit?keep_alive={keep_alive}
@@ -403,7 +401,7 @@ Response
 
 Closes a point in time on the underlying index of the view when it is no longer used.
 
-@link:[See the Elasticsearch documentation for more details](https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html)
+@link:[See the Elasticsearch documentation for more details](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-open-point-in-time)
 
 ```
 DELETE /v1/views/{org_label}/{project_label}/{view_id}/_pit
@@ -420,7 +418,7 @@ GET /v1/views/{org_label}/{project_label}/{view_id}/_mapping
 ```
 
 Retrieves the view's
-@link:[ElasticSearch mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html){
+@link:[ElasticSearch mapping](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-mapping){
 open=new }.
 
 **Example**

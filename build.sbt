@@ -216,7 +216,7 @@ lazy val docs = project
         .withCopyright(s"""Nexus is Open Source and available under the Apache 2 License.<br/>
                          |© 2017-2024 <a href="https://epfl.ch/">EPFL</a>
                          | <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-                         |© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+                         |© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
                          |""".stripMargin)
     },
     Compile / paradoxNavigationDepth := 4,
