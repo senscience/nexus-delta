@@ -1,13 +1,13 @@
 [![View our technology page](https://img.shields.io/badge/technology-Nexus-03ABE9.svg)](https://senscience.github.io/nexus-delta/docs/)
 [![GitHub release](https://img.shields.io/github/release/BlueBrain/nexus.svg)](https://github.com/BlueBrain/nexus/releases/tag/v1.11.0)
 
-# Senscience Nexus
+# SENSCIENCE Nexus
 
-Originally created and maintained by the Blue Brain Project, Senscience Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a Knowledge Graph. In addition to the products listed here, you’ll find a rich ecosystem of libraries and tools.
+Originally created and maintained by the Blue Brain Project, SENSCIENCE Nexus is an ecosystem that allows you to organize and better leverage your data through the use of a Knowledge Graph. In addition to the products listed here, you’ll find a rich ecosystem of libraries and tools.
 
 ## Products
 
-The Senscience Nexus ecosystem encompasses a broad range of capabilities that are brought to you across three complementary products and a suite of utilities.
+The SENSCIENCE Nexus ecosystem encompasses a broad range of capabilities that are brought to you across three complementary products and a suite of utilities.
 
 ### Nexus Fusion
 
@@ -42,7 +42,7 @@ Ready to deploy your own instance of Nexus? Follow our [guide](https://senscienc
 
 ## More information
 
-The Senscience Nexus [documentation] offers more information about the software, its [architecture] and the [api reference].
+The Nexus [documentation] offers more information about the software, its [architecture] and the [api reference].
 
 Please head over to the [getting started] section for a description of various options on running Nexus and
 introductory material to [Linked Data] and the [Shapes Constraint Language].

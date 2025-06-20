@@ -1,6 +1,6 @@
-# Contributing to the Senscience Platform
+# Contributing to the SENSCIENCE Nexus Platform
 
-We would love for you to contribute to the Senscience Nexus Platform and help make it even better than it is today! As a
+We would love for you to contribute to the Nexus Platform and help make it even better than it is today! As a
 contributor, here are the guidelines we would like you to follow:
  - [Question or Problem?](#question)
  - [Issues and Bugs](#issue)
@@ -10,7 +10,7 @@ contributor, here are the guidelines we would like you to follow:
  
 ## <a name="question"></a> Got a Question or Problem?
 
-Please do not hesitate to contact the [Senscience Nexus team by email][nexus-team-email].
+Please do not hesitate to contact the [Nexus team by email][nexus-team-email].
 
 ## <a name="issue"></a> Found a Bug?
 
@@ -93,8 +93,8 @@ repository:
     ```
 ## <a name="cla"></a> Signing the CLA
 
-If you are not part of Senscience, a Contributor License Agreement (CLA) must be signed for any code changes
-to be accepted. Please contact the [Senscience Nexus team][nexus-team-email] to get the latest CLA version and
+If you are not part of SENSCIENCE, a Contributor License Agreement (CLA) must be signed for any code changes
+to be accepted. Please contact the [Nexus team][nexus-team-email] to get the latest CLA version and
 instructions.
 
 [nexus-team-email]: mailto:info@senscience.ai
