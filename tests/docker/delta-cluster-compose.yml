@@ -29,19 +29,23 @@ services:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
+      - CLUSTER_SIZE
       - PARTITION_STRATEGY
+      - TABLES_AUTOCREATE=true
+      - SPARQL_TARGET=blazegraph
+      - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
-    entrypoint:
-      - '/bin/bash'
-      - '-c'
-      - |
-        ln -sf /opt/docker/plugins/disabled/project-deletion.jar /opt/docker/plugins/project-deletion.jar &&
-        /opt/docker/bin/delta-app -Xmx4G -Dapp.projections.cluster.size=${CLUSTER_SIZE}
+    entrypoint: ["/config/delta-startup.sh"]
     ports:
       - 8080:8080
     volumes:
       - ./config:/config
       - /tmp:/default-volume
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/v1/version" ]
+      interval: 1s
+      timeout: 2s
+      retries: 60
     extra_hosts:
       - "delta:127.0.0.1"
     dns:
@@ -50,52 +54,58 @@ services:
 
   delta2:
     depends_on:
-      - delta
+      delta:
+        condition: service_healthy
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
+      - CLUSTER_SIZE
+      - NODE_INDEX=1
       - PARTITION_STRATEGY
+      - SPARQL_TARGET=blazegraph
+      - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
-    profiles:
-      - "cluster"
-    entrypoint:
-      - '/bin/bash'
-      - '-c'
-      - |
-        ln -sf /opt/docker/plugins/disabled/project-deletion.jar /opt/docker/plugins/project-deletion.jar &&
-        /opt/docker/bin/delta-app -Xmx4G -Dapp.projections.cluster.size=${CLUSTER_SIZE} -Dapp.projections.cluster.node-index=1 -Dapp.database.tables-autocreate=false
+    entrypoint: ["/config/delta-startup.sh"]
     ports:
       - 8081:8080
     volumes:
       - ./config:/config
       - /tmp:/default-volume
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/v1/version" ]
+      interval: 1s
+      timeout: 2s
+      retries: 60
     dns:
       # Set the DNS server to be the LocalStack container, for host resolution
       - 10.0.2.20
 
   delta3:
     depends_on:
-      - delta2
+      delta2:
+        condition: service_healthy
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
       - PARTITION_STRATEGY
+      - CLUSTER_SIZE
+      - NODE_INDEX=2
+      - SPARQL_TARGET=blazegraph
+      - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
-    profiles:
-      - "cluster"
-    entrypoint:
-      - '/bin/bash'
-      - '-c'
-      - |
-        ln -sf /opt/docker/plugins/disabled/project-deletion.jar /opt/docker/plugins/project-deletion.jar &&
-        /opt/docker/bin/delta-app -Xmx4G -Dapp.projections.cluster.size=${CLUSTER_SIZE} -Dapp.projections.cluster.node-index=2 -Dapp.database.tables-autocreate=false
+    entrypoint: ["/config/delta-startup.sh"]
     ports:
       - 8082:8080
     volumes:
       - ./config:/config
       - /tmp:/default-volume
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/v1/version" ]
+      interval: 1s
+      timeout: 2s
+      retries: 60
     dns:
       # Set the DNS server to be the LocalStack container, for host resolution
       - 10.0.2.20
