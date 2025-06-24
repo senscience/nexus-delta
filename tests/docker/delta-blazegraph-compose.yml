@@ -29,6 +29,7 @@ services:
       - DELTA_EXTERNAL_CONF
       - KAMON_ENABLED
       - PARTITION_STRATEGY
+      - TABLES_AUTOCREATE=true
       - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
@@ -38,6 +39,11 @@ services:
     volumes:
       - ./config:/config
       - /tmp:/default-volume
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/v1/version" ]
+      interval: 1s
+      timeout: 2s
+      retries: 60
     extra_hosts:
       - "delta:127.0.0.1"
     dns:
