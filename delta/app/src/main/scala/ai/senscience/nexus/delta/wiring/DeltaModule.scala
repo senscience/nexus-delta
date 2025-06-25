@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.wiring
 
-import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFuture, UUIDF}
@@ -8,7 +7,6 @@ import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.routes.ErrorRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
@@ -158,11 +156,6 @@ class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: Class
       .withAllowedMethods(List(GET, PUT, POST, PATCH, DELETE, OPTIONS, HEAD))
       .withExposedHeaders(List(Location.name))
   )
-
-  many[PriorityRoute].add { (cfg: AppConfig, cr: RemoteContextResolution @Id("aggregate"), ordering: JsonKeyOrdering) =>
-    val route = new ErrorRoutes()(cfg.http.baseUri, cr, ordering)
-    PriorityRoute(pluginsMaxPriority + 999, route.routes, requiresStrictEntity = true)
-  }
 
   make[Vector[Route]].from { (pluginsRoutes: Set[PriorityRoute]) =>
     pluginsRoutes.toVector.sorted.map(_.route)
