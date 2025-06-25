@@ -35,11 +35,8 @@ jobs:
             clean \
             app/Docker/publishLocal
       - name: Start services
-        run: docker compose -f tests/docker/delta-blazegraph-compose.yml up -d
-      - name: Waiting for Delta to start
-        run: |
-          URL="http://localhost:8080/v1/version"
-          curl --connect-timeout 3 --max-time 5 --retry 30 --retry-all-errors --retry-delay 3 --retry-max-time 90 $URL
+        run: docker compose -f tests/docker/delta-blazegraph-compose.yml up --wait
+        timeout-minutes: 2
       - name: Test
         run: sbt -Dsbt.color=always -Dsbt.supershell=false "project tests" test
       - name: Stop & clean Docker
