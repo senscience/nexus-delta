@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../.././assets/img/favicon-32x32.png">
-<title>Graph analytics · Senscience Nexus</title>
+<title>Graph analytics · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 Graph analytics
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -436,7 +436,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <ul>
   <li>the dateTime of the latest consumed event (<code>lastProcessedEventDateTime</code>).</li>
   <li>the number of consumed events (<code>eventsCount</code>).</li>
-  <li>the number of consumed resources (<code>resourcesCount</code>). A resource might be made of multiple events (create, update, deprecate), so this number will always be smaller or equal to <code>eventsCount</code>.</li>
+  <li>the number of consumed resources (<code>resourcesCount</code>). A resource might be made of multiple events (create, update, deprecate),  so this number will always be smaller or equal to <code>eventsCount</code>.</li>
 </ul>
 <p><strong>Example</strong></p>
 <dl>
@@ -463,7 +463,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   {...}
 </code></pre>
 <p>Search documents that are in a given project&rsquo;s Graph Analytics view.</p>
-<p>The supported payload is defined on the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a>.</p>
+<p>The supported payload is defined on the <a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a>.</p>
 <p><strong>Example</strong></p>
 <dl>
   <dt>Request</dt>
@@ -568,7 +568,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </dl>
 <h2><a href="#internals" name="internals" class="anchor"><span class="anchor-link"></span></a>Internals</h2>
 <p>In order to implement the described endpoints we needed a way to transform our data so that it would answer the desired questions in a performant manner.</p>
-<p>The proposed solution was to stream our data, transform it and push it to a dedicated ElasticSearch index (one index per project). Then at query time we can run <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html">term aggregations</a> in order to get the desired counts.</p>
+<p>The proposed solution was to stream our data, transform it and push it to a dedicated ElasticSearch index (one index per project). Then at query time we can run <a href="https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-terms-aggregation">term aggregations</a> in order to get the desired counts.</p>
 <h3><a href="#document-structure" name="document-structure" class="anchor"><span class="anchor-link"></span></a>Document structure</h3>
 <p>An example of the ElasticSearch Document looks as follows:</p>
 <pre class="prettyprint"><code class="language-json">{
@@ -711,7 +711,7 @@ Supervision
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

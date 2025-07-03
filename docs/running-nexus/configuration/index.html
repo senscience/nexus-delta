@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../.././assets/img/favicon-32x32.png">
-<title>Nexus configuration · Senscience Nexus</title>
+<title>Nexus configuration · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 Nexus configuration
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -359,7 +359,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </div>
 <div class="md-content__searchable">
 <h1><a href="#nexus-configuration" name="nexus-configuration" class="anchor"><span class="anchor-link"></span></a>Nexus configuration</h1>
-<p>Nexus Delta service can be highly customized using <a href="https://github.com/BlueBrain/nexus/tree/master/delta/app/src/main/resources" title="configuration file(s)" target="_blank" rel="noopener noreferrer">configuration file(s)</a>. Many things can be adapted to your deployment needs: port where the service is running, timeouts, pagination defaults, etc. </p>
+<p>Nexus Delta service can be highly customized using <a href="https://github.com/senscience/nexus-delta/tree/master/delta/app/src/main/resources" title="configuration file(s)" target="_blank" rel="noopener noreferrer">configuration file(s)</a>. Many things can be adapted to your deployment needs: port where the service is running, timeouts, pagination defaults, etc. </p>
 <p>There are 3 ways to modify the default configuration:</p>
 <ul>
   <li>Setting the env variable <code>DELTA_EXTERNAL_CONF</code> which defines the path to a HOCON file. The configuration keys that are defined here can be overridden by the other methods.</li>
@@ -369,11 +369,11 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>In terms of JVM pool memory allocation, we recommend setting the following values to the <code>JAVA_OPTS</code> environment variable: <code>-Xms4g -Xmx4g</code>. The recommended values should be changed accordingly with the usage of Nexus Delta, the number of projects and the resources/schemas size.</p>
 <p>In order to successfully run Nexus Delta there is a minimum set of configuration flags that need to be specified</p>
 <h2><a href="#http-configuration" name="http-configuration" class="anchor"><span class="anchor-link"></span></a>Http configuration</h2>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L11" title="The `http` section" target="_blank" rel="noopener noreferrer">The <code>http</code> section</a> of the configuration defines the binding address and port where the service will be listening.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L11" title="The `http` section" target="_blank" rel="noopener noreferrer">The <code>http</code> section</a> of the configuration defines the binding address and port where the service will be listening.</p>
 <p>The configuration flag <code>akka.http.server.parsing.max-content-length</code> can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.</p>
 <h2><a href="#postgres-configuration" name="postgres-configuration" class="anchor"><span class="anchor-link"></span></a>Postgres configuration</h2>
 <h3><a href="#database-pool" name="database-pool" class="anchor"><span class="anchor-link"></span></a>Database pool</h3>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L23" title="The `database` section" target="_blank" rel="noopener noreferrer">The <code>database</code> section</a> of the configuration defines the postgres specific configuration. As Nexus Delta uses three separate pools (&lsquo;read&rsquo;, &lsquo;write&rsquo;, &lsquo;streaming&rsquo;), it is recommended to set the host, port, database name, username, and password via the <code>app.defaults.database</code> field, as it will apply to all pools. It is however possible to accommodate more advanced setups by configuring each pool separately by changing its respective <code>app.database.{read|write|streaming}</code> fields. </p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L23" title="The `database` section" target="_blank" rel="noopener noreferrer">The <code>database</code> section</a> of the configuration defines the postgres specific configuration. As Nexus Delta uses three separate pools (&lsquo;read&rsquo;, &lsquo;write&rsquo;, &lsquo;streaming&rsquo;), it is recommended to set the host, port, database name, username, and password via the <code>app.defaults.database</code> field, as it will apply to all pools. It is however possible to accommodate more advanced setups by configuring each pool separately by changing its respective <code>app.database.{read|write|streaming}</code> fields. </p>
 <p>The pool size can be set using the <code>app.defaults.database.access.pool-size</code> setting for all pools, or individually for each pool (<code>app.database.{read|write|streaming}.access.pool-size</code>).</p><div class="callout note warning"><div class="callout-title">Note</div>
 <p>A default Postgres deployment will limit the number of connections to 100, unless configured otherwise. See the <a href="https://www.postgresql.org/docs/current/runtime-config-connection.html" title="Postgres Connection and Authentication documentation" target="_blank" rel="noopener noreferrer">Postgres Connection and Authentication documentation</a>.</p></div>
 <h3><a href="#partitioning" name="partitioning" class="anchor"><span class="anchor-link"></span></a>Partitioning</h3>
@@ -382,7 +382,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>Note that it is an essential setting which can not be changed automatically once it is set, so configure it carefully according to your needs.</p>
 <p>More information about partitioning is available <a href="../postgresql.html">here</a>.</p>
 <h3><a href="#init-scripts" name="init-scripts" class="anchor"><span class="anchor-link"></span></a>Init scripts</h3>
-<p>Before running Nexus Delta, the <a href="https://github.com/BlueBrain/nexus/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init" title="init scripts" target="_blank" rel="noopener noreferrer">init scripts</a> should be run in the lexicographical order.</p>
+<p>Before running Nexus Delta, the <a href="https://github.com/senscience/nexus-delta/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init" title="init scripts" target="_blank" rel="noopener noreferrer">init scripts</a> should be run in the lexicographical order.</p>
 <p>The scripts in the subdirectory matching your partitioning strategy should be run first, followed by those in the common folder.</p>
 <p>It is possible to let Nexus Delta automatically create them using the following configuration parameters: <code>app.database.tables-autocreate=true</code>.</p><div class="callout note warning"><div class="callout-title">Note</div>
 <p>Auto creation of tables is included as a development convenience and should be avoided in production.</p></div>
@@ -392,7 +392,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li>Granting default ACLs to the user creating a project.</li>
   <li>Creating default views on project creation.</li>
 </ul>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L427" title="The `service-account` section" target="_blank" rel="noopener noreferrer">The <code>service-account</code> section</a> of the configuration defines the service account configuration.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L427" title="The `service-account` section" target="_blank" rel="noopener noreferrer">The <code>service-account</code> section</a> of the configuration defines the service account configuration.</p>
 <h2><a href="#realm-provisioning" name="realm-provisioning" class="anchor"><span class="anchor-link"></span></a>Realm provisioning</h2>
 <p>Realm provisioning allows to create one or several realm at startup.</p>
 <p>It is useful to start a new deployment with having to call the <a href="../../delta/api/realms-api.html">realm API</a> to create those.</p>
@@ -408,7 +408,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
          my-realm = {
           name = &quot;My realm name&quot;
           open-id-config = &quot;https://.../path/.well-known/openid-configuration&quot;
-          logo = &quot;https://bbp.epfl.ch/path/favicon.png&quot;
+          logo = &quot;https://senscience.ai/path/favicon.png&quot;
           accepted-audiences = [&quot;audience1&quot;, &quot;audience2&quot;]
         }
       }
@@ -416,7 +416,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   }
 </code></pre><div class="callout note warning"><div class="callout-title">Note</div>
 <p>Realm provisioning will only create realms. If a realm with the same identifier exists it will not be updated.</p></div>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf" title="The `realms.provisioning` section" target="_blank" rel="noopener noreferrer">The <code>realms.provisioning</code> section</a> of the configuration defines it.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf" title="The `realms.provisioning` section" target="_blank" rel="noopener noreferrer">The <code>realms.provisioning</code> section</a> of the configuration defines it.</p>
 <h2><a href="#acl-provisioning" name="acl-provisioning" class="anchor"><span class="anchor-link"></span></a>Acl provisioning</h2>
 <p>Acl provisioning allows to create one or several acls at startup.</p>
 <p>It is useful to start a new deployment with having to call the <a href="../../delta/api/acls-api.html">ACL API</a> to create those.</p>
@@ -462,28 +462,28 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>Like the </p><div class="callout note warning"><div class="callout-title">Note</div>
 <p>The realms and the permissions defined in the file must exist in the deployment.</p>
 <p>Acl provisioning will only run if none is create at the root level.</p></div>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf" title="The `acls.provisioning` section" target="_blank" rel="noopener noreferrer">The <code>acls.provisioning</code> section</a> of the configuration defines it.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf" title="The `acls.provisioning` section" target="_blank" rel="noopener noreferrer">The <code>acls.provisioning</code> section</a> of the configuration defines it.</p>
 <h2><a href="#fusion-configuration" name="fusion-configuration" class="anchor"><span class="anchor-link"></span></a>Fusion configuration</h2>
 <p>When fetching a resource, Nexus Delta allows to return a redirection to its representation in Fusion by providing <code>text/html</code> in the <code>Accept</code> header.</p>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L40" title="The `fusion` section" target="_blank" rel="noopener noreferrer">The <code>fusion</code> section</a> of the configuration defines the fusion configuration.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L40" title="The `fusion` section" target="_blank" rel="noopener noreferrer">The <code>fusion</code> section</a> of the configuration defines the fusion configuration.</p>
 <h2><a href="#projections-configuration" name="projections-configuration" class="anchor"><span class="anchor-link"></span></a>Projections configuration</h2>
 <p>Projections in Nexus Delta are asynchronous processes that can replay the event log and process this information. For more information on projections, please refer to the <a href="../../delta/architecture.html">Architecture page</a>.</p>
-<p><a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L281" title="The `projections` section">The <code>projections</code> section</a> of the configuration allows to configure the projections.</p>
+<p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L281" title="The `projections` section">The <code>projections</code> section</a> of the configuration allows to configure the projections.</p>
 <p>In case of failure in a projection, Nexus Delta records the failure information inside the <code>public.failed_elem_logs</code> PostgreSQL table, which can be used for analysis, and ultimately resolution of the failures. The configuration allows to set how long the failure information is stored for (<code>app.projections.failed-elem-ttl</code>), and how often the projection deleting the expired failures is awoken (<code>app.projections.delete-expired-every</code>).</p>
 <h2><a href="#plugins-configuration" name="plugins-configuration" class="anchor"><span class="anchor-link"></span></a>Plugins configuration</h2>
 <p>Since 1.5.0, Nexus Delta supports plugins. Jar files present inside the local directory defined by the <code>DELTA_PLUGINS</code> environment variable are loaded as plugins into the Delta service. </p>
 <p>Each plugin configuration is rooted under <code>plugins.{plugin_name}</code>. All plugins have a <code>plugins.{plugin_name}.priority</code> configuration flag used to determine the order in which the routes are handled in case of collisions. </p>
 <p>For more information about plugins, please refer to the <a href="../../delta/plugins/index.html">Plugins page</a>.</p>
 <h3><a href="#elasticsearch-views-plugin-configuration" name="elasticsearch-views-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Elasticsearch views plugin configuration</h3>
-<p>The elasticsearch plugin configuration can be found <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
+<p>The elasticsearch plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
 <p>The most important flags are: * <code>plugins.elasticsearch.base</code> which defines the endpoint where the Elasticsearch service is running. * <code>plugins.elasticsearch.credentials.username</code> and <code>plugins.elasticsearch.credentials.password</code> to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.</p>
-<p>Please refer to the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/secure-cluster.html" title="Elasticsearch configuration">Elasticsearch configuration</a> which describes the different steps to achieve this.</p>
+<p>Please refer to the <a href="https://www.elastic.co/docs/deploy-manage/security" title="Elasticsearch configuration">Elasticsearch configuration</a> which describes the different steps to achieve this.</p>
 <h3><a href="#blazegraph-views-plugin-configuration" name="blazegraph-views-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Blazegraph views plugin configuration</h3>
-<p>The blazegraph plugin configuration can be found <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/blazegraph/src/main/resources/blazegraph.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
+<p>The blazegraph plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/blazegraph/src/main/resources/blazegraph.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
 <p>The most important flag is <code>plugins.blazegraph.base</code> which defines the endpoint where the Blazegraph service is running.</p>
-<p>The <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/blazegraph/src/main/resources/blazegraph.conf#L23" title="`plugins.blazegraph.slow-queries` section"><code>plugins.blazegraph.slow-queries</code> section</a> of the Blazegraph configuration defines what is considered a slow Blazegraph query, which will get logged in the <code>public.blazegraph_queries</code> PostgreSQL table. This can be used to understand which Blazegraph queries can be improved.</p>
+<p>The <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/blazegraph/src/main/resources/blazegraph.conf#L23" title="`plugins.blazegraph.slow-queries` section"><code>plugins.blazegraph.slow-queries</code> section</a> of the Blazegraph configuration defines what is considered a slow Blazegraph query, which will get logged in the <code>public.blazegraph_queries</code> PostgreSQL table. This can be used to understand which Blazegraph queries can be improved.</p>
 <h3><a href="#composite-views-plugin-configuration" name="composite-views-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Composite views plugin configuration</h3>
-<p>The composite views plugin configuration can be found <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/composite-views/src/main/resources/composite-views.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
+<p>The composite views plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/composite-views/src/main/resources/composite-views.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
 <p>There are several configuration flags related to tweaking the range of values allowed for sources, projections and rebuild interval.</p>
 <p>Authentication for remote sources can be specified in three different ways. The value of <code>plugins.composite-views.remote-source-credentials</code> can be set as:</p>
 <h5><a href="#recommended-client-credentials-openid-authentication-" name="recommended-client-credentials-openid-authentication-" class="anchor"><span class="anchor-link"></span></a>Recommended: client credentials (OpenId authentication)</h5>
@@ -507,7 +507,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 }
 </code></pre>
 <h3><a href="#storage-plugin-configuration" name="storage-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Storage plugin configuration</h3>
-<p>The storage plugin configuration can be found <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/storage/src/main/resources/storage.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
+<p>The storage plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/storage/src/main/resources/storage.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
 <p>Nexus Delta supports 2 types of storages: &lsquo;disk&rsquo;, &lsquo;amazon&rsquo; (s3 compatible).</p>
 <ul>
   <li>For disk storages the most relevant configuration flag is <code>plugins.storage.storages.disk.default-volume</code>, which defines the default location in the Nexus Delta filesystem where the files using that storage are going to be saved.</li>
@@ -553,12 +553,12 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </code></pre>
 <p>To generate such a key in the correct format follow these steps: 1. Generate RSA key: <code>openssl genrsa -out private_key.pem 2048</code> 2. Convert to PKCS#8 format: <code>openssl pkcs8 -topk8 -inform PEM -outform PEM -in private_key.pem -out private_key_pkcs8.pem -nocrypt</code> 3. Remove line breaks, copy secret: <code>cat private_key_pkcs8.pem | tr -d &#39;\n&#39; | pbcopy</code></p>
 <h3><a href="#archive-plugin-configuration" name="archive-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Archive plugin configuration</h3>
-<p>The archive plugin configuration can be found <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/archive/src/main/resources/archive.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
+<p>The archive plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/archive/src/main/resources/archive.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
 <h2><a href="#monitoring" name="monitoring" class="anchor"><span class="anchor-link"></span></a>Monitoring</h2>
 <h3><a href="#kamon" name="kamon" class="anchor"><span class="anchor-link"></span></a>Kamon</h3>
 <p>For monitoring, Nexus Delta relies on <a href="https://kamon.io/" title="Kamon" target="_blank" rel="noopener noreferrer">Kamon</a>.</p>
 <p>Kamon can be disabled by passing the environment variable <code>KAMON_ENABLED</code> set to <code>false</code>.</p>
-<p>Delta configuration for Kamon is provided <a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L391" title="in the `monitoring` section" target="_blank" rel="noopener noreferrer">in the <code>monitoring</code> section</a>. For a more complete description on the different options available, please look at the Kamon website.</p>
+<p>Delta configuration for Kamon is provided <a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L391" title="in the `monitoring` section" target="_blank" rel="noopener noreferrer">in the <code>monitoring</code> section</a>. For a more complete description on the different options available, please look at the Kamon website.</p>
 <h4><a href="#instrumentation" name="instrumentation" class="anchor"><span class="anchor-link"></span></a>Instrumentation</h4>
 <p>Delta provides the Kamon instrumentation for:</p>
 <ul>
@@ -639,7 +639,7 @@ Search configuration
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

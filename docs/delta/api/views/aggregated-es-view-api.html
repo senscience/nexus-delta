@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../../.././assets/img/favicon-32x32.png">
-<title>AggregateElasticSearchView · Senscience Nexus</title>
+<title>AggregateElasticSearchView · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 AggregateElasticSearchView
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -293,9 +293,8 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </div>
 <div class="md-content__searchable">
 <h1><a href="#aggregateelasticsearchview" name="aggregateelasticsearchview" class="anchor"><span class="anchor-link"></span></a>AggregateElasticSearchView</h1>
-<p>This view is an aggregate of ElasticSearchViews. The view itself does not create any index, but it references the already existing indices of the linked ElasticSearchViews.</p><div class="callout note "><div class="callout-title">Note</div>
-<p>From Delta version 1.5.0, <code>AggregateElasticSearchView</code> can point to other <code>AggregateElasticSearchView</code>s. </p></div>
-<p>When performing queries on the <code>_search</code> endpoint, this view will make use of the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#api-multi-index" title="multi-index" target="_blank" rel="noopener noreferrer">multi-index</a> query capabilities of ElasticSearch in order to select the indices of every view present on this aggregate view.</p>
+<p>This view is an aggregate of ElasticSearchViews. The view itself does not create any index, but it references the already existing indices of the linked ElasticSearchViews.</p>
+<p>When performing queries on the <code>_search</code> endpoint, this view will make use of the <a href="https://www.elastic.co/docs/reference/elasticsearch/rest-apis/api-conventions" title="multi-index" target="_blank" rel="noopener noreferrer">multi-index</a> query capabilities of ElasticSearch in order to select the indices of every view present on this aggregate view.</p>
 <p>If the caller does not have the permission views/query (or from v1.5, the user-defined permission) on all the views defined on the aggregated view, only a subset of indices (or none) will be selected, respecting the defined permissions.</p>
 <p><img src="../assets/views/elasticsearch/aggregate-view.png" alt="Aggregate ElasticSearchView" title="Aggregate ElasticSearchView" /></p>
 <h2><a href="#payload" name="payload" class="anchor"><span class="anchor-link"></span></a>Payload</h2>
@@ -628,7 +627,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <pre><code>POST /v1/views/{org_label}/{project_label}/{view_id}/_search
   {...}
 </code></pre>
-<p>The supported payload is defined on the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a></p>
+<p>The supported payload is defined on the <a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a></p>
 <p>The string <code>documents</code> is used as a prefix of the default ElasticSearch <code>view_id</code></p>
 <p><strong>Example</strong></p>
 <dl>
@@ -820,7 +819,7 @@ SparqlView
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

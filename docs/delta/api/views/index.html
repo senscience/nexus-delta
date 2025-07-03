@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../../.././assets/img/favicon-32x32.png">
-<title>Views · Senscience Nexus</title>
+<title>Views · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 Views
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -491,11 +491,11 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li>A writing part which is computing incrementally the maximum offset and modified date for every project in Nexus and saves it in the primary store. This part relies on <a href="../../architecture.html#anatomy">the state log</a> and the incremental approach allows it to be a lot faster than a sql query or a materialized view which can take seconds (or more) to execute.</li>
   <li>A reading part which reads back those values in the database and computes for the different projects if those are active or not. This part is called by the different indexing routines so that they know if they have to get out of their passivation state.</li>
 </ul>
-<p>The default configuration is defined <a href="https://github.com/BlueBrain/nexus/blob/master/delta/app/src/main/resources/app.conf#L54" title="here">here</a> in the <code>elem-query</code> and <code>project-last-update</code> configuration keys.</p>
+<p>The default configuration is defined <a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L54" title="here">here</a> in the <code>elem-query</code> and <code>project-last-update</code> configuration keys.</p>
 <p>The values defined there are quite conservative and when passivation is enabled, the different delays and intervals can be reduced according to your needs (they should not be lower than <code>200ms</code> though):</p>
 <ul>
   <li>A shorter interval/delay will improve indexing speed but will increase the pressure on the primary store</li>
-  <li>A longer one will on the other hand reduce the pressure on the primary store but will also reduce indexing speed</li>
+  <li>A longer one will on the other hand reduce the pressure on the primary store but will also reduce indexing speed.</li>
 </ul>
 <h2><a href="#indexing-failures" name="indexing-failures" class="anchor"><span class="anchor-link"></span></a>Indexing failures</h2>
 <h3><a href="#listing-indexing-failures" name="listing-indexing-failures" class="anchor"><span class="anchor-link"></span></a>Listing indexing failures</h3>
@@ -639,7 +639,7 @@ ElasticSearchView
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

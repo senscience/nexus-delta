@@ -10,7 +10,7 @@
       "@id": "http://localhost:8080/v1/realms/realm1",
       "@type": "Realm",
       "logo": "http://localhost:8080/logo.png",
-      "name": "BlueBrain",
+      "name": "SENSCIENCE",
       "openIdConfig": "http://localhost:8080/auth/realms/realm1/.well-known/openid-configuration",
       "_authorizationEndpoint": "http://localhost:8080/auth/realms/realm1/protocol/openid-connect/auth",
       "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/realms.json",

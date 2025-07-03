@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../.././assets/img/favicon-32x32.png">
-<title>Global search · Senscience Nexus</title>
+<title>Global search · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 Global search
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -285,7 +285,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </div>
 <div class="md-content__searchable">
 <h1><a href="#global-search" name="global-search" class="anchor"><span class="anchor-link"></span></a>Global search</h1>
-<p>Nexus provides global search functionality across all projects through the <a href="https://github.com/BlueBrain/nexus/tree/master/delta/plugins/search/src" title="search plugin" target="_blank" rel="noopener noreferrer">search plugin</a>.</p><div class="callout warning "><div class="callout-title">Warning</div>
+<p>Nexus provides global search functionality across all projects through the <a href="https://github.com/senscience/nexus-delta/tree/master/delta/plugins/search/src" title="search plugin" target="_blank" rel="noopener noreferrer">search plugin</a>.</p><div class="callout warning "><div class="callout-title">Warning</div>
 <p>The search plugin is experimental and its functionality and API can change without notice.</p></div>
 <p>The search plugin relies on <a href="views/composite-view-api.html">composite views</a>:</p>
 <ul>
@@ -304,9 +304,9 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <pre><code>POST /v1/search/query
 {payload}
 </code></pre>
-<p>&hellip; where <code>{payload}</code> is a <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html" title="Elasticsearch query" target="_blank" rel="noopener noreferrer">Elasticsearch query</a> and the response is forwarded from the underlying Elasticsearch indices.</p>
+<p>&hellip; where <code>{payload}</code> is a <a href="https://www.elastic.co/docs/explore-analyze/query-filter/languages/querydsl" title="Elasticsearch query" target="_blank" rel="noopener noreferrer">Elasticsearch query</a> and the response is forwarded from the underlying Elasticsearch indices.</p>
 <h2><a href="#query-a-suite" name="query-a-suite" class="anchor"><span class="anchor-link"></span></a>Query a suite</h2>
-<p>Nexus Delta allows to configure multiple search suites under <a href="https://github.com/BlueBrain/nexus/blob/master/delta/plugins/search/src/main/resources/search.conf" title="`plugins.search.suites`"><code>plugins.search.suites</code></a>. Each suite is composed of one or more projects. When querying using a suite, the query is only performed on the underlying Elasticsearch indices of the projects in the suite.</p>
+<p>Nexus Delta allows to configure multiple search suites under <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/search/src/main/resources/search.conf" title="`plugins.search.suites`"><code>plugins.search.suites</code></a>. Each suite is composed of one or more projects. When querying using a suite, the query is only performed on the underlying Elasticsearch indices of the projects in the suite.</p>
 <pre><code>POST /v1/search/query/suite/{suiteName}?addProject={project}
 {payload}
 </code></pre>
@@ -314,7 +314,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <ul>
   <li><code>{suiteName}</code> is the name of the suite</li>
   <li><code>{project}</code>: Project - can be used to extend the scope of the suite by providing other projects under the format <code>org/project</code>. This parameter can appear  multiple times, expanding further the scope of the search.</li>
-  <li><code>{payload}</code> is a <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html" title="Elasticsearch query" target="_blank" rel="noopener noreferrer">Elasticsearch query</a> and the response is forwarded from the underlying Elasticsearch indices.</li>
+  <li><code>{payload}</code> is a <a href="https://www.elastic.co/docs/explore-analyze/query-filter/languages/querydsl" title="Elasticsearch query" target="_blank" rel="noopener noreferrer">Elasticsearch query</a>  and the response is forwarded from the underlying Elasticsearch indices.</li>
 </ul>
 <h2><a href="#configuration" name="configuration" class="anchor"><span class="anchor-link"></span></a>Configuration</h2>
 <pre><code>GET /v1/search/config
@@ -392,7 +392,7 @@ Graph analytics
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

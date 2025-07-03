@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../.././assets/img/favicon-32x32.png">
-<title>v1.11 To v1.12 Migration · Senscience Nexus</title>
+<title>v1.11 To v1.12 Migration · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 v1.11 To v1.12 Migration
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -237,6 +237,7 @@ senscience/nexus-delta
   <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#v1-11-to-v1-12-migration" class="header">v1.11 To v1.12 Migration</a>
   <ul>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#schema-changes" class="header">Schema changes</a></li>
+    <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#acl-checks" class="header">ACL checks</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#indexing-in-elasticsearch-and-blazegraph" class="header">Indexing in Elasticsearch and Blazegraph</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#adopt-hash-partitioning" class="header">Adopt hash partitioning</a></li>
   </ul></li>
@@ -263,6 +264,7 @@ senscience/nexus-delta
   <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#v1-11-to-v1-12-migration" class="header">v1.11 To v1.12 Migration</a>
   <ul>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#schema-changes" class="header">Schema changes</a></li>
+    <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#acl-checks" class="header">ACL checks</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#indexing-in-elasticsearch-and-blazegraph" class="header">Indexing in Elasticsearch and Blazegraph</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#adopt-hash-partitioning" class="header">Adopt hash partitioning</a></li>
   </ul></li>
@@ -284,7 +286,14 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <div class="md-content__searchable">
 <h1><a href="#v1-11-to-v1-12-migration" name="v1-11-to-v1-12-migration" class="anchor"><span class="anchor-link"></span></a>v1.11 To v1.12 Migration</h1>
 <h1><a href="#schema-changes" name="schema-changes" class="anchor"><span class="anchor-link"></span></a>Schema changes</h1>
-<p>Run the different scripts starting with V1_12 in order from <a href="https://github.com/BlueBrain/nexus/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init">the repository</a>.</p>
+<p>Run the different scripts starting with V1_12 in order from <a href="https://github.com/senscience/nexus-delta/tree/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init/common">the repository</a>.</p>
+<h1><a href="#acl-checks" name="acl-checks" class="anchor"><span class="anchor-link"></span></a>ACL checks</h1>
+<p>ACL checks rely now on an additional table and this one needs to be initialized from existing acls. To populate this new table, Nexus Delta needs to be started with the environment variable <code>RESET_ACL_PROJECTION</code> set to <code>true</code>. The following logs should be displayed:</p>
+<pre><code>Replay acl projection as the env RESET_ACL_PROJECTION is set...
+...
+Acl projection has been successfully replayed.
+</code></pre>
+<p>Nexus can then be restarted again without the env variable.</p>
 <h1><a href="#indexing-in-elasticsearch-and-blazegraph" name="indexing-in-elasticsearch-and-blazegraph" class="anchor"><span class="anchor-link"></span></a>Indexing in Elasticsearch and Blazegraph</h1>
 <p>Those different changes in 1.12 require a full reindexing in Elasticsearch and Blazegraph:</p>
 <ul>
@@ -298,7 +307,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li>Make a backup of your PostgreSQL instance</li>
   <li>Deploy new instances of Elasticsearch and Blazegraph</li>
   <li>Scale down Nexus Delta, update the image version and change its configuration to point to those new instances</li>
-  <li>Configure Delta via the <code>plugins.elasticsearch.main-index.shards</code> depending on your amount of data and <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/size-your-shards.html">following the Elastic recommendations about sharding</a></li>
+  <li>Configure Delta via the <code>plugins.elasticsearch.main-index.shards</code> depending on your amount of data and <a href="https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards">following the Elastic recommendations about sharding</a></li>
   <li>You can optionally allocate more resources to Delta, PostgreSQL, Blazegraph and Elasticsearch to accommodate for the load related to the indexing</li>
   <li>You may also want to reindex in Elasticsearch first and then in Blazegraph if the load is too high</li>
   <li>Run the following SQL script to delete the former default elasticsearch views and their progress:</li>
@@ -324,7 +333,7 @@ DELETE FROM projection_offsets WHERE name = &#39;event-metrics&#39;;
   <li>Make a backup of your PostgreSQL instance</li>
   <li>Make sure to accommodate your deployment so that it can accomodate twice your data during the migration</li>
   <li>Scale down Delta</li>
-  <li>Run the <a href="https://github.com/BlueBrain/nexus/blob/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init/common/V1_12_M02__partition_config.ddl">following script</a> to init the partition_config table</li>
+  <li>Run the <a href="https://github.com/senscience/nexus-delta/blob/master/delta/sourcing-psql/src/main/resources/scripts/postgres/init/common/V1_12_M02_001__partition_config.ddl">following script</a> to init the partition_config table</li>
   <li>Run the following script to rename the partitioning tables and their indices:</li>
 </ul>
 <pre class="prettyprint"><code class="language-sql">-- Renaming scoped_events table and its indices
@@ -490,7 +499,7 @@ v1.11 Release Notes
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>

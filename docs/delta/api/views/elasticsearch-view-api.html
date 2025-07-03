@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../../.././assets/img/favicon-32x32.png">
-<title>ElasticSearchView · Senscience Nexus</title>
+<title>ElasticSearchView · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -48,7 +48,7 @@ data-md-color-accent="cyan"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-header-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-header-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
 </div>
@@ -58,7 +58,7 @@ data-md-color-accent="cyan"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Senscience Nexus
+SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
 ElasticSearchView
@@ -117,12 +117,12 @@ senscience/nexus-delta
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../../../../docs/index.html" title="Senscience Nexus" class="md-nav__button md-logo">
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <img src="../../../.././assets/img/logo.png" width="24" height="24">
 </a>
-<a href="../../../../docs/index.html" title="Senscience Nexus">
-Senscience Nexus
+<a href="../../../../docs/index.html" title="SENSCIENCE Nexus">
+SENSCIENCE Nexus
 </a>
 </label>
 <div class="md-nav__source">
@@ -380,8 +380,8 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li><code>{pipeName}</code>: String - Identifier of the pipe to apply. More information about pipe is available <a href="pipes.html">here</a></li>
   <li><em>pipe_config</em> : Json object - Configuration for the pipe <code>{pipeName}</code>. This field can be optional depending on <code>{pipeName}</code></li>
   <li>._context_ : Json - Additional JSON-LD context value applied when compacting the resource before indexing it to Elasticsearch.</li>
-  <li><code>_elasticsearch mapping_</code>: Json object - Defines the value types for the Json keys, as stated at the  <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html#indices-put-mapping" title="ElasticSearch mapping documentation" target="_blank" rel="noopener noreferrer">ElasticSearch mapping documentation</a>.</li>
-  <li><code>_elasticssearch settings_</code>: Json object - defines Elasticsearch  <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings" title="index settings" target="_blank" rel="noopener noreferrer">index settings</a> for the underlying Elasticsearch index. Default settings are applied, if not specified.</li>
+  <li><code>_elasticsearch mapping_</code>: Json object - Defines the value types for the Json keys, as stated at the  <a href="https://www.elastic.co/docs/manage-data/data-store/mapping" title="ElasticSearch mapping documentation" target="_blank" rel="noopener noreferrer">ElasticSearch mapping documentation</a>.</li>
+  <li><code>_elasticssearch settings_</code>: Json object - defines Elasticsearch  <a href="https://www.elastic.co/docs/reference/elasticsearch/index-settings/" title="index settings" target="_blank" rel="noopener noreferrer">index settings</a>  for the underlying Elasticsearch index. Default settings are applied, if not specified.</li>
   <li><code>{someid}</code>: Iri - The @id value for this view.</li>
   <li><code>{permission}</code>: String - permission required to query this view. Defaults to <code>views/query</code>.</li>
 </ul>
@@ -407,8 +407,8 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li><code>{resourceSchema}</code>: Iri - Selects only resources that are validated against the provided schema Iri. This field is  optional.</li>
   <li><code>{resourceType}</code>: Iri - Select only resources of the provided type Iri. This field is optional.</li>
   <li><code>{tag}</code>: String - Selects only resources with the provided tag. This field is optional.</li>
-  <li><code>_elasticsearch mapping_</code>: Json object - Defines the value types for the Json keys, as stated at the  <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html#indices-put-mapping" title="ElasticSearch mapping documentation" target="_blank" rel="noopener noreferrer">ElasticSearch mapping documentation</a>.</li>
-  <li><code>_elasticssearch settings_</code>: Json object - defines Elasticsearch  <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings" title="index settings" target="_blank" rel="noopener noreferrer">index settings</a> for the underlying Elasticsearch index. Default settings are applied, if not specified.</li>
+  <li><code>_elasticsearch mapping_</code>: Json object - Defines the value types for the Json keys, as stated at the  <a href="https://www.elastic.co/docs/manage-data/data-store/mapping" title="ElasticSearch mapping documentation" target="_blank" rel="noopener noreferrer">ElasticSearch mapping documentation</a>.</li>
+  <li><code>_elasticssearch settings_</code>: Json object - defines Elasticsearch  <a href="https://www.elastic.co/docs/reference/elasticsearch/index-settings/" title="index settings" target="_blank" rel="noopener noreferrer">index settings</a> for the underlying Elasticsearch index. Default settings are applied, if not specified.</li>
   <li><code>{sourceAsText}</code>: Boolean - If true, the resource&rsquo;s payload will be stored in the ElasticSearch document as a single  escaped string value under the key <code>_original_source</code>. If false, the resource&rsquo;s payload will be stored normally in the  ElasticSearch document. The default value is <code>false</code>.</li>
   <li><code>{includeMetadata}</code>: Boolean - If true, the resource&rsquo;s nexus metadata (<code>_constrainedBy</code>, <code>_deprecated</code>, &hellip;) will be  stored in the ElasticSearch document. Otherwise it won&rsquo;t. The default value is <code>false</code>.</li>
   <li><code>{includeDeprecated}</code>: Boolean - If true, deprecated resources are also indexed. The default value is <code>false</code>.</li>
@@ -943,7 +943,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <pre><code>POST /v1/views/{org_label}/{project_label}/{view_id}/_search
   {...}
 </code></pre>
-<p>The supported payload is defined on the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a></p>
+<p>The supported payload is defined on the <a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json" title="ElasticSearch documentation" target="_blank" rel="noopener noreferrer">ElasticSearch documentation</a></p>
 <p>The string <code>documents</code> is used as a prefix of the default ElasticSearch <code>view_id</code></p>
 <p><strong>Example</strong></p>
 <dl>
@@ -1084,7 +1084,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </dl>
 <h2><a href="#create-a-point-in-time" name="create-a-point-in-time" class="anchor"><span class="anchor-link"></span></a>Create a point in time</h2>
 <p>Creates a point in time on the underlying index of the view to be used in further search requests.</p>
-<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html" title="See the Elasticsearch documentation for more details">See the Elasticsearch documentation for more details</a></p>
+<p><a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-open-point-in-time" title="See the Elasticsearch documentation for more details">See the Elasticsearch documentation for more details</a></p>
 <pre><code>POST /v1/views/{org_label}/{project_label}/{view_id}/_pit?keep_alive={keep_alive}
   {...}
 </code></pre>
@@ -1106,7 +1106,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </dl>
 <h2><a href="#delete-a-point-in-time" name="delete-a-point-in-time" class="anchor"><span class="anchor-link"></span></a>Delete a point in time</h2>
 <p>Closes a point in time on the underlying index of the view when it is no longer used.</p>
-<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html" title="See the Elasticsearch documentation for more details">See the Elasticsearch documentation for more details</a></p>
+<p><a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-open-point-in-time" title="See the Elasticsearch documentation for more details">See the Elasticsearch documentation for more details</a></p>
 <pre><code>DELETE /v1/views/{org_label}/{project_label}/{view_id}/_pit
   {...}
 </code></pre>
@@ -1123,7 +1123,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <h2><a href="#fetch-elasticsearch-mapping" name="fetch-elasticsearch-mapping" class="anchor"><span class="anchor-link"></span></a>Fetch Elasticsearch mapping</h2>
 <pre><code>GET /v1/views/{org_label}/{project_label}/{view_id}/_mapping
 </code></pre>
-<p>Retrieves the view&rsquo;s <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html" title="ElasticSearch mapping" target="_blank" rel="noopener noreferrer">ElasticSearch mapping</a>.</p>
+<p>Retrieves the view&rsquo;s <a href="https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-mapping" title="ElasticSearch mapping" target="_blank" rel="noopener noreferrer">ElasticSearch mapping</a>.</p>
 <p><strong>Example</strong></p>
 <dl>
   <dt>Request</dt>
@@ -1286,7 +1286,7 @@ Elasticsearch Pipes
 Nexus is Open Source and available under the Apache 2 License.<br/>
 © 2017-2024 <a href="https://epfl.ch/">EPFL</a>
  <a href="https://bluebrain.epfl.ch/">The Blue Brain Project</a><br/>
-© 2025 <a href="https://www.senscience.ai/">Senscience</a>
+© 2025 <a href="https://www.senscience.ai/">SENSCIENCE</a>
 
 </div>
 </div>
