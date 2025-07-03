@@ -1,11 +1,14 @@
 package ai.senscience.nexus.delta.logback
 
+import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.{ILoggingEvent, ThrowableProxyUtil}
 import ch.qos.logback.core.encoder.EncoderBase
 import io.circe.syntax.KeyOps
 import io.circe.{Json, Printer}
+import io.opentelemetry.api.logs.Severity
 import io.opentelemetry.semconv.ExceptionAttributes.*
 
+import java.util.concurrent.TimeUnit
 import scala.jdk.CollectionConverters.*
 
 class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
@@ -35,19 +38,42 @@ class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
     }
 
     val attributes = Json.fromFields(
-      Map("LoggerName" := event.getLoggerName) ++ exceptionFields ++ mdcFields
+      Map("logger.name" := event.getLoggerName) ++ exceptionFields ++ mdcFields
     )
-    val json       = Json.fromFields(
+
+    val timestamp = timestampInNanos(event.getTimeStamp, event.getNanoseconds)
+
+    if (event.getNanoseconds == -1) {
+      TimeUnit.MILLISECONDS.toNanos(event.getTimeStamp)
+    } else {
+      TimeUnit.MILLISECONDS.toNanos(event.getTimeStamp) + event.getNanoseconds
+    }
+
+    TimeUnit.MILLISECONDS.toNanos(event.getTimeStamp)
+    val json = Json.fromFields(
       Map(
-        "SeverityText"   := event.getLevel.toString,
-        "SeverityNumber" := event.getLevel.levelInt,
-        "Timestamp"      := event.getInstant,
-        "Body"           := event.getFormattedMessage,
-        "Attributes"     := attributes
+        "severityText"   := event.getLevel.toString,
+        "severityNumber" := severity(event.getLevel).getSeverityNumber,
+        "timestamp"      := timestamp,
+        "body"           := event.getFormattedMessage,
+        "attributes"     := attributes
       )
     )
     (printer.print(json) + '\n').getBytes
   }
+
+  private def timestampInNanos(timestamp: Long, nanos: Int) =
+    TimeUnit.MILLISECONDS.toNanos(timestamp) + nanos.max(0)
+
+  private def severity(level: Level) =
+    level.toInt match {
+      case Level.ALL_INT | Level.TRACE_INT => Severity.TRACE
+      case Level.DEBUG_INT                 => Severity.DEBUG
+      case Level.INFO_INT                  => Severity.INFO
+      case Level.WARN_INT                  => Severity.WARN
+      case Level.ERROR_INT                 => Severity.ERROR
+      case _                               => Severity.UNDEFINED_SEVERITY_NUMBER
+    }
 
   override def footerBytes(): Array[Byte] = Array.emptyByteArray
 }
