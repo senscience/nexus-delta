@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
-import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, IOFuture, UUIDF}
+import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
-import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ScopeInitializationErrorStore}
@@ -22,18 +21,10 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
-import akka.actor.{ActorSystem, BootstrapSetup}
-import akka.http.scaladsl.model.HttpMethods.*
-import akka.http.scaladsl.model.headers.Location
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
-import akka.stream.{Materializer, SystemMaterializer}
 import cats.data.NonEmptyList
-import cats.effect.{Clock, IO, Resource, Sync}
-import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
+import cats.effect.{Clock, IO, Sync}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.{Id, ModuleDef}
-
-import scala.concurrent.duration.DurationInt
 
 /**
   * Complete service wiring definitions.
@@ -131,41 +122,12 @@ class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: Class
     JWSPayloadHelper(config.jws)
   }
 
-  make[ActorSystem].fromResource { () =>
-    val make    = IO.delay(
-      ActorSystem(
-        appCfg.description.fullName,
-        BootstrapSetup().withConfig(config).withClassloader(classLoader)
-      )
-    )
-    val release = (as: ActorSystem) => {
-      IOFuture.defaultCancelable(IO(as.terminate()).timeout(15.seconds)).void
-    }
-    Resource.make(make)(release)
-  }
-  make[Materializer].from((as: ActorSystem) => SystemMaterializer(as).materializer)
-  make[RejectionHandler].from { (cr: RemoteContextResolution @Id("aggregate"), ordering: JsonKeyOrdering) =>
-    RdfRejectionHandler(cr, ordering)
-  }
-  make[ExceptionHandler].from {
-    (cr: RemoteContextResolution @Id("aggregate"), ordering: JsonKeyOrdering, base: BaseUri) =>
-      RdfExceptionHandler(cr, ordering, base)
-  }
-  make[CorsSettings].from(
-    CorsSettings.defaultSettings
-      .withAllowedMethods(List(GET, PUT, POST, PATCH, DELETE, OPTIONS, HEAD))
-      .withExposedHeaders(List(Location.name))
-  )
-
-  make[Vector[Route]].from { (pluginsRoutes: Set[PriorityRoute]) =>
-    pluginsRoutes.toVector.sorted.map(_.route)
-  }
-
   make[ResourceShifts].from {
     (shifts: Set[ResourceShift[?, ?]], xas: Transactors, rcr: RemoteContextResolution @Id("aggregate")) =>
       ResourceShifts(shifts, xas)(rcr)
   }
 
+  include(new AkkaModule(appCfg, config))
   include(PermissionsModule)
   include(new AclsModule(appCfg.acls, appCfg.permissions))
   include(RealmsModule)
