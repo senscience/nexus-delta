@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.contexts
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.{ElasticSearchClientError, MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.plugins.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.server.*
-import cats.syntax.all.*
 import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
 
@@ -41,7 +40,10 @@ class ListingRoutes(
 
   import schemeDirectives.*
 
-  def routes: Route = concat(genericResourcesRoutes, resourcesListings)
+  def routes: Route =
+    handleExceptions(ElasticSearchExceptionHandler.apply) {
+      concat(genericResourcesRoutes, resourcesListings)
+    }
 
   private val genericResourcesRoutes: Route =
     pathPrefix("resources") {
@@ -158,7 +160,7 @@ class ListingRoutes(
         searchResultsJsonLdEncoder(ContextValue(contexts.searchMetadata), page, uri)
       emit {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
-          defaultIndexQuery.list(request, projects).attemptNarrow[ElasticSearchClientError]
+          defaultIndexQuery.list(request, projects)
         }
       }
     }
@@ -168,7 +170,7 @@ class ListingRoutes(
 
       emit {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
-          defaultIndexQuery.aggregate(request, projects).map(_.asJson).attemptNarrow[ElasticSearchClientError]
+          defaultIndexQuery.aggregate(request, projects).map(_.asJson)
         }
       }
 

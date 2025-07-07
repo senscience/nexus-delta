@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.plugins.elasticsearch.query
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, Hits, QueryBuilder}
 import ai.senscience.nexus.delta.plugins.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.mainProjectTargetAlias
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.WrappedElasticSearchClientError
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -50,24 +49,18 @@ object MainIndexQuery {
 
     override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] = {
       val index = mainProjectTargetAlias(config.index, project)
-      client
-        .search(query, Set(index.value), qp)(SortList.empty)
-        .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+      client.search(query, Set(index.value), qp)(SortList.empty)
     }
 
     override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] = {
       val query =
         QueryBuilder(request.params, projects).withPage(request.pagination).withTotalHits(true).withSort(request.sort)
-      client
-        .search(query, Set(config.index.value), Query.fromPairs(excludeOriginalSource))
-        .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+      client.search(query, Set(config.index.value), Query.fromPairs(excludeOriginalSource))
     }
 
     override def aggregate(request: MainIndexRequest, projects: Set[ProjectRef]): IO[AggregationResult] = {
       val query = QueryBuilder(request.params, projects).aggregation(config.bucketSize)
-      client
-        .searchAs[AggregationResult](query, config.index.value, Query.empty)
-        .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+      client.searchAs[AggregationResult](query, config.index.value, Query.empty)
     }
   }
 

@@ -280,7 +280,7 @@ class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
 
     "reject querying blazegraph common namespace and projection(s) for a deprecated view" in {
       val encodedId = encodeUriPath(blazeId.toString)
-      val mediaType = RdfMediaTypes.`application/n-triples`
+      val mediaType = RdfMediaTypes.`application/sparql-results+json`
 
       val queryEntity = HttpEntity(`application/sparql-query`, ByteString(selectQuery.value))
       val accept      = Accept(mediaType)

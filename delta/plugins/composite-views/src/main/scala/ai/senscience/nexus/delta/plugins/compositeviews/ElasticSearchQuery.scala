@@ -3,9 +3,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
-import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.WrappedElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -65,8 +63,7 @@ trait ElasticSearchQuery {
 
 object ElasticSearchQuery {
 
-  private[compositeviews] type ElasticSearchClientQuery =
-    (JsonObject, Set[String], Query) => IO[Json]
+  private[compositeviews] type ElasticSearchClientQuery = (JsonObject, Set[String], Query) => IO[Json]
 
   final def apply(
       aclCheck: AclCheck,
@@ -98,9 +95,7 @@ object ElasticSearchQuery {
           _          <-
             aclCheck.authorizeForOr(project, projection.permission)(AuthorizationFailed(project, projection.permission))
           index       = projectionIndex(projection, view.uuid, prefix).value
-          search     <- elasticSearchQuery(query, Set(index), qp).adaptError { case e: ElasticSearchClientError =>
-                          WrappedElasticSearchClientError(e)
-                        }
+          search     <- elasticSearchQuery(query, Set(index), qp)
         } yield search
 
       override def queryProjections(
@@ -112,9 +107,7 @@ object ElasticSearchQuery {
         for {
           view    <- fetchView(id, project)
           indices <- allowedProjections(view, project)
-          search  <- elasticSearchQuery(query, indices, qp).adaptError { case e: ElasticSearchClientError =>
-                       WrappedElasticSearchClientError(e)
-                     }
+          search  <- elasticSearchQuery(query, indices, qp)
         } yield search
 
       private def fetchProjection(view: ActiveViewDef, projectionId: IdSegment) =

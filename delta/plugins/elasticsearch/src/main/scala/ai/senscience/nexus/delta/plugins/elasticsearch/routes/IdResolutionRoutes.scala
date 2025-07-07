@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch.routes
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.IdResolution
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -12,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
-import cats.syntax.all.*
 
 class IdResolutionRoutes(
     identities: Identities,
@@ -25,14 +23,16 @@ class IdResolutionRoutes(
     fusionConfig: FusionConfig
 ) extends AuthDirectives(identities, aclCheck) {
 
-  def routes: Route = concat(resolutionRoute, proxyRoute)
+  def routes: Route =
+    handleExceptions(ElasticSearchExceptionHandler.apply) {
+      concat(resolutionRoute, proxyRoute)
+    }
 
   private def resolutionRoute: Route =
     pathPrefix("resolve") {
       extractCaller { implicit caller =>
         (get & iriSegment & pathEndOrSingleSlash) { iri =>
-          val resolved = idResolution.apply(iri)
-          emit(resolved.attemptNarrow[ElasticSearchClientError])
+          emit(idResolution.apply(iri))
         }
       }
     }

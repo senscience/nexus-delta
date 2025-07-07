@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.entityType
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
-import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClientError, SparqlQueryClient, SparqlQueryResponse, SparqlQueryResponseType}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewIsDeprecated, WrappedBlazegraphClientError}
+import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlQueryResponse, SparqlQueryResponseType}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewIsDeprecated}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, BlazegraphViewState}
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLogger
@@ -95,9 +95,7 @@ object BlazegraphViewsQuery {
           p          <- fetchContext.onRead(project)
           iri        <- expandIri(id, p)
           namespaces <- viewToNamespaces(view)
-          queryIO     = client.query(namespaces, sparqlQuery, responseType).adaptError { case e: SparqlClientError =>
-                          WrappedBlazegraphClientError(e)
-                        }
+          queryIO     = client.query(namespaces, sparqlQuery, responseType)
           qr         <- logSlowQueries(ViewRef(project, iri), sparqlQuery, caller.subject, queryIO)
         } yield qr
       }.span("blazegraphUserQuery")

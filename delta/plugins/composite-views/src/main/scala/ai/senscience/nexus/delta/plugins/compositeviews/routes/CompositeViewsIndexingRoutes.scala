@@ -3,9 +3,8 @@ package ai.senscience.nexus.delta.plugins.compositeviews.routes
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewRejection, ProjectionOffset, ProjectionStatistics}
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{ProjectionOffset, ProjectionStatistics}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.{ExpandId, FetchView}
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
@@ -57,133 +56,119 @@ class CompositeViewsIndexingRoutes(
     searchResultsJsonLdEncoder(ContextValue(contexts.statistics))
 
   def routes: Route =
-    pathPrefix("views") {
-      extractCaller { implicit caller =>
-        projectRef { implicit project =>
-          idSegment { id =>
-            concat(
-              // Manage composite view offsets
-              (pathPrefix("offset") & pathEndOrSingleSlash) {
-                concat(
-                  // Fetch all composite view offsets
-                  (get & authorizeFor(project, Read)) {
-                    emit(fetchOffsets(project, id).attemptNarrow[CompositeViewRejection].rejectOn[ViewNotFound])
-                  },
-                  // Remove all composite view offsets (restart the view)
-                  (delete & authorizeFor(project, Write)) {
-                    emit(fullRestart(project, id).attemptNarrow[CompositeViewRejection].rejectOn[ViewNotFound])
-                  }
-                )
-              },
-              // Fetch composite indexing description
-              (pathPrefix("description") & pathEndOrSingleSlash & get) {
-                authorizeFor(project, Read).apply {
-                  emit(
-                    fetchView(id, project)
-                      .flatMap(details.description)
-                      .attemptNarrow[CompositeViewRejection]
-                      .rejectOn[ViewNotFound]
-                  )
-                }
-              },
-              // Fetch composite view statistics
-              (pathPrefix("statistics") & pathEndOrSingleSlash & get) {
-                authorizeFor(project, Read).apply {
-                  emit(
-                    fetchView(id, project)
-                      .flatMap(details.statistics)
-                      .attemptNarrow[CompositeViewRejection]
-                      .rejectOn[ViewNotFound]
-                  )
-                }
-              },
-              // Fetch elastic search view indexing failures
-              (pathPrefix("failures") & get) {
-                authorizeFor(project, Write).apply {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[FailedElemData]] =
-                        searchResultsJsonLdEncoder(FailedElemLogRow.context, pagination, uri)
-                      emit(
-                        fetchView(id, project)
-                          .flatMap { view =>
-                            projectionErrors.search(view.ref, pagination, timeRange)
-                          }
-                          .attemptNarrow[CompositeViewRejection]
-                          .rejectOn[ViewNotFound]
-                      )
-                  }
-                }
-              },
-              pathPrefix("projections") {
-                concat(
-                  // Manage all views' projections offsets
-                  (pathPrefix("_") & pathPrefix("offset") & pathEndOrSingleSlash) {
-                    concat(
-                      // Fetch all composite view projection offsets
-                      (get & authorizeFor(project, Read)) {
-                        emit(fetchView(id, project).flatMap { v => details.offsets(v.indexingRef) })
-                      },
-                      // Remove all composite view projection offsets
-                      (delete & authorizeFor(project, Write)) {
-                        emit(fullRebuild(project, id))
-                      }
-                    )
-                  },
-                  // Fetch all views' projections statistics
-                  (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
-                      emit(fetchView(id, project).flatMap { v => details.statistics(v) })
+    handleExceptions(CompositeViewExceptionHandler.apply) {
+      pathPrefix("views") {
+        extractCaller { implicit caller =>
+          projectRef { implicit project =>
+            idSegment { id =>
+              concat(
+                // Manage composite view offsets
+                (pathPrefix("offset") & pathEndOrSingleSlash) {
+                  concat(
+                    // Fetch all composite view offsets
+                    (get & authorizeFor(project, Read)) {
+                      emit(fetchOffsets(project, id))
+                    },
+                    // Remove all composite view offsets (restart the view)
+                    (delete & authorizeFor(project, Write)) {
+                      emit(fullRestart(project, id))
                     }
-                  },
-                  // Manage a views' projection offset
-                  (idSegment & pathPrefix("offset") & pathEndOrSingleSlash) { projectionId =>
-                    concat(
-                      // Fetch a composite view projection offset
-                      (get & authorizeFor(project, Read)) {
+                  )
+                },
+                // Fetch composite indexing description
+                (pathPrefix("description") & pathEndOrSingleSlash & get) {
+                  authorizeFor(project, Read).apply {
+                    emit(fetchView(id, project).flatMap(details.description))
+                  }
+                },
+                // Fetch composite view statistics
+                (pathPrefix("statistics") & pathEndOrSingleSlash & get) {
+                  authorizeFor(project, Read).apply {
+                    emit(
+                      fetchView(id, project).flatMap(details.statistics)
+                    )
+                  }
+                },
+                // Fetch elastic search view indexing failures
+                (pathPrefix("failures") & get) {
+                  authorizeFor(project, Write).apply {
+                    (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
+                      (pagination, timeRange, uri) =>
+                        implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[FailedElemData]] =
+                          searchResultsJsonLdEncoder(FailedElemLogRow.context, pagination, uri)
                         emit(
-                          projectionOffsets(project, id, projectionId)
-                            .attemptNarrow[CompositeViewRejection]
-                            .rejectOn[ViewNotFound]
+                          fetchView(id, project)
+                            .flatMap { view =>
+                              projectionErrors.search(view.ref, pagination, timeRange)
+                            }
                         )
-                      },
-                      // Remove a composite view projection offset
-                      (delete & authorizeFor(project, Write)) {
-                        emit(partialRebuild(project, id, projectionId))
-                      }
-                    )
-                  },
-                  // Fetch a views' projection statistics
-                  (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { projectionId =>
-                    authorizeFor(project, Read).apply {
-                      emit(
-                        projectionStatistics(project, id, projectionId)
-                          .attemptNarrow[CompositeViewRejection]
-                          .rejectOn[ViewNotFound]
+                    }
+                  }
+                },
+                pathPrefix("projections") {
+                  concat(
+                    // Manage all views' projections offsets
+                    (pathPrefix("_") & pathPrefix("offset") & pathEndOrSingleSlash) {
+                      concat(
+                        // Fetch all composite view projection offsets
+                        (get & authorizeFor(project, Read)) {
+                          emit(fetchView(id, project).flatMap { v => details.offsets(v.indexingRef) })
+                        },
+                        // Remove all composite view projection offsets
+                        (delete & authorizeFor(project, Write)) {
+                          emit(fullRebuild(project, id))
+                        }
                       )
+                    },
+                    // Fetch all views' projections statistics
+                    (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
+                      authorizeFor(project, Read).apply {
+                        emit(fetchView(id, project).flatMap { v => details.statistics(v) })
+                      }
+                    },
+                    // Manage a views' projection offset
+                    (idSegment & pathPrefix("offset") & pathEndOrSingleSlash) { projectionId =>
+                      concat(
+                        // Fetch a composite view projection offset
+                        (get & authorizeFor(project, Read)) {
+                          emit(projectionOffsets(project, id, projectionId))
+                        },
+                        // Remove a composite view projection offset
+                        (delete & authorizeFor(project, Write)) {
+                          emit(partialRebuild(project, id, projectionId))
+                        }
+                      )
+                    },
+                    // Fetch a views' projection statistics
+                    (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { projectionId =>
+                      authorizeFor(project, Read).apply {
+                        emit(
+                          projectionStatistics(project, id, projectionId)
+                        )
+                      }
                     }
-                  }
-                )
-              },
-              pathPrefix("sources") {
-                concat(
-                  // Fetch all views' sources statistics
-                  (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
-                      emit(fetchView(id, project).flatMap {
-                        details.statistics
-                      })
+                  )
+                },
+                pathPrefix("sources") {
+                  concat(
+                    // Fetch all views' sources statistics
+                    (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
+                      authorizeFor(project, Read).apply {
+                        emit(fetchView(id, project).flatMap {
+                          details.statistics
+                        })
+                      }
+                    },
+                    // Fetch a views' sources statistics
+                    (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { sourceId =>
+                      authorizeFor(project, Read).apply {
+                        emit(sourceStatistics(project, id, sourceId))
+                      }
                     }
-                  },
-                  // Fetch a views' sources statistics
-                  (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { sourceId =>
-                    authorizeFor(project, Read).apply {
-                      emit(sourceStatistics(project, id, sourceId))
-                    }
-                  }
-                )
-              }
-            )
+                  )
+                }
+              )
+            }
           }
         }
       }

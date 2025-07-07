@@ -2,9 +2,8 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewNotFound
+import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.write as Write
-import ai.senscience.nexus.delta.plugins.blazegraph.model.{permissions, BlazegraphViewRejection}
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -26,7 +25,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.*
@@ -55,65 +53,59 @@ class BlazegraphViewsIndexingRoutes(
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
 
   def routes: Route =
-    pathPrefix("views") {
-      extractCaller { implicit caller =>
-        projectRef { implicit project =>
-          idSegment { id =>
-            concat(
-              // Fetch a blazegraph view statistics
-              (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                authorizeFor(project, permissions.read).apply {
-                  emit(
-                    fetch(id, project)
-                      .flatMap(v => projections.statistics(project, v.selectFilter, v.projection))
-                      .attemptNarrow[BlazegraphViewRejection]
-                      .rejectOn[ViewNotFound]
-                  )
-                }
-              },
-              // Fetch blazegraph view indexing failures
-              (pathPrefix("failures") & get) {
-                authorizeFor(project, Write).apply {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[FailedElemData]] =
-                        searchResultsJsonLdEncoder(FailedElemLogRow.context, pagination, uri)
+    handleExceptions(BlazegraphExceptionHandler.apply) {
+      pathPrefix("views") {
+        extractCaller { implicit caller =>
+          projectRef { implicit project =>
+            idSegment { id =>
+              concat(
+                // Fetch a blazegraph view statistics
+                (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
+                  authorizeFor(project, permissions.read).apply {
+                    emit(
+                      fetch(id, project)
+                        .flatMap(v => projections.statistics(project, v.selectFilter, v.projection))
+                    )
+                  }
+                },
+                // Fetch blazegraph view indexing failures
+                (pathPrefix("failures") & get) {
+                  authorizeFor(project, Write).apply {
+                    (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
+                      (pagination, timeRange, uri) =>
+                        implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[FailedElemData]] =
+                          searchResultsJsonLdEncoder(FailedElemLogRow.context, pagination, uri)
+                        emit(
+                          fetch(id, project)
+                            .flatMap { view =>
+                              projectionErrors.search(view.ref, pagination, timeRange)
+                            }
+                        )
+                    }
+                  }
+                },
+                // Manage an blazegraph view offset
+                (pathPrefix("offset") & pathEndOrSingleSlash) {
+                  concat(
+                    // Fetch a blazegraph view offset
+                    (get & authorizeFor(project, permissions.read)) {
                       emit(
                         fetch(id, project)
-                          .flatMap { view =>
-                            projectionErrors.search(view.ref, pagination, timeRange)
-                          }
-                          .attemptNarrow[BlazegraphViewRejection]
-                          .rejectOn[ViewNotFound]
+                          .flatMap(v => projections.offset(v.projection))
                       )
-                  }
+                    },
+                    // Remove an blazegraph view offset (restart the view)
+                    (delete & authorizeFor(project, Write)) {
+                      emit(
+                        fetch(id, project)
+                          .flatMap { r => projections.scheduleRestart(r.projection) }
+                          .as(Offset.start)
+                      )
+                    }
+                  )
                 }
-              },
-              // Manage an blazegraph view offset
-              (pathPrefix("offset") & pathEndOrSingleSlash) {
-                concat(
-                  // Fetch a blazegraph view offset
-                  (get & authorizeFor(project, permissions.read)) {
-                    emit(
-                      fetch(id, project)
-                        .flatMap(v => projections.offset(v.projection))
-                        .attemptNarrow[BlazegraphViewRejection]
-                        .rejectOn[ViewNotFound]
-                    )
-                  },
-                  // Remove an blazegraph view offset (restart the view)
-                  (delete & authorizeFor(project, Write)) {
-                    emit(
-                      fetch(id, project)
-                        .flatMap { r => projections.scheduleRestart(r.projection) }
-                        .as(Offset.start)
-                        .attemptNarrow[BlazegraphViewRejection]
-                        .rejectOn[ViewNotFound]
-                    )
-                  }
-                )
-              }
-            )
+              )
+            }
           }
         }
       }

@@ -88,15 +88,16 @@ object ElasticSearchClientError {
   final case class InvalidResourceId(id: String)
       extends ElasticSearchClientError(s"Resource identifier '$id' cannot be expanded to an Iri.", None)
 
-  implicit val elasticSearchQueryErrorEncoder: Encoder.AsObject[ElasticSearchClientError] =
+  implicit val elasticSearchClientErrorEncoder: Encoder.AsObject[ElasticSearchClientError] =
     Encoder.AsObject.instance { r =>
-      JsonObject(keywords.tpe := ClassUtils.simpleName(r), "reason" := r.reason)
+      val obj = JsonObject(keywords.tpe := ClassUtils.simpleName(r), "reason" := r.reason)
+      r.body.flatMap(_.asObject).getOrElse(obj)
     }
 
-  implicit final val viewRejectionJsonLdEncoder: JsonLdEncoder[ElasticSearchClientError] =
+  implicit final val elasticSearchClientErrorJsonLdEncoder: JsonLdEncoder[ElasticSearchClientError] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val elasticSearchViewRejectionHttpResponseFields: HttpResponseFields[ElasticSearchClientError] =
+  implicit val elasticSearchClientErrorHttpResponseFields: HttpResponseFields[ElasticSearchClientError] =
     HttpResponseFields {
       case ElasticsearchActionError(status, _)      => AkkaStatusCode.int2StatusCode(status.code)
       case ElasticsearchCreateIndexError(status, _) => AkkaStatusCode.int2StatusCode(status.code)
