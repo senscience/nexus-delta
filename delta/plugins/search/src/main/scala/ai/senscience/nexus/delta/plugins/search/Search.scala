@@ -4,10 +4,8 @@ import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
-import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.WrappedElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSearchParams}
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultViewId, SearchConfig}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -102,9 +100,7 @@ object Search {
                                  p => ProjectAcl(p.view.project) -> p.projection.permission,
                                  p => projectionIndex(p.projection, p.view.uuid, prefix).value
                                )
-          results           <- executeSearch(payload, accessibleIndices, qp).adaptError { case e: ElasticSearchClientError =>
-                                 WrappedElasticSearchClientError(e)
-                               }
+          results           <- executeSearch(payload, accessibleIndices, qp)
         } yield results
 
       override def query(payload: JsonObject, qp: Query)(implicit caller: Caller): IO[Json] =

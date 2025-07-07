@@ -1,10 +1,9 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{propertiesAggQuery, relationshipsAggQuery}
-import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection.{InvalidPropertyType, WrappedElasticSearchRejection}
+import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection.InvalidPropertyType
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.propertiesDecoderFromEsAggregations
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -53,9 +52,7 @@ object GraphAnalytics {
           _         <- fetchContext.onRead(projectRef)
           query     <- relationshipsAggQuery(config)
           indexValue = index(prefix, projectRef).value
-          stats     <- client
-                         .searchAs[AnalyticsGraph](QueryBuilder.unsafe(query), indexValue, Query.empty)
-                         .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchRejection(e) }
+          stats     <- client.searchAs[AnalyticsGraph](QueryBuilder.unsafe(query), indexValue, Query.empty)
         } yield stats
 
       override def properties(
@@ -66,9 +63,7 @@ object GraphAnalytics {
         def search(tpe: Iri, idx: IndexLabel, query: JsonObject) = {
           implicit val d: Decoder[PropertiesStatistics] = propertiesDecoderFromEsAggregations(tpe)
           val queryBuilder                              = QueryBuilder.unsafe(query).withTotalHits(true)
-          client
-            .searchAs[PropertiesStatistics](queryBuilder, idx.value, Query.empty)
-            .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchRejection(e) }
+          client.searchAs[PropertiesStatistics](queryBuilder, idx.value, Query.empty)
         }
 
         for {

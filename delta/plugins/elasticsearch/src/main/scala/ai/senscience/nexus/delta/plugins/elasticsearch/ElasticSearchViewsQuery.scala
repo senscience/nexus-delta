@@ -1,10 +1,9 @@
 package ai.senscience.nexus.delta.plugins.elasticsearch
 
 import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, PointInTime}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated, WrappedElasticSearchClientError}
+import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.plugins.elasticsearch.model.{permissions, ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType}
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
@@ -119,11 +118,7 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
     for {
       view    <- viewStore.fetch(id, project)
       indices <- extractIndices(view)
-      search  <- client
-                   .search(query, indices, qp)(SortList.empty)
-                   .adaptError { case e: ElasticSearchClientError =>
-                     WrappedElasticSearchClientError(e)
-                   }
+      search  <- client.search(query, indices, qp)(SortList.empty)
     } yield search
   }
 
@@ -148,9 +143,7 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
       _       <- aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write))
       view    <- viewStore.fetch(id, project)
       index   <- indexOrError(view, id)
-      mapping <- client
-                   .mapping(index)
-                   .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+      mapping <- client.mapping(index)
     } yield mapping
 
   override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit
@@ -160,15 +153,11 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
       _     <- aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write))
       view  <- viewStore.fetch(id, project)
       index <- indexOrError(view, id)
-      pit   <- client
-                 .createPointInTime(index, keepAlive)
-                 .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+      pit   <- client.createPointInTime(index, keepAlive)
     } yield pit
 
   override def deletePointInTime(pointInTime: PointInTime)(implicit caller: Caller): IO[Unit] =
-    client
-      .deletePointInTime(pointInTime)
-      .adaptError { case e: ElasticSearchClientError => WrappedElasticSearchClientError(e) }
+    client.deletePointInTime(pointInTime)
 
   private def indexOrError(view: View, id: IdSegment): IO[IndexLabel] = view match {
     case IndexingView(_, index, _) => IO.fromEither(IndexLabel(index))

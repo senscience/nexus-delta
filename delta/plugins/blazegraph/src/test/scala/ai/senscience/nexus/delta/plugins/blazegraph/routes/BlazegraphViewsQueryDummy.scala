@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
-import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClientError, SparqlQueryClient, SparqlQueryResponse}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{ViewIsDeprecated, WrappedBlazegraphClientError}
+import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlQueryResponse}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.plugins.blazegraph.{BlazegraphViews, BlazegraphViewsQuery}
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -24,9 +24,7 @@ private[routes] class BlazegraphViewsQueryDummy(
     for {
       view     <- views.fetch(id, project)
       _        <- IO.raiseWhen(view.deprecated)(ViewIsDeprecated(view.id))
-      response <- client.query(Set(id.toString), query, responseType).adaptError { case e: SparqlClientError =>
-                    WrappedBlazegraphClientError(e)
-                  }
+      response <- client.query(Set(id.toString), query, responseType)
     } yield response
 
 }

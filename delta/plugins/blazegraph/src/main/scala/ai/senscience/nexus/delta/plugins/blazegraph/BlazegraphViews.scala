@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.*
-import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlClientError}
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
@@ -529,7 +529,6 @@ object BlazegraphViews {
         case i: IndexingBlazegraphView =>
           client
             .createNamespace(BlazegraphViews.namespace(i, prefix))
-            .adaptError { case e: SparqlClientError => WrappedBlazegraphClientError(e) }
             .void
         case _                         => IO.unit
       }

@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
+import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.model.{HttpHeader, StatusCode}
@@ -43,21 +44,24 @@ object Response {
   /**
     * A ''value'' that should be rejected
     */
-  final case class Reject[A: JsonLdEncoder: Encoder: HttpResponseFields](value: A) extends Response[A] with Rejection {
+  final case class Reject[E: JsonLdEncoder: Encoder: HttpResponseFields](error: E)
+      extends SDKError
+      with Response[E]
+      with Rejection {
 
     /**
       * Generates a route that completes from the current rejection
       */
     def forceComplete(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering): Route =
-      DeltaDirectives.discardEntityAndForceEmit(value)
+      DeltaDirectives.discardEntityAndForceEmit(error)
 
     /**
       * @return
       *   the status code associated with this rejection
       */
-    def status: StatusCode = value.status
+    def status: StatusCode = error.status
 
-    private[Response] def json: Json = value.asJson
+    private[Response] def json: Json = error.asJson
 
     private def jsonValueWithStatus: Json = json deepMerge Json.obj("status" -> status.intValue().asJson)
   }

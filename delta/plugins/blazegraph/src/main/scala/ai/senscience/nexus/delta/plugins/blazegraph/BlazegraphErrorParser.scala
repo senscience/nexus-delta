@@ -1,8 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlQueryError
-
 object BlazegraphErrorParser {
 
   /**
@@ -42,16 +39,6 @@ object BlazegraphErrorParser {
   /**
     * Attempts to parse the raw error message. If it cannot be parsed the raw error is returned.
     */
-  private def parse(rawError: String): String =
+  def parse(rawError: String): String =
     parseMalformedQueryException(rawError).getOrElse(rawError)
-
-  /**
-    * Extract the details from the error
-    */
-  def details(error: SparqlClientError): String =
-    error match {
-      case SparqlQueryError(_, body) => parse(body)
-      case sparqlClientError         => sparqlClientError.toString()
-    }
-
 }

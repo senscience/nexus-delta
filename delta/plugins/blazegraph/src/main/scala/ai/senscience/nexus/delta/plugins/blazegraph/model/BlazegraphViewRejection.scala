@@ -2,18 +2,14 @@ package ai.senscience.nexus.delta.plugins.blazegraph.model
 
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.kernel.utils.ClassUtils
-import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphErrorParser
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -115,12 +111,6 @@ object BlazegraphViewRejection {
       )
 
   /**
-    * Rejection returned when attempting to decode an expanded JsonLD as an BlazegraphViewValue.
-    */
-  // TODO Remove when the rejection workflow gets refactored / when view endpoints get separated
-  final case class BlazegraphDecodingRejection(error: JsonLdRejection) extends BlazegraphViewRejection(error.reason)
-
-  /**
     * Signals a rejection caused by an attempt to create or update a Blazegraph view with a permission that is not
     * defined in the permission set singleton.
     *
@@ -178,11 +168,6 @@ object BlazegraphViewRejection {
       extends BlazegraphViewRejection(s"Resource identifier '$id' cannot be expanded to an Iri.")
 
   /**
-    * Signals a rejection caused when interacting with the blazegraph client
-    */
-  final case class WrappedBlazegraphClientError(error: SparqlClientError) extends BlazegraphViewRejection(error.reason)
-
-  /**
     * Rejection returned when too many view references are specified on an aggregated view.
     *
     * @param provided
@@ -198,15 +183,10 @@ object BlazegraphViewRejection {
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
       r match {
-        case WrappedBlazegraphClientError(rejection) =>
-          obj
-            .add(keywords.tpe, "SparqlClientError".asJson)
-            .add("details", BlazegraphErrorParser.details(rejection).asJson)
-        case IncorrectRev(provided, expected)        => obj.add("provided", provided.asJson).add("expected", expected.asJson)
-        case InvalidViewReferences(views)            => obj.add("views", views.asJson)
-        case BlazegraphDecodingRejection(error)      => error.asJsonObject
-        case _: ViewNotFound                         => obj.add(keywords.tpe, "ResourceNotFound".asJson)
-        case _                                       => obj
+        case IncorrectRev(provided, expected) => obj.add("provided", provided.asJson).add("expected", expected.asJson)
+        case InvalidViewReferences(views)     => obj.add("views", views.asJson)
+        case _: ViewNotFound                  => obj.add(keywords.tpe, "ResourceNotFound".asJson)
+        case _                                => obj
       }
     }
 
@@ -215,14 +195,13 @@ object BlazegraphViewRejection {
 
   implicit val blazegraphViewHttpResponseFields: HttpResponseFields[BlazegraphViewRejection] =
     HttpResponseFields {
-      case RevisionNotFound(_, _)             => StatusCodes.NotFound
-      case TagNotFound(_)                     => StatusCodes.NotFound
-      case ViewNotFound(_, _)                 => StatusCodes.NotFound
-      case ResourceAlreadyExists(_, _)        => StatusCodes.Conflict
-      case ViewIsDefaultView                  => StatusCodes.Forbidden
-      case IncorrectRev(_, _)                 => StatusCodes.Conflict
-      case BlazegraphDecodingRejection(error) => error.status
-      case _: FetchByTagNotSupported          => StatusCodes.BadRequest
-      case _                                  => StatusCodes.BadRequest
+      case RevisionNotFound(_, _)      => StatusCodes.NotFound
+      case TagNotFound(_)              => StatusCodes.NotFound
+      case ViewNotFound(_, _)          => StatusCodes.NotFound
+      case ResourceAlreadyExists(_, _) => StatusCodes.Conflict
+      case ViewIsDefaultView           => StatusCodes.Forbidden
+      case IncorrectRev(_, _)          => StatusCodes.Conflict
+      case _: FetchByTagNotSupported   => StatusCodes.BadRequest
+      case _                           => StatusCodes.BadRequest
     }
 }

@@ -2,17 +2,14 @@ package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.kernel.utils.ClassUtils
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheckError
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, RemoteProjectSource}
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -246,34 +243,12 @@ object CompositeViewRejection {
   final case class InvalidCompositeViewId(id: String)
       extends CompositeViewRejection(s"Composite view identifier '$id' cannot be expanded to an Iri.")
 
-  /**
-    * Rejection returned when attempting to decode an expanded JsonLD as an CompositeViewValue.
-    */
-  // TODO Remove when the rejection workflow gets refactored / when view endpoints get separated
-  final case class CompositeVieDecodingRejection(error: JsonLdRejection) extends CompositeViewRejection(error.reason)
-
-  /**
-    * Signals a rejection caused when interacting with the blazegraph client
-    */
-  final case class WrappedBlazegraphClientError(error: SparqlClientError) extends CompositeViewRejection(error.reason)
-
-  /**
-    * Signals a rejection caused when interacting with the elasticserch client
-    */
-  final case class WrappedElasticSearchClientError(error: ElasticSearchClientError)
-      extends CompositeViewProjectionRejection("Error while interacting with the underlying ElasticSearch index")
-
   implicit private[plugins] val compositeViewRejectionEncoder: Encoder.AsObject[CompositeViewRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
       r match {
-        case WrappedBlazegraphClientError(rejection)        =>
-          obj.add(keywords.tpe, "SparqlClientError".asJson).add("details", rejection.toString().asJson)
-        case WrappedElasticSearchClientError(error)         =>
-          error.body.flatMap(_.asObject).getOrElse(obj.add(keywords.tpe, "ElasticSearchClientError".asJson))
         case IncorrectRev(provided, expected)               => obj.add("provided", provided.asJson).add("expected", expected.asJson)
-        case CompositeVieDecodingRejection(error)           => error.asJsonObject
         case InvalidElasticSearchProjectionPayload(details) => obj.addIfExists("details", details)
         case InvalidRemoteProjectSource(_, error)           =>
           obj.add("details", error.reason.asJson).add("responseBody", error.body.getOrElse(Json.Null))
@@ -287,15 +262,13 @@ object CompositeViewRejection {
 
   implicit val compositeViewHttpResponseFields: HttpResponseFields[CompositeViewRejection] =
     HttpResponseFields {
-      case RevisionNotFound(_, _)                 => StatusCodes.NotFound
-      case ViewNotFound(_, _)                     => StatusCodes.NotFound
-      case ProjectionNotFound(_)                  => StatusCodes.NotFound
-      case SourceNotFound(_, _, _)                => StatusCodes.NotFound
-      case ViewAlreadyExists(_, _)                => StatusCodes.Conflict
-      case ResourceAlreadyExists(_, _)            => StatusCodes.Conflict
-      case IncorrectRev(_, _)                     => StatusCodes.Conflict
-      case CompositeVieDecodingRejection(error)   => error.status
-      case WrappedElasticSearchClientError(error) => error.status
-      case _                                      => StatusCodes.BadRequest
+      case RevisionNotFound(_, _)      => StatusCodes.NotFound
+      case ViewNotFound(_, _)          => StatusCodes.NotFound
+      case ProjectionNotFound(_)       => StatusCodes.NotFound
+      case SourceNotFound(_, _, _)     => StatusCodes.NotFound
+      case ViewAlreadyExists(_, _)     => StatusCodes.Conflict
+      case ResourceAlreadyExists(_, _) => StatusCodes.Conflict
+      case IncorrectRev(_, _)          => StatusCodes.Conflict
+      case _                           => StatusCodes.BadRequest
     }
 }

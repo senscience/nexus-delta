@@ -71,4 +71,10 @@ object ResponseToOriginalSource extends RdfMarshalling {
     }
     ResponseToOriginalSource(ioComplete)
   }
+
+  implicit def ioResponseOriginalPayloadValue(
+      io: IO[OriginalSource]
+  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToOriginalSource = {
+    ResponseToOriginalSource(io.map((originalSource => Right(Complete(originalSource)))))
+  }
 }

@@ -1,6 +1,15 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
+import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphErrorParser
+import ai.senscience.nexus.delta.rdf.Vocabulary
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
+import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import cats.effect.IO
+import io.circe.syntax.KeyOps
+import io.circe.{Encoder, JsonObject}
 import org.http4s.{EntityDecoder, Response, Status}
 
 /**
@@ -38,6 +47,12 @@ object SparqlClientError {
       EntityDecoder.decodeText(response).map { body =>
         SparqlQueryError(response.status, body)
       }
+
+    def blazegraph(response: Response[IO]): IO[SparqlQueryError] =
+      EntityDecoder.decodeText(response).map { body =>
+        val parsedBody = BlazegraphErrorParser.parse(body)
+        SparqlQueryError(response.status, parsedBody)
+      }
   }
 
   final case class SparqlWriteError(status: Status, body: String)
@@ -70,4 +85,21 @@ object SparqlClientError {
         s"Attempting to update the index '$index' with a wrong query '$queryString'",
         details
       )
+
+  implicit val sparqlClientErrorEncoder: Encoder[SparqlClientError] = Encoder.AsObject.instance { e =>
+    JsonObject(
+      keywords.tpe := "SparqlClientError",
+      "reason"     := e.reason,
+      "details"    := e.details
+    )
+  }
+
+  implicit final val sparqlClientErrorJsonLdEncoder: JsonLdEncoder[SparqlClientError] =
+    JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
+
+  implicit val sparqlClientErrorHttpResponseFields: HttpResponseFields[SparqlClientError] =
+    HttpResponseFields {
+      case SparqlQueryError(status, _) => StatusCode.int2StatusCode(status.code)
+      case _                           => StatusCodes.InternalServerError
+    }
 }

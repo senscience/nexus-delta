@@ -1,7 +1,9 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchExceptionHandler
 import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection
 import ai.senscience.nexus.delta.plugins.graph.analytics.permissions.query
 import ai.senscience.nexus.delta.plugins.graph.analytics.{GraphAnalytics, GraphAnalyticsViewsQuery}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -16,7 +18,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.ProgressStatistics
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
 import io.circe.JsonObject
 
@@ -43,45 +45,51 @@ class GraphAnalyticsRoutes(
     with CirceUnmarshalling
     with RdfMarshalling {
 
+  private val graphAnalyticsExceptionHandler = ExceptionHandler { case err: GraphAnalyticsRejection =>
+    discardEntityAndForceEmit(err)
+  }.withFallback(ElasticSearchExceptionHandler.client)
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      pathPrefix("graph-analytics") {
-        extractCaller { implicit caller =>
-          projectRef { project =>
-            concat(
-              get {
-                concat(
-                  // Fetch relationships
-                  (pathPrefix("relationships") & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
-                      emit(graphAnalytics.relationships(project))
+      handleExceptions(graphAnalyticsExceptionHandler) {
+        pathPrefix("graph-analytics") {
+          extractCaller { implicit caller =>
+            projectRef { project =>
+              concat(
+                get {
+                  concat(
+                    // Fetch relationships
+                    (pathPrefix("relationships") & pathEndOrSingleSlash) {
+                      authorizeFor(project, Read).apply {
+                        emit(graphAnalytics.relationships(project))
+                      }
+                    },
+                    // Fetch properties for a type
+                    (pathPrefix("properties") & idSegment & pathEndOrSingleSlash) { tpe =>
+                      authorizeFor(project, Read).apply {
+                        emit(graphAnalytics.properties(project, tpe))
+                      }
+                    },
+                    // Fetch the statistics
+                    (pathPrefix("statistics") & pathEndOrSingleSlash) {
+                      authorizeFor(project, Read).apply {
+                        emit(fetchStatistics(project))
+                      }
                     }
-                  },
-                  // Fetch properties for a type
-                  (pathPrefix("properties") & idSegment & pathEndOrSingleSlash) { tpe =>
-                    authorizeFor(project, Read).apply {
-                      emit(graphAnalytics.properties(project, tpe))
-                    }
-                  },
-                  // Fetch the statistics
-                  (pathPrefix("statistics") & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
-                      emit(fetchStatistics(project))
-                    }
-                  }
-                )
-              },
-              post {
-                // Search a graph analytics view
-                (pathPrefix("_search") & pathEndOrSingleSlash) {
-                  authorizeFor(project, query).apply {
-                    (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                      emit(viewsQuery.query(project, query, qp))
+                  )
+                },
+                post {
+                  // Search a graph analytics view
+                  (pathPrefix("_search") & pathEndOrSingleSlash) {
+                    authorizeFor(project, query).apply {
+                      (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                        emit(viewsQuery.query(project, query, qp))
+                      }
                     }
                   }
                 }
-              }
-            )
+              )
+            }
           }
         }
       }
