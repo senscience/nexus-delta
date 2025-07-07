@@ -2,13 +2,11 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.model
 
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.kernel.utils.ClassUtils
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ai.senscience.nexus.delta.sdk.syntax.*
 import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
@@ -24,12 +22,6 @@ sealed abstract class GraphAnalyticsRejection(val reason: String) extends Reject
 object GraphAnalyticsRejection {
 
   /**
-    * Rejection returned when interacting with the elasticsearch views API.
-    */
-  final case class WrappedElasticSearchRejection(error: ElasticSearchClientError)
-      extends GraphAnalyticsRejection(error.reason)
-
-  /**
     * Rejection returned when attempting to interact with graph analytics while providing a property type that cannot be
     * resolved to an Iri.
     *
@@ -42,19 +34,12 @@ object GraphAnalyticsRejection {
   implicit val graphAnalyticsRejectionEncoder: Encoder.AsObject[GraphAnalyticsRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
-      val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
-      r match {
-        case WrappedElasticSearchRejection(rejection) => rejection.asJsonObject
-        case _                                        => obj
-      }
+      JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
     }
 
   implicit final val graphAnalyticsRejectionJsonLdEncoder: JsonLdEncoder[GraphAnalyticsRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
   implicit val graphAnalyticsRejectionHttpResponseFields: HttpResponseFields[GraphAnalyticsRejection] =
-    HttpResponseFields {
-      case WrappedElasticSearchRejection(error) => error.status
-      case _                                    => StatusCodes.BadRequest
-    }
+    HttpResponseFields { _ => StatusCodes.BadRequest }
 }
