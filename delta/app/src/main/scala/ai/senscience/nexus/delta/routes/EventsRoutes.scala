@@ -1,7 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -9,14 +7,11 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, lastEvent
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
-import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.{Directive1, Route}
-import cats.implicits.*
 
 /**
   * The global events route.
@@ -32,11 +27,8 @@ class EventsRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     sseEventLog: SseEventLog
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck: AclCheck) {
+)(implicit baseUri: BaseUri)
+    extends AuthDirectives(identities, aclCheck: AclCheck) {
 
   private def resolveSelector: Directive1[Label] =
     label.flatMap { l =>
@@ -67,7 +59,7 @@ class EventsRoutes(
               (resolveSelector & label & pathPrefix("events") & pathEndOrSingleSlash & get) { (selector, org) =>
                 concat(
                   authorizeFor(org, events.read).apply {
-                    emit(sseEventLog.streamBy(selector, org, offset).attemptNarrow[OrganizationRejection])
+                    emit(sseEventLog.streamBy(selector, org, offset))
                   },
                   (head & authorizeFor(org, events.read)) {
                     complete(OK)
@@ -78,7 +70,7 @@ class EventsRoutes(
               (resolveSelector & projectRef & pathPrefix("events") & pathEndOrSingleSlash) { (selector, project) =>
                 concat(
                   (get & authorizeFor(project, events.read)).apply {
-                    emit(sseEventLog.streamBy(selector, project, offset).attemptNarrow[ProjectRejection])
+                    emit(sseEventLog.streamBy(selector, project, offset))
                   },
                   (head & authorizeFor(project, events.read)) {
                     complete(OK)
@@ -103,10 +95,6 @@ object EventsRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       sseEventLog: SseEventLog
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Route = new EventsRoutes(identities, aclCheck, sseEventLog).routes
+  )(implicit baseUri: BaseUri): Route = new EventsRoutes(identities, aclCheck, sseEventLog).routes
 
 }

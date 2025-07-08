@@ -18,8 +18,8 @@ import fs2.Stream
 import io.circe.syntax.EncoderOps
 
 /**
-  * An event log that reads events from a [[Stream]] and transforms each event to JSON in preparation for consumption by
-  * SSE routes
+  * An event log that reads events from a stream and transforms each event to JSON in preparation for consumption by SSE
+  * routes
   */
 trait SseEventLog {
 
@@ -127,7 +127,7 @@ object SseEventLog {
 
         override val selectors: Set[Label] = sseEncoders.flatMap(_.selectors)
 
-        private def stream(scope: Scope, selector: Option[Label], offset: Offset): Stream[IO, ServerSentEvent] = {
+        private def stream(scope: Scope, selector: Option[Label], offset: Offset): ServerSentEventStream = {
           Stream
             .fromEither[IO](
               selector
@@ -149,19 +149,19 @@ object SseEventLog {
             }
         }
 
-        override def streamBy(selector: Label, offset: Offset): Stream[IO, ServerSentEvent] =
+        override def streamBy(selector: Label, offset: Offset): ServerSentEventStream =
           stream(Scope.root, Some(selector), offset)
 
-        override def stream(org: Label, offset: Offset): IO[Stream[IO, ServerSentEvent]] =
+        override def stream(org: Label, offset: Offset): IO[ServerSentEventStream] =
           fetchOrg(org).as(stream(Scope.Org(org), None, offset))
 
-        override def streamBy(selector: Label, org: Label, offset: Offset): IO[Stream[IO, ServerSentEvent]] =
+        override def streamBy(selector: Label, org: Label, offset: Offset): IO[ServerSentEventStream] =
           fetchOrg(org).as(stream(Scope.Org(org), Some(selector), offset))
 
-        override def stream(project: ProjectRef, offset: Offset): IO[Stream[IO, ServerSentEvent]] =
+        override def stream(project: ProjectRef, offset: Offset): IO[ServerSentEventStream] =
           fetchProject(project).as(stream(Scope.Project(project), None, offset))
 
-        override def streamBy(selector: Label, project: ProjectRef, offset: Offset): IO[Stream[IO, ServerSentEvent]] =
+        override def streamBy(selector: Label, project: ProjectRef, offset: Offset): IO[ServerSentEventStream] =
           fetchProject(project).as(stream(Scope.Project(project), Some(selector), offset))
       }
     }.flatTap { sseLog =>
