@@ -29,9 +29,8 @@ import akka.http.scaladsl.model.StatusCodes.*
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.Uri.Path.*
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.{Directive1, MalformedQueryParamRejection, Route}
+import akka.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
@@ -54,6 +53,10 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implici
 
   implicit private val malformedQueryParamJsonLdEncoder: JsonLdEncoder[MalformedQueryParamRejection] =
     RdfRejectionHandler.compactFromCirceRejection
+
+  private val exceptionHandler = ExceptionHandler { case err: AclRejection =>
+    discardEntityAndForceEmit(err)
+  }
 
   private def extractAclAddress: Directive1[AclAddress] =
     extractUnmatchedPath.flatMap {
@@ -85,7 +88,7 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implici
     }
 
   private def emitMetadata(statusCode: StatusCode, io: IO[AclResource]): Route =
-    emit(statusCode, io.mapValue(_.metadata).attemptNarrow[AclRejection])
+    emit(statusCode, io.mapValue(_.metadata))
 
   private def emitMetadata(io: IO[AclResource]): Route = emitMetadata(StatusCodes.OK, io)
 
@@ -95,7 +98,6 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implici
         None
       }
       .map(searchResults(_))
-      .attemptNarrow[AclRejection]
   }
 
   private def emitWithAncestors(io: IO[AclCollection]) =
@@ -107,7 +109,7 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implici
   }
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("acls") {
         extractCaller { implicit caller =>
           concat(
