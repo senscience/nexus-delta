@@ -47,11 +47,9 @@ object EventsModule extends ModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         sseEventLog: SseEventLog,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        baseUri: BaseUri
     ) =>
-      new EventsRoutes(identities, aclCheck, sseEventLog)(baseUri, cr, ordering)
+      new EventsRoutes(identities, aclCheck, sseEventLog)(baseUri)
   }
 
   many[PriorityRoute].add { (route: EventsRoutes) =>
