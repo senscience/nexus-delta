@@ -14,8 +14,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy as TypeHierarchyModel
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy, TypeHierarchyRejection}
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-import cats.implicits.catsSyntaxApplicativeError
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 
 final class TypeHierarchyRoutes(
     typeHierarchy: TypeHierarchyModel,
@@ -28,24 +27,28 @@ final class TypeHierarchyRoutes(
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
+  private val exceptionHandler = ExceptionHandler { case err: TypeHierarchyRejection =>
+    discardEntityAndForceEmit(err)
+  }
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       extractCaller { implicit caller =>
         pathPrefix("type-hierarchy") {
           concat(
             // Fetch using the revision
             (get & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-              emit(typeHierarchy.fetch(rev).attemptNarrow[TypeHierarchyRejection])
+              emit(typeHierarchy.fetch(rev))
             },
             // Fetch the type hierarchy
             (get & pathEndOrSingleSlash) {
-              emit(typeHierarchy.fetch.attemptNarrow[TypeHierarchyRejection])
+              emit(typeHierarchy.fetch)
             },
             // Create the type hierarchy
             (post & pathEndOrSingleSlash) {
               entity(as[TypeHierarchy]) { payload =>
                 authorizeFor(AclAddress.Root, typehierarchy.write).apply {
-                  emit(StatusCodes.Created, typeHierarchy.create(payload.mapping).attemptNarrow[TypeHierarchyRejection])
+                  emit(StatusCodes.Created, typeHierarchy.create(payload.mapping))
                 }
               }
             },
@@ -53,7 +56,7 @@ final class TypeHierarchyRoutes(
             (put & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
               entity(as[TypeHierarchy]) { payload =>
                 authorizeFor(AclAddress.Root, typehierarchy.write).apply {
-                  emit(typeHierarchy.update(payload.mapping, rev).attemptNarrow[TypeHierarchyRejection])
+                  emit(typeHierarchy.update(payload.mapping, rev))
                 }
               }
             }
