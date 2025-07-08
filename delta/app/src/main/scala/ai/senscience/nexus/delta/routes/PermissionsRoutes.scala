@@ -14,19 +14,19 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.permissions as permissionsPerms
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsRejection}
-import akka.http.scaladsl.server.{MalformedRequestContentRejection, Route}
+import akka.http.scaladsl.server.{ExceptionHandler, MalformedRequestContentRejection, Route}
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.syntax.*
 import io.circe.{Decoder, Json}
-import kamon.instrumentation.akka.http.TracingDirectives.operationName
 
 /**
   * The permissions routes.
@@ -45,81 +45,74 @@ final class PermissionsRoutes(identities: Identities, permissions: Permissions, 
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
-  import baseUri.prefixSegment
-
   implicit private val resourceFUnitJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.permissionsMetadata))
 
+  private val exceptionHandler = ExceptionHandler { case err: PermissionsRejection =>
+    discardEntityAndForceEmit(err)
+  }
+
+  private def authorizeRead(implicit caller: Caller)  = authorizeFor(AclAddress.Root, permissionsPerms.read)
+  private def authorizeWrite(implicit caller: Caller) = authorizeFor(AclAddress.Root, permissionsPerms.write)
+
+  private def emitMetadata(io: IO[PermissionsResource]): Route = emit(io.map(_.void))
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("permissions") {
         extractCaller { implicit caller =>
           concat(
             pathEndOrSingleSlash {
-              operationName(s"$prefixSegment/permissions") {
-                concat(
-                  // Fetch permissions
-                  get {
-                    authorizeFor(AclAddress.Root, permissionsPerms.read).apply {
-                      parameter("rev".as[Int].?) {
-                        case Some(rev) => emitPermissions(permissions.fetchAt(rev))
-                        case None      => emitPermissions(permissions.fetch)
-                      }
-                    }
-                  },
-                  // Replace permissions
-                  (put & parameter("rev" ? 0)) { rev =>
-                    authorizeFor(AclAddress.Root, permissionsPerms.write).apply {
-                      entity(as[PatchPermissions]) {
-                        case Replace(set) => emitVoid(permissions.replace(set, rev))
-                        case _            =>
-                          reject(
-                            malformedContent(s"Value for field '${keywords.tpe}' must be 'Replace' when using 'PUT'.")
-                          )
-                      }
-                    }
-                  },
-                  // Append or Subtract permissions
-                  (patch & parameter("rev" ? 0)) { rev =>
-                    authorizeFor(AclAddress.Root, permissionsPerms.write).apply {
-                      entity(as[PatchPermissions]) {
-                        case Append(set)   => emitVoid(permissions.append(set, rev))
-                        case Subtract(set) => emitVoid(permissions.subtract(set, rev))
-                        case _             =>
-                          reject(
-                            malformedContent(
-                              s"Value for field '${keywords.tpe}' must be 'Append' or 'Subtract' when using 'PATCH'."
-                            )
-                          )
-                      }
-                    }
-                  },
-                  // Delete permissions
-                  delete {
-                    authorizeFor(AclAddress.Root, permissionsPerms.write).apply {
-                      parameter("rev".as[Int]) { rev =>
-                        emitVoid(permissions.delete(rev))
-                      }
+              concat(
+                // Fetch permissions
+                get {
+                  authorizeRead.apply {
+                    parameter("rev".as[Int].?) {
+                      case Some(rev) => emit(permissions.fetchAt(rev))
+                      case None      => emit(permissions.fetch)
                     }
                   }
-                )
-              }
+                },
+                // Replace permissions
+                (put & parameter("rev" ? 0)) { rev =>
+                  authorizeWrite.apply {
+                    entity(as[PatchPermissions]) {
+                      case Replace(set) => emitMetadata(permissions.replace(set, rev))
+                      case _            =>
+                        malformedContent(s"Value for field '${keywords.tpe}' must be 'Replace' when using 'PUT'.")
+                    }
+                  }
+                },
+                // Append or Subtract permissions
+                (patch & parameter("rev" ? 0)) { rev =>
+                  authorizeWrite.apply {
+                    entity(as[PatchPermissions]) {
+                      case Append(set)   => emitMetadata(permissions.append(set, rev))
+                      case Subtract(set) => emitMetadata(permissions.subtract(set, rev))
+                      case _             =>
+                        malformedContent(
+                          s"Value for field '${keywords.tpe}' must be 'Append' or 'Subtract' when using 'PATCH'."
+                        )
+                    }
+                  }
+                },
+                // Delete permissions
+                delete {
+                  authorizeWrite.apply {
+                    parameter("rev".as[Int]) { rev =>
+                      emitMetadata(permissions.delete(rev))
+                    }
+                  }
+                }
+              )
             }
           )
         }
       }
     }
 
-  private def emitVoid(value: IO[PermissionsResource]) = {
-    emit(value.map(_.void).attemptNarrow[PermissionsRejection])
-  }
-
-  private def emitPermissions(value: IO[PermissionsResource]) = {
-    emit(value.attemptNarrow[PermissionsRejection])
-  }
-
   private def malformedContent(field: String) =
-    MalformedRequestContentRejection(field, new IllegalArgumentException())
+    reject(MalformedRequestContentRejection(field, new IllegalArgumentException()))
 }
 
 object PermissionsRoutes {
