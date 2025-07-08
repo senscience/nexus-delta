@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.realms as realmsPer
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.{Realm, RealmFields, RealmRejection}
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.{Directive1, Route}
+import akka.http.scaladsl.server.{Directive1, ExceptionHandler, Route}
 import cats.effect.IO
 import cats.implicits.*
 
@@ -31,20 +31,23 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(i
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
+  private val exceptionHandler =
+    handleExceptions(
+      ExceptionHandler { case err: RealmRejection => discardEntityAndForceEmit(err) }
+    )
+
   private def realmsSearchParams: Directive1[RealmSearchParams] =
     searchParams.tmap { case (deprecated, rev, createdBy, updatedBy) =>
       RealmSearchParams(None, deprecated, rev, createdBy, updatedBy)
     }
 
-  private def emitFetch(io: IO[RealmResource]): Route = emit(io.attemptNarrow[RealmRejection])
-
   private def emitMetadata(statusCode: StatusCode, io: IO[RealmResource]): Route =
-    emit(statusCode, io.mapValue(_.metadata).attemptNarrow[RealmRejection])
+    emit(statusCode, io.mapValue(_.metadata))
 
   private def emitMetadata(io: IO[RealmResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
       pathPrefix("realms") {
         extractCaller { implicit caller =>
           concat(
@@ -82,9 +85,9 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(i
                   authorizeFor(AclAddress.Root, realmsPermissions.read).apply {
                     parameter("rev".as[Int].?) {
                       case Some(rev) => // Fetch realm at specific revision
-                        emitFetch(realms.fetchAt(id, rev))
+                        emit(realms.fetchAt(id, rev))
                       case None      => // Fetch realm
-                        emitFetch(realms.fetch(id))
+                        emit(realms.fetch(id))
                     }
                   }
                 },

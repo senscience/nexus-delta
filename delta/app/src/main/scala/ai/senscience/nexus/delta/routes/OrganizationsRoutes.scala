@@ -12,16 +12,16 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.OrganizationSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationRejection}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.{Directive1, Route}
 import cats.effect.IO
 import cats.implicits.*
@@ -64,13 +64,11 @@ final class OrganizationsRoutes(
       )
     }
 
-  private def emitMetadata(value: IO[OrganizationResource]) = {
-    emit(
-      value
-        .mapValue(_.metadata)
-        .attemptNarrow[OrganizationRejection]
-    )
-  }
+  private def emitMetadata(statusCode: StatusCode, io: IO[OrganizationResource]): Route =
+    emit(statusCode, io.mapValue(_.metadata))
+
+  private def emitMetadata(io: IO[OrganizationResource]): Route =
+    emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
@@ -87,7 +85,6 @@ final class OrganizationsRoutes(
                   organizations
                     .list(pagination, params, order)
                     .widen[SearchResults[OrganizationResource]]
-                    .attemptNarrow[OrganizationRejection]
                 )
             },
             label.apply { org =>
@@ -99,10 +96,7 @@ final class OrganizationsRoutes(
                         authorizeFor(org, orgs.write).apply {
                           // Update organization
                           entity(as[OrganizationInput]) { case OrganizationInput(description) =>
-                            emitMetadata(
-                              organizations
-                                .update(org, description, rev)
-                            )
+                            emitMetadata(organizations.update(org, description, rev))
                           }
                         }
                       }
@@ -111,9 +105,9 @@ final class OrganizationsRoutes(
                       authorizeFor(org, orgs.read).apply {
                         parameter("rev".as[Int].?) {
                           case Some(rev) => // Fetch organization at specific revision
-                            emit(organizations.fetchAt(org, rev).attemptNarrow[OrganizationRejection])
+                            emit(organizations.fetchAt(org, rev))
                           case None      => // Fetch organization
-                            emit(organizations.fetch(org).attemptNarrow[OrganizationRejection])
+                            emit(organizations.fetch(org))
 
                         }
                       }
@@ -125,7 +119,7 @@ final class OrganizationsRoutes(
                         case (Some(rev), Some(false)) => deprecate(org, rev)
                         case (None, Some(true))       =>
                           authorizeFor(org, orgs.delete).apply {
-                            emit(orgDeleter.apply(org).attemptNarrow[OrganizationRejection])
+                            emit(orgDeleter.apply(org))
                           }
                         case (_, _)                   => emit((InvalidDeleteRequest(org): OrganizationRejection).asLeft[Unit].pure[IO])
                       }
@@ -143,12 +137,7 @@ final class OrganizationsRoutes(
               (put & authorizeFor(label, orgs.create)) {
                 // Create organization
                 entity(as[OrganizationInput]) { case OrganizationInput(description) =>
-                  val response: IO[Either[OrganizationRejection, ResourceF[Organization.Metadata]]] =
-                    organizations.create(label, description).mapValue(_.metadata).attemptNarrow[OrganizationRejection]
-                  emit(
-                    StatusCodes.Created,
-                    response
-                  )
+                  emitMetadata(StatusCodes.Created, organizations.create(label, description))
                 }
               }
             }

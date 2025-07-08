@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, Us
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.handleExceptions
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.Json
@@ -52,7 +53,11 @@ class OrganizationsRoutesSpec extends BaseRouteSpec {
     (deleter, AclAddress.Root, Set(read, delete))
   )
 
-  private lazy val routes = Route.seal(OrganizationsRoutes(identities, orgs, orgDeleter, aclCheck))
+  private lazy val routes = Route.seal(
+    handleExceptions(exceptionHandler) {
+      OrganizationsRoutes(identities, orgs, orgDeleter, aclCheck)
+    }
+  )
 
   private val org1CreatedMeta = orgMetadata(org1.label, fixedUuid, createdBy = creator, updatedBy = creator)
 
