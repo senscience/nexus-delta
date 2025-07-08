@@ -16,9 +16,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
-import cats.implicits.catsSyntaxApplicativeError
 import io.circe.{Json, JsonObject}
-import kamon.instrumentation.akka.http.TracingDirectives.operationName
 
 class SearchRoutes(
     identities: Identities,
@@ -31,8 +29,6 @@ class SearchRoutes(
     with CirceUnmarshalling
     with RdfMarshalling
     with DeltaDirectives {
-
-  import baseUri.prefixSegment
 
   private val addProjectParam = "addProject"
 
@@ -53,32 +49,25 @@ class SearchRoutes(
                 (extractQueryParams & entity(as[JsonObject])) { (qp, payload) =>
                   concat(
                     pathEndOrSingleSlash {
-                      emit(search.query(payload, qp).attemptNarrow[SearchRejection])
+                      emit(search.query(payload, qp))
                     },
                     (pathPrefix("suite") & label & additionalProjects & pathEndOrSingleSlash) {
                       (suite, additionalProjects) =>
                         val filteredQp = qp.filterNot { case (key, _) => key == addProjectParam }
-                        emit(
-                          search
-                            .query(suite, additionalProjects.toSet, payload, filteredQp)
-                            .attemptNarrow[SearchRejection]
-                        )
+                        emit(search.query(suite, additionalProjects.toSet, payload, filteredQp))
                     }
                   )
                 }
               },
               // Get fields config
               (pathPrefix("config") & get & pathEndOrSingleSlash) {
-                operationName(s"$prefixSegment/search/config") {
-                  emit(IO.pure(configFields))
-                }
+                emit(IO.pure(configFields))
               },
               // Fetch suite
               (pathPrefix("suites") & get & label & pathEndOrSingleSlash) { suiteName =>
                 emit(
                   IO.fromOption(suites.get(suiteName))(UnknownSuite(suiteName))
                     .map(s => NamedSuite(suiteName, s))
-                    .attemptNarrow[SearchRejection]
                 )
               }
             )
