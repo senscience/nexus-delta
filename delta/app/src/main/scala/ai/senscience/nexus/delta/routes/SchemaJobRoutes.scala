@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
-import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -20,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import cats.implicits.catsSyntaxApplicativeError
 
 import java.nio.ByteBuffer
 
@@ -78,9 +76,7 @@ class SchemaJobRoutes(
                     )
                   },
                   (pathPrefix("errors") & get & pathEndOrSingleSlash) {
-                    emit(
-                      projectExists(project) >> streamValidationErrors(project).attemptNarrow[ResourceRejection]
-                    )
+                    emit(projectExists(project) >> streamValidationErrors(project))
                   }
                 )
               }

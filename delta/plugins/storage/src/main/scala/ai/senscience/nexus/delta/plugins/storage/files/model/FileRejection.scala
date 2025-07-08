@@ -141,7 +141,7 @@ object FileRejection {
   /**
     * Rejection returned when attempting to create/update a file and the unmarshaller fails
     */
-  final case class WrappedAkkaRejection(rejection: AkkaRejection) extends FileRejection(rejection.toString)
+  final case class FileUnmarshallingRejection(rejection: AkkaRejection) extends FileRejection(rejection.toString)
 
   /**
     * Rejection returned when interacting with the storage operations bundle to fetch a file from a storage
@@ -186,14 +186,14 @@ object FileRejection {
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
       r match {
-        case WrappedAkkaRejection(rejection)  => rejection.asJsonObject
-        case SaveRejection(_, _, rejection)   =>
+        case FileUnmarshallingRejection(rejection) => rejection.asJsonObject
+        case SaveRejection(_, _, rejection)        =>
           obj.add(keywords.tpe, ClassUtils.simpleName(rejection).asJson).add("details", rejection.loggedDetails.asJson)
-        case FetchRejection(_, _, rejection)  =>
+        case FetchRejection(_, _, rejection)       =>
           obj.add(keywords.tpe, ClassUtils.simpleName(rejection).asJson).add("details", rejection.loggedDetails.asJson)
-        case IncorrectRev(provided, expected) => obj.add("provided", provided.asJson).add("expected", expected.asJson)
-        case _: FileNotFound                  => obj.add(keywords.tpe, "ResourceNotFound".asJson)
-        case _                                => obj
+        case IncorrectRev(provided, expected)      => obj.add("provided", provided.asJson).add("expected", expected.asJson)
+        case _: FileNotFound                       => obj.add(keywords.tpe, "ResourceNotFound".asJson)
+        case _                                     => obj
       }
     }
 
@@ -208,7 +208,7 @@ object FileRejection {
       case ResourceAlreadyExists(_, _)                                        => (StatusCodes.Conflict, Seq.empty)
       case IncorrectRev(_, _)                                                 => (StatusCodes.Conflict, Seq.empty)
       case FileTooLarge(_)                                                    => (StatusCodes.PayloadTooLarge, Seq.empty)
-      case WrappedAkkaRejection(rej)                                          => (rej.status, rej.headers)
+      case FileUnmarshallingRejection(rej)                                    => (rej.status, rej.headers)
       // If this happens it signifies a system problem rather than the user having made a mistake
       case FetchRejection(_, _, FetchFileRejection.FileNotFound(_))           => (StatusCodes.InternalServerError, Seq.empty)
       case SaveRejection(_, _, SaveFileRejection.ResourceAlreadyExists(_))    => (StatusCodes.Conflict, Seq.empty)

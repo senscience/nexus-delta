@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.archive.routes
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.archive.Archives
 import ai.senscience.nexus.delta.plugins.archive.model.{permissions, ArchiveRejection, ArchiveResource, Zip}
+import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -16,9 +17,8 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes.{Created, SeeOther}
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.Json
 
 /**
@@ -39,8 +39,14 @@ class ArchiveRoutes(
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
+  private val archivesExceptionHandler = handleExceptions {
+    ExceptionHandler { case err: ArchiveRejection =>
+      discardEntityAndForceEmit(err)
+    }
+  }
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & handleStorageExceptions & archivesExceptionHandler) {
       pathPrefix("archives") {
         extractCaller { implicit caller =>
           projectRef { implicit project =>
@@ -74,11 +80,11 @@ class ArchiveRoutes(
     }
 
   private def emitMetadata(statusCode: StatusCode, io: IO[ArchiveResource]): Route =
-    emit(statusCode, io.mapValue(_.metadata).attemptNarrow[ArchiveRejection])
+    emit(statusCode, io.mapValue(_.metadata))
 
   private def emitCreatedArchive(io: IO[ArchiveResource]): Route =
     Zip.checkHeader {
-      case true  => emitRedirect(SeeOther, io.map(_.access.uri).attemptNarrow[ArchiveRejection])
+      case true  => emitRedirect(SeeOther, io.map(_.access.uri))
       case false => emitMetadata(Created, io)
     }
 
@@ -88,11 +94,11 @@ class ArchiveRoutes(
         parameter("ignoreNotFound".as[Boolean] ? false) { ignoreNotFound =>
           emitArchiveFile(archives.download(id, project, ignoreNotFound))
         }
-      case false => emit(archives.fetch(id, project).attemptNarrow[ArchiveRejection])
+      case false => emit(archives.fetch(id, project))
     }
 
   private def emitArchiveFile(source: IO[AkkaSource]) = {
     val response = source.map { s => FileResponse.noCache(s"archive.zip", Zip.contentType, None, s) }
-    emit(response.attemptNarrow[ArchiveRejection])
+    emit(response)
   }
 }

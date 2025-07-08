@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.plugins.storage.files.routes
 import ai.senscience.nexus.akka.marshalling.{CirceMarshalling, CirceUnmarshalling}
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileDelegationRequest.{FileDelegationCreationRequest, FileDelegationUpdateRequest}
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.storageParam
 import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files}
+import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -22,7 +22,6 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.StatusCodes.{Created, OK}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 
@@ -43,7 +42,7 @@ final class DelegateFilesRoutes(
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      pathPrefix("delegate" / "files") {
+      (pathPrefix("delegate" / "files") & handleStorageExceptions) {
         extractCaller { implicit caller =>
           concat(
             (pathPrefix("generate") & projectRef) { project =>
@@ -51,20 +50,20 @@ final class DelegateFilesRoutes(
                 // Delegate a file creation without id segment
                 (pathEndOrSingleSlash & post & storageParam & tagParam & noRev) { case (storageId, tag) =>
                   entity(as[FileDescription]) { desc =>
-                    emit(OK, createDelegation(None, project, storageId, desc, tag).attemptNarrow[FileRejection])
+                    emit(OK, createDelegation(None, project, storageId, desc, tag))
                   }
                 },
                 // Delegate a file creation without id segment
                 (idSegment & pathEndOrSingleSlash & put & storageParam & noRev & tagParam) { (id, storageId, tag) =>
                   entity(as[FileDescription]) { desc =>
-                    emit(OK, createDelegation(Some(id), project, storageId, desc, tag).attemptNarrow[FileRejection])
+                    emit(OK, createDelegation(Some(id), project, storageId, desc, tag))
                   }
                 },
                 // Delegate a file creation without id segment
                 (idSegment & pathEndOrSingleSlash & put & storageParam & revParam & tagParam) {
                   (id, storageId, rev, tag) =>
                     entity(as[FileDescription]) { desc =>
-                      emit(OK, updateDelegation(id, project, rev, storageId, desc, tag).attemptNarrow[FileRejection])
+                      emit(OK, updateDelegation(id, project, rev, storageId, desc, tag))
                     }
                 }
               )
@@ -73,7 +72,7 @@ final class DelegateFilesRoutes(
               (jwsPayload, mode) =>
                 emit(
                   Created,
-                  linkDelegatedFile(jwsPayload, mode).attemptNarrow[FileRejection]: ResponseToJsonLd
+                  linkDelegatedFile(jwsPayload, mode): ResponseToJsonLd
                 )
             }
           )

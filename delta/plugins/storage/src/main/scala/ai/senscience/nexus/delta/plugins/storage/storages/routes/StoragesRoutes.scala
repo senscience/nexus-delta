@@ -2,10 +2,8 @@ package ai.senscience.nexus.delta.plugins.storage.storages.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
-import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
-import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.*
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, Storages, StoragesStatistics}
+import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, StorageResource, Storages, StoragesStatistics}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -17,8 +15,9 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.http.scaladsl.model.StatusCodes.Created
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
-import cats.implicits.*
+import cats.effect.IO
 import io.circe.Json
 
 /**
@@ -50,6 +49,11 @@ final class StoragesRoutes(
 
   import schemeDirectives.*
 
+  private def emitMetadata(statusCode: StatusCode, io: IO[StorageResource]): Route =
+    emit(statusCode, io.mapValue(_.metadata))
+
+  private def emitMetadata(io: IO[StorageResource]): Route = emitMetadata(StatusCodes.OK, io)
+
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("storages", schemas.storage)) {
       (handleStorageExceptions & pathPrefix("storages")) {
@@ -60,10 +64,7 @@ final class StoragesRoutes(
                 // Create a storage without id segment
                 (post & noParameter("rev") & entity(as[Json])) { source =>
                   authorizeFor(project, Write).apply {
-                    emit(
-                      Created,
-                      storages.create(project, source).mapValue(_.metadata)
-                    )
+                    emitMetadata(Created, storages.create(project, source))
                   }
                 }
               },
@@ -77,32 +78,17 @@ final class StoragesRoutes(
                           (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
                             case (None, source)      =>
                               // Create a storage with id segment
-                              emit(
-                                Created,
-                                storages
-                                  .create(id, project, source)
-                                  .mapValue(_.metadata)
-                              )
+                              emitMetadata(Created, storages.create(id, project, source))
                             case (Some(rev), source) =>
                               // Update a storage
-                              emit(
-                                storages
-                                  .update(id, project, rev, source)
-                                  .mapValue(_.metadata)
-                              )
+                              emitMetadata(storages.update(id, project, rev, source))
                           }
                         }
                       },
                       // Deprecate a storage
                       (delete & parameter("rev".as[Int])) { rev =>
                         authorizeFor(project, Write).apply {
-                          emit(
-                            storages
-                              .deprecate(id, project, rev)
-                              .mapValue(_.metadata)
-                              .attemptNarrow[StorageRejection]
-                              .rejectOn[StorageNotFound]
-                          )
+                          emitMetadata(storages.deprecate(id, project, rev))
                         }
                       },
                       // Fetch a storage
@@ -111,12 +97,7 @@ final class StoragesRoutes(
                           project,
                           id,
                           authorizeFor(project, Read).apply {
-                            emit(
-                              storages
-                                .fetch(id, project)
-                                .attemptNarrow[StorageRejection]
-                                .rejectOn[StorageNotFound]
-                            )
+                            emit(storages.fetch(id, project))
                           }
                         )
                       }
@@ -125,13 +106,7 @@ final class StoragesRoutes(
                   // Undeprecate a storage
                   (pathPrefix("undeprecate") & pathEndOrSingleSlash & put & parameter("rev".as[Int])) { rev =>
                     authorizeFor(project, Write).apply {
-                      emit(
-                        storages
-                          .undeprecate(id, project, rev)
-                          .mapValue(_.metadata)
-                          .attemptNarrow[StorageRejection]
-                          .rejectOn[StorageNotFound]
-                      )
+                      emitMetadata(storages.undeprecate(id, project, rev))
                     }
                   },
                   // Fetch a storage original source
@@ -140,7 +115,7 @@ final class StoragesRoutes(
                       val sourceIO = storages
                         .fetch(id, project)
                         .map { resource => OriginalSource(resource, resource.value.source) }
-                      emit(sourceIO.attemptNarrow[StorageRejection].rejectOn[StorageNotFound])
+                      emit(sourceIO)
                     }
                   },
                   (pathPrefix("statistics") & get & pathEndOrSingleSlash) {

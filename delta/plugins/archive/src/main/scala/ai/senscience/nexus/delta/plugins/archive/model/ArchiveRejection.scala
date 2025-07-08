@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.plugins.archive.model
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.kernel.utils.ClassUtils
 import ai.senscience.nexus.delta.plugins.storage.FileSelf
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
@@ -11,7 +10,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.EncoderOps
@@ -101,14 +99,6 @@ object ArchiveRejection {
   final case class ResourceNotFound(ref: ResourceRef, project: ProjectRef)
       extends ArchiveRejection(s"The resource '${ref.toString}' was not found in project '$project'.")
 
-  /**
-    * Wrapper for file rejections.
-    *
-    * @param rejection
-    *   the underlying file rejection
-    */
-  final case class WrappedFileRejection(rejection: FileRejection) extends ArchiveRejection(rejection.reason)
-
   implicit final val archiveRejectionEncoder: Encoder.AsObject[ArchiveRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
@@ -132,6 +122,5 @@ object ArchiveRejection {
       case InvalidArchiveId(_)                => StatusCodes.BadRequest
       case ResourceNotFound(_, _)             => StatusCodes.NotFound
       case InvalidFileSelf(_)                 => StatusCodes.BadRequest
-      case WrappedFileRejection(rejection)    => rejection.status
     }
 }

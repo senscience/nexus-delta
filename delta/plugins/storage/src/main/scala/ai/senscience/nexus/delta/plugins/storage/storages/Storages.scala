@@ -284,13 +284,11 @@ final class Storages private (
         .void
     }
 
-  private def logFailureAndContinue[A](io: IO[A]): IO[Unit] = {
-    io.onError {
-      case err: StorageRejection => logger.warn(err.reason)
+  private def logFailureAndContinue[A](io: IO[A]): IO[Unit] =
+    io.recoverWith {
+      case err: StorageRejection => logger.warn(err)(err.reason)
       case _                     => IO.unit
-    }.attemptNarrow[StorageRejection]
-      .void
-  }
+    }.void
 
   private def eval(cmd: StorageCommand): IO[StorageResource] =
     log.evaluate(cmd.project, cmd.id, cmd).map { case (_, state) =>

@@ -121,8 +121,8 @@ object ResponseToJsonLd extends FileBytesInstances {
       case Left(rej: Reject[E])  => RouteOutcome.RouteRejected(rej)
     })
 
-  def fromFile[E: JsonLdEncoder](
-      io: IO[Either[Response[E], FileResponse]]
+  def fromFile(
+      io: IO[FileResponse]
   )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
     new ResponseToJsonLd {
 
@@ -133,21 +133,17 @@ object ResponseToJsonLd extends FileBytesInstances {
       }
 
       override def apply(statusOverride: Option[StatusCode]): Route = {
-        val flattened = io.flatMap {
-          _.traverse { fr =>
-            fr.content.map {
-              _.map { s =>
-                fr.metadata -> s
-              }
+        val flattened = io.flatMap { fr =>
+          fr.content.map {
+            _.map { s =>
+              fr.metadata -> s
             }
           }
         }
 
         onSuccess(flattened.unsafeToFuture()) {
-          case Left(complete: Complete[E])       => emit(complete)
-          case Left(reject: Reject[E])           => emit(reject)
-          case Right(Left(c))                    => emit(c)
-          case Right(Right((metadata, content))) =>
+          case Left(c)                    => emit(c)
+          case Right((metadata, content)) =>
             headerValueByType(Accept) { accept =>
               if (accept.mediaRanges.exists(_.matches(metadata.contentType.mediaType))) {
                 val encodedFilename    = attachmentString(metadata.filename)
@@ -170,20 +166,16 @@ object ResponseToJsonLd extends FileBytesInstances {
 }
 
 sealed trait FileBytesInstances extends ValueInstances {
-  implicit def ioFileBytesWithReject[E: JsonLdEncoder](
-      io: IO[Either[Response[E], FileResponse]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd.fromFile(io)
 
-  implicit def ioFileBytes[E: JsonLdEncoder: HttpResponseFields](
-      io: IO[Either[E, FileResponse]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd.fromFile(io.map(_.leftMap(Complete(_))))
+  implicit def ioFileBytes(
+      io: IO[FileResponse]
+  )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
+    ResponseToJsonLd.fromFile(io)
 
   implicit def fileBytesValue(
       value: FileResponse
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd.fromFile(IO.pure(Right(value)))
+  )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
+    ResponseToJsonLd.fromFile(IO.pure(value))
 
 }
 
