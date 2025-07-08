@@ -28,7 +28,6 @@ import akka.http.scaladsl.model.headers.{`Content-Length`, Accept}
 import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.parser
 
 /**
@@ -75,10 +74,7 @@ final class FilesRoutes(
                 concat(
                   // Create a file without id segment
                   uploadRequest { request =>
-                    emit(
-                      Created,
-                      files.create(storage, project, request, tag).index(mode)
-                    )
+                    emit(Created, files.create(storage, project, request, tag).index(mode))
                   }
                 )
               },
@@ -93,11 +89,7 @@ final class FilesRoutes(
                             concat(
                               // Update a file
                               (requestEntityPresent & uploadRequest) { request =>
-                                emit(
-                                  files
-                                    .update(fileId, storage, rev, request, tag)
-                                    .index(mode)
-                                )
+                                emit(files.update(fileId, storage, rev, request, tag).index(mode))
                               },
                               // Update custom metadata
                               (requestEntityEmpty & extractFileMetadata & authorizeFor(project, Write)) {
@@ -113,12 +105,7 @@ final class FilesRoutes(
                             concat(
                               // Create a file with id segment
                               uploadRequest { request =>
-                                emit(
-                                  Created,
-                                  files
-                                    .create(fileId, storage, request, tag)
-                                    .index(mode)
-                                )
+                                emit(Created, files.create(fileId, storage, request, tag).index(mode))
                               }
                             )
                           }
@@ -127,13 +114,7 @@ final class FilesRoutes(
                       // Deprecate a file
                       (delete & revParam) { rev =>
                         authorizeFor(project, Write).apply {
-                          emit(
-                            files
-                              .deprecate(fileId, rev)
-                              .index(mode)
-                              .attemptNarrow[FileRejection]
-                              .rejectOn[FileNotFound]
-                          )
+                          emit(files.deprecate(fileId, rev).index(mode))
                         }
                       },
 
@@ -147,12 +128,7 @@ final class FilesRoutes(
                     concat(
                       // Fetch a file tags
                       (get & idSegmentRef(id) & pathEndOrSingleSlash & authorizeFor(project, Read)) { id =>
-                        emit(
-                          fetchMetadata(FileId(id, project))
-                            .map(_.value.tags)
-                            .attemptNarrow[FileRejection]
-                            .rejectOn[FileNotFound]
-                        )
+                        emit(fetchMetadata(FileId(id, project)).map(_.value.tags))
                       },
                       // Tag a file
                       (post & revParam & pathEndOrSingleSlash) { rev =>
@@ -167,25 +143,13 @@ final class FilesRoutes(
                         project,
                         Write
                       )) { (tag, rev) =>
-                        emit(
-                          files
-                            .deleteTag(fileId, tag, rev)
-                            .index(mode)
-                            .attemptNarrow[FileRejection]
-                            .rejectOn[FileNotFound]
-                        )
+                        emit(files.deleteTag(fileId, tag, rev).index(mode))
                       }
                     )
                   },
                   (pathPrefix("undeprecate") & put & revParam) { rev =>
                     authorizeFor(project, Write).apply {
-                      emit(
-                        files
-                          .undeprecate(fileId, rev)
-                          .index(mode)
-                          .attemptNarrow[FileRejection]
-                          .rejectOn[FileNotFound]
-                      )
+                      emit(files.undeprecate(fileId, rev).index(mode))
                     }
                   }
                 )
@@ -199,9 +163,9 @@ final class FilesRoutes(
   def fetch(id: FileId)(implicit caller: Caller): Route =
     (headerValueByType(Accept) & varyAcceptHeaders) {
       case accept if accept.mediaRanges.exists(metadataMediaRanges.contains) =>
-        emit(fetchMetadata(id).attemptNarrow[FileRejection].rejectOn[FileNotFound])
+        emit(fetchMetadata(id))
       case _                                                                 =>
-        emit(files.fetchContent(id).attemptNarrow[FileRejection].rejectOn[FileNotFound])
+        emit(files.fetchContent(id))
     }
 
   def fetchMetadata(id: FileId)(implicit caller: Caller): IO[FileResource] =

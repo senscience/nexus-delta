@@ -18,7 +18,6 @@ import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.model.{ContentType, StatusCodes}
 import akka.http.scaladsl.server.RouteConcatenation
 import cats.effect.IO
-import cats.syntax.all.*
 import fs2.Stream
 
 import java.nio.ByteBuffer
@@ -45,7 +44,7 @@ class ResponseToJsonLdSpec extends CatsEffectSpec with RouteHelpers with JsonSyn
     val etag = Option.when(cacheable)("test")
     IO.pure(
       FileResponse[ResourceRejection]("file.name", contentType, etag, Some(1024L), data)
-    ).attemptNarrow[ResourceRejection]
+    )
   }
 
   private def responseWithError(error: ResourceRejection) =

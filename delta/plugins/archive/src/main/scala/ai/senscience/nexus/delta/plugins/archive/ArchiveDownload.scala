@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, FileSelfReference, ResourceReference}
-import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound, WrappedFileRejection}
+import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{InvalidFileSelf, ResourceNotFound}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveReference, ArchiveValue, FullArchiveReference, Zip}
 import ai.senscience.nexus.delta.plugins.storage.FileSelf
 import ai.senscience.nexus.delta.plugins.storage.FileSelf.ParsingError
@@ -181,7 +181,6 @@ object ArchiveDownload {
             case _: FileRejection.FileNotFound     => ResourceNotFound(ref.ref, project)
             case _: FileRejection.TagNotFound      => ResourceNotFound(ref.ref, project)
             case _: FileRejection.RevisionNotFound => ResourceNotFound(ref.ref, project)
-            case other: FileRejection              => WrappedFileRejection(other)
           }
           .map { case FileResponse(fileMetadata, content) =>
             val path                        = pathOf(ref, project, fileMetadata.filename)

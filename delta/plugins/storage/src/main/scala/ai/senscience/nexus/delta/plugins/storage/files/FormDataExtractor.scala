@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
 import ai.senscience.nexus.delta.kernel.error.NotARejection
-import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.{FileTooLarge, InvalidMultipartFieldName, WrappedAkkaRejection}
+import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.{FileTooLarge, FileUnmarshallingRejection, InvalidMultipartFieldName}
 import ai.senscience.nexus.delta.sdk.stream.StreamConverter
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -77,19 +77,19 @@ object FormDataExtractor {
       private def unmarshall(entity: HttpEntity, sizeLimit: Long): IO[FormData] =
         IO.fromFuture(IO.delay(um(entity.withSizeLimit(sizeLimit)))).adaptError(onUnmarshallingError(_))
 
-      private def onUnmarshallingError(th: Throwable): WrappedAkkaRejection = th match {
+      private def onUnmarshallingError(th: Throwable): FileUnmarshallingRejection = th match {
         case RejectionError(r)                  =>
-          WrappedAkkaRejection(r)
+          FileUnmarshallingRejection(r)
         case Unmarshaller.NoContentException    =>
-          WrappedAkkaRejection(RequestEntityExpectedRejection)
+          FileUnmarshallingRejection(RequestEntityExpectedRejection)
         case x: UnsupportedContentTypeException =>
-          WrappedAkkaRejection(UnsupportedRequestContentTypeRejection(x.supported, x.actualContentType))
+          FileUnmarshallingRejection(UnsupportedRequestContentTypeRejection(x.supported, x.actualContentType))
         case x: IllegalArgumentException        =>
-          WrappedAkkaRejection(ValidationRejection(Option(x.getMessage).getOrElse(""), Some(x)))
+          FileUnmarshallingRejection(ValidationRejection(Option(x.getMessage).getOrElse(""), Some(x)))
         case x: ExceptionWithErrorInfo          =>
-          WrappedAkkaRejection(MalformedRequestContentRejection(x.info.format(withDetail = false), x))
+          FileUnmarshallingRejection(MalformedRequestContentRejection(x.info.format(withDetail = false), x))
         case x                                  =>
-          WrappedAkkaRejection(MalformedRequestContentRejection(Option(x.getMessage).getOrElse(""), x))
+          FileUnmarshallingRejection(MalformedRequestContentRejection(Option(x.getMessage).getOrElse(""), x))
       }
 
       private def extractFile(
@@ -109,7 +109,7 @@ object FormDataExtractor {
           case _: EntityStreamSizeException =>
             FileTooLarge(maxFileSize)
           case NotARejection(th)            =>
-            WrappedAkkaRejection(MalformedRequestContentRejection(th.getMessage, th))
+            FileUnmarshallingRejection(MalformedRequestContentRejection(th.getMessage, th))
         }
 
       private def extractFile(part: FormData.BodyPart): Future[Option[UploadedFileInformation]] = part match {
