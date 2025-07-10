@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.sourcing.query
 
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
-import ai.senscience.nexus.delta.sourcing.syntax.DoobieSyntax.FragmentEncoderOps
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
@@ -54,6 +55,30 @@ object StreamingQuery {
         maxInstant.map { m => RemainingElems(count, m) }
       }
       .unique
+      .transact(xas.read)
+  }
+
+  /**
+    * Return if the given resource is eligible to the stream
+    */
+  def offset(
+      scope: Scope,
+      entityTypes: Option[NonEmptyList[EntityType]],
+      selectFilter: SelectFilter,
+      id: Iri,
+      xas: Transactors
+  ): IO[Option[Offset]] = {
+    val whereClause = Fragments.whereAndOpt(
+      entityTypeFilter(entityTypes),
+      stateFilter(scope, Offset.start, selectFilter),
+      Some(fr"id = $id")
+    )
+    sql"""SELECT ordering
+         |FROM public.scoped_states
+         |$whereClause
+         |""".stripMargin
+      .query[Offset]
+      .option
       .transact(xas.read)
   }
 

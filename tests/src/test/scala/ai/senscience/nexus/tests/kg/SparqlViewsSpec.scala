@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.views.ScoobyDoo
@@ -117,12 +118,8 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
         val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
         val projectId    = if (i > 5) project2 else project1
         val indexingMode = if (i % 2 == 0) "sync" else "async"
-
-        deltaClient.put[Json](
-          s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode",
-          payload,
-          ScoobyDoo
-        ) { expectCreated }
+        val targetUrl    = s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode"
+        deltaClient.put[Json](targetUrl, payload, ScoobyDoo) { expectCreated }
       }
     }
 
@@ -130,6 +127,18 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       deltaClient.get[Json](s"/resources/$project2/resource", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         _total.getOption(json).value shouldEqual 4
+      }
+    }
+
+    "all have a completed indexing status" in eventually {
+      val expected = json"""{"status": "Completed"}"""
+      (1 to 5).toList.parTraverse { i =>
+        val payload   = jsonContentOf(s"kg/views/instances/instance$i.json")
+        val encodedId = UrlUtils.encodeUriPath(`@id`.getOption(payload).value)
+        deltaClient.get[Json](s"/views/$project1/graph/status/$encodedId", ScoobyDoo) { (json, response) =>
+          response.status shouldEqual StatusCodes.OK
+          json shouldEqual expected
+        }
       }
     }
 

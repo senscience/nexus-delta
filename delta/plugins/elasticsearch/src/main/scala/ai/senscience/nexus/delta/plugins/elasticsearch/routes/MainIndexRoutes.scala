@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -54,14 +55,26 @@ final class MainIndexRoutes(
       pathPrefix("views") {
         extractCaller { implicit caller =>
           projectRef { project =>
+            val authorizeRead = authorizeFor(project, Read)
+            val projection    = mainIndexingProjection(project)
             defaultViewSegment {
               concat(
                 // Fetch statistics for the default indexing on this current project
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeFor(project, Read).apply {
-                    val projection = mainIndexingProjection(project)
+                  authorizeRead {
+
                     emit(projections.statistics(project, SelectFilter.latest, projection))
                   }
+                },
+                // Getting indexing status for a resource in the given view
+                (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
+                  emit(
+                    projections
+                      .indexingStatus(project, SelectFilter.latest, projection, resourceId)(
+                        ResourceNotFound(resourceId, project)
+                      )
+                      .map(_.asJson)
+                  )
                 },
                 // Query default indexing for this given project
                 (pathPrefix("_search") & post & pathEndOrSingleSlash) {

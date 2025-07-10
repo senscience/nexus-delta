@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{timeRange, *}
+import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -118,6 +119,20 @@ final class ElasticSearchIndexingRoutes(
                         )
                       }
                     )
+                  },
+                  // Getting indexing status for a resource in the given view
+                  (pathPrefix("status") & authorizeFor(project, Read) & iriSegment & pathEndOrSingleSlash) {
+                    resourceId =>
+                      emit(
+                        fetch(id, project)
+                          .flatMap { view =>
+                            projections
+                              .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
+                                ResourceNotFound(resourceId, project)
+                              )
+                              .map(_.asJson)
+                          }
+                      )
                   },
                   // Get elasticsearch view mapping
                   (pathPrefix("_mapping") & get & pathEndOrSingleSlash) {

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
+import ai.senscience.nexus.delta.sdk.error.ServiceError.{AuthorizationFailed, ResourceNotFound}
 import ai.senscience.nexus.delta.sdk.error.{AuthTokenError, IdentityError, ServiceError}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.jws.JWSError
@@ -45,6 +45,7 @@ object RdfExceptionHandler {
       case err: JsonLdRejection           => discardEntityAndForceEmit(err)
       case err: AuthTokenError            => discardEntityAndForceEmit(err)
       case err: AuthorizationFailed       => discardEntityAndForceEmit(err: ServiceError)
+      case err: ResourceNotFound          => discardEntityAndForceEmit(err: ServiceError)
       case err: RdfError                  => discardEntityAndForceEmit(err)
       case err: EntityStreamSizeException => discardEntityAndForceEmit(err)
       case err: Throwable                 =>
