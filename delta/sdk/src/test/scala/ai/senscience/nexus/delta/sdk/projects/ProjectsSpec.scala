@@ -75,7 +75,7 @@ class ProjectsSpec extends CatsEffectSpec {
     "evaluating an incoming command" should {
 
       val eval   = evaluate(orgs, onCreateRef, validateDeletion, clock)(_, _)
-      val fields = ProjectFields(desc, am, Some(base), Some(vocab), enforceSchema = true)
+      val fields = ProjectFields(desc, am, base, vocab, enforceSchema = true)
 
       "create a new create event" in {
         eval(None, CreateProject(ref, fields, subject)).accepted shouldEqual
@@ -83,52 +83,9 @@ class ProjectsSpec extends CatsEffectSpec {
         createdProjects.get.accepted should contain(ref)
       }
 
-      "create a new create event with a generated base and vocab" in {
-        val noBaseNoVocab  = ProjectFields(desc, am, None, None, enforceSchema = true)
-        val generatedBase  = PrefixIri.unsafe(iri"http://localhost/v1/resources/org/proj/_/")
-        val generatedVocab = PrefixIri.unsafe(iri"http://localhost/v1/vocabs/org/proj/")
-        eval(None, CreateProject(ref, noBaseNoVocab, subject)).accepted shouldEqual
-          ProjectCreated(
-            label,
-            uuid,
-            orgLabel,
-            orgUuid,
-            1,
-            desc,
-            am,
-            generatedBase,
-            generatedVocab,
-            enforceSchema = true,
-            epoch,
-            subject
-          )
-        createdProjects.get.accepted should contain(ref)
-      }
-
       "create a new update event" in {
         eval(Some(state), UpdateProject(ref, fields, 1, subject)).accepted shouldEqual
           ProjectUpdated(label, uuid, orgLabel, orgUuid, 2, desc, am, base, vocab, enforceSchema = true, epoch, subject)
-      }
-
-      "create a new update event with a generated base and vocab" in {
-        val noBaseNoVocab  = ProjectFields(desc, am, None, None, enforceSchema = true)
-        val generatedBase  = PrefixIri.unsafe(iri"http://localhost/v1/resources/org/proj/_/")
-        val generatedVocab = PrefixIri.unsafe(iri"http://localhost/v1/vocabs/org/proj/")
-        eval(Some(state), UpdateProject(ref, noBaseNoVocab, 1, subject)).accepted shouldEqual
-          ProjectUpdated(
-            label,
-            uuid,
-            orgLabel,
-            orgUuid,
-            2,
-            desc,
-            am,
-            generatedBase,
-            generatedVocab,
-            enforceSchema = true,
-            epoch,
-            subject
-          )
       }
 
       "create a new deprecate event" in {

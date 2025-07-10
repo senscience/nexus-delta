@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{SearchParams, SearchResults}
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.Projects.entityType
@@ -116,10 +115,7 @@ object ProjectsImpl {
       config: EventLogConfig,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit
-      base: BaseUri,
-      uuidF: UUIDF
-  ): Projects =
+  )(implicit uuidF: UUIDF): Projects =
     new ProjectsImpl(
       ScopedEventLog(Projects.definition(fetchActiveOrg, onCreate, validateDeletion, clock), config, xas),
       scopeInitializer,

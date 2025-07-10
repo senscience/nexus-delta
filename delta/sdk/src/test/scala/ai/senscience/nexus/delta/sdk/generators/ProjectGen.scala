@@ -4,10 +4,9 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.ProjectResource
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.Label
 
 import java.time.Instant
 import java.util.UUID
@@ -53,27 +52,6 @@ object ProjectGen {
       subject
     )
 
-  def projectFromRef(
-      ref: ProjectRef,
-      uuid: UUID = UUID.randomUUID(),
-      orgUuid: UUID = UUID.randomUUID(),
-      markedForDeletion: Boolean = false,
-      projectFields: ProjectFields
-  )(implicit baseUri: BaseUri): Project =
-    Project(
-      ref.project,
-      uuid,
-      ref.organization,
-      orgUuid,
-      projectFields.description,
-      projectFields.apiMappings,
-      defaultApiMappings,
-      ProjectBase(projectFields.baseOrGenerated(ref).value),
-      projectFields.vocabOrGenerated(ref).value,
-      projectFields.enforceSchema,
-      markedForDeletion
-    )
-
   def project(
       orgLabel: String,
       label: String,
@@ -104,8 +82,9 @@ object ProjectGen {
     ProjectFields(
       project.description,
       project.apiMappings,
-      Some(PrefixIri.unsafe(project.base.iri)),
-      Some(PrefixIri.unsafe(project.vocab))
+      PrefixIri.unsafe(project.base.iri),
+      PrefixIri.unsafe(project.vocab),
+      project.enforceSchema
     )
 
   def resourceFor(

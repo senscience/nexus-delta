@@ -1,11 +1,8 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
-import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import io.circe.Decoder
-import io.circe.generic.extras.Configuration
-import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 
 /**
   * Type that represents a project payload for creation and update requests.
@@ -15,47 +12,33 @@ import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
   * @param apiMappings
   *   the API mappings
   * @param base
-  *   an optional base Iri for generated resource IDs ending with ''/'' or ''#''
+  *   a base Iri for generated resource IDs ending with ''/'' or ''#'' defaulting to the template defined in the project
+  *   config
   * @param vocab
-  *   an optional vocabulary for resources with no context ending with ''/'' or ''#''
+  *   a vocabulary for resources with no context ending with ''/'' or ''#'' defaulting to the template defined in the
+  *   project config
   * @param enforceSchema
   *   a flag to ban unconstrained resources in this project
   */
 final case class ProjectFields(
     description: Option[String],
-    apiMappings: ApiMappings = ApiMappings.empty,
-    base: Option[PrefixIri],
-    vocab: Option[PrefixIri],
-    enforceSchema: Boolean = false
-) {
-
-  /**
-    * @return
-    *   the current base or a generated one based on the ''baseUri'' and the project ref
-    */
-  def baseOrGenerated(project: ProjectRef)(implicit baseUri: BaseUri): PrefixIri =
-    base.getOrElse(
-      PrefixIri.unsafe(
-        (baseUri.endpoint / "resources" / project.organization.value / project.project.value / "_").finalSlash.toIri
-      )
-    )
-
-  /**
-    * @return
-    *   the current vocab or a generated one based on the ''baseUri'' and the project ref
-    */
-  def vocabOrGenerated(project: ProjectRef)(implicit baseUri: BaseUri): PrefixIri =
-    vocab.getOrElse(
-      PrefixIri.unsafe(
-        (baseUri.endpoint / "vocabs" / project.organization.value / project.project.value).finalSlash.toIri
-      )
-    )
-
-}
+    apiMappings: ApiMappings,
+    base: PrefixIri,
+    vocab: PrefixIri,
+    enforceSchema: Boolean
+)
 
 object ProjectFields {
 
-  implicit final private val configuration: Configuration   = Configuration.default.withStrictDecoding.withDefaults
-  implicit val projectFieldsDecoder: Decoder[ProjectFields] = deriveConfiguredDecoder[ProjectFields]
+  def decoder(project: ProjectRef, prefixConfig: PrefixConfig): Decoder[ProjectFields] = Decoder.instance { hc =>
+    for {
+      description   <- hc.get[Option[String]]("description")
+      apiMappings   <- hc.getOrElse[ApiMappings]("apiMappings")(ApiMappings.empty)
+      base          <- hc.getOrElse[PrefixIri]("base")(prefixConfig.base.create(project))
+      vocab         <- hc.getOrElse[PrefixIri]("vocab")(prefixConfig.vocab.create(project))
+      enforceSchema <- hc.getOrElse[Boolean]("enforceSchema")(false)
+    } yield ProjectFields(description, apiMappings, base, vocab, enforceSchema)
+
+  }
 
 }

@@ -18,9 +18,10 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJso
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.projects.{create as CreateProjects, delete as DeleteProjects, read as ReadProjects, write as WriteProjects}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as ReadResources
+import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
-import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsConfig, ProjectsStatistics}
+import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.model.*
@@ -28,6 +29,7 @@ import akka.http.scaladsl.server.*
 import cats.data.OptionT
 import cats.effect.IO
 import cats.implicits.*
+import io.circe.Decoder
 
 /**
   * The project routes
@@ -40,14 +42,13 @@ final class ProjectsRoutes(
     projectsStatistics: ProjectsStatistics
 )(implicit
     baseUri: BaseUri,
-    config: ProjectsConfig,
+    paginationConfig: PaginationConfig,
+    prefixConfig: PrefixConfig,
     cr: RemoteContextResolution,
     ordering: JsonKeyOrdering,
     fusionConfig: FusionConfig
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
-
-  implicit val paginationConfig: PaginationConfig = config.pagination
 
   private def projectsSearchParams(org: Option[Label])(implicit caller: Caller): Directive1[ProjectSearchParams] = {
     (searchParams & parameter("label".?)).tmap { case (deprecated, rev, createdBy, updatedBy, label) =>
@@ -86,6 +87,7 @@ final class ProjectsRoutes(
               emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
             },
             projectRef.apply { project =>
+              implicit val projectFieldsDecoder: Decoder[ProjectFields] = ProjectFields.decoder(project, prefixConfig)
               concat(
                 concat(
                   (put & pathEndOrSingleSlash) {
@@ -178,7 +180,8 @@ object ProjectsRoutes {
       projectsStatistics: ProjectsStatistics
   )(implicit
       baseUri: BaseUri,
-      config: ProjectsConfig,
+      pagination: PaginationConfig,
+      prefixConfig: PrefixConfig,
       cr: RemoteContextResolution,
       ordering: JsonKeyOrdering,
       fusionConfig: FusionConfig

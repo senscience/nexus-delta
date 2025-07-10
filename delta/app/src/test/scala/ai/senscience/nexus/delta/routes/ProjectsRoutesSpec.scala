@@ -14,8 +14,10 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects as projectsPermissions, resources}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver.PermissionAccess
+import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig
+import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig.PrefixIriTemplate
 import ai.senscience.nexus.delta.sdk.projects.model.*
-import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, ProjectsConfig, ProjectsImpl, ProjectsStatistics}
+import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, ProjectsImpl, ProjectsStatistics}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
@@ -63,7 +65,17 @@ class ProjectsRoutesSpec extends BaseRouteSpec with BeforeAndAfterAll {
     case other      => IO.raiseError(OrganizationNotFound(other))
   }
 
-  implicit private val projectsConfig: ProjectsConfig = ProjectsConfig(eventLogConfig, pagination, deletionConfig)
+  private val defaultBase  = "https://localhost/default/base/"
+  private val defaultVocab = "https://localhost/default/vocab/"
+
+  private val desc  = "Project description"
+  private val base  = "https://localhost/base/"
+  private val vocab = "https://localhost/voc/"
+
+  implicit private val prefixIriConfig: PrefixConfig = PrefixConfig(
+    PrefixIriTemplate.unsafe(defaultBase),
+    PrefixIriTemplate.unsafe(defaultVocab)
+  )
 
   private val projectStats = ProjectStatistics(10, 10, Instant.EPOCH)
 
@@ -130,10 +142,6 @@ class ProjectsRoutesSpec extends BaseRouteSpec with BeforeAndAfterAll {
       projectsStatistics
     )
   )
-
-  val desc  = "Project description"
-  val base  = "https://localhost/base/"
-  val vocab = "https://localhost/voc/"
 
   private val payload = jsonContentOf("projects/create.json", "description" -> desc, "base" -> base, "vocab" -> vocab)
 
@@ -324,8 +332,8 @@ class ProjectsRoutesSpec extends BaseRouteSpec with BeforeAndAfterAll {
       deprecated = false,
       markedForDeletion = false,
       "Project description",
-      "http://localhost/v1/resources/org1/proj2/_/",
-      "http://localhost/v1/vocabs/org1/proj2/",
+      defaultBase,
+      defaultVocab,
       createdBy = Some(creator),
       updatedBy = Some(creator)
     )
