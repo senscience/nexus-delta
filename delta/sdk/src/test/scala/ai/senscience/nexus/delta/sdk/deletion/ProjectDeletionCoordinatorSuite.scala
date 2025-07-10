@@ -6,14 +6,13 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionCoordinator.{Active
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen.defaultApiMappings
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationNotFound
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.DeletionConfig
+import ai.senscience.nexus.delta.sdk.projects.ProjectsImpl
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, PrefixIri, ProjectFields}
-import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ProjectsImpl}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ScopeInitializer}
 import ai.senscience.nexus.delta.sourcing.implicits.*
@@ -44,8 +43,7 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
   private val org     = Label.unsafe("org")
   private val orgUuid = UUID.randomUUID()
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
-  implicit val uuidF: UUIDF     = UUIDF.fixed(UUID.randomUUID())
+  implicit val uuidF: UUIDF = UUIDF.fixed(UUID.randomUUID())
 
   private def fetchOrg: FetchActiveOrganization = {
     case `org` => IO.pure(Organization(org, orgUuid, None))
@@ -54,7 +52,6 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
 
   private val deletionEnabled  = deletionConfig
   private val deletionDisabled = deletionConfig.copy(enabled = false)
-  private val config           = ProjectsConfig(eventLogConfig, pagination, deletionEnabled)
 
   private val hashDoobie: IOFixture[(DatabasePartitioner, Transactors)] =
     ResourceSuiteLocalFixture("doobie", resource(PartitionStrategy.Hash(3)))
@@ -62,10 +59,10 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
   override def munitFixtures: Seq[AnyFixture[?]] = List(hashDoobie)
 
   implicit private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
-  val inits                                                                      = ScopeInitializer.withoutErrorStore(Set.empty)
+  private val inits                                                              = ScopeInitializer.withoutErrorStore(Set.empty)
 
   private lazy val projects                =
-    ProjectsImpl(fetchOrg, _ => IO.unit, _ => IO.unit, inits, defaultApiMappings, config.eventLog, xas, clock)
+    ProjectsImpl(fetchOrg, _ => IO.unit, _ => IO.unit, inits, defaultApiMappings, eventLogConfig, xas, clock)
   private lazy val projectLastUpdateStore  = ProjectLastUpdateStore(xas)
   private lazy val projectLastUpdateStream = ProjectLastUpdateStream(xas, queryConfig)
 
@@ -80,8 +77,9 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
       "nxv" -> iri"https://localhost/nexus/vocabulary/",
       "rdf" -> iri"http://localhost/1999/02/22-rdf-syntax-ns#type"
     ),
-    Some(PrefixIri.unsafe(iri"https://localhost/base/")),
-    Some(PrefixIri.unsafe(iri"https://localhost/voc/"))
+    PrefixIri.unsafe(iri"https://localhost/base/"),
+    PrefixIri.unsafe(iri"https://localhost/voc/"),
+    enforceSchema = false
   )
 
   private val taskStage = ProjectDeletionReport.Stage.empty("test")

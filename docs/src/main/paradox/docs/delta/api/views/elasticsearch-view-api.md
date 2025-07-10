@@ -471,8 +471,8 @@ Response
 
 where...
 
-- `status` - flag indicates if the provided resource is yet to be processed (`Pending`) or already processed (`Completed`).
-
+- `status` - flag indicates if the provided resource is yet to be processed (`Pending`), discarded if it does not fit the view configuration,
+  or already processed (`Completed`).
 
 ## Fetch indexing
 

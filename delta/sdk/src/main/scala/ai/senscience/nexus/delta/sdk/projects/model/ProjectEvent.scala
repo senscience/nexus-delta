@@ -109,31 +109,6 @@ object ProjectEvent {
       subject: Subject
   ) extends ProjectEvent
 
-  object ProjectCreated {
-    def apply(
-        projectRef: ProjectRef,
-        uuid: UUID,
-        orgUUID: UUID,
-        fields: ProjectFields,
-        instant: Instant,
-        subject: Subject
-    )(implicit base: BaseUri): ProjectCreated =
-      ProjectCreated(
-        projectRef.project,
-        uuid,
-        projectRef.organization,
-        orgUUID,
-        1,
-        fields.description,
-        fields.apiMappings,
-        fields.baseOrGenerated(projectRef),
-        fields.vocabOrGenerated(projectRef),
-        fields.enforceSchema,
-        instant,
-        subject
-      )
-  }
-
   /**
     * Evidence that a project has been updated.
     *
@@ -177,32 +152,6 @@ object ProjectEvent {
       instant: Instant,
       subject: Subject
   ) extends ProjectEvent
-
-  object ProjectUpdated {
-    def apply(
-        projectRef: ProjectRef,
-        uuid: UUID,
-        orgUUID: UUID,
-        rev: Int,
-        fields: ProjectFields,
-        instant: Instant,
-        subject: Subject
-    )(implicit base: BaseUri): ProjectUpdated =
-      ProjectUpdated(
-        projectRef.project,
-        uuid,
-        projectRef.organization,
-        orgUUID,
-        rev,
-        fields.description,
-        fields.apiMappings,
-        fields.baseOrGenerated(projectRef),
-        fields.vocabOrGenerated(projectRef),
-        fields.enforceSchema,
-        instant,
-        subject
-      )
-  }
 
   /**
     * Evidence that a project has been deprecated.

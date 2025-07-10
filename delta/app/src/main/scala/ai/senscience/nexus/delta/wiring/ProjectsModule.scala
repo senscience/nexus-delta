@@ -51,7 +51,6 @@ object ProjectsModule extends ModuleDef {
         scopeInitializer: ScopeInitializer,
         mappings: ApiMappingsCollection,
         xas: Transactors,
-        baseUri: BaseUri,
         clock: Clock[IO],
         uuidF: UUIDF
     ) =>
@@ -65,7 +64,7 @@ object ProjectsModule extends ModuleDef {
           config.projects.eventLog,
           xas,
           clock
-        )(baseUri, uuidF)
+        )(uuidF)
       )
   }
 
@@ -123,7 +122,7 @@ object ProjectsModule extends ModuleDef {
 
   make[ProjectsRoutes].from {
     (
-        config: AppConfig,
+        config: ProjectsConfig,
         identities: Identities,
         aclCheck: AclCheck,
         projects: Projects,
@@ -136,7 +135,8 @@ object ProjectsModule extends ModuleDef {
     ) =>
       new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics)(
         baseUri,
-        config.projects,
+        config.pagination,
+        config.prefix,
         cr,
         ordering,
         fusionConfig

@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.ProjectResource
+import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectCommand.*
@@ -192,7 +192,7 @@ object Projects {
       onCreate: ProjectRef => IO[Unit],
       validateDeletion: ValidateProjectDeletion,
       clock: Clock[IO]
-  )(state: Option[ProjectState], command: ProjectCommand)(implicit base: BaseUri, uuidF: UUIDF): IO[ProjectEvent] = {
+  )(state: Option[ProjectState], command: ProjectCommand)(implicit uuidF: UUIDF): IO[ProjectEvent] = {
 
     def create(c: CreateProject): IO[ProjectCreated] = state match {
       case None =>
@@ -201,7 +201,12 @@ object Projects {
           uuid <- uuidF()
           now  <- clock.realTimeInstant
           _    <- onCreate(c.ref)
-        } yield ProjectCreated(c.ref, uuid, org.uuid, c.fields, now, c.subject)
+        } yield {
+          // format: off
+          import c.fields.*
+          ProjectCreated(c.ref.project, uuid, org.label, org.uuid, 1, description, apiMappings, base, vocab, enforceSchema, now, c.subject)
+          // format: on
+        }
       case _    => IO.raiseError(ProjectAlreadyExists(c.ref))
     }
 
@@ -217,9 +222,12 @@ object Projects {
           IO.raiseError(ProjectIsMarkedForDeletion(c.ref))
         case Some(s)                        =>
           fetchActiveOrg(c.ref.organization) >>
-            clock.realTimeInstant.map(
-              ProjectUpdated(c.ref, s.uuid, s.organizationUuid, s.rev + 1, c.fields, _, c.subject)
-            )
+            clock.realTimeInstant.map { now =>
+              // format: off
+              import c.fields.*
+              ProjectUpdated(c.ref.project, s.uuid, s.organizationLabel, s.organizationUuid, s.rev + 1, description, apiMappings, base, vocab, enforceSchema, now, c.subject)
+              // format: on
+            }
       }
 
     def deprecate(c: DeprecateProject) =
@@ -289,7 +297,6 @@ object Projects {
       validateDeletion: ValidateProjectDeletion,
       clock: Clock[IO]
   )(implicit
-      base: BaseUri,
       uuidF: UUIDF
   ): ScopedEntityDefinition[ProjectRef, ProjectState, ProjectCommand, ProjectEvent, ProjectRejection] = {
     ScopedEntityDefinition.untagged(
