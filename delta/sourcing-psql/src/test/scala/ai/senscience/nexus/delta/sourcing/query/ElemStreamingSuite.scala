@@ -242,6 +242,28 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
       .remaining(Scope(ProjectRef.unsafe("xxx", "xxx")), SelectFilter.latest, Offset.at(6L))
       .assertEquals(None)
   }
+
+  test(s"Find offset for the latest of $id1 in $project1") {
+    StreamingQuery.offset(Scope(project1), entityTypes, SelectFilter.latest, id1, xas).assertEquals(Some(Offset.at(1L)))
+  }
+
+  test(s"Find offset for the tag $customTag of $id1 in $project1") {
+    StreamingQuery
+      .offset(Scope(project1), entityTypes, SelectFilter.tag(customTag), id1, xas)
+      .assertEquals(Some(Offset.at(6L)))
+  }
+
+  test(s"Find no offset for an unkwon tag of $id1 in $project1") {
+    StreamingQuery
+      .offset(Scope(project1), entityTypes, SelectFilter.tag(UserTag.unsafe("xxx")), id1, xas)
+      .assertEquals(None)
+  }
+
+  test(s"Find no offset for unknown resource in $project1") {
+    StreamingQuery
+      .offset(Scope(project1), entityTypes, SelectFilter.tag(customTag), nxv + "xxx", xas)
+      .assertEquals(None)
+  }
 }
 
 object ElemStreamingSuite {

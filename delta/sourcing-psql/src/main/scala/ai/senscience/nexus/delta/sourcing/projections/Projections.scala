@@ -1,14 +1,16 @@
 package ai.senscience.nexus.delta.sourcing.projections
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.{PurgeConfig, QueryConfig}
+import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart
+import ai.senscience.nexus.delta.sourcing.projections.model.{IndexingStatus, ProjectionRestart}
 import ai.senscience.nexus.delta.sourcing.query.{SelectFilter, StreamingQuery}
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress, ProjectionStore}
-import ai.senscience.nexus.delta.sourcing.{ProgressStatistics, Scope, Transactors}
+import ai.senscience.nexus.delta.sourcing.{EntityCheck, ProgressStatistics, Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
 import fs2.Stream
@@ -42,6 +44,16 @@ trait Projections {
     *   the offset to save
     */
   def save(metadata: ProjectionMetadata, progress: ProjectionProgress): IO[Unit]
+
+  /**
+    * Returns the indexing status for the given resource in the given projection
+    */
+  def indexingStatus[E <: Throwable](
+      project: ProjectRef,
+      selectFilter: SelectFilter,
+      projection: String,
+      resourceId: Iri
+  )(notFound: => Throwable): IO[IndexingStatus]
 
   /**
     * Resets the progress of a projection to 0, and the instants (createdAt, updatedAt) to the time of the reset
@@ -115,6 +127,25 @@ object Projections {
 
       override def save(metadata: ProjectionMetadata, progress: ProjectionProgress): IO[Unit] =
         projectionStore.save(metadata, progress)
+
+      def indexingStatus[E <: Throwable](
+          project: ProjectRef,
+          selectFilter: SelectFilter,
+          projection: String,
+          resourceId: Iri
+      )(notFound: => Throwable): IO[IndexingStatus] =
+        for {
+          projectionOffset <- offset(projection)
+          resourceOffset   <- StreamingQuery.offset(Scope(project), entityTypes, selectFilter, resourceId, xas)
+          status           <- resourceOffset match {
+                                case Some(o) => IO.pure(IndexingStatus.fromOffsets(projectionOffset, o))
+                                case None    =>
+                                  EntityCheck.findType(resourceId, project, xas).flatMap {
+                                    case Some(_) => IO.pure(IndexingStatus.Discarded)
+                                    case None    => IO.raiseError(notFound)
+                                  }
+                              }
+        } yield status
 
       override def reset(name: String): IO[Unit] = projectionStore.reset(name)
 

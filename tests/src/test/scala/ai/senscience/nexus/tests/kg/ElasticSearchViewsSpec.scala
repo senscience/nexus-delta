@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.views.ScoobyDoo
@@ -191,6 +192,19 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
       }
     }
 
+    "all have a completed indexing status" in eventually {
+      val expected = json"""{"status": "Completed"}"""
+      (1 to 5).toList.parTraverse { i =>
+        val payload   = jsonContentOf(s"kg/views/instances/instance$i.json")
+        val encodedId = UrlUtils.encodeUriPath(`@id`.getOption(payload).value)
+        deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/status/$encodedId", ScoobyDoo) {
+          (json, response) =>
+            response.status shouldEqual StatusCodes.OK
+            json shouldEqual expected
+        }
+      }
+    }
+
     val invalidElasticQuery = json"""{ "query": { "other": {} } }"""
 
     "return 400 with bad query instances on main and custom views" in {
@@ -337,9 +351,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
           s"/resources/$project1/resource/patchedcell:$unprefixedId/tags?rev=1",
           Json.obj("rev" -> Json.fromInt(1), "tag" -> Json.fromString("one")),
           ScoobyDoo
-        ) { (_, response) =>
-          response.status shouldEqual StatusCodes.Created
-        }
+        ) { expectCreated }
       }
     }
 

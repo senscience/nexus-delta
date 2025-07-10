@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
-import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.write as Write
+import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -12,6 +11,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
+import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -61,7 +61,7 @@ class BlazegraphViewsIndexingRoutes(
               concat(
                 // Fetch a blazegraph view statistics
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeFor(project, permissions.read).apply {
+                  authorizeFor(project, Read).apply {
                     emit(
                       fetch(id, project)
                         .flatMap(v => projections.statistics(project, v.selectFilter, v.projection))
@@ -84,11 +84,11 @@ class BlazegraphViewsIndexingRoutes(
                     }
                   }
                 },
-                // Manage an blazegraph view offset
+                // Manage a blazegraph view offset
                 (pathPrefix("offset") & pathEndOrSingleSlash) {
                   concat(
                     // Fetch a blazegraph view offset
-                    (get & authorizeFor(project, permissions.read)) {
+                    (get & authorizeFor(project, Read)) {
                       emit(
                         fetch(id, project)
                           .flatMap(v => projections.offset(v.projection))
@@ -102,6 +102,19 @@ class BlazegraphViewsIndexingRoutes(
                           .as(Offset.start)
                       )
                     }
+                  )
+                },
+                // Getting indexing status for a resource in the given view
+                (pathPrefix("status") & authorizeFor(project, Read) & iriSegment & pathEndOrSingleSlash) { resourceId =>
+                  emit(
+                    fetch(id, project)
+                      .flatMap { view =>
+                        projections
+                          .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
+                            ResourceNotFound(resourceId, project)
+                          )
+                          .map(_.asJson)
+                      }
                   )
                 }
               )

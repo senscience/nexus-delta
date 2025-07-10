@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.error
 
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -7,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
@@ -48,6 +49,9 @@ object ServiceError {
       AuthorizationFailed(missingPermission(path, permission))
 
   }
+
+  final case class ResourceNotFound(id: Iri, project: ProjectRef)
+      extends ServiceError(s"Resource '$id' not found in project '$project'.")
 
   /**
     * Signals that an organization or project initialization has failed.
@@ -98,6 +102,7 @@ object ServiceError {
   implicit val responseFieldsServiceError: HttpResponseFields[ServiceError] =
     HttpResponseFields {
       case AuthorizationFailed(_)       => StatusCodes.Forbidden
+      case ResourceNotFound(_, _)       => StatusCodes.NotFound
       case ScopeInitializationFailed(_) => StatusCodes.InternalServerError
       case IndexingFailed(_, _)         => StatusCodes.InternalServerError
       case UnknownSseLabel(_)           => StatusCodes.InternalServerError
