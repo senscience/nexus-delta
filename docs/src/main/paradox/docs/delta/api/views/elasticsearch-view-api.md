@@ -455,6 +455,25 @@ where...
 - `lastProcessedEventDateTime` - timestamp of the last event processed by the view
 - `delayInSeconds` - number of seconds between the last processed event timestamp and the last known event timestamp
 
+## Fetch indexing status of a resource
+
+```
+GET /v1/views/{org_label}/{project_label}/{view_id}/status/{resourceId}
+```
+
+**Example**
+
+Request
+:   @@snip [indexing-status.sh](../assets/views/indexing-status.sh)
+
+Response
+:   @@snip [indexing-status.json](../assets/views/indexing-status.json)
+
+where...
+
+- `status` - flag indicates if the provided resource is yet to be processed (`Pending`) or already processed (`Completed`).
+
+
 ## Fetch indexing
 
 ```
