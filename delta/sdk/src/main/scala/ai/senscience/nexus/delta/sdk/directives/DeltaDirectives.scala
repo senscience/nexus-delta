@@ -1,10 +1,8 @@
 package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.directives.Response.{Complete, Reject}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
-import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, JsonLdFormat}
+import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
@@ -19,11 +17,7 @@ import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.ContentNegotiator.Alternative
 import akka.http.scaladsl.server.Directives.*
 import cats.effect.IO
-import cats.syntax.all.*
-import io.circe.Encoder
 import org.http4s.Uri
-
-import scala.reflect.ClassTag
 
 object DeltaDirectives extends DeltaDirectives
 
@@ -94,20 +88,6 @@ trait DeltaDirectives extends UriDirectives {
     */
   def discardEntityAndForceEmit(status: StatusCode, response: ResponseToJsonLdDiscardingEntity): Route =
     response(Some(status))
-
-  /**
-    * Helper method to convert the error channel of the IO to a akka rejection whenever the passed ''filter'' is true.
-    * If the [[PartialFunction]] does not apply, the error channel is left untouched.
-    */
-  def rejectOn[E <: Throwable: ClassTag: JsonLdEncoder: HttpResponseFields: Encoder, A](
-      io: IO[Either[E, A]]
-  )(filter: PartialFunction[E, Boolean]): IO[Either[Response[E], A]] =
-    io.map {
-      _.leftMap {
-        case err @ filter(true) => Reject(err)
-        case err                => Complete(err)
-      }
-    }
 
   def unacceptedMediaTypeRejection(values: Seq[MediaType]): UnacceptedResponseContentTypeRejection =
     UnacceptedResponseContentTypeRejection(values.map(mt => Alternative(mt)).toSet)

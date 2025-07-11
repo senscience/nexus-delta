@@ -1,9 +1,5 @@
 package ai.senscience.nexus.delta.sdk.directives
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import akka.http.scaladsl.model.StatusCodes.Redirection
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives.*
@@ -26,17 +22,6 @@ object ResponseToRedirect {
       override def apply(redirection: Redirection): Route =
         onSuccess(io.unsafeToFuture()) { uri =>
           redirect(toAkka(uri), redirection)
-        }
-    }
-
-  implicit def ioRedirectWithError[E <: Throwable: JsonLdEncoder: HttpResponseFields](
-      io: IO[Either[E, Http4sUri]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToRedirect =
-    new ResponseToRedirect {
-      override def apply(redirection: Redirection): Route =
-        onSuccess(io.unsafeToFuture()) {
-          case Left(value)     => ResponseToJsonLd.valueWithHttpResponseFields[E](value).apply(None)
-          case Right(location) => redirect(toAkka(location), redirection)
         }
     }
 

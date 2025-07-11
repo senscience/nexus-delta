@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.supervision.CompositeViewsByNamespace
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -20,7 +19,7 @@ class CompositeSupervisionRoutes(
     blazegraphSupervision: SparqlSupervision,
     identities: Identities,
     aclCheck: AclCheck
-)(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+)(implicit ordering: JsonKeyOrdering)
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
@@ -43,7 +42,7 @@ object CompositeSupervisionRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       prefix: String
-  )(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering): CompositeSupervisionRoutes = {
+  )(implicit ordering: JsonKeyOrdering): CompositeSupervisionRoutes = {
     val viewsByNameSpace     = CompositeViewsByNamespace(views, prefix)
     val compositeSupervision = SparqlSupervision(client, viewsByNameSpace)
     new CompositeSupervisionRoutes(compositeSupervision, identities, aclCheck)

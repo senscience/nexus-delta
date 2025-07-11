@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -56,9 +57,23 @@ final class ResourcesRoutes(
   implicit private def resourceFAJsonLdEncoder[A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue.empty)
 
-  private val nonGenericResourceCandidate: PartialFunction[ResourceRejection, Boolean] = {
+  private val nonGenericResourceCandidate: Throwable => Boolean = {
     case _: ResourceNotFound | _: InvalidSchemaRejection | _: ReservedResourceTypes => true
+    case _                                                                          => false
   }
+
+  private val notFound: Throwable => Boolean = {
+    case _: ResourceNotFound => true
+    case _                   => false
+  }
+
+  private def exceptionHandler(filterRejection: Throwable => Boolean) =
+    handleExceptions(
+      ExceptionHandler {
+        case r: ResourceRejection if filterRejection(r) => reject(Reject(r))
+        case r: ResourceRejection                       => discardEntityAndForceEmit(r)
+      }
+    )
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
@@ -75,15 +90,13 @@ final class ResourcesRoutes(
               // Create a resource without schema nor id segment
               (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & indexingMode & tagParam) {
                 (source, mode, tag) =>
-                  authorizeWrite {
+                  (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
                     emit(
                       Created,
                       resources
                         .create(project, resourceSchema, source.value, tag)
                         .index(mode)
                         .map(_.void)
-                        .attemptNarrow[ResourceRejection]
-                        .rejectWhen(nonGenericResourceCandidate)
                     )
                   }
               },
@@ -92,15 +105,13 @@ final class ResourcesRoutes(
                 concat(
                   // Create a resource with schema but without id segment
                   (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & tagParam) { (source, tag) =>
-                    authorizeWrite {
+                    (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
                       emit(
                         Created,
                         resources
                           .create(project, schema, source.value, tag)
                           .index(mode)
                           .map(_.void)
-                          .attemptNarrow[ResourceRejection]
-                          .rejectWhen(nonGenericResourceCandidate)
                       )
                     }
                   },
@@ -110,7 +121,7 @@ final class ResourcesRoutes(
                         concat(
                           // Create or update a resource
                           put {
-                            authorizeWrite {
+                            (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
                               (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[NexusSource]) & tagParam) {
                                 case (None, source, tag)      =>
                                   // Create a resource with schema and id segments
@@ -120,8 +131,6 @@ final class ResourcesRoutes(
                                       .create(resource, project, schema, source.value, tag)
                                       .index(mode)
                                       .map(_.void)
-                                      .attemptNarrow[ResourceRejection]
-                                      .rejectWhen(nonGenericResourceCandidate)
                                   )
                                 case (Some(rev), source, tag) =>
                                   // Update a resource
@@ -130,8 +139,6 @@ final class ResourcesRoutes(
                                       .update(resource, project, schemaOpt, rev, source.value, tag)
                                       .index(mode)
                                       .map(_.void)
-                                      .attemptNarrow[ResourceRejection]
-                                      .rejectWhen(nonGenericResourceCandidate)
                                   )
                               }
                             }
@@ -140,23 +147,19 @@ final class ResourcesRoutes(
                           (pathEndOrSingleSlash & delete) {
                             concat(
                               parameter("rev".as[Int]) { rev =>
-                                authorizeWrite {
+                                (authorizeWrite & exceptionHandler(notFound)) {
                                   emit(
                                     resources
                                       .deprecate(resource, project, schemaOpt, rev)
                                       .index(mode)
                                       .map(_.void)
-                                      .attemptNarrow[ResourceRejection]
-                                      .rejectOn[ResourceNotFound]
                                   )
                                 }
                               },
                               (prune & authorizeDelete) {
                                 emit(
                                   StatusCodes.NoContent,
-                                  resources
-                                    .delete(resource, project)
-                                    .attemptNarrow[ResourceRejection]
+                                  resources.delete(resource, project)
                                 )
                               }
                             )
@@ -166,13 +169,8 @@ final class ResourcesRoutes(
                             emitOrFusionRedirect(
                               project,
                               resourceRef,
-                              authorizeRead {
-                                emit(
-                                  resources
-                                    .fetch(resourceRef, project, schemaOpt)
-                                    .attemptNarrow[ResourceRejection]
-                                    .rejectOn[ResourceNotFound]
-                                )
+                              (authorizeRead & exceptionHandler(notFound)) {
+                                emit(resources.fetch(resourceRef, project, schemaOpt))
                               }
                             )
                           }
@@ -180,19 +178,17 @@ final class ResourcesRoutes(
                       },
                       // Undeprecate a resource
                       (pathPrefix("undeprecate") & put & parameter("rev".as[Int])) { rev =>
-                        authorizeWrite {
+                        (authorizeWrite & exceptionHandler(notFound)) {
                           emit(
                             resources
                               .undeprecate(resource, project, schemaOpt, rev)
                               .index(mode)
                               .map(_.void)
-                              .attemptNarrow[ResourceRejection]
-                              .rejectOn[ResourceNotFound]
                           )
                         }
                       },
                       (pathPrefix("update-schema") & put & pathEndOrSingleSlash) {
-                        authorizeWrite {
+                        (authorizeWrite & exceptionHandler(notFound)) {
                           emit(
                             IO.fromOption(schemaOpt)(NoSchemaProvided)
                               .flatMap { schema =>
@@ -200,46 +196,41 @@ final class ResourcesRoutes(
                                   .updateAttachedSchema(resource, project, schema)
                                   .flatTap(index(project, _, mode))
                               }
-                              .attemptNarrow[ResourceRejection]
-                              .rejectOn[ResourceNotFound]
                           )
                         }
                       },
                       (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
-                        authorizeWrite {
+                        (authorizeWrite & exceptionHandler(notFound)) {
                           emit(
                             resources
                               .refresh(resource, project, schemaOpt)
                               .index(mode)
                               .map(_.void)
-                              .attemptNarrow[ResourceRejection]
-                              .rejectOn[ResourceNotFound]
                           )
                         }
                       },
                       // Fetch a resource original source
                       (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(resource) & varyAcceptHeaders) {
                         resourceRef =>
-                          authorizeRead {
+                          (authorizeRead & exceptionHandler(notFound)) {
                             annotateSource { annotate =>
                               emit(
                                 resources
                                   .fetch(resourceRef, project, schemaOpt)
                                   .map { resource => OriginalSource(resource, resource.value.source, annotate) }
-                                  .attemptNarrow[ResourceRejection]
-                                  .rejectOn[ResourceNotFound]
                               )
                             }
                           }
                       },
                       // Get remote contexts
                       pathPrefix("remote-contexts") {
-                        (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead) { resourceRef =>
+                        (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(_ =>
+                          false
+                        )) { resourceRef =>
                           emit(
                             resources
                               .fetchState(resourceRef, project, schemaOpt)
                               .map(_.remoteContexts)
-                              .attemptNarrow[ResourceRejection]
                           )
                         }
                       },
@@ -247,18 +238,18 @@ final class ResourcesRoutes(
                       pathPrefix("tags") {
                         concat(
                           // Fetch a resource tags
-                          (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead) { resourceRef =>
+                          (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(
+                            notFound
+                          )) { resourceRef =>
                             emit(
                               resources
                                 .fetch(resourceRef, project, schemaOpt)
                                 .map(_.value.tags)
-                                .attemptNarrow[ResourceRejection]
-                                .rejectOn[ResourceNotFound]
                             )
                           },
                           // Tag a resource
                           (post & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-                            authorizeWrite {
+                            (authorizeWrite & exceptionHandler(notFound)) {
                               entity(as[Tag]) { case Tag(tagRev, tag) =>
                                 emit(
                                   Created,
@@ -266,23 +257,20 @@ final class ResourcesRoutes(
                                     .tag(resource, project, schemaOpt, tag, tagRev, rev)
                                     .index(mode)
                                     .map(_.void)
-                                    .attemptNarrow[ResourceRejection]
-                                    .rejectOn[ResourceNotFound]
                                 )
                               }
                             }
                           },
                           // Delete a tag
-                          (tagLabel & delete & parameter("rev".as[Int]) & pathEndOrSingleSlash & authorizeWrite) {
-                            (tag, rev) =>
-                              emit(
-                                resources
-                                  .deleteTag(resource, project, schemaOpt, tag, rev)
-                                  .index(mode)
-                                  .map(_.void)
-                                  .attemptNarrow[ResourceRejection]
-                                  .rejectOn[ResourceNotFound]
-                              )
+                          (tagLabel & delete & parameter(
+                            "rev".as[Int]
+                          ) & pathEndOrSingleSlash & authorizeWrite & exceptionHandler(notFound)) { (tag, rev) =>
+                            emit(
+                              resources
+                                .deleteTag(resource, project, schemaOpt, tag, rev)
+                                .index(mode)
+                                .map(_.void)
+                            )
                           }
                         )
                       }

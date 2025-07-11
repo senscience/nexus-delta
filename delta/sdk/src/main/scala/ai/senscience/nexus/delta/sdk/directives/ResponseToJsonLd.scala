@@ -7,8 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.JsonLdValue
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.Response.{Complete, Reject}
-import ai.senscience.nexus.delta.sdk.directives.ResponseToJsonLd.{RouteOutcome, UseLeft, UseRight}
+import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat.{Compacted, Expanded}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, JsonLdFormat}
@@ -22,7 +21,6 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import cats.syntax.all.*
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
@@ -33,33 +31,18 @@ sealed trait ResponseToJsonLd {
 
 object ResponseToJsonLd extends FileBytesInstances {
 
-  private[directives] type UseLeft[A]  = Either[Response[A], Complete[Unit]]
-  private[directives] type UseRight[A] = Either[Response[Unit], Complete[A]]
-
-  sealed trait RouteOutcome[+E]
-  object RouteOutcome {
-    case class RouteRejected[E](value: Reject[E])           extends RouteOutcome[E]
-    case class RouteFailed(value: Complete[JsonLdValue])    extends RouteOutcome[Nothing]
-    case class RouteCompleted(value: Complete[JsonLdValue]) extends RouteOutcome[Nothing]
-  }
-
-  def apply[E](
-      io: IO[RouteOutcome[E]]
+  def apply(
+      io: IO[Complete[JsonLdValue]]
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
     new ResponseToJsonLd {
 
       // Some resources may not have been created in the system with a strict configuration
       // (and if they are, there is no need to check them again)
-      implicit val api: JsonLdApi = TitaniumJsonLdApi.lenient
+      implicit private val api: JsonLdApi = TitaniumJsonLdApi.lenient
 
       override def apply(statusOverride: Option[StatusCode]): Route = {
 
-        val ioFinal = statusOverride.fold(io) { newStatus =>
-          io.map {
-            case RouteOutcome.RouteCompleted(value) => RouteOutcome.RouteCompleted(value.copy(status = newStatus))
-            case other                              => other
-          }
-        }
+        val ioFinal = statusOverride.fold(io) { status => io.map { _.copy(status = status) } }
 
         def marshaller[R: ToEntityMarshaller](
             handle: JsonLdValue => IO[R],
@@ -67,16 +50,12 @@ object ResponseToJsonLd extends FileBytesInstances {
             jsonldFormat: Option[JsonLdFormat],
             encoding: HttpEncoding
         ): Route = {
-          val ioRoute = ioFinal.flatMap {
-            case RouteOutcome.RouteRejected(rej)                                          => IO.pure(reject(rej))
-            case RouteOutcome.RouteFailed(Complete(status, headers, _, value))            =>
-              handle(value).map(complete(status, headers, _))
-            case RouteOutcome.RouteCompleted(Complete(status, headers, entityTag, value)) =>
-              handle(value).map { r =>
-                conditionalCache(entityTag, mediaType, jsonldFormat, encoding) {
-                  complete(status, headers, r)
-                }
+          val ioRoute = ioFinal.flatMap { case Complete(status, headers, entityTag, value) =>
+            handle(value).map { r =>
+              conditionalCache(entityTag, mediaType, jsonldFormat, encoding) {
+                complete(status, headers, r)
               }
+            }
           }
           onSuccess(ioRoute.unsafeToFuture())(identity)
         }
@@ -112,14 +91,10 @@ object ResponseToJsonLd extends FileBytesInstances {
       }
     }
 
-  def apply[E: JsonLdEncoder, A: JsonLdEncoder](
-      io: IO[Either[Response[E], Complete[A]]]
+  def fromComplete[A: JsonLdEncoder](
+      io: IO[Complete[A]]
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    apply(io.map[RouteOutcome[E]] {
-      case Right(c: Complete[A]) => RouteOutcome.RouteCompleted(c.map(JsonLdValue(_)))
-      case Left(c: Complete[E])  => RouteOutcome.RouteFailed(c.map(JsonLdValue(_)))
-      case Left(rej: Reject[E])  => RouteOutcome.RouteRejected(rej)
-    })
+    apply(io.map { c => c.map(JsonLdValue(_)) })
 
   def fromFile(
       io: IO[FileResponse]
@@ -181,59 +156,34 @@ sealed trait FileBytesInstances extends ValueInstances {
 
 sealed trait ValueInstances extends LowPriorityValueInstances {
 
-  implicit def ioCompleteWithReject[E: JsonLdEncoder: HttpResponseFields, A: JsonLdEncoder](
-      io: IO[Either[E, Complete[A]]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(io.map(_.leftMap(Complete(_))))
-
-  implicit def ioValueWithReject[E: JsonLdEncoder](
-      io: IO[Reject[E]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(io.map[UseLeft[E]](Left(_)))
-
   implicit def ioValue[A: JsonLdEncoder: HttpResponseFields](
       io: IO[A]
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(io.map[UseRight[A]](v => Right(Complete(v))))
+    ResponseToJsonLd.fromComplete(io.map(v => Complete(v)))
 
-  implicit def ioEitherValueOrReject[E: JsonLdEncoder, A: JsonLdEncoder: HttpResponseFields](
-      io: IO[Either[Response[E], A]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd = {
-    ResponseToJsonLd(io.map(_.map(Complete(_))))
-  }
-
-  implicit def ioValueOrError[E: JsonLdEncoder: HttpResponseFields, A: JsonLdEncoder: HttpResponseFields](
-      io: IO[Either[E, A]]
+  implicit def ioJsonLdValue(
+      io: IO[JsonLdValue]
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(io.map(_.leftMap(Complete(_)).map(Complete(_))))
-
-  implicit def ioJsonLdValue[E: JsonLdEncoder: HttpResponseFields](
-      io: IO[Either[E, JsonLdValue]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(io.map[RouteOutcome[E]] {
-      case Left(e)      => RouteOutcome.RouteFailed(Complete(e).map[JsonLdValue](JsonLdValue(_)))
-      case Right(value) => RouteOutcome.RouteCompleted(Complete(OK, Seq.empty, None, value))
-    })
-
-  implicit def rejectValue[E: JsonLdEncoder](
-      value: Reject[E]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(IO.pure[UseLeft[E]](Left(value)))
+    ResponseToJsonLd(
+      io.map { value =>
+        Complete(OK, Seq.empty, None, value)
+      }
+    )
 
   implicit def completeValue[A: JsonLdEncoder](
       value: Complete[A]
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(IO.pure[UseRight[A]](Right(value)))
+    ResponseToJsonLd.fromComplete(IO.pure(value))
 
   implicit def valueWithHttpResponseFields[A: JsonLdEncoder: HttpResponseFields](
       value: A
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(IO.pure[UseRight[A]](Right(Complete(value))))
+    ResponseToJsonLd.fromComplete(IO.pure(Complete(value)))
 }
 
 sealed trait LowPriorityValueInstances {
   implicit def valueWithoutHttpResponseFields[A: JsonLdEncoder](
       value: A
   )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
-    ResponseToJsonLd(IO.pure[UseRight[A]](Right(Complete(OK, Seq.empty, None, value))))
+    ResponseToJsonLd.fromComplete(IO.pure(Complete(OK, Seq.empty, None, value)))
 }

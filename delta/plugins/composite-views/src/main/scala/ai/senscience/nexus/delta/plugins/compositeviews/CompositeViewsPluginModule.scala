@@ -294,10 +294,9 @@ class CompositeViewsPluginModule(priority: Int) extends ModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         config: CompositeViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(cr, ordering)
+      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(ordering)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(base) }

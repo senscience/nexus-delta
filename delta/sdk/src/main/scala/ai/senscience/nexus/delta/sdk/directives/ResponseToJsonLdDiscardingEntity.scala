@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCache, requestEncoding}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
-import ai.senscience.nexus.delta.sdk.directives.ResponseToJsonLd.UseRight
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
 import akka.http.scaladsl.model.StatusCodes.OK
@@ -35,14 +34,13 @@ object ResponseToJsonLdDiscardingEntity extends DiscardValueInstances {
               complete(status, headers, value.asJson)
             }
           }
-
         }
 
       override def apply(statusOverride: Option[StatusCode]): Route =
         extractRequest { request =>
           extractMaterializer { implicit mat =>
             request.discardEntityBytes()
-            ResponseToJsonLd(io.map[UseRight[A]](Right(_))).apply(statusOverride) ~ fallbackAsPlainJson
+            ResponseToJsonLd.fromComplete(io).apply(statusOverride) ~ fallbackAsPlainJson
           }
         }
     }

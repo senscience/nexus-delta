@@ -21,9 +21,8 @@ import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.{Decoder, Json}
@@ -44,8 +43,16 @@ final class ResourcesTrialRoutes(
     with CirceUnmarshalling
     with RdfMarshalling {
 
+  private val exceptionHandler =
+    handleExceptions {
+      ExceptionHandler {
+        case err: ResourceRejection => discardEntityAndForceEmit(err)
+        case err: SchemaRejection   => discardEntityAndForceEmit(err)
+      }
+    }
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
       concat(validateRoute, generateRoute)
     }
 
@@ -56,11 +63,7 @@ final class ResourcesTrialRoutes(
           (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
             authorizeFor(project, Write).apply {
               val schemaOpt = underscoreToOption(schema)
-              emit(
-                resourcesTrial
-                  .validate(id, project, schemaOpt)
-                  .attemptNarrow[ResourceRejection]
-              )
+              emit(resourcesTrial.validate(id, project, schemaOpt))
             }
           }
         }
@@ -97,7 +100,6 @@ final class ResourcesTrialRoutes(
                 .generate(project, schema, input.resource)
                 .flatMap(_.asJson)
             }
-            .attemptNarrow[SchemaRejection]
         )
     }
 }
