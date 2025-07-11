@@ -216,10 +216,9 @@ class BlazegraphPluginModule(priority: Int) extends ModuleDef {
         client: SparqlClient @Id("sparql-indexing-client"),
         identities: Identities,
         aclCheck: AclCheck,
-        cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      BlazegraphSupervisionRoutes(views, client, identities, aclCheck)(cr, ordering)
+      BlazegraphSupervisionRoutes(views, client, identities, aclCheck)(ordering)
   }
 
   make[BlazegraphScopeInitialization].from {

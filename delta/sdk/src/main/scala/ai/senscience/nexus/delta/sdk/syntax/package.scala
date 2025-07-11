@@ -14,7 +14,6 @@ package object syntax
     with PathSyntax
     with IterableSyntax
     with KamonSyntax
-    with IORejectSyntax
     with HttpResponseFieldsSyntax
     with ClassTagSyntax
     with IOSyntax

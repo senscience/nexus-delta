@@ -121,7 +121,7 @@ final class OrganizationsRoutes(
                           authorizeFor(org, orgs.delete).apply {
                             emit(orgDeleter.apply(org))
                           }
-                        case (_, _)                   => emit((InvalidDeleteRequest(org): OrganizationRejection).asLeft[Unit].pure[IO])
+                        case (_, _)                   => discardEntityAndForceEmit(InvalidDeleteRequest(org): OrganizationRejection)
                       }
                     }
                   )

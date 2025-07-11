@@ -146,7 +146,7 @@ final class ProjectsRoutes(
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
                   authorizeFor(project, ReadResources).apply {
                     val stats = projectsStatistics.get(project)
-                    emit(OptionT(stats).toRight[ProjectRejection](ProjectNotFound(project)).value)
+                    emit(OptionT(stats).toRight[ProjectRejection](ProjectNotFound(project)).rethrowT)
                   }
                 }
               )

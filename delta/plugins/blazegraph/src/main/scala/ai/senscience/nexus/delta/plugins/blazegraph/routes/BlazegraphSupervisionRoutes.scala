@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -19,7 +18,7 @@ class BlazegraphSupervisionRoutes(
     blazegraphSupervision: SparqlSupervision,
     identities: Identities,
     aclCheck: AclCheck
-)(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+)(implicit ordering: JsonKeyOrdering)
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
@@ -38,7 +37,6 @@ class BlazegraphSupervisionRoutes(
 object BlazegraphSupervisionRoutes {
 
   def apply(views: BlazegraphViews, client: SparqlClient, identities: Identities, aclCheck: AclCheck)(implicit
-      cr: RemoteContextResolution,
       ordering: JsonKeyOrdering
   ): BlazegraphSupervisionRoutes = {
     val viewsByNameSpace      = BlazegraphViewByNamespace(views)

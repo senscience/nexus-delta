@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
-import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, SupervisedDescription}
@@ -22,7 +21,6 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import cats.implicits.catsSyntaxApplicativeError
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Encoder, Json}
@@ -68,7 +66,6 @@ class SupervisionRoutes(
                   projectHealer
                     .heal(project)
                     .map(_ => healingSuccessfulResponse(project))
-                    .attemptNarrow[ProjectRejection]
                 )
               }
             }

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
-import ai.senscience.nexus.delta.sdk.{FileData, SimpleRejection, SimpleResource}
+import ai.senscience.nexus.delta.sdk.{FileData, SimpleResource}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
@@ -26,9 +26,8 @@ class ResponseToJsonLdSpec extends CatsEffectSpec with RouteHelpers with JsonSyn
 
   implicit val rcr: RemoteContextResolution =
     RemoteContextResolution.fixed(
-      SimpleResource.contextIri  -> SimpleResource.context,
-      SimpleRejection.contextIri -> SimpleRejection.context,
-      contexts.error             -> jsonContentOf("contexts/error.json").topContextValueOrEmpty
+      SimpleResource.contextIri -> SimpleResource.context,
+      contexts.error            -> jsonContentOf("contexts/error.json").topContextValueOrEmpty
     )
   implicit val jo: JsonKeyOrdering          = JsonKeyOrdering.default()
 

@@ -64,7 +64,7 @@ object FileResponse {
       etag: Option[String],
       bytes: Option[Long],
       data: FileData
-  ) = {
+  ): FileResponse = {
     new FileResponse(
       Metadata(
         filename,

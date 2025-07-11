@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -60,26 +61,42 @@ final class SchemasRoutes(
   implicit private def resourceFAJsonLdEncoder[A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.schemasMetadata))
 
+  private def exceptionHandler(enableRejects: Boolean) =
+    handleExceptions(
+      ExceptionHandler { case err: SchemaRejection =>
+        err match {
+          case _: SchemaNotFound if enableRejects => reject(Reject(err))
+          case _                                  => discardEntityAndForceEmit(err)
+        }
+      }
+    )
+
   private def emitFetch(io: IO[SchemaResource]): Route =
-    emit(io.attemptNarrow[SchemaRejection].rejectOn[SchemaNotFound])
+    exceptionHandler(enableRejects = true) {
+      emit(io)
+    }
 
   private def emitMetadata(statusCode: StatusCode, io: IO[SchemaResource]): Route =
-    emit(statusCode, io.map(_.void).attemptNarrow[SchemaRejection])
+    exceptionHandler(enableRejects = false) {
+      emit(statusCode, io.map(_.void))
+    }
 
   private def emitMetadata(io: IO[SchemaResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   private def emitMetadataOrReject(io: IO[SchemaResource]): Route =
-    emit(io.map(_.void).attemptNarrow[SchemaRejection].rejectOn[SchemaNotFound])
+    exceptionHandler(enableRejects = true) {
+      emit(io.map(_.void))
+    }
 
   private def emitSource(io: IO[SchemaResource], annotate: Boolean): Route =
-    emit(
-      io.map { resource => OriginalSource(resource, resource.value.source, annotate) }
-        .attemptNarrow[SchemaRejection]
-        .rejectOn[SchemaNotFound]
-    )
+    exceptionHandler(enableRejects = true) {
+      emit(io.map { resource => OriginalSource(resource, resource.value.source, annotate) })
+    }
 
   private def emitTags(io: IO[SchemaResource]): Route =
-    emit(io.map(_.value.tags).attemptNarrow[SchemaRejection].rejectOn[SchemaNotFound])
+    exceptionHandler(enableRejects = true) {
+      emit(io.map(_.value.tags))
+    }
 
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("schemas", shacl)) {

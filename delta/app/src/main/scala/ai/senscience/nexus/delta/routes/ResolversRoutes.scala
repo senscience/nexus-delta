@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.routes.ResolutionType.{AllResolversInProject, S
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -28,7 +29,7 @@ import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.Json
 
 /**
@@ -60,26 +61,38 @@ final class ResolversRoutes(
 
   import schemeDirectives.*
 
+  private def exceptionHandler(enableRejects: Boolean) =
+    handleExceptions(
+      ExceptionHandler { case err: ResolverRejection =>
+        err match {
+          case _: ResolverNotFound if enableRejects => reject(Reject(err))
+          case _                                    => discardEntityAndForceEmit(err)
+        }
+      }
+    )
+
   implicit private val resourceFUnitJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.resolversMetadata))
 
-  private def emitFetch(io: IO[ResolverResource]): Route                            =
-    emit(io.attemptNarrow[ResolverRejection].rejectOn[ResolverNotFound])
+  private def emitFetch(io: IO[ResolverResource]): Route =
+    exceptionHandler(enableRejects = true) { emit(io) }
+
   private def emitMetadata(statusCode: StatusCode, io: IO[ResolverResource]): Route =
-    emit(statusCode, io.map(_.void).attemptNarrow[ResolverRejection])
+    exceptionHandler(enableRejects = false) {
+      emit(statusCode, io.map(_.void))
+    }
 
   private def emitMetadata(io: IO[ResolverResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   private def emitMetadataOrReject(io: IO[ResolverResource]): Route =
-    emit(io.map(_.void).attemptNarrow[ResolverRejection].rejectOn[ResolverNotFound])
+    exceptionHandler(enableRejects = true) {
+      emit(io.map(_.void))
+    }
 
   private def emitSource(io: IO[ResolverResource]): Route =
-    emit(
-      io
-        .map { resource => OriginalSource(resource, resource.value.source) }
-        .attemptNarrow[ResolverRejection]
-        .rejectOn[ResolverNotFound]
-    )
+    exceptionHandler(enableRejects = true) {
+      emit(io.map { resource => OriginalSource(resource, resource.value.source) })
+    }
 
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
@@ -180,21 +193,21 @@ final class ResolversRoutes(
       output: ResolvedResourceOutputType
   )(implicit baseUri: BaseUri, caller: Caller): Route =
     authorizeFor(project, Permissions.resources.read).apply {
-      def emitResult[R: JsonLdEncoder: HttpResponseFields](io: IO[MultiResolutionResult[R]]) = {
-        output match {
-          case ResolvedResourceOutputType.Report          => emit(io.map(_.report).attemptNarrow[ResolverRejection])
-          case ResolvedResourceOutputType.JsonLd          => emit(io.map(_.value.jsonLdValue).attemptNarrow[ResolverRejection])
-          case ResolvedResourceOutputType.Source          =>
-            emit(io.map(_.value.source).attemptNarrow[ResolverRejection])
-          case ResolvedResourceOutputType.AnnotatedSource =>
-            val annotatedSourceIO = io.map { r => OriginalSource.annotated(r.value.resource, r.value.source) }
-            emit(annotatedSourceIO.attemptNarrow[ResolverRejection])
+      exceptionHandler(enableRejects = false) {
+        def emitResult[R: JsonLdEncoder: HttpResponseFields](io: IO[MultiResolutionResult[R]]) = {
+          output match {
+            case ResolvedResourceOutputType.Report          => emit(io.map(_.report))
+            case ResolvedResourceOutputType.JsonLd          => emit(io.map(_.value.jsonLdValue))
+            case ResolvedResourceOutputType.Source          => emit(io.map(_.value.source))
+            case ResolvedResourceOutputType.AnnotatedSource =>
+              emit(io.map { r => OriginalSource.annotated(r.value.resource, r.value.source) })
+          }
         }
-      }
 
-      resolutionType match {
-        case ResolutionType.AllResolversInProject => emitResult(multiResolution(resource, project))
-        case SingleResolver(resolver)             => emitResult(multiResolution(resource, project, resolver))
+        resolutionType match {
+          case ResolutionType.AllResolversInProject => emitResult(multiResolution(resource, project))
+          case SingleResolver(resolver)             => emitResult(multiResolution(resource, project, resolver))
+        }
       }
     }
 
