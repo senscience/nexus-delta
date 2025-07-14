@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.elasticsearch.indexing.GraphResourceToDocument
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
-import ai.senscience.nexus.delta.plugins.elasticsearch.indexing.GraphResourceToDocument
+import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords

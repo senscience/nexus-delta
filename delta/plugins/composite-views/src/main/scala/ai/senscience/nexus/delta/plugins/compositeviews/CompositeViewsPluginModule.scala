@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
@@ -11,7 +12,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIn
 import ai.senscience.nexus.delta.plugins.compositeviews.routes.{CompositeSupervisionRoutes, CompositeViewsIndexingRoutes, CompositeViewsRoutes, CompositeViewsRoutesHandler}
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphStream, RemoteGraphStream}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.rdf.Triple
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}

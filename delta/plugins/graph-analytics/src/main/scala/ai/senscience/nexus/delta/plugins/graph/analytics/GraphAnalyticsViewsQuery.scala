@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.sdk.model.search.SortList
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO

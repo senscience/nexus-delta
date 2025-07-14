@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.search
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchExceptionHandler
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.NamedSuite
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, SearchRejection}

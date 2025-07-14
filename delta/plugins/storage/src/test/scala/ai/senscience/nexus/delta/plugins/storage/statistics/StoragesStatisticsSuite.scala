@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.storage.statistics
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.{EventMetrics, EventMetricsIndex}
-import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsIndex}
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.statistics.StoragesStatisticsSuite.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesStatistics

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourc
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.ElasticSearchProjectionType
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
 import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, expectIndexingView}
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject

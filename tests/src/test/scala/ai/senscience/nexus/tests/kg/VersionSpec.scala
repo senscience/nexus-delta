@@ -37,7 +37,6 @@ object VersionSpec {
   final case class PluginsBundle(
       archive: String,
       blazegraph: String,
-      elasticsearch: String,
       `composite-views`: String,
       storage: String
   )

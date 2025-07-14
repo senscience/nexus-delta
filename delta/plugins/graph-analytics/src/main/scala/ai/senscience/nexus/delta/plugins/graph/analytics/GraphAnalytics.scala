@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{propertiesAggQuery, relationshipsAggQuery}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection.InvalidPropertyType

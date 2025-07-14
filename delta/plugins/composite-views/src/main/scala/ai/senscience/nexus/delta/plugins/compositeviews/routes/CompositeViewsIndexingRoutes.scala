@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{ProjectionOffset, ProjectionStatistics}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.{ExpandId, FetchView}
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder

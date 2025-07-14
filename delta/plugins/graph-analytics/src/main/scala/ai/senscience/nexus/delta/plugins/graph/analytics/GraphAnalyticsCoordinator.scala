@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.graph.analytics.GraphAnalytics.{index, projectionName}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{graphAnalyticsMappings, scriptContent, updateRelationshipsScriptId, GraphAnalyticsSink, GraphAnalyticsStream}

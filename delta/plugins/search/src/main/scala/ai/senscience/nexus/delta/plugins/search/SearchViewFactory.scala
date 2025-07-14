@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.ElasticSearchProjectionFields
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourceFields.ProjectSourceFields
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewFields, CompositeViewValue}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
+import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultSourceId}
 import ai.senscience.nexus.delta.sdk.Defaults

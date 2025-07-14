@@ -163,6 +163,17 @@ Acl provisioning will only run if none is create at the root level.
 
 @link:[The `acls.provisioning` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf){ open=new } of the configuration defines it.
 
+### Elasticsearch configuration
+
+The elasticsearch plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/elasticsearch/src/main/resources/elasticsearch.conf){ open=new }.
+
+The most important flags are:
+* `app.elasticsearch.base` which defines the endpoint where the Elasticsearch service is running.
+* `app.elasticsearch.credentials.username` and `plugins.elasticsearch.credentials.password` to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.
+
+Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/docs/deploy-manage/security) which describes the different steps to achieve this.
+
+
 ## Fusion configuration
 
 When fetching a resource, Nexus Delta allows to return a redirection to its representation in Fusion by providing `text/html` in the `Accept` header.
@@ -184,16 +195,6 @@ Since 1.5.0, Nexus Delta supports plugins. Jar files present inside the local di
 Each plugin configuration is rooted under `plugins.{plugin_name}`. All plugins have a `plugins.{plugin_name}.priority` configuration flag used to determine the order in which the routes are handled in case of collisions. 
 
 For more information about plugins, please refer to the @ref:[Plugins page](../../delta/plugins/index.md).
-
-### Elasticsearch views plugin configuration
-
-The elasticsearch plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf){ open=new }.
-
-The most important flags are:
-* `plugins.elasticsearch.base` which defines the endpoint where the Elasticsearch service is running.
-* `plugins.elasticsearch.credentials.username` and `plugins.elasticsearch.credentials.password` to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.
-
-Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/docs/deploy-manage/security) which describes the different steps to achieve this.
 
 ### Blazegraph views plugin configuration
 

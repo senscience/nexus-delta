@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchExceptionHandler
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection
 import ai.senscience.nexus.delta.plugins.graph.analytics.permissions.query
 import ai.senscience.nexus.delta.plugins.graph.analytics.{GraphAnalytics, GraphAnalyticsViewsQuery}

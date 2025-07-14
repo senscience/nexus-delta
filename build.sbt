@@ -237,12 +237,12 @@ lazy val docs = project
       val contextDirs                        = Seq(
         (rdf / Compile / resourceDirectory).value / "contexts",
         (sdk / Compile / resourceDirectory).value / "contexts",
+        (elasticsearch / Compile / resourceDirectory).value / "contexts",
         (archivePlugin / Compile / resourceDirectory).value / "contexts",
         (blazegraphPlugin / Compile / resourceDirectory).value / "contexts",
         (graphAnalyticsPlugin / Compile / resourceDirectory).value / "contexts",
         (compositeViewsPlugin / Compile / resourceDirectory).value / "contexts",
         (searchPlugin / Compile / resourceDirectory).value / "contexts",
-        (elasticsearchPlugin / Compile / resourceDirectory).value / "contexts",
         (storagePlugin / Compile / resourceDirectory).value / "contexts"
       )
       contextDirs.flatMap { dir =>
@@ -404,6 +404,17 @@ lazy val sdk = project
     addCompilerPlugin(betterMonadicFor)
   )
 
+lazy val elasticsearch = project
+  .in(file("delta/elasticsearch"))
+  .settings(shared, compilation, assertJavaVersion, coverage, release)
+  .dependsOn(
+    sdk % "compile->compile;test->test"
+  )
+  .settings(
+    addCompilerPlugin(betterMonadicFor),
+    Test / fork := true
+  )
+
 lazy val app = project
   .in(file("delta/app"))
   .settings(
@@ -412,7 +423,7 @@ lazy val app = project
   )
   .enablePlugins(UniversalPlugin, JavaAppPackaging, JavaAgent, DockerPlugin, BuildInfoPlugin)
   .settings(shared, compilation, servicePackaging, assertJavaVersion, kamonSettings, coverage, release)
-  .dependsOn(sdk % "compile->compile;test->test", testkit % "test->compile")
+  .dependsOn(sdk % "compile->compile;test->test", elasticsearch, testkit % "test->compile")
   .settings(Test / compile := (Test / compile).dependsOn(testPlugin / assembly).value)
   .settings(
     libraryDependencies  ++= Seq(
@@ -432,7 +443,6 @@ lazy val app = project
     buildInfoPackage      := "ai.senscience.nexus.delta.config",
     Docker / packageName  := "nexus-delta",
     copyPlugins           := {
-      val esFile              = (elasticsearchPlugin / assembly).value
       val bgFile              = (blazegraphPlugin / assembly).value
       val graphAnalyticsFile  = (graphAnalyticsPlugin / assembly).value
       val storageFile         = (storagePlugin / assembly).value
@@ -444,7 +454,6 @@ lazy val app = project
       IO.createDirectory(pluginsTarget)
       IO.copy(
         Set(
-          esFile              -> (pluginsTarget / esFile.getName),
           bgFile              -> (pluginsTarget / bgFile.getName),
           graphAnalyticsFile  -> (pluginsTarget / graphAnalyticsFile.getName),
           storageFile         -> (pluginsTarget / storageFile.getName),
@@ -469,7 +478,6 @@ lazy val app = project
       (Test / testQuick).evaluated
     },
     Universal / mappings ++= {
-      val esFile              = (elasticsearchPlugin / assembly).value
       val bgFile              = (blazegraphPlugin / assembly).value
       val graphAnalytics      = (graphAnalyticsPlugin / assembly).value
       val storageFile         = (storagePlugin / assembly).value
@@ -478,7 +486,6 @@ lazy val app = project
       val searchFile          = (searchPlugin / assembly).value
       val projectDeletionFile = (projectDeletionPlugin / assembly).value
       Seq(
-        (esFile, "plugins/" + esFile.getName),
         (bgFile, "plugins/" + bgFile.getName),
         (graphAnalytics, "plugins/" + graphAnalytics.getName),
         (storageFile, "plugins/" + storageFile.getName),
@@ -500,28 +507,6 @@ lazy val testPlugin = project
     assembly / assemblyOutputPath := target.value / "delta-test-plugin.jar",
     assembly / assemblyOption     := (assembly / assemblyOption).value.withIncludeScala(false),
     Test / fork                   := true
-  )
-
-lazy val elasticsearchPlugin = project
-  .in(file("delta/plugins/elasticsearch"))
-  .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
-  .dependsOn(
-    sdk % "provided;test->test"
-  )
-  .settings(
-    name                       := "delta-elasticsearch-plugin",
-    moduleName                 := "delta-elasticsearch-plugin",
-    assembly / assemblyJarName := "elasticsearch.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    libraryDependencies        += kamonAkkaHttp % Provided,
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.elasticsearch",
-    addCompilerPlugin(betterMonadicFor),
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-elasticsearch-plugin", "plugin"), assembly),
-    Test / fork                := true
   )
 
 lazy val blazegraphPlugin = project
@@ -550,9 +535,9 @@ lazy val compositeViewsPlugin = project
   .enablePlugins(BuildInfoPlugin)
   .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
   .dependsOn(
-    sdk                 % "provided;test->test",
-    elasticsearchPlugin % "provided;test->test",
-    blazegraphPlugin    % "provided;test->test"
+    sdk              % "provided;test->test",
+    elasticsearch    % "provided;test->test",
+    blazegraphPlugin % "provided;test->test"
   )
   .settings(
     name                       := "delta-composite-views-plugin",
@@ -575,8 +560,8 @@ lazy val searchPlugin = project
   .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
   .dependsOn(
     sdk                  % "provided;test->test",
+    elasticsearch        % "provided;test->compile;test->test",
     blazegraphPlugin     % "provided;test->compile;test->test",
-    elasticsearchPlugin  % "provided;test->compile;test->test",
     compositeViewsPlugin % "provided;test->compile;test->test"
   )
   .settings(
@@ -599,9 +584,9 @@ lazy val storagePlugin = project
   .in(file("delta/plugins/storage"))
   .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
   .dependsOn(
-    sdk                 % "provided;test->test",
-    elasticsearchPlugin % "provided;test->compile;test->test",
-    testkit             % "test->compile"
+    sdk           % "provided;test->test",
+    elasticsearch % "provided;test->compile;test->test",
+    testkit       % "test->compile"
   )
   .settings(
     name                       := "delta-storage-plugin",
@@ -674,9 +659,9 @@ lazy val graphAnalyticsPlugin = project
   .enablePlugins(BuildInfoPlugin)
   .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
   .dependsOn(
-    sdk                 % Provided,
-    storagePlugin       % "provided;test->test",
-    elasticsearchPlugin % "provided;test->test"
+    sdk           % Provided,
+    storagePlugin % "provided;test->test",
+    elasticsearch % "provided;test->test"
   )
   .settings(
     name                       := "delta-graph-analytics-plugin",
@@ -697,7 +682,6 @@ lazy val plugins = project
   .in(file("delta/plugins"))
   .settings(shared, compilation, noPublish)
   .aggregate(
-    elasticsearchPlugin,
     blazegraphPlugin,
     compositeViewsPlugin,
     searchPlugin,
@@ -711,7 +695,7 @@ lazy val plugins = project
 lazy val delta = project
   .in(file("delta"))
   .settings(shared, compilation, noPublish)
-  .aggregate(kernel, testkit, sourcingPsql, rdf, sdk, app, plugins)
+  .aggregate(kernel, testkit, sourcingPsql, rdf, sdk, elasticsearch, app, plugins)
 
 lazy val tests = project
   .in(file("tests"))
@@ -943,7 +927,7 @@ addCommandAlias(
 addCommandAlias("build-docs", ";docs/clean;docs/makeSite")
 addCommandAlias("preview-docs", ";docs/clean;docs/previewSite")
 
-val coreModules = List("kernel", "akkaMarshalling", "akkaTestArchive", "rdf", "sdk", "sourcingPsql", "testkit")
+val coreModules = List("kernel", "akkaMarshalling", "akkaTestArchive", "rdf", "sdk", "sourcingPsql", "elasticsearch", "testkit")
 
 val staticAnalysis =
   s"""

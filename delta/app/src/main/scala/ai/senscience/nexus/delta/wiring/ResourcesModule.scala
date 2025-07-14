@@ -114,7 +114,7 @@ object ResourcesModule extends ModuleDef {
   many[ApiMappings].add(Resources.mappings)
 
   many[PriorityRoute].add { (route: ResourcesRoutes) =>
-    PriorityRoute(pluginsMinPriority - 1, route.routes, requiresStrictEntity = true)
+    PriorityRoute(pluginsMinPriority - 2, route.routes, requiresStrictEntity = true)
   }
 
   make[Resource.Shift].from { (resources: Resources, base: BaseUri) =>

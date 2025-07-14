@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphExceptionHandler
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewNotFound
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchExceptionHandler
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAndForceEmit
