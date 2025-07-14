@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.serialization
 
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewFields, contexts}
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{contexts, CompositeViewFields}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax

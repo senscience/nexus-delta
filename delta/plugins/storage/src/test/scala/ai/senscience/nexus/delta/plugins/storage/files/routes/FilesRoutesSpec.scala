@@ -4,10 +4,10 @@ import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileId}
-import ai.senscience.nexus.delta.plugins.storage.files.{FileFixtures, Files, FormDataExtractor, MediaTypeDetector, MediaTypeDetectorConfig, permissions, contexts as fileContexts}
+import ai.senscience.nexus.delta.plugins.storage.files.{contexts as fileContexts, permissions, FileFixtures, Files, FormDataExtractor, MediaTypeDetector, MediaTypeDetectorConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
-import ai.senscience.nexus.delta.plugins.storage.storages.{FetchStorage, StorageFixtures, Storages, StoragesConfig, contexts as storageContexts, permissions as storagesPermissions}
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContexts, permissions as storagesPermissions, FetchStorage, StorageFixtures, Storages, StoragesConfig}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}

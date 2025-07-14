@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuerySuite.Samp
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewType, permissions}
+import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticSearchViewType}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri

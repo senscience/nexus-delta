@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSearchParams}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
-import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, defaultProjectionId, defaultViewId}
+import ai.senscience.nexus.delta.plugins.search.model.{defaultProjectionId, defaultViewId, SearchConfig}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller

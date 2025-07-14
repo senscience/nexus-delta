@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews.{CompositeViewsLog, entityType, expandIri}
+import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews.{entityType, expandIri, CompositeViewsLog}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.*

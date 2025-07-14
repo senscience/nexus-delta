@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.plugins.storage.files.contexts as fileContexts
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{DigestAlgorithm, StorageStatEntry, StorageType}
-import ai.senscience.nexus.delta.plugins.storage.storages.{StorageFixtures, UUIDFFixtures, contexts as storageContexts, *}
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContexts, StorageFixtures, UUIDFFixtures, *}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv

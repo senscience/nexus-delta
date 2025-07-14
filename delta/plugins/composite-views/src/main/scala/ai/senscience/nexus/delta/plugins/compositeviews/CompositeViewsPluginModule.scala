@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.deletion.CompositeViewsDeletionTask
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.*
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewEvent, contexts}
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{contexts, CompositeViewEvent}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.routes.{CompositeSupervisionRoutes, CompositeViewsIndexingRoutes, CompositeViewsRoutes, CompositeViewsRoutesHandler}
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
