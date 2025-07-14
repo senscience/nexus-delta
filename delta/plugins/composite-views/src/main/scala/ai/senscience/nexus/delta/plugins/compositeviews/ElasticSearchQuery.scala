@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller

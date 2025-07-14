@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.wiring
 
+import ai.senscience.nexus.delta.Main
 import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
@@ -139,6 +141,7 @@ class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: Class
   include(ResourcesTrialModule)
   include(MultiFetchModule)
   include(IdentitiesModule)
+  include(new ElasticSearchModule(Main.pluginsMinPriority))
   include(VersionModule)
   include(EventsModule)
   include(ExportModule)

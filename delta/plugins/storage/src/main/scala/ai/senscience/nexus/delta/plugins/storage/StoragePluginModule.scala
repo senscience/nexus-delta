@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.storage
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.plugins.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.plugins.storage.files.Files.FilesLog
 import ai.senscience.nexus.delta.plugins.storage.files.contexts.files as fileCtxId
 import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileEvent}

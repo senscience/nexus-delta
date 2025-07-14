@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.plugins.storage.storages
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.FileNotFound
-import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
+import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.StorageNotFound
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAndForceEmit

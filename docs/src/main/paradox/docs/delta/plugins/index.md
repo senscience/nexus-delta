@@ -118,7 +118,6 @@ Currently, following Delta functionality is provided by plugins:
 
 - archives @ref:[API Reference](../api/archives-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/archive/src){ open=new }
 - SPARQL views @ref:[API Reference](../api/views/sparql-view-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/blazegraph/src){ open=new }
-- Elasticsearch views @ref:[API Reference](../api/views/elasticsearch-view-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/elasticsearch/src){ open=new }
 - composite views @ref:[API Reference](../api/views/composite-view-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/composite-views/src){ open=new }
 - files and storages @ref:[API Reference](../api/files-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/storage/src){ open=new }
 - global search @ref:[API Reference](../api/search-api.md) | @link:[code](https://github.com/senscience/nexus-delta/tree/$git.branch$/delta/plugins/search/src){ open=new }

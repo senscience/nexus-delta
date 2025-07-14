@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ViewResource
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews, ElasticSearchQuery}
-import ai.senscience.nexus.delta.plugins.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering

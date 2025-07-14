@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri

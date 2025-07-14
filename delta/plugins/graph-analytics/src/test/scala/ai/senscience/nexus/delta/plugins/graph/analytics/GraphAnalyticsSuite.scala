@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchAction
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.Refresh.WaitFor
-import ai.senscience.nexus.delta.plugins.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
+import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{Edge, EdgePath, Node}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata

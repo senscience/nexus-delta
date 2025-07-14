@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.ElasticSearchClient
 import cats.effect.IO
 
 /**

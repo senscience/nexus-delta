@@ -1,5 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.PermissionIsNotDefined
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheckError
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
@@ -7,9 +10,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.{CrossProjectSourceForbidden, CrossProjectSourceProjectNotFound, DuplicateIds, InvalidElasticSearchProjectionPayload, InvalidRemoteProjectSource, TooManyProjections, TooManySources}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, ProjectSource, RemoteProjectSource}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewProjection, CompositeViewSource, CompositeViewValue}
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel}
-import ai.senscience.nexus.delta.plugins.elasticsearch.model.ElasticSearchViewRejection.PermissionIsNotDefined
-import ai.senscience.nexus.delta.plugins.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events

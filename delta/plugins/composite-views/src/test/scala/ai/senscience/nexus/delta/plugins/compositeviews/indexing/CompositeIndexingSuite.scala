@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchClientSetup
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
@@ -18,8 +20,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartSt
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run.{Main, Rebuild}
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeGraphStream, CompositeProgress}
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViewFactory, CompositeViews, Fixtures}
-import ai.senscience.nexus.delta.plugins.elasticsearch.ElasticSearchClientSetup
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, rdf, rdfs, schemas}
 import ai.senscience.nexus.delta.rdf.graph.Graph

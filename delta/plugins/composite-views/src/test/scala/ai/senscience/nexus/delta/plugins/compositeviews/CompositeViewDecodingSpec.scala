@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourceFields.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewFields, TemplateSparqlConstructQuery}
 import ai.senscience.nexus.delta.plugins.compositeviews.serialization.CompositeViewFieldsJsonLdSourceDecoder
-import ai.senscience.nexus.delta.plugins.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.syntax.*
