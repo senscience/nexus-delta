@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'akka/**'
+      - 'delta/elasticsearch/**'
       - 'delta/kernel/**'
       - 'delta/rdf/**'
       - 'delta/sdk/**'
