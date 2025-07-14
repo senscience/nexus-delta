@@ -1,6 +1,6 @@
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2")
 
-addSbtPlugin("org.scalameta"          % "sbt-scalafmt"              % "2.5.4")
+addSbtPlugin("org.scalameta"          % "sbt-scalafmt"              % "2.5.5")
 addSbtPlugin("org.scoverage"          % "sbt-scoverage"             % "2.3.1")
 addSbtPlugin("com.sksamuel.scapegoat" % "sbt-scapegoat"             % "1.2.13")
 addSbtPlugin("com.github.cb372"       % "sbt-explicit-dependencies" % "0.3.1")
@@ -15,11 +15,11 @@ addSbtPlugin("com.github.sbt"        % "sbt-site-paradox"           % "1.7.0")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox"                % "0.10.7")
 addSbtPlugin("com.github.sbt"        % "sbt-paradox-material-theme" % "0.7.0")
 
-addSbtPlugin("com.github.sbt" % "sbt-dynver"     % "5.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-dynver"     % "5.1.1")
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.11.1")
 
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.7")
 
-addSbtPlugin("io.gatling" % "gatling-sbt" % "4.16.0")
+addSbtPlugin("io.gatling" % "gatling-sbt" % "4.16.2")
 
 addDependencyTreePlugin
