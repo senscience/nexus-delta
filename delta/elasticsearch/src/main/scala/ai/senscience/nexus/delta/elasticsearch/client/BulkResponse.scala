@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
-import BulkResponse.MixedOutcomes.Outcome
+import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
 import cats.syntax.all.*
 import io.circe.{Decoder, DecodingFailure, JsonObject}
 

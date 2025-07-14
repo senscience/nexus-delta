@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
-import ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
-import ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
@@ -130,7 +130,6 @@ final case class ElasticSearchViewState(
 object ElasticSearchViewState {
 
   implicit val serializer: Serializer[Iri, ElasticSearchViewState] = {
-    import ElasticSearchViewValue.Database.*
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                  = Serializer.circeConfiguration
     implicit val codec: Codec.AsObject[ElasticSearchViewState] = deriveConfiguredCodec[ElasticSearchViewState]

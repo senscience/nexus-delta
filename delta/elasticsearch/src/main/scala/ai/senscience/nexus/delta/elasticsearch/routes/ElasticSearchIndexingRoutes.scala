@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuery
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
-import ElasticSearchIndexingRoutes.FetchIndexingView
-import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuery
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

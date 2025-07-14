@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.routes
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{Edge, EdgePath, Node}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
-import ai.senscience.nexus.delta.plugins.graph.analytics.{contexts, permissions, GraphAnalytics}
+import ai.senscience.nexus.delta.plugins.graph.analytics.{GraphAnalytics, contexts, permissions}
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution

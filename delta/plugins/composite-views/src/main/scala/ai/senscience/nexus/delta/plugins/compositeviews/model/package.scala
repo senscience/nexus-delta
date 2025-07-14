@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
-import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts as nxvContexts, nxv, schemas}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas, contexts as nxvContexts}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
-import ai.senscience.nexus.delta.plugins.storage.files.{contexts, nxvFile, Files}
+import ai.senscience.nexus.delta.plugins.storage.files.{Files, contexts, nxvFile}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
-import ai.senscience.nexus.delta.sdk.sse.{resourcesSelector, SseEncoder}
+import ai.senscience.nexus.delta.sdk.sse.{SseEncoder, resourcesSelector}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject

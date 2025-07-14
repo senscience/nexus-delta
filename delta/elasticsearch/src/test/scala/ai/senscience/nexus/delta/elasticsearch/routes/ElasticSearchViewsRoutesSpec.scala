@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
+import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords

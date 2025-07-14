@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.nextIndexingRev
+import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, PipeStep}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag

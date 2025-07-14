@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchSink, GraphResourceToDocument}
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
@@ -12,7 +13,6 @@ import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsCon
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.{BatchQueryGraph, SingleQueryGraph}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
-import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchSink, GraphResourceToDocument}
 import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

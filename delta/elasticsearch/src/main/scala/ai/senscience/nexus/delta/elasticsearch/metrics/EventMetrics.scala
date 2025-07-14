@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.metrics
 
-import ai.senscience.nexus.delta.elasticsearch.client.{BulkResponse, ElasticSearchClient, QueryBuilder, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.Index
+import ai.senscience.nexus.delta.elasticsearch.client.{BulkResponse, ElasticSearchClient, QueryBuilder, Refresh}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults

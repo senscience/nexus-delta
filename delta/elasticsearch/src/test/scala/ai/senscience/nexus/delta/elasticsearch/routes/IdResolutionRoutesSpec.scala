@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.IdResolution
+import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult.SingleResult
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import IdResolution.ResolutionResult.SingleResult
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig

@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidElasticSearchIndexPayload, InvalidPipeline, InvalidViewReferences, PermissionIsNotDefined, TooManyViewReferences}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue
-import ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ValidateAggregate}

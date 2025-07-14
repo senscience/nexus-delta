@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ElasticSearchViews.{evaluate, next}
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews.{evaluate, next}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewCommand.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewEvent.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewType.ElasticSearch as ElasticSearchType
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.*
-import model.{ElasticSearchViewState, ElasticSearchViewValue}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue}
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission

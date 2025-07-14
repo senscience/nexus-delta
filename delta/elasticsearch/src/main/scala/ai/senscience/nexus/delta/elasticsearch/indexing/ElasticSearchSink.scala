@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig

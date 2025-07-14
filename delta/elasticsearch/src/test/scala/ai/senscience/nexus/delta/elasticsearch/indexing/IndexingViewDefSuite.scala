@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue}
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject

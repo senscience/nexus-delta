@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
-import IndexLabel.{IllegalIndexLabel, IndexGroup}
+import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.{IllegalIndexLabel, IndexGroup}
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class IndexLabelSpec extends BaseSpec {

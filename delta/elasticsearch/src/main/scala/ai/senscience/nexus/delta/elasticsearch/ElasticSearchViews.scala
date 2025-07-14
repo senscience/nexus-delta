@@ -1,19 +1,19 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ElasticSearchViews.*
-import IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews.*
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
-import model.*
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.elasticsearch.model.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewCommand.*
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewEvent.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewType.{AggregateElasticSearch, ElasticSearch}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.nextIndexingRev
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*

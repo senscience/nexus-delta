@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
-import ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords

@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream

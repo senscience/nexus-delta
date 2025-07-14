@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingProjectionMetadata
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions as esPermissions}
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef

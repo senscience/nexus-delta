@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.kernel.search.TimeRange
-import ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{iriFromStringUnmarshaller, iriVocabFromStringUnmarshaller as iriUnmarshaller}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext

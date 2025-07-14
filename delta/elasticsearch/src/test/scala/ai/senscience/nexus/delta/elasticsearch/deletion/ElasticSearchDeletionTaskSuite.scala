@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.deletion
 
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
-import IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}

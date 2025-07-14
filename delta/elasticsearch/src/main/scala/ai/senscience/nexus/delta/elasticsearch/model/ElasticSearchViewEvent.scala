@@ -211,7 +211,6 @@ object ElasticSearchViewEvent {
   ) extends ElasticSearchViewEvent
 
   val serializer: Serializer[Iri, ElasticSearchViewEvent] = {
-    import ElasticSearchViewValue.Database.*
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
     implicit val configuration: Configuration                  = Serializer.circeConfiguration
     implicit val codec: Codec.AsObject[ElasticSearchViewEvent] = deriveConfiguredCodec[ElasticSearchViewEvent]

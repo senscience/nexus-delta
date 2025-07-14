@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuerySuite.Sample
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ElasticSearchViewsQuerySuite.Sample
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import model.{ElasticSearchViewType, permissions}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewType, permissions}
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi

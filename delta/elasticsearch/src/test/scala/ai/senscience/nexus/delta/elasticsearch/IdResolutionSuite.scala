@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import IdResolution.ResolutionResult.{MultipleResults, SingleResult}
-import IdResolutionSuite.searchResults
+import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult.{MultipleResults, SingleResult}
+import ai.senscience.nexus.delta.elasticsearch.IdResolutionSuite.searchResults
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution

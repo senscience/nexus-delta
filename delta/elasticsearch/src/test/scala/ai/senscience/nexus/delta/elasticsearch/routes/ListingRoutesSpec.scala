@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.elasticsearch.model.contexts.searchMetadata
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions as esPermissions, schema as elasticSearchSchema}
-import DummyMainIndexQuery.{aggregationResponse, listResponse}
+import ai.senscience.nexus.delta.elasticsearch.routes.DummyMainIndexQuery.{aggregationResponse, listResponse}
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts.search
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress

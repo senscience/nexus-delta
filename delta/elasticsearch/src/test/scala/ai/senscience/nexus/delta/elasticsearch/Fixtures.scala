@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.model.contexts
+import ai.senscience.nexus.delta.elasticsearch.model.contexts.{elasticsearch, elasticsearchMetadata}
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import contexts.{elasticsearch, elasticsearchMetadata}
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject

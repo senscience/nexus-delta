@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
-import ElasticSearchViewValue.IndexingElasticSearchViewValue
-import ElasticSearchViewValue.IndexingElasticSearchViewValue.defaultPipeline
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.defaultPipeline
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
@@ -47,7 +47,6 @@ sealed trait ElasticSearchViewValue extends Product with Serializable {
   def tpe: ElasticSearchViewType
 
   def toJson(iri: Iri): Json = {
-    import ElasticSearchViewValue.Source.*
     this.asJsonObject.add(keywords.id, iri.asJson).asJson.deepDropNullValues
   }
 

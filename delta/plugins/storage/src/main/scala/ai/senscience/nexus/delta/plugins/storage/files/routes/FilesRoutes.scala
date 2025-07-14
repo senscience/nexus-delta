@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.files.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.*
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FilesRoutes.*
-import ai.senscience.nexus.delta.plugins.storage.files.{schemas, FileResource, Files}
+import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files, schemas}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -24,7 +24,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import akka.http.scaladsl.model.MediaRange
 import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.headers.{`Content-Length`, Accept}
+import akka.http.scaladsl.model.headers.{Accept, `Content-Length`}
 import akka.http.scaladsl.server.*
 import akka.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
 import cats.effect.IO

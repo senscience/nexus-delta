@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.elasticsearch.client.{IndexLabel, QueryBuilder, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}

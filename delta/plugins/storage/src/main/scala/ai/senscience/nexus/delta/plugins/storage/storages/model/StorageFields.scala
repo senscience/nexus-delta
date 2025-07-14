@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.{Di
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
-import ai.senscience.nexus.delta.rdf.jsonld.decoder.{Configuration as JsonLdConfiguration, JsonLdDecoder}
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.{JsonLdDecoder, Configuration as JsonLdConfiguration}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder

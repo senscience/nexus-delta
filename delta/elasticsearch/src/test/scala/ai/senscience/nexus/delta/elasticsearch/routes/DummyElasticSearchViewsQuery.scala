@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
 import ai.senscience.nexus.delta.elasticsearch.client.PointInTime
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.ViewIsDeprecated
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef

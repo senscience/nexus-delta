@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeProjectionLifeCycle
-import ai.senscience.nexus.delta.plugins.search.model.{defaulMappings, SearchConfig}
+import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, defaulMappings}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering

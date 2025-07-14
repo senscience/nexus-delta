@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse
-import BulkResponse.{MixedOutcomes, Success}
+import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.{MixedOutcomes, Success}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk, FailureReason}

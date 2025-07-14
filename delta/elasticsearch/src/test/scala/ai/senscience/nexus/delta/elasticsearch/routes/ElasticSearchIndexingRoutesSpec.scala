@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidResourceId, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
-import ElasticSearchIndexingRoutes.FetchIndexingView
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress

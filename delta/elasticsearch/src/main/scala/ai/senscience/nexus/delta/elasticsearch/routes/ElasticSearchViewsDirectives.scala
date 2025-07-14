@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
-import ResourcesSearchParams.TypeOperator.Or
-import ResourcesSearchParams.{Type, TypeOperator}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.TypeOperator.Or
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, UriDirectives}
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.IriBase

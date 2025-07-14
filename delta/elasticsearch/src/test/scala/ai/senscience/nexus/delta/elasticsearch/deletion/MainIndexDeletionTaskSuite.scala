@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch.deletion
 
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
-import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingAlias
+import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.CirceLiteral

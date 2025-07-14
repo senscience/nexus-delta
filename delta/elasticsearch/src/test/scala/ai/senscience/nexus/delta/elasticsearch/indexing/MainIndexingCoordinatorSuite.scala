@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import MainIndexingCoordinator.ProjectDef
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
+import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.ProjectDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.Projects

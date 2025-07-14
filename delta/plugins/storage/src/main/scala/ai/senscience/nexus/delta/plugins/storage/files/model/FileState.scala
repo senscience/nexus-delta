@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import ai.senscience.nexus.delta.plugins.storage.files.{nxvFile, schemas, FileResource}
+import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, nxvFile, schemas}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.implicits.*

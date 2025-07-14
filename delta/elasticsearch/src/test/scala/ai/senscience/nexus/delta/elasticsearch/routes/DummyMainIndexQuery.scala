@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
-import DummyMainIndexQuery.{aggregationResponse, allowedPage, listResponse}
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.elasticsearch.routes.DummyMainIndexQuery.{aggregationResponse, allowedPage, listResponse}
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.Index
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile

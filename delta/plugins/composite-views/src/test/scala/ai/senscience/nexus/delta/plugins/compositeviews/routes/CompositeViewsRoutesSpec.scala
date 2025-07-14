@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.CompositeViewErrors.{viewIsDeprecatedError, viewIsNotDeprecatedError}
 import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{`Content-Type`, Accept, Location}
+import akka.http.scaladsl.model.headers.{Accept, Location, `Content-Type`}
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import akka.util.ByteString

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
-import ElasticSearchView.Metadata
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.Metadata
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject

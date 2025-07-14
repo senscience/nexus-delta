@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewEvent.*
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewType.ElasticSearch as ElasticSearchType
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.kernel.utils.ClassUtils
-import ElasticSearchViewEvent.*
-import ElasticSearchViewType.ElasticSearch as ElasticSearchType
-import ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.sdk.SerializationSuite

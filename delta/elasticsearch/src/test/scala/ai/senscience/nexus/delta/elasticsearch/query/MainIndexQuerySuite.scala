@@ -2,15 +2,15 @@ package ai.senscience.nexus.delta.elasticsearch.query
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
+import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingAlias
+import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.TypeOperator.{And, Or}
+import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuerySuite.*
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
-import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingAlias
-import ResourcesSearchParams.Type.{ExcludedType, IncludedType}
-import ResourcesSearchParams.TypeOperator.{And, Or}
-import MainIndexQuerySuite.*
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
-import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi

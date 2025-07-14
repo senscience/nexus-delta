@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult
+import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult.{MultipleResults, SingleResult}
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
-import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
-import IdResolution.ResolutionResult
-import IdResolution.ResolutionResult.{MultipleResults, SingleResult}
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}

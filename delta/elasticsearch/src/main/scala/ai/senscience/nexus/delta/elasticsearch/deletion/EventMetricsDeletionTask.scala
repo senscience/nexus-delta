@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.deletion
 
-import EventMetricsDeletionTask.report
+import ai.senscience.nexus.delta.elasticsearch.deletion.EventMetricsDeletionTask.report
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetrics
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport

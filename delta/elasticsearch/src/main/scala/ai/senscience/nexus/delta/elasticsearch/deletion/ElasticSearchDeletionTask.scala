@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch.deletion
 
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
-import ai.senscience.nexus.delta.kernel.Logger
-import ElasticSearchDeletionTask.{init, logger}
-import IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews
+import ai.senscience.nexus.delta.elasticsearch.deletion.ElasticSearchDeletionTask.{init, logger}
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject

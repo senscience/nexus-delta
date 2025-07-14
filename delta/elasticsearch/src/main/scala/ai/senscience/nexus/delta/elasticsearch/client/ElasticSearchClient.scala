@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
@@ -8,8 +10,6 @@ import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
 import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
 import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils
-import ElasticSearchClient.*
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
 import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}

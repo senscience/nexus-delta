@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import MainIndexingCoordinator.mainIndexingPipeline
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
+import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.mainIndexingPipeline
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.IndexingAction
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue, ViewResource}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
-import model.{ElasticSearchViewState, ElasticSearchViewValue, ViewResource}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}

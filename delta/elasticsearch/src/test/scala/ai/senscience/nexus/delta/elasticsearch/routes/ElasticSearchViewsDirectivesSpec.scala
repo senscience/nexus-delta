@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
-import ResourcesSearchParams.Type.{ExcludedType, IncludedType}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.*

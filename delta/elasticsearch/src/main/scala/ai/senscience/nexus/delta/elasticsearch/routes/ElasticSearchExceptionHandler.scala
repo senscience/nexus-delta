@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.ViewNotFound
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError
-import ElasticSearchViewRejection.ViewNotFound
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAndForceEmit

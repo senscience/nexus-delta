@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ElasticSearchViewJsonLdSourceDecoder.{ElasticSearchViewFields, toValue}
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewJsonLdSourceDecoder.{ElasticSearchViewFields, toValue}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import model.{ElasticSearchViewType, ElasticSearchViewValue, contexts, permissions}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewType, ElasticSearchViewValue, contexts, permissions}
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor

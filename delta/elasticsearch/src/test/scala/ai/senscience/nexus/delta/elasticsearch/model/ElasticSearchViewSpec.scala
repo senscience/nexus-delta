@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
-import ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission

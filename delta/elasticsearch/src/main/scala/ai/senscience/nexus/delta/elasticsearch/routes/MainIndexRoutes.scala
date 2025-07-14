@@ -4,8 +4,8 @@ import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingProjection
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.read as Read
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
-import ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

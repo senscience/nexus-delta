@@ -3,15 +3,15 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewEvent, contexts}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
-import ai.senscience.nexus.delta.elasticsearch.routes.{ElasticSearchHistoryRoutes, ElasticSearchIndexingRoutes, ElasticSearchViewsRoutes, ElasticSearchViewsRoutesHandler, IdResolutionRoutes, ListingRoutes, MainIndexRoutes}
+import ai.senscience.nexus.delta.elasticsearch.routes.*
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import indexing.{ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
-import model.{ElasticSearchViewEvent, contexts}
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

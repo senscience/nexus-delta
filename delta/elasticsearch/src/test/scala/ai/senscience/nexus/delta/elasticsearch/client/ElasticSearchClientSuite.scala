@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
+import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
+import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError}
+import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
-import BulkResponse.MixedOutcomes.Outcome
-import Refresh.WaitFor
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError}
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.ScoredResultEntry
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.ScoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, Sort, SortList}

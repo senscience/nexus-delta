@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, PointInTime}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import model.{ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType, permissions}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType, permissions}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
