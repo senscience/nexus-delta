@@ -47,6 +47,7 @@ sealed trait ElasticSearchViewValue extends Product with Serializable {
   def tpe: ElasticSearchViewType
 
   def toJson(iri: Iri): Json = {
+    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Source.*
     this.asJsonObject.add(keywords.id, iri.asJson).asJson.deepDropNullValues
   }
 
