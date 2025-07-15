@@ -240,8 +240,10 @@ senscience/nexus-delta
     <ul>
       <li><a href="../../docs/releases/v1.12-release-notes.html#support-of-json-ld-1-1" class="header">Support of JSON-LD 1.1</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#default-indexing" class="header">Default indexing</a></li>
+      <li><a href="../../docs/releases/v1.12-release-notes.html#resource-indexing-status" class="header">Resource indexing status</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#faster-acl-checks" class="header">Faster ACL checks</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#support-of-hash-partitioning-in-postgresql" class="header">Support of hash partitioning in PostgreSQL</a></li>
+      <li><a href="../../docs/releases/v1.12-release-notes.html#default-base-and-vocab-for-projects" class="header">Default base and vocab for projects</a></li>
     </ul></li>
   </ul></li>
 </ul>
@@ -270,8 +272,10 @@ senscience/nexus-delta
     <ul>
       <li><a href="../../docs/releases/v1.12-release-notes.html#support-of-json-ld-1-1" class="header">Support of JSON-LD 1.1</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#default-indexing" class="header">Default indexing</a></li>
+      <li><a href="../../docs/releases/v1.12-release-notes.html#resource-indexing-status" class="header">Resource indexing status</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#faster-acl-checks" class="header">Faster ACL checks</a></li>
       <li><a href="../../docs/releases/v1.12-release-notes.html#support-of-hash-partitioning-in-postgresql" class="header">Support of hash partitioning in PostgreSQL</a></li>
+      <li><a href="../../docs/releases/v1.12-release-notes.html#default-base-and-vocab-for-projects" class="header">Default base and vocab for projects</a></li>
     </ul></li>
   </ul></li>
 </ul>
@@ -301,12 +305,16 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>This change allow Nexus to provide a full support of JSON-LD 1.1 including features such as scoped contexts and JSON literals.</p>
 <h3><a href="#default-indexing" name="default-indexing" class="anchor"><span class="anchor-link"></span></a>Default indexing</h3>
 <p>The default Elasticsearch view now points to a single index to avoid the oversharding problems when a Nexus instance contains a lot of projects.</p>
+<h3><a href="#resource-indexing-status" name="resource-indexing-status" class="anchor"><span class="anchor-link"></span></a>Resource indexing status</h3>
+<p>It is now possible to check for the indexing status of resources on Elasticsearch and Sparql views.</p>
 <h3><a href="#faster-acl-checks" name="faster-acl-checks" class="anchor"><span class="anchor-link"></span></a>Faster ACL checks</h3>
 <p>ACLs are now in a additional table allowing to query them more efficiently especially during transversal checks (like listing projects).</p>
 <h3><a href="#support-of-hash-partitioning-in-postgresql" name="support-of-hash-partitioning-in-postgresql" class="anchor"><span class="anchor-link"></span></a>Support of hash partitioning in PostgreSQL</h3>
 <p>Since 1.8 and the introduction of PostgreSQL as the primary store, Nexus only permitted list partitioning where each project was assigned to a PostgreSQL partition.</p>
 <p>While this approach stands for deployments where there are few projects which can be quite large, it is not adapted to the scenario where there are a lot of small projects. The new hash strategy allows to address this case.</p>
 <p><a href="../running-nexus/configuration/index.html#postgres-configuration">See database config for more details</a></p>
+<h3><a href="#default-base-and-vocab-for-projects" name="default-base-and-vocab-for-projects" class="anchor"><span class="anchor-link"></span></a>Default base and vocab for projects</h3>
+<p>Before, the base and vocab for projects were built from the Nexus deployment address and could be overridden on a per-project basis. To avoid to explicitly set it on each project, the default value can be overriden in the deployment config.</p>
 </div>
 <div>
 <a href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/releases/v1.12-release-notes.md" title="Edit this page" class="md-source-file md-edit">

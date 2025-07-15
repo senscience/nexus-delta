@@ -245,12 +245,14 @@ senscience/nexus-delta
     </ul></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#service-account-configuration" class="header">Service account configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#realm-provisioning" class="header">Realm provisioning</a></li>
-    <li><a href="../../../docs/running-nexus/configuration/index.html#acl-provisioning" class="header">Acl provisioning</a></li>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#acl-provisioning" class="header">Acl provisioning</a>
+    <ul>
+      <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-configuration" class="header">Elasticsearch configuration</a></li>
+    </ul></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#fusion-configuration" class="header">Fusion configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#projections-configuration" class="header">Projections configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#plugins-configuration" class="header">Plugins configuration</a>
     <ul>
-      <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-views-plugin-configuration" class="header">Elasticsearch views plugin configuration</a></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#blazegraph-views-plugin-configuration" class="header">Blazegraph views plugin configuration</a></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#composite-views-plugin-configuration" class="header">Composite views plugin configuration</a>
       <ul>
@@ -309,12 +311,14 @@ senscience/nexus-delta
     </ul></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#service-account-configuration" class="header">Service account configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#realm-provisioning" class="header">Realm provisioning</a></li>
-    <li><a href="../../../docs/running-nexus/configuration/index.html#acl-provisioning" class="header">Acl provisioning</a></li>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#acl-provisioning" class="header">Acl provisioning</a>
+    <ul>
+      <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-configuration" class="header">Elasticsearch configuration</a></li>
+    </ul></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#fusion-configuration" class="header">Fusion configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#projections-configuration" class="header">Projections configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#plugins-configuration" class="header">Plugins configuration</a>
     <ul>
-      <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-views-plugin-configuration" class="header">Elasticsearch views plugin configuration</a></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#blazegraph-views-plugin-configuration" class="header">Blazegraph views plugin configuration</a></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#composite-views-plugin-configuration" class="header">Composite views plugin configuration</a>
       <ul>
@@ -463,6 +467,10 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>The realms and the permissions defined in the file must exist in the deployment.</p>
 <p>Acl provisioning will only run if none is create at the root level.</p></div>
 <p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf" title="The `acls.provisioning` section" target="_blank" rel="noopener noreferrer">The <code>acls.provisioning</code> section</a> of the configuration defines it.</p>
+<h3><a href="#elasticsearch-configuration" name="elasticsearch-configuration" class="anchor"><span class="anchor-link"></span></a>Elasticsearch configuration</h3>
+<p>The elasticsearch plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/elasticsearch/src/main/resources/elasticsearch.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
+<p>The most important flags are: * <code>app.elasticsearch.base</code> which defines the endpoint where the Elasticsearch service is running. * <code>app.elasticsearch.credentials.username</code> and <code>plugins.elasticsearch.credentials.password</code> to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.</p>
+<p>Please refer to the <a href="https://www.elastic.co/docs/deploy-manage/security" title="Elasticsearch configuration">Elasticsearch configuration</a> which describes the different steps to achieve this.</p>
 <h2><a href="#fusion-configuration" name="fusion-configuration" class="anchor"><span class="anchor-link"></span></a>Fusion configuration</h2>
 <p>When fetching a resource, Nexus Delta allows to return a redirection to its representation in Fusion by providing <code>text/html</code> in the <code>Accept</code> header.</p>
 <p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L40" title="The `fusion` section" target="_blank" rel="noopener noreferrer">The <code>fusion</code> section</a> of the configuration defines the fusion configuration.</p>
@@ -474,10 +482,6 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>Since 1.5.0, Nexus Delta supports plugins. Jar files present inside the local directory defined by the <code>DELTA_PLUGINS</code> environment variable are loaded as plugins into the Delta service. </p>
 <p>Each plugin configuration is rooted under <code>plugins.{plugin_name}</code>. All plugins have a <code>plugins.{plugin_name}.priority</code> configuration flag used to determine the order in which the routes are handled in case of collisions. </p>
 <p>For more information about plugins, please refer to the <a href="../../delta/plugins/index.html">Plugins page</a>.</p>
-<h3><a href="#elasticsearch-views-plugin-configuration" name="elasticsearch-views-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Elasticsearch views plugin configuration</h3>
-<p>The elasticsearch plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/elasticsearch/src/main/resources/elasticsearch.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
-<p>The most important flags are: * <code>plugins.elasticsearch.base</code> which defines the endpoint where the Elasticsearch service is running. * <code>plugins.elasticsearch.credentials.username</code> and <code>plugins.elasticsearch.credentials.password</code> to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.</p>
-<p>Please refer to the <a href="https://www.elastic.co/docs/deploy-manage/security" title="Elasticsearch configuration">Elasticsearch configuration</a> which describes the different steps to achieve this.</p>
 <h3><a href="#blazegraph-views-plugin-configuration" name="blazegraph-views-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Blazegraph views plugin configuration</h3>
 <p>The blazegraph plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/blazegraph/src/main/resources/blazegraph.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>. </p>
 <p>The most important flag is <code>plugins.blazegraph.base</code> which defines the endpoint where the Blazegraph service is running.</p>

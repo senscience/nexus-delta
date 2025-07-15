@@ -238,6 +238,7 @@ senscience/nexus-delta
   <ul>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#schema-changes" class="header">Schema changes</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#acl-checks" class="header">ACL checks</a></li>
+    <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#promoting-elasticsearch-as-a-core-module" class="header">Promoting Elasticsearch as a core module</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#indexing-in-elasticsearch-and-blazegraph" class="header">Indexing in Elasticsearch and Blazegraph</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#adopt-hash-partitioning" class="header">Adopt hash partitioning</a></li>
   </ul></li>
@@ -265,6 +266,7 @@ senscience/nexus-delta
   <ul>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#schema-changes" class="header">Schema changes</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#acl-checks" class="header">ACL checks</a></li>
+    <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#promoting-elasticsearch-as-a-core-module" class="header">Promoting Elasticsearch as a core module</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#indexing-in-elasticsearch-and-blazegraph" class="header">Indexing in Elasticsearch and Blazegraph</a></li>
     <li><a href="../../docs/releases/v1.11-to-v1.12-migration.html#adopt-hash-partitioning" class="header">Adopt hash partitioning</a></li>
   </ul></li>
@@ -294,6 +296,11 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 Acl projection has been successfully replayed.
 </code></pre>
 <p>Nexus can then be restarted again without the env variable.</p>
+<h1><a href="#promoting-elasticsearch-as-a-core-module" name="promoting-elasticsearch-as-a-core-module" class="anchor"><span class="anchor-link"></span></a>Promoting Elasticsearch as a core module</h1>
+<p>Elasticsearch is a required dependency for Delta both for core operations (like listing resources) and indirectly for other modules (storages, composite views, &hellip;)</p>
+<p>So having it as a plugin which could be disabled was an anomaly. It is now a core module depending on the sdk.</p>
+<p>It has an impact on its configuration which is now prefixed by app and not plugins.</p>
+<p><a href="../running-nexus/configuration/index.html#elasticsearch-configuration">More on the elasticsearch configuration</a></p>
 <h1><a href="#indexing-in-elasticsearch-and-blazegraph" name="indexing-in-elasticsearch-and-blazegraph" class="anchor"><span class="anchor-link"></span></a>Indexing in Elasticsearch and Blazegraph</h1>
 <p>Those different changes in 1.12 require a full reindexing in Elasticsearch and Blazegraph:</p>
 <ul>
@@ -307,7 +314,7 @@ Acl projection has been successfully replayed.
   <li>Make a backup of your PostgreSQL instance</li>
   <li>Deploy new instances of Elasticsearch and Blazegraph</li>
   <li>Scale down Nexus Delta, update the image version and change its configuration to point to those new instances</li>
-  <li>Configure Delta via the <code>plugins.elasticsearch.main-index.shards</code> depending on your amount of data and <a href="https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards">following the Elastic recommendations about sharding</a></li>
+  <li>Configure Delta via the <code>app.elasticsearch.main-index.shards</code> depending on your amount of data and <a href="https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards">following the Elastic recommendations about sharding</a></li>
   <li>You can optionally allocate more resources to Delta, PostgreSQL, Blazegraph and Elasticsearch to accommodate for the load related to the indexing</li>
   <li>You may also want to reindex in Elasticsearch first and then in Blazegraph if the load is too high</li>
   <li>Run the following SQL script to delete the former default elasticsearch views and their progress:</li>

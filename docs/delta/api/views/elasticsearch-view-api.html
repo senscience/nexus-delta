@@ -257,6 +257,7 @@ senscience/nexus-delta
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#delete-a-point-in-time" class="header">Delete a point in time</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-elasticsearch-mapping" class="header">Fetch Elasticsearch mapping</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-statistics" class="header">Fetch statistics</a></li>
+    <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-indexing-status-of-a-resource" class="header">Fetch indexing status of a resource</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-indexing" class="header">Fetch indexing</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#restart-indexing" class="header">Restart indexing</a></li>
   </ul></li>
@@ -303,6 +304,7 @@ senscience/nexus-delta
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#delete-a-point-in-time" class="header">Delete a point in time</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-elasticsearch-mapping" class="header">Fetch Elasticsearch mapping</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-statistics" class="header">Fetch statistics</a></li>
+    <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-indexing-status-of-a-resource" class="header">Fetch indexing status of a resource</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#fetch-indexing" class="header">Fetch indexing</a></li>
     <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html#restart-indexing" class="header">Restart indexing</a></li>
   </ul></li>
@@ -1185,6 +1187,24 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li><code>lastEventDateTime</code> - timestamp of the last event in the project</li>
   <li><code>lastProcessedEventDateTime</code> - timestamp of the last event processed by the view</li>
   <li><code>delayInSeconds</code> - number of seconds between the last processed event timestamp and the last known event timestamp</li>
+</ul>
+<h2><a href="#fetch-indexing-status-of-a-resource" name="fetch-indexing-status-of-a-resource" class="anchor"><span class="anchor-link"></span></a>Fetch indexing status of a resource</h2>
+<pre><code>GET /v1/views/{org_label}/{project_label}/{view_id}/status/{resourceId}
+</code></pre>
+<p><strong>Example</strong></p>
+<dl>
+  <dt>Request</dt>
+  <dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/views/indexing-status.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/views/myorg/myproj/nxv:myview/status/https%3A%2F%2Fexample.com%2FAlice&quot;</code></pre></dd>
+  <dt>Response</dt>
+  <dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/views/indexing-status.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  &quot;status&quot;: &quot;Completed&quot;
+}</code></pre></dd>
+</dl>
+<p>where&hellip;</p>
+<ul>
+  <li><code>status</code> - flag indicates if the provided resource is yet to be processed (<code>Pending</code>), discarded (<code>Discarded</code>)  if it does not fit the view configuration, or already processed (<code>Completed</code>).</li>
 </ul>
 <h2><a href="#fetch-indexing" name="fetch-indexing" class="anchor"><span class="anchor-link"></span></a>Fetch indexing</h2>
 <pre><code>GET /v1/views/{org_label}/{project_label}/{view_id}/offset
