@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -11,25 +10,24 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
-import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsImpl}
+import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, PermissionsImpl}
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Permissions module wiring config.
   */
 // $COVERAGE-OFF$
-object PermissionsModule extends ModuleDef {
+object PermissionsModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[Permissions].from { (cfg: AppConfig, xas: Transactors, clock: Clock[IO]) =>
-    PermissionsImpl(
-      cfg.permissions,
-      xas,
-      clock
-    )
+  makeConfig[PermissionsConfig]("app.permissions")
+
+  make[Permissions].from { (cfg: PermissionsConfig, xas: Transactors, clock: Clock[IO]) =>
+    PermissionsImpl(cfg, xas, clock)
   }
 
   make[PermissionsRoutes].from {

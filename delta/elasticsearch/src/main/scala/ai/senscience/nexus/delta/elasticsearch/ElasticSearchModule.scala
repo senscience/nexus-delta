@@ -30,20 +30,21 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, ProjectScopeResolve
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * ElasticSearch plugin wiring.
   */
-class ElasticSearchModule(pluginsMinPriority: Int) extends ModuleDef {
+class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[ElasticSearchViewsConfig].from { ElasticSearchViewsConfig.load(_) }
+  makeConfig[ElasticSearchViewsConfig]("app.elasticsearch")
 
   make[MetricsIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
     MetricsIndexDef(cfg.prefix, loader)

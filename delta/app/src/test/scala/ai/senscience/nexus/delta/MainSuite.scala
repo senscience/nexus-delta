@@ -40,10 +40,10 @@ class MainSuite extends NexusSuite with MainSuite.Fixture {
   }
 
   test("yield a correct plan") {
-    val (cfg, config, cl, pDefs) = Main.loadPluginsAndConfig(pluginLoaderConfig).accepted
-    val pluginsInfoModule        = new ModuleDef { make[List[PluginDef]].from(pDefs) }
-    val modules: Module          =
-      (DeltaModule(cfg, config, cl) :: pluginsInfoModule :: pDefs.map(_.module)).merge
+    val (config, cl, pDefs) = Main.loadPluginsAndConfig(pluginLoaderConfig).accepted
+    val pluginsInfoModule   = new ModuleDef { make[List[PluginDef]].from(pDefs) }
+    val modules: Module     =
+      (DeltaModule(config, cl) :: pluginsInfoModule :: pDefs.map(_.module)).merge
 
     PlanVerifier()
       .verify[IO](

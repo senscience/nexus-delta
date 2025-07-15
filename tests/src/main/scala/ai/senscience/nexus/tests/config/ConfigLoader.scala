@@ -1,10 +1,11 @@
 package ai.senscience.nexus.tests.config
 
+import ai.senscience.nexus.delta.kernel.config.Configs
 import akka.http.scaladsl.model.Uri
 import com.typesafe.config.Config
 import pureconfig.ConvertHelpers.catchReadError
 import pureconfig.generic.ExportMacros
-import pureconfig.{ConfigConvert, ConfigReader, ConfigSource, Exported}
+import pureconfig.{ConfigConvert, ConfigReader, Exported}
 
 import scala.reflect.ClassTag
 
@@ -16,7 +17,7 @@ trait ConfigLoader {
     ConfigConvert.viaString[Uri](catchReadError(s => Uri(s)), _.toString)
 
   def load[A: ClassTag](config: Config, namespace: String)(implicit reader: ConfigReader[A]): A =
-    ConfigSource.fromConfig(config).at(namespace).loadOrThrow[A]
+    Configs.load[A](config, namespace)
 
 }
 

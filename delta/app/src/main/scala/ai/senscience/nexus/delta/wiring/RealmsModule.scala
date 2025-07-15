@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -13,9 +12,10 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.realms.*
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 
@@ -23,11 +23,11 @@ import org.http4s.ember.client.EmberClientBuilder
   * Realms module wiring config.
   */
 // $COVERAGE-OFF$
-object RealmsModule extends ModuleDef {
+object RealmsModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[RealmsConfig].from { (cfg: AppConfig) => cfg.realms }
+  makeConfig[RealmsConfig]("app.realms")
 
   make[Realms].from {
     (

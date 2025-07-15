@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
+import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.dependency.PostgresServiceDependency
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.routes.VersionRoutes
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import izumi.distage.model.definition.{Id, ModuleDef}
 
@@ -24,7 +25,8 @@ object VersionModule extends ModuleDef {
 
   make[VersionRoutes].from {
     (
-        cfg: AppConfig,
+        baseUri: BaseUri,
+        description: DescriptionConfig,
         identities: Identities,
         aclCheck: AclCheck,
         plugins: List[PluginDescription],
@@ -32,8 +34,8 @@ object VersionModule extends ModuleDef {
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      VersionRoutes(identities, aclCheck, plugins, dependencies.toList, cfg.description)(
-        cfg.http.baseUri,
+      VersionRoutes(identities, aclCheck, plugins, dependencies.toList, description)(
+        baseUri,
         cr,
         ordering
       )

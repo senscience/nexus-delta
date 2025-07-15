@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -21,22 +20,25 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverEvent
 import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Resolvers wiring
   */
-object ResolversModule extends ModuleDef {
+object ResolversModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+
+  makeConfig[ResolversConfig]("app.resolvers")
 
   make[Resolvers].from {
     (
         fetchContext: FetchContext,
         resolverContextResolution: ResolverContextResolution,
-        config: AppConfig,
+        config: ResolversConfig,
         xas: Transactors,
         clock: Clock[IO],
         uuidF: UUIDF
@@ -45,7 +47,7 @@ object ResolversModule extends ModuleDef {
         fetchContext,
         resolverContextResolution,
         ValidatePriority.priorityAlreadyExists(xas),
-        config.resolvers.eventLog,
+        config.eventLog,
         xas,
         clock
       )(uuidF)
@@ -96,8 +98,9 @@ object ResolversModule extends ModuleDef {
 
   many[SseEncoder[?]].add { base: BaseUri => ResolverEvent.sseEncoder(base) }
 
-  make[ResolverScopeInitialization].from { (resolvers: Resolvers, serviceAccount: ServiceAccount, config: AppConfig) =>
-    ResolverScopeInitialization(resolvers, serviceAccount, config.resolvers.defaults)
+  make[ResolverScopeInitialization].from {
+    (resolvers: Resolvers, serviceAccount: ServiceAccount, config: ResolversConfig) =>
+      ResolverScopeInitialization(resolvers, serviceAccount, config.defaults)
   }
   many[ScopeInitialization].ref[ResolverScopeInitialization]
 

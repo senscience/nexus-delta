@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -21,18 +20,19 @@ import ai.senscience.nexus.delta.sdk.projects.*
 import ai.senscience.nexus.delta.sdk.projects.job.ProjectHealthJob
 import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Projects wiring
   */
 @SuppressWarnings(Array("UnsafeTraversableMethods"))
-object ProjectsModule extends ModuleDef {
+object ProjectsModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
@@ -40,13 +40,15 @@ object ProjectsModule extends ModuleDef {
     def merge: ApiMappings = value.foldLeft(ApiMappings.empty)(_ + _)
   }
 
+  makeConfig[ProjectsConfig]("app.projects")
+
   make[ApiMappingsCollection].from { (mappings: Set[ApiMappings]) =>
     ApiMappingsCollection(mappings)
   }
 
   make[Projects].fromEffect {
     (
-        config: AppConfig,
+        config: ProjectsConfig,
         databasePartitioner: DatabasePartitioner,
         scopeInitializer: ScopeInitializer,
         mappings: ApiMappingsCollection,
@@ -58,10 +60,10 @@ object ProjectsModule extends ModuleDef {
         ProjectsImpl(
           FetchActiveOrganization(xas),
           databasePartitioner.onCreateProject,
-          ValidateProjectDeletion(xas, config.projects.deletion.enabled),
+          ValidateProjectDeletion(xas, config.deletion.enabled),
           scopeInitializer,
           mappings.merge,
-          config.projects.eventLog,
+          config.eventLog,
           xas,
           clock
         )(uuidF)
@@ -98,7 +100,7 @@ object ProjectsModule extends ModuleDef {
         projects: Projects,
         databasePartitioner: DatabasePartitioner,
         deletionTasks: Set[ProjectDeletionTask],
-        config: AppConfig,
+        config: ProjectsConfig,
         serviceAccount: ServiceAccount,
         supervisor: Supervisor,
         projectLastUpdateStore: ProjectLastUpdateStore,
@@ -109,7 +111,7 @@ object ProjectsModule extends ModuleDef {
         projects,
         databasePartitioner,
         deletionTasks,
-        config.projects.deletion,
+        config.deletion,
         serviceAccount,
         supervisor,
         projectLastUpdateStore,

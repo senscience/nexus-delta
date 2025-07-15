@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMinPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
@@ -24,14 +23,17 @@ import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceEvent}
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Resources wiring
   */
-object ResourcesModule extends ModuleDef {
+object ResourcesModule extends NexusModuleDef {
+  makeConfig[ResourcesConfig]("app.resources")
+
   make[ResourceResolution[Schema]].from { (aclCheck: AclCheck, resolvers: Resolvers, fetchSchema: FetchSchema) =>
     ResourceResolution.schemaResource(aclCheck, resolvers, fetchSchema, excludeDeprecated = false)
   }
@@ -41,8 +43,6 @@ object ResourcesModule extends ModuleDef {
       val schemaClaimResolver = SchemaClaimResolver(resourceResolution, config.schemaEnforcement)
       ValidateResource(schemaClaimResolver, validateShacl)
   }
-
-  make[ResourcesConfig].from { (config: AppConfig) => config.resources }
 
   make[DetectChange].from { (config: ResourcesConfig) => DetectChange(config.skipUpdateNoChange) }
 

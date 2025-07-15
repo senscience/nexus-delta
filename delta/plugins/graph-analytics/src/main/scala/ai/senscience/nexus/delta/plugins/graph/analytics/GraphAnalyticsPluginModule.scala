@@ -12,20 +12,21 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Graph analytics plugin wiring.
   */
-class GraphAnalyticsPluginModule(priority: Int) extends ModuleDef {
+class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[GraphAnalyticsConfig].from { GraphAnalyticsConfig.load _ }
+  makeConfig[GraphAnalyticsConfig]("plugins.graph-analytics")
 
   make[GraphAnalytics]
     .from { (client: ElasticSearchClient, fetchContext: FetchContext, config: GraphAnalyticsConfig) =>

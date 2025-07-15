@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
-import ai.senscience.nexus.delta.config.AppConfig
+import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import akka.actor.{ActorSystem, BootstrapSetup}
-import akka.http.scaladsl.model.HttpMethods.{DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT}
+import akka.http.scaladsl.model.HttpMethods.*
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.{Materializer, SystemMaterializer}
@@ -19,12 +19,12 @@ import izumi.distage.model.definition.{Id, ModuleDef}
 
 import scala.concurrent.duration.DurationInt
 
-final class AkkaModule(appCfg: AppConfig, config: Config)(implicit classLoader: ClassLoader) extends ModuleDef {
+final class AkkaModule(implicit classLoader: ClassLoader) extends ModuleDef {
 
-  make[ActorSystem].fromResource { () =>
+  make[ActorSystem].fromResource { (description: DescriptionConfig, config: Config) =>
     val make    = IO.delay(
       ActorSystem(
-        appCfg.description.fullName,
+        description.fullName,
         BootstrapSetup().withConfig(config).withClassloader(classLoader)
       )
     )

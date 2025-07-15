@@ -9,14 +9,12 @@ import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import cats.effect.IO
-import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
+import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.auto.*
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.module.http4s.*
-import pureconfig.{ConfigReader, ConfigSource}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -133,17 +131,6 @@ object CompositeViewsConfig {
           Left(CannotConvert(value, SinkConfig.getClass.getSimpleName, s"$value is not one of: [single, batch]"))
       }
   }
-
-  /**
-    * Converts a [[Config]] into an [[CompositeViewsConfig]]
-    */
-  def load(config: Config): IO[CompositeViewsConfig] =
-    IO.delay {
-      ConfigSource
-        .fromConfig(config)
-        .at("plugins.composite-views")
-        .loadOrThrow[CompositeViewsConfig]
-    }
 
   implicit final val compositeViewsConfigReader: ConfigReader[CompositeViewsConfig] =
     deriveReader[CompositeViewsConfig]

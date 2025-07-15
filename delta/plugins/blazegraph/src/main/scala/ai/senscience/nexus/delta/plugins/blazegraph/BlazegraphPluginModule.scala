@@ -26,20 +26,21 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Blazegraph plugin wiring
   */
-class BlazegraphPluginModule(priority: Int) extends ModuleDef {
+class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[BlazegraphViewsConfig].from { BlazegraphViewsConfig.load(_) }
+  makeConfig[BlazegraphViewsConfig]("plugins.blazegraph")
 
   make[SparqlSlowQueryStore].from { (xas: Transactors) => SparqlSlowQueryStore(xas) }
 

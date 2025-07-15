@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main
-import ai.senscience.nexus.delta.config.{AppConfig, StrictEntity}
+import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
+import ai.senscience.nexus.delta.otel.OpenTelemetryInit
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -14,11 +15,12 @@ import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
+import ai.senscience.nexus.delta.sdk.jws.{JWSConfig, JWSPayloadHelper}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
-import ai.senscience.nexus.delta.sdk.projects.{ProjectsConfig, ScopeInitializationErrorStore}
+import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore
 import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
@@ -26,38 +28,42 @@ import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO, Sync}
 import com.typesafe.config.Config
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
   * Complete service wiring definitions.
   *
-  * @param appCfg
-  *   the application configuration
   * @param config
   *   the raw merged and resolved configuration
   */
-class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: ClassLoader) extends ModuleDef {
+class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends NexusModuleDef {
 
   addImplicit[Sync[IO]]
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[AppConfig].from(appCfg)
   make[Config].from(config)
-  make[DatabaseConfig].from(appCfg.database)
-  make[FusionConfig].from { appCfg.fusion }
-  make[ProjectsConfig].from { appCfg.projects }
-  make[ProjectionConfig].from { appCfg.projections }
-  make[ElemQueryConfig].from { appCfg.elemQuery }
-  make[ProjectLastUpdateConfig].from { appCfg.projectLastUpdate }
-  make[QueryConfig].from { appCfg.projections.query }
-  make[BaseUri].from { appCfg.http.baseUri }
-  make[StrictEntity].from { appCfg.http.strictEntityTimeout }
-  make[ServiceAccount].from { appCfg.serviceAccount.value }
+  makeConfig[DescriptionConfig]("app.description")
+  makeConfig[DatabaseConfig]("app.database")
+  makeConfig[FusionConfig]("app.fusion")
 
-  make[Transactors].fromResource { () => Transactors(appCfg.database) }
+  makeConfig[HttpConfig]("app.http")
+  make[BaseUri].from { (http: HttpConfig) => http.baseUri }
+  make[StrictEntity].from { (http: HttpConfig) => http.strictEntityTimeout }
 
-  make[DatabasePartitioner].fromEffect { (xas: Transactors) =>
-    DatabasePartitioner(appCfg.database.partitionStrategy, xas)
+  makeConfig[ProjectionConfig]("app.projections")
+  make[QueryConfig].from { (config: ProjectionConfig) => config.query }
+
+  makeConfig[ElemQueryConfig]("app.elem-query")
+  makeConfig[ProjectLastUpdateConfig]("app.project-last-update")
+  makeConfig[ServiceAccount]("app.service-account")
+
+  make[OtelJava[IO]].fromResource(OpenTelemetryInit(_))
+
+  make[Transactors].fromResource { config: DatabaseConfig => Transactors(config) }
+
+  make[DatabasePartitioner].fromEffect { (config: DatabaseConfig, xas: Transactors) =>
+    DatabasePartitioner(config.partitionStrategy, xas)
   }
 
   make[List[PluginDescription]].from { (pluginsDef: List[PluginDef]) => pluginsDef.map(_.info) }
@@ -120,8 +126,9 @@ class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: Class
     )
   )
 
-  make[JWSPayloadHelper].from { config: AppConfig =>
-    JWSPayloadHelper(config.jws)
+  makeConfig[JWSConfig]("app.jws")
+  make[JWSPayloadHelper].from { config: JWSConfig =>
+    JWSPayloadHelper(config)
   }
 
   make[ResourceShifts].from {
@@ -129,9 +136,9 @@ class DeltaModule(appCfg: AppConfig, config: Config)(implicit classLoader: Class
       ResourceShifts(shifts, xas)(rcr)
   }
 
-  include(new AkkaModule(appCfg, config))
+  include(new AkkaModule())
   include(PermissionsModule)
-  include(new AclsModule(appCfg.acls, appCfg.permissions))
+  include(AclsModule)
   include(RealmsModule)
   include(OrganizationsModule)
   include(ProjectsModule)
@@ -156,17 +163,14 @@ object DeltaModule {
   /**
     * Complete service wiring definitions.
     *
-    * @param appCfg
-    *   the application configuration
     * @param config
     *   the raw merged and resolved configuration
     * @param classLoader
     *   the aggregated class loader
     */
   final def apply(
-      appCfg: AppConfig,
       config: Config,
       classLoader: ClassLoader
   ): DeltaModule =
-    new DeltaModule(appCfg, config)(classLoader)
+    new DeltaModule(config)(classLoader)
 }

@@ -1,10 +1,9 @@
 package ai.senscience.nexus.delta
 
-import ai.senscience.nexus.delta.config.{AppConfig, BuildInfo, StrictEntity}
+import ai.senscience.nexus.delta.config.{BuildInfo, ConfigLoader, HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.kamon.KamonMonitoring
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
-import ai.senscience.nexus.delta.otel.OpenTelemetryInit
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.plugin.{PluginsLoader, WiringInitializer}
 import ai.senscience.nexus.delta.sdk.PriorityRoute
@@ -12,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.error.PluginError.PluginInitializationError
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.plugin.{Plugin, PluginDef}
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ai.senscience.nexus.delta.wiring.DeltaModule
 import akka.actor.ActorSystem
@@ -50,19 +50,20 @@ object Main extends IOApp {
 
   private[delta] def start(loaderConfig: PluginLoaderConfig): Resource[IO, Locator] =
     for {
-      _                             <- Resource.eval(logger.info(s"Starting Nexus Delta version '${BuildInfo.version}'."))
-      _                             <- Resource.eval(logger.info(s"Loading plugins and config..."))
-      (cfg, config, cl, pluginDefs) <- Resource.eval(loadPluginsAndConfig(loaderConfig))
-      _                             <- Resource.eval(KamonMonitoring.initialize(config))
-      _                             <- OpenTelemetryInit(cfg.description)
-      modules                        = DeltaModule(cfg, config, cl)
-      (plugins, locator)            <- WiringInitializer(modules, pluginDefs)
-      _                             <- bootstrap(locator, plugins)
+      _                        <- Resource.eval(logger.info(s"Starting Nexus Delta version '${BuildInfo.version}'."))
+      _                        <- Resource.eval(logger.info(s"Loading plugins and config..."))
+      (config, cl, pluginDefs) <- Resource.eval(loadPluginsAndConfig(loaderConfig))
+      _                        <- Resource.eval(KamonMonitoring.initialize(config))
+      modules                   = DeltaModule(config, cl)
+      (plugins, locator)       <- WiringInitializer(modules, pluginDefs)
+      _                        <- logDatabaseConfig(locator)
+      _                        <- logClusterConfig(locator)
+      _                        <- bootstrap(locator, plugins)
     } yield locator
 
   private[delta] def loadPluginsAndConfig(
       config: PluginLoaderConfig
-  ): IO[(AppConfig, Config, ClassLoader, List[PluginDef])] =
+  ): IO[(Config, ClassLoader, List[PluginDef])] =
     for {
       (classLoader, pluginDefs) <- PluginsLoader(config).load
       _                         <- logPlugins(pluginDefs)
@@ -71,18 +72,19 @@ object Main extends IOApp {
       _                         <- validateDifferentName(enabledDefs)
       configNames                = enabledDefs.map(_.configFileName)
       cfgPathOpt                 = sys.env.get(externalConfigEnvVariable)
-      (appConfig, mergedConfig) <- AppConfig.loadOrThrow(cfgPathOpt, configNames, classLoader)
-      _                         <- logClusterConfig(appConfig.projections.cluster)
-      _                         <- logDatabaseConfig(appConfig.database)
-    } yield (appConfig, mergedConfig, classLoader, enabledDefs)
+      mergedConfig              <- ConfigLoader.loadOrThrow(cfgPathOpt, configNames, classLoader)
+    } yield (mergedConfig, classLoader, enabledDefs)
 
-  private def logDatabaseConfig(config: DatabaseConfig) =
+  private def logDatabaseConfig(locator: Locator) = Resource.eval {
+    val config = locator.get[DatabaseConfig]
     logger.info(s"Database partition strategy is ${config.partitionStrategy}") >>
       logger.info(s"Database config for reads is ${config.read.host} (${config.read.poolSize})") >>
       logger.info(s"Database config for writes is ${config.write.host} (${config.write.poolSize})") >>
       logger.info(s"Database config for streaming is ${config.streaming.host} (${config.streaming.poolSize})")
+  }
 
-  private def logClusterConfig(config: ClusterConfig) = {
+  private def logClusterConfig(locator: Locator) = Resource.eval {
+    val config = locator.get[ProjectionConfig].cluster
     if (config.size == 1)
       logger.info(s"Delta is running in standalone mode.")
     else
@@ -151,17 +153,18 @@ object Main extends IOApp {
   }
 
   private def bootstrap(locator: Locator, plugins: List[Plugin]): Resource[IO, Unit] = {
-    implicit val as: ActorSystem = locator.get[ActorSystem]
-    implicit val cfg: AppConfig  = locator.get[AppConfig]
+    implicit val as: ActorSystem      = locator.get[ActorSystem]
+    val http: HttpConfig              = locator.get[HttpConfig]
+    val projections: ProjectionConfig = locator.get[ProjectionConfig]
 
     val startHttpServer = IOFuture.defaultCancelable(
       IO(
         Http()
           .newServerAt(
-            cfg.http.interface,
-            cfg.http.port
+            http.interface,
+            http.port
           )
-          .bindFlow(RouteResult.routeToFlow(routes(locator, cfg.projections.cluster)))
+          .bindFlow(RouteResult.routeToFlow(routes(locator, projections.cluster)))
       )
     )
 
@@ -173,7 +176,7 @@ object Main extends IOApp {
       } yield ()
     }.recoverWith { th =>
       logger.error(th)(
-        s"Failed to perform an http binding on ${cfg.http.interface}:${cfg.http.port}"
+        s"Failed to perform an http binding on ${http.interface}:${http.port}"
       ) >> plugins
         .traverse(_.stop())
         .timeout(30.seconds) >> KamonMonitoring.terminate

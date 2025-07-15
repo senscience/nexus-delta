@@ -2,10 +2,9 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.config
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import com.typesafe.config.Config
+import pureconfig.ConfigReader
 import pureconfig.error.FailureReason
 import pureconfig.generic.semiauto.deriveReader
-import pureconfig.{ConfigReader, ConfigSource}
 
 /**
   * Configuration for the graph analytics plugin.
@@ -39,15 +38,6 @@ object GraphAnalyticsConfig {
     *   the number of terms the coordinating node returns from each shard. This value must be higher than ''size''
     */
   final case class TermAggregationsConfig(size: Int, shardSize: Int)
-
-  /**
-    * Converts a [[Config]] into an [[GraphAnalyticsConfig]]
-    */
-  def load(config: Config): GraphAnalyticsConfig =
-    ConfigSource
-      .fromConfig(config)
-      .at("plugins.graph-analytics")
-      .loadOrThrow[GraphAnalyticsConfig]
 
   implicit final private val termAggregationsConfigReader: ConfigReader[TermAggregationsConfig] =
     deriveReader[TermAggregationsConfig]

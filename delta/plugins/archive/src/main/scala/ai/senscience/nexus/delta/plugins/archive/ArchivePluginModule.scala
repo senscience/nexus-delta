@@ -13,19 +13,19 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
-import com.typesafe.config.Config
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Archive plugin wiring.
   */
-object ArchivePluginModule extends ModuleDef {
+object ArchivePluginModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[ArchivePluginConfig].fromEffect { cfg: Config => ArchivePluginConfig.load(cfg) }
+  makeConfig[ArchivePluginConfig]("plugins.archive")
 
   make[ArchiveDownload].from {
     (
