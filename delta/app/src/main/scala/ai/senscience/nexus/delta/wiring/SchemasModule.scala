@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.kernel.config.Configs
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -23,20 +22,21 @@ import ai.senscience.nexus.delta.sdk.schemas.Schemas.{SchemaDefinition, SchemaLo
 import ai.senscience.nexus.delta.sdk.schemas.job.{SchemaValidationCoordinator, SchemaValidationStream}
 import ai.senscience.nexus.delta.sdk.schemas.model.{Schema, SchemaEvent}
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Schemas wiring
   */
-object SchemasModule extends ModuleDef {
+object SchemasModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[SchemasConfig].from { Configs.load[SchemasConfig](_, "app.schemas") }
+  makeConfig[SchemasConfig]("app.schemas")
 
   make[ValidateShacl].fromEffect { (rcr: RemoteContextResolution @Id("aggregate")) => ValidateShacl(rcr) }
 
