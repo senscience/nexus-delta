@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -16,25 +15,27 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, StoragePermissionProvider}
 import ai.senscience.nexus.delta.sdk.projects.OwnerPermissionsScopeInitialization
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import akka.http.scaladsl.server.RouteConcatenation
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Acls module wiring config.
   */
 // $COVERAGE-OFF$
-class AclsModule(aclsConfig: AclsConfig, permissionConfig: PermissionsConfig) extends ModuleDef {
-
-  private val logger = Logger[AclsModule]
+object AclsModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+
+  makeConfig[AclsConfig]("app.acls")
 
   make[FlattenedAclStore].from { (xas: Transactors) => new FlattenedAclStore(xas) }
 
   make[Acls].fromEffect {
     (
+        aclsConfig: AclsConfig,
         permissions: Permissions,
         flattenedAclStore: FlattenedAclStore,
         xas: Transactors,
@@ -65,17 +66,16 @@ class AclsModule(aclsConfig: AclsConfig, permissionConfig: PermissionsConfig) ex
       new AclsRoutes(identities, acls, aclCheck)(baseUri, cr, ordering)
   }
 
-  if (aclsConfig.enableOwnerPermissions) {
-    many[ScopeInitialization].addEffect { (acls: Acls, serviceAccount: ServiceAccount) =>
-      logger
-        .info("Owner permissions initialization is enabled")
-        .as(
+  many[ScopeInitialization].addSet {
+    (acls: Acls, serviceAccount: ServiceAccount, aclsConfig: AclsConfig, permissionConfig: PermissionsConfig) =>
+      Option
+        .when(aclsConfig.enableOwnerPermissions)(
           OwnerPermissionsScopeInitialization(acls, permissionConfig.ownerPermissions, serviceAccount)
         )
-    }
+        .toSet
   }
 
-  make[AclProvisioning].from { (acls: Acls, serviceAccount: ServiceAccount) =>
+  make[AclProvisioning].from { (aclsConfig: AclsConfig, acls: Acls, serviceAccount: ServiceAccount) =>
     new AclProvisioning(acls, aclsConfig.provisioning, serviceAccount)
   }
 

@@ -37,23 +37,23 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
-import com.typesafe.config.Config
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 import org.http4s.Uri.Path
 
 /**
   * Storages and Files wiring
   */
-class StoragePluginModule(priority: Int) extends ModuleDef {
+class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[StoragePluginConfig].fromEffect { cfg: Config => StoragePluginConfig.load(cfg) }
+  makeConfig[StoragePluginConfig]("plugins.storage")
 
   make[StorageTypeConfig].from { cfg: StoragePluginConfig => cfg.storages.storageTypeConfig }
 

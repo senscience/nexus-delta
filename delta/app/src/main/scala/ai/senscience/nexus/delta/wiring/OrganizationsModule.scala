@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -10,25 +9,28 @@ import ai.senscience.nexus.delta.routes.OrganizationsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.MetadataContextValue
-import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations, OrganizationsImpl}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
+import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations, OrganizationsConfig, OrganizationsImpl}
 import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Organizations module wiring config.
   */
 // $COVERAGE-OFF$
-object OrganizationsModule extends ModuleDef {
+object OrganizationsModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
+  makeConfig[OrganizationsConfig]("app.organizations")
+
   make[Organizations].from {
     (
-        config: AppConfig,
+        config: OrganizationsConfig,
         scopeInitializer: ScopeInitializer,
         clock: Clock[IO],
         uuidF: UUIDF,
@@ -36,7 +38,7 @@ object OrganizationsModule extends ModuleDef {
     ) =>
       OrganizationsImpl(
         scopeInitializer,
-        config.organizations.eventLog,
+        config.eventLog,
         xas,
         clock
       )(uuidF)
@@ -52,14 +54,15 @@ object OrganizationsModule extends ModuleDef {
         identities: Identities,
         organizations: Organizations,
         orgDeleter: OrganizationDeleter,
-        cfg: AppConfig,
+        orgConfig: OrganizationsConfig,
+        baseUri: BaseUri,
         aclCheck: AclCheck,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
       new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck)(
-        cfg.http.baseUri,
-        cfg.organizations.pagination,
+        baseUri,
+        orgConfig.pagination,
         cr,
         ordering
       )

@@ -7,12 +7,11 @@ import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
+import pureconfig.ConfigReader
 import pureconfig.generic.auto.*
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.module.http4s.*
-import pureconfig.{ConfigReader, ConfigSource}
 
 import scala.concurrent.duration.*
 
@@ -60,15 +59,6 @@ final case class BlazegraphViewsConfig(
 )
 
 object BlazegraphViewsConfig {
-
-  /**
-    * Converts a [[Config]] into an [[BlazegraphViewsConfig]]
-    */
-  def load(config: Config): BlazegraphViewsConfig =
-    ConfigSource
-      .fromConfig(config)
-      .at("plugins.blazegraph")
-      .loadOrThrow[BlazegraphViewsConfig]
 
   implicit final val blazegraphViewsConfigConfigReader: ConfigReader[BlazegraphViewsConfig] =
     deriveReader[BlazegraphViewsConfig]

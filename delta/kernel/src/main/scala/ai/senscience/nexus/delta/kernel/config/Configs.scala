@@ -1,12 +1,11 @@
 package ai.senscience.nexus.delta.kernel.config
 
 import cats.effect.IO
-import cats.syntax.all.*
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigResolveOptions}
-import pureconfig.error.ConfigReaderException
 import pureconfig.{ConfigReader, ConfigSource}
 
 import java.io.{File, Reader}
+import scala.reflect.ClassTag
 
 object Configs {
 
@@ -37,12 +36,14 @@ object Configs {
   /**
     * Merge the configs in order and load the namespace according to the config reader
     */
-  def merge[C: ConfigReader](namespace: String, configs: Config*): IO[(C, Config)] = IO.fromEither {
-    val merged = configs
+  def merge(configs: Config*): IO[Config] = IO.blocking {
+    configs
       .foldLeft(ConfigFactory.defaultOverrides())(_ withFallback _)
       .withFallback(ConfigFactory.load())
       .resolve(resolverOptions)
-    ConfigSource.fromConfig(merged).at(namespace).load[C].map(_ -> merged).leftMap(ConfigReaderException(_))
   }
+
+  def load[A: ClassTag](config: Config, namespace: String)(implicit reader: ConfigReader[A]): A =
+    ConfigSource.fromConfig(config).at(namespace).loadOrThrow[A]
 
 }

@@ -5,12 +5,11 @@ import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import com.typesafe.config.Config
 import org.http4s.{BasicCredentials, Uri}
+import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.module.http4s.*
-import pureconfig.{ConfigReader, ConfigSource}
 
 import scala.concurrent.duration.*
 
@@ -59,15 +58,6 @@ final case class ElasticSearchViewsConfig(
 )
 
 object ElasticSearchViewsConfig {
-
-  /**
-    * Converts a [[Config]] into an [[ElasticSearchViewsConfig]]
-    */
-  def load(config: Config): ElasticSearchViewsConfig =
-    ConfigSource
-      .fromConfig(config)
-      .at("app.elasticsearch")
-      .loadOrThrow[ElasticSearchViewsConfig]
 
   implicit private val refreshConfigReader: ConfigReader[Refresh] = ConfigReader.fromString {
     case "true"     => Right(Refresh.True)

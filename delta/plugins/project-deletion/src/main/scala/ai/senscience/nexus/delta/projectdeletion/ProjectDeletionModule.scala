@@ -7,13 +7,16 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
-class ProjectDeletionModule(priority: Int) extends ModuleDef {
+class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+
+  makeConfig[ProjectDeletionConfig]("plugins.project-deletion")
 
   many[RemoteContextResolution].addEffect {
     ContextValue.fromFile("contexts/project-deletion.json").map { ctx =>

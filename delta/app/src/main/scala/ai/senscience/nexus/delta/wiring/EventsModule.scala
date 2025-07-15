@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{ElemRoutes, EventsRoutes}
@@ -12,19 +11,22 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.Organizations
 import ai.senscience.nexus.delta.sdk.projects.Projects
-import ai.senscience.nexus.delta.sdk.sse.{SseElemStream, SseEncoder, SseEventLog}
+import ai.senscience.nexus.delta.sdk.sse.{SseConfig, SseElemStream, SseEncoder, SseEventLog}
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 
 /**
   * Events wiring
   */
-object EventsModule extends ModuleDef {
+object EventsModule extends NexusModuleDef {
+
+  makeConfig[SseConfig]("app.sse")
 
   make[SseEventLog].fromEffect {
     (
-        config: AppConfig,
+        config: SseConfig,
         organizations: Organizations,
         projects: Projects,
         sseEncoders: Set[SseEncoder[?]],
@@ -35,7 +37,7 @@ object EventsModule extends ModuleDef {
         sseEncoders,
         organizations.fetch(_).void,
         projects.fetch(_).void,
-        config.sse,
+        config,
         xas
       )(jo)
   }

@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.config.AppConfig
 import ai.senscience.nexus.delta.kernel.cache.CacheConfig
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
@@ -14,19 +13,20 @@ import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, OpenIdAuthService}
 import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesImpl}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.realms.Realms
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import cats.effect.{Clock, IO}
-import izumi.distage.model.definition.{Id, ModuleDef}
+import izumi.distage.model.definition.Id
 import org.http4s.client.Client
 
 /**
   * Identities module wiring config.
   */
 // $COVERAGE-OFF$
-object IdentitiesModule extends ModuleDef {
+object IdentitiesModule extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  make[CacheConfig].from((cfg: AppConfig) => cfg.identities)
+  makeConfig[CacheConfig]("app.identities")
 
   make[Identities].fromEffect { (realms: Realms, client: Client[IO] @Id("realm"), config: CacheConfig) =>
     IdentitiesImpl(realms, client, config)
