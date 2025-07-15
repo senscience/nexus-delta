@@ -23,9 +23,9 @@ val akkaHttpCirceVersion       = "1.39.2"
 val akkaCorsVersion            = "1.2.0"
 val akkaVersion                = "2.6.21"
 val alpakkaVersion             = "3.0.4"
-val awsSdkVersion              = "2.31.77"
+val awsSdkVersion              = "2.31.78"
 val betterMonadicForVersion    = "0.3.1"
-val caffeineVersion            = "3.2.1"
+val caffeineVersion            = "3.2.2"
 val catsEffectVersion          = "3.6.2"
 val catsRetryVersion           = "3.1.3"
 val catsVersion                = "2.13.0"
@@ -34,7 +34,7 @@ val circeOpticsVersion         = "0.15.1"
 val circeExtrasVersions        = "0.14.4"
 val classgraphVersion          = "4.8.180"
 val distageVersion             = "1.2.19"
-val doobieVersion              = "1.0.0-RC9"
+val doobieVersion              = "1.0.0-RC10"
 val fs2Version                 = "3.12.0"
 val fs2AwsVersion              = "6.2.0"
 val gatlingVersion             = "3.14.3"
@@ -54,9 +54,9 @@ val magnoliaVersion            = "1.1.10"
 val munitVersion               = "1.1.1"
 val munitCatsEffectVersion     = "2.1.0"
 val nimbusJoseJwtVersion       = "10.3.1"
-val otelVersion                = "1.51.0"
+val otelVersion                = "1.52.0"
 val otel4sVersion              = "0.13.1"
-val otelLogbackVersion         = "2.17.0-alpha"
+val otelLogbackVersion         = "2.17.1-alpha"
 val postgresJdbcVersion        = "42.7.7"
 val pureconfigVersion          = "0.17.9"
 val scalaTestVersion           = "3.2.19"
@@ -703,10 +703,10 @@ lazy val tests = project
   .settings(noPublish)
   .settings(shared, compilation, coverage, release)
   .settings(
-    name                               := "tests",
-    moduleName                         := "tests",
-    coverageFailOnMinimum              := false,
-    libraryDependencies               ++= Seq(
+    name                     := "tests",
+    moduleName               := "tests",
+    coverageFailOnMinimum    := false,
+    libraryDependencies     ++= Seq(
       akkaHttp,
       akkaStream,
       circeOptics,
@@ -719,11 +719,9 @@ lazy val tests = project
       akkaSlf4j       % Test,
       alpakkaSse      % Test
     ) ++ fs2Aws,
-    Test / parallelExecution           := false,
-    Test / testOptions                 += Tests.Argument(TestFrameworks.ScalaTest, "-o", "-u", "target/test-reports"),
-    // Scalate gets errors with layering with this project so we disable it
-    Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
-    Test / fork                        := true
+    Test / parallelExecution := false,
+    Test / testOptions       += Tests.Argument(TestFrameworks.ScalaTest, "-o", "-u", "target/test-reports"),
+    Test / fork              := true
   )
 
 lazy val benchmarks = project
