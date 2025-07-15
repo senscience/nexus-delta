@@ -703,10 +703,10 @@ lazy val tests = project
   .settings(noPublish)
   .settings(shared, compilation, coverage, release)
   .settings(
-    name                               := "tests",
-    moduleName                         := "tests",
-    coverageFailOnMinimum              := false,
-    libraryDependencies               ++= Seq(
+    name                     := "tests",
+    moduleName               := "tests",
+    coverageFailOnMinimum    := false,
+    libraryDependencies     ++= Seq(
       akkaHttp,
       akkaStream,
       circeOptics,
@@ -719,9 +719,9 @@ lazy val tests = project
       akkaSlf4j       % Test,
       alpakkaSse      % Test
     ) ++ fs2Aws,
-    Test / parallelExecution           := false,
-    Test / testOptions                 += Tests.Argument(TestFrameworks.ScalaTest, "-o", "-u", "target/test-reports"),
-    Test / fork                        := true
+    Test / parallelExecution := false,
+    Test / testOptions       += Tests.Argument(TestFrameworks.ScalaTest, "-o", "-u", "target/test-reports"),
+    Test / fork              := true
   )
 
 lazy val benchmarks = project
