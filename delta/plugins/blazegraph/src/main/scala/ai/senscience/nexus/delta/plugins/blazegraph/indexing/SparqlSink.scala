@@ -66,9 +66,10 @@ final class SparqlSink(
               .as(elements.map { _.failed(err) }),
           _ => IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
         )
+        .span("sparqlSink")
     else
       IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
-  }.span("sparqlSink")
+  }
 
   private def markInvalidIdsAsFailed(elements: ElemChunk[NTriples], invalidIds: Set[Iri]) =
     elements.map { e =>
