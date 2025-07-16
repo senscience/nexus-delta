@@ -168,8 +168,9 @@ Acl provisioning will only run if none is create at the root level.
 The elasticsearch plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/elasticsearch/src/main/resources/elasticsearch.conf){ open=new }.
 
 The most important flags are:
+
 * `app.elasticsearch.base` which defines the endpoint where the Elasticsearch service is running.
-* `app.elasticsearch.credentials.username` and `plugins.elasticsearch.credentials.password` to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.
+* `app.elasticsearch.credentials.username` and `app.elasticsearch.credentials.password` to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.
 
 Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/docs/deploy-manage/security) which describes the different steps to achieve this.
 
