@@ -60,10 +60,11 @@ final class ElasticSearchSink private (
       client
         .bulk(actions, refresh)
         .map(MarkElems(_, elements, documentId))
+        .span("elasticSearchSink")
     } else {
       IO.pure(elements.map(_.void))
     }
-  }.span("elasticSearchSink")
+  }
 }
 
 object ElasticSearchSink {
