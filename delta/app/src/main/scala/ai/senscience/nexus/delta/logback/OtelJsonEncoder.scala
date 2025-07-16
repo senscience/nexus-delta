@@ -21,6 +21,9 @@ class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
   private val exceptionMessage    = EXCEPTION_MESSAGE.getKey
   private val exceptionStacktrace = EXCEPTION_STACKTRACE.getKey
 
+  private val serviceName =
+    sys.props.get("otel.service.name").orElse(sys.env.get("OTEL_SERVICE_NAME")).getOrElse("delta")
+
   override def encode(event: ILoggingEvent): Array[Byte] = {
     val exceptionFields =
       Option(event.getThrowableProxy)
@@ -41,6 +44,11 @@ class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
       Map("logger.name" := event.getLoggerName) ++ exceptionFields ++ mdcFields
     )
 
+    val resource = Json.obj(
+      "service.name" := serviceName,
+      "attributes"   := Json.obj()
+    )
+
     val timestamp = timestampInNanos(event.getTimeStamp, event.getNanoseconds)
 
     if (event.getNanoseconds == -1) {
@@ -56,7 +64,8 @@ class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
         "severityNumber" := severity(event.getLevel).getSeverityNumber,
         "timestamp"      := timestamp,
         "body"           := event.getFormattedMessage,
-        "attributes"     := attributes
+        "attributes"     := attributes,
+        "resource"       := resource
       )
     )
     (printer.print(json) + '\n').getBytes
