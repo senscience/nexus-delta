@@ -149,6 +149,7 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
   include(MultiFetchModule)
   include(IdentitiesModule)
   include(new ElasticSearchModule(Main.pluginsMinPriority))
+  include(ViewsCommonModule)
   include(VersionModule)
   include(EventsModule)
   include(ExportModule)

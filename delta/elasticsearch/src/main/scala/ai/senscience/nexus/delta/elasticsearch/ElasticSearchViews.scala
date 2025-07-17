@@ -20,6 +20,7 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
@@ -346,6 +347,11 @@ final class ElasticSearchViews private (
     elem.traverse { v =>
       IndexingViewDef(v, defaultViewDef, prefix)
     }
+
+  def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
+    SearchResults(
+      log.currentStates(Scope.Project(project), _.toResource(defaultViewDef))
+    ).span("listElasticsearchViews")
 
   private def eval(cmd: ElasticSearchViewCommand): IO[ViewResource] =
     log

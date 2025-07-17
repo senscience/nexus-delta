@@ -29,6 +29,7 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
@@ -215,6 +216,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   many[ProjectDeletionTask].add { (views: CompositeViews) => CompositeViewsDeletionTask(views) }
+
+  many[ViewsList].add { (views: CompositeViews) => ViewsList(views.list) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/composite-views-metadata.json"))
 

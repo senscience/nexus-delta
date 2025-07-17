@@ -1,33 +1,29 @@
 {
   "@context": [
     "https://bluebrain.github.io/nexus/contexts/metadata.json",
-    "https://bluebrain.github.io/nexus/contexts/search.json",
-    "https://bluebrain.github.io/nexus/contexts/search-metadata.json"
+    "https://bluebrain.github.io/nexus/contexts/search.json"
   ],
   "_total": 2,
   "_results": [
     {
       "@id": "{{defaultSparqlView}}",
       "@type": [
-        "View",
-        "SparqlView"
+        "https://bluebrain.github.io/nexus/vocabulary/View",
+        "https://bluebrain.github.io/nexus/vocabulary/SparqlView"
       ],
       "_self": "{{defaultSparqlViewSelf}}",
       "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/views.json",
       "_project": "{{project}}",
       "_rev": 1,
-      "_indexingRev": 1,
       "_deprecated": false,
       "_createdBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}",
-      "_updatedBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}",
-      "name": "Default Sparql view",
-      "description": "A Sparql view of all resources in the project."
+      "_updatedBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}"
     },
     {
       "@id": "{{searchView}}",
       "@type": [
-        "View",
-        "CompositeView"
+        "https://bluebrain.github.io/nexus/vocabulary/View",
+        "https://bluebrain.github.io/nexus/vocabulary/CompositeView"
       ],
       "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/views.json",
       "_createdBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}",
@@ -35,9 +31,7 @@
       "_self": "{{searchViewSelf}}",
       "_project": "{{project}}",
       "_rev": 1,
-      "_updatedBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}",
-      "name": "Default global search view",
-      "description": "An Elasticsearch view of configured resources for the global search."
+      "_updatedBy": "{{deltaUri}}/realms/{{realm}}/users/{{user}}"
     }
   ]
 }

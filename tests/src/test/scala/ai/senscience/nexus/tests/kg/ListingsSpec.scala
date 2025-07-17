@@ -107,7 +107,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
       }
     }
 
-    "get default views" ignore {
+    "get default views" in {
       val defaultSparqlView = "https://bluebrain.github.io/nexus/vocabulary/defaultSparqlIndex"
       val searchView        = "https://bluebrain.github.io/nexus/vocabulary/searchView"
 
@@ -121,11 +121,9 @@ final class ListingsSpec extends BaseIntegrationSpec {
       )
 
       val expected = jsonContentOf("kg/listings/default-view.json", mapping*)
-      eventually {
-        deltaClient.get[Json](s"/views/$ref11", Bob) { (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          filterSearchMetadata(json) should equalIgnoreArrayOrder(expected)
-        }
+      deltaClient.get[Json](s"/views/$ref11", Bob) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        filterSearchMetadata(json) should equalIgnoreArrayOrder(expected)
       }
     }
 

@@ -26,6 +26,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
@@ -229,6 +230,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   many[ScopeInitialization].ref[BlazegraphScopeInitialization]
 
   many[ProjectDeletionTask].add { (views: BlazegraphViews) => BlazegraphDeletionTask(views) }
+
+  many[ViewsList].add { (views: BlazegraphViews) => ViewsList(views.list) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/sparql-metadata.json"))
 

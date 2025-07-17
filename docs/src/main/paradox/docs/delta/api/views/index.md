@@ -82,74 +82,9 @@ synchronously or in the background. This behaviour is controlled using `indexing
 
 ## List views
 
-There are three available endpoints to list views in different scopes.
-
-### Within a project
-
 ```
-GET /v1/views/{org_label}/{project_label}?from={from}
-                                         &size={size}
-                                         &deprecated={deprecated}
-                                         &rev={rev}
-                                         &type={type}
-                                         &createdBy={createdBy}
-                                         &updatedBy={updatedBy}
-                                         &q={search}
-                                         &sort={sort}
-                                         &aggregations={aggregations}
+GET /v1/views/{org_label}/{project_label}
 ```
-
-### Within an organization
-
-This operation returns only views from projects defined in the organisation `{org_label}` and where the caller has the `resources/read` permission.
-
-```
-GET /v1/views/{org_label}?from={from}
-                         &size={size}
-                         &deprecated={deprecated}
-                         &rev={rev}
-                         &type={type}
-                         &createdBy={createdBy}
-                         &updatedBy={updatedBy}
-                         &q={search}
-                         &sort={sort}
-                         &aggregations={aggregations}
-```
-
-### Within all projects
-
-This operation returns only views from projects where the caller has the `resources/read` permission.
-
-```
-GET /v1/views?from={from}
-             &size={size}
-             &deprecated={deprecated}
-             &rev={rev}
-             &type={type}
-             &createdBy={createdBy}
-             &updatedBy={updatedBy}
-             &q={search}
-             &sort={sort}
-             &aggregations={aggregations}
-```
-
-#### Parameter description
-
-- `{from}`: Number - is the parameter that describes the offset for the current query; defaults to `0`
-- `{size}`: Number - is the parameter that limits the number of results; defaults to `20`
-- `{deprecated}`: Boolean - can be used to filter the resulting views based on their deprecation status
-- `{rev}`: Number - can be used to filter the resulting views based on their revision value
-- `{type}`: Iri - can be used to filter the resulting views based on their `@type` value. This parameter can appear 
-  multiple times, filtering further the `@type` value
-- `{createdBy}`: Iri - can be used to filter the resulting views based on their creator
-- `{updatedBy}`: Iri - can be used to filter the resulting views based on the person which performed the last update
-- `{search}`: String - can be provided to select only the views in the collection that have attribute values matching 
-  (containing) the provided string
-- `{sort}`: String - can be used to sort views based on a payloads' field. This parameter can appear multiple times to 
-  enable sorting by multiple fields. The default is done by `_createdBy` and `@id`.
-- `{aggregations}`: Boolean - if `true` then the response will only contain aggregations of the `@type` and `_project` fields; defaults to `false`. See @ref:[Aggregations](../resources-api.md#aggregations).
-
-
 
 **Example**
 

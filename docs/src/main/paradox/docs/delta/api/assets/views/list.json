@@ -12,7 +12,7 @@
         "https://bluebrain.github.io/nexus/vocabulary/View",
         "https://bluebrain.github.io/nexus/vocabulary/ElasticSearchView"
       ],
-      "_self": "http://localhost:8080/v1/schemas/myorg/myproj/nxv:defaultElasticSearchIndex",
+      "_self": "http://localhost:8080/v1/views/myorg/myproj/nxv:defaultElasticSearchIndex",
       "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/views",
       "_project": "myorg/myproj",
       "_rev": 1,
@@ -44,7 +44,7 @@
         "https://bluebrain.github.io/nexus/vocabulary/ElasticSearchView",
         "https://bluebrain.github.io/nexus/vocabulary/View"
       ],
-      "_self": "http://localhost:8080/v1/schemas/myorg/myproj/nxv:myview",
+      "_self": "http://localhost:8080/v1/views/myorg/myproj/nxv:myview",
       "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/view",
       "_project": "myorg/myproj",
       "_rev": 4,
@@ -54,6 +54,5 @@
       "_updatedAt": "2021-04-18T17:10:22.748Z",
       "_updatedBy": "http://localhost:8080/v1/realms/myrealm/users/john"
     }
-  ],
-  "_next": "http://localhost:8080/v1/views/myorg/myproj?after=%5B1559045718752,%22https://bluebrain.github.io/nexus/vocabulary/myview29%22%5D"
+  ]
 }
