@@ -358,6 +358,21 @@ class StoragesRoutesSpec extends BaseRouteSpec with StorageFixtures with UUIDFFi
       }
     }
 
+    "listing storages" should {
+      "succeed if the user has read access to the given project" in {
+        Get(s"/v1/storages/${project.ref}") ~> as(reader) ~> routes ~> check {
+          status shouldEqual StatusCodes.OK
+          response.asJson.asObject.value("_total").value shouldEqual Json.fromLong(7L)
+        }
+      }
+
+      "fail if the user has no read access to the given project" in {
+        Get(s"/v1/storages/${project.ref}") ~> routes ~> check {
+          response.shouldBeForbidden
+        }
+      }
+    }
+
     def givenAStorage(test: String => Assertion): Assertion = {
       val id = genString()
       Put(s"/v1/storages/myorg/myproject/$id", diskFieldsJson.toEntity) ~> as(writer) ~> routes ~> check {

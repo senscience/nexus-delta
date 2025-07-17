@@ -3,8 +3,9 @@ package ai.senscience.nexus.delta.plugins.storage.storages.routes
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.storage.storages.{schemas, StorageResource, Storages, StoragesStatistics}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.plugins.storage.storages.*
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
@@ -14,10 +15,13 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
+import cats.syntax.all.*
 import io.circe.Json
 
 /**
@@ -59,11 +63,21 @@ final class StoragesRoutes(
       (handleStorageExceptions & pathPrefix("storages")) {
         extractCaller { implicit caller =>
           projectRef { project =>
+            val authorizeRead  = authorizeFor(project, Read)
+            val authorizeWrite = authorizeFor(project, Write)
             concat(
+              // List storages
+              pathEndOrSingleSlash {
+                (get & authorizeRead) {
+                  implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[StorageResource]] =
+                    searchResultsJsonLdEncoder(ContextValue(contexts.storages))
+                  emit(storages.list(project).widen[SearchResults[StorageResource]])
+                }
+              },
               pathEndOrSingleSlash {
                 // Create a storage without id segment
                 (post & noParameter("rev") & entity(as[Json])) { source =>
-                  authorizeFor(project, Write).apply {
+                  authorizeWrite {
                     emitMetadata(Created, storages.create(project, source))
                   }
                 }
@@ -74,7 +88,7 @@ final class StoragesRoutes(
                     concat(
                       // Create or update a storage
                       put {
-                        authorizeFor(project, Write).apply {
+                        authorizeWrite {
                           (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
                             case (None, source)      =>
                               // Create a storage with id segment
@@ -87,7 +101,7 @@ final class StoragesRoutes(
                       },
                       // Deprecate a storage
                       (delete & parameter("rev".as[Int])) { rev =>
-                        authorizeFor(project, Write).apply {
+                        authorizeWrite {
                           emitMetadata(storages.deprecate(id, project, rev))
                         }
                       },
@@ -96,7 +110,7 @@ final class StoragesRoutes(
                         emitOrFusionRedirect(
                           project,
                           id,
-                          authorizeFor(project, Read).apply {
+                          authorizeRead {
                             emit(storages.fetch(id, project))
                           }
                         )
@@ -105,13 +119,13 @@ final class StoragesRoutes(
                   },
                   // Undeprecate a storage
                   (pathPrefix("undeprecate") & pathEndOrSingleSlash & put & parameter("rev".as[Int])) { rev =>
-                    authorizeFor(project, Write).apply {
+                    authorizeWrite {
                       emitMetadata(storages.undeprecate(id, project, rev))
                     }
                   },
                   // Fetch a storage original source
                   (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                    authorizeFor(project, Read).apply {
+                    authorizeRead {
                       val sourceIO = storages
                         .fetch(id, project)
                         .map { resource => OriginalSource(resource, resource.value.source) }
@@ -119,7 +133,7 @@ final class StoragesRoutes(
                     }
                   },
                   (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
+                    authorizeRead {
                       emit(storagesStatistics.get(id, project))
                     }
                   }
