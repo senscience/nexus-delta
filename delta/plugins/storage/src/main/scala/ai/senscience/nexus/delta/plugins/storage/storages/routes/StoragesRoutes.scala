@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.storage.storages.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
+import ai.senscience.nexus.delta.plugins.storage.storages.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.storage.storages.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -21,7 +21,6 @@ import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
-import cats.syntax.all.*
 import io.circe.Json
 
 /**
@@ -71,7 +70,7 @@ final class StoragesRoutes(
                 (get & authorizeRead) {
                   implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[StorageResource]] =
                     searchResultsJsonLdEncoder(ContextValue(contexts.storages))
-                  emit(storages.list(project).widen[SearchResults[StorageResource]])
+                  emit(storages.list(project))
                 }
               },
               pathEndOrSingleSlash {

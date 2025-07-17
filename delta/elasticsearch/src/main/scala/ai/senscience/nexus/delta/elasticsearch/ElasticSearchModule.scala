@@ -30,6 +30,7 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, ProjectScopeResolve
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
@@ -325,6 +326,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   many[ProjectDeletionTask].add { (client: ElasticSearchClient, config: ElasticSearchViewsConfig) =>
     new MainIndexDeletionTask(client, config.mainIndex.index)
+  }
+
+  many[ViewsList].add { (views: ElasticSearchViews) =>
+    ViewsList(views.list)
   }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/elasticsearch-metadata.json"))

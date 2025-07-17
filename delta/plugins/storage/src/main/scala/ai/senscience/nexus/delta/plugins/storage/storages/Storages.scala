@@ -20,7 +20,6 @@ import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingDecoder
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
-import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -266,10 +265,10 @@ final class Storages private (
   def currentStorages(project: ProjectRef): SuccessElemStream[StorageState] =
     log.currentStates(Scope.Project(project))
 
-  def list(project: ProjectRef): IO[UnscoredSearchResults[StorageResource]] =
+  def list(project: ProjectRef): IO[SearchResults[StorageResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource)
-    ).span("listResolvers")
+    ).span("listStorages")
 
   private def unsetPreviousDefaultIfRequired(
       project: ProjectRef,

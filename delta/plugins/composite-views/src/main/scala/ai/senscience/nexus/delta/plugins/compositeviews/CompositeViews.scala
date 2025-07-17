@@ -293,6 +293,11 @@ final class CompositeViews private (
     ).span("listCompositeViews")
   }
 
+  def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
+    SearchResults(
+      log.currentStates(Scope.Project(project), _.toResource)
+    ).span("listCompositeViews")
+
   /**
     * Return all existing views for the given project in a finite stream
     */

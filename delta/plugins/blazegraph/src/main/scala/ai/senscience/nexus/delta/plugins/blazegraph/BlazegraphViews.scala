@@ -21,6 +21,7 @@ import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingDecoder
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
@@ -307,6 +308,11 @@ final class BlazegraphViews(
 
   private def toIndexViewDef(elem: Elem.SuccessElem[BlazegraphViewState]) =
     elem.traverse { v => IndexingViewDef(v, prefix) }
+
+  def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
+    SearchResults(
+      log.currentStates(Scope.Project(project), _.toResource)
+    ).span("listBlazegraphViews")
 
   private def eval(cmd: BlazegraphViewCommand): IO[ViewResource] =
     log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
