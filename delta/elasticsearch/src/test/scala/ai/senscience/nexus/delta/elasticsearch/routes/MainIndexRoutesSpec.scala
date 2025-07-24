@@ -69,6 +69,7 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     super.beforeAll()
     val setup = for {
       _ <- aclCheck.append(AclAddress.Project(project1), reader -> Set(esPermissions.query, esPermissions.read))
+      _ <- aclCheck.append(AclAddress.Project(project1), writer -> Set(esPermissions.write))
       _ <- projections.save(mainIndexingProjectionMetadata(project1), progress)
     } yield ()
 
@@ -91,6 +92,41 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
       Get(s"/views/$project1/$encodedDefaultViewId/statistics") ~> as(reader) ~> routes ~> check {
         status shouldEqual StatusCodes.OK
         response.asJson shouldEqual proj1stats
+      }
+    }
+
+    s"fail to get offset if the user has no access to $project2" in {
+      Get(s"/views/$project2/documents/offset") ~> as(reader) ~> routes ~> check {
+        status shouldEqual StatusCodes.Forbidden
+      }
+    }
+
+    s"get offset if the user has access to $project1" in {
+      val expected = json"""{
+                      "@context" : "https://bluebrain.github.io/nexus/contexts/offset.json",
+                      "@type" : "At",
+                      "value" : 15}"""
+
+      Get(s"/views/$project1/documents/offset") ~> as(reader) ~> routes ~> check {
+        status shouldEqual StatusCodes.OK
+        response.asJson shouldEqual expected
+      }
+    }
+
+    s"fail to delete offset if the user has no write access to $project1" in {
+      Delete(s"/views/$project1/documents/offset") ~> as(reader) ~> routes ~> check {
+        status shouldEqual StatusCodes.Forbidden
+      }
+    }
+
+    s"get offset if the user has write access to $project1" in {
+      val expected = json"""{
+                      "@context" : "https://bluebrain.github.io/nexus/contexts/offset.json",
+                      "@type" : "Start"}"""
+
+      Delete(s"/views/$project1/documents/offset") ~> as(writer) ~> routes ~> check {
+        status shouldEqual StatusCodes.OK
+        response.asJson shouldEqual expected
       }
     }
 
