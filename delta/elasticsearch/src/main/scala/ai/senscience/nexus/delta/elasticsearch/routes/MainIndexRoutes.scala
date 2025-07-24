@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingProjection
-import ai.senscience.nexus.delta.elasticsearch.model.permissions.read as Read
+import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
@@ -20,6 +20,7 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.{Directive, Route}
@@ -59,12 +60,22 @@ final class MainIndexRoutes(
             val projection    = mainIndexingProjection(project)
             defaultViewSegment {
               concat(
-                // Fetch statistics for the default indexing on this current project
-                (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeRead {
-
-                    emit(projections.statistics(project, SelectFilter.latest, projection))
-                  }
+                // Fetch statistics for the main indexing on this current project
+                (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+                  emit(projections.statistics(project, SelectFilter.latest, projection))
+                },
+                // Manage an elasticsearch view offset
+                (pathPrefix("offset") & pathEndOrSingleSlash) {
+                  concat(
+                    // Fetch an elasticsearch view offset
+                    (get & authorizeFor(project, Read)) {
+                      emit(projections.offset(projection))
+                    },
+                    // Remove an elasticsearch view offset (restart the view)
+                    (delete & authorizeFor(project, Write)) {
+                      emit(projections.offset(projection).as(Offset.start))
+                    }
+                  )
                 },
                 // Getting indexing status for a resource in the given view
                 (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>

@@ -42,9 +42,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
   "Getting default indexing statistics" should {
 
     "get an error if the user has no access" in {
-      deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/statistics", Alice) { (_, response) =>
-        response.status shouldEqual StatusCodes.Forbidden
-      }
+      deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/statistics", Alice) { expectForbidden }
     }
 
     "get the statistics if the user has access" in eventually {
@@ -59,6 +57,35 @@ class MainIndexSpec extends BaseIntegrationSpec {
           "remaining" -> "0"
         )
         filterNestedKeys("lastEventDateTime", "lastProcessedEventDateTime")(json) shouldEqual expected
+      }
+    }
+  }
+
+  "Getting default offset" should {
+
+    "get an error if the user has no access" in {
+      deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/offset", Alice) { expectForbidden }
+    }
+
+    "get the statistics if the user has access" in eventually {
+      deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/offset", Bob) { expectOk }
+    }
+  }
+
+  "Deleting default offset" should {
+
+    "get an error if the user has no access" in {
+      deltaClient.delete[Json](s"/views/$ref11/$defaultViewsId/offset", Alice) { (_, response) =>
+        response.status shouldEqual StatusCodes.Forbidden
+      }
+    }
+
+    "get the statistics if the user has access" in eventually {
+      deltaClient.delete[Json](s"/views/$ref11/$defaultViewsId/offset", Bob) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        val expected =
+          json"""{ "@context" : "https://bluebrain.github.io/nexus/contexts/offset.json", "@type" : "Start" }"""
+        json shouldEqual expected
       }
     }
   }
