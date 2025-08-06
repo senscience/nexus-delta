@@ -55,17 +55,19 @@ final class SparqlSink(
       case (acc, _: Elem.FailedElem)                           =>
         acc
     }
+
     if (bulk.queries.nonEmpty)
       client
         .bulk(namespace, bulk.queries)
         .retry(retryStrategy)
-        .redeemWith(
-          err =>
-            logger
-              .error(err)(s"Indexing in sparql namespace $namespace failed")
-              .as(elements.map { _.failed(err) }),
-          _ => IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
-        )
+        .as(markInvalidIdsAsFailed(elements, bulk.invalidIds))
+        .recoverWith {
+          // Something is wrong with at least one of the elements, Blazegraph does not allow to know which
+          // all of them is marked as failed and we continue
+          case err: SparqlWriteError if err.isClientError =>
+            val allFailed = elements.map { _.failed(err) }
+            logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
+        }
         .span("sparqlSink")
     else
       IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
