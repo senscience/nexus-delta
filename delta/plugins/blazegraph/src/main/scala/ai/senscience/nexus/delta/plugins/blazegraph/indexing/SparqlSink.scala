@@ -60,6 +60,7 @@ final class SparqlSink(
       client
         .bulk(namespace, bulk.queries)
         .retry(retryStrategy)
+        .as(markInvalidIdsAsFailed(elements, bulk.invalidIds))
         .recoverWith {
           // Something is wrong with at least one of the elements, Blazegraph does not allow to know which
           // all of them is marked as failed and we continue
@@ -67,7 +68,6 @@ final class SparqlSink(
             val allFailed = elements.map { _.failed(err) }
             logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
         }
-        .as(markInvalidIdsAsFailed(elements, bulk.invalidIds))
         .span("sparqlSink")
     else
       IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
