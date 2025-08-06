@@ -10,6 +10,7 @@ import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import cats.effect.IO
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}
+import org.http4s.Status.ClientError
 import org.http4s.{EntityDecoder, Response, Status}
 
 /**
@@ -59,7 +60,10 @@ object SparqlClientError {
       extends SparqlClientError(
         s"The sparql endpoint responded with a status: $status",
         Some(body)
-      )
+      ) {
+
+    def isClientError: Boolean = status.responseClass == ClientError
+  }
 
   object SparqlWriteError {
     def apply(response: Response[IO]): IO[SparqlWriteError] =
