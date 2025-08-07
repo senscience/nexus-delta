@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphV
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphSupervisionRoutes, BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler}
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.{SparqlSlowQueryDeleter, SparqlSlowQueryLogger, SparqlSlowQueryStore}
+import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.{SparqlSlowQueryLogger, SparqlSlowQueryStore}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
@@ -30,6 +30,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
@@ -45,15 +46,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   make[SparqlSlowQueryStore].from { (xas: Transactors) => SparqlSlowQueryStore(xas) }
 
-  make[SparqlSlowQueryDeleter].fromEffect {
-    (supervisor: Supervisor, store: SparqlSlowQueryStore, cfg: BlazegraphViewsConfig, clock: Clock[IO]) =>
-      SparqlSlowQueryDeleter.start(
-        supervisor,
-        store,
-        cfg.slowQueries.logTtl,
-        cfg.slowQueries.deleteExpiredLogsEvery,
-        clock
-      )
+  many[PurgeProjection].add { (config: BlazegraphViewsConfig, store: SparqlSlowQueryStore) =>
+    SparqlSlowQueryStore.deleteExpired(config.slowQueries.purge, store)
   }
 
   make[SparqlSlowQueryLogger].from { (cfg: BlazegraphViewsConfig, store: SparqlSlowQueryStore, clock: Clock[IO]) =>
