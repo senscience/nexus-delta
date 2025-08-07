@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.config
 
+import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 
@@ -19,7 +20,9 @@ final case class SlowQueriesConfig(
     slowQueryThreshold: Duration,
     logTtl: FiniteDuration,
     deleteExpiredLogsEvery: FiniteDuration
-)
+) {
+  def purge: PurgeConfig = PurgeConfig(deleteExpiredLogsEvery, logTtl)
+}
 
 object SlowQueriesConfig {
   implicit final val eventLogConfig: ConfigReader[SlowQueriesConfig] =
