@@ -8,12 +8,14 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseTy
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
+import fs2.Stream
 import org.http4s.Method.{DELETE, GET, POST, PUT}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
 import org.http4s.headers.`Content-Type`
 import org.http4s.{EntityDecoder, Header, MediaType, Status, Uri}
 
+import scala.concurrent.duration.FiniteDuration
 import scala.reflect.ClassTag
 
 final class RDF4JClient(client: Client[IO], endpoint: Uri, repositoryTemplate: String) extends SparqlClient {
@@ -25,6 +27,9 @@ final class RDF4JClient(client: Client[IO], endpoint: Uri, repositoryTemplate: S
   private def queryEndpoint(namespace: String): Uri = repositoriesEndpoint / namespace
 
   private def updateEndpoint(namespace: String): Uri = queryEndpoint(namespace) / "statements"
+
+  override def healthCheck(period: FiniteDuration): Stream[IO, Boolean] =
+    Stream.raiseError[IO](new NotImplementedError("Not implemented for RDF4J"))
 
   override def serviceDescription: IO[ServiceDescription] = IO.pure(ServiceDescription.unresolved(serviceName))
 

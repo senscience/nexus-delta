@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
 import ai.senscience.nexus.delta.plugins.blazegraph.client.BlazegraphClient.timeoutHeader
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{InvalidCountRequest, SparqlActionError, SparqlQueryError, SparqlWriteError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.{Aux, SparqlResultsJson}
@@ -10,6 +9,7 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import cats.data.NonEmptyList
 import cats.effect.IO
+import fs2.Stream
 import org.http4s.Method.{DELETE, GET, POST}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
@@ -56,11 +56,17 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
   /**
     * Fetches the service description information (name and version)
     */
-  def serviceDescription: IO[ServiceDescription] =
+  override def serviceDescription: IO[ServiceDescription] =
     client
-      .expect[ResolvedServiceDescription](endpoint / "status")
+      .expect[ServiceDescription](endpoint / "status")
       .timeout(1.second)
       .recover(_ => ServiceDescription.unresolved(serviceName))
+
+  override def healthCheck(period: FiniteDuration): Stream[IO, Boolean] =
+    Stream.awakeEvery[IO](period) >>
+      Stream.eval(
+        client.successful(GET(endpoint / "status")).timeoutTo(1.second, IO.pure(false))
+      )
 
   override def existsNamespace(namespace: String): IO[Boolean] =
     client.statusFromUri(endpoint / "namespace" / namespace).flatMap {
@@ -146,10 +152,10 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
       client.expectOr[Unit](request)(SparqlWriteError(_)).void
     }
 
-  implicit private val resolvedServiceDescriptionDecoder: EntityDecoder[IO, ResolvedServiceDescription] =
+  implicit private val resolvedServiceDescriptionDecoder: EntityDecoder[IO, ServiceDescription] =
     EntityDecoder.text[IO].map {
       serviceVersion.findFirstMatchIn(_).map(_.group(2)) match {
-        case None          => throw new IllegalArgumentException(s"'version' not found using regex $serviceVersion")
+        case None          => ServiceDescription.unresolved(serviceName)
         case Some(version) => ServiceDescription(serviceName, version)
       }
     }
