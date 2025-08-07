@@ -13,11 +13,12 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.circe.Json
 import io.circe.syntax.*
+import fs2.Stream
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.Accept
 import org.http4s.{BasicCredentials, EntityDecoder, Header, MediaType, QValue, Uri}
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.reflect.ClassTag
 import scala.xml.{Elem, NodeSeq}
 
@@ -48,6 +49,8 @@ trait SparqlQueryClient {
   * Sparql client implementing basic SPARQL query execution logic
   */
 trait SparqlClient extends SparqlQueryClient with XmlSupport {
+
+  def healthCheck(period: FiniteDuration): Stream[IO, Boolean]
 
   def serviceDescription: IO[ServiceDescription]
 

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.BlazegraphCoordinator
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{SparqlCoordinator, SparqlProjectionLifeCycle}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewEvent}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
@@ -105,24 +105,29 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         )(uuidF)
     }
 
-  make[BlazegraphCoordinator].fromEffect {
+  make[SparqlProjectionLifeCycle].from {
     (
-        views: BlazegraphViews,
         graphStream: GraphResourceStream,
         registry: ReferenceRegistry,
-        supervisor: Supervisor,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri
+    ) => SparqlProjectionLifeCycle(graphStream, registry, client, config.retryStrategy, config.batch)(baseUri)
+  }
+
+  make[SparqlCoordinator].fromEffect {
+    (
+        views: BlazegraphViews,
+        projectionLifeCycle: SparqlProjectionLifeCycle,
+        supervisor: Supervisor,
+        config: BlazegraphViewsConfig
     ) =>
-      BlazegraphCoordinator(
+      SparqlCoordinator(
         views,
-        graphStream,
-        registry,
+        projectionLifeCycle,
         supervisor,
-        client,
-        config
-      )(baseUri)
+        config.indexingEnabled
+      )
   }
 
   make[BlazegraphViewsQuery].from {
