@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticSearchConnectError, ElasticSearchTimeoutError, ElasticSearchUnexpectedError, ElasticSearchUnknownHost, ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
@@ -27,6 +27,8 @@ import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.`Content-Type`
 import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Query, Status, Uri}
 
+import java.net.{ConnectException, UnknownHostException}
+import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
 
 /**
@@ -414,6 +416,15 @@ object ElasticSearchClient {
 
   private val logger = Logger[this.type]
 
+  private def errorHandler(client: Client[IO]): Client[IO] =
+    Client { request =>
+      client.run(request).adaptError {
+        case c: ConnectException     => ElasticSearchConnectError(c)
+        case _: UnknownHostException => ElasticSearchUnknownHost
+        case t: TimeoutException     => ElasticSearchTimeoutError(t)
+      }
+    }
+
   def apply(
       endpoint: Uri,
       credentials: Option[BasicCredentials],
@@ -424,8 +435,10 @@ object ElasticSearchClient {
       .withLogger(logger)
       .build
       .map { client =>
-        val authGzipClient = GZip()(BasicAuth(credentials)(client))
-        new ElasticSearchClient(authGzipClient, endpoint, maxIndexPathLength)
+        val enrichedClient = errorHandler(
+          GZip()(BasicAuth(credentials)(client))
+        )
+        new ElasticSearchClient(enrichedClient, endpoint, maxIndexPathLength)
       }
 
   private val emptyResults = json"""{

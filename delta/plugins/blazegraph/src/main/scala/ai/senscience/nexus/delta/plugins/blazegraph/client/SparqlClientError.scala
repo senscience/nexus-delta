@@ -13,6 +13,9 @@ import io.circe.{Encoder, JsonObject}
 import org.http4s.Status.ClientError
 import org.http4s.{EntityDecoder, Response, Status}
 
+import java.net.ConnectException
+import scala.concurrent.TimeoutException
+
 /**
   * Error that can occur when using an [[SparqlClient]]
   */
@@ -25,11 +28,20 @@ sealed abstract class SparqlClientError(val reason: String, val details: Option[
   override def getMessage: String = toString
 
   override def toString: String =
-    s"An error occurred because '$reason'" ++ details.map(d => s"\ndetails '$d'").getOrElse("")
+    reason ++ details.map(d => s"\ndetails '$d'").getOrElse("")
 
 }
 
 object SparqlClientError {
+
+  final case class SparqlConnectError(cause: ConnectException)
+      extends SparqlClientError(s"The sparql engine can't be reached: '${cause.getMessage}'", None)
+
+  final case class SparqlTimeoutError(cause: TimeoutException)
+      extends SparqlClientError(s"The request to sparql resulted in a timeout: '${cause.getMessage}'", None)
+
+  final case object SparqlUnknownHost
+      extends SparqlClientError("The hostname for the sparql engine can't be resolved", None)
 
   final case class SparqlActionError(status: Status, action: String)
       extends SparqlClientError(

@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlConnectError, SparqlTimeoutError, SparqlUnknownHost}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
@@ -11,13 +12,16 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import fs2.Stream
 import io.circe.Json
 import io.circe.syntax.*
-import fs2.Stream
+import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.Accept
 import org.http4s.{BasicCredentials, EntityDecoder, Header, MediaType, QValue, Uri}
 
+import java.net.{ConnectException, UnknownHostException}
+import scala.concurrent.TimeoutException
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.reflect.ClassTag
 import scala.xml.{Elem, NodeSeq}
@@ -246,6 +250,15 @@ object SparqlClient {
 
   private val logger = Logger[this.type]
 
+  private def errorHandler(client: Client[IO]): Client[IO] =
+    Client { request =>
+      client.run(request).adaptError {
+        case c: ConnectException     => SparqlConnectError(c)
+        case _: UnknownHostException => SparqlUnknownHost
+        case t: TimeoutException     => SparqlTimeoutError(t)
+      }
+    }
+
   def apply(
       target: SparqlTarget,
       endpoint: Uri,
@@ -257,13 +270,15 @@ object SparqlClient {
       .withLogger(logger)
       .build
       .map { client =>
-        val authClient = BasicAuth(credentials)(client)
+        val enrichedClient = errorHandler(
+          BasicAuth(credentials)(client)
+        )
         target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests
-            new BlazegraphClient(authClient, endpoint, queryTimeout)
+            new BlazegraphClient(enrichedClient, endpoint, queryTimeout)
           case SparqlTarget.Rdf4j      =>
-            RDF4JClient.lmdb(authClient, endpoint)
+            RDF4JClient.lmdb(enrichedClient, endpoint)
         }
       }
 }

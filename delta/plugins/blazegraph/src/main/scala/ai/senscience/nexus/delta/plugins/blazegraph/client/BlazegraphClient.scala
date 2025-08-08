@@ -65,7 +65,10 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
   override def healthCheck(period: FiniteDuration): Stream[IO, Boolean] =
     Stream.awakeEvery[IO](period) >>
       Stream.eval(
-        client.successful(GET(endpoint / "status")).timeoutTo(1.second, IO.pure(false))
+        client
+          .successful(GET(endpoint / "status"))
+          .timeout(1.second)
+          .recover(_ => false)
       )
 
   override def existsNamespace(namespace: String): IO[Boolean] =
