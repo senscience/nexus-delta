@@ -14,12 +14,24 @@ import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
 import org.http4s.{Response, Status}
 
+import java.net.ConnectException
+import scala.concurrent.TimeoutException
+
 /**
   * Enumeration of errors raised while querying the Elasticsearch indices
   */
 sealed abstract class ElasticSearchClientError(val reason: String, val body: Option[Json]) extends Rejection
 
 object ElasticSearchClientError {
+
+  final case class ElasticSearchConnectError(cause: ConnectException)
+      extends ElasticSearchClientError(s"The sparql engine can't be reached: ${cause.getMessage}", None)
+
+  final case class ElasticSearchTimeoutError(cause: TimeoutException)
+      extends ElasticSearchClientError(s"The request to sparql resulted in a timeout: ${cause.getMessage}", None)
+
+  final case object ElasticSearchUnknownHost
+      extends ElasticSearchClientError("The hostname for elasticsearch can't be resolved", None)
 
   final case class ElasticsearchActionError(status: Status, action: String)
       extends ElasticSearchClientError(
@@ -104,7 +116,7 @@ object ElasticSearchClientError {
       case ElasticsearchQueryError(status, _)       => AkkaStatusCode.int2StatusCode(status.code)
       case ElasticsearchWriteError(status, _)       => AkkaStatusCode.int2StatusCode(status.code)
       case InvalidResourceId(_)                     => StatusCodes.BadRequest
-      case ScriptCreationDismissed(_, _)            => StatusCodes.InternalServerError
+      case _                                        => StatusCodes.InternalServerError
     }
 
 }

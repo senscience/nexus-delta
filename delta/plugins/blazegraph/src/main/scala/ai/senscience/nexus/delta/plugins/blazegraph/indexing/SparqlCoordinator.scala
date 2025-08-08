@@ -17,15 +17,15 @@ object SparqlCoordinator {
   /** If indexing is disabled we can only log */
   final private case object Noop extends SparqlCoordinator {
     def log: IO[Unit] =
-      logger.info("Blazegraph indexing has been disabled via config")
+      logger.info("Sparql indexing has been disabled via config")
   }
 
   /**
-    * Coordinates the lifecycle of Blazegraph views as projections
+    * Coordinates the lifecycle of Sparql views as projections
     * @param fetchViews
     *   stream of indexing views
     * @param projectionLifeCycle
-    *   to provide the data feeding the Blazegraph projections
+    *   to provide the data feeding the Sparql projections
     * @param cache
     *   a cache of the current running views
     * @param supervisor
@@ -84,7 +84,7 @@ object SparqlCoordinator {
 
   }
 
-  val metadata: ProjectionMetadata = ProjectionMetadata("system", "blazegraph-coordinator", None, None)
+  val metadata: ProjectionMetadata = ProjectionMetadata("system", "sparql-coordinator", None, None)
   private val logger               = Logger[SparqlCoordinator]
 
   def apply(

@@ -39,7 +39,7 @@ object SparqlProjectionLifeCycle {
       override def isFailing: Boolean = false
     }
 
-    final case class Failing(since: Instant) extends SparqlHealth {
+    final case class Failing(since: Instant, lastLog: Instant) extends SparqlHealth {
       override def isFailing: Boolean = true
     }
   }
@@ -56,15 +56,25 @@ object SparqlProjectionLifeCycle {
       client
         .healthCheck(1.second)
         .evalFold(SparqlHealth.Healthy: SparqlHealth) {
-          case (SparqlHealth.Healthy, true)         => IO.pure(SparqlHealth.Healthy)
-          case (SparqlHealth.Healthy, false)        =>
+          case (SparqlHealth.Healthy, true)           => IO.pure(SparqlHealth.Healthy)
+          case (SparqlHealth.Healthy, false)          =>
             IO.realTimeInstant.flatMap { now =>
-              logger.error("The sparql engine is not responding").as(SparqlHealth.Failing(now))
+              logger.error("The sparql database is not responding").as(SparqlHealth.Failing(now, now))
             }
-          case (SparqlHealth.Failing(since), true)  =>
-            logger.info(s"The sparql engine is responding again after failing since '$since'").as(SparqlHealth.Healthy)
-          case (SparqlHealth.Failing(since), false) =>
-            logger.error(s"The sparql engine has not been responding since '${since}'").as(SparqlHealth.Failing(since))
+          case (SparqlHealth.Failing(since, _), true) =>
+            logger
+              .info(s"The sparql database is responding again after failing since '$since'")
+              .as(SparqlHealth.Healthy)
+          case (f: SparqlHealth.Failing, false)       =>
+            IO.realTimeInstant.flatMap { now =>
+              if (now.getEpochSecond - f.lastLog.getEpochSecond > 60L) {
+                logger
+                  .error(s"The sparql database has not been responding since '${f.since}'")
+                  .as(SparqlHealth.Failing(f.since, now))
+              } else {
+                IO.pure(f)
+              }
+            }
         }
         .map(_.isFailing)
     }

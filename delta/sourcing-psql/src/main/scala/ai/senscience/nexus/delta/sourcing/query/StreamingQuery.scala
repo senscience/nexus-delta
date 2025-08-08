@@ -17,6 +17,7 @@ import doobie.util.fragment.Fragment
 import doobie.util.query.Query0
 import fs2.{Chunk, Stream}
 
+import java.sql.SQLException
 import java.time.Instant
 
 /**
@@ -122,12 +123,16 @@ object StreamingQuery {
     }
 
   def logQuery[A](query: Query0[A]): Resource.ExitCase => IO[Unit] = {
-    case Resource.ExitCase.Succeeded      =>
-      logger.debug(s"Reached the end of the single evaluation of query '${query.sql}'.")
-    case Resource.ExitCase.Errored(cause) =>
-      logger.error(cause)(s"Single evaluation of query '${query.sql}' failed.")
-    case Resource.ExitCase.Canceled       =>
-      logger.debug(s"Reached the end of the single evaluation of query '${query.sql}'.")
+    case Resource.ExitCase.Succeeded                    =>
+      logger.debug(s"Reached the end of the evaluation of query '${query.sql}'.")
+    case Resource.ExitCase.Errored(cause: SQLException) =>
+      logger.error(cause)(
+        s"Evaluation of query '${query.sql}' failed with error: ${cause.getMessage} (${cause.getErrorCode})."
+      )
+    case Resource.ExitCase.Errored(cause)               =>
+      logger.debug(cause)(s"Evaluation of query '${query.sql}' failed with error: ${cause.getMessage}.")
+    case Resource.ExitCase.Canceled                     =>
+      logger.debug(s"Cancelled the evaluation of query '${query.sql}'.")
   }
 
   def stateFilter(scope: Scope, offset: Offset, selectFilter: SelectFilter): Option[doobie.Fragment] = {
