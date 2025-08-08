@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticSearchConnectError, ElasticSearchTimeoutError, ElasticSearchUnexpectedError, ElasticSearchUnknownHost, ElasticsearchActionError, ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchWriteError, ScriptCreationDismissed}
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.*
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
