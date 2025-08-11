@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.EphemeralStateStore
 import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import cats.effect.IO
-import doobie.postgres.sqlstate
 import doobie.syntax.all.*
 
 /**
@@ -71,7 +70,7 @@ object EphemeralLog {
           newState <- definition.evaluate(command, config.maxDuration)
           res      <- stateStore
                         .save(newState)
-                        .attemptSomeSqlState { case sqlstate.class23.UNIQUE_VIOLATION =>
+                        .attemptSomeSqlState { case `UniqueConstraintViolation` =>
                           definition.onUniqueViolation(id, command)
                         }
                         .transact(xas.write)
