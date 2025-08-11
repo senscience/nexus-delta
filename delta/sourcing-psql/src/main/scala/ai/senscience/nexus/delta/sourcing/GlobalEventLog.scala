@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import ai.senscience.nexus.delta.sourcing.state.{GlobalStateStore, ProjectionStateSave}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.postgres.sqlstate
 import doobie.syntax.all.*
 import fs2.Stream
 
@@ -145,7 +144,7 @@ object GlobalEventLog {
                 stateStore.save(state) >>
                 projectionStateSave.delete(id) >>
                 projectionStateSave.insert(id, state))
-                .attemptSomeSqlState { case sqlstate.class23.UNIQUE_VIOLATION =>
+                .attemptSomeSqlState { case `UniqueConstraintViolation` =>
                   onUniqueViolation(id, command)
                 }
                 .transact(xas.write)

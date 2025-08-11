@@ -1,13 +1,12 @@
 package ai.senscience.nexus.delta.sourcing.postgres
 
 import ai.senscience.nexus.delta.sourcing.partition.{DatabasePartitioner, PartitionStrategy}
-import ai.senscience.nexus.delta.sourcing.{DDLLoader, Transactors}
+import ai.senscience.nexus.delta.sourcing.{isUniqueViolation, DDLLoader, Transactors, UniqueConstraintViolation}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.postgres.PostgresContainer
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import doobie.Fragment
-import doobie.postgres.sqlstate
 import doobie.syntax.all.*
 import munit.Location
 import munit.catseffect.IOFixture
@@ -18,17 +17,17 @@ object Doobie {
 
   private val defaultPartitioningStrategy = PartitionStrategy.Hash(1)
 
-  def resource(partitionStrategy: PartitionStrategy): Resource[IO, (DatabasePartitioner, Transactors)] = {
-    val user     = PostgresUser
-    val pass     = PostgresPassword
-    val database = PostgresDb
+  private val user     = PostgresUser
+  private val pass     = PostgresPassword
+  private val database = PostgresDb
+
+  def resource(partitionStrategy: PartitionStrategy): Resource[IO, (DatabasePartitioner, Transactors)] =
     for {
       postgres    <- PostgresContainer.resource(user, pass, database)
       xas         <- Transactors.test(postgres.getHost, postgres.getMappedPort(5432), user, pass, database)
       _           <- Resource.eval(DDLLoader.dropAndCreateDDLs(partitionStrategy, xas))
       partitioner <- Resource.eval(DatabasePartitioner(partitionStrategy, xas))
     } yield (partitioner, xas)
-  }
 
   def resourceDefault: Resource[IO, Transactors] = resource(defaultPartitioningStrategy).map(_._2)
 
@@ -88,17 +87,15 @@ object Doobie {
   }
 
   trait Assertions { self: munit.Assertions =>
-    implicit class DoobieCatsAssertionsOps[A](io: IO[A])(implicit loc: Location) {
+    implicit class DoobieAssertionsOps[A](io: IO[A])(implicit loc: Location) {
       def expectUniqueViolation: IO[Unit] = io.attempt.map {
-        case Left(p: PSQLException) if p.getSQLState == sqlstate.class23.UNIQUE_VIOLATION.value => ()
-        case Left(p: PSQLException)                                                             =>
-          fail(
-            s"Wrong sql state caught, expected: '${sqlstate.class23.UNIQUE_VIOLATION.value}', actual: '${p.getSQLState}' "
-          )
-        case Left(err)                                                                          =>
+        case Left(p: PSQLException) if isUniqueViolation(p) => ()
+        case Left(p: PSQLException)                         =>
+          fail(s"Wrong sql state caught, expected: '$UniqueConstraintViolation', actual: '${p.getSQLState}' ")
+        case Left(err)                                      =>
           fail(s"Wrong raised error type caught, expected: 'PSQLException', actual: '${err.getClass.getName}'")
-        case Right(a)                                                                           =>
-          fail(s"Expected raising error, but returned successful response with value '$a'")
+        case Right(value)                                   =>
+          fail(s"Expected raising error, but returned successful response with value '$value'")
       }
     }
   }

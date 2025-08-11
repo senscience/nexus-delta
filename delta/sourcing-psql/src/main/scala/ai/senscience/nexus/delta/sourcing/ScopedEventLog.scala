@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sourcing
 
-import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTagFailure
 import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
@@ -19,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.tombstone.{EventTombstoneStore, StateT
 import cats.effect.IO
 import cats.syntax.all.*
 import doobie.*
-import doobie.postgres.sqlstate
 import doobie.syntax.all.*
 import fs2.Stream
 
@@ -81,8 +79,6 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
 }
 
 object ScopedEventLog {
-
-  private val logger = Logger[ScopedEventLog.type]
 
   private val noop: ConnectionIO[Unit] = doobie.free.connection.unit
 
@@ -198,15 +194,9 @@ object ScopedEventLog {
             } yield res
           }.recoverWith {
             case sql: SQLException if isUniqueViolation(sql) =>
-              logger.error(sql)(
-                s"A unique constraint violation occurred when persisting an event for  '$id' in project '$project' and rev ${event.rev}."
-              ) >>
-                IO.raiseError(onUniqueViolation(id, command))
+              IO.raiseError(onUniqueViolation(id, command))
             case other                                       =>
-              logger.error(other)(
-                s"An error occurred when persisting an event for '$id' in project '$project' and rev ${event.rev}."
-              ) >>
-                IO.raiseError(other)
+              IO.raiseError(other)
           }
         }
 
@@ -216,9 +206,6 @@ object ScopedEventLog {
           _             <- persist(result._1, originalState, result._2)
         } yield result
       }
-
-      private def isUniqueViolation(sql: SQLException) =
-        sql.getSQLState == sqlstate.class23.UNIQUE_VIOLATION.value
 
       override def dryRun(project: ProjectRef, id: Id, command: Command): IO[(E, S)] =
         stateStore.getWrite(project, id).redeem(_ => None, Some(_)).flatMap { state =>
