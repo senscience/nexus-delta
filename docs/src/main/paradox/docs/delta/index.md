@@ -34,7 +34,7 @@ Please refer to the @ref:[architecture] and @ref:[api reference] sections for mo
 [Apache License, version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [OpenID Connect]: https://openid.net/developers/how-connect-works/
 [OAuth 2.0]: https://datatracker.ietf.org/doc/html/rfc6749
-[RDF]: https://www.w3.org/RDF/
+[RDF]: https://www.w3.org/TR/rdf11-concepts/
 [JSON-LD]: https://www.w3.org/TR/json-ld11/
 [SHACL]: https://www.w3.org/TR/shacl/
 [Server-Sent Events]: https://html.spec.whatwg.org/multipage/server-sent-events.html
