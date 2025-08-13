@@ -184,7 +184,11 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       val payload      = actions.map(_.payload).mkString("", newLine, newLine)
       val bulkEndpoint = (endpoint / bulkPath).withQueryParam(refreshParam, refresh.value)
       val request      = POST(payload, bulkEndpoint, `Content-Type`(`application/x-ndjson`))(EntityEncoder.stringEncoder)
-      client.expectOr[BulkResponse](request)(ElasticsearchWriteError(_))
+      client.expectOr[BulkResponse](request)(ElasticsearchWriteError(_)).flatTap {
+        case BulkResponse.Success          => logger.debug("All operations in the bulk succeeded.")
+        case BulkResponse.MixedOutcomes(_) =>
+          logger.error("Some operations in the bulk failed, please check the indexing failures to find the reason(s).")
+      }
     }
   }
 
