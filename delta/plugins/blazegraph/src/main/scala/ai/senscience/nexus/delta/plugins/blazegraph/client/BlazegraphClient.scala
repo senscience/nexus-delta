@@ -37,7 +37,9 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
       mediaTypes: NonEmptyList[MediaType],
       additionalHeaders: Seq[Header.ToRaw]
   )(implicit entityDecoder: EntityDecoder[IO, A], classTag: ClassTag[A]): IO[A] = {
-    val request = POST(queryEndpoint(namespace), accept(mediaTypes)).withEntity(UrlForm("query" -> q.value))
+    val acceptHeader: Header.ToRaw = accept(mediaTypes)
+    val request                    =
+      POST(queryEndpoint(namespace), (additionalHeaders.+:(acceptHeader))*).withEntity(UrlForm("query" -> q.value))
     client.expectOr[A](request)(SparqlQueryError(_))
   }
 
