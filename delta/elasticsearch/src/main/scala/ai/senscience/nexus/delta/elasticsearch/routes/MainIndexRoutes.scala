@@ -64,14 +64,14 @@ final class MainIndexRoutes(
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
                   emit(projections.statistics(project, SelectFilter.latest, projection))
                 },
-                // Manage an elasticsearch view offset
+                // Manage a main indexing offset
                 (pathPrefix("offset") & pathEndOrSingleSlash) {
                   concat(
                     // Fetch an elasticsearch view offset
                     (get & authorizeFor(project, Read)) {
                       emit(projections.offset(projection))
                     },
-                    // Remove an elasticsearch view offset (restart the view)
+                    // Remove an main indexing offset (restart the view)
                     (delete & authorizeFor(project, Write)) {
                       emit(projections.offset(projection).as(Offset.start))
                     }
