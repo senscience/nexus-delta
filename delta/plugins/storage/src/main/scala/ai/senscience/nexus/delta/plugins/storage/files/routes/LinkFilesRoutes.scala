@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.server.*
 import cats.effect.IO

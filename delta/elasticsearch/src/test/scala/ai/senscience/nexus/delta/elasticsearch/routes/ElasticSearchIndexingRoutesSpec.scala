@@ -1,16 +1,17 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidResourceId, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
-import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
@@ -97,7 +98,7 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
         aclCheck,
         fetchView,
         projections,
-        projectionErrors,
+        ProjectionErrorsSearch(projectionErrors),
         viewsQuery
       )
     )

@@ -11,10 +11,11 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.jws.{JWSConfig, JWSPayloadHelper}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef

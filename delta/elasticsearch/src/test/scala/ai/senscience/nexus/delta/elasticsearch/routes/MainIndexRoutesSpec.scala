@@ -5,10 +5,11 @@ import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
@@ -20,7 +21,8 @@ import java.time.Instant
 
 class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
-  private lazy val projections = Projections(xas, None, queryConfig, clock)
+  private lazy val projections      = Projections(xas, None, queryConfig, clock)
+  private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")
@@ -61,7 +63,8 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
         identities,
         aclCheck,
         mainIndexQuery,
-        projections
+        projections,
+        ProjectionErrorsSearch(projectionErrors)
       ).routes
     )
 

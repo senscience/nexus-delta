@@ -1,12 +1,9 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -14,19 +11,14 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
-import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
-import ai.senscience.nexus.delta.sourcing.ProgressStatistics
-import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
-import ai.senscience.nexus.delta.sourcing.model.{FailedElemLogRow, ProjectRef}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import akka.http.scaladsl.server.Route
-import cats.effect.IO
-import io.circe.Encoder
-import io.circe.generic.semiauto.deriveEncoder
+import ai.senscience.nexus.delta.sourcing.projections.Projections
+import akka.http.scaladsl.server.*
+import cats.effect.unsafe.implicits.*
 import io.circe.syntax.*
 
 class BlazegraphViewsIndexingRoutes(
@@ -34,7 +26,7 @@ class BlazegraphViewsIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projections: Projections,
-    projectionErrors: ProjectionErrors
+    projectionErrorsSearch: ProjectionErrorsSearch
 )(implicit
     baseUri: BaseUri,
     cr: RemoteContextResolution,
@@ -46,79 +38,61 @@ class BlazegraphViewsIndexingRoutes(
     with RdfMarshalling
     with BlazegraphViewsDirectives {
 
-  implicit private val viewStatisticEncoder: Encoder.AsObject[ProgressStatistics] =
-    deriveEncoder[ProgressStatistics].mapJsonObject(_.add(keywords.tpe, "ViewStatistics".asJson))
-
-  implicit private val viewStatisticJsonLdEncoder: JsonLdEncoder[ProgressStatistics] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
+  private def fetchActiveView =
+    (projectRef & idSegment).tflatMap { case (project, idSegment) =>
+      onSuccess(fetch(idSegment, project).unsafeToFuture())
+    }
 
   def routes: Route =
     handleExceptions(BlazegraphExceptionHandler.apply) {
       pathPrefix("views") {
         extractCaller { implicit caller =>
-          projectRef { implicit project =>
-            idSegment { id =>
-              concat(
-                // Fetch a blazegraph view statistics
-                (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeFor(project, Read).apply {
-                    emit(
-                      fetch(id, project)
-                        .flatMap(v => projections.statistics(project, v.selectFilter, v.projection))
-                    )
-                  }
-                },
-                // Fetch blazegraph view indexing failures
-                (pathPrefix("failures") & get) {
-                  authorizeFor(project, Write).apply {
-                    (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                      (pagination, timeRange, uri) =>
-                        implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[FailedElemData]] =
-                          searchResultsJsonLdEncoder(FailedElemLogRow.context, pagination, uri)
-                        emit(
-                          fetch(id, project)
-                            .flatMap { view =>
-                              projectionErrors.search(view.ref, pagination, timeRange)
-                            }
-                        )
-                    }
-                  }
-                },
-                // Manage a blazegraph view offset
-                (pathPrefix("offset") & pathEndOrSingleSlash) {
-                  concat(
-                    // Fetch a blazegraph view offset
-                    (get & authorizeFor(project, Read)) {
-                      emit(
-                        fetch(id, project)
-                          .flatMap(v => projections.offset(v.projection))
-                      )
-                    },
-                    // Remove an blazegraph view offset (restart the view)
-                    (delete & authorizeFor(project, Write)) {
-                      emit(
-                        fetch(id, project)
-                          .flatMap { r => projections.scheduleRestart(r.projection) }
-                          .as(Offset.start)
-                      )
-                    }
-                  )
-                },
-                // Getting indexing status for a resource in the given view
-                (pathPrefix("status") & authorizeFor(project, Read) & iriSegment & pathEndOrSingleSlash) { resourceId =>
-                  emit(
-                    fetch(id, project)
-                      .flatMap { view =>
-                        projections
-                          .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
-                            ResourceNotFound(resourceId, project)
-                          )
-                          .map(_.asJson)
-                      }
-                  )
+          fetchActiveView { view =>
+            val project        = view.ref.project
+            val authorizeRead  = authorizeFor(project, Read)
+            val authorizeWrite = authorizeFor(project, Write)
+            concat(
+              // Fetch a blazegraph view statistics
+              (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
+                authorizeRead {
+                  emit(projections.statistics(project, view.selectFilter, view.projection))
                 }
-              )
-            }
+              },
+              // Fetch blazegraph view indexing failures
+              (pathPrefix("failures") & get) {
+                authorizeWrite {
+                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
+                    (pagination, timeRange, uri) =>
+                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
+                        failedElemSearchJsonLdEncoder(pagination, uri)
+                      emit(projectionErrorsSearch(view.ref, pagination, timeRange))
+                  }
+                }
+              },
+              // Manage a blazegraph view offset
+              (pathPrefix("offset") & pathEndOrSingleSlash) {
+                concat(
+                  // Fetch a blazegraph view offset
+                  (get & authorizeRead) {
+                    emit(projections.offset(view.projection))
+                  },
+                  // Remove a blazegraph view offset (restart the view)
+                  (delete & authorizeWrite) {
+                    emit(projections.scheduleRestart(view.projection).as(Offset.start))
+                  }
+                )
+              },
+              // Getting indexing status for a resource in the given view
+              (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
+                emit(
+                  projections
+                    .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
+                      ResourceNotFound(resourceId, project)
+                    )
+                    .map(_.asJson)
+                )
+              }
+            )
           }
         }
       }
@@ -126,8 +100,6 @@ class BlazegraphViewsIndexingRoutes(
 }
 
 object BlazegraphViewsIndexingRoutes {
-
-  type FetchIndexingView = (IdSegment, ProjectRef) => IO[ActiveViewDef]
 
   /**
     * @return
@@ -138,7 +110,7 @@ object BlazegraphViewsIndexingRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       projections: Projections,
-      projectionErrors: ProjectionErrors
+      projectionErrorsSearch: ProjectionErrorsSearch
   )(implicit
       baseUri: BaseUri,
       cr: RemoteContextResolution,
@@ -150,7 +122,7 @@ object BlazegraphViewsIndexingRoutes {
       identities,
       aclCheck,
       projections,
-      projectionErrors
+      projectionErrorsSearch: ProjectionErrorsSearch
     ).routes
   }
 }

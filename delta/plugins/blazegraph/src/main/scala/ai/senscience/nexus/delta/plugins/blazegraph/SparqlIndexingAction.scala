@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{IndexingViewDef, SparqlSink}
-import ai.senscience.nexus.delta.sdk.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource

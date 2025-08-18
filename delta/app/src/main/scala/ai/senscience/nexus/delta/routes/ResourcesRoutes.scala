@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}

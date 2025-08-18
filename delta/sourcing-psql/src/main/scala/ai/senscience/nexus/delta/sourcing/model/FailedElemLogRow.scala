@@ -1,17 +1,13 @@
 package ai.senscience.nexus.delta.sourcing.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
 import doobie.*
 import doobie.postgres.implicits.*
-import io.circe.generic.semiauto.deriveEncoder
-import io.circe.{Encoder, Json}
+import io.circe.Json
 
 import java.time.Instant
 
@@ -56,14 +52,6 @@ object FailedElemLogRow {
       rev: Int,
       reason: FailureReason
   )
-
-  val context: ContextValue = ContextValue(contexts.error)
-
-  implicit val failedElemDataEncoder: Encoder.AsObject[FailedElemData] =
-    deriveEncoder[FailedElemData].mapJsonObject(_.remove("entityType"))
-
-  implicit val failedElemDataJsonLdEncoder: JsonLdEncoder[FailedElemData] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
   implicit val failedElemLogRow: Read[FailedElemLogRow] = {
     Read[Row].map {

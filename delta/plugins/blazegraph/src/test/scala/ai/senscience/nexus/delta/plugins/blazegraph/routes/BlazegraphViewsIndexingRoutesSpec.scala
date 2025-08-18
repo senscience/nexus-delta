@@ -1,12 +1,13 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewNotFound}
-import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsIndexingRoutes.FetchIndexingView
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.syntax.*
@@ -58,7 +59,7 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
         identities,
         aclCheck,
         projections,
-        projectionErrors
+        ProjectionErrorsSearch(projectionErrors)
       )
     )
 

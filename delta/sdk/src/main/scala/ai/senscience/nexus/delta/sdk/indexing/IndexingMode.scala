@@ -1,4 +1,4 @@
-package ai.senscience.nexus.delta.sdk
+package ai.senscience.nexus.delta.sdk.indexing
 
 /**
   * Enumeration of all possible indexing modes
