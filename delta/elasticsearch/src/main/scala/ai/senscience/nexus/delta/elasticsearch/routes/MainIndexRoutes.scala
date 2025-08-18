@@ -1,48 +1,41 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingProjection
+import ai.senscience.nexus.delta.elasticsearch.indexing.{mainIndexingId, mainIndexingProjection}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
-import ai.senscience.nexus.delta.rdf.Vocabulary
-import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{timeRange, *}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sourcing.ProgressStatistics
+import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.{Directive, Route}
-import io.circe.generic.semiauto.deriveEncoder
+import io.circe.JsonObject
 import io.circe.syntax.EncoderOps
-import io.circe.{Encoder, JsonObject}
 
 final class MainIndexRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     defaultIndexQuery: MainIndexQuery,
-    projections: Projections
-)(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+    projections: Projections,
+    projectionErrorsSearch: ProjectionErrorsSearch
+)(implicit baseUri: BaseUri, cr: RemoteContextResolution, paginationConfig: PaginationConfig, ordering: JsonKeyOrdering)
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
-
-  implicit private val viewStatisticEncoder: Encoder.AsObject[ProgressStatistics] =
-    deriveEncoder[ProgressStatistics].mapJsonObject(_.add(keywords.tpe, "ViewStatistics".asJson))
-
-  implicit private val viewStatisticJsonLdEncoder: JsonLdEncoder[ProgressStatistics] =
-    JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.statistics))
 
   private def defaultViewSegment: Directive[Unit] =
     idSegment.flatMap {
@@ -56,23 +49,34 @@ final class MainIndexRoutes(
       pathPrefix("views") {
         extractCaller { implicit caller =>
           projectRef { project =>
-            val authorizeRead = authorizeFor(project, Read)
-            val projection    = mainIndexingProjection(project)
+            val authorizeRead  = authorizeFor(project, Read)
+            val authorizeWrite = authorizeFor(project, Write)
+            val authorizeQuery = authorizeFor(project, permissions.query)
+            val projection     = mainIndexingProjection(project)
             defaultViewSegment {
               concat(
                 // Fetch statistics for the main indexing on this current project
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
                   emit(projections.statistics(project, SelectFilter.latest, projection))
                 },
+                // Fetch main view indexing failures
+                (pathPrefix("failures") & get & authorizeWrite) {
+                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
+                    (pagination, timeRange, uri) =>
+                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
+                        failedElemSearchJsonLdEncoder(pagination, uri)
+                      emit(projectionErrorsSearch(project, mainIndexingId, pagination, timeRange))
+                  }
+                },
                 // Manage a main indexing offset
                 (pathPrefix("offset") & pathEndOrSingleSlash) {
                   concat(
                     // Fetch an elasticsearch view offset
-                    (get & authorizeFor(project, Read)) {
+                    (get & authorizeRead) {
                       emit(projections.offset(projection))
                     },
                     // Remove an main indexing offset (restart the view)
-                    (delete & authorizeFor(project, Write)) {
+                    (delete & authorizeWrite) {
                       emit(projections.offset(projection).as(Offset.start))
                     }
                   )
@@ -89,7 +93,7 @@ final class MainIndexRoutes(
                 },
                 // Query default indexing for this given project
                 (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-                  authorizeFor(project, permissions.query).apply {
+                  authorizeQuery {
                     (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
                       emit(defaultIndexQuery.search(project, query, qp))
                     }

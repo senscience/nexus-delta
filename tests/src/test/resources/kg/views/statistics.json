@@ -6,6 +6,8 @@
   "evaluatedEvents": {{evaluated}},
   "remainingEvents": {{remaining}},
   "discardedEvents": {{discarded}},
-  "failedEvents": 0,
-  "delayInSeconds": 0
+  "failedEvents": 0
+  {{#has_events}},
+    "delayInSeconds": 0
+  {{/has_events}}
 }

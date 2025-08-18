@@ -23,6 +23,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
@@ -32,7 +33,6 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
@@ -273,7 +273,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views: CompositeViews,
         graphStream: CompositeGraphStream,
         projections: CompositeProjections,
-        projectionErrors: ProjectionErrors,
+        projectionErrorsSearch: ProjectionErrorsSearch,
         baseUri: BaseUri,
         config: CompositeViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
@@ -286,7 +286,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views.expand,
         CompositeIndexingDetails(projections, graphStream, config.prefix),
         projections,
-        projectionErrors
+        projectionErrorsSearch
       )(baseUri, config.pagination, cr, ordering)
   }
 

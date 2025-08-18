@@ -10,7 +10,8 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef, Re
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidResourceId
-import ai.senscience.nexus.delta.sdk.{IndexingMode, OrderingFields}
+import ai.senscience.nexus.delta.sdk.OrderingFields
+import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}

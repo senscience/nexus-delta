@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, Http4sResponseSy
 import ai.senscience.nexus.delta.rdf.instances.{TripleInstances, UriInstances}
 import ai.senscience.nexus.delta.rdf.syntax.{IriSyntax, IterableSyntax, JsonLdEncoderSyntax, JsonSyntax, PathSyntax, UriSyntax}
 import ai.senscience.nexus.delta.sdk.instances.{CredentialsInstances, HttpResponseFieldsInstances, IdentityInstances, IriInstances, ProjectRefInstances}
-import ai.senscience.nexus.delta.sdk.syntax.{HttpResponseFieldsSyntax, IriEncodingSyntax, ProjectionErrorsSyntax}
+import ai.senscience.nexus.delta.sdk.syntax.{HttpResponseFieldsSyntax, IriEncodingSyntax}
 
 /**
   * Aggregate instances and syntax from rdf plus the current sdk instances and syntax to avoid importing multiple
@@ -31,4 +31,3 @@ package object implicits
     with IOSyntax
     with ClassTagSyntax
     with InstantSyntax
-    with ProjectionErrorsSyntax

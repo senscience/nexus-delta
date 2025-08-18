@@ -1,12 +1,13 @@
-package ai.senscience.nexus.delta.sdk
+package ai.senscience.nexus.delta.sdk.indexing
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.sdk.IndexingAction.logger
-import ai.senscience.nexus.delta.sdk.IndexingMode.{Async, Sync}
+import ai.senscience.nexus.delta.sdk.ResourceShift
 import ai.senscience.nexus.delta.sdk.error.ServiceError.IndexingFailed
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.logger
+import ai.senscience.nexus.delta.sdk.indexing.IndexingMode.{Async, Sync}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.GraphResource

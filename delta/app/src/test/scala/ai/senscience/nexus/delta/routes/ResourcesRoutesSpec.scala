@@ -5,12 +5,12 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema as schemaOrg, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.IndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.{IdSegmentRef, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete, read, write}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy

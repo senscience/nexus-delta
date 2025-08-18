@@ -22,7 +22,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives

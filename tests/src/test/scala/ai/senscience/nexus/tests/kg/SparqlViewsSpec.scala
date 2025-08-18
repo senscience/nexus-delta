@@ -5,6 +5,7 @@ import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.views.ScoobyDoo
 import ai.senscience.nexus.tests.Optics.*
+import ai.senscience.nexus.tests.StatisticsAssertions.{expectEmptyStats, expectStats}
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Views}
 import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
@@ -187,34 +188,14 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "fetch statistics for cell-view" in eventually {
       deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        val expected =
-          filterNestedKeys("delayInSeconds")(
-            jsonContentOf(
-              "kg/views/statistics.json",
-              "total"     -> "0",
-              "processed" -> "0",
-              "evaluated" -> "0",
-              "discarded" -> "0",
-              "remaining" -> "0"
-            )
-          )
-
-        filterNestedKeys("lastEventDateTime", "lastProcessedEventDateTime")(json) shouldEqual expected
+        expectEmptyStats(json)
       }
     }
 
     "fetch statistics for defaultSparqlIndex" in eventually {
       deltaClient.get[Json](s"/views/$project1/nxv:defaultSparqlIndex/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        val expected = jsonContentOf(
-          "kg/views/statistics.json",
-          "total"     -> "6",
-          "processed" -> "6",
-          "evaluated" -> "6",
-          "discarded" -> "0",
-          "remaining" -> "0"
-        )
-        filterNestedKeys("lastEventDateTime", "lastProcessedEventDateTime")(json) shouldEqual expected
+        expectStats(json)(6, 6, 6, 0, 0)
       }
     }
 
@@ -242,15 +223,7 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "fetch updated statistics for cell-view" in eventually {
       deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        val expected = jsonContentOf(
-          "kg/views/statistics.json",
-          "total"     -> "5",
-          "processed" -> "5",
-          "evaluated" -> "5",
-          "discarded" -> "0",
-          "remaining" -> "0"
-        )
-        filterNestedKeys("lastEventDateTime", "lastProcessedEventDateTime")(json) shouldEqual expected
+        expectStats(json)(5, 5, 5, 0, 0)
       }
     }
 
@@ -329,9 +302,7 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       val payload = jsonContentOf("kg/views/sparql-view.json").mapObject(
         _.remove("resourceTag").remove("resourceTypes").remove("resourceSchemas")
       )
-      deltaClient.put[Json](s"/views/$project1/test-resource:cell-view2?rev=1", payload, ScoobyDoo) { (_, response) =>
-        response.status shouldEqual StatusCodes.OK
-      }
+      deltaClient.put[Json](s"/views/$project1/test-resource:cell-view2?rev=1", payload, ScoobyDoo) { expectOk }
     }
 
     "restart the view indexing" in eventually {

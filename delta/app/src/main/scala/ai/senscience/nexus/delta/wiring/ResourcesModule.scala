@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesRoutes
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities

@@ -2,7 +2,6 @@ package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
 import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral, Generators}
@@ -47,7 +46,6 @@ trait BaseIntegrationSpec
     with OptionValues
     with Inspectors
     with CatsIOValues
-    with FixedClock
     with CirceUnmarshalling
     with CirceLiteral
     with CirceEq

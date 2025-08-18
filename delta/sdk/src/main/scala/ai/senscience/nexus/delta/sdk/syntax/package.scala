@@ -18,5 +18,4 @@ package object syntax
     with ClassTagSyntax
     with IOSyntax
     with InstantSyntax
-    with ProjectionErrorsSyntax
     with UriSyntax

@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuerySuite.Sample
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
-import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated, ViewNotFound}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{ViewIsDeprecated, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticSearchViewType}
+import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -339,35 +339,17 @@ class ElasticSearchViewsQuerySuite
 
   test("Obtaining the mapping without permission should fail") {
     implicit val caller: Caller = anon
-    viewsQuery
-      .mapping(view1Proj1.viewId, project1.ref)
+    views
+      .fetchIndexingView(view1Proj1.viewId, view1Proj1.project)
+      .flatMap(viewsQuery.mapping)
       .intercept[AuthorizationFailed]
-  }
-
-  test("Obtaining the mapping for a view that doesn't exist in the project should fail") {
-    implicit val caller: Caller = alice
-    viewsQuery
-      .mapping(view1Proj2.viewId, project1.ref)
-      .interceptEquals(ViewNotFound(view1Proj2.viewId, project1.ref))
-  }
-
-  test("Obtaining the mapping on an aggregate view should fail") {
-    implicit val caller: Caller = alice
-    viewsQuery
-      .mapping(aggregate1.viewId, project1.ref)
-      .interceptEquals(
-        DifferentElasticSearchViewType(
-          aggregate1.viewId.toString,
-          ElasticSearchViewType.AggregateElasticSearch,
-          ElasticSearchViewType.ElasticSearch
-        )
-      )
-
   }
 
   test("Obtaining the mapping with views/write permission should succeed") {
     implicit val caller: Caller = alice
-    viewsQuery.mapping(view1Proj1.viewId, project1.ref)
+    views
+      .fetchIndexingView(view1Proj1.viewId, view1Proj1.project)
+      .flatMap(viewsQuery.mapping)
   }
 
   test("Creating a point in time without permission should fail") {

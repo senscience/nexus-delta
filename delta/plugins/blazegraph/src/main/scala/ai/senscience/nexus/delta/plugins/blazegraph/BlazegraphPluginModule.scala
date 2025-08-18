@@ -19,6 +19,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, ProjectionErrorsSearch}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
@@ -29,7 +30,7 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
@@ -191,7 +192,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: BlazegraphViews,
         projections: Projections,
-        projectionErrors: ProjectionErrors,
+        projectionErrorsSearch: ProjectionErrorsSearch,
         baseUri: BaseUri,
         cfg: BlazegraphViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
@@ -202,7 +203,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         projections,
-        projectionErrors
+        projectionErrorsSearch
       )(
         baseUri,
         cr,

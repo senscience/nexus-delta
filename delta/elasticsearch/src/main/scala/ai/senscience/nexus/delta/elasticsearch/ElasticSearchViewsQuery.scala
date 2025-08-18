@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, PointInTime}
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType}
@@ -88,14 +89,11 @@ trait ElasticSearchViewsQuery {
 
   /**
     * Fetch the elasticsearch mapping of the provided view
-    * @param id
-    *   id of the view for which to fetch the mapping
-    * @param project
-    *   project reference in which the view is
+    * @param view
+    *   the view to retrieve the index from
     */
   def mapping(
-      id: IdSegment,
-      project: ProjectRef
+      view: ActiveViewDef
   )(implicit caller: Caller): IO[Json]
 
 }
@@ -135,16 +133,11 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
       )
   }
 
-  override def mapping(
-      id: IdSegment,
-      project: ProjectRef
-  )(implicit caller: Caller): IO[Json] =
-    for {
-      _       <- aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write))
-      view    <- viewStore.fetch(id, project)
-      index   <- indexOrError(view, id)
-      mapping <- client.mapping(index)
-    } yield mapping
+  override def mapping(view: ActiveViewDef)(implicit caller: Caller): IO[Json] = {
+    val project = view.ref.project
+    aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write)) >>
+      client.mapping(view.index)
+  }
 
   override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit
       caller: Caller

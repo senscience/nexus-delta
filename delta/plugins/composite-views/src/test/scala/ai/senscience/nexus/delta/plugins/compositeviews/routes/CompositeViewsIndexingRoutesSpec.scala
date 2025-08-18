@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, ex
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
@@ -87,7 +88,7 @@ class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
         expandOnlyIris,
         details,
         projections,
-        projectionErrors
+        ProjectionErrorsSearch(projectionErrors)
       )
     )
 

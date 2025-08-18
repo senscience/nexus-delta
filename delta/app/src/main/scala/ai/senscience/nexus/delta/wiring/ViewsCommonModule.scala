@@ -7,13 +7,19 @@ import ai.senscience.nexus.delta.routes.ViewsRoutes
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
+import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import izumi.distage.model.definition.Id
 
 object ViewsCommonModule extends NexusModuleDef {
+
+  make[ProjectionErrorsSearch].from { (projectionErrors: ProjectionErrors) =>
+    ProjectionErrorsSearch(projectionErrors)
+  }
 
   make[AggregateViewsList].from { (internal: Set[ViewsList]) =>
     new AggregateViewsList(internal.toList)

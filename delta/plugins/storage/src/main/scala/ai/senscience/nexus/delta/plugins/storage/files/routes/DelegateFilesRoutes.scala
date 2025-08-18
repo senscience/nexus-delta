@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
-import ai.senscience.nexus.delta.sdk.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import akka.http.scaladsl.model.StatusCodes.{Created, OK}

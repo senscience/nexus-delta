@@ -10,7 +10,8 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
-import ai.senscience.nexus.delta.sdk.{IndexingMode, OrderingFields}
+import ai.senscience.nexus.delta.sdk.OrderingFields
+import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
