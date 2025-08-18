@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
-import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
