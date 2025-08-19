@@ -1,5 +1,4 @@
 {
-  "@context": "https://bluebrain.github.io/nexus/contexts/supervision.json",
   "projections": [
     {
       "executionStrategy": "PersistentSingleNode",

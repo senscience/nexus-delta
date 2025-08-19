@@ -1,17 +1,14 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.SupervisionRoutes.{allProjectsAreHealthy, healingSuccessfulResponse, unhealthyProjectsEncoder, SupervisionBundle}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.*
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.emit
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{baseUriPrefix, projectRef}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
@@ -20,9 +17,9 @@ import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, Superv
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.*
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
+import cats.effect.unsafe.implicits.*
 import io.circe.generic.semiauto.deriveEncoder
-import io.circe.syntax.{EncoderOps, KeyOps}
+import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json}
 
 class SupervisionRoutes(
@@ -34,7 +31,6 @@ class SupervisionRoutes(
     activitySignals: ProjectActivitySignals
 )(implicit
     baseUri: BaseUri,
-    cr: RemoteContextResolution,
     ordering: JsonKeyOrdering
 ) extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
@@ -47,16 +43,16 @@ class SupervisionRoutes(
             authorizeFor(AclAddress.Root, supervision.read).apply {
               concat(
                 (pathPrefix("projections") & get & pathEndOrSingleSlash) {
-                  emit(supervised.map(SupervisionBundle))
+                  emitJson(supervised.map(SupervisionBundle))
                 },
                 (pathPrefix("projects") & get & pathEndOrSingleSlash) {
                   onSuccess(projectsHealth.health.unsafeToFuture()) { projects =>
-                    if (projects.isEmpty) emit(StatusCodes.OK, IO.pure(allProjectsAreHealthy))
-                    else emit(StatusCodes.InternalServerError, IO.pure(unhealthyProjectsEncoder(projects)))
+                    if (projects.isEmpty) complete(StatusCodes.OK, allProjectsAreHealthy)
+                    else complete(StatusCodes.InternalServerError, unhealthyProjectsEncoder(projects))
                   }
                 },
                 (pathPrefix("activity") & pathPrefix("projects") & get & pathEndOrSingleSlash) {
-                  emit(activitySignals.activityMap.map(_.asJson))
+                  emitJson(activitySignals.activityMap)
                 }
               )
             },
@@ -80,12 +76,8 @@ object SupervisionRoutes {
 
   case class SupervisionBundle(projections: List[SupervisedDescription])
 
-  implicit final val runningProjectionsEncoder: Encoder[SupervisionBundle]       =
+  implicit final val runningProjectionsEncoder: Encoder[SupervisionBundle] =
     deriveEncoder
-  implicit val runningProjectionsJsonLdEncoder: JsonLdEncoder[SupervisionBundle] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.supervision))
-
-  implicit val versionHttpResponseFields: HttpResponseFields[SupervisionBundle] = HttpResponseFields.defaultOk
 
   private val allProjectsAreHealthy =
     Json.obj("status" := "All projects are healthy.")

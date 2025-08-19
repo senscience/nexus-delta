@@ -20,7 +20,6 @@ import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
 import akka.http.scaladsl.server.*
 import io.circe.JsonObject
-import io.circe.syntax.EncoderOps
 
 class ListingRoutes(
     identities: Identities,
@@ -168,9 +167,9 @@ class ListingRoutes(
   private def aggregate(request: MainIndexRequest, scope: Scope)(implicit caller: Caller): Route =
     (get & aggregated) {
 
-      emit {
+      emitJson {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
-          defaultIndexQuery.aggregate(request, projects).map(_.asJson)
+          defaultIndexQuery.aggregate(request, projects)
         }
       }
 

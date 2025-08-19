@@ -43,7 +43,6 @@ trait RouteFixtures {
       contexts.schemasMetadata       -> ContextValue.fromFile("contexts/schemas-metadata.json"),
       contexts.offset                -> ContextValue.fromFile("contexts/offset.json"),
       contexts.statistics            -> ContextValue.fromFile("contexts/statistics.json"),
-      contexts.supervision           -> ContextValue.fromFile("contexts/supervision.json"),
       contexts.suites                -> ContextValue.fromFile("contexts/suites.json"),
       contexts.tags                  -> ContextValue.fromFile("contexts/tags.json"),
       contexts.typeHierarchy         -> ContextValue.fromFile("contexts/type-hierarchy.json"),

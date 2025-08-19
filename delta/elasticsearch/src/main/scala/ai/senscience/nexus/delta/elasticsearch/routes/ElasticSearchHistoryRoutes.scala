@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, projectRef}
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emitJson, projectRef}
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.iriSegment
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import akka.http.scaladsl.server.Route
-import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 
 /**
@@ -34,7 +33,7 @@ class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fet
             projectRef.apply { project =>
               authorizeFor(project, Read).apply {
                 (get & iriSegment & pathEndOrSingleSlash) { id =>
-                  emit(fetchHistory.history(project, id).map(_.asJson))
+                  emitJson(fetchHistory.history(project, id))
                 }
               }
             }
