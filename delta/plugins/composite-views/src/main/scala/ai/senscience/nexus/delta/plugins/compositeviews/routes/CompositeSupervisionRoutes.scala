@@ -8,12 +8,11 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.emit
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.emitJson
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import akka.http.scaladsl.server.Route
-import io.circe.syntax.EncoderOps
 
 class CompositeSupervisionRoutes(
     blazegraphSupervision: SparqlSupervision,
@@ -28,7 +27,7 @@ class CompositeSupervisionRoutes(
       extractCaller { implicit caller =>
         authorizeFor(AclAddress.Root, supervision.read).apply {
           (pathPrefix("composite-views") & get & pathEndOrSingleSlash) {
-            emit(blazegraphSupervision.get.map(_.asJson))
+            emitJson(blazegraphSupervision.get)
           }
         }
       }

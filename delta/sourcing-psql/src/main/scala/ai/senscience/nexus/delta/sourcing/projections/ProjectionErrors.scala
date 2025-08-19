@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.model.{FailedElemLogRow, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.{FailedElemLog, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
@@ -33,7 +33,12 @@ trait ProjectionErrors {
     *   failed elem offset
     * @return
     */
-  def failedElemEntries(projectionName: String, offset: Offset): Stream[IO, FailedElemLogRow]
+  def failedElemEntries(projectionName: String, offset: Offset): Stream[IO, FailedElemLog]
+
+  /**
+    * Returns the total number of elems in the given time range
+    */
+  def count(timeRange: TimeRange): IO[Long]
 
   /**
     * Return the total of errors for the given projection on a time window ordered by instant
@@ -64,7 +69,14 @@ trait ProjectionErrors {
       projectionId: Iri,
       pagination: FromPagination,
       timeRange: TimeRange
-  ): IO[List[FailedElemLogRow]]
+  ): IO[List[FailedElemLog]]
+
+  /**
+    * Return all persisted errors
+    * @param size
+    *   the number of errors to return
+    */
+  def latest(size: Int): IO[List[FailedElemLog]]
 
   /**
     * Delete the errors related to the given projection
@@ -85,8 +97,11 @@ object ProjectionErrors {
       override def saveFailedElems(metadata: ProjectionMetadata, failures: List[FailedElem]): IO[Unit] =
         store.save(metadata, failures)
 
-      override def failedElemEntries(projectionName: String, offset: Offset): Stream[IO, FailedElemLogRow] =
+      override def failedElemEntries(projectionName: String, offset: Offset): Stream[IO, FailedElemLog] =
         store.stream(projectionName, offset)
+
+      override def count(timeRange: TimeRange): IO[Long] =
+        store.count(timeRange)
 
       override def count(project: ProjectRef, projectionId: Iri, timeRange: TimeRange): IO[Long] =
         store.count(project, projectionId, timeRange)
@@ -96,7 +111,10 @@ object ProjectionErrors {
           projectionId: Iri,
           pagination: FromPagination,
           timeRange: TimeRange
-      ): IO[List[FailedElemLogRow]] = store.list(project, projectionId, pagination, timeRange)
+      ): IO[List[FailedElemLog]] = store.list(project, projectionId, pagination, timeRange)
+
+      override def latest(size: Int): IO[List[FailedElemLog]] =
+        store.latest(size)
 
       override def deleteEntriesForProjection(projectionName: String): IO[Unit] =
         store.deleteEntriesForProjection(projectionName)

@@ -24,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.{Directive, Route}
 import io.circe.JsonObject
-import io.circe.syntax.EncoderOps
 
 final class MainIndexRoutes(
     identities: Identities,
@@ -83,12 +82,11 @@ final class MainIndexRoutes(
                 },
                 // Getting indexing status for a resource in the given view
                 (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
-                  emit(
+                  emitJson(
                     projections
                       .indexingStatus(project, SelectFilter.latest, projection, resourceId)(
                         ResourceNotFound(resourceId, project)
                       )
-                      .map(_.asJson)
                   )
                 },
                 // Query default indexing for this given project

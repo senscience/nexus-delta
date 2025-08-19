@@ -19,7 +19,6 @@ import akka.http.scaladsl.model.StatusCodes.Created
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.*
 import cats.effect.IO
-import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 
 import java.util.concurrent.TimeUnit
@@ -133,10 +132,9 @@ final class ElasticSearchViewsRoutes(
                   // Create a point in time for the given view
                   (pathPrefix("_pit") & parameter("keep_alive".as[Long]) & post & pathEndOrSingleSlash) { keepAlive =>
                     val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
-                    emit(
+                    emitJson(
                       viewsQuery
                         .createPointInTime(id, project, keepAliveDuration)
-                        .map(_.asJson)
                     )
                   },
                   // Delete a point in time

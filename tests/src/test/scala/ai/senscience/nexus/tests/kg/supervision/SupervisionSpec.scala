@@ -1,25 +1,20 @@
-package ai.senscience.nexus.tests.kg
+package ai.senscience.nexus.tests.kg.supervision
 
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
 import ai.senscience.nexus.tests.Optics.{filterKeys, projections}
 import ai.senscience.nexus.tests.iam.types.Permission.Supervision
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.*
 
 class SupervisionSpec extends BaseIntegrationSpec {
 
   "The supervision endpoint" should {
     s"reject calls without ${Supervision.Read.value} permission" in {
-      deltaClient.get[Json]("/supervision/projections", Anonymous) { (_, response) =>
-        response.status shouldEqual StatusCodes.Forbidden
-      }
+      deltaClient.get[Json]("/supervision/projections", Anonymous) { expectForbidden }
     }
 
     s"accept calls with ${Supervision.Read.value}" in {
-      deltaClient.get[Json]("/supervision/projections", ServiceAccount) { (_, response) =>
-        response.status shouldEqual StatusCodes.OK
-      }
+      deltaClient.get[Json]("/supervision/projections", ServiceAccount) { expectOk }
     }
   }
 

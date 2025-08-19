@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.implicits.*
-import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
+import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
 import doobie.*
@@ -14,14 +14,14 @@ import java.time.Instant
 /**
   * The row of the failed_elem_log table
   */
-final case class FailedElemLogRow(
+final case class FailedElemLog(
     ordering: Offset,
     projectionMetadata: ProjectionMetadata,
     failedElemData: FailedElemData,
     instant: Instant
 )
 
-object FailedElemLogRow {
+object FailedElemLog {
   private type Row =
     (
         Offset,
@@ -53,7 +53,7 @@ object FailedElemLogRow {
       reason: FailureReason
   )
 
-  implicit val failedElemLogRow: Read[FailedElemLogRow] = {
+  implicit val failedElemLogRead: Read[FailedElemLog] = {
     Read[Row].map {
       case (
             ordering,
@@ -78,7 +78,7 @@ object FailedElemLogRow {
           }
           .getOrElse(FailureReason(errorType, message.getOrElse(""), stackTrace))
 
-        FailedElemLogRow(
+        FailedElemLog(
           ordering,
           ProjectionMetadata(module, name, project, resourceId),
           FailedElemData(elemId, elemProject, entityType, elemOffset, revision, reason),

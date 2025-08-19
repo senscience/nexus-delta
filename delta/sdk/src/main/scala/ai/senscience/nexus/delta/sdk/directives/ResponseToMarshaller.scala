@@ -8,7 +8,7 @@ import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Directives.{complete, onSuccess}
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
+import cats.effect.unsafe.implicits.*
 
 trait ResponseToMarshaller {
   def apply(statusOverride: Option[StatusCode]): Route

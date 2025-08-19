@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import akka.http.scaladsl.server.*
 import cats.effect.unsafe.implicits.*
-import io.circe.syntax.*
 
 class BlazegraphViewsIndexingRoutes(
     fetch: FetchIndexingView,
@@ -84,12 +83,11 @@ class BlazegraphViewsIndexingRoutes(
               },
               // Getting indexing status for a resource in the given view
               (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
-                emit(
+                emitJson(
                   projections
                     .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
                       ResourceNotFound(resourceId, project)
                     )
-                    .map(_.asJson)
                 )
               }
             )

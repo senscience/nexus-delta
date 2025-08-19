@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
-import ai.senscience.nexus.delta.sourcing.model.{FailedElemLogRow, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.{FailedElemLog, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
-import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata, ProjectionStore}
+import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
 import ai.senscience.nexus.delta.sourcing.{FragmentEncoder, Transactors}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
@@ -26,9 +26,9 @@ import java.time.Instant
 trait FailedElemLogStore {
 
   /**
-    * Returns the total number of elems
+    * Returns the total number of elems in the given time range
     */
-  def count: IO[Long]
+  def count(timeRange: TimeRange): IO[Long]
 
   /**
     * Saves a list of failed elems
@@ -39,11 +39,6 @@ trait FailedElemLogStore {
     *   the FailedElem to save
     */
   def save(metadata: ProjectionMetadata, failures: List[FailedElem]): IO[Unit]
-
-  /**
-    * Saves one failed elem
-    */
-  protected def saveFailedElem(metadata: ProjectionMetadata, failure: FailedElem, instant: Instant): ConnectionIO[Unit]
 
   /**
     * Get available failed elem entries for a given projection (provided by project and id), starting from a failed elem
@@ -60,7 +55,7 @@ trait FailedElemLogStore {
       projectionProject: ProjectRef,
       projectionId: Iri,
       offset: Offset
-  ): Stream[IO, FailedElemLogRow]
+  ): Stream[IO, FailedElemLog]
 
   /**
     * Get available failed elem entries for a given projection by projection name, starting from a failed elem offset.
@@ -74,7 +69,7 @@ trait FailedElemLogStore {
   def stream(
       projectionName: String,
       offset: Offset
-  ): Stream[IO, FailedElemLogRow]
+  ): Stream[IO, FailedElemLog]
 
   /**
     * Return a list of errors for the given projection on a time window ordered by instant
@@ -106,7 +101,14 @@ trait FailedElemLogStore {
       projectionId: Iri,
       pagination: FromPagination,
       timeRange: TimeRange
-  ): IO[List[FailedElemLogRow]]
+  ): IO[List[FailedElemLog]]
+
+  /**
+    * Return all persisted errors
+    * @param size
+    *   the number of errors to return
+    */
+  def latest(size: Int): IO[List[FailedElemLog]]
 
   /**
     * Delete the errors related to the given projection
@@ -119,28 +121,29 @@ trait FailedElemLogStore {
 
 object FailedElemLogStore {
 
-  private val logger = Logger[ProjectionStore]
+  private val logger = Logger[FailedElemLogStore]
 
   def apply(xas: Transactors, config: QueryConfig, clock: Clock[IO]): FailedElemLogStore =
     new FailedElemLogStore {
 
       implicit val timeRangeFragmentEncoder: FragmentEncoder[TimeRange] = createTimeRangeFragmentEncoder("instant")
 
-      override def count: IO[Long] =
-        sql"SELECT count(ordering) FROM public.failed_elem_logs"
+      override def count(timeRange: TimeRange): IO[Long] = {
+        val whereInstant = Fragments.whereAndOpt(timeRange.asFragment)
+        sql"SELECT count(ordering) FROM public.failed_elem_logs $whereInstant"
           .query[Long]
           .unique
           .transact(xas.read)
-
-      override def save(metadata: ProjectionMetadata, failures: List[FailedElem]): IO[Unit] = {
-        val log  = logger.debug(s"[${metadata.name}] Saving ${failures.length} failed elems.")
-        val save = clock.realTimeInstant.flatMap { instant =>
-          failures.traverse(elem => saveFailedElem(metadata, elem, instant)).transact(xas.write).void
-        }
-        log >> save
       }
 
-      override protected def saveFailedElem(
+      override def save(metadata: ProjectionMetadata, failures: List[FailedElem]): IO[Unit] =
+        for {
+          _   <- logger.debug(s"[${metadata.name}] Saving ${failures.length} failed elems.")
+          now <- clock.realTimeInstant
+          _   <- failures.traverse(elem => saveFailedElem(metadata, elem, now)).transact(xas.write)
+        } yield ()
+
+      private def saveFailedElem(
           metadata: ProjectionMetadata,
           failure: FailedElem,
           instant: Instant
@@ -184,22 +187,22 @@ object FailedElemLogStore {
           projectionProject: ProjectRef,
           projectionId: Iri,
           offset: Offset
-      ): Stream[IO, FailedElemLogRow] =
+      ): Stream[IO, FailedElemLog] =
         sql"""SELECT * from public.failed_elem_logs
            |WHERE projection_project = $projectionProject
            |AND projection_id = $projectionId
            |AND ordering > $offset
            |ORDER BY ordering ASC""".stripMargin
-          .query[FailedElemLogRow]
+          .query[FailedElemLog]
           .streamWithChunkSize(config.batchSize)
           .transact(xas.read)
 
-      override def stream(projectionName: String, offset: Offset): Stream[IO, FailedElemLogRow] =
+      override def stream(projectionName: String, offset: Offset): Stream[IO, FailedElemLog] =
         sql"""SELECT * from public.failed_elem_logs
            |WHERE projection_name = $projectionName
            |AND ordering > $offset
            |ORDER BY ordering ASC""".stripMargin
-          .query[FailedElemLogRow]
+          .query[FailedElemLog]
           .streamWithChunkSize(config.batchSize)
           .transact(xas.read)
 
@@ -214,12 +217,21 @@ object FailedElemLogStore {
           projectionId: Iri,
           pagination: FromPagination,
           timeRange: TimeRange
-      ): IO[List[FailedElemLogRow]] =
+      ): IO[List[FailedElemLog]] =
         sql"""SELECT * from public.failed_elem_logs
              |${whereClause(project, projectionId, timeRange)}
              |ORDER BY ordering ASC
              |LIMIT ${pagination.size} OFFSET ${pagination.from}""".stripMargin
-          .query[FailedElemLogRow]
+          .query[FailedElemLog]
+          .to[List]
+          .transact(xas.read)
+
+      def latest(size: Int): IO[List[FailedElemLog]] =
+        sql""" SELECT * from public.failed_elem_logs
+             | ORDER BY ordering DESC
+             | LIMIT $size
+             |""".stripMargin
+          .query[FailedElemLog]
           .to[List]
           .transact(xas.read)
 

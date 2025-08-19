@@ -48,6 +48,11 @@ trait DeltaDirectives extends UriDirectives {
     response(Some(status))
 
   /**
+    * Completes the current Route with the provided conversion to json
+    */
+  def emitJson(response: ResponseToJson): Route = response()
+
+  /**
     * Completes the current Route with the provided conversion to original payloads
     */
   def emit(response: ResponseToOriginalSource): Route = response()

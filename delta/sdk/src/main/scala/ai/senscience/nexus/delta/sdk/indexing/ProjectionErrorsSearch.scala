@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.views.ViewRef
-import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
+import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import cats.syntax.all.*

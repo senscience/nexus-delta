@@ -237,7 +237,6 @@ object Vocabulary {
     val schemasMetadata       = contexts + "schemas-metadata.json"
     val shacl                 = contexts + "shacl-20170720.json"
     val statistics            = contexts + "statistics.json"
-    val supervision           = contexts + "supervision.json"
     val suites                = contexts + "suites.json"
     val tags                  = contexts + "tags.json"
     val typeHierarchy         = contexts + "type-hierarchy.json"

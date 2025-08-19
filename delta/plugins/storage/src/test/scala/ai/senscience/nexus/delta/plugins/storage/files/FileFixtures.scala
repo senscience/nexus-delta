@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.testkit.Generators
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.{HttpEntity, MessageEntity, Multipart}
-import cats.effect.unsafe.implicits.global
+import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 
 import java.util.{Base64, UUID}

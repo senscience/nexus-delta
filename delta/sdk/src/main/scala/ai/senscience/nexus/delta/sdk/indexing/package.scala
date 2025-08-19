@@ -9,7 +9,8 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.ProgressStatistics
-import ai.senscience.nexus.delta.sourcing.model.FailedElemLogRow.FailedElemData
+import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
+import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.EncoderOps
@@ -30,6 +31,9 @@ package object indexing {
 
   implicit val failedElemDataJsonLdEncoder: JsonLdEncoder[FailedElemData] =
     JsonLdEncoder.computeFromCirce(failedElemContext)
+
+  implicit val failedElemLogEncoder: Encoder.AsObject[FailedElemLog] =
+    deriveEncoder[FailedElemLog]
 
   type FailedElemSearchResults = SearchResults[FailedElemData]
 
