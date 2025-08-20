@@ -3,10 +3,9 @@ package ai.senscience.nexus.delta.sourcing.projections
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.TimeRange
-import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
-import ai.senscience.nexus.delta.sourcing.model.{FailedElemLog, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
@@ -44,52 +43,28 @@ trait FailedElemLogStore {
     * Get available failed elem entries for a given projection (provided by project and id), starting from a failed elem
     * offset.
     *
-    * @param projectionProject
-    *   the project the projection belongs to
-    * @param projectionId
-    *   IRI of the projection
+    * @param selector
+    *   to selector the projection by name or id
     * @param offset
     *   failed elem offset
     */
-  def stream(
-      projectionProject: ProjectRef,
-      projectionId: Iri,
-      offset: Offset
-  ): Stream[IO, FailedElemLog]
-
-  /**
-    * Get available failed elem entries for a given projection by projection name, starting from a failed elem offset.
-    *
-    * @param projectionName
-    *   the name of the projection
-    * @param offset
-    *   failed elem offset
-    * @return
-    */
-  def stream(
-      projectionName: String,
-      offset: Offset
-  ): Stream[IO, FailedElemLog]
+  def stream(selector: ProjectionSelector, offset: Offset): Stream[IO, FailedElemLog]
 
   /**
     * Return a list of errors for the given projection on a time window ordered by instant
     *
-    * @param project
-    *   the project of the projection
-    * @param projectionId
-    *   its identifier
+    * @param selector
+    *   to select the projection by name or id
     * @param timeRange
     *   the time range to restrict on
     * @return
     */
-  def count(project: ProjectRef, projectionId: Iri, timeRange: TimeRange): IO[Long]
+  def count(selector: ProjectionSelector, timeRange: TimeRange): IO[Long]
 
   /**
     * Return a list of errors for the given projection on a time window ordered by instant
-    * @param project
-    *   the project of the projection
-    * @param projectionId
-    *   its identifier
+    * @param selector
+    *   to select the projection by name or id
     * @param pagination
     *   the pagination to apply
     * @param timeRange
@@ -97,8 +72,7 @@ trait FailedElemLogStore {
     * @return
     */
   def list(
-      project: ProjectRef,
-      projectionId: Iri,
+      selector: ProjectionSelector,
       pagination: FromPagination,
       timeRange: TimeRange
   ): IO[List[FailedElemLog]]
@@ -183,43 +157,28 @@ object FailedElemLogStore {
            | )""".stripMargin.update.run.void
       }
 
-      override def stream(
-          projectionProject: ProjectRef,
-          projectionId: Iri,
-          offset: Offset
-      ): Stream[IO, FailedElemLog] =
-        sql"""SELECT * from public.failed_elem_logs
-           |WHERE projection_project = $projectionProject
-           |AND projection_id = $projectionId
+      override def stream(selector: ProjectionSelector, offset: Offset): Stream[IO, FailedElemLog] =
+        sql"""SELECT * from public.failed_elem_logs WHERE
+           |${andClause(selector)}
            |AND ordering > $offset
            |ORDER BY ordering ASC""".stripMargin
           .query[FailedElemLog]
           .streamWithChunkSize(config.batchSize)
           .transact(xas.read)
 
-      override def stream(projectionName: String, offset: Offset): Stream[IO, FailedElemLog] =
-        sql"""SELECT * from public.failed_elem_logs
-           |WHERE projection_name = $projectionName
-           |AND ordering > $offset
-           |ORDER BY ordering ASC""".stripMargin
-          .query[FailedElemLog]
-          .streamWithChunkSize(config.batchSize)
-          .transact(xas.read)
-
-      override def count(project: ProjectRef, projectionId: Iri, timeRange: TimeRange): IO[Long] =
-        sql"SELECT count(ordering) from public.failed_elem_logs  ${whereClause(project, projectionId, timeRange)}"
+      override def count(selector: ProjectionSelector, timeRange: TimeRange): IO[Long] =
+        sql"SELECT count(ordering) from public.failed_elem_logs ${whereClause(selector, timeRange)}"
           .query[Long]
           .unique
           .transact(xas.read)
 
       override def list(
-          project: ProjectRef,
-          projectionId: Iri,
+          selector: ProjectionSelector,
           pagination: FromPagination,
           timeRange: TimeRange
       ): IO[List[FailedElemLog]] =
         sql"""SELECT * from public.failed_elem_logs
-             |${whereClause(project, projectionId, timeRange)}
+             |${whereClause(selector, timeRange)}
              |ORDER BY ordering ASC
              |LIMIT ${pagination.size} OFFSET ${pagination.from}""".stripMargin
           .query[FailedElemLog]
@@ -235,9 +194,18 @@ object FailedElemLogStore {
           .to[List]
           .transact(xas.read)
 
-      private def whereClause(project: ProjectRef, projectionId: Iri, timeRange: TimeRange) = Fragments.whereAndOpt(
-        Some(fr"projection_project = $project"),
-        Some(fr"projection_id = $projectionId"),
+      private def andClause(selector: ProjectionSelector): Fragment =
+        selector match {
+          case ProjectionSelector.Name(value)            => fr"projection_name = $value"
+          case ProjectionSelector.ProjectId(project, id) =>
+            Fragments.and(
+              fr"projection_project = $project",
+              fr"projection_id = $id"
+            )
+        }
+
+      private def whereClause(selector: ProjectionSelector, timeRange: TimeRange): Fragment = Fragments.whereAndOpt(
+        Some(andClause(selector)),
         timeRange.asFragment
       )
 

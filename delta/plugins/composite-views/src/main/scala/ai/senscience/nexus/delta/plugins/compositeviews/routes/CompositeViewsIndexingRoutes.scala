@@ -13,14 +13,13 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.{failedElemSearchJsonLdEncoder, FailedElemSearchResults, ProjectionErrorsSearch}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
-import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import akka.http.scaladsl.server.Route
@@ -35,10 +34,8 @@ class CompositeViewsIndexingRoutes(
     expandId: ExpandId,
     details: CompositeIndexingDetails,
     projections: CompositeProjections,
-    projectionErrorsSearch: ProjectionErrorsSearch
+    projectionDirectives: ProjectionsDirectives
 )(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
     cr: RemoteContextResolution,
     ordering: JsonKeyOrdering
 ) extends AuthDirectives(identities, aclCheck)
@@ -96,12 +93,7 @@ class CompositeViewsIndexingRoutes(
               // Fetch elastic search view indexing failures
               (pathPrefix("failures") & get) {
                 authorizeWrite {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
-                        failedElemSearchJsonLdEncoder(pagination, uri)
-                      emit(projectionErrorsSearch(view.ref, pagination, timeRange))
-                  }
+                  projectionDirectives.indexingErrors(view.ref)
                 }
               },
               pathPrefix("projections") {
@@ -233,10 +225,8 @@ object CompositeViewsIndexingRoutes {
       expandId: ExpandId,
       statistics: CompositeIndexingDetails,
       projections: CompositeProjections,
-      projectionErrorsSearch: ProjectionErrorsSearch
+      projectionDirectives: ProjectionsDirectives
   )(implicit
-      baseUri: BaseUri,
-      paginationConfig: PaginationConfig,
       cr: RemoteContextResolution,
       ordering: JsonKeyOrdering
   ): Route =
@@ -247,6 +237,6 @@ object CompositeViewsIndexingRoutes {
       expandId,
       statistics,
       projections,
-      projectionErrorsSearch
+      projectionDirectives
     ).routes
 }

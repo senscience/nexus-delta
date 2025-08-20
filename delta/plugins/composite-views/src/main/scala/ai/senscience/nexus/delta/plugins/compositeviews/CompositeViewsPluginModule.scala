@@ -20,10 +20,9 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.auth.AuthTokenProvider
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
@@ -273,8 +272,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views: CompositeViews,
         graphStream: CompositeGraphStream,
         projections: CompositeProjections,
-        projectionErrorsSearch: ProjectionErrorsSearch,
-        baseUri: BaseUri,
+        projectionsDirectives: ProjectionsDirectives,
         config: CompositeViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
@@ -286,8 +284,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views.expand,
         CompositeIndexingDetails(projections, graphStream, config.prefix),
         projections,
-        projectionErrorsSearch
-      )(baseUri, config.pagination, cr, ordering)
+        projectionsDirectives
+      )(cr, ordering)
   }
 
   make[CompositeSupervisionRoutes].from {

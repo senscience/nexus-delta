@@ -7,18 +7,16 @@ import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{timeRange, *}
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -30,8 +28,8 @@ final class MainIndexRoutes(
     aclCheck: AclCheck,
     defaultIndexQuery: MainIndexQuery,
     projections: Projections,
-    projectionErrorsSearch: ProjectionErrorsSearch
-)(implicit baseUri: BaseUri, cr: RemoteContextResolution, paginationConfig: PaginationConfig, ordering: JsonKeyOrdering)
+    projectionDirectives: ProjectionsDirectives
+)(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
@@ -60,12 +58,7 @@ final class MainIndexRoutes(
                 },
                 // Fetch main view indexing failures
                 (pathPrefix("failures") & get & authorizeWrite) {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
-                        failedElemSearchJsonLdEncoder(pagination, uri)
-                      emit(projectionErrorsSearch(project, mainIndexingId, pagination, timeRange))
-                  }
+                  projectionDirectives.indexingErrors(project, mainIndexingId)
                 },
                 // Manage a main indexing offset
                 (pathPrefix("offset") & pathEndOrSingleSlash) {

@@ -12,16 +12,12 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch,
 import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, expectIndexingView}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
-import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
-import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionProgress, RemainingElems}
 import akka.http.scaladsl.model.StatusCodes
@@ -34,13 +30,10 @@ import java.time.Instant
 import scala.concurrent.duration.*
 class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
 
-  implicit private val paginationConfig: PaginationConfig = PaginationConfig(5, 10, 5)
-
   private val now      = Instant.now()
   private val nowPlus5 = now.plusSeconds(5)
 
   private val myId         = nxv + "myid"
-  private val myId2        = nxv + "myid2"
   private val view         = CompositeViewsGen.resourceFor(projectRef, myId, uuid, viewValue, source = Json.obj())
   private val indexingView = ActiveViewDef(
     ViewRef(view.value.project, view.id),
@@ -49,8 +42,8 @@ class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
     viewValue
   )
 
-  private lazy val restartStore     = new CompositeRestartStore(xas)
-  private lazy val projections      =
+  private lazy val restartStore = new CompositeRestartStore(xas)
+  private lazy val projections  =
     CompositeProjections(
       restartStore,
       xas,
@@ -59,7 +52,6 @@ class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
       3.seconds,
       clock
     )
-  private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
 
   private def lastRestart = restartStore.last(ViewRef(project.ref, myId)).map(_.flatMap(_.toOption)).accepted
 
@@ -88,19 +80,12 @@ class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
         expandOnlyIris,
         details,
         projections,
-        ProjectionErrorsSearch(projectionErrors)
+        ProjectionsDirectives.testEcho
       )
     )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val error           = new Exception("boom")
-    val rev             = 1
-    val fail1           = FailedElem(EntityType("ACL"), myId, projectRef, Instant.EPOCH, Offset.At(42L), error, rev)
-    val fail2           = FailedElem(EntityType("Schema"), myId2, projectRef, Instant.EPOCH, Offset.At(43L), error, rev)
-    val saveFailedElems = projectionErrors.saveFailedElems(indexingView.metadata, List(fail1, fail2))
-
-    saveFailedElems.accepted
     aclCheck.append(AclAddress.Root, reader -> Set(permissions.read)).accepted
     aclCheck.append(AclAddress.Root, writer -> Set(permissions.write)).accepted
   }
@@ -241,7 +226,7 @@ class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
     "return failures as a listing" in {
       Get(s"$viewEndpoint/failures") ~> as(writer) ~> routes ~> check {
         response.status shouldBe StatusCodes.OK
-        response.asJson.removeAllKeys("stacktrace") shouldEqual jsonContentOf("routes/list-indexing-errors.json")
+        response.asString shouldEqual "indexing-errors"
       }
     }
   }

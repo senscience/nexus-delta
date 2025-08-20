@@ -19,10 +19,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, ProjectionErrorsSearch}
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
@@ -222,18 +222,11 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         defaultIndexQuery: MainIndexQuery,
         projections: Projections,
-        projectionErrorsSearch: ProjectionErrorsSearch,
-        baseUri: BaseUri,
+        projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        esConfig: ElasticSearchViewsConfig,
         ordering: JsonKeyOrdering
     ) =>
-      new MainIndexRoutes(identities, aclCheck, defaultIndexQuery, projections, projectionErrorsSearch)(
-        baseUri,
-        cr,
-        esConfig.pagination,
-        ordering
-      )
+      new MainIndexRoutes(identities, aclCheck, defaultIndexQuery, projections, projectionsDirectives)(cr, ordering)
   }
 
   make[ListingRoutes].from {
@@ -266,10 +259,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: ElasticSearchViews,
         projections: Projections,
-        projectionErrorsSearch: ProjectionErrorsSearch,
-        baseUri: BaseUri,
+        projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        esConfig: ElasticSearchViewsConfig,
         ordering: JsonKeyOrdering,
         viewsQuery: ElasticSearchViewsQuery
     ) =>
@@ -278,11 +269,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck,
         views.fetchIndexingView(_, _),
         projections,
-        projectionErrorsSearch,
+        projectionsDirectives,
         viewsQuery
       )(
-        baseUri,
-        esConfig.pagination,
         cr,
         ordering
       )

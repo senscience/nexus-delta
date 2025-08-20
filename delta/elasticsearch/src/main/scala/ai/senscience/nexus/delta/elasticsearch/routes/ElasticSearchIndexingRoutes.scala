@@ -5,18 +5,15 @@ import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuery
 import ai.senscience.nexus.delta.elasticsearch.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{timeRange, *}
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.*
-import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import akka.http.scaladsl.server.*
@@ -33,19 +30,17 @@ import cats.effect.unsafe.implicits.*
   *   how to fetch an Elasticsearch view
   * @param projections
   *   the projections module
-  * @param projectionErrorsSearch
-  *   the projection errors search module
+  * @param projectionDirectives
+  *   directives related to projections
   */
 final class ElasticSearchIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     fetch: FetchIndexingView,
     projections: Projections,
-    projectionErrorsSearch: ProjectionErrorsSearch,
+    projectionDirectives: ProjectionsDirectives,
     viewsQuery: ElasticSearchViewsQuery
 )(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
     cr: RemoteContextResolution,
     ordering: JsonKeyOrdering
 ) extends AuthDirectives(identities, aclCheck)
@@ -75,12 +70,7 @@ final class ElasticSearchIndexingRoutes(
               // Fetch elastic search view indexing failures
               (pathPrefix("failures") & get) {
                 authorizeWrite {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
-                        failedElemSearchJsonLdEncoder(pagination, uri)
-                      emit(projectionErrorsSearch(view.ref, pagination, timeRange))
-                  }
+                  projectionDirectives.indexingErrors(view.ref)
                 }
               },
               // Manage an elasticsearch view offset
@@ -127,11 +117,9 @@ object ElasticSearchIndexingRoutes {
       aclCheck: AclCheck,
       fetch: FetchIndexingView,
       projections: Projections,
-      projectionErrorsSearch: ProjectionErrorsSearch,
+      projectionDirectives: ProjectionsDirectives,
       viewsQuery: ElasticSearchViewsQuery
   )(implicit
-      baseUri: BaseUri,
-      paginationConfig: PaginationConfig,
       cr: RemoteContextResolution,
       ordering: JsonKeyOrdering
   ): Route =
@@ -140,7 +128,7 @@ object ElasticSearchIndexingRoutes {
       aclCheck,
       fetch,
       projections,
-      projectionErrorsSearch,
+      projectionDirectives,
       viewsQuery
     ).routes
 }
