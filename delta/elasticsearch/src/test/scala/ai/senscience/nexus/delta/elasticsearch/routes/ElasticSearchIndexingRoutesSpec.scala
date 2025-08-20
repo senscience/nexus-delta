@@ -11,19 +11,16 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
-import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ProjectionProgress}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
@@ -36,13 +33,11 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
-  private lazy val projections      = Projections(xas, None, queryConfig, clock)
-  private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
+  private lazy val projections = Projections(xas, None, queryConfig, clock)
 
   implicit private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
 
   private val myId         = nxv + "myid"
-  private val myId2        = nxv + "myid2"
   private val indexingView = ActiveViewDef(
     ViewRef(projectRef, myId),
     "projection",
@@ -98,22 +93,14 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
         aclCheck,
         fetchView,
         projections,
-        ProjectionErrorsSearch(projectionErrors),
+        ProjectionsDirectives.testEcho,
         viewsQuery
       )
     )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val error = new Exception("boom")
-    val rev   = 1
-    val fail1 = FailedElem(EntityType("ACL"), myId, projectRef, Instant.EPOCH, Offset.At(42L), error, rev)
-    val fail2 = FailedElem(EntityType("Schema"), myId2, projectRef, Instant.EPOCH, Offset.At(43L), error, rev)
-    val save  = for {
-      _ <- projections.save(indexingView.projectionMetadata, progress)
-      _ <- projectionErrors.saveFailedElems(indexingView.projectionMetadata, List(fail1, fail2))
-    } yield ()
-    save.accepted
+    projections.save(indexingView.projectionMetadata, progress).accepted
   }
 
   private val viewEndpoint = "/views/myorg/myproject/myid"
@@ -193,11 +180,11 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     }
   }
 
-  "return failures as a listing" in {
+  "return failures as a response" in {
     aclCheck.append(AclAddress.Root, Anonymous -> Set(esPermissions.write)).accepted
     Get(s"$viewEndpoint/failures") ~> routes ~> check {
       response.status shouldBe StatusCodes.OK
-      response.asJson.removeAllKeys("stacktrace") shouldEqual jsonContentOf("routes/list-indexing-errors.json")
+      response.asString shouldEqual "indexing-errors"
     }
   }
 

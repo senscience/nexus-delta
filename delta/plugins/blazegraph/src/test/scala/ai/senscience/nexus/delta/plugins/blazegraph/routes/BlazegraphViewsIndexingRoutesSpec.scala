@@ -7,17 +7,14 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejectio
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
-import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
@@ -27,11 +24,9 @@ import java.time.Instant
 
 class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
 
-  private lazy val projections      = Projections(xas, None, queryConfig, clock)
-  private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
+  private lazy val projections = Projections(xas, None, queryConfig, clock)
 
   private val myId         = nxv + "myid"
-  private val myId2        = nxv + "myid2"
   private val indexingView = ActiveViewDef(
     ViewRef(projectRef, myId),
     "projection",
@@ -59,20 +54,13 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
         identities,
         aclCheck,
         projections,
-        ProjectionErrorsSearch(projectionErrors)
+        ProjectionsDirectives.testEcho
       )
     )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val error = new Exception("boom")
-    val rev   = 1
-    val fail1 = FailedElem(EntityType("ACL"), myId, projectRef, Instant.EPOCH, Offset.At(42L), error, rev)
-    val fail2 = FailedElem(EntityType("Schema"), myId2, projectRef, Instant.EPOCH, Offset.At(43L), error, rev)
-    val save  = for {
-      _ <- projections.save(indexingView.projectionMetadata, progress)
-      _ <- projectionErrors.saveFailedElems(indexingView.projectionMetadata, List(fail1, fail2))
-    } yield ()
+    val save = projections.save(indexingView.projectionMetadata, progress)
     save.accepted
   }
 
@@ -153,11 +141,11 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
     }
   }
 
-  "return failures as a listing" in {
+  "return failures as a response" in {
     aclCheck.append(AclAddress.Root, Anonymous -> Set(permissions.write)).accepted
     Get(s"$viewEndpoint/failures") ~> routes ~> check {
       response.status shouldBe StatusCodes.OK
-      response.asJson.removeAllKeys("stacktrace") shouldEqual jsonContentOf("routes/list-indexing-errors.json")
+      response.asString shouldEqual "indexing-errors"
     }
   }
 

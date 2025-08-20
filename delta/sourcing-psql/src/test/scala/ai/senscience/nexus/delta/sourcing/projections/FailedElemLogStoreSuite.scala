@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PurgeElemFailures
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, FailedElemLog, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
@@ -65,34 +65,48 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
       saveFailedElem(metadata12, fail4) >>
       saveFailedElem(metadata21, fail5)
 
+  private val byElemOffset: FailedElemLog => Offset = _.failedElemData.offset
+
   private def saveFailedElem(metadata: ProjectionMetadata, failed: FailedElem) =
     mutableClock.set(failed.instant) >>
       store.save(metadata, List(failed))
+
+  private def selectByName(metadata: ProjectionMetadata) = ProjectionSelector.Name(metadata.name)
+
+  private def selectById(metadata: ProjectionMetadata) =
+    (metadata.project, metadata.resourceId).mapN(ProjectionSelector.ProjectId(_, _))
 
   private def assertStream(metadata: ProjectionMetadata, offset: Offset, expected: List[FailedElem])(implicit
       loc: Location
   ) = {
     val expectedOffsets = expected.map(_.offset)
     for {
-      _ <- store.stream(metadata.name, offset).map(_.failedElemData.offset).assert(expectedOffsets)
-      _ <- (metadata.project, metadata.resourceId).traverseN { case (project, resourceId) =>
-             store.stream(project, resourceId, offset).map(_.failedElemData.offset).assert(expectedOffsets)
+      _ <- store.stream(ProjectionSelector.Name(metadata.name), offset).map(byElemOffset).assert(expectedOffsets)
+      _ <- selectById(metadata).traverse { selector =>
+             store.stream(selector, offset).map(byElemOffset).assert(expectedOffsets)
            }
     } yield ()
   }
 
-  private def countAndListFor(project: ProjectRef, projectionId: Iri, pagination: FromPagination, timeRange: TimeRange)(
+  private def countAndListFor(metadata: ProjectionMetadata, pagination: FromPagination, timeRange: TimeRange)(
       expectedCount: Long,
       expected: FailedElem*
-  )(implicit loc: Location) =
+  )(implicit loc: Location) = {
+    val byName          = selectByName(metadata)
+    val byId            = selectById(metadata)
+    val expectedOffsets = expected.map(_.offset).toList
     for {
-      _              <- store.count(project, projectionId, timeRange).assertEquals(expectedCount)
-      expectedOffsets = expected.map(_.offset).toList
-      _              <- store
-                          .list(project, projectionId, pagination, timeRange)
-                          .map(_.map(_.failedElemData.offset))
-                          .assertEquals(expectedOffsets)
+      _ <- store.count(byName, timeRange).assertEquals(expectedCount)
+      _ <- store
+             .list(byName, pagination, timeRange)
+             .map(_.map(byElemOffset))
+             .assertEquals(expectedOffsets)
+      _ <- byId.traverse { selector =>
+             store.count(selector, timeRange).assertEquals(expectedCount) >>
+               store.list(selector, pagination, timeRange).map(_.map(byElemOffset)).assertEquals(expectedOffsets)
+           }
     } yield ()
+  }
 
   test("Insert empty list of failures") {
     for {
@@ -107,7 +121,7 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
 
   test(s"Get stream of failures for ${metadata11.name}") {
     for {
-      entries <- store.stream(metadata11.name, Offset.start).compile.toList
+      entries <- store.stream(selectByName(metadata11), Offset.start).compile.toList
       r        = entries.assertOneElem
       _        = assertEquals(r.projectionMetadata, metadata11)
       _        = assertEquals(r.ordering, Offset.At(1L))
@@ -132,30 +146,30 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
   }
 
   test(s"List all failures") {
-    countAndListFor(project1, projection12, Pagination.OnePage, Anytime)(3L, fail2, fail3, fail4)
+    countAndListFor(metadata12, Pagination.OnePage, Anytime)(3L, fail2, fail3, fail4)
   }
 
   test(s"Paginate failures to get one result") {
-    countAndListFor(project1, projection12, FromPagination(1, 1), Anytime)(3L, fail3)
+    countAndListFor(metadata12, FromPagination(1, 1), Anytime)(3L, fail3)
   }
 
   test(s"Paginate failures to get the last results ") {
-    countAndListFor(project1, projection12, FromPagination(1, 2), Anytime)(3L, fail3, fail4)
+    countAndListFor(metadata12, FromPagination(1, 2), Anytime)(3L, fail3, fail4)
   }
 
   test(s"Count and list failures after a given time") {
     val after = After(fail3.instant)
-    countAndListFor(project1, projection12, Pagination.OnePage, after)(2L, fail3, fail4)
+    countAndListFor(metadata12, Pagination.OnePage, after)(2L, fail3, fail4)
   }
 
   test(s"Count and list  failures before a given time") {
     val before = Before(fail3.instant)
-    countAndListFor(project1, projection12, Pagination.OnePage, before)(2L, fail2, fail3)
+    countAndListFor(metadata12, Pagination.OnePage, before)(2L, fail2, fail3)
   }
 
   test(s"Count and list  failures within the time window") {
     val between = Between.unsafe(fail2.instant.plusMillis(1L), fail3.instant.plusMillis(1L))
-    countAndListFor(project1, projection12, Pagination.OnePage, between)(1L, fail3)
+    countAndListFor(metadata12, Pagination.OnePage, between)(1L, fail3)
   }
 
   test("Fetch latest failures") {

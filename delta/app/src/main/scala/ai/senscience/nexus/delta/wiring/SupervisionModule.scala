@@ -2,9 +2,10 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.routes.{IndexingSupervisionRoutes, SupervisionRoutes}
+import ai.senscience.nexus.delta.routes.{EventMetricsRoutes, IndexingSupervisionRoutes, SupervisionRoutes}
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
@@ -59,6 +60,24 @@ object SupervisionModule extends ModuleDef {
   }
 
   many[PriorityRoute].add { (route: IndexingSupervisionRoutes) =>
+    PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
+  }
+
+  make[EventMetricsRoutes].from {
+    (
+        identities: Identities,
+        aclCheck: AclCheck,
+        projectionsDirectives: ProjectionsDirectives,
+        baseUri: BaseUri
+    ) =>
+      new EventMetricsRoutes(
+        identities,
+        aclCheck,
+        projectionsDirectives
+      )(baseUri)
+  }
+
+  many[PriorityRoute].add { (route: EventMetricsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 

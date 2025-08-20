@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ViewsRoutes
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.ProjectionErrorsSearch
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
@@ -17,8 +17,14 @@ import izumi.distage.model.definition.Id
 
 object ViewsCommonModule extends NexusModuleDef {
 
-  make[ProjectionErrorsSearch].from { (projectionErrors: ProjectionErrors) =>
-    ProjectionErrorsSearch(projectionErrors)
+  make[ProjectionsDirectives].from {
+    (
+        projectionErrors: ProjectionErrors,
+        baseUri: BaseUri,
+        cr: RemoteContextResolution @Id("aggregate"),
+        ordering: JsonKeyOrdering
+    ) =>
+      ProjectionsDirectives(projectionErrors)(baseUri, cr, ordering)
   }
 
   make[AggregateViewsList].from { (internal: Set[ViewsList]) =>

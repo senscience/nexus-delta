@@ -4,17 +4,14 @@ import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
 import akka.http.scaladsl.server.*
@@ -25,12 +22,10 @@ class BlazegraphViewsIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projections: Projections,
-    projectionErrorsSearch: ProjectionErrorsSearch
+    projectionDirectives: ProjectionsDirectives
 )(implicit
-    baseUri: BaseUri,
     cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    pc: PaginationConfig
+    ordering: JsonKeyOrdering
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with DeltaDirectives
@@ -60,12 +55,7 @@ class BlazegraphViewsIndexingRoutes(
               // Fetch blazegraph view indexing failures
               (pathPrefix("failures") & get) {
                 authorizeWrite {
-                  (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
-                    (pagination, timeRange, uri) =>
-                      implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
-                        failedElemSearchJsonLdEncoder(pagination, uri)
-                      emit(projectionErrorsSearch(view.ref, pagination, timeRange))
-                  }
+                  projectionDirectives.indexingErrors(view.ref)
                 }
               },
               // Manage a blazegraph view offset
@@ -108,19 +98,17 @@ object BlazegraphViewsIndexingRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       projections: Projections,
-      projectionErrorsSearch: ProjectionErrorsSearch
+      projectionDirectives: ProjectionsDirectives
   )(implicit
-      baseUri: BaseUri,
       cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      pc: PaginationConfig
+      ordering: JsonKeyOrdering
   ): Route = {
     new BlazegraphViewsIndexingRoutes(
       fetch,
       identities,
       aclCheck,
       projections,
-      projectionErrorsSearch: ProjectionErrorsSearch
+      projectionDirectives
     ).routes
   }
 }

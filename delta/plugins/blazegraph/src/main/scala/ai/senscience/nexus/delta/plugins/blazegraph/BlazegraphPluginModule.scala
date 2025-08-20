@@ -15,11 +15,11 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, ProjectionErrorsSearch}
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
@@ -192,9 +192,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: BlazegraphViews,
         projections: Projections,
-        projectionErrorsSearch: ProjectionErrorsSearch,
-        baseUri: BaseUri,
-        cfg: BlazegraphViewsConfig,
+        projectionDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
@@ -203,13 +201,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         projections,
-        projectionErrorsSearch
-      )(
-        baseUri,
-        cr,
-        ordering,
-        cfg.pagination
-      )
+        projectionDirectives
+      )(cr, ordering)
   }
 
   make[BlazegraphSupervisionRoutes].from {
