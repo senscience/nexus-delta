@@ -12,19 +12,20 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
-import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import izumi.distage.model.definition.Id
 
 object ViewsCommonModule extends NexusModuleDef {
 
   make[ProjectionsDirectives].from {
     (
+        projections: Projections,
         projectionErrors: ProjectionErrors,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      ProjectionsDirectives(projectionErrors)(baseUri, cr, ordering)
+      ProjectionsDirectives(projections, projectionErrors)(baseUri, cr, ordering)
   }
 
   make[AggregateViewsList].from { (internal: Set[ViewsList]) =>

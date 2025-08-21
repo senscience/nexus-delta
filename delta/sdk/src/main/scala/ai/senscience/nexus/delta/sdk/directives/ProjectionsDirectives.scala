@@ -6,8 +6,9 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, fromPaginated, timeRange}
-import ai.senscience.nexus.delta.sdk.directives.UriDirectives.extractHttp4sUri
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, emitJson, fromPaginated, timeRange}
+import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{extractHttp4sUri, iriSegment}
+import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.indexing.{failedElemSearchJsonLdEncoder, FailedElemSearchResults}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -16,13 +17,16 @@ import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, ProjectId}
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector}
-import akka.http.scaladsl.server.Directives.{complete, pathEndOrSingleSlash}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
 
 trait ProjectionsDirectives {
+
+  def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route
 
   def indexingErrors(view: ViewRef): Route =
     indexingErrors(view.project, view.viewId)
@@ -38,21 +42,32 @@ trait ProjectionsDirectives {
 object ProjectionsDirectives extends RdfMarshalling {
 
   def apply(
+      projections: Projections,
       projectionErrors: ProjectionErrors
   )(implicit baseUri: BaseUri, cr: RemoteContextResolution, ordering: JsonKeyOrdering): ProjectionsDirectives =
     new ProjectionsDirectives {
 
       implicit val paginationConfig: PaginationConfig = PaginationConfig(50, 1_000, 10_000)
 
-      def indexingErrors(selector: ProjectionSelector): Route =
+      override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+        (iriSegment & pathEndOrSingleSlash) { resourceId =>
+          emitJson(
+            projections
+              .indexingStatus(project, selectFilter, projectionName, resourceId)(
+                ResourceNotFound(resourceId, project)
+              )
+          )
+        }
+
+      override def indexingErrors(selector: ProjectionSelector): Route =
         (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
           (pagination, timeRange, uri) =>
             implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
               failedElemSearchJsonLdEncoder(pagination, uri)
-            emit(search(selector, pagination, timeRange))
+            emit(searchErrors(selector, pagination, timeRange))
         }
 
-      private def search(
+      private def searchErrors(
           selector: ProjectionSelector,
           pagination: FromPagination,
           timeRange: TimeRange
@@ -70,6 +85,10 @@ object ProjectionsDirectives extends RdfMarshalling {
 
     }
 
-  def testEcho: ProjectionsDirectives =
-    (_: ProjectionSelector) => complete("indexing-errors")
+  def testEcho: ProjectionsDirectives = new ProjectionsDirectives {
+    override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+      complete("indexing-status")
+
+    override def indexingErrors(selector: ProjectionSelector): Route = complete("indexing-errors")
+  }
 }
