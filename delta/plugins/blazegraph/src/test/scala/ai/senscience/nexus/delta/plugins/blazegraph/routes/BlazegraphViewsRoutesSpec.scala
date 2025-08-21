@@ -22,6 +22,7 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.resourceAlreadyExistsError
 import ai.senscience.nexus.delta.sdk.views.BlazegraphViewErrors.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.*
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
@@ -32,7 +33,7 @@ import io.circe.Json
 import io.circe.syntax.*
 import org.scalatest.Assertion
 
-class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures {
+class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with DoobieScalaTestFixture {
 
   private val prefix = "prefix"
 

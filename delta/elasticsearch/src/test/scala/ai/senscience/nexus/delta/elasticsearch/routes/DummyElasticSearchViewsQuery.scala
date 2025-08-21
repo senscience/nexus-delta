@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.client.PointInTime
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -33,9 +32,6 @@ private[routes] class DummyElasticSearchViewsQuery(views: ElasticSearchViews) ex
       qp.params
     ).asJson deepMerge query.asJson
   }
-
-  override def mapping(view: ActiveViewDef)(implicit caller: Caller): IO[Json] =
-    IO.pure(json"""{"mappings": "mapping"}""")
 
   override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit
       caller: Caller

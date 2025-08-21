@@ -7,15 +7,16 @@ import io.circe.Json
 
 class EventMetricsSpec extends BaseIntegrationSpec {
 
-  "The event metrics statistics endpoint" should {
+  private val permission = Supervision.Read.value
 
+  "The event metrics statistics endpoint" should {
     val endpoint = "/event-metrics/statistics"
 
-    s"reject calls without ${Supervision.Read.value} permission" in {
+    s"reject calls without $permission permission" in {
       deltaClient.get[Json](endpoint, Anonymous) { expectForbidden }
     }
 
-    s"accept calls with ${Supervision.Read.value}" in {
+    s"accept calls with $permission" in {
       deltaClient.get[Json](endpoint, ServiceAccount) { expectOk }
     }
   }
@@ -24,12 +25,33 @@ class EventMetricsSpec extends BaseIntegrationSpec {
 
     val endpoint = "/event-metrics/failures"
 
-    s"reject calls without ${Supervision.Read.value} permission" in {
+    s"reject calls without $permission permission" in {
       deltaClient.get[Json](endpoint, Anonymous) { expectForbidden }
     }
 
-    s"accept calls with ${Supervision.Read.value}" in {
+    s"accept calls with $permission" in {
       deltaClient.get[Json](endpoint, ServiceAccount) { expectOk }
+    }
+  }
+
+  "The event metrics offset endpoint" should {
+
+    val endpoint = "/event-metrics/offset"
+
+    s"reject reading offset without $permission permission" in {
+      deltaClient.get[Json](endpoint, Anonymous) { expectForbidden }
+    }
+
+    s"accept reading with $permission" in {
+      deltaClient.get[Json](endpoint, ServiceAccount) { expectOk }
+    }
+
+    s"reject restart indexing without $permission permission" in {
+      deltaClient.delete[Json](endpoint, Anonymous) { expectForbidden }
+    }
+
+    s"accept restart indexin with $permission" in {
+      deltaClient.delete[Json](endpoint, ServiceAccount) { expectOk }
     }
   }
 

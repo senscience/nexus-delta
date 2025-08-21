@@ -1,9 +1,11 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuery
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.indexing.FetchIndexingView
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchMapping
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -12,32 +14,20 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDire
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import akka.http.scaladsl.server.*
+import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import io.circe.Json
 
 /**
-  * The elasticsearch views routes
-  *
-  * @param identities
-  *   the identity module
-  * @param aclCheck
-  *   to check acls
-  * @param fetch
-  *   how to fetch an Elasticsearch view
-  * @param projections
-  *   the projections module
-  * @param projectionDirectives
-  *   directives related to projections
+  * The elasticsearch views indexing routes
   */
 final class ElasticSearchIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     fetch: FetchIndexingView,
-    projections: Projections,
     projectionDirectives: ProjectionsDirectives,
-    viewsQuery: ElasticSearchViewsQuery
+    fetchMapping: FetchMapping
 )(implicit
     cr: RemoteContextResolution,
     ordering: JsonKeyOrdering
@@ -72,11 +62,11 @@ final class ElasticSearchIndexingRoutes(
                 concat(
                   // Fetch an elasticsearch view offset
                   (get & authorizeRead) {
-                    emit(projections.offset(view.projection))
+                    projectionDirectives.offset(view.projection)
                   },
                   // Remove an elasticsearch view offset (restart the view)
                   (delete & authorizeWrite) {
-                    emit(projections.scheduleRestart(view.projection).as(Offset.start))
+                    projectionDirectives.scheduleRestart(view.projection)
                   }
                 )
               },
@@ -86,7 +76,7 @@ final class ElasticSearchIndexingRoutes(
               },
               // Get elasticsearch view mapping
               (pathPrefix("_mapping") & get & authorizeWrite & pathEndOrSingleSlash) {
-                emit(viewsQuery.mapping(view))
+                emit(fetchMapping(view))
               }
             )
           }
@@ -97,27 +87,27 @@ final class ElasticSearchIndexingRoutes(
 
 object ElasticSearchIndexingRoutes {
 
+  type FetchMapping = ActiveViewDef => IO[Json]
+
   /**
     * @return
-    *   the [[Route]] for elasticsearch views
+    *   the [[Route]] for elasticsearch views indexing
     */
   def apply(
       identities: Identities,
       aclCheck: AclCheck,
       fetch: FetchIndexingView,
-      projections: Projections,
       projectionDirectives: ProjectionsDirectives,
-      viewsQuery: ElasticSearchViewsQuery
+      client: ElasticSearchClient
   )(implicit
       cr: RemoteContextResolution,
       ordering: JsonKeyOrdering
-  ): Route =
+  ): ElasticSearchIndexingRoutes =
     new ElasticSearchIndexingRoutes(
       identities,
       aclCheck,
       fetch,
-      projections,
       projectionDirectives,
-      viewsQuery
-    ).routes
+      (view: ActiveViewDef) => client.mapping(view.index)
+    )
 }

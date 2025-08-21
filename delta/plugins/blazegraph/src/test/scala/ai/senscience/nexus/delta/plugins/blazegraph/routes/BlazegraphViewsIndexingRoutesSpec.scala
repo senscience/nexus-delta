@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewNotFound}
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
@@ -12,19 +11,12 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 
-import java.time.Instant
-
 class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
-
-  private lazy val projections = Projections(xas, None, queryConfig, clock)
 
   private val myId         = nxv + "myid"
   private val indexingView = ActiveViewDef(
@@ -36,7 +28,6 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
     1,
     1
   )
-  private val progress     = ProjectionProgress(Offset.at(15L), Instant.EPOCH, 9000L, 400L, 30L)
 
   private def fetchView: FetchIndexingView =
     (id: IdSegment, ref) =>
@@ -53,16 +44,9 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
         fetchView,
         identities,
         aclCheck,
-        projections,
         ProjectionsDirectives.testEcho
       )
     )
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    val save = projections.save(indexingView.projectionMetadata, progress)
-    save.accepted
-  }
 
   private val viewEndpoint = "/views/myorg/myproject/myid"
 
@@ -88,16 +72,9 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
   }
 
   "fetch offset from view" in {
-    val expectedResponse =
-      json"""{
-        "@context" : "https://bluebrain.github.io/nexus/contexts/offset.json",
-        "@type" : "At",
-        "value" : 15
-      }"""
-
     Get(s"$viewEndpoint/offset") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson shouldEqual expectedResponse
+      response.asString shouldEqual "offset"
     }
   }
 
@@ -110,11 +87,9 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
   "restart offset from view" in {
 
     aclCheck.append(AclAddress.Root, Anonymous -> Set(permissions.write)).accepted
-    projections.restarts(Offset.start).compile.toList.accepted.size shouldEqual 0
     Delete(s"$viewEndpoint/offset") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson shouldEqual json"""{"@context": "${Vocabulary.contexts.offset}", "@type": "Start"}"""
-      projections.restarts(Offset.start).compile.toList.accepted.size shouldEqual 1
+      response.asString shouldEqual "schedule-restart"
     }
   }
 

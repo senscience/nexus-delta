@@ -337,21 +337,6 @@ class ElasticSearchViewsQuerySuite
       .assertEquals(expectedIds)
   }
 
-  test("Obtaining the mapping without permission should fail") {
-    implicit val caller: Caller = anon
-    views
-      .fetchIndexingView(view1Proj1.viewId, view1Proj1.project)
-      .flatMap(viewsQuery.mapping)
-      .intercept[AuthorizationFailed]
-  }
-
-  test("Obtaining the mapping with views/write permission should succeed") {
-    implicit val caller: Caller = alice
-    views
-      .fetchIndexingView(view1Proj1.viewId, view1Proj1.project)
-      .flatMap(viewsQuery.mapping)
-  }
-
   test("Creating a point in time without permission should fail") {
     implicit val caller: Caller = anon
     viewsQuery

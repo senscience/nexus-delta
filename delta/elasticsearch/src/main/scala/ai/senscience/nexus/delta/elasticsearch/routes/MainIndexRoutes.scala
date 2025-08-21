@@ -15,8 +15,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.{Directive, Route}
 import io.circe.JsonObject
@@ -25,7 +23,6 @@ final class MainIndexRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     defaultIndexQuery: MainIndexQuery,
-    projections: Projections,
     projectionDirectives: ProjectionsDirectives
 )(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
     extends AuthDirectives(identities, aclCheck)
@@ -63,11 +60,11 @@ final class MainIndexRoutes(
                   concat(
                     // Fetch an elasticsearch view offset
                     (get & authorizeRead) {
-                      emit(projections.offset(projection))
+                      projectionDirectives.offset(projection)
                     },
                     // Remove an main indexing offset (restart the view)
                     (delete & authorizeWrite) {
-                      emit(projections.offset(projection).as(Offset.start))
+                      projectionDirectives.scheduleRestart(projection)
                     }
                   )
                 },

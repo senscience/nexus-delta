@@ -19,6 +19,7 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.*
 import ai.senscience.nexus.delta.sdk.views.ElasticSearchViewErrors.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
@@ -28,7 +29,7 @@ import cats.effect.IO
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion
 
-class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with DoobieScalaTestFixture {
 
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
