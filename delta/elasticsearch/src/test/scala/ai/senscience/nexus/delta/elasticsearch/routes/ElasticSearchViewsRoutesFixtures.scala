@@ -15,7 +15,6 @@ import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ProjectResource}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
@@ -27,7 +26,6 @@ class ElasticSearchViewsRoutesFixtures
     extends CatsEffectSpec
     with RouteHelpers
     with CatsIOValues
-    with DoobieScalaTestFixture
     with CirceLiteral
     with CirceEq
     with CancelAfterFailure

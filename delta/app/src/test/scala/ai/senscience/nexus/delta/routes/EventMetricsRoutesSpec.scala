@@ -53,4 +53,30 @@ class EventMetricsRoutesSpec extends BaseRouteSpec {
     }
   }
 
+  "Fail to access offset if the user has no access" in {
+    Get("/v1/event-metrics/offset") ~> routes ~> check {
+      response.status shouldEqual StatusCodes.Forbidden
+    }
+  }
+
+  "Succeed to get the offset if the user has access" in {
+    Get("/v1/event-metrics/offset") ~> as(supervisor) ~> routes ~> check {
+      response.status shouldEqual StatusCodes.OK
+      response.asString shouldEqual "offset"
+    }
+  }
+
+  "Fail to restart indexing if the user has no access" in {
+    Delete("/v1/event-metrics/offset") ~> routes ~> check {
+      response.status shouldEqual StatusCodes.Forbidden
+    }
+  }
+
+  "Succeed to restart indexing if the user has access" in {
+    Delete("/v1/event-metrics/offset") ~> as(supervisor) ~> routes ~> check {
+      response.status shouldEqual StatusCodes.OK
+      response.asString shouldEqual "schedule-restart"
+    }
+  }
+
 }

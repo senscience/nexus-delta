@@ -18,7 +18,9 @@ import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResul
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, ProjectId}
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -33,6 +35,10 @@ trait ProjectionsDirectives {
 
   def statistics(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
     statistics(Scope.Project(project), selectFilter, projectionName)
+
+  def offset(projectionName: String): Route
+
+  def scheduleRestart(projectionName: String)(implicit subject: Subject): Route
 
   def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route
 
@@ -59,6 +65,11 @@ object ProjectionsDirectives extends RdfMarshalling {
 
       override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
         emit(projections.statistics(scope, selectFilter, projectionName))
+
+      override def offset(projectionName: String): Route = emit(projections.offset(projectionName))
+
+      override def scheduleRestart(projectionName: String)(implicit subject: Subject): Route =
+        emit(projections.scheduleRestart(projectionName).as(Offset.start))
 
       override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
         (iriSegment & pathEndOrSingleSlash) { resourceId =>
@@ -99,6 +110,11 @@ object ProjectionsDirectives extends RdfMarshalling {
   def testEcho: ProjectionsDirectives = new ProjectionsDirectives {
     override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
       complete("indexing-statistics")
+
+    override def offset(projectionName: String): Route = complete("offset")
+
+    override def scheduleRestart(projectionName: String)(implicit subject: Subject): Route =
+      complete("schedule-restart")
 
     override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
       complete("indexing-status")

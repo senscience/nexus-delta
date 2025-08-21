@@ -10,8 +10,6 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import akka.http.scaladsl.server.*
 import cats.effect.unsafe.implicits.*
 
@@ -19,7 +17,6 @@ class BlazegraphViewsIndexingRoutes(
     fetch: FetchIndexingView,
     identities: Identities,
     aclCheck: AclCheck,
-    projections: Projections,
     projectionDirectives: ProjectionsDirectives
 )(implicit
     cr: RemoteContextResolution,
@@ -57,11 +54,11 @@ class BlazegraphViewsIndexingRoutes(
                 concat(
                   // Fetch a blazegraph view offset
                   (get & authorizeRead) {
-                    emit(projections.offset(view.projection))
+                    projectionDirectives.offset(view.projection)
                   },
                   // Remove a blazegraph view offset (restart the view)
                   (delete & authorizeWrite) {
-                    emit(projections.scheduleRestart(view.projection).as(Offset.start))
+                    projectionDirectives.scheduleRestart(view.projection)
                   }
                 )
               },
@@ -86,7 +83,6 @@ object BlazegraphViewsIndexingRoutes {
       fetch: FetchIndexingView,
       identities: Identities,
       aclCheck: AclCheck,
-      projections: Projections,
       projectionDirectives: ProjectionsDirectives
   )(implicit
       cr: RemoteContextResolution,
@@ -96,7 +92,6 @@ object BlazegraphViewsIndexingRoutes {
       fetch,
       identities,
       aclCheck,
-      projections,
       projectionDirectives
     ).routes
   }

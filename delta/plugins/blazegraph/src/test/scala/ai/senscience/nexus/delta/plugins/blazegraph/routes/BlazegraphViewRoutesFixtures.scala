@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
-import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
@@ -31,7 +30,6 @@ import java.util.UUID
 trait BlazegraphViewRoutesFixtures
     extends CatsEffectSpec
     with RouteHelpers
-    with DoobieScalaTestFixture
     with CirceLiteral
     with CirceEq
     with Inspectors

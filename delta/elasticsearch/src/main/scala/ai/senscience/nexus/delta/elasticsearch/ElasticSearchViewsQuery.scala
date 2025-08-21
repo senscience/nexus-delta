@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, PointInTime}
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType}
@@ -87,15 +86,6 @@ trait ElasticSearchViewsQuery {
     */
   def deletePointInTime(pointInTime: PointInTime)(implicit caller: Caller): IO[Unit]
 
-  /**
-    * Fetch the elasticsearch mapping of the provided view
-    * @param view
-    *   the view to retrieve the index from
-    */
-  def mapping(
-      view: ActiveViewDef
-  )(implicit caller: Caller): IO[Json]
-
 }
 
 /**
@@ -131,12 +121,6 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
         v => ProjectAcl(v.ref.project) -> v.permission,
         _.index
       )
-  }
-
-  override def mapping(view: ActiveViewDef)(implicit caller: Caller): IO[Json] = {
-    val project = view.ref.project
-    aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write)) >>
-      client.mapping(view.index)
   }
 
   override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit

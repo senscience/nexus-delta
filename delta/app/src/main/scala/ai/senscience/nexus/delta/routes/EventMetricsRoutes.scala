@@ -8,6 +8,7 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDire
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -34,6 +35,18 @@ final class EventMetricsRoutes(
               },
               pathPrefix("failures") {
                 projectionsDirectives.indexingErrors(projectionName)
+              },
+              (pathPrefix("offset") & pathEndOrSingleSlash) {
+                concat(
+                  // Fetch the event metrics projection offset
+                  get {
+                    projectionsDirectives.offset(projectionName)
+                  },
+                  // Delte the event metrics project offset (restart it)
+                  delete {
+                    projectionsDirectives.scheduleRestart(projectionName)
+                  }
+                )
               }
             )
           }

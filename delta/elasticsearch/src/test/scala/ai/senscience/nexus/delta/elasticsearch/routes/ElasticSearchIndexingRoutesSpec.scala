@@ -5,37 +5,19 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.FetchIndexingView
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidResourceId, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
-import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
-import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ValidateElasticSearchView}
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
-import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
-import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
-import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
-import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ProjectionProgress}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.JsonObject
 
-import java.time.Instant
-
 class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
-
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
-
-  private lazy val projections = Projections(xas, None, queryConfig, clock)
-
-  implicit private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
 
   private val myId         = nxv + "myid"
   private val indexingView = ActiveViewDef(
@@ -50,7 +32,6 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     IndexingRev.init,
     1
   )
-  private val progress     = ProjectionProgress(Offset.at(15L), Instant.EPOCH, 9000L, 400L, 30L)
 
   private def fetchView: FetchIndexingView =
     (id, ref) =>
@@ -61,47 +42,17 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
         case StringSegment(id)     => IO.raiseError(InvalidResourceId(id))
       }
 
-  private val allowedPerms = Set(esPermissions.write, esPermissions.read, esPermissions.query, events.read)
-
-  private val defaultIndexDef = DefaultIndexDef(JsonObject(), JsonObject())
-
-  private lazy val views: ElasticSearchViews = ElasticSearchViews(
-    fetchContext,
-    ResolverContextResolution(rcr),
-    ValidateElasticSearchView(
-      PipeChain.validate(_, registry),
-      IO.pure(allowedPerms),
-      (_, _, _) => IO.unit,
-      "prefix",
-      5,
-      xas,
-      defaultIndexDef
-    ),
-    eventLogConfig,
-    "prefix",
-    xas,
-    defaultIndexDef,
-    clock
-  ).accepted
-
-  private lazy val viewsQuery = new DummyElasticSearchViewsQuery(views)
-
+  private val esMapping   = json"""{"mappings": "mapping"}"""
   private lazy val routes =
     Route.seal(
-      ElasticSearchIndexingRoutes(
+      new ElasticSearchIndexingRoutes(
         identities,
         aclCheck,
         fetchView,
-        projections,
         ProjectionsDirectives.testEcho,
-        viewsQuery
-      )
+        (_: ActiveViewDef) => IO.pure(esMapping)
+      ).routes
     )
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    projections.save(indexingView.projectionMetadata, progress).accepted
-  }
 
   private val viewEndpoint = "/views/myorg/myproject/myid"
 
@@ -127,15 +78,9 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   }
 
   "fetch offset from view" in {
-    val expectedResponse =
-      json"""{
-        "@context" : "https://bluebrain.github.io/nexus/contexts/offset.json",
-        "@type" : "At",
-        "value" : 15
-      }"""
     Get(s"$viewEndpoint/offset") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson shouldEqual expectedResponse
+      response.asString shouldEqual "offset"
     }
   }
 
@@ -149,11 +94,9 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
   "restart offset from view" in {
     aclCheck.append(AclAddress.Root, Anonymous -> Set(esPermissions.write)).accepted
-    projections.restarts(Offset.start).compile.toList.accepted.size shouldEqual 0
     Delete(s"$viewEndpoint/offset") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson shouldEqual json"""{"@context": "${Vocabulary.contexts.offset}", "@type": "Start"}"""
-      projections.restarts(Offset.start).compile.toList.accepted.size shouldEqual 1
+      response.asString shouldEqual "schedule-restart"
     }
   }
 
@@ -175,7 +118,7 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   "return elasticsearch mapping" in {
     Get(s"$viewEndpoint/_mapping") ~> routes ~> check {
       response.status shouldBe StatusCodes.OK
-      response.asJson shouldEqual json"""{"mappings": "mapping"}"""
+      response.asJson shouldEqual esMapping
     }
   }
 

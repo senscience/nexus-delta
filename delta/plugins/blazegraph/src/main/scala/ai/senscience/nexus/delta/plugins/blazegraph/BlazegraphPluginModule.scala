@@ -30,7 +30,6 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.projections.Projections
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
@@ -191,7 +190,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         views: BlazegraphViews,
-        projections: Projections,
         projectionDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
@@ -200,7 +198,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         views.fetchIndexingView(_, _),
         identities,
         aclCheck,
-        projections,
         projectionDirectives
       )(cr, ordering)
   }

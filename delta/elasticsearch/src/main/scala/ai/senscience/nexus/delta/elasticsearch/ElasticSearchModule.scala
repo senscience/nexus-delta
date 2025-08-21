@@ -221,12 +221,11 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         defaultIndexQuery: MainIndexQuery,
-        projections: Projections,
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      new MainIndexRoutes(identities, aclCheck, defaultIndexQuery, projections, projectionsDirectives)(cr, ordering)
+      new MainIndexRoutes(identities, aclCheck, defaultIndexQuery, projectionsDirectives)(cr, ordering)
   }
 
   make[ListingRoutes].from {
@@ -258,19 +257,17 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         views: ElasticSearchViews,
-        projections: Projections,
+        client: ElasticSearchClient,
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        viewsQuery: ElasticSearchViewsQuery
+        ordering: JsonKeyOrdering
     ) =>
-      new ElasticSearchIndexingRoutes(
+      ElasticSearchIndexingRoutes(
         identities,
         aclCheck,
         views.fetchIndexingView(_, _),
-        projections,
         projectionsDirectives,
-        viewsQuery
+        client
       )(
         cr,
         ordering
