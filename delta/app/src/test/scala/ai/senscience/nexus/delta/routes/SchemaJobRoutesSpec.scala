@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
@@ -22,7 +23,7 @@ import cats.effect.{IO, Ref}
 
 import java.time.Instant
 
-class SchemaJobRoutesSpec extends BaseRouteSpec {
+class SchemaJobRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   private val project    = ProjectGen.project("org", "project")
   private val rev        = 1

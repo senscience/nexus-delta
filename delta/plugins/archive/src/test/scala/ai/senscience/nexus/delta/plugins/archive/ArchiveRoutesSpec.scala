@@ -37,6 +37,7 @@ import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.test.archive.ArchiveHelpers
 import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
 import akka.http.scaladsl.model.MediaRanges.`*/*`
@@ -54,7 +55,7 @@ import org.http4s.Uri
 import java.util.UUID
 import scala.concurrent.duration.*
 
-class ArchiveRoutesSpec extends BaseRouteSpec with StorageFixtures with ArchiveHelpers {
+class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with StorageFixtures with ArchiveHelpers {
 
   private val uuid                          = UUID.fromString("8249ba90-7cc6-4de5-93a1-802c04200dcc")
   implicit private val uuidF: StatefulUUIDF = UUIDF.stateful(uuid).accepted

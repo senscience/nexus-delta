@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.orgs.{create, delet
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.handleExceptions
@@ -24,7 +25,7 @@ import org.scalactic.source.Position
 
 import java.util.UUID
 
-class OrganizationsRoutesSpec extends BaseRouteSpec {
+class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   private val fixedUuid             = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(fixedUuid)

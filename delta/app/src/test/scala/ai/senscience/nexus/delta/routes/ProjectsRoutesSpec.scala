@@ -22,6 +22,7 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ProjectMatchers.deprecated
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
@@ -36,7 +37,7 @@ import java.time.Instant
 import java.util.UUID
 import scala.concurrent.duration.*
 
-class ProjectsRoutesSpec extends BaseRouteSpec with BeforeAndAfterAll {
+class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with BeforeAndAfterAll {
 
   implicit override def patienceConfig: PatienceConfig = PatienceConfig(6.seconds, 10.milliseconds)
 
