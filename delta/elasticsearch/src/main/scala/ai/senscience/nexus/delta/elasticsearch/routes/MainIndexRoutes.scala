@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
-import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
@@ -73,14 +72,9 @@ final class MainIndexRoutes(
                     }
                   )
                 },
-                // Getting indexing status for a resource in the given view
-                (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
-                  emitJson(
-                    projections
-                      .indexingStatus(project, SelectFilter.latest, projection, resourceId)(
-                        ResourceNotFound(resourceId, project)
-                      )
-                  )
+                // Getting indexing status for a resource in the main view
+                (pathPrefix("status") & authorizeRead) {
+                  projectionDirectives.indexingStatus(project, SelectFilter.latest, projection)
                 },
                 // Query default indexing for this given project
                 (pathPrefix("_search") & post & pathEndOrSingleSlash) {

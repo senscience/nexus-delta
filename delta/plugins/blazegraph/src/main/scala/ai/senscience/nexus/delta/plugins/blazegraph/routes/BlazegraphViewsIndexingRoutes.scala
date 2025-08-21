@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
-import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
@@ -72,13 +71,8 @@ class BlazegraphViewsIndexingRoutes(
                 )
               },
               // Getting indexing status for a resource in the given view
-              (pathPrefix("status") & authorizeRead & iriSegment & pathEndOrSingleSlash) { resourceId =>
-                emitJson(
-                  projections
-                    .indexingStatus(project, view.selectFilter, view.projection, resourceId)(
-                      ResourceNotFound(resourceId, project)
-                    )
-                )
+              (pathPrefix("status") & authorizeRead) {
+                projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
               }
             )
           }

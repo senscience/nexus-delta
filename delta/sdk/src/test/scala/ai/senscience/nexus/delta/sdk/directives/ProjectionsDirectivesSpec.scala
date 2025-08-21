@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import akka.http.scaladsl.model.*
@@ -16,9 +16,10 @@ import java.time.Instant
 
 class ProjectionsDirectivesSpec extends BaseRouteSpec {
 
+  private lazy val projections      = Projections(xas, None, queryConfig, clock)
   private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
 
-  private lazy val projectionDirectives = ProjectionsDirectives(projectionErrors)
+  private lazy val projectionDirectives = ProjectionsDirectives(projections, projectionErrors)
 
   private val project = ProjectRef.unsafe("myorg", "myproject")
   private val myId    = nxv + "myid"
