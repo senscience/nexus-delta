@@ -81,25 +81,9 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
   "fetch statistics from view" in {
     aclCheck.append(AclAddress.Root, Anonymous -> Set(permissions.read)).accepted
 
-    val expectedResponse =
-      json"""
-        {
-        "@context": "https://bluebrain.github.io/nexus/contexts/statistics.json",
-        "@type": "ViewStatistics",
-        "delayInSeconds" : 0,
-        "discardedEvents": 400,
-        "evaluatedEvents": 8570,
-        "failedEvents": 30,
-        "lastEventDateTime": "${Instant.EPOCH}",
-        "lastProcessedEventDateTime": "${Instant.EPOCH}",
-        "processedEvents": 9000,
-        "remainingEvents": 0,
-        "totalEvents": 9000
-      }"""
-
     Get(s"$viewEndpoint/statistics") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson shouldEqual expectedResponse
+      response.asString shouldEqual "indexing-statistics"
     }
   }
 

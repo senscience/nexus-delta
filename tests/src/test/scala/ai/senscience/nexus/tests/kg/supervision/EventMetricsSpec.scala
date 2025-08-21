@@ -7,6 +7,19 @@ import io.circe.Json
 
 class EventMetricsSpec extends BaseIntegrationSpec {
 
+  "The event metrics statistics endpoint" should {
+
+    val endpoint = "/event-metrics/statistics"
+
+    s"reject calls without ${Supervision.Read.value} permission" in {
+      deltaClient.get[Json](endpoint, Anonymous) { expectForbidden }
+    }
+
+    s"accept calls with ${Supervision.Read.value}" in {
+      deltaClient.get[Json](endpoint, ServiceAccount) { expectOk }
+    }
+  }
+
   "The event metrics indexing failures endpoint" should {
 
     val endpoint = "/event-metrics/failures"

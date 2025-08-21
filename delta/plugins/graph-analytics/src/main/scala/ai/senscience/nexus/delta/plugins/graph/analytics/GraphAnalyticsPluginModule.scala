@@ -9,13 +9,13 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.projections.Projections
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import izumi.distage.model.definition.Id
 
@@ -57,7 +57,7 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         graphAnalytics: GraphAnalytics,
-        projections: Projections,
+        projectionsDirectives: ProjectionsDirectives,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
@@ -67,7 +67,7 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         graphAnalytics,
-        project => projections.statistics(project, SelectFilter.latest, GraphAnalytics.projectionName(project)),
+        projectionsDirectives,
         viewsQuery
       )(
         baseUri,

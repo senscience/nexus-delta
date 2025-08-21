@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -53,7 +52,7 @@ final class MainIndexRoutes(
               concat(
                 // Fetch statistics for the main indexing on this current project
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-                  emit(projections.statistics(project, SelectFilter.latest, projection))
+                  projectionDirectives.statistics(project, SelectFilter.latest, projection)
                 },
                 // Fetch main view indexing failures
                 (pathPrefix("failures") & get & authorizeWrite) {

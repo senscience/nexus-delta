@@ -12,6 +12,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
+import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
@@ -70,7 +71,7 @@ class SchemaJobRoutes(
                     emit(
                       projectExists(project) >> projections
                         .statistics(
-                          project,
+                          Scope.Project(project),
                           SelectFilter.latest,
                           projectionName(project)
                         )

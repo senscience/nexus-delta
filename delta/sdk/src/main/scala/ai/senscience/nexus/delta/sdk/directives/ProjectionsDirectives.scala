@@ -6,14 +6,17 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, emitJson, fromPaginated, timeRange}
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{extractHttp4sUri, iriSegment}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
+import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.indexing.{failedElemSearchJsonLdEncoder, FailedElemSearchResults}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.views.ViewRef
+import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, ProjectId}
@@ -25,6 +28,11 @@ import cats.effect.IO
 import cats.syntax.all.*
 
 trait ProjectionsDirectives {
+
+  def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route
+
+  def statistics(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+    statistics(Scope.Project(project), selectFilter, projectionName)
 
   def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route
 
@@ -48,6 +56,9 @@ object ProjectionsDirectives extends RdfMarshalling {
     new ProjectionsDirectives {
 
       implicit val paginationConfig: PaginationConfig = PaginationConfig(50, 1_000, 10_000)
+
+      override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
+        emit(projections.statistics(scope, selectFilter, projectionName))
 
       override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
         (iriSegment & pathEndOrSingleSlash) { resourceId =>
@@ -86,6 +97,9 @@ object ProjectionsDirectives extends RdfMarshalling {
     }
 
   def testEcho: ProjectionsDirectives = new ProjectionsDirectives {
+    override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
+      complete("indexing-statistics")
+
     override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
       complete("indexing-status")
 

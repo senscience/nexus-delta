@@ -27,22 +27,6 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   private val project2 = ProjectRef.unsafe("org", "proj2")
   private val progress = ProjectionProgress(Offset.at(15L), Instant.EPOCH, 9000L, 400L, 30L)
 
-  private val proj1stats =
-    json"""
-      {
-        "@context" : "https://bluebrain.github.io/nexus/contexts/statistics.json",
-        "@type" : "ViewStatistics",
-        "delayInSeconds" : 0,
-        "discardedEvents" : 400,
-        "evaluatedEvents" : 8570,
-        "failedEvents" : 30,
-        "lastEventDateTime" : "1970-01-01T00:00:00Z",
-        "lastProcessedEventDateTime" : "1970-01-01T00:00:00Z",
-        "processedEvents" : 9000,
-        "remainingEvents" : 0,
-        "totalEvents" : 9000
-      }"""
-
   private val searchResult = json"""{ "success":  true }"""
 
   private val encodedDefaultViewId = encodeUriPath(defaultViewId.toString)
@@ -88,12 +72,12 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     s"get statistics if the user has access to $project1" in {
       Get(s"/views/$project1/documents/statistics") ~> as(reader) ~> routes ~> check {
         status shouldEqual StatusCodes.OK
-        response.asJson shouldEqual proj1stats
+        response.asString shouldEqual "indexing-statistics"
       }
 
       Get(s"/views/$project1/$encodedDefaultViewId/statistics") ~> as(reader) ~> routes ~> check {
         status shouldEqual StatusCodes.OK
-        response.asJson shouldEqual proj1stats
+        response.asString shouldEqual "indexing-statistics"
       }
     }
 

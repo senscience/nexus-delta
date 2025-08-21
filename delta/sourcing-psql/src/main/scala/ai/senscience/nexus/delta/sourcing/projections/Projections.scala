@@ -101,14 +101,14 @@ trait Projections {
   /**
     * Returns the statistics for the given projection in the given project
     *
-    * @param project
-    *   the project for which the counts are collected
+    * @param scope
+    *   the scope of statistics
     * @param selectFilter
     *   what to filter for
     * @param projectionId
     *   the projection id for which the statistics are computed
     */
-  def statistics(project: ProjectRef, selectFilter: SelectFilter, projectionId: String): IO[ProgressStatistics]
+  def statistics(scope: Scope, selectFilter: SelectFilter, projectionId: String): IO[ProgressStatistics]
 }
 
 object Projections {
@@ -165,7 +165,7 @@ object Projections {
       override def deleteExpiredRestarts(instant: Instant): IO[Unit] = projectionRestartStore.deleteExpired(instant)
 
       override def statistics(
-          project: ProjectRef,
+          scope: Scope,
           selectFilter: SelectFilter,
           projectionId: String
       ): IO[ProgressStatistics] =
@@ -173,7 +173,7 @@ object Projections {
           current   <- progress(projectionId)
           remaining <-
             StreamingQuery.remaining(
-              Scope(project),
+              scope,
               entityTypes,
               selectFilter,
               current.fold(Offset.start)(_.offset),

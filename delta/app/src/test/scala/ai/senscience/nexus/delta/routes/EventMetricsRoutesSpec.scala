@@ -27,6 +27,19 @@ class EventMetricsRoutesSpec extends BaseRouteSpec {
     ).routes
   )
 
+  "Fail to access statistics if the user has no access" in {
+    Get("/v1/event-metrics/statistics") ~> routes ~> check {
+      response.status shouldEqual StatusCodes.Forbidden
+    }
+  }
+
+  "Succeed to get the statistics if the user has access" in {
+    Get("/v1/event-metrics/statistics") ~> as(supervisor) ~> routes ~> check {
+      response.status shouldEqual StatusCodes.OK
+      response.asString shouldEqual "indexing-statistics"
+    }
+  }
+
   "Fail to access the indexing failures count if the user has no access" in {
     Get("/v1/event-metrics/failures") ~> routes ~> check {
       response.status shouldEqual StatusCodes.Forbidden
