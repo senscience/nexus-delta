@@ -9,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
@@ -46,16 +45,12 @@ class BlazegraphViewsIndexingRoutes(
             val authorizeWrite = authorizeFor(project, Write)
             concat(
               // Fetch a blazegraph view statistics
-              (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                authorizeRead {
-                  emit(projections.statistics(project, view.selectFilter, view.projection))
-                }
+              (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+                projectionDirectives.statistics(project, view.selectFilter, view.projection)
               },
               // Fetch blazegraph view indexing failures
-              (pathPrefix("failures") & get) {
-                authorizeWrite {
-                  projectionDirectives.indexingErrors(view.ref)
-                }
+              (pathPrefix("failures") & get & authorizeWrite) {
+                projectionDirectives.indexingErrors(view.ref)
               },
               // Manage a blazegraph view offset
               (pathPrefix("offset") & pathEndOrSingleSlash) {

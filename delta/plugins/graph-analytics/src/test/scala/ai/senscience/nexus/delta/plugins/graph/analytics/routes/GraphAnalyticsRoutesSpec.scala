@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.generators.ProjectGen
+import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
@@ -17,15 +17,11 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
-import ai.senscience.nexus.delta.sourcing.ProgressStatistics
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import org.scalatest.CancelAfterFailure
-
-import java.time.Instant
-import java.util.UUID
 
 class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
 
@@ -41,14 +37,14 @@ class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
   private val identities = IdentitiesDummy.fromUsers(alice)
 
   private val aclCheck = AclSimpleCheck().accepted
-  private val project  = ProjectGen.project("org", "project", uuid = UUID.randomUUID(), orgUuid = UUID.randomUUID())
+  private val project  = ProjectRef.unsafe("org", "project")
 
   private def projectNotFound(projectRef: ProjectRef) = ProjectNotFound(projectRef).asInstanceOf[ProjectRejection]
 
   private val graphAnalytics = new GraphAnalytics {
 
     override def relationships(projectRef: ProjectRef): IO[AnalyticsGraph] =
-      IO.raiseWhen(projectRef != project.ref)(projectNotFound(projectRef))
+      IO.raiseWhen(projectRef != project)(projectNotFound(projectRef))
         .as(
           AnalyticsGraph(
             nodes = List(Node(schema.Person, "Person", 10), Node(schema + "Address", "Address", 5)),
@@ -57,7 +53,7 @@ class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
         )
 
     override def properties(projectRef: ProjectRef, tpe: IdSegment): IO[PropertiesStatistics] =
-      IO.raiseWhen(projectRef != project.ref)(projectNotFound(projectRef))
+      IO.raiseWhen(projectRef != project)(projectNotFound(projectRef))
         .as(
           PropertiesStatistics(
             Metadata(schema.Person, "Person", 10),
@@ -74,7 +70,7 @@ class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
         identities,
         aclCheck,
         graphAnalytics,
-        _ => IO.pure(ProgressStatistics(0L, 0L, 0L, 10L, Some(Instant.EPOCH), None)),
+        ProjectionsDirectives.testEcho,
         (_, _, _) => IO.pure(viewQueryResponse)
       ).routes
     )
@@ -124,7 +120,7 @@ class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
       "fetch" in {
         Get("/v1/graph-analytics/org/project/statistics") ~> as(alice) ~> routes ~> check {
           response.status shouldEqual StatusCodes.OK
-          response.asJson shouldEqual jsonContentOf("routes/statistics.json")
+          response.asString shouldEqual "indexing-statistics"
         }
       }
     }

@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.Projections
@@ -61,16 +60,12 @@ final class ElasticSearchIndexingRoutes(
             val authorizeWrite = authorizeFor(project, Write)
             concat(
               // Fetch an elasticsearch view statistics
-              (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                authorizeRead {
-                  emit(projections.statistics(project, view.selectFilter, view.projection))
-                }
+              (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+                projectionDirectives.statistics(project, view.selectFilter, view.projection)
               },
               // Fetch elastic search view indexing failures
-              (pathPrefix("failures") & get) {
-                authorizeWrite {
-                  projectionDirectives.indexingErrors(view.ref)
-                }
+              (pathPrefix("failures") & get & authorizeWrite) {
+                projectionDirectives.indexingErrors(view.ref)
               },
               // Manage an elasticsearch view offset
               (pathPrefix("offset") & pathEndOrSingleSlash) {

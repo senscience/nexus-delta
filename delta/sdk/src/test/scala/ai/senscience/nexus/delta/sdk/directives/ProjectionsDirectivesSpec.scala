@@ -6,8 +6,9 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress}
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.server.Directives.{path, *}
 import akka.http.scaladsl.server.Route
@@ -26,10 +27,14 @@ class ProjectionsDirectivesSpec extends BaseRouteSpec {
   private val myId2   = nxv + "myid2"
 
   private val projectionMetadata = ProjectionMetadata("test", "projection", Some(project), Some(myId))
+  private val progress           = ProjectionProgress(Offset.at(15L), Instant.EPOCH, 9000L, 400L, 30L)
 
   private lazy val routes = Route.seal(
     get {
       concat(
+        path("statistics") {
+          projectionDirectives.statistics(project, SelectFilter.latest, projectionMetadata.name)
+        },
         path("by-name") {
           projectionDirectives.indexingErrors(ProjectionSelector.Name(projectionMetadata.name))
         },
@@ -46,11 +51,33 @@ class ProjectionsDirectivesSpec extends BaseRouteSpec {
     val rev   = 1
     val fail1 = FailedElem(EntityType("ACL"), myId, project, Instant.EPOCH, Offset.At(42L), error, rev)
     val fail2 = FailedElem(EntityType("Schema"), myId2, project, Instant.EPOCH, Offset.At(43L), error, rev)
-    val save  = projectionErrors.saveFailedElems(projectionMetadata, List(fail1, fail2))
+    val save  = projections.save(projectionMetadata, progress) >>
+      projectionErrors.saveFailedElems(projectionMetadata, List(fail1, fail2))
     save.accepted
   }
 
-  private val expectedResponse =
+  "Fetch statistics for the projection" in {
+    Get("/statistics") ~> routes ~> check {
+      val expected = json"""
+      {
+        "@context" : "https://bluebrain.github.io/nexus/contexts/statistics.json",
+        "@type" : "ViewStatistics",
+        "delayInSeconds" : 0,
+        "discardedEvents" : 400,
+        "evaluatedEvents" : 8570,
+        "failedEvents" : 30,
+        "lastEventDateTime" : "1970-01-01T00:00:00Z",
+        "lastProcessedEventDateTime" : "1970-01-01T00:00:00Z",
+        "processedEvents" : 9000,
+        "remainingEvents" : 0,
+        "totalEvents" : 9000
+      }"""
+      response.status shouldEqual StatusCodes.OK
+      response.asJson shouldEqual expected
+    }
+  }
+
+  private val expectedErrors =
     json"""
       {
   "@context": [
@@ -99,14 +126,14 @@ class ProjectionsDirectivesSpec extends BaseRouteSpec {
   "fetch the projection errors by the projection name" in {
     Get("/by-name") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson.removeAllKeys("stacktrace") shouldEqual expectedResponse
+      response.asJson.removeAllKeys("stacktrace") shouldEqual expectedErrors
     }
   }
 
   "fetch the projection errors by the projection project/id" in {
     Get("/by-project-id") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asJson.removeAllKeys("stacktrace") shouldEqual expectedResponse
+      response.asJson.removeAllKeys("stacktrace") shouldEqual expectedErrors
     }
   }
 }

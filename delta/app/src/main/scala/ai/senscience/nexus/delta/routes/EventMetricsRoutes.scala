@@ -9,6 +9,8 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
+import ai.senscience.nexus.delta.sourcing.Scope.Root
+import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import akka.http.scaladsl.server.Route
 
 final class EventMetricsRoutes(
@@ -19,14 +21,21 @@ final class EventMetricsRoutes(
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
+  private val projectionName = EventMetricsProjection.projectionMetadata.name
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("event-metrics") {
         extractCaller { implicit caller =>
-          pathPrefix("failures") {
-            authorizeFor(AclAddress.Root, supervision.read).apply {
-              projectionsDirectives.indexingErrors(EventMetricsProjection.projectionMetadata.name)
-            }
+          authorizeFor(AclAddress.Root, supervision.read).apply {
+            concat(
+              pathPrefix("statistics") {
+                projectionsDirectives.statistics(Root, SelectFilter.latest, projectionName)
+              },
+              pathPrefix("failures") {
+                projectionsDirectives.indexingErrors(projectionName)
+              }
+            )
           }
         }
       }
