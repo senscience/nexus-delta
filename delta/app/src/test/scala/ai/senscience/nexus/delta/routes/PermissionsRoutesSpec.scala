@@ -11,14 +11,14 @@ import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
-import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.MediaRanges.`*/*`
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Route
 import io.circe.Json
 
-class PermissionsRoutesSpec extends BaseRouteSpec with CatsIOValues {
+class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   implicit private val caller: Subject = Identity.Anonymous
 

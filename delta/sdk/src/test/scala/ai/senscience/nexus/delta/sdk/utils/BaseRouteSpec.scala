@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sdk.utils
 
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
-import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.scalatest.TestMatchers
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
@@ -12,7 +11,6 @@ import org.scalatest.{Inspectors, OptionValues}
 trait BaseRouteSpec
     extends CatsEffectSpec
     with RouteHelpers
-    with DoobieScalaTestFixture
     with Matchers
     with CatsIOValues
     with IOFromMap

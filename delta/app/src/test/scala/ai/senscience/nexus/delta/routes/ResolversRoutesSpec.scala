@@ -24,6 +24,7 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
@@ -35,7 +36,7 @@ import io.circe.syntax.*
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 
-class ResolversRoutesSpec extends BaseRouteSpec {
+class ResolversRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)

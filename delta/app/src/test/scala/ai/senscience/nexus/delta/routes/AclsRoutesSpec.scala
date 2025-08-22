@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
@@ -22,7 +23,7 @@ import io.circe.syntax.KeyOps
 
 import scala.concurrent.duration.*
 
-class AclsRoutesSpec extends BaseRouteSpec {
+class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   val realm1 = Label.unsafe("realm")
   val realm2 = Label.unsafe("myrealm")

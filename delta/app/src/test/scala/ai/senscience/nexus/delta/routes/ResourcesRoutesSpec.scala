@@ -22,6 +22,7 @@ import ai.senscience.nexus.delta.sourcing.ScopedEventLog
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location, RawHeader}
@@ -33,7 +34,11 @@ import org.scalatest.Assertion
 
 import java.util.UUID
 
-class ResourcesRoutesSpec extends BaseRouteSpec with ValidateResourceFixture with CatsIOValues {
+class ResourcesRoutesSpec
+    extends BaseRouteSpec
+    with DoobieScalaTestFixture
+    with ValidateResourceFixture
+    with CatsIOValues {
 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)

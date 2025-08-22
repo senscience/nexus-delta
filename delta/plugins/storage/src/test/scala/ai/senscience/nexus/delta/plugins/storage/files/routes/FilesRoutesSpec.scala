@@ -12,27 +12,27 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.sdk.NexusHeaders
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesDummy}
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
-import ai.senscience.nexus.delta.sdk.NexusHeaders
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
 import ai.senscience.nexus.testkit.scalatest.FileMatchers.*
-import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.ContentTypes.`application/json`
 import akka.http.scaladsl.model.MediaRanges.*
@@ -48,10 +48,10 @@ import java.util.UUID
 
 class FilesRoutesSpec
     extends BaseRouteSpec
+    with DoobieScalaTestFixture
     with CancelAfterFailure
     with StorageFixtures
-    with FileFixtures
-    with CatsIOValues {
+    with FileFixtures {
 
   // TODO: sort out how we handle this in tests
   implicit override def rcr: RemoteContextResolution =
