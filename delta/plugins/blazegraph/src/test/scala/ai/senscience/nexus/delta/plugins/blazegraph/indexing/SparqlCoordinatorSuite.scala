@@ -97,13 +97,15 @@ class SparqlCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
       rev = 1
     )
 
+  private def sleep = Stream.sleep[IO](100.millis).drain
+
   // Streams 3 elements until pausingRef is set to true, then 1 updated view and 1 deprecated view
   private def fetchViews: SuccessElemStream[IndexingViewDef] =
     Stream(
       viewAsElem(view1, 1L),
       viewAsElem(view2, 2L),
       viewAsElem(view3, 3L)
-    ) ++ Stream.exec(pausingRef.set(true)) ++ Stream.sleep[IO](100.millis).drain ++
+    ) ++ sleep ++ Stream.exec(pausingRef.set(true)) ++ sleep ++
       Stream(
         viewAsElem(deprecatedView1, 4L),
         viewAsElem(updatedView2, 5L),
