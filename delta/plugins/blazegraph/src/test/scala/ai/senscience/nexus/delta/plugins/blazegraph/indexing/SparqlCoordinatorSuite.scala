@@ -122,7 +122,8 @@ class SparqlCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
   )
 
   private val projectionCycle = new SparqlProjectionLifeCycle {
-    override def failing: Stream[IO, Boolean] = Stream.fixedDelay[IO](1.second) >> Stream.eval(pausingRef.get)
+    override def failing: Stream[IO, Boolean] =
+      Stream.fixedDelay[IO](100.millis) >> Stream.eval(pausingRef.get)
 
     override def compile(view: ActiveViewDef): IO[CompiledProjection] =
       IndexingViewDef.compile(
