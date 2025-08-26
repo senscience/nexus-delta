@@ -8,8 +8,9 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{SparqlCoordinator,
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewEvent}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
-import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphSupervisionRoutes, BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler}
+import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler, SparqlSupervisionRoutes}
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.{SparqlSlowQueryLogger, SparqlSlowQueryStore}
+import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
@@ -127,22 +128,13 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   make[BlazegraphViewsQuery].from {
     (
         aclCheck: AclCheck,
-        fetchContext: FetchContext,
         views: BlazegraphViews,
         client: SparqlClient @Id("sparql-query-client"),
         slowQueryLogger: SparqlSlowQueryLogger,
         cfg: BlazegraphViewsConfig,
         xas: Transactors
     ) =>
-      BlazegraphViewsQuery(
-        aclCheck,
-        fetchContext,
-        views,
-        client,
-        slowQueryLogger,
-        cfg.prefix,
-        xas
-      )
+      BlazegraphViewsQuery(aclCheck, views, client, slowQueryLogger, cfg.prefix, xas)
   }
 
   make[IncomingOutgoingLinks].fromEffect {
@@ -155,6 +147,10 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
       Queries.load.map { queries =>
         IncomingOutgoingLinks(fetchContext, views, client, queries)(base)
       }
+  }
+
+  make[SparqlSupervision].from { (views: BlazegraphViews, client: SparqlClient @Id("sparql-indexing-client")) =>
+    SparqlSupervision(client, BlazegraphViewByNamespace(views))
   }
 
   make[BlazegraphViewsRoutes].from {
@@ -202,15 +198,17 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
       )(cr, ordering)
   }
 
-  make[BlazegraphSupervisionRoutes].from {
+  make[SparqlSupervisionRoutes].from {
     (
-        views: BlazegraphViews,
-        client: SparqlClient @Id("sparql-indexing-client"),
+        sparqlSupervision: SparqlSupervision,
+        slowQueryLogger: SparqlSlowQueryLogger,
         identities: Identities,
         aclCheck: AclCheck,
+        baseUri: BaseUri,
+        cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      BlazegraphSupervisionRoutes(views, client, identities, aclCheck)(ordering)
+      new SparqlSupervisionRoutes(sparqlSupervision, slowQueryLogger, identities, aclCheck)(baseUri, cr, ordering)
   }
 
   make[BlazegraphScopeInitialization].from {
@@ -243,7 +241,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
     (
         bg: BlazegraphViewsRoutes,
         indexing: BlazegraphViewsIndexingRoutes,
-        supervision: BlazegraphSupervisionRoutes,
+        supervision: SparqlSupervisionRoutes,
         schemeDirectives: DeltaSchemeDirectives,
         baseUri: BaseUri
     ) =>

@@ -1,115 +1,87 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.slowqueries
 
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLoggerSuite.*
+import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
+import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
+import ai.senscience.nexus.delta.kernel.search.TimeRange.Anytime
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.model.SparqlSlowQuery
-import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.views.ViewRef
-import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import munit.AnyFixture
+import munit.{AnyFixture, Location}
 
 import java.time.Instant
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.DurationInt
 
-object SparqlSlowQueryLoggerSuite {
-  private val LongQueryThreshold                    = 100.milliseconds
-  private val StoreWhichFails: SparqlSlowQueryStore = new SparqlSlowQueryStore {
-    override def save(query: SparqlSlowQuery): IO[Unit] =
-      IO.raiseError(new RuntimeException("error saving slow log"))
+class SparqlSlowQueryLoggerSuite extends NexusSuite with Doobie.Fixture {
 
-    override def removeQueriesOlderThan(instant: Instant): IO[Unit] = IO.unit
+  override def munitFixtures: Seq[AnyFixture[?]] = List(doobieTruncateAfterTest)
 
-    override def listForTestingOnly(view: ViewRef): IO[List[SparqlSlowQuery]] = IO.pure(Nil)
-  }
+  private val longQueryThreshold = 100.milliseconds
 
-  private val view        = ViewRef(ProjectRef.unsafe("epfl", "blue-brain"), Iri.unsafe("hippocampus"))
-  private val sparqlQuery = SparqlQuery("")
-  private val user        = Identity.User("Ted Lasso", Label.unsafe("epfl"))
-}
+  private val view        = ViewRef.unsafe("senscience", "atoll", nxv + "id")
+  private val sparqlQuery = SparqlQuery("SELECT ?s where {?s ?p ?o} LIMIT 20")
+  private val user        = Identity.User("Alice", Label.unsafe("senscience"))
 
-class SparqlSlowQueryLoggerSuite extends NexusSuite with Doobie.Fixture with BlazegraphSlowQueryStoreFixture {
+  private lazy val xas    = doobieTruncateAfterTest()
+  private lazy val store  = SparqlSlowQueryStore(xas)
+  private lazy val logger = SparqlSlowQueryLogger(store, longQueryThreshold, clock)
 
-  override def munitFixtures: Seq[AnyFixture[?]] = List(doobie, blazegraphSlowQueryStore)
+  private def findQuery = store.list(Pagination.OnePage, Anytime).map(_.headOption)
 
-  private def fixture = {
-    val store  = blazegraphSlowQueryStore()
-    val logger = SparqlSlowQueryLogger(
-      store,
-      LongQueryThreshold,
-      clock
-    )
-    (logger, store.listForTestingOnly(view))
-  }
-
-  private def assertSavedQuery(actual: SparqlSlowQuery, failed: Boolean, minDuration: FiniteDuration): Unit = {
-    assertEquals(actual.view, view)
-    assertEquals(actual.query, sparqlQuery)
-    assertEquals(actual.subject, user)
-    assertEquals(actual.failed, failed)
-    assertEquals(actual.instant, Instant.EPOCH)
-    assert(actual.duration >= minDuration)
-  }
+  private def assertSavedQuery(obtainedOpt: Option[SparqlSlowQuery], failed: Boolean)(implicit
+      location: Location
+  ): Unit =
+    obtainedOpt match {
+      case Some(obtained) =>
+        assertEquals(obtained.view, view)
+        assertEquals(obtained.query, sparqlQuery)
+        assertEquals(obtained.subject, user)
+        assertEquals(obtained.failed, failed)
+        assertEquals(obtained.instant, Instant.EPOCH)
+        assert(obtained.duration >= longQueryThreshold)
+      case None           => fail(s"A query should have save as '$longQueryThreshold' was exceeded.")
+    }
 
   test("Slow query is logged") {
-
-    val (logSlowQuery, getLoggedQueries) = fixture
-    val slowQuery                        = IO.sleep(101.milliseconds)
-
-    for {
-      _     <- logSlowQuery(view, sparqlQuery, user, slowQuery)
-      saved <- getLoggedQueries
-    } yield {
-      assertEquals(saved.size, 1)
-      assertSavedQuery(saved.head, failed = false, 101.millis)
-      val onlyRecord: SparqlSlowQuery = saved.head
-      assertEquals(onlyRecord.view, view)
-      assertEquals(onlyRecord.query, sparqlQuery)
-      assertEquals(onlyRecord.subject, user)
-      assertEquals(onlyRecord.failed, false)
-      assertEquals(onlyRecord.instant, Instant.EPOCH)
-      assert(onlyRecord.duration > 100.milliseconds)
-    }
+    val slowQuery = IO.sleep(101.milliseconds)
+    logger.save(view, sparqlQuery, user, slowQuery) >>
+      findQuery.map(assertSavedQuery(_, failed = false))
   }
 
   test("Slow failure logged") {
+    val slowFailingQuery = IO.sleep(101.milliseconds) >> IO.raiseError(new RuntimeException())
 
-    val (logSlowQuery, getLoggedQueries) = fixture
-    val slowFailingQuery                 = IO.sleep(101.milliseconds) >> IO.raiseError(new RuntimeException())
-
-    for {
-      attempt <- logSlowQuery(view, sparqlQuery, user, slowFailingQuery).attempt
-      saved   <- getLoggedQueries
-    } yield {
-      assert(attempt.isLeft)
-      assertEquals(saved.size, 1)
-      assertSavedQuery(saved.head, failed = true, 101.millis)
-    }
+    logger.save(view, sparqlQuery, user, slowFailingQuery).attempt.assert(_.isLeft) >>
+      findQuery.map(assertSavedQuery(_, failed = true))
   }
 
   test("Fast query is not logged") {
+    val fastQuery = IO.sleep(50.milliseconds)
 
-    val (logSlowQuery, getLoggedQueries) = fixture
-    val fastQuery                        = IO.sleep(50.milliseconds)
-
-    for {
-      _     <- logSlowQuery(view, sparqlQuery, user, fastQuery)
-      saved <- getLoggedQueries
-    } yield {
-      assert(saved.isEmpty, s"expected no queries logged, actually logged $saved")
-    }
+    logger.save(view, sparqlQuery, user, fastQuery) >>
+      findQuery.assert(_.isEmpty, "This query should not have been logged")
   }
 
-  test("continue when saving slow query log fails") {
-    val logSlowQueries = SparqlSlowQueryLogger(
-      StoreWhichFails,
-      LongQueryThreshold,
-      clock
-    )
+  test("Continue when saving slow query log fails") {
+    val failingStore: SparqlSlowQueryStore = new SparqlSlowQueryStore {
+
+      override def count(timeRange: TimeRange): IO[Long] = IO.pure(42L)
+
+      override def save(query: SparqlSlowQuery): IO[Unit] =
+        IO.raiseError(new IllegalStateException("error saving slow log"))
+
+      override def deleteExpired(instant: Instant): IO[Unit] = IO.unit
+
+      override def list(pagination: FromPagination, timeRange: TimeRange): IO[List[SparqlSlowQuery]] = IO.pure(Nil)
+    }
+
+    val logSlowQueries = SparqlSlowQueryLogger(failingStore, longQueryThreshold, clock)
     val query          = IO.sleep(101.milliseconds).as("result")
 
-    logSlowQueries(view, sparqlQuery, user, query).assertEquals("result")
+    logSlowQueries.save(view, sparqlQuery, user, query).assertEquals("result")
   }
 }

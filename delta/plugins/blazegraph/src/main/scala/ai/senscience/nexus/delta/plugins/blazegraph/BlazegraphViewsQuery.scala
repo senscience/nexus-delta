@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.entityType
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlQueryResponse, SparqlQueryResponseType}
-import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.{InvalidResourceId, ViewIsDeprecated}
+import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, BlazegraphViewState}
 import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLogger
@@ -14,9 +14,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -52,7 +50,6 @@ object BlazegraphViewsQuery {
 
   final def apply(
       aclCheck: AclCheck,
-      fetchContext: FetchContext,
       views: BlazegraphViews,
       client: SparqlQueryClient,
       logSlowQueries: SparqlSlowQueryLogger,
@@ -82,8 +79,6 @@ object BlazegraphViewsQuery {
     )
     new BlazegraphViewsQuery {
 
-      private val expandIri: ExpandIri[BlazegraphViewRejection] = new ExpandIri(InvalidResourceId.apply)
-
       override def query[R <: SparqlQueryResponse](
           id: IdSegment,
           project: ProjectRef,
@@ -92,11 +87,9 @@ object BlazegraphViewsQuery {
       )(implicit caller: Caller): IO[R] = {
         for {
           view       <- viewsStore.fetch(id, project)
-          p          <- fetchContext.onRead(project)
-          iri        <- expandIri(id, p)
           namespaces <- viewToNamespaces(view)
           queryIO     = client.query(namespaces, sparqlQuery, responseType)
-          qr         <- logSlowQueries(ViewRef(project, iri), sparqlQuery, caller.subject, queryIO)
+          qr         <- logSlowQueries.save(view.ref, sparqlQuery, caller.subject, queryIO)
         } yield qr
       }.span("blazegraphUserQuery")
 
