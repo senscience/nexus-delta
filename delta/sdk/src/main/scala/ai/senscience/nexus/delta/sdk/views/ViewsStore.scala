@@ -54,10 +54,11 @@ object ViewsStore {
         res              <- fetchValue(id, project).flatMap(asView)
         singleOrMultiple <- res match {
                               case Left(iri)   =>
+                                val ref = ViewRef(project, iri)
                                 EntityDependencyStore
                                   .decodeRecursiveDependencies[Iri, Value](project, iri, xas)
                                   .flatMap {
-                                    _.traverseFilter(embeddedView(project, iri, _)).map(AggregateView(_))
+                                    _.traverseFilter(embeddedView(project, iri, _)).map(AggregateView(ref, _))
                                   }
                               case Right(view) => IO.pure(view)
                             }

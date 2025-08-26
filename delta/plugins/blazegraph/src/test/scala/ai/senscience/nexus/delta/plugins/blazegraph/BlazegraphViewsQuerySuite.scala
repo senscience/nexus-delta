@@ -72,7 +72,7 @@ class BlazegraphViewsQuerySuite extends NexusSuite with ConfigFixtures with Fixt
       views      <- Resource.eval(createBlazegraphViews(xas))
       acls       <- Resource.eval(aclCheck)
       queryLogger = SparqlSlowQueryLogger.noop
-      query       = BlazegraphViewsQuery(acls, fetchContext, views, client, queryLogger, "prefix", xas)
+      query       = BlazegraphViewsQuery(acls, views, client, queryLogger, "prefix", xas)
     } yield (views, query)
 
   private val fixture = ResourceSuiteLocalFixture("this", viewsAndQuery)
