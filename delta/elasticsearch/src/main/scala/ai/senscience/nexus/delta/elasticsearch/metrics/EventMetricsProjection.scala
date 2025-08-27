@@ -67,7 +67,7 @@ object EventMetricsProjection {
       _                 <- IO.whenA(shouldRestart)(
                              logger.warn("Resetting event metrics as the env RESET_EVENT_METRICS is set...") >>
                                eventMetrics.destroy >>
-                               projections.reset(projectionMetadata.name)
+                               projections.reset(projectionMetadata.name, Offset.start)
                            )
       metricsProjection <- apply(sink, supervisor, metrics, eventMetrics.init)
     } yield metricsProjection

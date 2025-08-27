@@ -31,11 +31,10 @@ trait ProjectionStore {
   def save(metadata: ProjectionMetadata, progress: ProjectionProgress): IO[Unit]
 
   /**
-    * Resets the progress of a projection to 0, and the instants (createdAt, updatedAt) to the time of the reset
-    * @param name
-    *   the name of the projection to reset
+    * Resets the progress of a projection to the given offset, and the instants (createdAt, updatedAt) to the time of
+    * the reset
     */
-  def reset(name: String): IO[Unit]
+  def reset(name: String, offset: Offset): IO[Unit]
 
   /**
     * Retrieves a projection offset if found.
@@ -69,9 +68,9 @@ object ProjectionStore {
           metadata: ProjectionMetadata,
           progress: ProjectionProgress
       ): IO[Unit] =
-        clock.realTimeInstant.flatMap { instant =>
+        clock.realTimeInstant.flatMap { now =>
           sql"""INSERT INTO projection_offsets (name, module, project, resource_id, ordering, processed, discarded, failed, created_at, updated_at)
-               |VALUES (${metadata.name}, ${metadata.module} ,${metadata.project}, ${metadata.resourceId}, ${progress.offset.value}, ${progress.processed}, ${progress.discarded}, ${progress.failed}, $instant, $instant)
+               |VALUES (${metadata.name}, ${metadata.module} ,${metadata.project}, ${metadata.resourceId}, ${progress.offset.value}, ${progress.processed}, ${progress.discarded}, ${progress.failed}, $now, $now)
                |ON CONFLICT (name)
                |DO UPDATE set
                |  module = EXCLUDED.module,
@@ -87,15 +86,15 @@ object ProjectionStore {
             .void
         }
 
-      override def reset(name: String): IO[Unit] =
-        clock.realTimeInstant.flatMap { instant =>
+      override def reset(name: String, offset: Offset): IO[Unit] =
+        clock.realTimeInstant.flatMap { now =>
           sql"""UPDATE projection_offsets
-                SET ordering   = 0,
+                SET ordering   = ${offset.value},
                     processed  = 0,
                     discarded  = 0,
                     failed     = 0,
-                    created_at = $instant,
-                    updated_at = $instant
+                    created_at = $now,
+                    updated_at = $now
                 WHERE name = $name
              """.stripMargin.update.run
             .transact(xas.write)

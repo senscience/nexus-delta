@@ -22,8 +22,8 @@ import java.time.Instant
 final class ProjectionRestartStore(xas: Transactors, config: QueryConfig) {
 
   def save(restart: ProjectionRestart): IO[Unit] =
-    sql"""INSERT INTO public.projection_restarts (name, value, instant, acknowledged)
-           |VALUES (${restart.name}, ${restart.asJson} ,${restart.instant}, false)
+    sql"""INSERT INTO public.projection_restarts (name, value, from_offset, instant, acknowledged)
+           |VALUES (${restart.name}, ${restart.asJson}, ${restart.fromOffset} ,${restart.instant}, false)
            |""".stripMargin.update.run
       .transact(xas.write)
       .void

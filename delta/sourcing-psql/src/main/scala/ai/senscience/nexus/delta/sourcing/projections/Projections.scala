@@ -56,12 +56,10 @@ trait Projections {
   )(notFound: => Throwable): IO[IndexingStatus]
 
   /**
-    * Resets the progress of a projection to 0, and the instants (createdAt, updatedAt) to the time of the reset
-    *
-    * @param name
-    *   the name of the projection to reset
+    * Resets the progress of a projection to the given offset, and the instants (createdAt, updatedAt) to the time of
+    * the reset
     */
-  def reset(name: String): IO[Unit]
+  def reset(name: String, offset: Offset): IO[Unit]
 
   /**
     * Deletes a projection offset if found.
@@ -73,10 +71,8 @@ trait Projections {
 
   /**
     * Schedules a restart for the given projection at the given offset
-    * @param projectionName
-    *   the name of the projection
     */
-  def scheduleRestart(projectionName: String)(implicit subject: Subject): IO[Unit]
+  def scheduleRestart(projectionName: String, fromOffset: Offset)(implicit subject: Subject): IO[Unit]
 
   /**
     * Get scheduled projection restarts from a given offset
@@ -147,15 +143,14 @@ object Projections {
                               }
         } yield status
 
-      override def reset(name: String): IO[Unit] = projectionStore.reset(name)
+      override def reset(name: String, offset: Offset): IO[Unit] = projectionStore.reset(name, offset)
 
       override def delete(name: String): IO[Unit] = projectionStore.delete(name)
 
-      override def scheduleRestart(projectionName: String)(implicit subject: Subject): IO[Unit] = {
+      override def scheduleRestart(projectionName: String, fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
         clock.realTimeInstant.flatMap { now =>
-          projectionRestartStore.save(ProjectionRestart(projectionName, now, subject))
+          projectionRestartStore.save(ProjectionRestart(projectionName, fromOffset, now, subject))
         }
-      }
 
       override def restarts(offset: Offset): Stream[IO, (Offset, ProjectionRestart)] =
         projectionRestartStore.stream(offset)

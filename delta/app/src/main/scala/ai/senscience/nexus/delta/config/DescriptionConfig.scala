@@ -1,9 +1,7 @@
 package ai.senscience.nexus.delta.config
 
 import ai.senscience.nexus.delta.sdk.model.Name
-import cats.syntax.all.*
 import pureconfig.ConfigReader
-import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.deriveReader
 
 /**
@@ -30,9 +28,6 @@ final case class DescriptionConfig(name: Name, env: Name) {
 }
 
 object DescriptionConfig {
-
-  implicit private val nameReader: ConfigReader[Name] =
-    ConfigReader.fromString(str => Name(str).leftMap(err => CannotConvert(str, "Name", err.getMessage)))
 
   implicit final val descriptionConfigReader: ConfigReader[DescriptionConfig] =
     deriveReader[DescriptionConfig]

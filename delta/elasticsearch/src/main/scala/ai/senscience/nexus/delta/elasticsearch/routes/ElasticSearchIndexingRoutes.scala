@@ -65,8 +65,8 @@ final class ElasticSearchIndexingRoutes(
                     projectionDirectives.offset(view.projection)
                   },
                   // Remove an elasticsearch view offset (restart the view)
-                  (delete & authorizeWrite) {
-                    projectionDirectives.scheduleRestart(view.projection)
+                  (delete & authorizeWrite & offset("from")) { fromOffset =>
+                    projectionDirectives.scheduleRestart(view.projection, fromOffset)
                   }
                 )
               },

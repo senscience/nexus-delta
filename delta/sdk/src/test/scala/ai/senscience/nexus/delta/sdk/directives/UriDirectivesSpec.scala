@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.kernel.search.Pagination.{FromPagination, Searc
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
+import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.directives.UriDirectivesSpec.IntValue
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
-import ai.senscience.nexus.delta.sdk.OrderingFields
-import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
@@ -21,13 +21,12 @@ import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.{MalformedQueryParamRejection, Route, ValidationRejection}
 import io.circe.literal.*
-import org.scalatest.Inspectors
 
 import java.time.Instant
 import java.util.UUID
 import scala.util.Random
 
-class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives with Inspectors {
+class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
 
   implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost/base//", "v1")
 
@@ -72,6 +71,9 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives wi
           case TimeRange.After(value)        => complete(s"after=$value")
           case TimeRange.Before(value)       => complete(s"before=$value")
           case TimeRange.Between(start, end) => complete(s"between=$start,$end")
+        },
+        (pathPrefix("offset") & offset("from")) { offset =>
+          complete(offset.value.toString)
         },
         (pathPrefix("indexing") & indexingMode & pathEndOrSingleSlash) {
           case IndexingMode.Async => complete("async")
@@ -176,6 +178,18 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives wi
       val encodedEnd   = encodeUriQuery(end.toString)
       Get(s"/base/timerange?createdAt=$encodedStart..$encodedEnd") ~> Accept(`*/*`) ~> route ~> check {
         response.asString shouldEqual s"between=$start,$end"
+      }
+    }
+
+    "return the start offset (=0) when no query param is provided" in {
+      Get("/base/offset") ~> Accept(`*/*`) ~> route ~> check {
+        response.asString shouldEqual "0"
+      }
+    }
+
+    "return the expected offset when the query param is provided" in {
+      Get("/base/offset?from=42") ~> Accept(`*/*`) ~> route ~> check {
+        response.asString shouldEqual "42"
       }
     }
 

@@ -19,15 +19,15 @@ class ProjectionRestartStoreSuite extends NexusSuite with Doobie.Fixture with Do
 
   private lazy val store = new ProjectionRestartStore(xas, QueryConfig(10, RefreshStrategy.Stop))
 
-  private val pr1 = ProjectionRestart("proj1", Instant.EPOCH, Anonymous)
-  private val pr2 = ProjectionRestart("proj2", Instant.EPOCH.plusSeconds(5L), Anonymous)
+  private val pr1 = ProjectionRestart("proj1", Offset.start, Instant.EPOCH, Anonymous)
+  private val pr2 = ProjectionRestart("proj2", Offset.start, Instant.EPOCH.plusSeconds(5L), Anonymous)
 
   test("Save a projection restart") {
-    store.save(pr1).assertEquals(())
+    store.save(pr1).assert
   }
 
   test("Save a second projection restart") {
-    store.save(pr2).assertEquals(())
+    store.save(pr2).assert
   }
 
   test("Stream projection restarts") {

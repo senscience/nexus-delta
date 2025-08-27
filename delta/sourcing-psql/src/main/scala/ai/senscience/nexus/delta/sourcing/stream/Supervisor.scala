@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.Ignored
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
@@ -50,11 +51,11 @@ trait Supervisor {
   def run(projection: CompiledProjection): IO[ExecutionStatus] = run(projection, IO.unit)
 
   /**
-    * Restart the given projection from the beginning
+    * Restart the given projection from the given offset
     * @param name
     *   the name of the projection
     */
-  def restart(name: String): IO[Option[ExecutionStatus]]
+  def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]]
 
   /**
     * Stops the projection with the provided `name` and removes it from supervision. It performs a noop if the
@@ -186,7 +187,7 @@ object Supervisor {
       .drain
   }
 
-  protected def restartProjection(supervised: Supervised, mapRef: Ref[IO, Map[String, Supervised]]): IO[Unit] = {
+  private def restartProjection(supervised: Supervised, mapRef: Ref[IO, Map[String, Supervised]]): IO[Unit] = {
     val metadata = supervised.metadata
     supervised.task.flatMap { control =>
       mapRef.update(
@@ -282,7 +283,7 @@ object Supervisor {
       Projection(projection, fetchProgress, saveProgress, saveErrors)(cfg.batch)
     }
 
-    def restart(name: String): IO[Option[ExecutionStatus]] =
+    override def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]] =
       semaphore.permit.use { _ =>
         for {
           supervised <- mapRef.get.map(_.get(name))
@@ -294,10 +295,11 @@ object Supervisor {
                               .as(ExecutionStatus.Ignored)
                           else {
                             for {
-                              _      <- log.info(s"Restarting '${metadata.module}/${metadata.name}'...")
+                              _      <-
+                                log.info(s"Restarting '${metadata.module}/${metadata.name}' at offset ${offset.value}...")
                               _      <- stopProjection(s)
                               _      <- IO.whenA(s.executionStrategy == PersistentSingleNode)(
-                                          projections.reset(metadata.name)
+                                          projections.reset(metadata.name, offset)
                                         )
                               _      <- Supervisor.restartProjection(s, mapRef)
                               status <- s.control.status
@@ -354,12 +356,10 @@ object Supervisor {
     override def getRunningProjections(
         descriptionFilter: SupervisedDescription => Option[SupervisedDescription] = desc =>
           Option.when(desc.status != Ignored)(desc)
-    ): IO[List[SupervisedDescription]] = {
-      for {
-        supervised   <- mapRef.get.map(_.values.toList)
-        descriptions <- supervised.traverseFilter { _.description.map(descriptionFilter) }
-      } yield descriptions
-    }
+    ): IO[List[SupervisedDescription]] =
+      mapRef.get.map(_.values.toList).flatMap {
+        _.traverseFilter { _.description.map(descriptionFilter) }
+      }
 
     override def stop(): IO[Unit] =
       for {
