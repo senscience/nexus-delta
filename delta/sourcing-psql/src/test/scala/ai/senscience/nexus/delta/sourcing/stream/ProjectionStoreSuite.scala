@@ -80,7 +80,7 @@ class ProjectionStoreSuite extends NexusSuite with Doobie.Fixture with Doobie.As
     for {
       _ <- store.save(metadata, progress)
       _ <- assertProgressAndInstants(metadata.name, progress, Instant.EPOCH, Instant.EPOCH)(store)
-      _ <- storeLater.reset(metadata.name)
+      _ <- storeLater.reset(metadata.name, Offset.start)
       _ <- assertProgressAndInstants(metadata.name, noProgress.copy(instant = later), later, later)(store)
     } yield ()
   }

@@ -15,6 +15,7 @@ import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import akka.http.javadsl.server.Rejections.validationRejection
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
@@ -209,6 +210,10 @@ trait UriDirectives extends QueryParamsUnmarshalling {
         case Right(range) => provide(range)
         case Left(error)  => reject(validationRejection(error.message))
       }
+  }
+
+  def offset(paramName: String): Directive1[Offset] = parameter(paramName.as[Long].?).flatMap { offsetOpt =>
+    provide(offsetOpt.fold(Offset.start)(Offset.at))
   }
 
   val createdAt: Directive1[TimeRange] = timeRange("createdAt")

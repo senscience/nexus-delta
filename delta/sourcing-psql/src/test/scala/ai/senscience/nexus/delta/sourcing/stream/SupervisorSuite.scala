@@ -124,7 +124,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   test("Do nothing when attempting to restart a projection when it is meant to run on another node") {
     for {
-      _ <- projections.scheduleRestart(ignoredByNode1.name)
+      _ <- projections.scheduleRestart(ignoredByNode1.name, Offset.start)
       _ <- assertWatchRestarts(Offset.at(1L), 1, 1)
       _ <- assertDescribe(ignoredByNode1, TransientSingleNode, 0, Ignored, NoProgress)
       // The restart has not been acknowledged and can be read by another node
@@ -154,7 +154,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   test("Do nothing when attempting to restart a projection when it is unknown") {
     for {
-      _ <- projections.scheduleRestart("xxx")
+      _ <- projections.scheduleRestart("xxx", Offset.start)
       _ <- assertWatchRestarts(Offset.at(2L), 2, 2)
       _ <- sv.describe(ignoredByNode1.name).assertEquals(None)
       // The restart has not been acknowledged and can be read by another node
@@ -207,7 +207,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   test("Restart a given projection when it is meant to run on this node") {
     val expectedProgress = ProjectionProgress(Offset.at(20L), Instant.EPOCH, 20, 0, 0)
     for {
-      _ <- projections.scheduleRestart(runnableByNode1.name)
+      _ <- projections.scheduleRestart(runnableByNode1.name, Offset.start)
       _ <- assertWatchRestarts(Offset.at(3L), 3, 2)
       _ <- assertDescribe(
              runnableByNode1,

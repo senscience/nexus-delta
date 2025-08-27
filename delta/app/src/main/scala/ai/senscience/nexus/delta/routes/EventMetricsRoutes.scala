@@ -3,12 +3,11 @@ package ai.senscience.nexus.delta.routes
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsProjection
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.baseUriPrefix
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -20,6 +19,7 @@ final class EventMetricsRoutes(
     projectionsDirectives: ProjectionsDirectives
 )(implicit baseUri: BaseUri)
     extends AuthDirectives(identities, aclCheck)
+    with DeltaDirectives
     with RdfMarshalling {
 
   private val projectionName = EventMetricsProjection.projectionMetadata.name
@@ -42,9 +42,9 @@ final class EventMetricsRoutes(
                   get {
                     projectionsDirectives.offset(projectionName)
                   },
-                  // Delte the event metrics project offset (restart it)
-                  delete {
-                    projectionsDirectives.scheduleRestart(projectionName)
+                  // Delete the event metrics project offset (restart it)
+                  (delete & offset("from")) { fromOffset =>
+                    projectionsDirectives.scheduleRestart(projectionName, fromOffset)
                   }
                 )
               }

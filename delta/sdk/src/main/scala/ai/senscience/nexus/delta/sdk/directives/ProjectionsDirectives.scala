@@ -38,7 +38,7 @@ trait ProjectionsDirectives {
 
   def offset(projectionName: String): Route
 
-  def scheduleRestart(projectionName: String)(implicit subject: Subject): Route
+  def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route
 
   def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route
 
@@ -68,8 +68,8 @@ object ProjectionsDirectives extends RdfMarshalling {
 
       override def offset(projectionName: String): Route = emit(projections.offset(projectionName))
 
-      override def scheduleRestart(projectionName: String)(implicit subject: Subject): Route =
-        emit(projections.scheduleRestart(projectionName).as(Offset.start))
+      override def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route =
+        emit(projections.scheduleRestart(projectionName, offset).as(offset))
 
       override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
         (iriSegment & pathEndOrSingleSlash) { resourceId =>
@@ -113,7 +113,7 @@ object ProjectionsDirectives extends RdfMarshalling {
 
     override def offset(projectionName: String): Route = complete("offset")
 
-    override def scheduleRestart(projectionName: String)(implicit subject: Subject): Route =
+    override def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route =
       complete("schedule-restart")
 
     override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =

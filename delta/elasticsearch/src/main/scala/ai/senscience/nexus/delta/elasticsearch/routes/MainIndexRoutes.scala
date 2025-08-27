@@ -63,8 +63,8 @@ final class MainIndexRoutes(
                       projectionDirectives.offset(projection)
                     },
                     // Remove an main indexing offset (restart the view)
-                    (delete & authorizeWrite) {
-                      projectionDirectives.scheduleRestart(projection)
+                    (delete & authorizeWrite & offset("from")) { fromOffset =>
+                      projectionDirectives.scheduleRestart(projection, fromOffset)
                     }
                   )
                 },
