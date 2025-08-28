@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
-import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, ElasticSearchViewEvent}
@@ -103,6 +103,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         defaultIndex,
         clock
       )(uuidF)
+  }
+
+  make[CurrentActiveViews].from { (views: ElasticSearchViews) =>
+    CurrentActiveViews(views)
   }
 
   make[ElasticSearchCoordinator].fromEffect {
@@ -316,7 +320,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       new ElasticSearchHistoryRoutes(identities, aclCheck, eventMetrics)(rcr, ordering)
   }
 
-  many[ProjectDeletionTask].add { (views: ElasticSearchViews) => ElasticSearchDeletionTask(views) }
+  many[ProjectDeletionTask].add { (currentViews: CurrentActiveViews, views: ElasticSearchViews) =>
+    ElasticSearchDeletionTask(currentViews, views)
+  }
 
   many[ProjectDeletionTask].add { (eventMetrics: EventMetrics) => new EventMetricsDeletionTask(eventMetrics) }
 
@@ -398,13 +404,19 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   many[IndexingAction].add {
     (
-        views: ElasticSearchViews,
+        currentViews: CurrentActiveViews,
         registry: ReferenceRegistry,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate")
     ) =>
-      ElasticSearchIndexingAction(views, registry, client, config.syncIndexingTimeout, config.syncIndexingRefresh)(
+      ElasticSearchIndexingAction(
+        currentViews,
+        registry,
+        client,
+        config.syncIndexingTimeout,
+        config.syncIndexingRefresh
+      )(
         cr
       )
   }

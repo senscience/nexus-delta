@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{SparqlCoordinator, SparqlProjectionLifeCycle}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, SparqlCoordinator, SparqlProjectionLifeCycle, SparqlRestartScheduler}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewEvent}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
@@ -31,6 +31,7 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
@@ -100,6 +101,10 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         )(uuidF)
     }
 
+  make[CurrentActiveViews].from { (views: BlazegraphViews) =>
+    CurrentActiveViews(views)
+  }
+
   make[SparqlProjectionLifeCycle].from {
     (
         graphStream: GraphResourceStream,
@@ -149,8 +154,14 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
       }
   }
 
-  make[SparqlSupervision].from { (views: BlazegraphViews, client: SparqlClient @Id("sparql-indexing-client")) =>
-    SparqlSupervision(client, BlazegraphViewByNamespace(views))
+  make[SparqlRestartScheduler].from {
+    (currentActiveViews: CurrentActiveViews, restartScheduler: ProjectionsRestartScheduler) =>
+      SparqlRestartScheduler(currentActiveViews, restartScheduler)
+  }
+
+  make[SparqlSupervision].from {
+    (currentActiveViews: CurrentActiveViews, client: SparqlClient @Id("sparql-indexing-client")) =>
+      SparqlSupervision(client, BlazegraphViewByNamespace(currentActiveViews))
   }
 
   make[BlazegraphViewsRoutes].from {
@@ -186,12 +197,14 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         views: BlazegraphViews,
+        sparqlRestartScheduler: SparqlRestartScheduler,
         projectionDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
       new BlazegraphViewsIndexingRoutes(
         views.fetchIndexingView(_, _),
+        sparqlRestartScheduler,
         identities,
         aclCheck,
         projectionDirectives
@@ -217,7 +230,9 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   }
   many[ScopeInitialization].ref[BlazegraphScopeInitialization]
 
-  many[ProjectDeletionTask].add { (views: BlazegraphViews) => BlazegraphDeletionTask(views) }
+  many[ProjectDeletionTask].add { (currentActiveViews: CurrentActiveViews, views: BlazegraphViews) =>
+    BlazegraphDeletionTask(currentActiveViews, views)
+  }
 
   many[ViewsList].add { (views: BlazegraphViews) => ViewsList(views.list) }
 
@@ -263,12 +278,12 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   many[IndexingAction].add {
     (
-        views: BlazegraphViews,
+        currentActiveViews: CurrentActiveViews,
         registry: ReferenceRegistry,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri
     ) =>
-      SparqlIndexingAction(views, registry, client, config.syncIndexingTimeout)(baseUri)
+      SparqlIndexingAction(currentActiveViews, registry, client, config.syncIndexingTimeout)(baseUri)
   }
 }
