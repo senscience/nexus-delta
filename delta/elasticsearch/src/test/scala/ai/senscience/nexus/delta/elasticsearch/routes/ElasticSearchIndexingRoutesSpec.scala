@@ -138,7 +138,7 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     }
   }
 
-  "restart full reindexing without write permissions on all projects" in {
+  "restart full reindexing with write permissions on all projects" in {
     Post("/jobs/elasticsearch/reindex") ~> as(admin) ~> routes ~> check {
       response.status shouldBe StatusCodes.Accepted
       runTrigger.get.accepted shouldEqual true

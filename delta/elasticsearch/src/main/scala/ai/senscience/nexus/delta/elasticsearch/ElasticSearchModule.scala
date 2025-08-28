@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
-import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchCoordinator, ElasticsearchRestartScheduler, MainIndexingAction, MainIndexingCoordinator}
+import ai.senscience.nexus.delta.elasticsearch.indexing.*
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, ElasticSearchViewEvent}
@@ -134,6 +134,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       )(cr)
   }
 
+  make[MainRestartScheduler].from { (projects: Projects, restartScheduler: ProjectionsRestartScheduler) =>
+    MainRestartScheduler(projects, restartScheduler)
+  }
+
   make[MainIndexingCoordinator].fromEffect {
     (
         projects: Projects,
@@ -229,12 +233,13 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     (
         identities: Identities,
         aclCheck: AclCheck,
-        defaultIndexQuery: MainIndexQuery,
+        mainIndexQuery: MainIndexQuery,
+        restartScheduler: MainRestartScheduler,
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      new MainIndexRoutes(identities, aclCheck, defaultIndexQuery, projectionsDirectives)(cr, ordering)
+      new MainIndexRoutes(identities, aclCheck, mainIndexQuery, restartScheduler, projectionsDirectives)(cr, ordering)
   }
 
   make[ListingRoutes].from {

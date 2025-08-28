@@ -27,9 +27,9 @@ object ElasticsearchRestartScheduler {
   ): ElasticsearchRestartScheduler =
     new ElasticsearchRestartScheduler {
       override def run(fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
-        logger.info(s"Starting reindexing all sparql views from $fromOffset") >>
+        logger.info(s"Starting reindexing all elasticsearch views from $fromOffset") >>
           restartScheduler.run(projectionNameStream, fromOffset).timed.flatMap { case (duration, _) =>
-            logger.info(s"All sparql views restarted reindexing in ${duration.toSeconds}")
+            logger.info(s"All elasticsearch views restarted reindexing in '${duration.toSeconds} seconds'")
           }
 
       private def projectionNameStream = currentActiveViews.stream.map(_.projection)
