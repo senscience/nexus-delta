@@ -51,8 +51,9 @@ class ElasticSearchViewsRoutesFixtures
 
   val reader = User("reader", realm)
   val writer = User("writer", realm)
+  val admin  = User("admin", realm)
 
-  val identities = IdentitiesDummy.fromUsers(reader, writer)
+  val identities = IdentitiesDummy.fromUsers(reader, writer, admin)
 
   val project: ProjectResource = ProjectGen.resourceFor(
     ProjectGen.project(

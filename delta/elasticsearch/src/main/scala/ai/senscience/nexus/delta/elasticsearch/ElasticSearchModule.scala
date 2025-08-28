@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
-import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchCoordinator, MainIndexingAction, MainIndexingCoordinator}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchCoordinator, ElasticsearchRestartScheduler, MainIndexingAction, MainIndexingCoordinator}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, ElasticSearchViewEvent}
@@ -34,7 +34,7 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.projections.Projections
+import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
@@ -107,6 +107,11 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   make[CurrentActiveViews].from { (views: ElasticSearchViews) =>
     CurrentActiveViews(views)
+  }
+
+  make[ElasticsearchRestartScheduler].from {
+    (currentActiveViews: CurrentActiveViews, restartScheduler: ProjectionsRestartScheduler) =>
+      ElasticsearchRestartScheduler(currentActiveViews, restartScheduler)
   }
 
   make[ElasticSearchCoordinator].fromEffect {
@@ -238,7 +243,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         projectScopeResolver: ProjectScopeResolver,
         schemeDirectives: DeltaSchemeDirectives,
-        defaultIndexQuery: MainIndexQuery,
+        mainIndexQuery: MainIndexQuery,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
@@ -252,7 +257,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         projectScopeResolver,
         resourceToSchema,
         schemeDirectives,
-        defaultIndexQuery
+        mainIndexQuery
       )(baseUri, esConfig.pagination, cr, ordering)
   }
 
@@ -261,6 +266,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         views: ElasticSearchViews,
+        restartScheduler: ElasticsearchRestartScheduler,
         client: ElasticSearchClient,
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
@@ -270,6 +276,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         views.fetchIndexingView(_, _),
+        restartScheduler,
         projectionsDirectives,
         client
       )(
