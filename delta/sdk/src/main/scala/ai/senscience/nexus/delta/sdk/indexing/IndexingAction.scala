@@ -6,17 +6,18 @@ import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.ResourceShift
 import ai.senscience.nexus.delta.sdk.error.ServiceError.IndexingFailed
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.logger
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.IndexingActionContext
 import ai.senscience.nexus.delta.sdk.indexing.IndexingMode.{Async, Sync}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, Elem, ElemStream, Projection}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, Elem, Projection}
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
+import fs2.Stream
 
 import scala.concurrent.duration.*
 
@@ -34,45 +35,31 @@ trait IndexingAction {
 
   /**
     * Initialize the indexing projections to perform for the given element
-    * @param project
-    *   the project where the view to fetch live
-    * @param elem
-    *   the element to index
     */
-  def projections(project: ProjectRef, elem: Elem[GraphResource]): ElemStream[CompiledProjection]
+  def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection]
 
-  def apply(project: ProjectRef, elem: Elem[GraphResource]): IO[List[FailedElem]] = {
-    for {
-      // To collect the errors
-      errorsRef <- Ref.of[IO, List[FailedElem]](List.empty)
-      saveErrors = (failed: List[FailedElem]) => errorsRef.update(_ ++ failed)
-      // We build and start the projections where the resource will apply
-      _         <- projections(project, elem)
-                     .evalMap {
-                       case s: SuccessElem[CompiledProjection] =>
-                         runProjection(s.value, saveErrors).handleErrorWith { err => saveErrors(List(s.failed(err))) }
-                       case _: DroppedElem                     => IO.unit
-                       case f: FailedElem                      => logger.error(f.throwable)(s"Fetching '$f' returned an error.").as(None)
-                     }
-                     .compile
-                     .drain
-      errors    <- errorsRef.get
-    } yield errors
-  }.span("sync-indexing")(kamonMetricComponent)
+  def apply(project: ProjectRef, elem: Elem[GraphResource], context: IndexingActionContext): IO[Unit] =
+    projections(project, elem)
+      .evalMap(runProjection(_, context))
+      .compile
+      .drain
+      .span("sync-indexing")(kamonMetricComponent)
 
-  private def runProjection(compiled: CompiledProjection, saveFailedElems: List[FailedElem] => IO[Unit]) = {
+  private def runProjection(compiled: CompiledProjection, context: IndexingActionContext) = {
     for {
-      projection <- Projection(compiled, IO.none, _ => IO.unit, saveFailedElems(_))
+      projection <- Projection(compiled, IO.none, _ => IO.unit, context.addErrors)
       _          <- projection.waitForCompletion(timeout)
       // We stop the projection if it has not complete yet
       _          <- projection.stop()
     } yield ()
-  }
+  }.handleErrorWith { context.addError }
 }
 
 object IndexingAction {
 
   type Execute[A] = (ProjectRef, ResourceF[A], IndexingMode) => IO[Unit]
+
+  private type ErrorList = List[Throwable]
 
   /**
     * Does not perform any action
@@ -80,6 +67,19 @@ object IndexingAction {
   def noop[A]: Execute[A] = (_, _, _) => IO.unit
 
   private val logger = Logger[IndexingAction]
+
+  final class IndexingActionContext(value: Ref[IO, ErrorList]) {
+    def addError(error: Throwable): IO[Unit] = value.update(_.+:(error))
+
+    def addErrors(failed: List[FailedElem]): IO[Unit] = value.update(_ ++ failed.map(_.throwable))
+
+    def get: IO[ErrorList] = value.get
+  }
+
+  object IndexingActionContext {
+    def apply(): IO[IndexingActionContext] =
+      Ref.of[IO, ErrorList](List.empty).map(new IndexingActionContext(_))
+  }
 
   /**
     * An instance of [[IndexingAction]] which executes other [[IndexingAction]] s in parallel.
@@ -95,12 +95,13 @@ object IndexingAction {
         case Async => IO.unit
         case Sync  =>
           for {
-            _               <- logger.debug(s"Synchronous indexing of resource '$project/${res.id}' has been requested.")
+            _            <- logger.debug(s"Synchronous indexing of resource '$project/${res.id}' has been requested.")
             // We create the GraphResource wrapped in an `Elem`
-            elem            <- shift.toGraphResourceElem(project, res)
-            errorsPerAction <- internal.parTraverse(_.apply(project, elem))
-            errors           = errorsPerAction.toList.flatMap(_.map(_.throwable))
-            _               <- IO.raiseWhen(errors.nonEmpty)(IndexingFailed(res.void, errors))
+            resourceElem <- shift.toGraphResourceElem(project, res)
+            context      <- IndexingActionContext()
+            _            <- internal.parTraverse(_.apply(project, resourceElem, context))
+            errors       <- context.get
+            _            <- IO.raiseWhen(errors.nonEmpty)(IndexingFailed(res.void, errors))
           } yield ()
       }
   }

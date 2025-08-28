@@ -1,20 +1,23 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.FetchIndexingView
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{FetchIndexingView, SparqlRestartScheduler}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.*
 import cats.effect.unsafe.implicits.*
 
 class BlazegraphViewsIndexingRoutes(
     fetch: FetchIndexingView,
+    sparqlRestartScheduler: SparqlRestartScheduler,
     identities: Identities,
     aclCheck: AclCheck,
     projectionDirectives: ProjectionsDirectives
@@ -32,42 +35,59 @@ class BlazegraphViewsIndexingRoutes(
       onSuccess(fetch(idSegment, project).unsafeToFuture())
     }
 
-  def routes: Route =
+  def routes: Route = {
     handleExceptions(BlazegraphExceptionHandler.apply) {
-      pathPrefix("views") {
-        extractCaller { implicit caller =>
-          fetchActiveView { view =>
-            val project        = view.ref.project
-            val authorizeRead  = authorizeFor(project, Read)
-            val authorizeWrite = authorizeFor(project, Write)
-            concat(
-              // Fetch a blazegraph view statistics
-              (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-                projectionDirectives.statistics(project, view.selectFilter, view.projection)
-              },
-              // Fetch blazegraph view indexing failures
-              (pathPrefix("failures") & get & authorizeWrite) {
-                projectionDirectives.indexingErrors(view.ref)
-              },
-              // Manage a blazegraph view offset
-              (pathPrefix("offset") & pathEndOrSingleSlash) {
-                concat(
-                  // Fetch a blazegraph view offset
-                  (get & authorizeRead) {
-                    projectionDirectives.offset(view.projection)
-                  },
-                  // Remove a blazegraph view offset (restart the view)
-                  (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(view.projection, fromOffset)
-                  }
-                )
-              },
-              // Getting indexing status for a resource in the given view
-              (pathPrefix("status") & authorizeRead) {
-                projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
-              }
-            )
-          }
+      concat(views, jobs)
+    }
+  }
+
+  private def views =
+    pathPrefix("views") {
+      extractCaller { implicit caller =>
+        fetchActiveView { view =>
+          val project        = view.ref.project
+          val authorizeRead  = authorizeFor(project, Read)
+          val authorizeWrite = authorizeFor(project, Write)
+          concat(
+            // Fetch a blazegraph view statistics
+            (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+              projectionDirectives.statistics(project, view.selectFilter, view.projection)
+            },
+            // Fetch blazegraph view indexing failures
+            (pathPrefix("failures") & get & authorizeWrite) {
+              projectionDirectives.indexingErrors(view.ref)
+            },
+            // Manage a blazegraph view offset
+            (pathPrefix("offset") & pathEndOrSingleSlash) {
+              concat(
+                // Fetch a blazegraph view offset
+                (get & authorizeRead) {
+                  projectionDirectives.offset(view.projection)
+                },
+                // Remove a blazegraph view offset (restart the view)
+                (delete & authorizeWrite & offset("from")) { fromOffset =>
+                  projectionDirectives.scheduleRestart(view.projection, fromOffset)
+                }
+              )
+            },
+            // Getting indexing status for a resource in the given view
+            (pathPrefix("status") & authorizeRead) {
+              projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
+            }
+          )
+        }
+      }
+    }
+
+  private def jobs =
+    (pathPrefix("jobs") & pathPrefix("sparql") & pathPrefix("reindex")) {
+      extractCaller { implicit caller =>
+        val authorizeRootWrite = authorizeFor(Root, Write)
+        (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
+          emit(
+            StatusCodes.Accepted,
+            sparqlRestartScheduler.run(offset).start.void
+          )
         }
       }
     }
@@ -81,6 +101,7 @@ object BlazegraphViewsIndexingRoutes {
     */
   def apply(
       fetch: FetchIndexingView,
+      sparqlRestartScheduler: SparqlRestartScheduler,
       identities: Identities,
       aclCheck: AclCheck,
       projectionDirectives: ProjectionsDirectives
@@ -90,6 +111,7 @@ object BlazegraphViewsIndexingRoutes {
   ): Route = {
     new BlazegraphViewsIndexingRoutes(
       fetch,
+      sparqlRestartScheduler,
       identities,
       aclCheck,
       projectionDirectives

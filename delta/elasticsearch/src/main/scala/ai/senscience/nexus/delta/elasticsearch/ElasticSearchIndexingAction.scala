@@ -1,8 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.ElasticSearchIndexingAction.logger
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
-import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
-import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchSink, IndexingViewDef}
+import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchSink, IndexingViewDef}
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
@@ -12,23 +14,16 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
+import cats.syntax.all.*
 import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration
 
 /**
   * To synchronously index a resource in the different Elasticsearch views of a project
-  * @param fetchCurrentViews
-  *   get the views of the projects in a finite stream
-  * @param compilePipeChain
-  *   to compile the views
-  * @param sink
-  *   the Elasticsearch sink
-  * @param timeout
-  *   a maximum duration for the indexing
   */
 final class ElasticSearchIndexingAction(
-    fetchCurrentViews: ProjectRef => SuccessElemStream[IndexingViewDef],
+    currentViews: CurrentActiveViews,
     compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
@@ -39,28 +34,26 @@ final class ElasticSearchIndexingAction(
     "elasticsearch-custom-indexing"
   )
 
-  private def compile(view: IndexingViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] = view match {
-    // Synchronous indexing only applies to views that index the latest version
-    case active: ActiveViewDef if active.selectFilter.tag == Tag.latest =>
+  private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
+    Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
+      // Synchronous indexing only applies to views that index the latest version
       IndexingViewDef
-        .compile(
-          active,
-          compilePipeChain,
-          Stream(elem),
-          sink(active)
+        .compile(v, compilePipeChain, Stream(elem), sink(v))
+        .redeemWith(
+          err => logger.error(err)(s"View '$view' could not be compiled.").as(None),
+          IO.some
         )
-        .map(Some(_))
-    case _: ActiveViewDef                                               => IO.none
-    case _: DeprecatedViewDef                                           => IO.none
-  }
+    }
 
-  def projections(project: ProjectRef, elem: Elem[GraphResource]): ElemStream[CompiledProjection] =
-    fetchCurrentViews(project).evalMap { _.evalMapFilter(compile(_, elem)) }
+  def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
+    currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
 }
 object ElasticSearchIndexingAction {
 
+  private val logger = Logger[ElasticSearchIndexingAction]
+
   def apply(
-      views: ElasticSearchViews,
+      currentViews: CurrentActiveViews,
       registry: ReferenceRegistry,
       client: ElasticSearchClient,
       timeout: FiniteDuration,
@@ -68,7 +61,7 @@ object ElasticSearchIndexingAction {
   )(implicit cr: RemoteContextResolution): ElasticSearchIndexingAction = {
     val batchConfig = BatchConfig.individual
     new ElasticSearchIndexingAction(
-      views.currentIndexingViews,
+      currentViews,
       PipeChain.compile(_, registry),
       (v: ActiveViewDef) => ElasticSearchSink.states(client, batchConfig, v.index, syncIndexingRefresh),
       timeout

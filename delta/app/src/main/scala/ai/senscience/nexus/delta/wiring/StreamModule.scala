@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections, ProjectionsRestartScheduler}
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
@@ -53,11 +53,12 @@ object StreamModule extends ModuleDef {
   }
 
   make[Supervisor].fromResource {
-    (
-        projections: Projections,
-        projectionErrors: ProjectionErrors,
-        cfg: ProjectionConfig
-    ) => Supervisor(projections, projectionErrors, cfg)
+    (projections: Projections, projectionErrors: ProjectionErrors, cfg: ProjectionConfig) =>
+      Supervisor(projections, projectionErrors, cfg)
+  }
+
+  make[ProjectionsRestartScheduler].from { projections =>
+    ProjectionsRestartScheduler(projections)
   }
 
   make[ProjectLastUpdateStore].from { (xas: Transactors) => ProjectLastUpdateStore(xas) }

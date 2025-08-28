@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.CurrentActiveViews
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import fs2.Stream
 
 class BlazegraphViewByNamespaceSuite extends NexusSuite {
 
@@ -31,12 +31,10 @@ class BlazegraphViewByNamespaceSuite extends NexusSuite {
     val view1 = activeView("view1")
     val view2 = activeView("view2")
 
-    val id3            = nxv + "view3"
-    val deprecatedView = DeprecatedViewDef(ViewRef(project, id3))
+    val currentViews = CurrentActiveViews(view1, view2)
 
-    val stream   = Stream(view1, view2, deprecatedView)
     val expected = Map(view1.namespace -> view1.ref, view2.namespace -> view2.ref)
-    BlazegraphViewByNamespace(stream).get.assertEquals(expected)
+    BlazegraphViewByNamespace(currentViews).get.assertEquals(expected)
   }
 
 }

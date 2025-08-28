@@ -1,12 +1,11 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingActionSuite.{emptyAcc, IdAcc}
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
-import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.CurrentActiveViews
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.IndexingActionContext
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.PullRequest
@@ -17,12 +16,12 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
-import ai.senscience.nexus.delta.sourcing.stream.{NoopSink, PipeChain, PipeRef, SuccessElemStream}
+import ai.senscience.nexus.delta.sourcing.stream.{Elem, NoopSink, PipeChain, PipeRef}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
-import fs2.Stream
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -70,53 +69,10 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
     currentRev
   )
 
-  private val id4   = nxv + "view4"
-  private val view4 = DeprecatedViewDef(
-    ViewRef(project, id4)
-  )
-
-  private def viewStream: SuccessElemStream[IndexingViewDef] =
-    Stream(
-      SuccessElem(
-        tpe = BlazegraphViews.entityType,
-        id = view1.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(1L),
-        value = view1,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = BlazegraphViews.entityType,
-        id = view2.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(2L),
-        value = view2,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = BlazegraphViews.entityType,
-        id = view3.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(3L),
-        value = view3,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = BlazegraphViews.entityType,
-        id = view4.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(4L),
-        value = view4,
-        rev = 1
-      )
-    )
+  private val currentViews = CurrentActiveViews(view1, view2, view3)
 
   private val indexingAction = new SparqlIndexingAction(
-    _ => viewStream,
+    currentViews,
     (_: PipeChain) => Left(CouldNotFindPipeErr(unknownPipe)),
     (a: ActiveViewDef) =>
       a.ref.viewId match {
@@ -148,23 +104,22 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
     rev = 1
   )
 
-  test("Collect only the adequate views") {
-    val expected = IdAcc(Set(id1), Set(id2, id4), Set(id3))
+  private def index(elem: Elem[GraphResource]) =
+    for {
+      context <- IndexingActionContext()
+      _       <- indexingAction(project, elem, context)
+      errors  <- context.get
+    } yield errors
 
+  test("Collect only the adequate views") {
     indexingAction
       .projections(project, elem)
-      .fold(emptyAcc) {
-        case (acc, s: SuccessElem[?]) => acc.success(s.id)
-        case (acc, d: DroppedElem)    => acc.drop(d.id)
-        case (acc, f: FailedElem)     => acc.failed(f.id)
-      }
-      .compile
-      .lastOrError
-      .assertEquals(expected)
+      .map(_.metadata.resourceId)
+      .assert(Some(id1))
   }
 
   test("A valid elem should be indexed") {
-    indexingAction.apply(project, elem).assertEquals(List.empty)
+    index(elem).assertEquals(List.empty)
   }
 
   test("A failed elem should be returned") {
@@ -178,19 +133,7 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
       rev = 1
     )
 
-    indexingAction.apply(project, failed).assertEquals(List(failed))
+    index(failed).assertEquals(List(failed.throwable))
   }
-
-}
-
-object SparqlIndexingActionSuite {
-
-  final private case class IdAcc(successes: Set[Iri], dropped: Set[Iri], failures: Set[Iri]) {
-    def success(id: Iri): IdAcc = this.copy(successes = successes + id)
-    def drop(id: Iri): IdAcc    = this.copy(dropped = dropped + id)
-    def failed(id: Iri): IdAcc  = this.copy(failures = failures + id)
-  }
-
-  private val emptyAcc = IdAcc(Set.empty, Set.empty, Set.empty)
 
 }

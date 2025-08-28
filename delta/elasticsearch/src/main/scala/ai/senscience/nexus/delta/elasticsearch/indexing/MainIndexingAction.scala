@@ -6,17 +6,14 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
-import ai.senscience.nexus.delta.sourcing.offset.Offset.Start
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
-import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import fs2.Stream
 
-import java.time.Instant
 import scala.concurrent.duration.FiniteDuration
 
 final class MainIndexingAction(sink: Sink, override val timeout: FiniteDuration)(implicit
@@ -36,15 +33,8 @@ final class MainIndexingAction(sink: Sink, override val timeout: FiniteDuration)
       sink
     )
 
-  override def projections(project: ProjectRef, elem: Elem[GraphResource]): ElemStream[CompiledProjection] = {
-    // TODO: get rid of elem here
-    val entityType = EntityType("main-indexing")
-    Stream.fromEither[IO](
-      compile(project, elem).map { projection =>
-        SuccessElem(entityType, mainIndexingId, project, Instant.EPOCH, Start, projection, 1)
-      }
-    )
-  }
+  override def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
+    Stream.fromEither[IO](compile(project, elem))
 }
 
 object MainIndexingAction {

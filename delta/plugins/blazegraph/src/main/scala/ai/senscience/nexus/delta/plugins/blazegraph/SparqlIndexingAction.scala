@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategyConfig}
+import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingAction.logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{IndexingViewDef, SparqlSink}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, IndexingViewDef, SparqlSink}
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
@@ -13,23 +14,16 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
+import cats.syntax.all.*
 import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration
 
 /**
   * To synchronously index a resource in the different SPARQL views of a project
-  * @param fetchCurrentViews
-  *   get the views of the projects in a finite stream
-  * @param compilePipeChain
-  *   to compile the views
-  * @param sink
-  *   the SPARQL sink
-  * @param timeout
-  *   a maximum duration for the indexing
   */
 final class SparqlIndexingAction(
-    fetchCurrentViews: ProjectRef => SuccessElemStream[IndexingViewDef],
+    currentViews: CurrentActiveViews,
     compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
@@ -37,29 +31,27 @@ final class SparqlIndexingAction(
 
   override protected def kamonMetricComponent: KamonMetricComponent = KamonMetricComponent("blazegraph-indexing")
 
-  private def compile(view: IndexingViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] = view match {
-    // Synchronous indexing only applies to views that index the latest version
-    case active: ActiveViewDef if active.selectFilter.tag == Tag.Latest =>
+  private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
+    Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
+      // Synchronous indexing only applies to views that index the latest version
       IndexingViewDef
-        .compile(
-          active,
-          compilePipeChain,
-          Stream(elem),
-          sink(active)
+        .compile(v, compilePipeChain, Stream(elem), sink(v))
+        .redeemWith(
+          err => logger.error(err)(s"View '$view' could not be compiled.").as(None),
+          IO.some
         )
-        .map(Some(_))
-    case _: ActiveViewDef                                               => IO.none
-    case _: DeprecatedViewDef                                           => IO.none
-  }
+    }
 
-  override def projections(project: ProjectRef, elem: Elem[GraphResource]): ElemStream[CompiledProjection] =
-    fetchCurrentViews(project).evalMap { _.evalMapFilter(compile(_, elem)) }
+  override def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
+    currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
 }
 
 object SparqlIndexingAction {
 
+  private val logger = Logger[SparqlIndexingAction]
+
   def apply(
-      views: BlazegraphViews,
+      currentViews: CurrentActiveViews,
       registry: ReferenceRegistry,
       client: SparqlClient,
       timeout: FiniteDuration
@@ -67,7 +59,7 @@ object SparqlIndexingAction {
     val batchConfig   = BatchConfig.individual
     val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
     new SparqlIndexingAction(
-      views.currentIndexingViews,
+      currentViews,
       PipeChain.compile(_, registry),
       (v: ActiveViewDef) => SparqlSink(client, retryStrategy, batchConfig, v.namespace),
       timeout
