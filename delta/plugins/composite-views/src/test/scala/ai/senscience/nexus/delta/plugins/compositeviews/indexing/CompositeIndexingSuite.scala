@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.Queries.{batchQuery, singleQuery}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, ProjectSource, RemoteProjectSource}
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{permissions, CompositeView, CompositeViewSource}
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSource, permissions}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run.{Main, Rebuild}
@@ -43,7 +43,7 @@ import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.pipes.{DiscardMetadata, FilterByType, FilterDeprecated}
+import ai.senscience.nexus.delta.sourcing.stream.pipes.defaultPipes
 import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import ai.senscience.nexus.testkit.mu.{JsonAssertions, NexusSuite, TextAssertions}
@@ -239,14 +239,6 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     }
   }
 
-  private val registry: ReferenceRegistry = {
-    val r = new ReferenceRegistry
-    r.register(FilterDeprecated)
-    r.register(FilterByType)
-    r.register(DiscardMetadata)
-    r
-  }
-
   private val realm = Label.unsafe("myrealm")
   private val bob   = User("Bob", realm)
 
@@ -378,7 +370,7 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
 
   private def start(view: ActiveViewDef) = {
     for {
-      compiled <- CompositeViewDef.compile(view, sinks, PipeChainCompiler(registry), compositeStream, projections)
+      compiled <- CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections)
       _        <- spaces.init(view)
       _        <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit)(batchConfig)
     } yield compiled

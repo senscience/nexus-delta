@@ -81,7 +81,7 @@ object ProjectionErr {
   }
 
   /**
-    * A pipe definition can be looked up in the [[ReferenceRegistry]] using a reference. This error signals a failed
+    * A pipe definition can be looked up in the [[PipeChainCompiler]] using a reference. This error signals a failed
     * lookup attempt.
     *
     * @param ref
@@ -92,7 +92,7 @@ object ProjectionErr {
   }
 
   /**
-    * A pipe definition can be looked up in the [[ReferenceRegistry]] using a reference. This error signals a failed
+    * A pipe definition can be looked up in the [[PipeChainCompiler]] using a reference. This error signals a failed
     * lookup attempt for a pipe with a specific type.
     *
     * @param ref
