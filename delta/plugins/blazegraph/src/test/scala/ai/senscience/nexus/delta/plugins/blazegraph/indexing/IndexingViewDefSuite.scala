@@ -117,12 +117,7 @@ class IndexingViewDefSuite extends NexusSuite {
     val expectedError = CouldNotFindTypedPipeErr(PipeRef.unsafe("xxx"), "xxx")
 
     IndexingViewDef
-      .compile(
-        v,
-        _ => Left(expectedError),
-        GraphResourceStream.empty,
-        sink
-      )
+      .compile(v, PipeChainCompiler.alwaysFail, GraphResourceStream.empty, sink)
       .interceptEquals(expectedError)
 
     assert(

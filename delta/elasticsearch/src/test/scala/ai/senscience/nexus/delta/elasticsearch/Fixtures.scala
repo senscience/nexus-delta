@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.sourcing.stream.ReferenceRegistry
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ReferenceRegistry}
 import ai.senscience.nexus.delta.sourcing.stream.pipes.*
 import cats.syntax.all.*
 
@@ -69,4 +69,6 @@ trait Fixtures {
     r.register(SelectPredicates)
     r
   }
+
+  val pipeChainCompiler = PipeChainCompiler(registry)
 }

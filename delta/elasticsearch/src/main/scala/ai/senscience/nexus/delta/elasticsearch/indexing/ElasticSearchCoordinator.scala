@@ -33,7 +33,7 @@ object ElasticSearchCoordinator {
     *   stream of indexing views
     * @param graphStream
     *   to provide the data feeding the Elasticsearch projections
-    * @param compilePipeChain
+    * @param pipeChainCompiler
     *   to compile and validate pipechains before running them
     * @param cache
     *   a cache of the current running views
@@ -43,7 +43,7 @@ object ElasticSearchCoordinator {
   final private class Active(
       fetchViews: Offset => SuccessElemStream[IndexingViewDef],
       graphStream: GraphResourceStream,
-      compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+      pipeChainCompiler: PipeChainCompiler,
       cache: LocalCache[ViewRef, ActiveViewDef],
       supervisor: Supervisor,
       sink: ActiveViewDef => Sink,
@@ -118,7 +118,7 @@ object ElasticSearchCoordinator {
       }
 
     private def compile(active: ActiveViewDef): IO[CompiledProjection] =
-      IndexingViewDef.compile(active, compilePipeChain, graphStream, sink(active))
+      IndexingViewDef.compile(active, pipeChainCompiler, graphStream, sink(active))
 
   }
 
@@ -128,7 +128,7 @@ object ElasticSearchCoordinator {
   def apply(
       views: ElasticSearchViews,
       graphStream: GraphResourceStream,
-      registry: ReferenceRegistry,
+      pipeChainCompiler: PipeChainCompiler,
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: ElasticSearchViewsConfig
@@ -137,7 +137,7 @@ object ElasticSearchCoordinator {
       apply(
         views.indexingViews,
         graphStream,
-        PipeChain.compile(_, registry),
+        pipeChainCompiler,
         supervisor,
         (v: ActiveViewDef) => ElasticSearchSink.states(client, config.batch, v.index, Refresh.False),
         (v: ActiveViewDef) =>
@@ -157,7 +157,7 @@ object ElasticSearchCoordinator {
   def apply(
       fetchViews: Offset => SuccessElemStream[IndexingViewDef],
       graphStream: GraphResourceStream,
-      compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+      pipeChainCompiler: PipeChainCompiler,
       supervisor: Supervisor,
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
@@ -168,7 +168,7 @@ object ElasticSearchCoordinator {
       coordinator = new Active(
                       fetchViews,
                       graphStream,
-                      compilePipeChain,
+                      pipeChainCompiler,
                       cache,
                       supervisor,
                       sink,

@@ -18,8 +18,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
-import ai.senscience.nexus.delta.sourcing.stream.{Elem, NoopSink, PipeChain, PipeRef}
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
@@ -66,9 +65,8 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with CirceLiteral with
     rev
   )
 
-  private val id3         = nxv + "view3"
-  private val unknownPipe = PipeRef.unsafe("xxx")
-  private val view3       = ActiveViewDef(
+  private val id3   = nxv + "view3"
+  private val view3 = ActiveViewDef(
     ViewRef(project, id3),
     projection = id3.toString,
     Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
@@ -85,7 +83,7 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with CirceLiteral with
 
   private val indexingAction = new ElasticSearchIndexingAction(
     currentViews,
-    (_: PipeChain) => Left(CouldNotFindPipeErr(unknownPipe)),
+    PipeChainCompiler.alwaysFail,
     (a: ActiveViewDef) =>
       a.ref.viewId match {
         case `id1` => new NoopSink[Json]

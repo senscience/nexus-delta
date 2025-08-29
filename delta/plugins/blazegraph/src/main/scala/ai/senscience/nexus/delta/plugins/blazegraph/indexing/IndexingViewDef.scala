@@ -76,28 +76,28 @@ object IndexingViewDef {
 
   def compile(
       v: ActiveViewDef,
-      compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+      pipeChainCompiler: PipeChainCompiler,
       elems: ElemStream[GraphResource],
       sink: Sink
   ): IO[CompiledProjection] =
-    compile(v, compilePipeChain, _ => elems, sink)
+    compile(v, pipeChainCompiler, _ => elems, sink)
 
   def compile(
       v: ActiveViewDef,
-      compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+      pipeChainCompiler: PipeChainCompiler,
       graphStream: GraphResourceStream,
       sink: Sink
   ): IO[CompiledProjection] =
     compile(
       v,
-      compilePipeChain,
+      pipeChainCompiler,
       graphStream.continuous(v.ref.project, v.selectFilter, _),
       sink
     )
 
   private def compile(
       v: ActiveViewDef,
-      compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+      pipeChainCompiler: PipeChainCompiler,
       stream: Offset => ElemStream[GraphResource],
       sink: Sink
   ): IO[CompiledProjection] = {
@@ -105,7 +105,7 @@ object IndexingViewDef {
     val postPipes: Operation = GraphResourceToNTriples
 
     val compiled = for {
-      pipes      <- v.pipeChain.traverse(compilePipeChain)
+      pipes      <- v.pipeChain.traverse(pipeChainCompiler(_))
       chain       = pipes.fold(NonEmptyChain.one(postPipes))(NonEmptyChain(_, postPipes))
       projection <- CompiledProjection.compile(
                       v.projectionMetadata,

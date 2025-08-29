@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -175,7 +174,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
       _ <- ElasticSearchCoordinator(
              (_: Offset) => viewStream,
              GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project)),
-             (_: PipeChain) => Left(CouldNotFindPipeErr(unknownPipe)),
+             PipeChainCompiler.alwaysFail,
              sv,
              (_: ActiveViewDef) => new NoopSink[Json],
              (v: ActiveViewDef) => IO.delay(createdIndices.add(v.index)).void,

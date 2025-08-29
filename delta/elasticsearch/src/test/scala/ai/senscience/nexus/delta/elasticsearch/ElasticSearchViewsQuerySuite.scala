@@ -181,15 +181,7 @@ class ElasticSearchViewsQuerySuite
   private lazy val views = ElasticSearchViews(
     fetchContext,
     ResolverContextResolution(rcr),
-    ValidateElasticSearchView(
-      _ => Right(()),
-      IO.pure(Set(queryPermission)),
-      client.createIndex(_, _, _).void,
-      prefix,
-      10,
-      xas,
-      defaultIndexDef
-    ),
+    ValidateElasticSearchView.alwaysValidate,
     eventLogConfig,
     prefix,
     xas,
@@ -252,6 +244,7 @@ class ElasticSearchViewsQuerySuite
     val populateIndexingViews: IO[Unit] = allIndexingViews.traverse { ref =>
       for {
         view <- views.fetchIndexingView(ref.viewId, ref.project)
+        _    <- client.createIndex(view.index, Some(defaultIndexDef.mapping), Some(defaultIndexDef.settings))
         bulk <- allResources.traverse { r =>
                   r.asDocument(ref).map { d =>
                     // We create a unique id across all indices

@@ -34,7 +34,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 
@@ -183,7 +183,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   make[CompositeProjectionLifeCycle].from {
     (
         hooks: Set[CompositeProjectionLifeCycle.Hook],
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         graphStream: CompositeGraphStream,
         spaces: CompositeSpaces,
         sinks: CompositeSinks,
@@ -191,7 +191,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
     ) =>
       CompositeProjectionLifeCycle(
         hooks,
-        PipeChain.compile(_, registry),
+        pipeChainCompiler,
         graphStream,
         spaces,
         sinks,

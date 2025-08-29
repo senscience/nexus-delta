@@ -35,7 +35,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ReferenceRegistry, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 
@@ -64,7 +64,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   make[ValidateElasticSearchView].from {
     (
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         permissions: Permissions,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
@@ -72,7 +72,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         xas: Transactors
     ) =>
       ValidateElasticSearchView(
-        PipeChain.validate(_, registry),
+        pipeChainCompiler,
         permissions,
         client: ElasticSearchClient,
         config.prefix,
@@ -118,7 +118,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     (
         views: ElasticSearchViews,
         graphStream: GraphResourceStream,
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         supervisor: Supervisor,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
@@ -127,7 +127,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       ElasticSearchCoordinator(
         views,
         graphStream,
-        registry,
+        pipeChainCompiler,
         supervisor,
         client,
         config
@@ -417,14 +417,14 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   many[IndexingAction].add {
     (
         currentViews: CurrentActiveViews,
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate")
     ) =>
       ElasticSearchIndexingAction(
         currentViews,
-        registry,
+        pipeChainCompiler,
         client,
         config.syncIndexingTimeout,
         config.syncIndexingRefresh

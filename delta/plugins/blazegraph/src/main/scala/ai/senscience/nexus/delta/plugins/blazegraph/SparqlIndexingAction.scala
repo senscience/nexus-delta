@@ -24,7 +24,7 @@ import scala.concurrent.duration.FiniteDuration
   */
 final class SparqlIndexingAction(
     currentViews: CurrentActiveViews,
-    compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+    pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
 ) extends IndexingAction {
@@ -35,7 +35,7 @@ final class SparqlIndexingAction(
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
       // Synchronous indexing only applies to views that index the latest version
       IndexingViewDef
-        .compile(v, compilePipeChain, Stream(elem), sink(v))
+        .compile(v, pipeChainCompiler, Stream(elem), sink(v))
         .redeemWith(
           err => logger.error(err)(s"View '$view' could not be compiled.").as(None),
           IO.some
@@ -52,7 +52,7 @@ object SparqlIndexingAction {
 
   def apply(
       currentViews: CurrentActiveViews,
-      registry: ReferenceRegistry,
+      pipeChainCompiler: PipeChainCompiler,
       client: SparqlClient,
       timeout: FiniteDuration
   )(implicit baseUri: BaseUri): SparqlIndexingAction = {
@@ -60,7 +60,7 @@ object SparqlIndexingAction {
     val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
     new SparqlIndexingAction(
       currentViews,
-      PipeChain.compile(_, registry),
+      pipeChainCompiler,
       (v: ActiveViewDef) => SparqlSink(client, retryStrategy, batchConfig, v.namespace),
       timeout
     )

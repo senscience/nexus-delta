@@ -24,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef, Tags}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import ai.senscience.nexus.delta.sourcing.stream.pipes.{FilterBySchema, FilterByType, FilterDeprecated}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
@@ -138,7 +137,7 @@ class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture 
       fetchContext,
       ResolverContextResolution(rcr),
       ValidateElasticSearchView(
-        PipeChain.validate(_, registry),
+        pipeChainCompiler,
         IO.pure(Set(queryPermissions)),
         (_, _, _) => IO.unit,
         "prefix",

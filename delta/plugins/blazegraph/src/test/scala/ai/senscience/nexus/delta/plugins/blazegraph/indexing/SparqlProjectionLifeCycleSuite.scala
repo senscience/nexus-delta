@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.{PullRequestStream, ReferenceRegistry}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, PullRequestStream}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
@@ -39,7 +39,7 @@ class SparqlProjectionLifeCycleSuite extends NexusSuite with SparqlClientSetup.F
   private lazy val projectionLifeCycle =
     SparqlProjectionLifeCycle(
       GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project)),
-      new ReferenceRegistry(),
+      PipeChainCompiler.alwaysFail,
       client,
       RetryStrategyConfig.AlwaysGiveUp,
       BatchConfig.individual

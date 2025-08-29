@@ -44,6 +44,10 @@ object StreamModule extends ModuleDef {
     registry
   }
 
+  make[PipeChainCompiler].from { (referenceRegistry: ReferenceRegistry) =>
+    PipeChainCompiler(referenceRegistry)
+  }
+
   make[Projections].from { (xas: Transactors, shifts: ResourceShifts, cfg: ProjectionConfig, clock: Clock[IO]) =>
     Projections(xas, shifts.entityTypes, cfg.query, clock)
   }
