@@ -20,27 +20,8 @@ final case class PipeChain(
 
 object PipeChain {
 
-  type Compile = PipeChain => Either[ProjectionErr, Operation]
-
   def apply(first: (PipeRef, ExpandedJsonLd), others: (PipeRef, ExpandedJsonLd)*): PipeChain =
     new PipeChain(NonEmptyChain(first, others*))
-
-  /**
-    * Attempts to compile the chain into a single [[Operation]]. Reasons for failing are inability to lookup references
-    * in the registry, mismatching configuration or mismatching In and Out types.
-    * @param registry
-    *   the registry to use for looking up source and pipe references
-    */
-  def compile(pipeChain: PipeChain, registry: ReferenceRegistry): Either[ProjectionErr, Operation] =
-    for {
-      configured <- pipeChain.pipes.traverse { case (ref, cfg) =>
-                      registry.lookup(ref).flatMap(_.withJsonLdConfig(cfg))
-                    }
-      chained    <- Operation.merge(configured)
-    } yield chained
-
-  def validate(pipeChain: PipeChain, registry: ReferenceRegistry): Either[ProjectionErr, Unit] =
-    compile(pipeChain, registry).void
 
   /**
     * Create a [[PipeChain]] from the given constraints

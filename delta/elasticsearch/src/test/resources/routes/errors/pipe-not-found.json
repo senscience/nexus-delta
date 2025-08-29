@@ -1,6 +1,0 @@
-{
-  "@context": "https://bluebrain.github.io/nexus/contexts/error.json",
-  "@type": "InvalidPipeline",
-  "reason": "The provided pipeline is invalid.",
-  "details": "Unable to find pipe reference 'xxx'"
-}

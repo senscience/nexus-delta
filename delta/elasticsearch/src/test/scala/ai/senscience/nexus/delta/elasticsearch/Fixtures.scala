@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.sourcing.stream.ReferenceRegistry
-import ai.senscience.nexus.delta.sourcing.stream.pipes.*
+import ai.senscience.nexus.delta.sourcing.stream.PipeChainCompiler
+import ai.senscience.nexus.delta.sourcing.stream.pipes.defaultPipes
 import cats.syntax.all.*
 
 object Fixtures {
@@ -57,16 +57,5 @@ trait Fixtures {
     Vocabulary.contexts.search     -> ContextValue.fromFile("contexts/search.json")
   )
 
-  val registry: ReferenceRegistry = {
-    val r = new ReferenceRegistry
-    r.register(SourceAsText)
-    r.register(FilterDeprecated)
-    r.register(DefaultLabelPredicates)
-    r.register(DiscardMetadata)
-    r.register(FilterBySchema)
-    r.register(FilterByType)
-    r.register(DataConstructQuery)
-    r.register(SelectPredicates)
-    r
-  }
+  val pipeChainCompiler = PipeChainCompiler(defaultPipes)
 }

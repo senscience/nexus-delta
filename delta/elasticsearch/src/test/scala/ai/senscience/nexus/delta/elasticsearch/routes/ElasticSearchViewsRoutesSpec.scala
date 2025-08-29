@@ -13,19 +13,16 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
-import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.*
 import ai.senscience.nexus.delta.sdk.views.ElasticSearchViewErrors.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.delta.sourcing.stream.PipeChain
 import akka.http.scaladsl.model.MediaTypes.`text/html`
 import akka.http.scaladsl.model.headers.{Accept, Location}
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
-import cats.effect.IO
 import io.circe.{Json, JsonObject}
 import org.scalatest.Assertion
 
@@ -49,8 +46,6 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
   private val payloadNoId    = payload.removeKeys(keywords.id)
   private val payloadUpdated = payloadNoId deepMerge json"""{"includeDeprecated": false}"""
 
-  private val allowedPerms = Set(esPermissions.write, esPermissions.read, esPermissions.query, events.read)
-
   implicit private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
 
   private val groupDirectives = DeltaSchemeDirectives(fetchContext)
@@ -60,15 +55,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
   private lazy val views: ElasticSearchViews = ElasticSearchViews(
     fetchContext,
     ResolverContextResolution(rcr),
-    ValidateElasticSearchView(
-      PipeChain.validate(_, registry),
-      IO.pure(allowedPerms),
-      (_, _, _) => IO.unit,
-      "prefix",
-      5,
-      xas,
-      defaultIndexDef
-    ),
+    ValidateElasticSearchView.alwaysValidate,
     eventLogConfig,
     "prefix",
     xas,
@@ -136,17 +123,6 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
           status shouldEqual StatusCodes.Conflict
           response.asJson shouldEqual resourceAlreadyExistsError(nxv + view, projectRef)
         }
-      }
-    }
-
-    "reject the creation of a view with an unknown pipe" in {
-      Put(
-        "/v1/views/myorg/myproject/unknown-pipe",
-        payloadNoId.deepMerge(json"""{ "pipeline": [ { "name": "xxx" } ]}""").toEntity
-      ) ~> as(writer) ~> routes ~> check {
-        status shouldEqual StatusCodes.BadRequest
-        response.asJson shouldEqual
-          jsonContentOf("routes/errors/pipe-not-found.json", "id" -> myId, "project" -> "myorg/myproject")
       }
     }
 

@@ -33,7 +33,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
-import ai.senscience.nexus.delta.sourcing.stream.{ReferenceRegistry, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 
@@ -108,11 +108,11 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   make[SparqlProjectionLifeCycle].from {
     (
         graphStream: GraphResourceStream,
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri
-    ) => SparqlProjectionLifeCycle(graphStream, registry, client, config.retryStrategy, config.batch)(baseUri)
+    ) => SparqlProjectionLifeCycle(graphStream, pipeChainCompiler, client, config.retryStrategy, config.batch)(baseUri)
   }
 
   make[SparqlCoordinator].fromEffect {
@@ -279,11 +279,11 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   many[IndexingAction].add {
     (
         currentActiveViews: CurrentActiveViews,
-        registry: ReferenceRegistry,
+        pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri
     ) =>
-      SparqlIndexingAction(currentActiveViews, registry, client, config.syncIndexingTimeout)(baseUri)
+      SparqlIndexingAction(currentActiveViews, pipeChainCompiler, client, config.syncIndexingTimeout)(baseUri)
   }
 }

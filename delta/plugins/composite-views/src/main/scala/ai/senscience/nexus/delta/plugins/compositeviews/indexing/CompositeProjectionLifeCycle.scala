@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeGraphStream
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.TransientSingleNode
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChain}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler}
 import cats.effect.IO
 
 /**
@@ -52,7 +52,7 @@ object CompositeProjectionLifeCycle {
     */
   def apply(
       hooks: Set[Hook],
-      compilePipeChain: PipeChain.Compile,
+      pipeChainCompiler: PipeChainCompiler,
       graphStream: CompositeGraphStream,
       spaces: CompositeSpaces,
       sink: CompositeSinks,
@@ -61,7 +61,7 @@ object CompositeProjectionLifeCycle {
     def init(view: ActiveViewDef): IO[Unit] = spaces.init(view)
 
     def index(view: ActiveViewDef): IO[CompiledProjection] =
-      CompositeViewDef.compile(view, sink, compilePipeChain, graphStream, compositeProjections)
+      CompositeViewDef.compile(view, sink, pipeChainCompiler, graphStream, compositeProjections)
 
     def destroyAll(view: ActiveViewDef): IO[Unit] =
       for {

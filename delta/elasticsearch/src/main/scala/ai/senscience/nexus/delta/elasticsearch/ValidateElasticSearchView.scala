@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ValidateAggregate}
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChain, ProjectionErr}
+import ai.senscience.nexus.delta.sourcing.stream.PipeChainCompiler
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.JsonObject
@@ -30,7 +30,7 @@ object ValidateElasticSearchView {
   val always: ValidateElasticSearchView = (_: UUID, _: IndexingRev, _: ElasticSearchViewValue) => IO.unit
 
   def apply(
-      validatePipeChain: PipeChain => Either[ProjectionErr, Unit],
+      pipeChainCompiler: PipeChainCompiler,
       permissions: Permissions,
       client: ElasticSearchClient,
       prefix: String,
@@ -39,7 +39,7 @@ object ValidateElasticSearchView {
       defaultViewDef: DefaultIndexDef
   ): ValidateElasticSearchView =
     apply(
-      validatePipeChain,
+      pipeChainCompiler,
       permissions.fetchPermissionSet,
       client.createIndex(_, _, _).void,
       prefix,
@@ -49,7 +49,7 @@ object ValidateElasticSearchView {
     )
 
   def apply(
-      validatePipeChain: PipeChain => Either[ProjectionErr, Unit],
+      pipeChainCompiler: PipeChainCompiler,
       fetchPermissionSet: IO[Set[Permission]],
       createIndex: (IndexLabel, Option[JsonObject], Option[JsonObject]) => IO[Unit],
       prefix: String,
@@ -71,7 +71,7 @@ object ValidateElasticSearchView {
         _ <- fetchPermissionSet.flatMap { set =>
                IO.raiseUnless(set.contains(value.permission))(PermissionIsNotDefined(value.permission))
              }
-        _ <- IO.fromEither(value.pipeChain.traverse(validatePipeChain).leftMap(InvalidPipeline))
+        _ <- IO.fromEither(value.pipeChain.traverse(pipeChainCompiler(_)).leftMap(InvalidPipeline))
         _ <- createIndex(
                IndexLabel.fromView(prefix, uuid, indexingRev),
                value.mapping.orElse(Some(defaultViewDef.mapping)),
@@ -91,5 +91,8 @@ object ValidateElasticSearchView {
     }
 
   }
+
+  val alwaysValidate: ValidateElasticSearchView =
+    (_: UUID, _: IndexingRev, _: ElasticSearchViewValue) => IO.unit
 
 }

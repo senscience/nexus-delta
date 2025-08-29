@@ -170,7 +170,7 @@ object CompositeViewDef {
     *   the definition
     * @param sinks
     *   provides the necessary sinks for the view
-    * @param compilePipeChain
+    * @param pipeChainCompiler
     *   compile the pipe chain for sources and projections
     * @param graphStream
     *   fetches the data for the view
@@ -180,7 +180,7 @@ object CompositeViewDef {
   def compile(
       view: ActiveViewDef,
       sinks: CompositeSinks,
-      compilePipeChain: PipeChain.Compile,
+      pipeChainCompiler: PipeChainCompiler,
       graphStream: CompositeGraphStream,
       compositeProjections: CompositeProjections
   ): IO[CompiledProjection] = {
@@ -188,9 +188,9 @@ object CompositeViewDef {
     val fetchProgress: IO[CompositeProgress] = compositeProjections.progress(view.indexingRef)
 
     def compileSource =
-      CompositeViewDef.compileSource(view.ref.project, compilePipeChain, graphStream, sinks.commonSink(view))(_)
+      CompositeViewDef.compileSource(view.ref.project, pipeChainCompiler, graphStream, sinks.commonSink(view))(_)
 
-    def compileTarget = CompositeViewDef.compileTarget(compilePipeChain, sinks.projectionSink(view, _))(_)
+    def compileTarget = CompositeViewDef.compileTarget(pipeChainCompiler, sinks.projectionSink(view, _))(_)
 
     def compileAll(progressRef: Ref[IO, CompositeProgress]) = {
       def rebuild: ElemPipe[Unit, Unit] = CompositeViewDef.rebuild(
@@ -500,7 +500,7 @@ object CompositeViewDef {
     *   the composite view source
     * @param project
     *   the composite view source
-    * @param compilePipeChain
+    * @param pipeChainCompiler
     *   how to compile the pipe chain of the composite view source
     * @param graphStream
     *   generates the element stream for the source in the context of a branch
@@ -509,13 +509,13 @@ object CompositeViewDef {
     */
   def compileSource(
       project: ProjectRef,
-      compilePipeChain: PipeChain.Compile,
+      pipeChainCompiler: PipeChainCompiler,
       graphStream: CompositeGraphStream,
       sink: Sink
   )(source: CompositeViewSource): IO[(Iri, Source, Source, Operation)] =
     IO.fromEither {
       for {
-        pipes        <- source.pipeChain.traverse(compilePipeChain)
+        pipes        <- source.pipeChain.traverse(pipeChainCompiler(_))
         // We apply `Operation.tap` as we want to keep the GraphResource for the rest of the stream
         tail         <- Operation.merge(GraphResourceToNTriples, sink).map(_.tap)
         chain         = pipes.fold(NonEmptyChain.one(tail))(NonEmptyChain(_, tail))
@@ -533,20 +533,20 @@ object CompositeViewDef {
     *
     * @param target
     *   the composite view projection
-    * @param compilePipeChain
+    * @param pipeChainCompiler
     *   how to compile the pipe chain of the composite view projection
     * @param targetSink
     *   how to instantiate the target sink
     */
   def compileTarget(
-      compilePipeChain: PipeChain.Compile,
+      pipeChainCompiler: PipeChainCompiler,
       targetSink: CompositeViewProjection => Sink
   )(target: CompositeViewProjection): IO[(Iri, Operation)] = IO.fromEither {
     val sink = targetSink(target)
     val tail = NonEmptyChain(sink: Operation)
 
     for {
-      pipes  <- target.pipeChain.traverse(compilePipeChain)
+      pipes  <- target.pipeChain.traverse(pipeChainCompiler(_))
       chain   = pipes.fold(tail)(NonEmptyChain.one(_) ++ tail)
       result <- Operation.merge(chain)
     } yield target.id -> result

@@ -24,7 +24,7 @@ import scala.concurrent.duration.FiniteDuration
   */
 final class ElasticSearchIndexingAction(
     currentViews: CurrentActiveViews,
-    compilePipeChain: PipeChain => Either[ProjectionErr, Operation],
+    pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
 )(implicit cr: RemoteContextResolution)
@@ -38,7 +38,7 @@ final class ElasticSearchIndexingAction(
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
       // Synchronous indexing only applies to views that index the latest version
       IndexingViewDef
-        .compile(v, compilePipeChain, Stream(elem), sink(v))
+        .compile(v, pipeChainCompiler, Stream(elem), sink(v))
         .redeemWith(
           err => logger.error(err)(s"View '$view' could not be compiled.").as(None),
           IO.some
@@ -54,7 +54,7 @@ object ElasticSearchIndexingAction {
 
   def apply(
       currentViews: CurrentActiveViews,
-      registry: ReferenceRegistry,
+      pipeChainCompiler: PipeChainCompiler,
       client: ElasticSearchClient,
       timeout: FiniteDuration,
       syncIndexingRefresh: Refresh
@@ -62,7 +62,7 @@ object ElasticSearchIndexingAction {
     val batchConfig = BatchConfig.individual
     new ElasticSearchIndexingAction(
       currentViews,
-      PipeChain.compile(_, registry),
+      pipeChainCompiler,
       (v: ActiveViewDef) => ElasticSearchSink.states(client, batchConfig, v.index, syncIndexingRefresh),
       timeout
     )

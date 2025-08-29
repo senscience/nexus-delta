@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
-import ai.senscience.nexus.delta.sourcing.stream.pipes.*
+import ai.senscience.nexus.delta.sourcing.stream.pipes.defaultPipes
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{DeleteExpired, PurgeElemFailures, Transactors}
 import cats.effect.{Clock, IO, Sync}
@@ -29,19 +29,10 @@ object StreamModule extends ModuleDef {
     GraphResourceStream(elemStreaming, shifts)
   }
 
-  many[PipeDef].add(DiscardMetadata)
-  many[PipeDef].add(FilterDeprecated)
-  many[PipeDef].add(SourceAsText)
-  many[PipeDef].add(FilterByType)
-  many[PipeDef].add(FilterBySchema)
-  many[PipeDef].add(DataConstructQuery)
-  many[PipeDef].add(SelectPredicates)
-  many[PipeDef].add(DefaultLabelPredicates)
+  many[PipeDef].addSet(defaultPipes)
 
-  make[ReferenceRegistry].from { (pipes: Set[PipeDef]) =>
-    val registry = new ReferenceRegistry
-    pipes.foreach(registry.register)
-    registry
+  make[PipeChainCompiler].from { (pipes: Set[PipeDef]) =>
+    PipeChainCompiler(pipes)
   }
 
   make[Projections].from { (xas: Transactors, shifts: ResourceShifts, cfg: ProjectionConfig, clock: Clock[IO]) =>
