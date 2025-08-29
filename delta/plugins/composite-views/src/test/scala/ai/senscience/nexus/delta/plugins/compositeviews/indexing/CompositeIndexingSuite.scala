@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDe
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.Queries.{batchQuery, singleQuery}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, ProjectSource, RemoteProjectSource}
-import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeView, CompositeViewSource, permissions}
+import ai.senscience.nexus.delta.plugins.compositeviews.model.{permissions, CompositeView, CompositeViewSource}
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run.{Main, Rebuild}

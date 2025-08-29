@@ -39,6 +39,8 @@ class FilterBySchemaSuite extends NexusSuite with ElemFixtures {
 
   test("Filter elements if the type intersection is void") {
     val elem = element(Revision(iri"http://localhost/schema1", 2))
-    filterSchema(Set(iri"http://localhost/schema2", iri"http://localhost/schema3")).apply(elem).assertEquals(elem.dropped)
+    filterSchema(Set(iri"http://localhost/schema2", iri"http://localhost/schema3"))
+      .apply(elem)
+      .assertEquals(elem.dropped)
   }
 }

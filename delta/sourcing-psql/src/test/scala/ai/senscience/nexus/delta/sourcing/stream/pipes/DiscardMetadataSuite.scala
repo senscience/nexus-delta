@@ -8,7 +8,8 @@ class DiscardMetadataSuite extends NexusSuite with ElemFixtures {
   test("Discard metadata graph") {
     val expected = element.copy(value = graph.copy(metadataGraph = Graph.empty(base / "id")))
 
-    DiscardMetadata.withConfig(())(element)
+    DiscardMetadata
+      .withConfig(())(element)
       .assertEquals(expected)
   }
 }

@@ -15,10 +15,10 @@ import java.time.Instant
 
 protected[pipes] trait ElemFixtures {
 
-  val base: Iri = iri"http://localhost"
-  val instant: Instant = Instant.now()
-  val project: ProjectRef = ProjectRef.unsafe("org", "proj")
-  private val state   = PullRequestActive(
+  val base: Iri            = iri"http://localhost"
+  val instant: Instant     = Instant.now()
+  val project: ProjectRef  = ProjectRef.unsafe("org", "proj")
+  private val state        = PullRequestActive(
     id = base / "id",
     project = project,
     rev = 1,

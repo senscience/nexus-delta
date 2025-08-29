@@ -24,8 +24,9 @@ class DataConstructQuerySuite extends NexusSuite with ElemFixtures {
          |}""".stripMargin
     val expectedGraph = Graph.empty(base / "id").add(rdfs.label, "ACTIVE")
     val expected      = element.copy(value = element.value.copy(graph = expectedGraph))
-    val config = DataConstructQueryConfig(SparqlConstructQuery.unsafe(query))
-    DataConstructQuery.withConfig(config)(element)
+    val config        = DataConstructQueryConfig(SparqlConstructQuery.unsafe(query))
+    DataConstructQuery
+      .withConfig(config)(element)
       .assertEquals(expected)
   }
 
