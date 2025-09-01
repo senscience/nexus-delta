@@ -5,7 +5,8 @@ This view creates an ElasticSearch `index` and stores the targeted Json resource
 The documents created on each view are isolated from documents created on other views by using different ElasticSearch
 indices.
 
-A default view gets automatically created when the project is created but other views can be created.
+A main view gets automatically created when the project is created but other views can be created.
+This view can't be updated.
 
 ## Processing pipeline
 
@@ -363,7 +364,7 @@ The supported payload is defined on the
 @link:[ElasticSearch documentation](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-body-application-json){
 open=new }
 
-The string `documents` is used as a prefix of the default ElasticSearch `view_id`
+The string `documents` is used as a prefix of the main ElasticSearch view
 
 **Example**
 
@@ -490,7 +491,6 @@ Response
 
 where...
 
-- `instant` - timestamp of the last event processed by the view
 - `value` - the value of the offset
 
 ## Restart indexing
@@ -499,8 +499,13 @@ This endpoint restarts the view indexing process. It does not delete the created
 Document when going through the event log.
 
 ```
-DELETE /v1/views/{org_label}/{project_label}/{view_id}/offset
+DELETE /v1/views/{org_label}/{project_label}/{view_id}/offset?from={offset}
 ```
+
+### Parameter description
+
+- `{from}`: Number - is the parameter that describes the offset to restart from; defaults to `0` and will 
+reindexing everything.
 
 **Example**
 
@@ -509,3 +514,32 @@ Request
 
 Response
 :   @@snip [restart.json](../assets/views/elasticsearch/restart.json)
+
+## Restart all main and custom elasticsearch projections
+
+@@@ note { .warning title="Expensive operation" }
+
+Depending on the number of projects and custom views, this operation can put a lot of pressure on the system and
+allocating more resources to Delta / PostgreSQL and Elasticsearch may be beneficial before running it.
+
+@@@
+
+This endpoint allows to address situations where reindexing is needed after some incident where part of the data
+in Elasticsearch has been lost (ex: Elasticsearch data has been deleted and needs to be restored from a snapshot).
+
+Only views with a indexing progress larger than the provided offset will be reindexed from this value.
+
+### Main views
+```
+POST /v1/jobs/main/reindex?from={offset}
+```
+
+### Custom views
+```
+POST /v1/jobs/elasticsearch/reindex?from={offset}
+```
+
+### Parameter description
+
+- `{from}`: Number - is the parameter that describes the offset to restart from; defaults to `0` and will
+  reindexing everything. Views with a indexing offset lower than the provided value won't be reindexed.

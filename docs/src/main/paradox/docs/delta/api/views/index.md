@@ -6,6 +6,7 @@
 * @ref:[Sparql view](sparql-view-api.md)
 * @ref:[Aggregated Sparql view](aggregated-sparql-view-api.md)
 * @ref:[Composite view](composite-view-api.md)
+* @ref:[Event metrics](event-metrics-api.md)
 
 @@@
 
@@ -72,13 +73,13 @@ Afterwards, by defining multiple projections, the data can be adapted to the cli
 
 @ref:[More information](composite-view-api.md)
 
-## Indexing
+## Event metrics
 
-All the API calls modifying a view (creation, update, tagging, deprecation) can specify whether the view should be indexed
-synchronously or in the background. This behaviour is controlled using `indexing` query param, which can be one of two values:
+While other views focus on state of resources at a project level, this view processes Nexus events to push them in Elasticsearch 
+for all projects and allow to search and get statistics and the type of events in the system (creations, updates, ...) 
+in the different projects by the different users.
 
-- `async` - (default value) the view will be indexed asynchronously
-- `sync` - the view will be indexed synchronously and the API call won't return until the indexing is finished
+@ref:[More information](event-metrics-api.md)
 
 ## List views
 
@@ -148,6 +149,15 @@ This endpoint returns the indexing failures for the view `{view_id}`. The caller
 
 ```
 GET /v1/views/{org_label}/{project_label}/{view_id}/failures
+    ?from={from}
+    &size={size}
+    &instant={instant}
+```
+
+or for event metrics:
+
+```
+GET /v1/event-metrics/failures
     ?from={from}
     &size={size}
     &instant={instant}

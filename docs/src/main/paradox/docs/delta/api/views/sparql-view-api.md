@@ -5,6 +5,7 @@ This view creates a Blazegraph `namespace` and stores the targeted resources as 
 The triples created on each view are isolated from triples created on another view through the namespace.
 
 A default view gets automatically created when the project is created but other views can be created.
+This view can't be updated.
 
 @@@ note { .tip title="Authorization notes" }
 
@@ -280,7 +281,6 @@ Response
 
 where...
 
-- `instant` - timestamp of the last event processed by the view
 - `value` - the value of the offset
 
 ## Fetch statistics
@@ -332,8 +332,13 @@ if it does not fit the view configuration, or already processed (`Completed`).
 This endpoint restarts the view indexing process. It does not delete the created namespaces but it overrides the resource GRAPH when going through the event log.
 
 ```
-DELETE /v1/views/{org_label}/{project_label}/{view_id}/offset
+DELETE /v1/views/{org_label}/{project_label}/{view_id}/offset?from={offset}
 ```
+
+### Parameter description
+
+- `{from}`: Number - is the parameter that describes the offset to restart from; defaults to `0` and will
+  reindexing everything.
 
 **Example**
 
@@ -342,3 +347,29 @@ Request
 
 Response
 :   @@snip [view-restart.json](../assets/views/blazegraph/restart.json)
+
+
+## Restart all SPARQL projections
+
+@@@ note { .warning title="Expensive operation" }
+
+Depending on the number of projects and custom views, this operation can put a lot of pressure on the system and
+allocating more resources to Delta / PostgreSQL and Blazegraph may be beneficial before running it.
+
+Also keep in mind that Blazegraph is subject to fragmentation as the journal is append-only and only grows with time.
+
+@@@
+
+This endpoint allows to address situations where reindexing is needed after some incident where part of the data 
+in Blazegraph has been lost (ex: Journal has been corrupted and a partial reindexing is needed from a backup).
+
+Only views with a indexing progress larger than the provided offset will be reindexed from this value.
+
+```
+POST /v1/jobs/sparql/reindex?from={offset}
+```
+
+### Parameter description
+
+- `{from}`: Number - is the parameter that describes the offset to restart from; defaults to `0` and will
+  reindexing everything. Views with a indexing offset lower than the provided value won't be reindexed.
