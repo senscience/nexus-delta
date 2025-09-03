@@ -1,22 +1,24 @@
 [
   {
-    "@id": "http://nexus.example.com/john-doé",
+    {{#id}}
+    "@id": "{{id}}",
+    {{/id}}
     "@type": [
       "http://schema.org/Person"
     ],
-    "http://example.com/address": [
+    "http://senscience.ai/address": [
       {
-        "http://example.com/customid": [
+        "http://senscience.ai/customid": [
           {
-            "@id": "http://nexus.example.com/myid"
+            "@id": "http://nexus.senscience.ai/myid"
           }
         ],
-        "http://example.com/number": [
+        "http://senscience.ai/number": [
           {
             "@value": 2
           }
         ],
-        "http://example.com/street": [
+        "http://senscience.ai/street": [
           {
             "@value": "my street"
           }
@@ -29,13 +31,13 @@
         "@value": false
       }
     ],
-    "http://example.com/otherProperty": [
+    "http://senscience.ai/otherProperty": [
       {
         "@type": "http://www.w3.org/2001/XMLSchema#other",
         "@value": "value"
       }
     ],
-    "http://example.org/stringProperty": [
+    "http://fair2.ai/stringProperty": [
       {
         "@value": "Some \"property"
       }
@@ -50,9 +52,9 @@
         "@value": "John Doe"
       }
     ],
-    "http://example.com/sibling": [
+    "http://senscience.ai/sibling": [
       {
-        "@id": "http://nexus.example.com/another",
+        "@id": "http://nexus.senscience.ai/another",
         "@type": [
           "http://schema.org/Other"
         ],

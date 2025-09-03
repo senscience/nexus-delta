@@ -1,16 +1,16 @@
 {
   "@context": {
-    "@vocab": "http://example.com/",
-    "@base": "http://nexus.example.com/"
+    "@vocab": "http://senscience.ai/",
+    "@base": "http://nexus.senscience.ai/"
   },
   "@graph": [
     {
-      "@id": "http://nexus.example.com/john-doé",
+      "@id": "http://nexus.senscience.ai/john-doé",
       "@type": "Person",
       "name": "John"
     },
     {
-      "@id": "http://example.com/batman",
+      "@id": "http://senscience.ai/batman",
       "@type": ["Person", "Hero"],
       "name": "Batman"
     }

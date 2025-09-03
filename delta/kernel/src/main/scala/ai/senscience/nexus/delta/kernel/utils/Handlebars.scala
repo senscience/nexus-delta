@@ -11,10 +11,6 @@ object Handlebars {
   def apply(templateText: String, attributes: (String, Any)*): String = apply(templateText, attributes.toMap)
 
   def apply(templateText: String, attributes: Map[String, Any]): String = {
-    if (attributes.isEmpty) {
-      templateText
-    } else {
-      instance.compileInline(templateText).apply(attributes.asJava)
-    }
+    instance.compileInline(templateText).apply(attributes.asJava)
   }
 }

@@ -6,7 +6,7 @@ digraph "{{rootNode}}" {
   "{{bnode}}" -> "my street" [label = "street"]
   "{{rootNode}}" -> false [label = "deprecated"]
   "{{rootNode}}" -> "value" [label = "otherProperty"]
-  "{{rootNode}}" -> "Some \"property" [label = "http://example.org/stringProperty"]
+  "{{rootNode}}" -> "Some \"property" [label = "http://fair2.ai/stringProperty"]
   "{{rootNode}}" -> "1999-04-09T20:00Z" [label = "schema:birthDate"]
   "{{rootNode}}" -> "John Doe" [label = "schema:name"]
   "{{rootNode}}" -> "another" [label = "sibling"]

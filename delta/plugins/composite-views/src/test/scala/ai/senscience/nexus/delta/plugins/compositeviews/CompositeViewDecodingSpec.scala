@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewDecodingSpec.{source, sourceNoIds}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSourceFields.*
@@ -153,8 +154,6 @@ class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fi
     Some(Interval(1.minutes))
   )
 
-  val source      = jsonContentOf("composite-view.json")
-  val sourceNoIds = jsonContentOf("composite-view-no-ids.json")
   "A composite view" should {
 
     "be decoded correctly from json-ld" when {
@@ -232,4 +231,168 @@ class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fi
       }
     }
   }
+}
+
+object CompositeViewDecodingSpec extends CirceLiteral {
+  val source =
+    json"""{
+            "@id": "http://music.com/composite/view",
+            "@context": "https://bluebrain.github.io/nexus/contexts/composite-views.json",
+            "@type": [
+              "CompositeView"
+            ],
+            "sources": [
+              {
+                "@id": "http://music.com/sources/local",
+                "@type": "ProjectEventStream"
+              },
+              {
+                "@id": "http://music.com/sources/albums",
+                "@type": "CrossProjectEventStream",
+                "project": "demo/albums",
+                "identities": {
+                  "realm": "myrealm",
+                  "group": "mygroup"
+                }
+              },
+              {
+                "@id": "http://music.com/sources/songs",
+                "@type": "RemoteProjectEventStream",
+                "project": "remote_demo/songs",
+                "endpoint": "https://example2.nexus.com",
+                "token": "mytoken"
+              }
+            ],
+            "projections": [
+              {
+                "@id": "http://music.com/bands",
+                "@type": "ElasticSearchProjection",
+                "indexGroup": "cv",
+                "mapping": {
+                  "properties": {
+                    "@type": {
+                      "type": "keyword",
+                      "copy_to": "_all_fields"
+                    },
+                    "@id": {
+                      "type": "keyword",
+                      "copy_to": "_all_fields"
+                    },
+                    "name": {
+                      "type": "keyword",
+                      "copy_to": "_all_fields"
+                    },
+                    "genre": {
+                      "type": "keyword",
+                      "copy_to": "_all_fields"
+                    },
+                    "_all_fields": {
+                      "type": "text"
+                    }
+                  },
+                  "dynamic": false
+                },
+                "query": "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre ; music:album      ?albumId . ?albumId        music:released   ?albumReleaseDate ; music:song       ?songId . ?songId         music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } WHERE {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre . OPTIONAL {{resource_id} ^music:by        ?albumId . ?albumId        music:released   ?albumReleaseDate . OPTIONAL {?albumId         ^music:on        ?songId . ?songId          music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } } } ORDER BY(?songNumber)",
+                "context": {
+                  "@base": "http://music.com/",
+                  "@vocab": "http://music.com/"
+                },
+                "resourceTypes": [
+                  "http://music.com/Band"
+                ]
+              },
+              {
+                "@id": "http://music.com/albums",
+                "@type": "SparqlProjection",
+                "query": "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}             music:name               ?albumTitle ; music:length             ?albumLength ; music:numberOfSongs      ?numberOfSongs } WHERE {SELECT ?albumReleaseDate ?albumTitle (sum(?songLength) as ?albumLength) (count(?albumReleaseDate) as ?numberOfSongs) WHERE {OPTIONAL { {resource_id}           ^music:on / music:length   ?songLength } {resource_id} music:released             ?albumReleaseDate ; music:title                ?albumTitle . } GROUP BY ?albumReleaseDate ?albumTitle }",
+                "resourceTypes": [
+                  "http://music.com/Album"
+                ]
+              }
+            ],
+            "rebuildStrategy": {
+              "@type": "Interval",
+              "value": "1 minute"
+            }
+          }
+          """
+
+  val sourceNoIds =
+    json"""
+      {
+        "@id": "http://music.com/composite/view",
+        "@context": "https://bluebrain.github.io/nexus/contexts/composite-views.json",
+        "@type": [
+          "CompositeView"
+        ],
+        "sources": [
+          {
+            "@type": "ProjectEventStream"
+          },
+          {
+            "@type": "CrossProjectEventStream",
+            "project": "demo/albums",
+            "identities": {
+              "realm": "myrealm",
+              "group": "mygroup"
+            }
+          },
+          {
+            "@type": "RemoteProjectEventStream",
+            "project": "remote_demo/songs",
+            "endpoint": "https://example2.nexus.com",
+            "token": "mytoken"
+          }
+        ],
+        "projections": [
+          {
+            "@type": "ElasticSearchProjection",
+            "indexGroup": "cv",
+            "mapping": {
+              "properties": {
+                "@type": {
+                  "type": "keyword",
+                  "copy_to": "_all_fields"
+                },
+                "@id": {
+                  "type": "keyword",
+                  "copy_to": "_all_fields"
+                },
+                "name": {
+                  "type": "keyword",
+                  "copy_to": "_all_fields"
+                },
+                "genre": {
+                  "type": "keyword",
+                  "copy_to": "_all_fields"
+                },
+                "_all_fields": {
+                  "type": "text"
+                }
+              },
+              "dynamic": false
+            },
+            "query": "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre ; music:album      ?albumId . ?albumId        music:released   ?albumReleaseDate ; music:song       ?songId . ?songId         music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } WHERE {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre . OPTIONAL {{resource_id} ^music:by        ?albumId . ?albumId        music:released   ?albumReleaseDate . OPTIONAL {?albumId         ^music:on        ?songId . ?songId          music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } } } ORDER BY(?songNumber)",
+            "context": {
+              "@base": "http://music.com/",
+              "@vocab": "http://music.com/"
+            },
+            "resourceTypes": [
+              "http://music.com/Band"
+            ]
+          },
+          {
+            "@type": "SparqlProjection",
+            "query": "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}             music:name               ?albumTitle ; music:length             ?albumLength ; music:numberOfSongs      ?numberOfSongs } WHERE {SELECT ?albumReleaseDate ?albumTitle (sum(?songLength) as ?albumLength) (count(?albumReleaseDate) as ?numberOfSongs) WHERE {OPTIONAL { {resource_id}           ^music:on / music:length   ?songLength } {resource_id} music:released             ?albumReleaseDate ; music:title                ?albumTitle . } GROUP BY ?albumReleaseDate ?albumTitle }",
+            "resourceTypes": [
+              "http://music.com/Album"
+            ]
+          }
+        ],
+        "rebuildStrategy": {
+          "@type": "Interval",
+          "value": "1 minute"
+        }
+      }
+      """
 }

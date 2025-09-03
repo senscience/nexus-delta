@@ -1,12 +1,12 @@
 [
   {
-    "@id": "http://nexus.example.com/john-doé",
+    "@id": "http://nexus.senscience.ai/john-doé",
     "@type": [
       "http://schema.org/Person"
     ]
   },
   {
-    "@id": "http://nexus.example.com/batman",
+    "@id": "http://nexus.senscience.ai/batman",
     "@type": [
       "http://schema.org/Hero"
     ]

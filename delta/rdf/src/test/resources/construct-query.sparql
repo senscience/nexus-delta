@@ -1,4 +1,4 @@
-prefix example: <http://example.com/>
+prefix senscience: <http://senscience.ai>
 prefix schema: <http://schema.org/>
 
 CONSTRUCT {
@@ -8,5 +8,5 @@ CONSTRUCT {
 } WHERE {
   ?person 	        schema:name             ?name ;
                     schema:birthDate        ?birthDate ;
-                    example:stringProperty  ?description ;
+                    senscience:stringProperty  ?description ;
 }
