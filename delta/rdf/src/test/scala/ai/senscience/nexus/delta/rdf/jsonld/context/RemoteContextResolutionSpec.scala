@@ -19,14 +19,14 @@ class RemoteContextResolutionSpec extends CatsEffectSpec with Fixtures {
     }
 
     "fail to resolve when some context does not exist" in {
-      val excluded         = iri"http://example.com/cöntéxt/3"
+      val excluded         = iri"http://senscience.ai/cöntéxt/3"
       val ctxValuesMap     = remoteContexts - excluded
       val remoteResolution = RemoteContextResolution.fixed(ctxValuesMap.toSeq*)
       remoteResolution(input).rejected shouldEqual RemoteContextNotFound(excluded)
     }
 
     "merge and resolve" in {
-      val excluded           = iri"http://example.com/cöntéxt/3"
+      val excluded           = iri"http://senscience.ai/cöntéxt/3"
       val ctxValue           = remoteContexts(excluded)
       val ctxValuesMap       = remoteContexts - excluded
       val excludedResolution = RemoteContextResolution.fixed(excluded -> ctxValue)

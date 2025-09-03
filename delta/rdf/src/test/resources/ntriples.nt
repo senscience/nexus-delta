@@ -1,16 +1,16 @@
-<http://nexus.example.com/another> <http://schema.org/birthDate> "2000-04-12T20:00Z" .
-<http://nexus.example.com/another> <http://schema.org/birthHour> "9"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<http://nexus.example.com/another> <http://schema.org/birthYear> "1999"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<http://nexus.example.com/another> <http://schema.org/height> "9.223E0"^^<http://www.w3.org/2001/XMLSchema#double> .
-<http://nexus.example.com/another> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Other> .
-{{{rootNode}}} <http://example.com/address> {{bnode}} .
-{{{rootNode}}} <http://example.com/otherProperty> "value"^^<http://www.w3.org/2001/XMLSchema#other> .
-{{{rootNode}}} <http://example.com/sibling> <http://nexus.example.com/another> .
-{{{rootNode}}} <http://example.org/stringProperty> "Some \"property" .
+<http://nexus.senscience.ai/another> <http://schema.org/birthDate> "2000-04-12T20:00Z" .
+<http://nexus.senscience.ai/another> <http://schema.org/birthHour> "9"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://nexus.senscience.ai/another> <http://schema.org/birthYear> "1999"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://nexus.senscience.ai/another> <http://schema.org/height> "9.223E0"^^<http://www.w3.org/2001/XMLSchema#double> .
+<http://nexus.senscience.ai/another> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Other> .
+{{{rootNode}}} <http://senscience.ai/address> {{bnode}} .
+{{{rootNode}}} <http://senscience.ai/otherProperty> "value"^^<http://www.w3.org/2001/XMLSchema#other> .
+{{{rootNode}}} <http://senscience.ai/sibling> <http://nexus.senscience.ai/another> .
+{{{rootNode}}} <http://fair2.ai/stringProperty> "Some \"property" .
 {{{rootNode}}} <http://schema.org/birthDate> "1999-04-09T20:00Z" .
 {{{rootNode}}} <http://schema.org/deprecated> "false"^^<http://www.w3.org/2001/XMLSchema#boolean> .
 {{{rootNode}}} <http://schema.org/name> "John Doe" .
 {{{rootNode}}} <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Person> .
-{{bnode}} <http://example.com/customid> <http://nexus.example.com/myid> .
-{{bnode}} <http://example.com/number> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
-{{bnode}} <http://example.com/street> "my street" .
+{{bnode}} <http://senscience.ai/customid> <http://nexus.senscience.ai/myid> .
+{{bnode}} <http://senscience.ai/number> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+{{bnode}} <http://senscience.ai/street> "my street" .
