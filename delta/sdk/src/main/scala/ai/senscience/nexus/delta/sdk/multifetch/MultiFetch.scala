@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sdk.multifetch
 
+import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
+import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
@@ -7,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result.
 import ai.senscience.nexus.delta.sdk.multifetch.model.{MultiFetchRequest, MultiFetchResponse}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import cats.effect.IO
+import cats.syntax.all.*
 
 /**
   * Allows to fetch multiple resources of different types in one request.
@@ -21,6 +24,9 @@ trait MultiFetch {
 }
 
 object MultiFetch {
+
+  implicit val kamonComponent: KamonMetricComponent = KamonMetricComponent("multi-fetch")
+
   def apply(
       aclCheck: AclCheck,
       fetchResource: MultiFetchRequest.Input => IO[Option[JsonLdContent[?]]]
@@ -30,7 +36,7 @@ object MultiFetch {
           caller: Caller
       ): IO[MultiFetchResponse] =
         request.resources
-          .traverse { input =>
+          .parTraverse { input =>
             aclCheck.authorizeFor(input.project, resources.read).flatMap {
               case true  =>
                 fetchResource(input).map {
@@ -44,6 +50,7 @@ object MultiFetch {
           .map { resources =>
             MultiFetchResponse(request.format, resources)
           }
+          .span("multi-fetch")
 
     }
 }
