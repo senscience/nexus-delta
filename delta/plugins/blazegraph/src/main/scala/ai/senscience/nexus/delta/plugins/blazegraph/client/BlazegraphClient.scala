@@ -90,19 +90,16 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
     * @return
     *   ''true'' wrapped on an IO when namespace has been created and ''false'' wrapped on an IO when it already existed
     */
-  def createNamespace(namespace: String, properties: NamespaceProperties): IO[Boolean] =
-    existsNamespace(namespace).flatMap {
-      case true  => IO.pure(false)
-      case false =>
-        val withNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
-        val request       = POST(endpoint / "namespace").withEntity(withNamespace.toString)
-        client.status(request).flatMap {
-          case Status.Created  => IO.pure(true)
-          case Status.Conflict => IO.pure(false)
-          case Status.NotFound => IO.pure(false)
-          case status          => IO.raiseError(SparqlActionError(status, "create"))
-        }
+  def createNamespace(namespace: String, properties: NamespaceProperties): IO[Boolean] = {
+    val withNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
+    val request       = POST(endpoint / "namespace").withEntity(withNamespace.toString)
+    client.status(request).flatMap {
+      case Status.Created  => IO.pure(true)
+      case Status.Conflict => IO.pure(false)
+      case Status.NotFound => IO.pure(false)
+      case status          => IO.raiseError(SparqlActionError(status, "create"))
     }
+  }
 
   override def createNamespace(namespace: String): IO[Boolean] =
     createNamespace(namespace, NamespaceProperties.defaultValue)
