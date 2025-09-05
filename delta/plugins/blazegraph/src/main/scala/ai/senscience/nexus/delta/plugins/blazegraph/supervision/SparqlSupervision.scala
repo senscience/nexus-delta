@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.supervision
 
-import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.SparqlSupervision.SparqlNamespaceTriples
 import ai.senscience.nexus.delta.sdk.views.ViewRef
@@ -18,8 +17,6 @@ trait SparqlSupervision {
 }
 
 object SparqlSupervision {
-
-  private val logger = Logger[SparqlSupervision]
 
   /**
     * Returns the number of triples
@@ -46,7 +43,7 @@ object SparqlSupervision {
         SparqlNamespaceTriples(
           x.total + y.total,
           x.assigned ++ y.assigned,
-          y.unassigned ++ y.unassigned
+          x.unassigned ++ y.unassigned
         )
     }
 
@@ -80,10 +77,6 @@ object SparqlSupervision {
                 }
               }
             }
-          }
-          .timed
-          .flatMap { case (time, result) =>
-            IO.println(time).as(result)
           }
       }
     }
