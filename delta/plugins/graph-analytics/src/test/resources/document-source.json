@@ -1,31 +1,31 @@
 {
-  "@type" : "http://schema.org/Person",
+  "@type" : "https://schema.org/Person",
   "@id" : "{{id}}",
   "properties" : [
     {
       "dataType" : "string",
-      "path" : "http://schema.org/phone",
+      "path" : "https://schema.org/phone",
       "isInArray" : true
     },
     {
       "dataType" : "object",
-      "path" : "http://schema.org/address",
+      "path" : "https://schema.org/address",
       "isInArray" : false
     },
     {
       "dataType" : "string",
-      "path" : "http://schema.org/address / http://schema.org/street",
+      "path" : "https://schema.org/address / https://schema.org/street",
       "isInArray" : false
     },
     {
       "dataType" : "object",
       "@id" : "{{brother}}",
-      "path" : "http://schema.org/brother",
+      "path" : "https://schema.org/brother",
       "isInArray" : false
     },
     {
       "dataType" : "string",
-      "path" : "http://schema.org/givenName",
+      "path" : "https://schema.org/givenName",
       "isInArray" : false
     }
   ],
@@ -34,7 +34,7 @@
       "dataType" : "object",
       "found" : true,
       "@id" : "{{brother}}",
-      "path" : "http://schema.org/brother",
+      "path" : "https://schema.org/brother",
       "isInArray" : false
     }
   ],
@@ -42,8 +42,8 @@
     {
       "dataType" : "object",
       "@id" : "{{brother}}",
-      "@type" : "http://schema.org/Person",
-      "path" : "http://schema.org/brother",
+      "@type" : "https://schema.org/Person",
+      "path" : "https://schema.org/brother",
       "isInArray" : false
     }
   ]

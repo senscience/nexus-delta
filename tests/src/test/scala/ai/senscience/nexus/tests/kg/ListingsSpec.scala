@@ -37,7 +37,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
 
   private val resource11Id = s"${config.deltaUri}/resources/$proj11/_/resource11"
 
-  private val resourceType = s"http://schema.org/Type-${UUID.randomUUID()}"
+  private val resourceType = s"https://schema.org/Type-${UUID.randomUUID()}"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -369,7 +369,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
       val id = s"http://bbp.epfl.ch/${genString()}"
 
       val resource: String => Json = id => json"""{ "@id": "$id" }"""
-      val resRef                   = json"""{ "http://schema.org/description": "$id" }"""
+      val resRef                   = json"""{ "https://schema.org/description": "$id" }"""
       val resRef2                  = json"""{ "randomField": "$id" }"""
 
       postResource(resource(id), project).accepted
@@ -386,7 +386,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
 
     "find match by name" in {
       val id       = s"http://bbp.epfl.ch/${genString()}"
-      val resource = json"""{ "@id": "$id", "http://schema.org/name": "Lorem ipsum dolor"}"""
+      val resource = json"""{ "@id": "$id", "https://schema.org/name": "Lorem ipsum dolor"}"""
 
       postResource(resource, project).accepted
 
@@ -403,7 +403,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
     "find match by description" in {
       val id       = s"http://bbp.epfl.ch/${genString()}"
       val resource =
-        json"""{ "@id": "$id", "http://schema.org/description": "Northumberland is a ceremonial county bordering Scotland."}"""
+        json"""{ "@id": "$id", "https://schema.org/description": "Northumberland is a ceremonial county bordering Scotland."}"""
 
       postResource(resource, project).accepted
 

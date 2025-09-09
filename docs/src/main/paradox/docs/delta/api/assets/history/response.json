@@ -4,7 +4,7 @@
     {
       "@id": "https://example.com/Alice",
       "@type": [
-        "http://schema.org/Person"
+        "https://schema.org/Person"
       ],
       "action": [
         "Created"
@@ -21,7 +21,7 @@
     {
       "@id": "https://example.com/Alice",
       "@type": [
-        "http://schema.org/Person"
+        "https://schema.org/Person"
       ],
       "action": [
         "Tagged"

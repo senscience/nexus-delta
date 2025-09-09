@@ -5,17 +5,17 @@
       "_count": 2,
       "_path": [
         {
-          "@id": "http://schema.org/brother",
+          "@id": "https://schema.org/brother",
           "_name": "brother"
         }
       ],
-      "_source": "http://schema.org/Person",
-      "_target": "http://schema.org/Person"
+      "_source": "https://schema.org/Person",
+      "_target": "https://schema.org/Person"
     }
   ],
   "_nodes": [
     {
-      "@id": "http://schema.org/Person",
+      "@id": "https://schema.org/Person",
       "_count": 3,
       "_name": "Person"
     },

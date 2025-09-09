@@ -156,7 +156,7 @@ The goal is that indexing will produce Elasticsearch documents that has the foll
 ```json
 {
   "@id": "...",
-  "@type": ["http://schema.org/Dataset", "http://other..."],
+  "@type": ["https://schema.org/Dataset", "http://other..."],
   "name": "<name or label>",
   "description": "...",
   "author": "<givenName> <familyName> if exists",
@@ -175,7 +175,7 @@ resources of type `Dataset`, but there are situations where a more specific list
 
 ```json
 [
-  "http://schema.org/Dataset"
+  "https://schema.org/Dataset"
 ]
 ```
 
@@ -186,7 +186,7 @@ using the `plugins.search.indexing.query={pathToFile}` setting.
 
 ```
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-prefix schema: <http://schema.org/>
+prefix schema: <https://schema.org/>
 prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
 prefix f: <http://localhost/field/> # this is the new namespace to be used for
                                     # all fields; using a separate namespace

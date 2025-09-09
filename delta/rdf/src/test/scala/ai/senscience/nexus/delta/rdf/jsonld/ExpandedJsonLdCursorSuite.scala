@@ -21,7 +21,7 @@ class ExpandedJsonLdCursorSuite extends NexusSuite with RdfLoader {
 
   test("fail to extract a missing key") {
     val missing       = schema + "xxx"
-    val path          = List(DownField("http://schema.org/xxx"), DownArray, DownField("http://schema.org/drinks"), DownArray)
+    val path          = List(DownField("https://schema.org/xxx"), DownArray, DownField("https://schema.org/drinks"), DownArray)
     val expectedError = KeyMissingFailure("@value", path)
     loadCursor.map {
       _.downField(drinks).downField(missing).get[String].assertLeft(expectedError)

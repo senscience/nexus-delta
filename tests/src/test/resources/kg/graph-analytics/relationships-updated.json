@@ -5,44 +5,44 @@
       "_count" : 2,
       "_path" : [
         {
-          "@id" : "http://schema.org/worksFor",
+          "@id" : "https://schema.org/worksFor",
           "_name" : "worksFor"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/EducationalOrganization"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/EducationalOrganization"
     },
     {
       "_count" : 1,
       "_path" : [
         {
-          "@id" : "http://schema.org/alumniOf",
+          "@id" : "https://schema.org/alumniOf",
           "_name" : "alumniOf"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/EducationalOrganization"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/EducationalOrganization"
     },
     {
       "_count" : 1,
       "_path" : [
         {
-          "@id" : "http://schema.org/colleague",
+          "@id" : "https://schema.org/colleague",
           "_name" : "colleague"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/Person"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/Person"
     }
   ],
   "_nodes" : [
     {
-      "@id" : "http://schema.org/Person",
+      "@id" : "https://schema.org/Person",
       "_count" : 4,
       "_name" : "Person"
     },
     {
-      "@id" : "http://schema.org/EducationalOrganization",
+      "@id" : "https://schema.org/EducationalOrganization",
       "_count" : 1,
       "_name" : "EducationalOrganization"
     }

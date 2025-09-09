@@ -24,11 +24,11 @@
   },
   "properties": [
     {
-      "path": "http://schema.org/distribution",
+      "path": "https://schema.org/distribution",
       "isInArray": false,
       "dataType": "object",
       "@type": [
-        "http://schema.org/DataDownload"
+        "https://schema.org/DataDownload"
       ]
     },
     {
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentSize / http://schema.org/unitCode",
+      "path": "https://schema.org/distribution / https://schema.org/contentSize / https://schema.org/unitCode",
       "isInArray": false,
       "dataType": "string"
     },
@@ -51,23 +51,23 @@
       "dataType": "number"
     },
     {
-      "path": "http://schema.org/name",
+      "path": "https://schema.org/name",
       "isInArray": false,
       "dataType": "string"
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentUrl",
+      "path": "https://schema.org/distribution / https://schema.org/contentUrl",
       "isInArray": false,
       "dataType": "object",
       "@id": "http://localhost/file1"
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentSize / http://schema.org/value",
+      "path": "https://schema.org/distribution / https://schema.org/contentSize / https://schema.org/value",
       "isInArray": false,
       "dataType": "number"
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentSize",
+      "path": "https://schema.org/distribution / https://schema.org/contentSize",
       "isInArray": false,
       "dataType": "object"
     },
@@ -92,7 +92,7 @@
       ]
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentUrl",
+      "path": "https://schema.org/distribution / https://schema.org/contentUrl",
       "isInArray": false,
       "found": true,
       "dataType": "object",
@@ -104,7 +104,7 @@
   ],
   "references": [
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentUrl",
+      "path": "https://schema.org/distribution / https://schema.org/contentUrl",
       "isInArray": false,
       "@type": [
         "https://bluebrain.github.io/nexus/vocabulary/File"

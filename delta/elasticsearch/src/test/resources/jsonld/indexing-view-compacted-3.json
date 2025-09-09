@@ -6,7 +6,7 @@
     "View"
   ],
   "context": {
-    "@vocab": "http://schema.org/"
+    "@vocab": "https://schema.org/"
   },
   "includeDeprecated": true,
   "includeMetadata": true,

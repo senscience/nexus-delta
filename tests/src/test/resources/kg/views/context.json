@@ -5,7 +5,7 @@
     "nxv": "https://bbp-nexus.epfl.ch/vocabs/nexus/core/terms/v0.1.0/",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "dcat": "http://www.w3.org/ns/dcat#",
-    "schema": "http://schema.org/",
+    "schema": "https://schema.org/",
     "name": {
       "@type": "xsd:string",
       "@id": "schema:name"

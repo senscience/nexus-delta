@@ -55,7 +55,7 @@
             ],
             "http://www.w3.org/ns/shacl#path" : [
               {
-                "@id" : "http://schema.org/name"
+                "@id" : "https://schema.org/name"
               }
             ]
           }

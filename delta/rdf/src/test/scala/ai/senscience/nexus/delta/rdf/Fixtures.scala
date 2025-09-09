@@ -16,10 +16,10 @@ trait Fixtures extends CirceLiteral {
   // format: off
   val remoteContexts: Map[Iri, ContextValue] =
     Map(
-      iri"http://senscience.ai/cöntéxt/0"  -> ContextValue(json"""{"deprecated": {"@id": "http://schema.org/deprecated", "@type": "http://www.w3.org/2001/XMLSchema#boolean"} }"""),
+      iri"http://senscience.ai/cöntéxt/0"  -> ContextValue(json"""{"deprecated": {"@id": "https://schema.org/deprecated", "@type": "http://www.w3.org/2001/XMLSchema#boolean"} }"""),
       iri"http://senscience.ai/cöntéxt/1"  -> ContextValue(json"""["http://senscience.ai/cöntéxt/11", "http://senscience.ai/cöntéxt/12"]"""),
-      iri"http://senscience.ai/cöntéxt/11" -> ContextValue(json"""{"birthDate": "http://schema.org/birthDate"}"""),
-      iri"http://senscience.ai/cöntéxt/12" -> ContextValue(json"""{"Other": "http://schema.org/Other"}"""),
+      iri"http://senscience.ai/cöntéxt/11" -> ContextValue(json"""{"birthDate": "https://schema.org/birthDate"}"""),
+      iri"http://senscience.ai/cöntéxt/12" -> ContextValue(json"""{"Other": "https://schema.org/Other"}"""),
       iri"http://senscience.ai/cöntéxt/2"  -> ContextValue(json"""{"integerAlias": "http://www.w3.org/2001/XMLSchema#integer", "type": "@type"}"""),
       iri"http://senscience.ai/cöntéxt/3"  -> ContextValue(json"""{"customid": {"@type": "@id"} }""")
     )

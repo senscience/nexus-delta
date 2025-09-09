@@ -4,7 +4,7 @@
     {
       "@id": "https://bbp.epfl.ch/data/my-resource",
       "@type": [
-        "http://schema.org/TestResource"
+        "https://schema.org/TestResource"
       ],
       "action": [
         "Created"
@@ -21,7 +21,7 @@
     {
       "@id": "https://bbp.epfl.ch/data/my-resource",
       "@type": [
-        "http://schema.org/TestResource"
+        "https://schema.org/TestResource"
       ],
       "action": [
         "Updated"
@@ -38,7 +38,7 @@
     {
       "@id": "https://bbp.epfl.ch/data/my-resource",
       "@type": [
-        "http://schema.org/TestResource"
+        "https://schema.org/TestResource"
       ],
       "action": [
         "Tagged"
@@ -55,7 +55,7 @@
     {
       "@id": "https://bbp.epfl.ch/data/my-resource",
       "@type": [
-        "http://schema.org/TestResource"
+        "https://schema.org/TestResource"
       ],
       "action": [
         "Deprecated"

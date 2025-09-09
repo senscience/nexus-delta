@@ -126,7 +126,7 @@ object CompositeViewsLifeCycleSpec {
 
   private val query =
     """
-      |prefix schema: <http://schema.org/>
+      |prefix schema: <https://schema.org/>
       |
       |CONSTRUCT {
       |  ?alias   a              ?type ;

@@ -7,7 +7,7 @@
       "value": {
         "@context": {
           "@vocab": "https://bluebrain.github.io/nexus/vocabulary/",
-          "schema" : "http://schema.org/"
+          "schema" : "https://schema.org/"
         },
         "@id": "https://bluebrain.github.io/nexus/vocabulary/success",
         "@type": "schema:Custom",

@@ -21,16 +21,16 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
   private val id         = iri"http://nexus.example.com/6A518B91-7B12-451B-8E85-48C67432C3A1"
   private val rev        = 1
   private val deprecated = false
-  private val schema     = ResourceRef(iri"http://schema.org/Person")
-  private val types      = Set(iri"http://schema.org/Resource")
+  private val schema     = ResourceRef(iri"https://schema.org/Person")
+  private val types      = Set(iri"https://schema.org/Resource")
 
   private val expandedJson =
     json"""
       [
         {
           "@id": "http://nexus.example.com/6A518B91-7B12-451B-8E85-48C67432C3A1",
-          "@type": "http://schema.org/Person",
-          "http://schema.org/name": {"@value": "John Doe"}
+          "@type": "https://schema.org/Person",
+          "https://schema.org/name": {"@value": "John Doe"}
         }
       ]
         """
@@ -48,7 +48,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
       json"""
         {
           "@id": "http://nexus.example.com/john-doe",
-          "@type": "http://schema.org/Person",
+          "@type": "https://schema.org/Person",
           "name": "John Doe"
         }
           """
@@ -58,7 +58,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
       json"""
         {
           "@id" : "http://nexus.example.com/john-doe",
-          "@type" : "http://schema.org/Person",
+          "@type" : "https://schema.org/Person",
           "name" : "John Doe"
         }
           """
@@ -73,7 +73,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
       json"""
         {
           "@id": "nxv:JohnDoe",
-          "@type": "http://schema.org/Person",
+          "@type": "https://schema.org/Person",
           "name": "John Doe"
         }
           """
@@ -83,7 +83,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
       json"""
         {
           "@id" : "nxv:JohnDoe",
-          "@type" : "http://schema.org/Person",
+          "@type" : "https://schema.org/Person",
           "name" : "John Doe"
         }
           """
@@ -97,7 +97,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
     val source =
       json"""
         {
-          "@type": "http://schema.org/Person",
+          "@type": "https://schema.org/Person",
           "name": "John Doe"
         }
       """
@@ -107,7 +107,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
       json"""
         {
           "@id" : "http://nexus.example.com/6A518B91-7B12-451B-8E85-48C67432C3A1",
-          "@type" : "http://schema.org/Person",
+          "@type" : "https://schema.org/Person",
           "name" : "John Doe"
         }
       """

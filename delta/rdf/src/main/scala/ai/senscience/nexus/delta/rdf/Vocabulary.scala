@@ -93,7 +93,13 @@ object Vocabulary {
     * Schema.org vocabulary
     */
   object schema {
-    val base              = iri"http://schema.org/"
+    val baseHttp             = iri"http://schema.org/"
+    def http(suffix: String) = iri"$baseHttp$suffix"
+
+    val httpDescription = schema.http("description")
+    val httpName        = schema.http("name")
+
+    val base              = iri"https://schema.org/"
     def +(suffix: String) = iri"$base$suffix"
 
     val age               = schema + "age"

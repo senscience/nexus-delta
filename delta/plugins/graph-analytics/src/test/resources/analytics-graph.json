@@ -44,18 +44,18 @@
         }
       ],
       "_source" : "https://neuroshapes.org/Trace",
-      "_target" : "http://schema.org#Rat"
+      "_target" : "https://schema.org#Rat"
     },
     {
       "_count" : 5000,
       "_path" : [
         {
-          "@id" : "http://schema.org/affiliation",
+          "@id" : "https://schema.org/affiliation",
           "_name" : "affiliation"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/Organization"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/Organization"
     }
   ],
   "_nodes" : [
@@ -70,17 +70,17 @@
       "_name" : "Trace"
     },
     {
-      "@id" : "http://schema.org/Person",
+      "@id" : "https://schema.org/Person",
       "_count" : 5000,
       "_name" : "Person"
     },
     {
-      "@id" : "http://schema.org/Organization",
+      "@id" : "https://schema.org/Organization",
       "_count" : 1,
       "_name" : "Organization"
     },
     {
-      "@id" : "http://schema.org#Rat",
+      "@id" : "https://schema.org#Rat",
       "_count" : 1,
       "_name" : "Rat"
     },

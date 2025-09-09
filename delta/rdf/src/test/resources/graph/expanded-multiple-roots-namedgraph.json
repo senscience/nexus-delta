@@ -1,7 +1,7 @@
 [
   {
     "@id": "http://nexus.senscience.ai/named-graph",
-    "http://schema.org/deprecated": [
+    "https://schema.org/deprecated": [
       {
         "@value": true
       }
@@ -10,13 +10,13 @@
       {
         "@id": "http://nexus.senscience.ai/john-doé",
         "@type": [
-          "http://schema.org/Person"
+          "https://schema.org/Person"
         ]
       },
       {
         "@id": "http://nexus.senscience.ai/batman",
         "@type": [
-          "http://schema.org/Hero"
+          "https://schema.org/Hero"
         ]
       }
     ]

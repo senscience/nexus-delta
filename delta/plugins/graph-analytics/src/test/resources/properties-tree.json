@@ -5,7 +5,7 @@
   "_name" : "Trace",
   "_properties" : [
     {
-      "@id" : "http://schema.org/dateCreated",
+      "@id" : "https://schema.org/dateCreated",
       "_count" : 35000,
       "_name" : "dateCreated"
     },
@@ -25,12 +25,12 @@
               "_name" : "period"
             },
             {
-              "@id" : "http://schema.org/value",
+              "@id" : "https://schema.org/value",
               "_count" : 35000,
               "_name" : "value"
             },
             {
-              "@id" : "http://schema.org/unitCode",
+              "@id" : "https://schema.org/unitCode",
               "_count" : 35000,
               "_name" : "unitCode"
             }
@@ -83,7 +83,7 @@
           "_name" : "atlasSpatialReferenceSystem",
           "_properties" : [
             {
-              "@id" : "http://schema.org/name",
+              "@id" : "https://schema.org/name",
               "_count" : 60000,
               "_name" : "name"
             }
@@ -104,12 +104,12 @@
       ]
     },
     {
-      "@id" : "http://schema.org/name",
+      "@id" : "https://schema.org/name",
       "_count" : 95000,
       "_name" : "name"
     },
     {
-      "@id" : "http://schema.org/identifier",
+      "@id" : "https://schema.org/identifier",
       "_count" : 95000,
       "_name" : "identifier"
     }

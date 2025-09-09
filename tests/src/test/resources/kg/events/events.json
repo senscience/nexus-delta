@@ -7,7 +7,7 @@
       "@context": {
         "nxv": "https://bluebrain.github.io/nexus/vocabulary/",
         "other": "https://some.other.prefix.com/",
-        "schema" : "http://schema.org/"
+        "schema" : "https://schema.org/"
       },
       "@id": "https://dev.nexus.test.com/simplified-resource/1",
       "@type": "schema:TestResource",
@@ -18,7 +18,7 @@
       ]
     },
     "_types": [
-      "http://schema.org/TestResource"
+      "https://schema.org/TestResource"
     ],
     "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/unconstrained.json",
     "_project": "{{project}}",
@@ -33,7 +33,7 @@
       "@context": {
         "nxv": "https://bluebrain.github.io/nexus/vocabulary/",
         "other": "https://some.other.prefix.com/",
-        "schema" : "http://schema.org/"
+        "schema" : "https://schema.org/"
       },
       "@id": "https://dev.nexus.test.com/simplified-resource/1",
       "@type": "schema:TestResource",
@@ -44,7 +44,7 @@
       ]
     },
     "_types": [
-      "http://schema.org/TestResource"
+      "https://schema.org/TestResource"
     ],
     "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/unconstrained.json",
     "_project": "{{project}}",
@@ -60,7 +60,7 @@
     "_project": "{{project}}",
     "_rev": 3,
     "_types": [
-      "http://schema.org/TestResource"
+      "https://schema.org/TestResource"
     ],
     "_subject": "{{deltaUri}}/realms/{{realm}}/users/{{user}}"
   },
@@ -69,7 +69,7 @@
     "@type": "ResourceDeprecated",
     "_resourceId": "https://dev.nexus.test.com/simplified-resource/1",
     "_types": [
-      "http://schema.org/TestResource"
+      "https://schema.org/TestResource"
     ],
     "_project": "{{project}}",
     "_rev": 4,

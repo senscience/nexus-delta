@@ -4,7 +4,7 @@
     "https://bluebrain.github.io/nexus/contexts/metadata.json",
     {
       "nxv" : "https://bluebrain.github.io/nexus/vocabulary/",
-      "schema" : "http://schema.org/"
+      "schema" : "https://schema.org/"
     },
     "https://bluebrain.github.io/nexus/contexts/shacl-20170720.json"
   ],

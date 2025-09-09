@@ -47,7 +47,7 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
 
   private def expectedResult(id: String, label: String, value: String) =
     Set(
-      (s"http://localhost/$id", "http://schema.org/value", value),
+      (s"http://localhost/$id", "https://schema.org/value", value),
       (s"http://localhost/$id", "http://www.w3.org/2000/01/rdf-schema#label", label)
     )
 
@@ -66,7 +66,7 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
   private def xmlRdfResults(indices: Set[String]) =
     client.query(indices, constructQuery, SparqlRdfXml).map(_.value.head.asInstanceOf[Elem])
 
-  private val selectQuery = SparqlQuery("SELECT * WHERE { ?s ?p ?o }")
+  private val selectQuery = SparqlQuery("SELECT * WHERE { ?s ?p ?o } ORDER by ?s ?p ?o")
 
   private def xmlResults(namespaces: Set[String]) =
     client.query(namespaces, selectQuery, SparqlResultsXml).map(_.value.head.asInstanceOf[Elem])
@@ -215,7 +215,7 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
   test("Patch a named graph removing the matching predicates") {
     val namespace     = genString()
     val patchStrategy =
-      removePredicates(Set(uri"http://schema.org/value", uri"http://www.w3.org/2000/01/rdf-schema#label"))
+      removePredicates(Set(uri"https://schema.org/value", uri"http://www.w3.org/2000/01/rdf-schema#label"))
     for {
       _            <- client.createNamespace(namespace)
       originalData <- nTriples(id = "myid", "a", "b")
@@ -227,8 +227,8 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
       val expected = Set(
         (s"http://localhost/myid", "http://www.w3.org/2000/01/rdf-schema#label", "b"),
         ("http://localhost/myid", "http://localhost/nested/", "http://localhost/nested"),
-        (s"http://localhost/nested", "http://schema.org/name", "name"),
-        (s"http://localhost/nested", "http://schema.org/title", "title")
+        (s"http://localhost/nested", "https://schema.org/name", "name"),
+        (s"http://localhost/nested", "https://schema.org/title", "title")
       )
       assertEquals(result, expected)
     }
@@ -236,7 +236,7 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
 
   test("Patch a named graph keeping the matching predicates") {
     val namespace     = genString()
-    val patchStrategy = keepPredicates(Set(uri"http://schema.org/value"))
+    val patchStrategy = keepPredicates(Set(uri"https://schema.org/value"))
     for {
       _            <- client.createNamespace(namespace)
       originalData <- nTriples(id = "myid", "lb-a", "value")
@@ -247,8 +247,8 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
     } yield {
       val expected = expectedResult("myid", "lb-b", "value") ++ Set(
         ("http://localhost/myid", "http://localhost/nested/", "http://localhost/nested"),
-        (s"http://localhost/nested", "http://schema.org/name", "name"),
-        (s"http://localhost/nested", "http://schema.org/title", "title")
+        (s"http://localhost/nested", "https://schema.org/name", "name"),
+        (s"http://localhost/nested", "https://schema.org/title", "title")
       )
       assertEquals(result, expected)
     }

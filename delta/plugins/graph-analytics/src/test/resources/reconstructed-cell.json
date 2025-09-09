@@ -3,40 +3,40 @@
   "@type": [
     "https://neuroshapes.org/NeuronMorphology",
     "https://neuroshapes.org/ReconstructedCell",
-    "http://schema.org/Dataset",
+    "https://schema.org/Dataset",
     "http://www.w3.org/ns/prov#Entity",
     "https://neuroshapes.org/ReconstructedWholeBrainCell"
   ],
-  "http://schema.org/distribution": [
+  "https://schema.org/distribution": [
     {
       "@type": [
-        "http://schema.org/DataDownload"
+        "https://schema.org/DataDownload"
       ],
-      "http://schema.org/contentSize": [
+      "https://schema.org/contentSize": [
         {
-          "http://schema.org/unitCode": [
+          "https://schema.org/unitCode": [
             {
               "@value": "bytes"
             }
           ],
-          "http://schema.org/value": [
+          "https://schema.org/value": [
             {
               "@value": 518101
             }
           ]
         }
       ],
-      "http://schema.org/contentUrl": [
+      "https://schema.org/contentUrl": [
         {
           "@id": "http://localhost/nexus/v1/files/my-file"
         }
       ],
-      "http://schema.org/encodingFormat": [
+      "https://schema.org/encodingFormat": [
         {
           "@value": "application/asc"
         }
       ],
-      "http://schema.org/name": [
+      "https://schema.org/name": [
         {
           "@value": "AA0314.asc"
         }
@@ -60,12 +60,12 @@
       ],
       "https://neuroshapes.org/digest": [
         {
-          "http://schema.org/algorithm": [
+          "https://schema.org/algorithm": [
             {
               "@value": "SHA-256"
             }
           ],
-          "http://schema.org/value": [
+          "https://schema.org/value": [
             {
               "@value": "cb434976ca026605d8ec2de37d32738a879a4c82a4cb1fe0e620ec53c56ae4f3"
             }
@@ -75,33 +75,33 @@
     },
     {
       "@type": [
-        "http://schema.org/DataDownload"
+        "https://schema.org/DataDownload"
       ],
-      "http://schema.org/contentSize": [
+      "https://schema.org/contentSize": [
         {
-          "http://schema.org/unitCode": [
+          "https://schema.org/unitCode": [
             {
               "@value": "bytes"
             }
           ],
-          "http://schema.org/value": [
+          "https://schema.org/value": [
             {
               "@value": 217343
             }
           ]
         }
       ],
-      "http://schema.org/contentUrl": [
+      "https://schema.org/contentUrl": [
         {
           "@id": "http://localhost/nexus/v1/files/public/test/22a032c7-a2a1-40bf-a02a-61367dbc1500"
         }
       ],
-      "http://schema.org/encodingFormat": [
+      "https://schema.org/encodingFormat": [
         {
           "@value": "application/swc"
         }
       ],
-      "http://schema.org/name": [
+      "https://schema.org/name": [
         {
           "@value": "AA0314.swc"
         }
@@ -125,12 +125,12 @@
       ],
       "https://neuroshapes.org/digest": [
         {
-          "http://schema.org/algorithm": [
+          "https://schema.org/algorithm": [
             {
               "@value": "SHA-256"
             }
           ],
-          "http://schema.org/value": [
+          "https://schema.org/value": [
             {
               "@value": "5268516d46a15198ad5bc72bc8817d52e87eef98e876cb49dd47df7d01e8e3cc"
             }
@@ -139,12 +139,12 @@
       ]
     }
   ],
-  "http://schema.org/identifier": [
+  "https://schema.org/identifier": [
     {
       "@value": "AA0314"
     }
   ],
-  "http://schema.org/name": [
+  "https://schema.org/name": [
     {
       "@value": "AA0314"
     }
@@ -155,7 +155,7 @@
         "https://neuroshapes.org/MTypeAnnotation",
         "https://neuroshapes.org/Annotation"
       ],
-      "http://schema.org/name": [
+      "https://schema.org/name": [
         {
           "@value": "M-type Annotation"
         }
@@ -192,7 +192,7 @@
           "@type": [
             "https://neuroshapes.org/AtlasSpatialReferenceSystem"
           ],
-          "http://schema.org/name": [
+          "https://schema.org/name": [
             {
               "@value": "Allen mouse CCFv3 atlas spatial reference system"
             }
@@ -220,7 +220,7 @@
         {
           "@id": "http://localhost/nexus/v1/realms/bbp/users/jyi",
           "@type": [
-            "http://schema.org/Person",
+            "https://schema.org/Person",
             "http://www.w3.org/ns/prov#Agent"
           ]
         }

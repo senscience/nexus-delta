@@ -1,6 +1,6 @@
 {
   "@type": [
-    "http://schema.org/Dataset",
+    "https://schema.org/Dataset",
     "https://neuroshapes.org/NeuroMorphology"
   ],
   "@id": "http://localhost/deprecated",

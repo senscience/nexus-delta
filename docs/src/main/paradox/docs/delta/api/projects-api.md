@@ -57,7 +57,7 @@ where...
 - `{vocab}`: IRI - the @link:[JSON-LD @vocab](https://www.w3.org/TR/json-ld11/#default-vocabulary){ open=new } 
   for all unqualified predicates in children resources' payload (when no other @vocab is present in the @context payload and the resources' payload is not a JSON-LD aware payload). E.g. if the vocab is set to `https://schema.org/`, when 
   a field a resource is created and a field `name` is present in the payload, it will be expanded to 
-  `http://schema.org/name` by the system during indexing and fetch operations. This field is optional and will default 
+  `https://schema.org/name` by the system during indexing and fetch operations. This field is optional and will default 
   to `{{base}}/v1/vocabs/{org_label}/{project_label}/`.
 - `{enforceSchema}`: Boolean - Allows to ban the creation of unconstrained resources in this project
 - `{apiMappings}`: Json object - provides a convenient way to compact/expand URIs when performing operations on a 
