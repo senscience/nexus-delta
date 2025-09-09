@@ -15,15 +15,19 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.testkit.mu.JsonAssertions
 import cats.effect.IO
 import fs2.Chunk
 import io.circe.Json
-import munit.AnyFixture
+import munit.{AnyFixture, Location}
 
 import java.time.Instant
 import scala.concurrent.duration.*
 
-class GraphAnalyticsSinkSuite extends NexusElasticsearchSuite with ElasticSearchClientSetup.Fixture {
+class GraphAnalyticsSinkSuite
+    extends NexusElasticsearchSuite
+    with ElasticSearchClientSetup.Fixture
+    with JsonAssertions {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(esClient)
 
@@ -51,7 +55,7 @@ class GraphAnalyticsSinkSuite extends NexusElasticsearchSuite with ElasticSearch
   // Deprecated resource
   private val deprecatedResource      = iri"http://localhost/deprecated"
   private val deprecatedResourceTypes =
-    Set(iri"http://schema.org/Dataset", iri"https://neuroshapes.org/NeuroMorphology")
+    Set(iri"https://schema.org/Dataset", iri"https://neuroshapes.org/NeuroMorphology")
 
   // Resource linked by 'resource1', resolved while indexing
   private val resource3 = iri"http://localhost/resource3"
@@ -92,6 +96,17 @@ class GraphAnalyticsSinkSuite extends NexusElasticsearchSuite with ElasticSearch
   private def success(id: Iri, result: GraphAnalyticsResult) =
     SuccessElem(Resources.entityType, id, project, Instant.EPOCH, Offset.start, result, 1)
 
+  private def assertDocument(resourceId: Iri, expectedPath: String)(implicit location: Location) = {
+    loader.jsonContentOf(expectedPath).flatMap { expected =>
+      client.getSource[Json](index, resourceId.toString).map {
+        case Some(result) =>
+          result.equalsIgnoreArrayOrder(expected)
+        case None         =>
+          fail(s"Resource $resourceId should have been indexed")
+      }
+    }
+  }
+
   test("Push index results") {
     def indexActive(id: Iri, expanded: ExpandedJsonLd) = {
       for {
@@ -111,25 +126,22 @@ class GraphAnalyticsSinkSuite extends NexusElasticsearchSuite with ElasticSearch
       )
 
     for {
-      active1            <- indexActive(resource1, expanded1)
-      active2            <- indexActive(resource2, expanded2)
-      discarded           = success(resource3, GraphAnalyticsResult.Noop)
-      deprecated          = indexDeprecated(deprecatedResource, deprecatedResourceTypes)
-      chunk               = Chunk(active1, active2, discarded, deprecated)
+      active1   <- indexActive(resource1, expanded1)
+      active2   <- indexActive(resource2, expanded2)
+      discarded  = success(resource3, GraphAnalyticsResult.Noop)
+      deprecated = indexDeprecated(deprecatedResource, deprecatedResourceTypes)
+      chunk      = Chunk(active1, active2, discarded, deprecated)
       // We expect no error
-      _                  <- sink(chunk).assertEquals(chunk.map(_.void))
+      _         <- sink(chunk).assertEquals(chunk.map(_.void))
       // 3 documents should have been indexed correctly:
       // - `resource1` with the relationship to `resource3` resolved
       // - `resource2` with no reference resolved
       // - `deprecatedResource` with only metadata, resolution is skipped
-      _                  <- client.refresh(index)
-      _                  <- client.count(index.value).assertEquals(3L)
-      expected1          <- loader.jsonContentOf("result/resource1.json")
-      expected2          <- loader.jsonContentOf("result/resource2.json")
-      expectedDeprecated <- loader.jsonContentOf("result/resource_deprecated.json")
-      _                  <- client.getSource[Json](index, resource1.toString).assertEquals(Some(expected1))
-      _                  <- client.getSource[Json](index, resource2.toString).assertEquals(Some(expected2))
-      _                  <- client.getSource[Json](index, deprecatedResource.toString).assertEquals(Some(expectedDeprecated))
+      _         <- client.refresh(index)
+      _         <- client.count(index.value).assertEquals(3L)
+      _         <- assertDocument(resource1, "result/resource1.json")
+      _         <- assertDocument(resource2, "result/resource2.json")
+      _         <- assertDocument(deprecatedResource, "result/resource_deprecated.json")
     } yield ()
 
   }
@@ -143,16 +155,13 @@ class GraphAnalyticsSinkSuite extends NexusElasticsearchSuite with ElasticSearch
     )
 
     for {
-      _         <- sink(chunk).assertEquals(chunk.map(_.void))
+      _ <- sink(chunk).assertEquals(chunk.map(_.void))
       // The reference to file1 should have been resolved and introduced as a relationship
       // The update query should not have an effect on the other resource
-      _         <- client.refresh(index)
-      expected1 <- loader.jsonContentOf("result/resource1_updated.json")
-      expected2 <- loader.jsonContentOf("result/resource2.json")
-      _         <- client.refresh(index)
-      _         <- client.count(index.value).assertEquals(3L)
-      _         <- client.getSource[Json](index, resource1.toString).assertEquals(Some(expected1))
-      _         <- client.getSource[Json](index, resource2.toString).assertEquals(Some(expected2))
+      _ <- client.refresh(index)
+      _ <- client.count(index.value).assertEquals(3L)
+      _ <- assertDocument(resource1, "result/resource1_updated.json")
+      _ <- assertDocument(resource2, "result/resource2.json")
     } yield ()
   }
 

@@ -82,8 +82,8 @@ final case class JsonLdContext(
 
   /**
     * Expands the passed value if it is in the form of a CURIE existing on the current context. E.g.: schema:Person will
-    * expand to http://schema.org/Person if in the ''prefixMappings'' exists the key values (schema ->
-    * http://schema.org/)
+    * expand to https://schema.org/Person if in the ''prefixMappings'' exists the key values (schema ->
+    * https://schema.org/)
     */
   def expandCurie(value: String): Option[Iri] =
     value.split(":").toList match {

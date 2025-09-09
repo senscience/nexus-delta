@@ -1,7 +1,7 @@
 {
   "@context": {
     "@base": "http://example.com/",
-    "@vocab": "http://schema.org/"
+    "@vocab": "https://schema.org/"
   },
   "@type": "Person",
   "@id": "http://example.com/person4",

@@ -1,5 +1,5 @@
 prefix senscience: <http://senscience.ai>
-prefix schema: <http://schema.org/>
+prefix schema: <https://schema.org/>
 
 CONSTRUCT {
   ?person 	        schema:name             ?name ;

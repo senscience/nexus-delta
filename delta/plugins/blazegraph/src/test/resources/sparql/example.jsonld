@@ -1,7 +1,7 @@
 {
   "@context": {
     "label": "http://www.w3.org/2000/01/rdf-schema#label",
-    "value": "http://schema.org/value"
+    "value": "https://schema.org/value"
   },
   "@id": "http://localhost/{{id}}",
   "label": "{{label}}",

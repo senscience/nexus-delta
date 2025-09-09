@@ -81,7 +81,7 @@ class EnforcedSchemaSpec extends BaseIntegrationSpec {
   private val contextPayload = json"""{ "@context": { "@base": "http://example.com/base/" } }"""
 
   private val whitelistedResourcePayload = json"""{
-                "@context": { "schema" : "http://schema.org/" },
+                "@context": { "schema" : "https://schema.org/" },
                  "@type": ["schema:Book", "schema:Chapter"],
                  "schema:headline": "1984"
               }"""
@@ -114,7 +114,7 @@ class EnforcedSchemaSpec extends BaseIntegrationSpec {
     "fails for a resource where a type is not whitelisted" in {
       val payload =
         json"""{
-                "@context": { "schema" : "http://schema.org/" },
+                "@context": { "schema" : "https://schema.org/" },
                  "@type": ["schema:Book", "schema:ComicStory"],
                  "schema:headline": "1984"
               }"""

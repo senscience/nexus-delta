@@ -73,7 +73,7 @@
                       "sum_other_doc_count": 0,
                       "buckets": [
                         {
-                          "key": "http://schema.org#Rat",
+                          "key": "https://schema.org#Rat",
                           "doc_count": 35000
                         }
                       ]
@@ -85,7 +85,7 @@
           }
         },
         {
-          "key": "http://schema.org/Person",
+          "key": "https://schema.org/Person",
           "doc_count": 5000,
           "relationships": {
             "doc_count": 5000,
@@ -96,28 +96,28 @@
                 "sum_other_doc_count": 0,
                 "buckets": [
                   {
-                    "key": "http://schema.org/affiliation",
+                    "key": "https://schema.org/affiliation",
                     "doc_count": 5000,
                     "pathTypes": {
                       "doc_count_error_upper_bound": 0,
                       "sum_other_doc_count": 0,
                       "buckets": [
                         {
-                          "key": "http://schema.org/Organization",
+                          "key": "https://schema.org/Organization",
                           "doc_count": 5000
                         }
                       ]
                     }
                   },
                   {
-                    "key": "http://schema.org/uknown",
+                    "key": "https://schema.org/uknown",
                     "doc_count": 5000,
                     "pathTypes": {
                       "doc_count_error_upper_bound": 0,
                       "sum_other_doc_count": 0,
                       "buckets": [
                         {
-                          "key": "http://schema.org/UknownType",
+                          "key": "https://schema.org/UknownType",
                           "doc_count": 5000
                         }
                       ]
@@ -129,7 +129,7 @@
           }
         },
         {
-          "key": "http://schema.org/Organization",
+          "key": "https://schema.org/Organization",
           "doc_count": 1,
           "relationships": {
             "doc_count": 0,
@@ -144,7 +144,7 @@
           }
         },
         {
-          "key": "http://schema.org#Rat",
+          "key": "https://schema.org#Rat",
           "doc_count": 1,
           "relationships": {
             "doc_count": 0,

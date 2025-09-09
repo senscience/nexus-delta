@@ -58,7 +58,7 @@ construct query. We explain the changes through an example.
 Suppose we are in a situation where Composite Views are using the Single Composite Sink and have the following query:
 
 ```
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX nxv: <https://bluebrain.github.io/nexus/vocabulary/>
 CONSTRUCT {
   ?id     nxv:name   ?name   ;
@@ -77,13 +77,13 @@ Using the default Single Composite Sink, Nexus Delta will query the resources Al
 following n-triples from Blazegraph:
 
 ```
-<http://people.com/Alice> <http://schema.org/name> <Alice>
-<http://people.com/Alice> <http://schema.org/parent> <http://people.com/Bob>
+<http://people.com/Alice> <https://schema.org/name> <Alice>
+<http://people.com/Alice> <https://schema.org/parent> <http://people.com/Bob>
 ```
 
 ```
-<http://people.com/Bob> <http://schema.org/name> <Bob>
-<http://people.com/Bob> <http://schema.org/age> <42>
+<http://people.com/Bob> <https://schema.org/name> <Bob>
+<http://people.com/Bob> <https://schema.org/age> <42>
 ```
 
 In particular, note that when looking at the graph of Alice, we do not know the age of Bob.
@@ -93,7 +93,7 @@ the `BIND({resource_id} AS ?id) .` with `VALUES ?id { {resources_id} }`. Nexus D
 replace `{resource_id}` with multiple resource in case it receives a batch of more than one element. The query is now:
 
 ```
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX nxv: <https://bluebrain.github.io/nexus/vocabulary/>
 CONSTRUCT {
   ?id     nxv:name   ?name   ;
@@ -112,10 +112,10 @@ With the Batch Composite Sink enabled, if Alice and Bob are batched together, th
 triples:
 
 ```
-<http://people.com/Alice> <http://schema.org/name> <Alice>
-<http://people.com/Alice> <http://schema.org/parent> <http://people.com/Bob>
-<http://people.com/Bob> <http://schema.org/name> <Bob>
-<http://people.com/Bob> <http://schema.org/age> <42>
+<http://people.com/Alice> <https://schema.org/name> <Alice>
+<http://people.com/Alice> <https://schema.org/parent> <http://people.com/Bob>
+<http://people.com/Bob> <https://schema.org/name> <Bob>
+<http://people.com/Bob> <https://schema.org/age> <42>
 ```
 
 Note how the results are the merged result of the individual queries. While we were able to query several resources
@@ -125,7 +125,7 @@ contains more information than before; it will now include the age of Bob, somet
 In order to solve this problem, we will introduce aliasing for the root resource IDs. The query will now become:
 
 ```
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX nxv: <https://bluebrain.github.io/nexus/vocabulary/>
 CONSTRUCT {
   ?alias  nxv:name   ?name   ;
@@ -145,10 +145,10 @@ CONSTRUCT {
 With this query, a batch query for both Alice and Bob will now yield:
 
 ```
-<http://people.com/Alice/alias> <http://schema.org/name> <Alice>
-<http://people.com/Alice/alias> <http://schema.org/parent> <http://people.com/Bob>
-<http://people.com/Bob/alias> <http://schema.org/name> <Bob>
-<http://people.com/Bob/alias> <http://schema.org/age> <42>
+<http://people.com/Alice/alias> <https://schema.org/name> <Alice>
+<http://people.com/Alice/alias> <https://schema.org/parent> <http://people.com/Bob>
+<http://people.com/Bob/alias> <https://schema.org/name> <Bob>
+<http://people.com/Bob/alias> <https://schema.org/age> <42>
 ```
 
 You can see that the root node of Bob's graph is now `http://people.com/Bob/alias`, while Alice's parent

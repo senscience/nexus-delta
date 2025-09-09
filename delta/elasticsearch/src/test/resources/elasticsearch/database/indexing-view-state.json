@@ -16,7 +16,7 @@
     "name": "viewName",
     "description": "viewDescription",
     "context": {
-      "@vocab": "http://schema.org/"
+      "@vocab": "https://schema.org/"
     },
     "mapping": {
       "properties": {

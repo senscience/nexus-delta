@@ -35,7 +35,7 @@
             ],
             "http://www.w3.org/ns/shacl#path": [
               {
-                "@id": "http://schema.org/propertyID"
+                "@id": "https://schema.org/propertyID"
               }
             ]
           },
@@ -58,7 +58,7 @@
             ],
             "http://www.w3.org/ns/shacl#path": [
               {
-                "@id": "http://schema.org/value"
+                "@id": "https://schema.org/value"
               }
             ]
           }

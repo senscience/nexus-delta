@@ -1,7 +1,7 @@
 {
   "@context": {
     "label": "http://www.w3.org/2000/01/rdf-schema#label",
-    "schema": "http://schema.org/",
+    "schema": "https://schema.org/",
     "nested": "http://localhost/nested/"
   },
   "@id": "http://localhost/{{id}}",

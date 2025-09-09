@@ -36,7 +36,7 @@ class ElasticSearchViewSpec extends CatsEffectSpec with CirceLiteral with CirceE
       pipeline,
       jobj"""{"properties": {"@type": {"type": "keyword"}, "@id": {"type": "keyword"} } }""",
       jobj"""{"analysis": {"analyzer": {"nexus": {} } } }""",
-      context = Some(ContextObject(jobj"""{"@vocab": "http://schema.org/"}""")),
+      context = Some(ContextObject(jobj"""{"@vocab": "https://schema.org/"}""")),
       perm,
       tagsMap,
       source

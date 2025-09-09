@@ -53,7 +53,7 @@ object ProjectPayload extends Generators {
         "commonshapes"     -> "https://neuroshapes.org/commons/",
         "provdatashapes"   -> "https://provshapes.org/datashapes/",
         "taxonomies"       -> "https://neuroshapes.org/dash/taxonomy",
-        "schemaorg"        -> "http://schema.org/"
+        "schemaorg"        -> "https://schema.org/"
       ),
       enforceSchema = enforceSchema
     )

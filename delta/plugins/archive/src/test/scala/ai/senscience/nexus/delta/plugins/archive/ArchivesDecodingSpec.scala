@@ -352,7 +352,7 @@ class ArchivesDecodingSpec extends CatsEffectSpec with RemoteContextResolutionFi
         val resourceId = iri"http://localhost/${genString()}"
         val source     =
           json"""{
-           "@context": "http://schema.org/",
+           "@context": "https://schema.org/",
           "resources": [
             {
               "@type": "Resource",

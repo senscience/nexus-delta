@@ -1,23 +1,23 @@
 [
   {
     "@type": [
-      "http://schema.org/Menu",
-      "http://schema.org/DrinkMenu"
+      "https://schema.org/Menu",
+      "https://schema.org/DrinkMenu"
     ],
-    "http://schema.org/drinks": [
+    "https://schema.org/drinks": [
       {
-        "@id": "http://schema.org/mojito",
+        "@id": "https://schema.org/mojito",
         "@type": [
-          "http://schema.org/Drink",
-          "http://schema.org/Cocktail"
+          "https://schema.org/Drink",
+          "https://schema.org/Cocktail"
         ],
-        "http://schema.org/alcohol": [
+        "https://schema.org/alcohol": [
           {
             "@type": "http://www.w3.org/2001/XMLSchema#boolean",
             "@value": true
           }
         ],
-        "http://schema.org/ingredients": [
+        "https://schema.org/ingredients": [
           {
             "@value": "rum"
           },
@@ -25,13 +25,13 @@
             "@value": "sugar"
           }
         ],
-        "http://schema.org/name": [
+        "https://schema.org/name": [
           {
             "@value": "Mojito",
             "@language": "en"
           }
         ],
-        "http://schema.org/steps": [
+        "https://schema.org/steps": [
           {
             "@list": [
               {
@@ -43,14 +43,14 @@
             ]
           }
         ],
-        "http://schema.org/volume": [
+        "https://schema.org/volume": [
           {
-            "http://schema.org/unit": [
+            "https://schema.org/unit": [
               {
                 "@value": "%"
               }
             ],
-            "http://schema.org/value": [
+            "https://schema.org/value": [
               {
                 "@type": "http://www.w3.org/2001/XMLSchema#double",
                 "@value": "8.3"
@@ -58,22 +58,22 @@
             ]
           }
         ],
-        "http://schema.org/link": [
+        "https://schema.org/link": [
           {
-            "@id": "http://schema.org/mylink"
+            "@id": "https://schema.org/mylink"
           }
         ],
-        "http://schema.org/instant": [
+        "https://schema.org/instant": [
           {
             "@value": "2020-11-25T21:29:38.939939Z"
           }
         ],
-        "http://schema.org/uuid": [
+        "https://schema.org/uuid": [
           {
             "@value": "e45e15a9-5e4c-4485-8de4-1a011d12349c"
           }
         ],
-        "http://schema.org/hangover": [
+        "https://schema.org/hangover": [
           {
             "@value": "1 hour"
           }

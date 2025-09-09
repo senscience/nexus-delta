@@ -62,7 +62,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
     ),
     Some(customMapping),
     Some(customSettings),
-    context = Some(ContextObject(jobj"""{"@vocab": "http://schema.org/"}""")),
+    context = Some(ContextObject(jobj"""{"@vocab": "https://schema.org/"}""")),
     Permission.unsafe("my/permission")
   )
 

@@ -3,7 +3,7 @@ prefix nsg: <https://neuroshapes.org/>
 prefix bmo: <https://bbp.epfl.ch/ontologies/core/bmo/>
 prefix skos: <http://www.w3.org/2004/02/skos/core#>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-prefix schema: <http://schema.org/>
+prefix schema: <https://schema.org/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
 prefix : <https://bluebrain.github.io/nexus/field/>

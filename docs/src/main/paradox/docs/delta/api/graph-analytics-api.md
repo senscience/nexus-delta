@@ -123,7 +123,7 @@ An example of the ElasticSearch Document looks as follows:
 ```json
 {
   "@id": "http://example.com/Anna",
-  "@type": "http://schema.org/Person",
+  "@type": "https://schema.org/Person",
   "_project": "myorg/myproject",
   "_rev": 4,
   "_deprecated": false,
@@ -134,38 +134,38 @@ An example of the ElasticSearch Document looks as follows:
   "properties": [
     {
       "dataType": "object",
-      "path": "http://schema.org/address",
+      "path": "https://schema.org/address",
       "isInArray": false
     },
     {
       "dataType": "string",
-      "path": "http://schema.org/address / http://schema.org/street",
+      "path": "https://schema.org/address / https://schema.org/street",
       "isInArray": false
     },
     {
       "dataType": "number",
-      "path": "http://schema.org/address / http://schema.org/zipcode",
+      "path": "https://schema.org/address / https://schema.org/zipcode",
       "isInArray": false
     },
     {
       "dataType": "object",
       "@id": "http://example.com/Robert",
-      "path": "http://schema.org/brother",
+      "path": "https://schema.org/brother",
       "isInArray": false
     },
     {
       "dataType": "string",
-      "path": "http://schema.org/givenName",
+      "path": "https://schema.org/givenName",
       "isInArray": false
     },
     {
       "dataType": "object",
-      "path": "http://schema.org/studies",
+      "path": "https://schema.org/studies",
       "isInArray": true
     },
     {
       "dataType": "string",
-      "path": "http://schema.org/studies / http://schema.org/name",
+      "path": "https://schema.org/studies / https://schema.org/name",
       "isInArray": true
     }
   ],
@@ -179,8 +179,8 @@ An example of the ElasticSearch Document looks as follows:
     {
       "dataType": "object",
       "@id": "http://example.com/Robert",
-      "@type": "http://schema.org/Person",
-      "path": "http://schema.org/brother",
+      "@type": "https://schema.org/Person",
+      "path": "https://schema.org/brother",
       "isInArray": false
     }
   ],

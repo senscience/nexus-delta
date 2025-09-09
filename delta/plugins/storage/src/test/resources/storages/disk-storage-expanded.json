@@ -10,12 +10,12 @@
         "@value": "SHA-256"
       }
     ],
-    "http://schema.org/name": [
+    "https://schema.org/name": [
       {
         "@value": "diskName"
       }
     ],
-    "http://schema.org/description": [
+    "https://schema.org/description": [
       {
         "@value": "diskDescription"
       }

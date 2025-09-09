@@ -25,7 +25,7 @@
             ],
             "http://www.w3.org/ns/shacl#path": [
               {
-                "@id": "http://schema.org/identifier"
+                "@id": "https://schema.org/identifier"
               }
             ],
             "http://www.w3.org/ns/shacl#xone": [

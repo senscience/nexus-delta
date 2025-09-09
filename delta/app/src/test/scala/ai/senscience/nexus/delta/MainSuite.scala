@@ -80,7 +80,7 @@ object MainSuite {
         val queryFile         = Files.createTempFile("query", ".json")
         Files.writeString(
           queryFile,
-          """CONSTRUCT { {resource_id} <http://schema.org/name> ?name } WHERE { {resource_id} <http://localhost/name> ?name }"""
+          """CONSTRUCT { {resource_id} <https://schema.org/name> ?name } WHERE { {resource_id} <http://localhost/name> ?name }"""
         )
 
         Map(

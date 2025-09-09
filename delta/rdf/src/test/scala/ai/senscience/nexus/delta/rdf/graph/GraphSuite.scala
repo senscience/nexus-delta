@@ -210,7 +210,7 @@ class GraphSuite
   }
 
   test("Convert to compacted JSON-LD from a named graph") {
-    val ctx = ContextObject(jobj"""{"@vocab": "http://schema.org/", "@base": "http://nexus.senscience.ai/"}""")
+    val ctx = ContextObject(jobj"""{"@vocab": "https://schema.org/", "@base": "http://nexus.senscience.ai/"}""")
     for {
       graph       <- loadNamedGraphFromExpanded
       compacted   <- graph.toCompactedJsonLd(ctx)
@@ -255,7 +255,7 @@ class GraphSuite
 
   test("return a new graph after running a construct query on it") {
     val query = SparqlConstructQuery.unsafe("""
-      |prefix schema: <http://schema.org/>
+      |prefix schema: <https://schema.org/>
       |
       |CONSTRUCT {
       |  ?person 	        a                       ?type ;
@@ -280,7 +280,7 @@ class GraphSuite
 
   test("Raise an error for an invalid query") {
     val query = SparqlConstructQuery.unsafe("""
-      |prefix schema: <http://schema.org/>
+      |prefix schema: <https://schema.org/>
       |
       |CONSTRUCT { fail }
       |""".stripMargin)

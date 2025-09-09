@@ -30,7 +30,7 @@ class ElasticSearchViewDecodingSpec extends CatsEffectSpec with Fixtures {
   private val context = ProjectContext.unsafe(
     ApiMappings("_" -> schemas.resources, "resource" -> schemas.resources),
     iri"http://localhost/v1/resources/org/proj/_/",
-    iri"http://schema.org/",
+    iri"https://schema.org/",
     enforceSchema = false
   )
 
@@ -67,7 +67,7 @@ class ElasticSearchViewDecodingSpec extends CatsEffectSpec with Fixtures {
 
       "it has a context" in {
         val additionalContext           =
-          JsonObject("description" := "http://schema.org/description")
+          JsonObject("description" := "https://schema.org/description")
         val sourceWithAdditionalContext =
           json"""{
                    "@type": "ElasticSearchView",

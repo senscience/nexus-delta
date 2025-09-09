@@ -41,7 +41,7 @@ class ElasticSearchViewSerializationSuite extends SerializationSuite {
     ),
     Some(jobj"""{"properties": {}}"""),
     Some(jobj"""{"analysis": {}}"""),
-    context = Some(ContextObject(jobj"""{"@vocab": "http://schema.org/"}""")),
+    context = Some(ContextObject(jobj"""{"@vocab": "https://schema.org/"}""")),
     Permission.unsafe("my/permission")
   )
   private val viewRef          = ViewRef(projectRef, indexingId)

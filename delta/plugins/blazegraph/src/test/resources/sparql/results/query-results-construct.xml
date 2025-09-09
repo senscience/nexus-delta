@@ -1,11 +1,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
     <rdf:Description rdf:about="http://localhost/myid-0">
-        <value rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xmlns="http://schema.org/">b-0</value>
+        <value rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xmlns="https://schema.org/">b-0</value>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a-0</rdfs:label>
     </rdf:Description>
     <rdf:Description rdf:about="http://localhost/myid-1">
-        <value rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xmlns="http://schema.org/">b-1</value>
+        <value rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xmlns="https://schema.org/">b-1</value>
         <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a-1</rdfs:label>
     </rdf:Description>
 </rdf:RDF>

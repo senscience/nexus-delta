@@ -9,7 +9,7 @@ class SparqlQuerySpec extends BaseSpec {
 
   val validConstruct = """
               prefix example: <http://example.com/>
-              prefix schema: <http://schema.org/>
+              prefix schema: <https://schema.org/>
 
               CONSTRUCT {
                 ?person 	        a                       ?type ;

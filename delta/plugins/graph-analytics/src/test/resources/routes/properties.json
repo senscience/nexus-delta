@@ -1,11 +1,11 @@
 {
   "@context" : "https://bluebrain.github.io/nexus/contexts/properties.json",
-  "@id" : "http://schema.org/Person",
+  "@id" : "https://schema.org/Person",
   "_count" : 10,
   "_name" : "Person",
   "_properties" : [
     {
-      "@id" : "http://schema.org/address",
+      "@id" : "https://schema.org/address",
       "_count" : 5,
       "_name" : "address"
     }

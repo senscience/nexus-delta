@@ -321,7 +321,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
             {
               "@id" : "https://www.grid.ac/institutes/grid.5333.6",
               "@type" : [
-                "http://schema.org/Organization",
+                "https://schema.org/Organization",
                 "http://www.w3.org/ns/prov#Agent"
               ],
               "idLabel": "https://www.grid.ac/institutes/grid.5333.6|École Polytechnique Fédérale de Lausanne",
@@ -331,7 +331,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
               "@id" : "https://bbp.epfl.ch/neurosciencegraph/data/d3a0dafe-f8ed-4b4d-bd90-93d64baf63a1",
               "@type" : [
                 "http://www.w3.org/ns/prov#Agent",
-                "http://schema.org/Person"
+                "https://schema.org/Person"
               ],
               "idLabel" : "https://bbp.epfl.ch/neurosciencegraph/data/d3a0dafe-f8ed-4b4d-bd90-93d64baf63a1|John Doe",
               "label" : "John Doe",
@@ -644,7 +644,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
             {
               "@id" : "https://bbp.epfl.ch/neurosciencegraph/data/scholarlyarticles/1",
               "@type" : [
-                "http://schema.org/ScholarlyArticle",
+                "https://schema.org/ScholarlyArticle",
                 "http://www.w3.org/ns/prov#Entity"
               ],
               "identifier" : [

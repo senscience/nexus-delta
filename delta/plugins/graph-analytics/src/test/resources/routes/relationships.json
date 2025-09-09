@@ -5,22 +5,22 @@
       "_count" : 5,
       "_path" : [
         {
-          "@id" : "http://schema.org/address",
+          "@id" : "https://schema.org/address",
           "_name" : "address"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/Address"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/Address"
     }
   ],
   "_nodes" : [
     {
-      "@id" : "http://schema.org/Person",
+      "@id" : "https://schema.org/Person",
       "_count" : 10,
       "_name" : "Person"
     },
     {
-      "@id" : "http://schema.org/Address",
+      "@id" : "https://schema.org/Address",
       "_count" : 5,
       "_name" : "Address"
     }

@@ -13,7 +13,7 @@
     "@id": "https://bluebrain.github.io/nexus/vocabulary/indexing-view",
     "@type": "ElasticSearchView",
     "context": {
-      "@vocab": "http://schema.org/"
+      "@vocab": "https://schema.org/"
     },
     "name": "viewName",
     "description": "viewDescription",

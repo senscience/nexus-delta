@@ -45,7 +45,7 @@
       }
     },
     "context": {
-      "@vocab": "http://schema.org/"
+      "@vocab": "https://schema.org/"
     },
     "permission": "my/permission",
     "@type": "IndexingElasticSearchViewValue"
@@ -93,7 +93,7 @@
       }
     },
     "context": {
-      "@vocab": "http://schema.org/"
+      "@vocab": "https://schema.org/"
     },
     "permission": "my/permission",
     "@type": "ElasticSearchView",

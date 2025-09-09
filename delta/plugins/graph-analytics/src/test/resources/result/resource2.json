@@ -4,7 +4,7 @@
     "https://neuroshapes.org/NeuronMorphology",
     "https://neuroshapes.org/ReconstructedCell",
     "https://neuroshapes.org/ReconstructedWholeBrainCell",
-    "http://schema.org/Dataset",
+    "https://schema.org/Dataset",
     "http://www.w3.org/ns/prov#Entity"
   ],
   "remoteContexts": [
@@ -26,11 +26,11 @@
   },
   "properties": [
     {
-      "path": "http://schema.org/distribution",
+      "path": "https://schema.org/distribution",
       "isInArray": false,
       "dataType": "object",
       "@type": [
-        "http://schema.org/DataDownload"
+        "https://schema.org/DataDownload"
       ]
     },
     {
@@ -65,7 +65,7 @@
       "dataType": "string"
     },
     {
-      "path": "http://schema.org/name",
+      "path": "https://schema.org/name",
       "isInArray": false,
       "dataType": "string"
     },
@@ -76,7 +76,7 @@
       "@id": "http://localhost/my-mtype"
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentUrl",
+      "path": "https://schema.org/distribution / https://schema.org/contentUrl",
       "isInArray": false,
       "dataType": "object",
       "@id": "http://localhost/file2"
@@ -104,7 +104,7 @@
       "found": false
     },
     {
-      "path": "http://schema.org/distribution / http://schema.org/contentUrl",
+      "path": "https://schema.org/distribution / https://schema.org/contentUrl",
       "isInArray": false,
       "dataType": "object",
       "@id": "http://localhost/file2",

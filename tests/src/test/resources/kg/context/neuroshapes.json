@@ -511,7 +511,7 @@
       "@id": "https://bbp.epfl.ch/ontologies/core/bmo/Cytosol"
     },
     "DataCatalog": {
-      "@id": "http://schema.org/DataCatalog"
+      "@id": "https://schema.org/DataCatalog"
     },
     "DataCurationWorkflow": {
       "@id": "https://bbp.epfl.ch/ontologies/core/bmo/DataCurationWorkflow"
@@ -4012,7 +4012,7 @@
     "scale_mg": {
       "@id": "https://bbp.epfl.ch/ontologies/core/parameters/scale_mg"
     },
-    "schema": "http://schema.org/",
+    "schema": "https://schema.org/",
     "score": {
       "@id": "nsg:score"
     },

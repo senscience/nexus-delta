@@ -2,7 +2,7 @@
   {
     "@id": "http://nexus.senscience.ai/john-doé",
     "@type": [
-      "http://schema.org/Person"
+      "https://schema.org/Person"
     ],
     "http://senscience.ai/address": [
       {
@@ -23,7 +23,7 @@
         ]
       }
     ],
-    "http://schema.org/deprecated": [
+    "https://schema.org/deprecated": [
       {
         "@value": false
       }
@@ -39,12 +39,12 @@
         "@value": "Some \"property"
       }
     ],
-    "http://schema.org/birthDate": [
+    "https://schema.org/birthDate": [
       {
         "@value": "1999-04-09T20:00Z"
       }
     ],
-    "http://schema.org/name": [
+    "https://schema.org/name": [
       {
         "@value": "John Doe"
       }
@@ -53,24 +53,24 @@
       {
         "@id": "http://nexus.senscience.ai/another",
         "@type": [
-          "http://schema.org/Other"
+          "https://schema.org/Other"
         ],
-        "http://schema.org/birthDate": [
+        "https://schema.org/birthDate": [
           {
             "@value": "2000-04-12T20:00Z"
           }
         ],
-        "http://schema.org/birthHour": [
+        "https://schema.org/birthHour": [
           {
             "@value": 9
           }
         ],
-        "http://schema.org/birthYear": [
+        "https://schema.org/birthYear": [
           {
             "@value": 1999
           }
         ],
-        "http://schema.org/height": [
+        "https://schema.org/height": [
           {
             "@value": 9.223
           }

@@ -18,7 +18,7 @@
       "buckets": [
         {
           "doc_count": 3,
-          "key": "http://schema.org/TestResource"
+          "key": "https://schema.org/TestResource"
         }
       ],
       "doc_count_error_upper_bound": 0,

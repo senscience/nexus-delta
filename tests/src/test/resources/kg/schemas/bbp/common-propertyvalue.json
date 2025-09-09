@@ -175,7 +175,7 @@
     "resultMessage": {
       "@id": "sh:message"
     },
-    "schema": "http://schema.org/",
+    "schema": "https://schema.org/",
     "seeAlso": {
       "@id": "rdfs:seeAlso",
       "@type": "@id"

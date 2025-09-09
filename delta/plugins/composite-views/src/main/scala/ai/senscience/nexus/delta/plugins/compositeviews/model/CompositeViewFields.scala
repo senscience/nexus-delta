@@ -74,8 +74,8 @@ object CompositeViewFields {
     }
 
     val ctx             = Configuration.default.context
-      .addAliasIdType("description", iri"http://schema.org/description")
-      .addAliasIdType("name", iri"http://schema.org/name")
+      .addAliasIdType("description", iri"https://schema.org/description")
+      .addAliasIdType("name", iri"https://schema.org/name")
     implicit val config = Configuration.default.copy(context = ctx)
 
     deriveConfigJsonLdDecoder[CompositeViewFields]

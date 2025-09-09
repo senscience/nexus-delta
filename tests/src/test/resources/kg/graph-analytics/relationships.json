@@ -5,33 +5,33 @@
       "_count" : 2,
       "_path" : [
         {
-          "@id" : "http://schema.org/worksFor",
+          "@id" : "https://schema.org/worksFor",
           "_name" : "worksFor"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/Organization"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/Organization"
     },
     {
       "_count" : 1,
       "_path" : [
         {
-          "@id" : "http://schema.org/alumniOf",
+          "@id" : "https://schema.org/alumniOf",
           "_name" : "alumniOf"
         }
       ],
-      "_source" : "http://schema.org/Person",
-      "_target" : "http://schema.org/Organization"
+      "_source" : "https://schema.org/Person",
+      "_target" : "https://schema.org/Organization"
     }
   ],
   "_nodes" : [
     {
-      "@id" : "http://schema.org/Person",
+      "@id" : "https://schema.org/Person",
       "_count" : 3,
       "_name" : "Person"
     },
     {
-      "@id" : "http://schema.org/Organization",
+      "@id" : "https://schema.org/Organization",
       "_count" : 1,
       "_name" : "Organization"
     }

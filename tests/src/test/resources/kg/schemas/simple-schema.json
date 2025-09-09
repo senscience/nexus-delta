@@ -4,7 +4,7 @@
     {
       "this": "https://dev.nexus.test.com/test-schema/shapes/",
       "other": "https://some.other.prefix.com/",
-      "schema" : "http://schema.org/"
+      "schema" : "https://schema.org/"
     }
   ],
 

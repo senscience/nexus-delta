@@ -11,33 +11,33 @@
         "@value": 6
       }
     ],
-    "http://schema.org/distribution": [
+    "https://schema.org/distribution": [
       {
         "@type": [
-          "http://schema.org/DataDownload"
+          "https://schema.org/DataDownload"
         ],
-        "http://schema.org/contentSize": [
+        "https://schema.org/contentSize": [
           {
-            "http://schema.org/unitCode": [
+            "https://schema.org/unitCode": [
               {
                 "@value": "bytes"
               }
             ],
-            "http://schema.org/value": [
+            "https://schema.org/value": [
               {
                 "@value": 0
               }
             ]
           }
         ],
-        "http://schema.org/contentUrl": [
+        "https://schema.org/contentUrl": [
           {
             "@id": "http://localhost/file1"
           }
         ]
       }
     ],
-    "http://schema.org/name": [
+    "https://schema.org/name": [
       {
         "@value": "my-trace-1"
       }

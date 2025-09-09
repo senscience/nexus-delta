@@ -56,10 +56,10 @@ Here's what the context should look like:
         "@id": "http://www.w3.org/2000/01/rdf-schema#label"
       },
       "name": {
-        "@id": "http://schema.org/name"
+        "@id": "https://schema.org/name"
       },
       "description": {
-        "@id": "http://schema.org/description"
+        "@id": "https://schema.org/description"
       },
       "workspaces": {
         "@id": "https://bluebrainnexus.io/studio/vocabulary/workspaces",
@@ -123,7 +123,7 @@ An example `Dashboard` resource looks like this:
 {
   "@context": "https://bluebrainnexus.io/studio/context",
   "@type": "StudioDashboard",
-  "dataQuery": "prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>\nprefix s: <http://schema.org/>\nSELECT DISTINCT ?self ?familyName ?givenName\nWHERE {\n?s nxv:constrainedBy <https://neuroshapes.org/dash/person> ;\n  nxv:self ?self ;\n  s:familyName ?familyName ; \n  s:givenName ?givenName\n}\nLIMIT 20",
+  "dataQuery": "prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>\nprefix s: <https://schema.org/>\nSELECT DISTINCT ?self ?familyName ?givenName\nWHERE {\n?s nxv:constrainedBy <https://neuroshapes.org/dash/person> ;\n  nxv:self ?self ;\n  s:familyName ?familyName ; \n  s:givenName ?givenName\n}\nLIMIT 20",
   "description": "A list of every scientist",
   "label": "Scientists",
   "plugins": ["nexus-plugin-example"]
@@ -295,7 +295,7 @@ Here's an example of fetching unique Persons using `https://schema.org` properti
 
 ```sparql
 prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
-prefix s: <http://schema.org/>
+prefix s: <https://schema.org/>
 SELECT DISTINCT ?self ?familyName ?givenName
 WHERE {
   ?s nxv:constrainedBy <https://neuroshapes.org/dash/person> ;

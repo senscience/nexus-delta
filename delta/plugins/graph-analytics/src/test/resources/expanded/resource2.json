@@ -2,7 +2,7 @@
   {
     "@id": "http://localhost/resource2",
     "@type": [
-      "http://schema.org/Dataset",
+      "https://schema.org/Dataset",
       "https://neuroshapes.org/ReconstructedCell",
       "https://neuroshapes.org/NeuronMorphology",
       "https://neuroshapes.org/ReconstructedWholeBrainCell",
@@ -25,12 +25,12 @@
         ]
       }
     ],
-    "http://schema.org/distribution": [
+    "https://schema.org/distribution": [
       {
         "@type": [
-          "http://schema.org/DataDownload"
+          "https://schema.org/DataDownload"
         ],
-        "http://schema.org/contentUrl": [
+        "https://schema.org/contentUrl": [
           {
             "@id": "http://localhost/file2"
           }
@@ -52,7 +52,7 @@
         ]
       }
     ],
-    "http://schema.org/name": [
+    "https://schema.org/name": [
       {
         "@value": "my-cell-2"
       }

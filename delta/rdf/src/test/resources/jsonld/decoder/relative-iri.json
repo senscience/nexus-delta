@@ -1,6 +1,6 @@
 [
   {
-    "http://schema.org/value": {
+    "https://schema.org/value": {
       "@id": "relative"
     }
   }

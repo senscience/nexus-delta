@@ -23,6 +23,14 @@ object DefaultLabelPredicates extends PipeDef {
     new SelectPredicates(cfg)
   }
 
-  val defaultLabelPredicates: Set[Iri] =
-    Set(skos.prefLabel, rdf.tpe, rdfs.label, schema.name, schema.description, nxv.keywords.iri)
+  private val defaultLabelPredicates: Set[Iri] = Set(
+    skos.prefLabel,
+    rdf.tpe,
+    rdfs.label,
+    schema.httpName,
+    schema.name,
+    schema.httpDescription,
+    schema.description,
+    nxv.keywords.iri
+  )
 }

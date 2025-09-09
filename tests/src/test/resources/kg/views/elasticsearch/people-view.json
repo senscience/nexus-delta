@@ -16,7 +16,7 @@
   },
   "resourceSchemas": [],
   "resourceTypes": [
-    "http://schema.org/Person"
+    "https://schema.org/Person"
   ],
   "sourceAsText": false
 }

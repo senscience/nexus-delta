@@ -5,8 +5,8 @@
       "@vocab": "http://senscience.ai/",
       "@base": "http://nexus.senscience.ai/",
       "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "Person": "http://schema.org/Person",
-      "schema": "http://schema.org/"
+      "Person": "https://schema.org/Person",
+      "schema": "https://schema.org/"
     },
     "http://senscience.ai/cöntéxt/0"
   ],

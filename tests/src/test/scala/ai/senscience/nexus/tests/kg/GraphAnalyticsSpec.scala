@@ -1,5 +1,6 @@
 package ai.senscience.nexus.tests.kg
 
+import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.projects.Bojack
@@ -21,6 +22,8 @@ final class GraphAnalyticsSpec extends BaseIntegrationSpec {
       .get[Vector[Json]]("hits")
       .flatMap(seq => seq.traverse(_.hcursor.get[Json]("_source")))
       .rightValue
+
+  private val encodedPersonType = UrlUtils.encodeUriPath("https://schema.org/Person")
 
   "Setting up" should {
     "succeed in setting up org, project and acls" in {
@@ -53,7 +56,7 @@ final class GraphAnalyticsSpec extends BaseIntegrationSpec {
     }
 
     "fetch properties" in eventually {
-      deltaClient.get[Json](s"/graph-analytics/$ref/properties/http%3A%2F%2Fschema.org%2FPerson", Bojack) { (json, _) =>
+      deltaClient.get[Json](s"/graph-analytics/$ref/properties/$encodedPersonType", Bojack) { (json, _) =>
         json shouldEqual jsonContentOf("kg/graph-analytics/properties-person.json")
       }
     }
@@ -79,7 +82,7 @@ final class GraphAnalyticsSpec extends BaseIntegrationSpec {
       }
     }
     "fetch updated properties" in eventually {
-      deltaClient.get[Json](s"/graph-analytics/$ref/properties/http%3A%2F%2Fschema.org%2FPerson", Bojack) { (json, _) =>
+      deltaClient.get[Json](s"/graph-analytics/$ref/properties/$encodedPersonType", Bojack) { (json, _) =>
         json shouldEqual jsonContentOf("kg/graph-analytics/properties-person-updated.json")
       }
     }

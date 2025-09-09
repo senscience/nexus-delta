@@ -1,66 +1,66 @@
 {
   "@id": "http://example.com/person1",
-  "@type": "http://schema.org/Person",
+  "@type": "https://schema.org/Person",
   "properties": [
     {
       "@id": "http://example.com/epfl",
       "dataType": "object",
       "isInArray": false,
-      "path": "http://schema.org/worksFor"
+      "path": "https://schema.org/worksFor"
     },
     {
       "@id": "http://example.com/person4",
       "dataType": "object",
       "isInArray": false,
-      "path": "http://schema.org/colleague"
+      "path": "https://schema.org/colleague"
     },
     {
       "dataType": "string",
       "isInArray": false,
-      "path": "http://schema.org/givenName"
+      "path": "https://schema.org/givenName"
     }
   ],
   "references": [
     {
       "@id": "http://example.com/epfl",
       "@type": [
-        "http://schema.org/EducationalOrganization"
+        "https://schema.org/EducationalOrganization"
       ],
       "dataType": "object",
       "found": true,
       "isInArray": false,
-      "path": "http://schema.org/worksFor"
+      "path": "https://schema.org/worksFor"
     },
     {
       "@id": "http://example.com/person4",
       "@type": [
-        "http://schema.org/Person"
+        "https://schema.org/Person"
       ],
       "dataType": "object",
       "found": true,
       "isInArray": false,
-      "path": "http://schema.org/colleague"
+      "path": "https://schema.org/colleague"
     }
   ],
   "relationships": [
     {
       "@id": "http://example.com/epfl",
       "@type": [
-        "http://schema.org/EducationalOrganization"
+        "https://schema.org/EducationalOrganization"
       ],
       "dataType": "object",
       "isInArray": false,
-      "path": "http://schema.org/worksFor"
+      "path": "https://schema.org/worksFor"
     },
     {
       "@id": "http://example.com/person4",
       "@type": [
-        "http://schema.org/Person"
+        "https://schema.org/Person"
       ],
       "dataType": "object",
       "found": true,
       "isInArray": false,
-      "path": "http://schema.org/colleague"
+      "path": "https://schema.org/colleague"
     }
   ],
   "remoteContexts": [
