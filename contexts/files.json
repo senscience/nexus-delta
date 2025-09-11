@@ -28,8 +28,8 @@
     },
     "_location": "https://bluebrain.github.io/nexus/vocabulary/location",
     "_filename": "https://bluebrain.github.io/nexus/vocabulary/filename",
-    "name": "http://schema.org/name",
-    "description": "http://schema.org/description",
+    "name": "https://schema.org/name",
+    "description": "https://schema.org/description",
     "_mediaType": "https://bluebrain.github.io/nexus/vocabulary/mediaType",
     "_uuid": "https://bluebrain.github.io/nexus/vocabulary/uuid",
     "_storage": {

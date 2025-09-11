@@ -217,6 +217,7 @@ senscience/nexus-delta
         <li><a href="../../docs/delta/api/views/sparql-view-api.html" class="page">SparqlView</a></li>
         <li><a href="../../docs/delta/api/views/aggregated-sparql-view-api.html" class="page">AggregateSparqlView</a></li>
         <li><a href="../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
+        <li><a href="../../docs/delta/api/views/event-metrics-api.html" class="page">Event metrics</a></li>
       </ul></li>
       <li><a href="../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
       <li><a href="../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
@@ -381,7 +382,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>The goal is that indexing will produce Elasticsearch documents that has the following structure:</p>
 <pre class="prettyprint"><code class="language-json">{
   &quot;@id&quot;: &quot;...&quot;,
-  &quot;@type&quot;: [&quot;http://schema.org/Dataset&quot;, &quot;http://other...&quot;],
+  &quot;@type&quot;: [&quot;https://schema.org/Dataset&quot;, &quot;http://other...&quot;],
   &quot;name&quot;: &quot;&lt;name or label&gt;&quot;,
   &quot;description&quot;: &quot;...&quot;,
   &quot;author&quot;: &quot;&lt;givenName&gt; &lt;familyName&gt; if exists&quot;,
@@ -395,12 +396,12 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </code></pre>
 <p>The first step is to define which types of resources should be considered for indexing as a JSON document (provided via the <code>plugins.search.indexing.resource-types={pathToFile}</code> setting). In this example the intent is to index only resources of type <code>Dataset</code>, but there are situations where a more specific list of types should be considered.</p>
 <pre class="prettyprint"><code class="language-json">[
-  &quot;http://schema.org/Dataset&quot;
+  &quot;https://schema.org/Dataset&quot;
 ]
 </code></pre>
 <p>The next step is to write the appropriate SPARQL query that collects the required information by traversing the RDF graph maintained by the CompositeView. The type of query that is required is a <code>CONSTRUCT</code> query, where one can create a new RDF graph based on the information collected from the original graph. The <code>CONSTRUCT</code> query is provided to Delta using the <code>plugins.search.indexing.query={pathToFile}</code> setting.</p>
 <pre><code>prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
-prefix schema: &lt;http://schema.org/&gt;
+prefix schema: &lt;https://schema.org/&gt;
 prefix nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;
 prefix f: &lt;http://localhost/field/&gt; # this is the new namespace to be used for
                                     # all fields; using a separate namespace

@@ -217,6 +217,7 @@ senscience/nexus-delta
         <li><a href="../../../../docs/delta/api/views/sparql-view-api.html" class="page">SparqlView</a></li>
         <li><a href="../../../../docs/delta/api/views/aggregated-sparql-view-api.html" class="page">AggregateSparqlView</a></li>
         <li><a href="../../../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
+        <li><a href="../../../../docs/delta/api/views/event-metrics-api.html" class="page">Event metrics</a></li>
       </ul></li>
       <li><a href="../../../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
       <li><a href="../../../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
@@ -330,7 +331,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>In order to use the Batch Composite Sink successfully, it is necessary to rework some aspects of a regular SPARQL construct query. We explain the changes through an example.</p>
 <h3><a href="#example" name="example" class="anchor"><span class="anchor-link"></span></a>Example</h3>
 <p>Suppose we are in a situation where Composite Views are using the Single Composite Sink and have the following query:</p>
-<pre><code>PREFIX schema: &lt;http://schema.org/&gt;
+<pre><code>PREFIX schema: &lt;https://schema.org/&gt;
 PREFIX nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;
 CONSTRUCT {
   ?id     nxv:name   ?name   ;
@@ -345,15 +346,15 @@ CONSTRUCT {
 }
 </code></pre>
 <p>Using the default Single Composite Sink, Nexus Delta will query the resources Alice and Bob individually and obtain the following n-triples from Blazegraph:</p>
-<pre><code>&lt;http://people.com/Alice&gt; &lt;http://schema.org/name&gt; &lt;Alice&gt;
-&lt;http://people.com/Alice&gt; &lt;http://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
+<pre><code>&lt;http://people.com/Alice&gt; &lt;https://schema.org/name&gt; &lt;Alice&gt;
+&lt;http://people.com/Alice&gt; &lt;https://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
 </code></pre>
-<pre><code>&lt;http://people.com/Bob&gt; &lt;http://schema.org/name&gt; &lt;Bob&gt;
-&lt;http://people.com/Bob&gt; &lt;http://schema.org/age&gt; &lt;42&gt;
+<pre><code>&lt;http://people.com/Bob&gt; &lt;https://schema.org/name&gt; &lt;Bob&gt;
+&lt;http://people.com/Bob&gt; &lt;https://schema.org/age&gt; &lt;42&gt;
 </code></pre>
 <p>In particular, note that when looking at the graph of Alice, we do not know the age of Bob.</p>
 <p>The first change to introduce in order to make this query work with batches of resources is to replace the <code>BIND({resource_id} AS ?id) .</code> with <code>VALUES ?id { {resources_id} }</code>. Nexus Delta will use this template to replace <code>{resource_id}</code> with multiple resource in case it receives a batch of more than one element. The query is now:</p>
-<pre><code>PREFIX schema: &lt;http://schema.org/&gt;
+<pre><code>PREFIX schema: &lt;https://schema.org/&gt;
 PREFIX nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;
 CONSTRUCT {
   ?id     nxv:name   ?name   ;
@@ -368,14 +369,14 @@ CONSTRUCT {
 }
 </code></pre>
 <p>With the Batch Composite Sink enabled, if Alice and Bob are batched together, this query will result in the following triples:</p>
-<pre><code>&lt;http://people.com/Alice&gt; &lt;http://schema.org/name&gt; &lt;Alice&gt;
-&lt;http://people.com/Alice&gt; &lt;http://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
-&lt;http://people.com/Bob&gt; &lt;http://schema.org/name&gt; &lt;Bob&gt;
-&lt;http://people.com/Bob&gt; &lt;http://schema.org/age&gt; &lt;42&gt;
+<pre><code>&lt;http://people.com/Alice&gt; &lt;https://schema.org/name&gt; &lt;Alice&gt;
+&lt;http://people.com/Alice&gt; &lt;https://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
+&lt;http://people.com/Bob&gt; &lt;https://schema.org/name&gt; &lt;Bob&gt;
+&lt;http://people.com/Bob&gt; &lt;https://schema.org/age&gt; &lt;42&gt;
 </code></pre>
 <p>Note how the results are the merged result of the individual queries. While we were able to query several resources simultaneously, we are now facing a framing problem. If we try to frame <code>http://people.com/Alice</code>, its graph now contains more information than before; it will now include the age of Bob, something that we did not request.</p>
 <p>In order to solve this problem, we will introduce aliasing for the root resource IDs. The query will now become:</p>
-<pre><code>PREFIX schema: &lt;http://schema.org/&gt;
+<pre><code>PREFIX schema: &lt;https://schema.org/&gt;
 PREFIX nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;
 CONSTRUCT {
   ?alias  nxv:name   ?name   ;
@@ -392,10 +393,10 @@ CONSTRUCT {
 }
 </code></pre>
 <p>With this query, a batch query for both Alice and Bob will now yield:</p>
-<pre><code>&lt;http://people.com/Alice/alias&gt; &lt;http://schema.org/name&gt; &lt;Alice&gt;
-&lt;http://people.com/Alice/alias&gt; &lt;http://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
-&lt;http://people.com/Bob/alias&gt; &lt;http://schema.org/name&gt; &lt;Bob&gt;
-&lt;http://people.com/Bob/alias&gt; &lt;http://schema.org/age&gt; &lt;42&gt;
+<pre><code>&lt;http://people.com/Alice/alias&gt; &lt;https://schema.org/name&gt; &lt;Alice&gt;
+&lt;http://people.com/Alice/alias&gt; &lt;https://schema.org/parent&gt; &lt;http://people.com/Bob&gt;
+&lt;http://people.com/Bob/alias&gt; &lt;https://schema.org/name&gt; &lt;Bob&gt;
+&lt;http://people.com/Bob/alias&gt; &lt;https://schema.org/age&gt; &lt;42&gt;
 </code></pre>
 <p>You can see that the root node of Bob&rsquo;s graph is now <code>http://people.com/Bob/alias</code>, while Alice&rsquo;s parent is <code>http://people.com/Bob</code>. This distinction ensures that we cannot get Bob&rsquo;s age by looking at Alice&rsquo;s graph, thus reproducing the behavior that we had with the Single Composite Sink.</p>
 <p>Nexus Delta takes care of framing these results so that the framed documents will be the same as with the Single Composite Sink, and will not contain any <code>alias</code> keyword. For example, for the resource <code>http://people.com/Alice</code>, Nexus Delta will obtain its graph by looking at the <code>http://people.com/Alice/alias</code> root node, and use the resulting graph (removing the <code>/alias</code> part) for JSON-LD framing.</p>
@@ -436,13 +437,13 @@ CompositeView
 </span>
 </div>
 </a>
-<a href="../../../../docs/delta/api/storages-api.html" title="Storages" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="../../../../docs/delta/api/views/event-metrics-api.html" title="Event metrics" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-Storages
+Event metrics
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

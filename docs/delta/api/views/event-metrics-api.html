@@ -20,7 +20,7 @@
 
 <meta name="description" content="docs">
 <link rel="shortcut icon" href="../../../.././assets/img/favicon-32x32.png">
-<title>Elasticsearch Pipes · SENSCIENCE Nexus</title>
+<title>Event metrics · SENSCIENCE Nexus</title>
 <link rel="stylesheet" href="../../../../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#03a9f4" />
@@ -61,7 +61,7 @@ data-md-color-accent="cyan"
 SENSCIENCE Nexus
 </span>
 <span class="md-header-nav__topic">
-Elasticsearch Pipes
+Event metrics
 </span>
 </div>
 </div>
@@ -212,12 +212,12 @@ senscience/nexus-delta
       <li><a href="../../../../docs/delta/api/views/index.html" class="page">Views</a>
       <ul>
         <li><a href="../../../../docs/delta/api/views/elasticsearch-view-api.html" class="page">ElasticSearchView</a></li>
-        <li><a href="../../../../docs/delta/api/views/pipes.html" class="active page">Elasticsearch Pipes</a></li>
+        <li><a href="../../../../docs/delta/api/views/pipes.html" class="page">Elasticsearch Pipes</a></li>
         <li><a href="../../../../docs/delta/api/views/aggregated-es-view-api.html" class="page">AggregateElasticSearchView</a></li>
         <li><a href="../../../../docs/delta/api/views/sparql-view-api.html" class="page">SparqlView</a></li>
         <li><a href="../../../../docs/delta/api/views/aggregated-sparql-view-api.html" class="page">AggregateSparqlView</a></li>
         <li><a href="../../../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
-        <li><a href="../../../../docs/delta/api/views/event-metrics-api.html" class="page">Event metrics</a></li>
+        <li><a href="../../../../docs/delta/api/views/event-metrics-api.html" class="active page">Event metrics</a></li>
       </ul></li>
       <li><a href="../../../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
       <li><a href="../../../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
@@ -235,18 +235,13 @@ senscience/nexus-delta
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../../../../docs/delta/api/views/pipes.html#elasticsearch-pipes" class="header">Elasticsearch Pipes</a>
+  <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#event-metrics" class="header">Event metrics</a>
   <ul>
-    <li><a href="../../../../docs/delta/api/views/pipes.html#core-pipes" class="header">Core pipes</a>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#fetch-indexing" class="header">Fetch indexing</a></li>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#fetch-statistics" class="header">Fetch statistics</a></li>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#restart-indexing" class="header">Restart indexing</a>
     <ul>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-deprecated" class="header">Filter deprecated</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-by-type" class="header">Filter by type</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-by-schema" class="header">Filter by schema</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#discard-metadata" class="header">Discard metadata</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#source-as-text" class="header">Source as text</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#data-construct-query" class="header">Data construct query</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#select-predicates" class="header">Select predicates</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#default-label-predicates" class="header">Default label predicates</a></li>
+      <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#parameter-description" class="header">Parameter description</a></li>
     </ul></li>
   </ul></li>
 </ul>
@@ -269,18 +264,13 @@ senscience/nexus-delta
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../../../../docs/delta/api/views/pipes.html#elasticsearch-pipes" class="header">Elasticsearch Pipes</a>
+  <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#event-metrics" class="header">Event metrics</a>
   <ul>
-    <li><a href="../../../../docs/delta/api/views/pipes.html#core-pipes" class="header">Core pipes</a>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#fetch-indexing" class="header">Fetch indexing</a></li>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#fetch-statistics" class="header">Fetch statistics</a></li>
+    <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#restart-indexing" class="header">Restart indexing</a>
     <ul>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-deprecated" class="header">Filter deprecated</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-by-type" class="header">Filter by type</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#filter-by-schema" class="header">Filter by schema</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#discard-metadata" class="header">Discard metadata</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#source-as-text" class="header">Source as text</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#data-construct-query" class="header">Data construct query</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#select-predicates" class="header">Select predicates</a></li>
-      <li><a href="../../../../docs/delta/api/views/pipes.html#default-label-predicates" class="header">Default label predicates</a></li>
+      <li><a href="../../../../docs/delta/api/views/event-metrics-api.html#parameter-description" class="header">Parameter description</a></li>
     </ul></li>
   </ul></li>
 </ul>
@@ -299,105 +289,56 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 </p>
 </div>
 <div class="md-content__searchable">
-<h1><a href="#elasticsearch-pipes" name="elasticsearch-pipes" class="anchor"><span class="anchor-link"></span></a>Elasticsearch Pipes</h1>
-<p>Pipes are the processing units of a pipeline for an Elasticsearch view.</p>
-<p>See <a href="elasticsearch-view-api.html#processing-pipeline">here</a> to get more details on how pipes are applied and how the indexing process to Elasticsearch works. </p>
-<h2><a href="#core-pipes" name="core-pipes" class="anchor"><span class="anchor-link"></span></a>Core pipes</h2>
-<p>These pipes are provided by default by Delta.</p>
-<h3><a href="#filter-deprecated" name="filter-deprecated" class="anchor"><span class="anchor-link"></span></a>Filter deprecated</h3>
-<ul>
-  <li>Allows excluding deprecated resources from being indexed</li>
-  <li>No config is needed</li>
-</ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;filterDeprecated&quot;
-}
+<h1><a href="#event-metrics" name="event-metrics" class="anchor"><span class="anchor-link"></span></a>Event metrics</h1>
+<p>This global view is a single projection routine indexing event data for all projects. While the other views focus on the state level (whether it is on a tagged or latest state), this view gives a different perspective allowing to compute <a href="../projects-api.html#fetch-statistics">project statistics</a> or <a href="../storages-api.html#fetch-statistics">storage statistics</a>.</p>
+<p>While the underlying index is not directly exposed, it is possible to create dashboards with visualization tools like Kibana to get information about the top contributors, the most frequents events, etc.</p>
+<p>Like the other views, Nexus provide endpoints to check its progress and indexing errors.</p>
+<h2><a href="#fetch-indexing" name="fetch-indexing" class="anchor"><span class="anchor-link"></span></a>Fetch indexing</h2>
+<pre><code>GET /v1/views/{org_label}/{project_label}/{view_id}/offset
 </code></pre>
-<h3><a href="#filter-by-type" name="filter-by-type" class="anchor"><span class="anchor-link"></span></a>Filter by type</h3>
+<p><strong>Example</strong></p>
+<dl>
+  <dt>Request</dt>
+  <dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/views/blazegraph/sparql/offset.sh" target="_blank" title="Go to snippet source">source</a><code class="language-sh">curl &quot;http://localhost:8080/v1/views/myorg/myproj/nxv:myview/offset&quot;</code></pre></dd>
+  <dt>Response</dt>
+  <dd>
+  <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/views/blazegraph/sparql/offset.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
+  &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/offset.json&quot;,
+  &quot;@type&quot; : &quot;At&quot;,
+  &quot;value&quot; : 15
+}</code></pre></dd>
+</dl>
+<p>where&hellip;</p>
 <ul>
-  <li>Allow excluding resources which don&rsquo;t have one of the provided types</li>
+  <li><code>instant</code> - timestamp of the last event processed by the view</li>
+  <li><code>value</code> - the value of the offset</li>
 </ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;filterByType&quot;,
-  &quot;config&quot; : {
-    &quot;types&quot; : [
-      &quot;https://bluebrain.github.io/nexus/types/Type1&quot;,
-      &quot;https://bluebrain.github.io/nexus/types/Type2&quot;
-    ]
-  }
-}
+<h2><a href="#fetch-statistics" name="fetch-statistics" class="anchor"><span class="anchor-link"></span></a>Fetch statistics</h2>
+<pre><code>GET /v1/event-metrics/statistics
 </code></pre>
-<h3><a href="#filter-by-schema" name="filter-by-schema" class="anchor"><span class="anchor-link"></span></a>Filter by schema</h3>
+<p>where&hellip;</p>
 <ul>
-  <li>Allow excluding resources which haven&rsquo;t been validated by one of the provided schemas</li>
+  <li><code>totalEvents</code> - total number of events in the project</li>
+  <li><code>processedEvents</code> - number of events that have been considered by the view</li>
+  <li><code>remainingEvents</code> - number of events that remain to be considered by the view</li>
+  <li><code>discardedEvents</code> - number of events that have been discarded (were not evaluated due to filters, e.g. did not match schema, tag or type defined in the view)</li>
+  <li><code>evaluatedEvents</code> - number of events that have been used to update an index</li>
+  <li><code>lastEventDateTime</code> - timestamp of the last event in the project</li>
+  <li><code>lastProcessedEventDateTime</code> - timestamp of the last event processed by the view</li>
+  <li><code>delayInSeconds</code> - number of seconds between the last processed event timestamp and the last known event timestamp</li>
 </ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;filterBySchema&quot;,
-  &quot;config&quot; : {
-    &quot;types&quot; : [
-      &quot;https://bluebrain.github.io/nexus/schemas/Schema1&quot;,
-      &quot;https://bluebrain.github.io/nexus/schemas/Schema2&quot;
-    ]
-  }
-}
+<h2><a href="#restart-indexing" name="restart-indexing" class="anchor"><span class="anchor-link"></span></a>Restart indexing</h2>
+<p>This endpoint restarts the view indexing process. It does not delete the created indices but it overrides the resource Document when going through the event log.</p>
+<pre><code>DELETE /v1/views/{org_label}/{project_label}/{view_id}/offset?from={offset}
 </code></pre>
-<h3><a href="#discard-metadata" name="discard-metadata" class="anchor"><span class="anchor-link"></span></a>Discard metadata</h3>
+<h3><a href="#parameter-description" name="parameter-description" class="anchor"><span class="anchor-link"></span></a>Parameter description</h3>
 <ul>
-  <li>Prevents all Nexus metadata from being indexed</li>
-  <li>No configuration is needed</li>
+  <li><code>{from}</code>: Number - is the parameter that describes the offset to restart from; defaults to <code>0</code> and will  reindexing everything.</li>
 </ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;discardMetadata&quot;
-}
-</code></pre>
-<h3><a href="#source-as-text" name="source-as-text" class="anchor"><span class="anchor-link"></span></a>Source as text</h3>
-<ul>
-  <li>The original payload of the resource will be stored in the ElasticSearch document as a single  escaped string value under the key <code>_original_source</code>.</li>
-  <li>No configuration is needed</li>
-</ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;sourceAsText&quot;
-}
-</code></pre>
-<h3><a href="#data-construct-query" name="data-construct-query" class="anchor"><span class="anchor-link"></span></a>Data construct query</h3>
-<ul>
-  <li>The data graph of the resource will be transformed according to the provided SPARQL construct query</li>
-  <li>The resource metadata is not modified by this pipe</li>
-</ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;dataConstructQuery&quot;,
-  &quot;config&quot;: {
-    &quot;query&quot;: &quot;{constructQuery}&quot;
-  }
-}
-</code></pre>
-<h3><a href="#select-predicates" name="select-predicates" class="anchor"><span class="anchor-link"></span></a>Select predicates</h3>
-<ul>
-  <li>Only the defined predicates in the data graph of the resource will be kept in the resource</li>
-  <li>The resource metadata is not modified by this type</li>
-</ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;selectPredicates&quot;,
-  &quot;config&quot;: {
-    &quot;predicates&quot;: [
-      &quot;rdfs:label&quot;,
-      &quot;schema:name&quot;
-    ]
-  }
-}
-</code></pre>
-<h3><a href="#default-label-predicates" name="default-label-predicates" class="anchor"><span class="anchor-link"></span></a>Default label predicates</h3>
-<ul>
-  <li>Only default labels defined as <code>skos:prefLabel</code>, <code>rdf:tpe</code>, <code>rdfs:label</code>, <code>schema:name</code> will be kept in the data graph of the resource</li>
-  <li>No configuration is needed</li>
-</ul>
-<pre class="prettyprint"><code class="language-json">{
-  &quot;name&quot; : &quot;defaultLabelPredicates&quot;
-}
-</code></pre>
 </div>
 <div>
-<a href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/views/pipes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/views/event-metrics-api.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -413,7 +354,7 @@ Snapshot
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../../../../docs/delta/api/views/elasticsearch-view-api.html" title="ElasticSearchView" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../../../../docs/delta/api/views/composite-sink.html" title="Composite Sinks" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -422,17 +363,17 @@ Snapshot
 <span class="md-footer-nav__direction">
 Previous
 </span>
-ElasticSearchView
+Composite Sinks
 </span>
 </div>
 </a>
-<a href="../../../../docs/delta/api/views/aggregated-es-view-api.html" title="AggregateElasticSearchView" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="../../../../docs/delta/api/storages-api.html" title="Storages" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-AggregateElasticSearchView
+Storages
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

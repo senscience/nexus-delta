@@ -217,6 +217,7 @@ senscience/nexus-delta
         <li><a href="../../docs/delta/api/views/sparql-view-api.html" class="page">SparqlView</a></li>
         <li><a href="../../docs/delta/api/views/aggregated-sparql-view-api.html" class="page">AggregateSparqlView</a></li>
         <li><a href="../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
+        <li><a href="../../docs/delta/api/views/event-metrics-api.html" class="page">Event metrics</a></li>
       </ul></li>
       <li><a href="../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
       <li><a href="../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
@@ -368,10 +369,10 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
         &quot;@id&quot;: &quot;http://www.w3.org/2000/01/rdf-schema#label&quot;
       },
       &quot;name&quot;: {
-        &quot;@id&quot;: &quot;http://schema.org/name&quot;
+        &quot;@id&quot;: &quot;https://schema.org/name&quot;
       },
       &quot;description&quot;: {
-        &quot;@id&quot;: &quot;http://schema.org/description&quot;
+        &quot;@id&quot;: &quot;https://schema.org/description&quot;
       },
       &quot;workspaces&quot;: {
         &quot;@id&quot;: &quot;https://bluebrainnexus.io/studio/vocabulary/workspaces&quot;,
@@ -423,7 +424,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <pre class="prettyprint"><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrainnexus.io/studio/context&quot;,
   &quot;@type&quot;: &quot;StudioDashboard&quot;,
-  &quot;dataQuery&quot;: &quot;prefix nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;\nprefix s: &lt;http://schema.org/&gt;\nSELECT DISTINCT ?self ?familyName ?givenName\nWHERE {\n?s nxv:constrainedBy &lt;https://neuroshapes.org/dash/person&gt; ;\n  nxv:self ?self ;\n  s:familyName ?familyName ; \n  s:givenName ?givenName\n}\nLIMIT 20&quot;,
+  &quot;dataQuery&quot;: &quot;prefix nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;\nprefix s: &lt;https://schema.org/&gt;\nSELECT DISTINCT ?self ?familyName ?givenName\nWHERE {\n?s nxv:constrainedBy &lt;https://neuroshapes.org/dash/person&gt; ;\n  nxv:self ?self ;\n  s:familyName ?familyName ; \n  s:givenName ?givenName\n}\nLIMIT 20&quot;,
   &quot;description&quot;: &quot;A list of every scientist&quot;,
   &quot;label&quot;: &quot;Scientists&quot;,
   &quot;plugins&quot;: [&quot;nexus-plugin-example&quot;]
@@ -519,7 +520,7 @@ LIMIT 20
 <h3><a href="#example-sparql-queries" name="example-sparql-queries" class="anchor"><span class="anchor-link"></span></a>Example SPARQL Queries</h3>
 <p>Here&rsquo;s an example of fetching unique Persons using <code>https://schema.org</code> properties.</p>
 <pre class="prettyprint"><code class="language-sparql">prefix nxv: &lt;https://bluebrain.github.io/nexus/vocabulary/&gt;
-prefix s: &lt;http://schema.org/&gt;
+prefix s: &lt;https://schema.org/&gt;
 SELECT DISTINCT ?self ?familyName ?givenName
 WHERE {
   ?s nxv:constrainedBy &lt;https://neuroshapes.org/dash/person&gt; ;

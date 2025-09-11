@@ -1,31 +1,31 @@
 {
   "@context": "https://bluebrain.github.io/nexus/contexts/properties.json",
-  "@id": "http://schema.org/Person",
+  "@id": "https://schema.org/Person",
   "_count": 3,
   "_name": "Person",
   "_properties": [
     {
-      "@id": "http://schema.org/givenName",
+      "@id": "https://schema.org/givenName",
       "_count": 3,
       "_name": "givenName"
     },
     {
-      "@id": "http://schema.org/brother",
+      "@id": "https://schema.org/brother",
       "_count": 3,
       "_name": "brother"
     },
     {
-      "@id": "http://schema.org/address",
+      "@id": "https://schema.org/address",
       "_count": 3,
       "_name": "address",
       "_properties": [
         {
-          "@id": "http://schema.org/zipcode",
+          "@id": "https://schema.org/zipcode",
           "_count": 3,
           "_name": "zipcode"
         },
         {
-          "@id": "http://schema.org/street",
+          "@id": "https://schema.org/street",
           "_count": 3,
           "_name": "street"
         }

@@ -217,6 +217,7 @@ senscience/nexus-delta
         <li><a href="../../../docs/delta/api/views/sparql-view-api.html" class="page">SparqlView</a></li>
         <li><a href="../../../docs/delta/api/views/aggregated-sparql-view-api.html" class="page">AggregateSparqlView</a></li>
         <li><a href="../../../docs/delta/api/views/composite-view-api.html" class="page">CompositeView</a></li>
+        <li><a href="../../../docs/delta/api/views/event-metrics-api.html" class="page">Event metrics</a></li>
       </ul></li>
       <li><a href="../../../docs/delta/api/storages-api.html" class="page">Storages</a></li>
       <li><a href="../../../docs/delta/api/files-api.html" class="page">Nexus metadata</a></li>
@@ -323,17 +324,17 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
       &quot;_count&quot;: 2,
       &quot;_path&quot;: [
         {
-          &quot;@id&quot;: &quot;http://schema.org/brother&quot;,
+          &quot;@id&quot;: &quot;https://schema.org/brother&quot;,
           &quot;_name&quot;: &quot;brother&quot;
         }
       ],
-      &quot;_source&quot;: &quot;http://schema.org/Person&quot;,
-      &quot;_target&quot;: &quot;http://schema.org/Person&quot;
+      &quot;_source&quot;: &quot;https://schema.org/Person&quot;,
+      &quot;_target&quot;: &quot;https://schema.org/Person&quot;
     }
   ],
   &quot;_nodes&quot;: [
     {
-      &quot;@id&quot;: &quot;http://schema.org/Person&quot;,
+      &quot;@id&quot;: &quot;https://schema.org/Person&quot;,
       &quot;_count&quot;: 3,
       &quot;_name&quot;: &quot;Person&quot;
     },
@@ -395,32 +396,32 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <dd>
   <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/docs/src/main/paradox/docs/delta/api/assets/graph-analytics/fetched-properties.json" target="_blank" title="Go to snippet source">source</a><code class="language-json">{
   &quot;@context&quot;: &quot;https://bluebrain.github.io/nexus/contexts/properties.json&quot;,
-  &quot;@id&quot;: &quot;http://schema.org/Person&quot;,
+  &quot;@id&quot;: &quot;https://schema.org/Person&quot;,
   &quot;_count&quot;: 3,
   &quot;_name&quot;: &quot;Person&quot;,
   &quot;_properties&quot;: [
     {
-      &quot;@id&quot;: &quot;http://schema.org/givenName&quot;,
+      &quot;@id&quot;: &quot;https://schema.org/givenName&quot;,
       &quot;_count&quot;: 3,
       &quot;_name&quot;: &quot;givenName&quot;
     },
     {
-      &quot;@id&quot;: &quot;http://schema.org/brother&quot;,
+      &quot;@id&quot;: &quot;https://schema.org/brother&quot;,
       &quot;_count&quot;: 3,
       &quot;_name&quot;: &quot;brother&quot;
     },
     {
-      &quot;@id&quot;: &quot;http://schema.org/address&quot;,
+      &quot;@id&quot;: &quot;https://schema.org/address&quot;,
       &quot;_count&quot;: 3,
       &quot;_name&quot;: &quot;address&quot;,
       &quot;_properties&quot;: [
         {
-          &quot;@id&quot;: &quot;http://schema.org/zipcode&quot;,
+          &quot;@id&quot;: &quot;https://schema.org/zipcode&quot;,
           &quot;_count&quot;: 3,
           &quot;_name&quot;: &quot;zipcode&quot;
         },
         {
-          &quot;@id&quot;: &quot;http://schema.org/street&quot;,
+          &quot;@id&quot;: &quot;https://schema.org/street&quot;,
           &quot;_count&quot;: 3,
           &quot;_name&quot;: &quot;street&quot;
         }
@@ -489,36 +490,36 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
         &quot;_score&quot;: 1.3121864,
         &quot;_source&quot;: {
           &quot;@id&quot;: &quot;http://example.com/person&quot;,
-          &quot;@type&quot;: &quot;http://schema.org/Person&quot;,
+          &quot;@type&quot;: &quot;https://schema.org/Person&quot;,
           &quot;properties&quot;: [
             {
               &quot;@id&quot;: &quot;http://example.com/epfl&quot;,
               &quot;dataType&quot;: &quot;object&quot;,
               &quot;isInArray&quot;: false,
-              &quot;path&quot;: &quot;http://schema.org/worksFor&quot;
+              &quot;path&quot;: &quot;https://schema.org/worksFor&quot;
             }
           ],
           &quot;references&quot;: [
             {
               &quot;@id&quot;: &quot;http://example.com/epfl&quot;,
               &quot;@type&quot;: [
-                &quot;http://schema.org/EducationalOrganization&quot;
+                &quot;https://schema.org/EducationalOrganization&quot;
               ],
               &quot;dataType&quot;: &quot;object&quot;,
               &quot;found&quot;: true,
               &quot;isInArray&quot;: false,
-              &quot;path&quot;: &quot;http://schema.org/worksFor&quot;
+              &quot;path&quot;: &quot;https://schema.org/worksFor&quot;
             }
           ],
           &quot;relationships&quot;: [
             {
               &quot;@id&quot;: &quot;http://example.com/epfl&quot;,
               &quot;@type&quot;: [
-                &quot;http://schema.org/EducationalOrganization&quot;
+                &quot;https://schema.org/EducationalOrganization&quot;
               ],
               &quot;dataType&quot;: &quot;object&quot;,
               &quot;isInArray&quot;: false,
-              &quot;path&quot;: &quot;http://schema.org/worksFor&quot;
+              &quot;path&quot;: &quot;https://schema.org/worksFor&quot;
             }
           ],
           &quot;remoteContexts&quot;: [
@@ -573,7 +574,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>An example of the ElasticSearch Document looks as follows:</p>
 <pre class="prettyprint"><code class="language-json">{
   &quot;@id&quot;: &quot;http://example.com/Anna&quot;,
-  &quot;@type&quot;: &quot;http://schema.org/Person&quot;,
+  &quot;@type&quot;: &quot;https://schema.org/Person&quot;,
   &quot;_project&quot;: &quot;myorg/myproject&quot;,
   &quot;_rev&quot;: 4,
   &quot;_deprecated&quot;: false,
@@ -584,38 +585,38 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   &quot;properties&quot;: [
     {
       &quot;dataType&quot;: &quot;object&quot;,
-      &quot;path&quot;: &quot;http://schema.org/address&quot;,
+      &quot;path&quot;: &quot;https://schema.org/address&quot;,
       &quot;isInArray&quot;: false
     },
     {
       &quot;dataType&quot;: &quot;string&quot;,
-      &quot;path&quot;: &quot;http://schema.org/address / http://schema.org/street&quot;,
+      &quot;path&quot;: &quot;https://schema.org/address / https://schema.org/street&quot;,
       &quot;isInArray&quot;: false
     },
     {
       &quot;dataType&quot;: &quot;number&quot;,
-      &quot;path&quot;: &quot;http://schema.org/address / http://schema.org/zipcode&quot;,
+      &quot;path&quot;: &quot;https://schema.org/address / https://schema.org/zipcode&quot;,
       &quot;isInArray&quot;: false
     },
     {
       &quot;dataType&quot;: &quot;object&quot;,
       &quot;@id&quot;: &quot;http://example.com/Robert&quot;,
-      &quot;path&quot;: &quot;http://schema.org/brother&quot;,
+      &quot;path&quot;: &quot;https://schema.org/brother&quot;,
       &quot;isInArray&quot;: false
     },
     {
       &quot;dataType&quot;: &quot;string&quot;,
-      &quot;path&quot;: &quot;http://schema.org/givenName&quot;,
+      &quot;path&quot;: &quot;https://schema.org/givenName&quot;,
       &quot;isInArray&quot;: false
     },
     {
       &quot;dataType&quot;: &quot;object&quot;,
-      &quot;path&quot;: &quot;http://schema.org/studies&quot;,
+      &quot;path&quot;: &quot;https://schema.org/studies&quot;,
       &quot;isInArray&quot;: true
     },
     {
       &quot;dataType&quot;: &quot;string&quot;,
-      &quot;path&quot;: &quot;http://schema.org/studies / http://schema.org/name&quot;,
+      &quot;path&quot;: &quot;https://schema.org/studies / https://schema.org/name&quot;,
       &quot;isInArray&quot;: true
     }
   ],
@@ -629,8 +630,8 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
     {
       &quot;dataType&quot;: &quot;object&quot;,
       &quot;@id&quot;: &quot;http://example.com/Robert&quot;,
-      &quot;@type&quot;: &quot;http://schema.org/Person&quot;,
-      &quot;path&quot;: &quot;http://schema.org/brother&quot;,
+      &quot;@type&quot;: &quot;https://schema.org/Person&quot;,
+      &quot;path&quot;: &quot;https://schema.org/brother&quot;,
       &quot;isInArray&quot;: false
     }
   ],

@@ -12,7 +12,7 @@
     "sh": "http://www.w3.org/ns/shacl#",
     "shsh": "http://www.w3.org/ns/shacl-shacl#",
     "dcterms": "http://purl.org/dc/terms/",
-    "schema": "http://schema.org/",
+    "schema": "https://schema.org/",
     "dcat": "http://www.w3.org/ns/dcat#",
     "shext": "http://www.w3.org/ns/shacl/ext#",
     "nxsh": "https://bluebrain.github.io/nexus/vocabulary/shacl/",
