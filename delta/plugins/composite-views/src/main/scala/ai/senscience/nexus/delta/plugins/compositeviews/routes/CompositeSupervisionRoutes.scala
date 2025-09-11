@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.emitJson
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 
 class CompositeSupervisionRoutes(
     blazegraphSupervision: SparqlSupervision,

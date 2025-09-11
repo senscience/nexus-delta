@@ -6,8 +6,8 @@ import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.kg.files.model.FileInput.CustomMetadata
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, Optics}
-import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
 
 class ResourceHistorySpec extends BaseIntegrationSpec {
 

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests
 
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.model.headers.ETag
+import org.apache.pekko.http.scaladsl.model.HttpResponse
+import org.apache.pekko.http.scaladsl.model.headers.ETag
 import org.scalactic.source.Position
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers

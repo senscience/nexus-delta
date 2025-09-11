@@ -12,10 +12,10 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
-import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
 import fs2.Stream
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 
 /**
   * An event log that reads events from a stream and transforms each event to JSON in preparation for consumption by SSE

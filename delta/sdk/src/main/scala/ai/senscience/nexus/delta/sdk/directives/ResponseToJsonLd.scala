@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.directives
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -12,15 +11,16 @@ import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat.{Compacted, Expand
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, JsonLdFormat}
 import ai.senscience.nexus.delta.sdk.syntax.*
-import akka.http.scaladsl.marshalling.ToEntityMarshaller
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.MediaTypes.`application/json`
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.model.headers.{Accept, HttpEncoding, RawHeader}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, HttpEncoding, RawHeader}
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64

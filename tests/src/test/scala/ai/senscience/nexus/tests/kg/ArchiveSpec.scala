@@ -9,10 +9,10 @@ import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.{Projects, Resources}
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
-import akka.http.scaladsl.model.headers.{Accept, Location}
-import akka.http.scaladsl.model.{MediaRanges, MediaTypes, StatusCodes, Uri}
-import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
-import akka.util.ByteString
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
+import org.apache.pekko.http.scaladsl.model.{MediaRanges, MediaTypes, StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.util.ByteString
 import io.circe.Json
 
 import java.nio.file.Paths

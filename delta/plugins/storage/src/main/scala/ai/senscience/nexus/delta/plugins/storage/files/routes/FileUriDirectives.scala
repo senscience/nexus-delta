@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.plugins.storage.files.routes
 
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 
 trait FileUriDirectives extends QueryParamsUnmarshalling {
 

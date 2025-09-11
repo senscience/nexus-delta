@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.syntax
 
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.{HttpHeader, StatusCode}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, StatusCode}
 
 trait HttpResponseFieldsSyntax {
   implicit final def httpResponseFieldsSyntax[A](value: A): HttpResponseFieldsOps[A] = new HttpResponseFieldsOps(value)

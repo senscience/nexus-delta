@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -25,12 +24,13 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverN
 import ai.senscience.nexus.delta.sdk.resolvers.model.{MultiResolutionResult, Resolver, ResolverRejection}
 import ai.senscience.nexus.delta.sdk.resolvers.{MultiResolution, Resolvers}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.*
 
 /**
   * The resolver routes

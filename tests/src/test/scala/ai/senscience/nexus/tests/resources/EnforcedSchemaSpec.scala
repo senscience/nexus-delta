@@ -6,8 +6,8 @@ import ai.senscience.nexus.tests.Optics._rev
 import ai.senscience.nexus.tests.Optics.admin._constrainedBy
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics, SchemaPayload}
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 class EnforcedSchemaSpec extends BaseIntegrationSpec {
 

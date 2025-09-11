@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, RemainingElems}
-import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 
 trait SseElemStream {
 

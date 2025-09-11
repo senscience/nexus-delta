@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Project
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress}
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.server.Directives.{path, *}
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.server.Directives.{path, *}
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.time.Instant
 

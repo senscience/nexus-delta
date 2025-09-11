@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -20,13 +19,14 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.permissions as permissionsPerms
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsRejection}
-import akka.http.scaladsl.server.{ExceptionHandler, MalformedRequestContentRejection, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.syntax.*
 import io.circe.{Decoder, Json}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, MalformedRequestContentRejection, Route}
 
 /**
   * The permissions routes.

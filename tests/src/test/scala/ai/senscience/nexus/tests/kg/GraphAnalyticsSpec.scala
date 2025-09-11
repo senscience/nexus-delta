@@ -6,9 +6,9 @@ import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.projects.Bojack
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Projects, Resources}
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 final class GraphAnalyticsSpec extends BaseIntegrationSpec {
   private val org          = genId()

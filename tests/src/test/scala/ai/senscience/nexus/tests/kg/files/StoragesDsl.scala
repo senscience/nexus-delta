@@ -1,14 +1,14 @@
 package ai.senscience.nexus.tests.kg.files
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.CirceEq
 import ai.senscience.nexus.tests.HttpClient
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.Optics.{filterKey, filterMetadataKeys}
-import akka.http.scaladsl.model.*
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.*
 import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 

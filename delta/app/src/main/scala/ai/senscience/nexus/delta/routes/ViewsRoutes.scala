@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 
 final class ViewsRoutes(
     identities: Identities,

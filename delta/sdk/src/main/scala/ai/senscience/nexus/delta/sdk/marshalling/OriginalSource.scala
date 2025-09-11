@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.sdk.marshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.syntax.*
-import akka.http.scaladsl.model.{HttpHeader, StatusCode}
 import cats.syntax.all.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, StatusCode}
 
 /**
   * Defines an original source (what has been provided by clients during the api call)

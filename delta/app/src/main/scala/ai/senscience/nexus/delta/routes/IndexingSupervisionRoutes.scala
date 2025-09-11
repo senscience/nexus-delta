@@ -13,9 +13,9 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
-import akka.http.scaladsl.server.Route
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
+import org.apache.pekko.http.scaladsl.server.Route
 
 final class IndexingSupervisionRoutes(
     identities: Identities,

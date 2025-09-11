@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import akka.http.scaladsl.marshalling.ToEntityMarshaller
-import akka.http.scaladsl.model.StatusCode
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.server.Directives.{complete, onSuccess}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
+import org.apache.pekko.http.scaladsl.model.StatusCode
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, onSuccess}
+import org.apache.pekko.http.scaladsl.server.Route
 
 trait ResponseToMarshaller {
   def apply(statusOverride: Option[StatusCode]): Route

@@ -18,9 +18,9 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotF
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.CancelAfterFailure
 
 class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {

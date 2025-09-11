@@ -26,11 +26,11 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{Accept, Location}
-import akka.http.scaladsl.model.{StatusCodes, Uri}
-import akka.http.scaladsl.server.Route
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
+import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.Assertion
 
 import java.util.UUID

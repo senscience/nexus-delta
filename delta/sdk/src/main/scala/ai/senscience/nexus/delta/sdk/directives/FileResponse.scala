@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.stream.StreamConverter
 import ai.senscience.nexus.delta.sdk.{FileData, JsonLdValue}
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.MediaType.NotCompressible
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.MediaType.NotCompressible
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 import cats.effect.IO
 import cats.syntax.all.*
 
@@ -28,8 +28,8 @@ final case class FileResponse private (metadata: Metadata, content: Content)
 
 object FileResponse {
 
-  type AkkaSource = Source[ByteString, Any]
-  type Content    = IO[Either[Complete[JsonLdValue], AkkaSource]]
+  type PekkoSource = Source[ByteString, Any]
+  type Content     = IO[Either[Complete[JsonLdValue], PekkoSource]]
 
   /**
     * Metadata for the file response
@@ -81,7 +81,7 @@ object FileResponse {
   }
 
   /**
-    * When parsing a custom binary media type, akka assumes that it is compressible which is traduced by a performance
+    * When parsing a custom binary media type, pekko assumes that it is compressible which is traduced by a performance
     * hit when we compress responses so we revert this
     */
   private[directives] def markBinaryAsNonCompressible(contentType: ContentType) =
@@ -105,7 +105,7 @@ object FileResponse {
   ): FileResponse =
     new FileResponse(Metadata(filename, contentType, etag, bytes), convertStream(data).map(Right(_)))
 
-  def noCache(filename: String, contentType: ContentType, bytes: Option[Long], source: AkkaSource): FileResponse =
+  def noCache(filename: String, contentType: ContentType, bytes: Option[Long], source: PekkoSource): FileResponse =
     new FileResponse(Metadata(filename, contentType, None, bytes), IO.pure(Right(source)))
 
   private def convertStream(data: FileData) =

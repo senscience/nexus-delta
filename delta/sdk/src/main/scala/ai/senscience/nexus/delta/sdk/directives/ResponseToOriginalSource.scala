@@ -5,13 +5,13 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCach
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.jsonSourceCodec
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
-import akka.http.scaladsl.marshalling.ToEntityMarshaller
-import akka.http.scaladsl.model.MediaTypes
-import akka.http.scaladsl.server.Directives.{complete, onSuccess}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
+import org.apache.pekko.http.scaladsl.model.MediaTypes
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, onSuccess}
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * Handles serialization of [[OriginalSource]] and generates the appropriate response headers

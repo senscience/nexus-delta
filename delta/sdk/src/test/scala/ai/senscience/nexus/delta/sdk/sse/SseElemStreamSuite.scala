@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import akka.http.scaladsl.model.sse.ServerSentEvent
 import munit.FunSuite
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 
 import java.time.Instant
 

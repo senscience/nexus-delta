@@ -137,7 +137,7 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
       ResourceShifts(shifts, xas)(rcr)
   }
 
-  include(new AkkaModule())
+  include(new PekkoModule())
   include(PermissionsModule)
   include(AclsModule)
   include(RealmsModule)

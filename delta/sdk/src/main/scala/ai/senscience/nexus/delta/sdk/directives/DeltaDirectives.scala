@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.directives
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
@@ -8,15 +7,16 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import akka.http.scaladsl.coding.Coders
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`}
-import akka.http.scaladsl.model.StatusCodes.{Redirection, SeeOther}
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.ContentNegotiator.Alternative
-import akka.http.scaladsl.server.Directives.*
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import cats.effect.IO
+import org.apache.pekko.http.scaladsl.coding.Coders
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`}
+import org.apache.pekko.http.scaladsl.model.StatusCodes.{Redirection, SeeOther}
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.ContentNegotiator.Alternative
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.http4s.Uri
 
 object DeltaDirectives extends DeltaDirectives
@@ -109,8 +109,8 @@ trait DeltaDirectives extends UriDirectives {
     * Returns the best of the given encoding alternatives given the preferences the client indicated in the request's
     * `Accept-Encoding` headers.
     *
-    * This implementation is based on the akka internal implemetation in
-    * `akka.http.scaladsl.server.directives.CodingDirectives#_encodeResponse`
+    * This implementation is based on the pekko internal implementation in
+    * `org.apache.pekko.http.scaladsl.server.directives.CodingDirectives#_encodeResponse`
     */
   def requestEncoding: Directive1[HttpEncoding] =
     extractRequest.map { request =>
@@ -131,7 +131,7 @@ trait DeltaDirectives extends UriDirectives {
     * Wraps its inner route with support for Conditional Requests as defined by http://tools.ietf.org/html/rfc7232
     *
     * Supports `Etag` header:
-    * https://doc.akka.io/docs/akka-http/10.0/routing-dsl/directives/cache-condition-directives/conditional.html
+    * https://pekko.apache.org/docs/pekko-http/current/routing-dsl/directives/cache-condition-directives/conditional.html
     */
   def conditionalCache(
       value: Option[String],

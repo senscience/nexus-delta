@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectAsyncScalaTestAdapter, CatsEffectEventually, CatsIOValues}
 import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, EitherValues, ScalaTestExtractValue}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral, Generators}
@@ -17,15 +17,15 @@ import ai.senscience.nexus.tests.iam.{AclDsl, PermissionDsl}
 import ai.senscience.nexus.tests.kg.ElasticSearchViewsDsl
 import ai.senscience.nexus.tests.kg.VersionSpec.VersionBundle
 import ai.senscience.nexus.tests.kg.files.StoragesDsl
-import akka.http.javadsl.model.headers.HttpCredentials
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
+import org.apache.pekko.http.javadsl.model.headers.HttpCredentials
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalactic.source.Position
 import org.scalatest.*
 import org.scalatest.concurrent.{Eventually, ScalaFutures}

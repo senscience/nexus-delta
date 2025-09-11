@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
 /**
   * Search parameters for any generic resource type.

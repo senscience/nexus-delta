@@ -10,10 +10,10 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.{Directive, Directive0, Directive1, MalformedQueryParamRejection}
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import io.circe.parser
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.{Directive, Directive0, Directive1, MalformedQueryParamRejection}
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import org.http4s.Query
 
 trait ElasticSearchViewsDirectives extends UriDirectives {

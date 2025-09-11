@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -24,16 +23,17 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls as aclsPermissions
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import akka.http.javadsl.server.Rejections.validationRejection
-import akka.http.scaladsl.model.StatusCodes.*
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.Uri.Path.*
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
+import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
+import org.apache.pekko.http.scaladsl.model.Uri.Path
+import org.apache.pekko.http.scaladsl.model.Uri.Path.*
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
 
 class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implicit
     baseUri: BaseUri,

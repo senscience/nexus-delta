@@ -3,6 +3,8 @@ package ai.senscience.nexus.delta.sdk.directives
 import ai.senscience.nexus.delta.kernel.search.Pagination.*
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.sdk.OrderingFields
+import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sdk.marshalling.{JsonLdFormat, QueryParamsUnmarshalling}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.StringSegment
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
@@ -10,20 +12,18 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef, Re
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidResourceId
-import ai.senscience.nexus.delta.sdk.OrderingFields
-import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import akka.http.javadsl.server.Rejections.validationRejection
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.directives.BasicDirectives.extractRequestContext
 import cats.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri.Path
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.directives.BasicDirectives.extractRequestContext
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -317,8 +317,8 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   def uriPrefix(uri: org.http4s.Uri): Directive0 =
     uriPrefix(Uri(uri.toString()))
 
-  def extractHttp4sUri: Directive1[org.http4s.Uri] = extractUri.map { akkaUri =>
-    org.http4s.Uri.unsafeFromString(akkaUri.toString())
+  def extractHttp4sUri: Directive1[org.http4s.Uri] = extractUri.map { pekkoUri =>
+    org.http4s.Uri.unsafeFromString(pekkoUri.toString())
   }
 }
 

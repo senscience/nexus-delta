@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * A [[Route]] that has a ''priority''.

@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAnd
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.marshalling.RdfExceptionHandler
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import akka.http.scaladsl.server.Directives.{handleExceptions, reject}
-import akka.http.scaladsl.server.{Directive0, ExceptionHandler}
+import org.apache.pekko.http.scaladsl.server.Directives.{handleExceptions, reject}
+import org.apache.pekko.http.scaladsl.server.{Directive0, ExceptionHandler}
 
 object StoragePluginExceptionHandler {
 

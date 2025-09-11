@@ -7,10 +7,10 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.exporter.Exporter.ExportResult
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import fs2.io.file.Path
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 
 class ExportRoutesSpec extends BaseRouteSpec {
 

@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAnd
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat}
-import akka.http.scaladsl.server.Directives.reject
-import akka.http.scaladsl.server.ExceptionHandler
+import org.apache.pekko.http.scaladsl.server.Directives.reject
+import org.apache.pekko.http.scaladsl.server.ExceptionHandler
 
 object ElasticSearchExceptionHandler {
 

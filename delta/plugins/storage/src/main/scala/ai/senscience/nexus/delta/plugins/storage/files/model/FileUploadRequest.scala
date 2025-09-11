@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import akka.http.scaladsl.model.HttpEntity
+import org.apache.pekko.http.scaladsl.model.HttpEntity
 
 /**
   * Request to upload a file during create/update operations

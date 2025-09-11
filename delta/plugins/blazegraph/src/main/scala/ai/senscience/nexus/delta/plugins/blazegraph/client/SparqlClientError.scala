@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import cats.effect.IO
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.http4s.Status.ClientError
 import org.http4s.{EntityDecoder, Response, Status}
 

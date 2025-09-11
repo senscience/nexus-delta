@@ -21,7 +21,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ResourceRef}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import org.scalatest.{BeforeAndAfterAll, CancelAfterFailure, Inspectors}
 
 import java.time.Instant

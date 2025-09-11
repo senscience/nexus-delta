@@ -9,11 +9,11 @@ import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, StatusCodes}
 
 /**
   * Top level error type that represents general errors

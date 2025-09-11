@@ -14,13 +14,13 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervis
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, SupervisedDescription}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.generic.semiauto.deriveEncoder
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.*
 
 class SupervisionRoutes(
     identities: Identities,

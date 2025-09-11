@@ -2,8 +2,8 @@ name: Delta Integration Tests - RDF4J
 on:
   pull_request:
     paths:
-      - 'akka/**'
       - 'delta/**'
+      - 'pekko/**'
       - 'tests/**'
       - 'build.sbt'
       - 'project/**'

@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{FetchIndexingView, SparqlRestartScheduler}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -11,9 +10,10 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.*
 
 class BlazegraphViewsIndexingRoutes(
     fetch: FetchIndexingView,

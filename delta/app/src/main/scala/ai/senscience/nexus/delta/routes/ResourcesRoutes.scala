@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -21,11 +20,12 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete a
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, Resources}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.server.*
 
 /**
   * The resource routes

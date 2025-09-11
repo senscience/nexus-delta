@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.utils
 
-import akka.http.scaladsl.model.{HttpHeader, MediaRanges, MediaType}
-import akka.http.scaladsl.server.MediaTypeNegotiator
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, MediaRanges, MediaType}
+import org.apache.pekko.http.scaladsl.server.MediaTypeNegotiator
 
 object HeadersUtils {
 

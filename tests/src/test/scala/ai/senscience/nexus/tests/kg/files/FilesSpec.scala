@@ -9,11 +9,11 @@ import ai.senscience.nexus.tests.Optics.listing._total
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.kg.files.model.FileInput.CustomMetadata
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.*
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
 import org.scalatest.Assertion
 
 class FilesSpec extends BaseIntegrationSpec {

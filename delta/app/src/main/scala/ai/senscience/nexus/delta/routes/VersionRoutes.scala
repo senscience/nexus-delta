@@ -17,11 +17,11 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, Name}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.version
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.server.Route
 
 import scala.collection.immutable.Iterable
 

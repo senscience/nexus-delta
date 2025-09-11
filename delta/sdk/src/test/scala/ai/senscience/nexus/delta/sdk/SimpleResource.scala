@@ -7,10 +7,10 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.CirceLiteral
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpHeader, StatusCode, StatusCodes}
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, StatusCode, StatusCodes}
 
 import java.time.Instant
 

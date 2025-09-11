@@ -7,11 +7,11 @@ import ai.senscience.nexus.tests.Identity.views.ScoobyDoo
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.StatisticsAssertions.{expectEmptyStats, expectStats}
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Views}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import io.circe.{ACursor, Json}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalatest.Assertion
 
 class ElasticSearchViewsSpec extends BaseIntegrationSpec {

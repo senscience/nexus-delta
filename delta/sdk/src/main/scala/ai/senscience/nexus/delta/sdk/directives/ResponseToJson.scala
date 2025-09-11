@@ -4,14 +4,14 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCache, requestEncoding}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import akka.http.scaladsl.model.MediaTypes
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.server.Directives.{complete, onSuccess}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.Encoder
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.model.MediaTypes
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, onSuccess}
+import org.apache.pekko.http.scaladsl.server.Route
 
 trait ResponseToJson {
   def apply(): Route

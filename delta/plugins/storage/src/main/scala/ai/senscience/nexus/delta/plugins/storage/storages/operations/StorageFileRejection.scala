@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.sdk.NexusHeaders
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 
 /**
   * Enumeration of Storage rejections related to file operations.

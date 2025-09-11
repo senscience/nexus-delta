@@ -1,6 +1,6 @@
 package ai.senscience.nexus.tests.kg.files
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes
 import ai.senscience.nexus.tests.CacheAssertions.expectConditionalCacheHeaders
 import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.storages.Coyote
@@ -12,13 +12,13 @@ import ai.senscience.nexus.tests.kg.files.FilesAssertions.expectFileContent
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.kg.files.model.FileInput.*
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.headers.{`If-None-Match`, Accept, ETag}
-import akka.util.ByteString
 import cats.effect.IO
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import io.circe.optics.JsonPath.root
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.headers.{`If-None-Match`, Accept, ETag}
+import org.apache.pekko.util.ByteString
 import org.scalatest.Assertion
 
 abstract class StorageSpec extends BaseIntegrationSpec {

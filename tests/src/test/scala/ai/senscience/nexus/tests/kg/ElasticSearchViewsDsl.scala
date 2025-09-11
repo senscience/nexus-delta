@@ -1,12 +1,12 @@
 package ai.senscience.nexus.tests.kg
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.tests.{HttpClient, Identity}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 

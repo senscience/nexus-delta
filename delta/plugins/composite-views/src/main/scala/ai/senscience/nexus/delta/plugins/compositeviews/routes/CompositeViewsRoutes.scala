@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ViewResource
@@ -16,11 +15,12 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import akka.http.scaladsl.model.StatusCode
-import akka.http.scaladsl.model.StatusCodes.{Created, OK}
-import akka.http.scaladsl.server.Route
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCode
+import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, OK}
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * Composite views routes.

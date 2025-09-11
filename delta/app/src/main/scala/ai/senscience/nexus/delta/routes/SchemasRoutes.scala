@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas.shacl
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -23,12 +22,13 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.schemas.{read as Re
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.*
 
 /**
   * The schemas routes

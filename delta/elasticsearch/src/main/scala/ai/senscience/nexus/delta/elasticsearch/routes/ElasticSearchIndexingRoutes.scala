@@ -1,9 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticsearchRestartScheduler, FetchIndexingView}
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticsearchRestartScheduler, FetchIndexingView}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchMapping
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -15,11 +14,12 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDire
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.*
 
 /**
   * The elasticsearch views indexing routes

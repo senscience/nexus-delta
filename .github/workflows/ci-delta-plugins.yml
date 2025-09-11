@@ -2,7 +2,6 @@ name: Delta Plugins unit tests
 on:
   pull_request:
     paths:
-      - 'akka/**'
       - 'delta/elasticsearch/**'
       - 'delta/kernel/**'
       - 'delta/plugins/**'
@@ -10,6 +9,7 @@ on:
       - 'delta/sdk/**'
       - 'delta/sourcing-psql/**'
       - 'delta/testkit/**'
+      - 'pekko/**'
       - 'build.sbt'
       - 'project/**'
       - '.github/workflows/ci-delta-plugins.yml'

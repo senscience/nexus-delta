@@ -8,9 +8,9 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import akka.http.scaladsl.model.sse.ServerSentEvent
 import io.circe.JsonObject
 import io.circe.syntax.KeyOps
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 
 import java.time.Instant
 
@@ -30,7 +30,7 @@ class SseEventLogSuite extends NexusSuite with ConfigFixtures {
     4
   )
 
-  test("Should serialize to an Akka SSE") {
+  test("Should serialize to an Pekko SSE") {
     val elem = makeElem(
       SseData("Person", None, JsonObject("name" := "John Doe"))
     )

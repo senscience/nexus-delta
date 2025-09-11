@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{extractHttp4sUri,
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*
-import ai.senscience.nexus.delta.sdk.indexing.{failedElemSearchJsonLdEncoder, FailedElemSearchResults}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
@@ -24,10 +23,10 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, ProjectId}
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.syntax.all.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 trait ProjectionsDirectives {
 

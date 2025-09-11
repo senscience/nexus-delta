@@ -11,9 +11,9 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 sealed abstract class JsonLdRejection(val reason: String) extends Rejection
 

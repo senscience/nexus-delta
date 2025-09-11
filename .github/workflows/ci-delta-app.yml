@@ -2,8 +2,8 @@ name: Delta App unit tests
 on:
   pull_request:
     paths:
-      - 'akka/**'
       - 'delta/**'
+      - 'pekko/**'
       - 'build.sbt'
       - 'project/**'
       - '.github/workflows/ci-delta-app.yml'

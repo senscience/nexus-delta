@@ -8,13 +8,13 @@ import ai.senscience.nexus.tests.Optics.filterMetadataKeys
 import ai.senscience.nexus.tests.kg.files.S3DelegationFileSpec.DelegationResponse
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import cats.effect.IO
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.jawn.parseByteBuffer
 import io.circe.syntax.KeyOps
 import io.circe.{Decoder, Json}
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
 
 import java.nio.ByteBuffer
 import java.util.Base64

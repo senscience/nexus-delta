@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import akka.http.scaladsl.model.ContentType
 import munit.Location
+import org.apache.pekko.http.scaladsl.model.ContentType
 
 class FileResponseSuite extends NexusSuite {
 
-  private def assertContentType(value: String, binary: Boolean, compressible: Boolean)(implicit l: Location) =
+  private def assertContentType(value: String, binary: Boolean, compressible: Boolean)(implicit l: Location): Unit =
     ContentType.parse(value) match {
       case Left(err)          => fail(s"Could not parse the content type $err")
       case Right(contentType) =>
@@ -23,7 +23,7 @@ class FileResponseSuite extends NexusSuite {
     assertContentType("application/json", false, true)
   }
 
-  test("'application/cbor' is binary and compressible as it is registered as such in akka") {
+  test("'application/cbor' is binary and compressible as it is registered as such in pekko") {
     assertContentType("application/cbor", true, true)
   }
 

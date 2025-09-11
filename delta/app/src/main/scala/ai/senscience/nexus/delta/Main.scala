@@ -45,7 +45,7 @@ object Main extends IOApp {
       (plugins, locator)       <- WiringInitializer(modules, pluginDefs)
       _                        <- logDatabaseConfig(locator)
       _                        <- logClusterConfig(locator)
-      _                        <- BootstrapAkka(locator, plugins)
+      _                        <- BootstrapPekko(locator, plugins)
     } yield locator
 
   private[delta] def loadPluginsAndConfig(

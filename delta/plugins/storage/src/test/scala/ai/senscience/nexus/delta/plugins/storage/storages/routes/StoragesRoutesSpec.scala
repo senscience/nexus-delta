@@ -26,12 +26,12 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{Accept, Location}
-import akka.http.scaladsl.model.{StatusCodes, Uri}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
+import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.Assertion
 
 class StoragesRoutesSpec

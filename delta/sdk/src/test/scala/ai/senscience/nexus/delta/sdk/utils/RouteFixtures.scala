@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.scalatest.ClasspathResources
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import org.http4s.implicits.http4sLiteralsSyntax
 
 trait RouteFixtures {

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.config
 
 import ai.senscience.nexus.tests.Realm
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
 

@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -24,12 +23,13 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotF
 import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.data.OptionT
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.Decoder
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.server.*
 
 /**
   * The project routes

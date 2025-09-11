@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.blazegraph.model.*
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{query as Query, read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
@@ -21,11 +20,12 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.{Directive0, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.{Directive0, Route}
 
 /**
   * The Blazegraph views routes

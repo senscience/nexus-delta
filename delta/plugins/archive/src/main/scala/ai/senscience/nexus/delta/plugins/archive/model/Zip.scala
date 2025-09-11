@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
-import akka.NotUsed
-import akka.http.scaladsl.model.{ContentType, MediaTypes}
-import akka.http.scaladsl.server.Directive
-import akka.http.scaladsl.server.Directives.extractRequest
-import akka.stream.alpakka.file.ArchiveMetadata
-import akka.stream.alpakka.file.scaladsl.Archive
-import akka.stream.scaladsl.{Flow, Source}
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model.{ContentType, MediaTypes}
+import org.apache.pekko.http.scaladsl.server.Directive
+import org.apache.pekko.http.scaladsl.server.Directives.extractRequest
+import org.apache.pekko.stream.connectors.file.ArchiveMetadata
+import org.apache.pekko.stream.connectors.file.scaladsl.Archive
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.util.ByteString
 
 /**
   * Zip archive format

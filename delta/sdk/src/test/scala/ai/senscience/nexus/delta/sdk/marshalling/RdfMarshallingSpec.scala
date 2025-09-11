@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -9,11 +8,12 @@ import ai.senscience.nexus.delta.sdk.SimpleResource
 import ai.senscience.nexus.delta.sdk.SimpleResource.{context, contextIri}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import ai.senscience.nexus.testkit.scalatest.{BaseSpec, TestMatchers}
-import akka.http.scaladsl.marshalling.Marshal
-import akka.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.marshalling.Marshal
+import org.apache.pekko.http.scaladsl.model.*
 import org.scalatest.matchers.should.Matchers
 
 import java.time.Instant

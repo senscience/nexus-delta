@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -13,9 +12,10 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.{jsonCodecDropNu
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.multifetch.MultiFetch
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest
-import akka.http.scaladsl.server.Route
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * Route allowing to fetch multiple resources in a single request

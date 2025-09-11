@@ -1,8 +1,8 @@
 package ai.senscience.nexus.tests.config
 
 import ai.senscience.nexus.delta.kernel.config.Configs
-import akka.http.scaladsl.model.Uri
 import com.typesafe.config.Config
+import org.apache.pekko.http.scaladsl.model.Uri
 import pureconfig.ConvertHelpers.catchReadError
 import pureconfig.generic.ExportMacros
 import pureconfig.{ConfigConvert, ConfigReader, Exported}

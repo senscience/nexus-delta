@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.server.{Directive1, Route}
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.server.{Directive1, Route}
 
 /**
   * The global events route.

@@ -347,7 +347,7 @@ final class Files(
       mediaType  = attributes.mediaType.getOrElse(MediaType.`application/octet-stream`)
     } yield FileResponse[FileRejection](
       attributes.filename,
-      MediaType.toAkkaContentType(mediaType),
+      MediaType.toPekkoContentType(mediaType),
       Some(ResourceF.etagValue(file)),
       Some(attributes.bytes),
       s

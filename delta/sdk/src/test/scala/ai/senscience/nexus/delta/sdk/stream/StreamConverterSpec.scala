@@ -18,12 +18,12 @@ package ai.senscience.nexus.delta.sdk.stream
  * limitations under the License.
  */
 
-import akka.Done
-import akka.actor.ActorSystem
-import akka.stream.scaladsl.{Flow as AkkaFlow, Keep, Sink as AkkaSink}
-import akka.testkit.*
 import cats.effect.IO
 import fs2.*
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.scaladsl.{Flow as PekkoFlow, Keep, Sink as PekkoSink}
+import org.apache.pekko.testkit.*
 import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -60,7 +60,7 @@ class StreamConverterSpec
       val stream = Stream.emits(numbers).onFinalize[IO](IO(probe.ref ! Success(Done)))
       val source = StreamConverter(stream)
 
-      source.toMat(AkkaSink.seq)(Keep.right).run().await should be(numbers)
+      source.toMat(PekkoSink.seq)(Keep.right).run().await should be(numbers)
       probe.expectMsg(Success(Done))
     }
 
@@ -68,7 +68,7 @@ class StreamConverterSpec
       val stream = Stream.raiseError[IO](error)
       val source = StreamConverter(stream)
 
-      expectError(source.toMat(AkkaSink.seq)(Keep.right).run().await)
+      expectError(source.toMat(PekkoSink.seq)(Keep.right).run().await)
     }
 
     "propagate cancellation from source to stream (on source completion)" in {
@@ -76,7 +76,7 @@ class StreamConverterSpec
       val stream = Stream.emits(numbers).onFinalize[IO](IO(probe.ref ! Success(Done)))
       val source = StreamConverter(stream)
 
-      source.via(AkkaFlow[Int].take(9)).toMat(AkkaSink.seq)(Keep.right).run().await should be(numbers.take(9))
+      source.via(PekkoFlow[Int].take(9)).toMat(PekkoSink.seq)(Keep.right).run().await should be(numbers.take(9))
       probe.expectMsg(Success(Done))
     }
 
@@ -85,7 +85,7 @@ class StreamConverterSpec
       val stream = Stream.emits(numbers).onFinalize[IO](IO(probe.ref ! Success(Done)))
       val source = StreamConverter(stream)
 
-      expectError(source.toMat(AkkaSink.foreach(_ => throw error))(Keep.right).run().await)
+      expectError(source.toMat(PekkoSink.foreach(_ => throw error))(Keep.right).run().await)
       probe.expectMsg(Success(Done))
     }
 

@@ -15,11 +15,11 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.KeyOps
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 
 import scala.concurrent.duration.*
 

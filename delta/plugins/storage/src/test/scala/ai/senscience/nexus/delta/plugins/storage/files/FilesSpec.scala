@@ -31,9 +31,9 @@ import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
 import cats.effect.IO
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.testkit.TestKit
 import org.http4s.Uri
 import org.scalatest.Assertion
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
@@ -591,7 +591,7 @@ class FilesSpec
 
     "fetching a file content" should {
 
-      val expectedContentType = MediaType.toAkkaContentType(MediaType.`text/plain`)
+      val expectedContentType = MediaType.toPekkoContentType(MediaType.`text/plain`)
 
       "succeed" in {
         val response = files.fetchContent(fileIdIri(file1)).accepted

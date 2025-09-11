@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.kernel.utils.{UUIDF, UrlUtils}
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
@@ -23,14 +22,15 @@ import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.resourceAlreadyExi
 import ai.senscience.nexus.delta.sdk.views.BlazegraphViewErrors.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
-import akka.http.scaladsl.server.Route
-import akka.util.ByteString
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.*
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.model.{HttpEntity, StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.util.ByteString
 import org.scalatest.Assertion
 
 class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with DoobieScalaTestFixture {

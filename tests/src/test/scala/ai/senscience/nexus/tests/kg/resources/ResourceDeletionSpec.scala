@@ -7,9 +7,9 @@ import ai.senscience.nexus.tests.Optics.sparql
 import ai.senscience.nexus.tests.iam.types.Permission
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalactic.source.Position
 
 class ResourceDeletionSpec extends BaseIntegrationSpec {

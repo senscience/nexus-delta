@@ -19,11 +19,11 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import cats.effect.IO
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 import org.scalatest.matchers.should.Matchers
 
 class AuthDirectivesSpec extends BaseSpec with RouteHelpers with CatsEffectSpec with Matchers with CatsIOValues {

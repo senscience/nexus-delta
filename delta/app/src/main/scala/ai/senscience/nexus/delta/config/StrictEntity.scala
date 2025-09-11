@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.config
 
-import akka.http.scaladsl.server.Directive0
-import akka.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Directive0
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import pureconfig.ConfigReader
 
 import scala.concurrent.duration.FiniteDuration

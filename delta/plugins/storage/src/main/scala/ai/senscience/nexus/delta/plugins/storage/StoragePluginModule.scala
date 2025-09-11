@@ -22,13 +22,13 @@ import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
@@ -40,10 +40,10 @@ import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
-import akka.actor.ActorSystem
-import akka.http.scaladsl.server.Directives.concat
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.server.Directives.concat
 import org.http4s.Uri.Path
 
 /**

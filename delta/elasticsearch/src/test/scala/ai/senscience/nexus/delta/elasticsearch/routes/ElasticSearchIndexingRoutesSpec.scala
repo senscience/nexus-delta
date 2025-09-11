@@ -13,10 +13,10 @@ import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import io.circe.JsonObject
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 
 class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 

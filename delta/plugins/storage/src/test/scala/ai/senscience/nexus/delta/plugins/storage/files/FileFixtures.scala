@@ -10,10 +10,10 @@ import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.testkit.Generators
-import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
-import akka.http.scaladsl.model.{HttpEntity, MessageEntity, Multipart}
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
+import org.apache.pekko.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
+import org.apache.pekko.http.scaladsl.model.{HttpEntity, MessageEntity, Multipart}
 
 import java.util.{Base64, UUID}
 

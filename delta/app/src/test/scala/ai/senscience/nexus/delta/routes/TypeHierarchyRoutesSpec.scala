@@ -13,10 +13,10 @@ import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeH
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.{Assertion, BeforeAndAfterEach}
 
 import java.time.Instant

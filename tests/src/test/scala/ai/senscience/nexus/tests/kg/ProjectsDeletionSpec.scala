@@ -8,9 +8,9 @@ import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Pr
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
 import io.circe.optics.JsonPath.root
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 import java.io.File
 import scala.reflect.io.Directory

@@ -16,9 +16,9 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.ce.IOFromMap
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 import org.http4s.Uri
 
 class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IOFromMap {

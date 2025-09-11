@@ -10,11 +10,11 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.TestMatchers
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.http.scaladsl.model.MediaRanges.`*/*`
-import akka.http.scaladsl.model.headers.Accept
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
+import org.apache.pekko.http.scaladsl.model.MediaRanges.`*/*`
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.{Inspectors, OptionValues}
 
 class DeltaSchemeDirectivesSpec

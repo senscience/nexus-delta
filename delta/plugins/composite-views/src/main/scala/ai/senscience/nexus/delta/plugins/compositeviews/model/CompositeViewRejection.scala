@@ -15,9 +15,9 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Enumeration of composite view rejection types.

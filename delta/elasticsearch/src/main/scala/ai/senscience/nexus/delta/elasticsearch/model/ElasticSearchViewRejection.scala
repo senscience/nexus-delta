@@ -14,9 +14,9 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Enumeration of ElasticSearch view rejection types.

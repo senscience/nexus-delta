@@ -1,16 +1,16 @@
 package ai.senscience.nexus.delta.sdk.stream
 
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
-import akka.NotUsed
-import akka.stream.*
-import akka.stream.scaladsl.{Sink as AkkaSink, Source as AkkaSource, *}
 import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.unsafe.implicits.*
 import fs2.*
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.{Sink as PekkoSink, Source as PekkoSource, *}
 
 /**
-  * Converts a fs2 stream to an Akka source Original code from the streamz library from Martin Krasser (published under
+  * Converts a fs2 stream to an Pekko source Original code from the streamz library from Martin Krasser (published under
   * Apache License 2.0):
   * https://github.com/krasserm/streamz/blob/master/streamz-converter/src/main/scala/streamz/converter/Converter.scala
   */
@@ -31,7 +31,7 @@ object StreamConverter {
         }
         .recover {
           // This handles a race condition between `interruptWhen` and `publish`.
-          // There's no guarantee that, when the akka sink is terminated, we will observe the
+          // There's no guarantee that, when the pekko sink is terminated, we will observe the
           // `interruptWhen` termination before calling publish one last time.
           // Such a call fails with StreamDetachedException
           case _: StreamDetachedException => None
@@ -51,16 +51,16 @@ object StreamConverter {
       }
   }
 
-  def apply[A](stream: Stream[IO, A]): AkkaSource[A, Any] = {
-    val source = AkkaSource.queue[A](0, OverflowStrategy.backpressure)
+  def apply[A](stream: Stream[IO, A]): PekkoSource[A, Any] = {
+    val source = PekkoSource.queue[A](0, OverflowStrategy.backpressure)
     // A sink that runs an FS2 publisherStream when consuming the publisher actor (= materialized value) of source
-    val sink   = AkkaSink.foreach[SourceQueueWithComplete[A]] { p =>
+    val sink   = PekkoSink.foreach[SourceQueueWithComplete[A]] { p =>
       // Fire and forget Future so it runs in the background
       publisherStream[A](p, stream).compile.drain.unsafeToFuture()
       ()
     }
 
-    AkkaSource
+    PekkoSource
       .fromGraph(GraphDSL.createGraph(source) { implicit builder => source =>
         import GraphDSL.Implicits.*
         builder.materializedValue ~> sink
@@ -74,7 +74,7 @@ object StreamConverter {
   )(implicit materializer: Materializer): Stream[IO, A] =
     Stream.force {
       IO.delay {
-        val subscriber = AkkaSource.fromGraph(source).toMat(AkkaSink.queue[A]())(Keep.right).run()
+        val subscriber = PekkoSource.fromGraph(source).toMat(PekkoSink.queue[A]())(Keep.right).run()
         subscriberStream[A](subscriber)
       }
     }

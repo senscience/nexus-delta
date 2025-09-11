@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.*
 import ai.senscience.nexus.delta.plugins.storage.files.permissions.{read as Read, write as Write}
@@ -23,13 +22,14 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
-import akka.http.scaladsl.model.MediaRange
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.model.headers.{`Content-Length`, Accept}
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.parser
+import org.apache.pekko.http.scaladsl.model.MediaRange
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.model.headers.{`Content-Length`, Accept}
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
 
 /**
   * The files routes
@@ -198,7 +198,7 @@ object FilesRoutes {
   ): Route = new FilesRoutes(identities, aclCheck, files, schemeDirectives, index).routes
 
   /**
-    * An akka directive to extract the optional [[FileCustomMetadata]] from a request. This metadata is extracted from
+    * A pekko directive to extract the optional [[FileCustomMetadata]] from a request. This metadata is extracted from
     * the `x-nxs-file-metadata` header. In case the decoding fails, a [[MalformedHeaderRejection]] is returned.
     */
   def extractFileMetadata: Directive1[Option[FileCustomMetadata]] =

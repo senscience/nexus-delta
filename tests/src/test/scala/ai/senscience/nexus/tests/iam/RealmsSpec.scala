@@ -2,9 +2,9 @@ package ai.senscience.nexus.tests.iam
 
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, Realm}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.unsafe.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class RealmsSpec extends BaseIntegrationSpec {
 

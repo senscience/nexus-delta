@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -12,11 +11,12 @@ import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.MediaRanges.`*/*`
-import akka.http.scaladsl.model.headers.Accept
-import akka.http.scaladsl.server.Route
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.MediaRanges.`*/*`
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.http.scaladsl.server.Route
 
 class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 

@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection
@@ -16,8 +15,9 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import io.circe.JsonObject
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 
 /**
   * The graph analytics routes.

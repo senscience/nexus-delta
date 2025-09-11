@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
-import akka.http.scaladsl.model.{HttpHeader, StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, StatusCode, StatusCodes}
 
 /**
   * Typeclass definition for ''A''s from which the HttpHeaders and StatusCode can be ontained.
