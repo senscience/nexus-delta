@@ -8,17 +8,17 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
-import akka.http.scaladsl.model.headers.OAuth2BearerToken
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.directives.Credentials
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
+import org.apache.pekko.http.scaladsl.model.headers.OAuth2BearerToken
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.directives.Credentials
 
 import scala.concurrent.Future
 
 /**
-  * Akka HTTP directives for authentication
+  * Pekko HTTP directives for authentication
   */
 abstract class AuthDirectives(identities: Identities, aclCheck: AclCheck) extends Directives {
 

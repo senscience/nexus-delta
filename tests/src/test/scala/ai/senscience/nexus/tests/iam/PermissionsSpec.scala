@@ -2,9 +2,9 @@ package ai.senscience.nexus.tests.iam
 
 import ai.senscience.nexus.tests.iam.types.{Permission, Permissions}
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class PermissionsSpec extends BaseIntegrationSpec {
 

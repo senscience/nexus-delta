@@ -1,18 +1,18 @@
 package ai.senscience.nexus.delta.sdk.utils
 
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.HttpEntity.ChunkStreamPart
-import akka.http.scaladsl.model.MediaTypes.`application/json`
-import akka.http.scaladsl.model.headers.{ETag, OAuth2BearerToken}
-import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
-import akka.stream.Materializer
-import akka.stream.scaladsl.Source
-import akka.testkit.TestDuration
-import akka.util.ByteString
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject, Printer}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.HttpEntity.ChunkStreamPart
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
+import org.apache.pekko.http.scaladsl.model.headers.{ETag, OAuth2BearerToken}
+import org.apache.pekko.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.testkit.TestDuration
+import org.apache.pekko.util.ByteString
 import org.scalactic.source.Position
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers

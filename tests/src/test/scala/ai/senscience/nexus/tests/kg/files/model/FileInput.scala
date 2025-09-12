@@ -2,8 +2,8 @@ package ai.senscience.nexus.tests.kg.files.model
 
 import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.tests.kg.files.model.FileInput.CustomMetadata
-import akka.http.scaladsl.model.MediaType.NotCompressible
-import akka.http.scaladsl.model.{ContentType, ContentTypes, MediaType}
+import org.apache.pekko.http.scaladsl.model.MediaType.NotCompressible
+import org.apache.pekko.http.scaladsl.model.{ContentType, ContentTypes, MediaType}
 
 final case class FileInput(
     fileId: String,

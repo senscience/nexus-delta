@@ -17,9 +17,9 @@ import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig
 import ai.senscience.nexus.delta.sdk.projects.OwnerPermissionsScopeInitialization
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import akka.http.scaladsl.server.RouteConcatenation
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.apache.pekko.http.scaladsl.server.RouteConcatenation
 
 /**
   * Acls module wiring config.

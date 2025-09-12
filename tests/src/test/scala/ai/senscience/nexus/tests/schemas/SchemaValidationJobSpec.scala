@@ -6,8 +6,8 @@ import ai.senscience.nexus.tests.Optics.filterNestedKeys
 import ai.senscience.nexus.tests.iam.types.Permission.Schemas
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 final class SchemaValidationJobSpec extends BaseIntegrationSpec {
 

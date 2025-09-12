@@ -9,11 +9,11 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
-import akka.http.scaladsl.model.headers.Location
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.Decoder
+import org.apache.pekko.http.scaladsl.model.headers.Location
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Route
 
 class IdResolutionRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 

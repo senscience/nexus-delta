@@ -3,10 +3,10 @@ package ai.senscience.nexus.tests.plugins.blazegraph
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.mash.Radar
 import ai.senscience.nexus.tests.plugins.blazegraph.IncomingOutgoingBlazegraphSpec.Reference
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.optics.JsonPath.root
 import io.circe.{Decoder, Json}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import tags.BlazegraphOnly
 
 import java.time.Instant

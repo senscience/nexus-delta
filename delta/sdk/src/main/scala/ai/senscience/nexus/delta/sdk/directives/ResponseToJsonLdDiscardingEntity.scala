@@ -7,14 +7,14 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCach
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.model.{MediaTypes, StatusCode}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.Encoder
 import io.circe.syntax.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.model.{MediaTypes, StatusCode}
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 sealed trait ResponseToJsonLdDiscardingEntity {
   def apply(statusOverride: Option[StatusCode]): Route

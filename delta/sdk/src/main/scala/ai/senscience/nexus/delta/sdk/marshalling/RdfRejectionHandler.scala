@@ -10,21 +10,21 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.syntax.*
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.model.{ContentRange, EntityStreamSizeException, StatusCodes}
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import io.circe.syntax.*
 import io.circe.{DecodingFailure, Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.model.{ContentRange, EntityStreamSizeException, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 
 // $COVERAGE-OFF$
 @SuppressWarnings(Array("UnsafeTraversableMethods"))
 object RdfRejectionHandler {
 
   /**
-    * Adapted from [[akka.http.scaladsl.server.RejectionHandler.default]] A [[RejectionHandler]] that returns RDF output
-    * (Json-LD compacted, Json-LD expanded, Dot or NTriples) depending on content negotiation (Accept Header) and
-    * ''format'' query parameter
+    * Adapted from [[org.apache.pekko.http.scaladsl.server.RejectionHandler.default]] A [[RejectionHandler]] that
+    * returns RDF output (Json-LD compacted, Json-LD expanded, Dot or NTriples) depending on content negotiation (Accept
+    * Header) and ''format'' query parameter
     */
   def apply(implicit
       cr: RemoteContextResolution,
@@ -302,7 +302,7 @@ object RdfRejectionHandler {
 
   implicit private val malformedRequestContentResponseFields: HttpResponseFields[MalformedRequestContentRejection] =
     HttpResponseFields {
-      case MalformedRequestContentRejection(_, EntityStreamSizeException(_, _)) => StatusCodes.PayloadTooLarge
+      case MalformedRequestContentRejection(_, EntityStreamSizeException(_, _)) => StatusCodes.ContentTooLarge
       case _                                                                    => StatusCodes.BadRequest
     }
 

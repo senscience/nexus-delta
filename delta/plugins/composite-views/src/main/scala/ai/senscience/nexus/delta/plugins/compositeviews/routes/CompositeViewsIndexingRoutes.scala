@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirectives
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
@@ -22,10 +21,11 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import akka.http.scaladsl.server.Route
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 class CompositeViewsIndexingRoutes(
     identities: Identities,

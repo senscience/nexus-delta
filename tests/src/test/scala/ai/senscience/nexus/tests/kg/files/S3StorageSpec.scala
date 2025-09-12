@@ -9,13 +9,13 @@ import ai.senscience.nexus.tests.Optics.{error, filterMetadataKeys, location}
 import ai.senscience.nexus.tests.iam.types.Permission
 import ai.senscience.nexus.tests.kg.files.FilesAssertions.expectFileContent
 import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.http.scaladsl.model.{ContentTypes, MediaTypes, StatusCodes}
-import akka.util.ByteString
 import cats.effect.IO
 import io.circe.Json
-import io.circe.syntax.{EncoderOps, KeyOps}
+import io.circe.syntax.KeyOps
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import org.apache.commons.codec.binary.Hex
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, MediaTypes, StatusCodes}
+import org.apache.pekko.util.ByteString
 import org.scalatest.Assertion
 import software.amazon.awssdk.services.s3.model.*
 
@@ -110,8 +110,8 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
         val stripErrors = error.deleteErrorMessages
         val actual      = stripErrors(json)
         actual shouldBe Json.obj(
-          "@context" -> "https://bluebrain.github.io/nexus/contexts/error.json".asJson,
-          "@type"    -> "StorageNotAccessible".asJson
+          "@context" := "https://bluebrain.github.io/nexus/contexts/error.json",
+          "@type"    := "StorageNotAccessible"
         )
         response.status shouldEqual StatusCodes.BadRequest
       }

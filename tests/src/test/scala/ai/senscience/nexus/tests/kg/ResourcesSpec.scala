@@ -13,14 +13,14 @@ import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.Resources
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics, SchemaPayload}
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
-import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
-import akka.util.ByteString
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.util.ByteString
 import org.scalatest.Assertion
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 import org.testcontainers.utility.Base58.randomString
@@ -871,7 +871,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
       val value   = randomString(270000)
       val payload = json"""{ "value": "$value" }"""
       deltaClient.post[Json](s"/resources/$project1/", payload, Rick) { (json, response) =>
-        response.status shouldEqual StatusCodes.PayloadTooLarge
+        response.status shouldEqual StatusCodes.ContentTooLarge
         Optics.`@type`.getOption(json) shouldEqual Some("PayloadTooLarge")
       }
     }

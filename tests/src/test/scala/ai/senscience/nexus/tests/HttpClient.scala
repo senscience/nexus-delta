@@ -1,27 +1,27 @@
 package ai.senscience.nexus.tests
 
-import ai.senscience.nexus.akka.marshalling.{CirceUnmarshalling, RdfMediaTypes}
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
+import ai.senscience.nexus.pekko.marshalling.{CirceUnmarshalling, RdfMediaTypes}
 import ai.senscience.nexus.tests.HttpClient.{jsonHeaders, tokensMap}
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.kg.files.model.FileInput
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.HttpMethods.*
-import akka.http.scaladsl.model.Multipart.FormData
-import akka.http.scaladsl.model.Multipart.FormData.BodyPart
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
-import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.Materializer
-import akka.stream.alpakka.sse.scaladsl.EventSource
-import akka.stream.scaladsl.Sink
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.Json
 import io.circe.parser.*
 import io.circe.syntax.*
 import fs2.*
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.HttpMethods.*
+import org.apache.pekko.http.scaladsl.model.Multipart.FormData
+import org.apache.pekko.http.scaladsl.model.Multipart.FormData.BodyPart
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.unmarshalling.FromEntityUnmarshaller
+import org.apache.pekko.http.scaladsl.{Http, HttpExt}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.sse.scaladsl.EventSource
+import org.apache.pekko.stream.scaladsl.Sink
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{AppendedClues, Assertion}
 

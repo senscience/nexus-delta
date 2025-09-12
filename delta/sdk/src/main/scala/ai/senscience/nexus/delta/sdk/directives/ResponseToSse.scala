@@ -2,13 +2,13 @@ package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.sdk.sse.ServerSentEventStream
 import ai.senscience.nexus.delta.sdk.stream.StreamConverter
-import akka.http.scaladsl.marshalling.sse.EventStreamMarshalling.*
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.model.sse.ServerSentEvent
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.marshalling.sse.EventStreamMarshalling.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 import scala.concurrent.duration.*
 

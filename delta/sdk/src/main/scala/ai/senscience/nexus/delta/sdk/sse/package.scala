@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk
 
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.model.sse.ServerSentEvent
 import cats.effect.IO
 import fs2.Stream
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 
 package object sse {
 

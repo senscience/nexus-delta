@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -21,13 +20,14 @@ import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, Organiza
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.{Directive1, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.{Directive1, Route}
 
 /**
   * The organization routes.

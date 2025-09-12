@@ -14,8 +14,8 @@ import ai.senscience.nexus.delta.sdk.sse.SseElemStream
 import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.time.Instant
 

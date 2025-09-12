@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.indexing.{mainIndexingId, mainIndexingProjection, MainRestartScheduler}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
@@ -10,16 +9,17 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
-import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{offset, *}
+import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directive, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import io.circe.JsonObject
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.{Directive, Route}
 
 final class MainIndexRoutes(
     identities: Identities,

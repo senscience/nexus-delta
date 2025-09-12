@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.testplugin
 
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 class TestPluginRoutes(baseUri: BaseUri) {
   def routes: Route =

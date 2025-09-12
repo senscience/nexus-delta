@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.sdk.directives
 
-import akka.http.scaladsl.model.StatusCodes.Redirection
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Redirection
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 import org.http4s.Uri as Http4sUri
 
 /**
@@ -21,9 +21,9 @@ object ResponseToRedirect {
     new ResponseToRedirect {
       override def apply(redirection: Redirection): Route =
         onSuccess(io.unsafeToFuture()) { uri =>
-          redirect(toAkka(uri), redirection)
+          redirect(toPekko(uri), redirection)
         }
     }
 
-  private def toAkka(uri: Http4sUri): Uri = Uri(uri.toString())
+  private def toPekko(uri: Http4sUri): Uri = Uri(uri.toString())
 }

@@ -8,10 +8,10 @@ import ai.senscience.nexus.tests.Optics.{`@id` as atId, filterSearchMetadata, fi
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources, Views}
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import io.circe.Json
 import io.circe.optics.JsonPath.root
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalatest.Assertion
 import org.scalatest.LoneElement.*
 

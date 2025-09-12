@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/sparql-results+json`
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/sparql-results+json`
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.{Bindings, Head}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import io.circe.generic.auto.*
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder}
+import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
 import org.http4s.Uri
 
 /**

@@ -14,10 +14,10 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.all.*
 import ai.senscience.nexus.delta.sdk.syntax.httpResponseFieldsSyntax
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Rejection as AkkaRejection
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Rejection as PekkoRejection
 
 /**
   * Enumeration of File rejection types.
@@ -141,7 +141,7 @@ object FileRejection {
   /**
     * Rejection returned when attempting to create/update a file and the unmarshaller fails
     */
-  final case class FileUnmarshallingRejection(rejection: AkkaRejection) extends FileRejection(rejection.toString)
+  final case class FileUnmarshallingRejection(rejection: PekkoRejection) extends FileRejection(rejection.toString)
 
   /**
     * Rejection returned when interacting with the storage operations bundle to fetch a file from a storage
@@ -207,7 +207,7 @@ object FileRejection {
       case FileNotFound(_, _)                                                 => (StatusCodes.NotFound, Seq.empty)
       case ResourceAlreadyExists(_, _)                                        => (StatusCodes.Conflict, Seq.empty)
       case IncorrectRev(_, _)                                                 => (StatusCodes.Conflict, Seq.empty)
-      case FileTooLarge(_)                                                    => (StatusCodes.PayloadTooLarge, Seq.empty)
+      case FileTooLarge(_)                                                    => (StatusCodes.ContentTooLarge, Seq.empty)
       case FileUnmarshallingRejection(rej)                                    => (rej.status, rej.headers)
       // If this happens it signifies a system problem rather than the user having made a mistake
       case FetchRejection(_, _, FetchFileRejection.FileNotFound(_))           => (StatusCodes.InternalServerError, Seq.empty)

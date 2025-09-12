@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
-import ai.senscience.nexus.akka.marshalling.{CirceMarshalling, CirceUnmarshalling}
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileDelegationRequest.{FileDelegationCreationRequest, FileDelegationUpdateRequest}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.storageParam
@@ -14,16 +13,17 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ResponseToJsonLd}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import akka.http.scaladsl.model.StatusCodes.{Created, OK}
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.pekko.marshalling.{CirceMarshalling, CirceUnmarshalling}
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, OK}
+import org.apache.pekko.http.scaladsl.server.*
 
 final class DelegateFilesRoutes(
     identities: Identities,

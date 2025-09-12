@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.syntax.httpResponseFieldsSyntax
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Top level error type that represents issues related to authentication and identities

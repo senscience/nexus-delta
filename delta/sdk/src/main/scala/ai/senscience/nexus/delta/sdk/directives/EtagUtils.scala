@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.kernel.MD5
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat
-import akka.http.scaladsl.model.MediaType
-import akka.http.scaladsl.model.headers.{EntityTag, HttpEncoding}
+import org.apache.pekko.http.scaladsl.model.MediaType
+import org.apache.pekko.http.scaladsl.model.headers.{EntityTag, HttpEncoding}
 
 object EtagUtils {
 

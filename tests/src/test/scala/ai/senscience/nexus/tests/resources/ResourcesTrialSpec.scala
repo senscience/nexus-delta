@@ -2,9 +2,9 @@ package ai.senscience.nexus.tests.resources
 
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
 import io.circe.optics.JsonPath.root
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class ResourcesTrialSpec extends BaseIntegrationSpec {
 

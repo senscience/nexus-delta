@@ -6,8 +6,8 @@ import ai.senscience.nexus.tests.iam.types.Permission.Resources
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity}
-import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import org.scalatest.Assertion
 
 class MultiFetchSpec extends BaseIntegrationSpec {

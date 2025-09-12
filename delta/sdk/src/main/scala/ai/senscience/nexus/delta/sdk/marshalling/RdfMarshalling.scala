@@ -1,25 +1,25 @@
 package ai.senscience.nexus.delta.sdk.marshalling
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.rdf.graph.{Dot, NQuads, NTriples}
 import ai.senscience.nexus.delta.rdf.jsonld.JsonLd
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultWriterConfig
 import ai.senscience.nexus.delta.sdk.syntax.*
-import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.ContentTypes.`application/json`
-import akka.http.scaladsl.model.MediaTypes.*
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromStringUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
-import akka.util.ByteString
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import io.circe.{Json, Printer}
+import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.ContentTypes.`application/json`
+import org.apache.pekko.http.scaladsl.model.MediaTypes.*
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromStringUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
+import org.apache.pekko.util.ByteString
 
 /**
-  * Marshallings that allow Akka Http to convert a type ''A'' to an [[HttpEntity]].
+  * Marshallings that allow pekko http to convert a type ''A'' to an [[HttpEntity]].
   */
 trait RdfMarshalling {
 

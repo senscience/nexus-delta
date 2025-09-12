@@ -16,12 +16,12 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
-import akka.http.scaladsl.model.{EntityStreamSizeException, StatusCodes}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.ExceptionHandler
 import cats.effect.unsafe.implicits.*
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.{EntityStreamSizeException, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.ExceptionHandler
 
 object RdfExceptionHandler {
   private val logger = Logger[RdfExceptionHandler.type]
@@ -77,7 +77,7 @@ object RdfExceptionHandler {
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
   implicit private val entityStreamSizeExceptionHttpFields: HttpResponseFields[EntityStreamSizeException] =
-    HttpResponseFields(_ => StatusCodes.PayloadTooLarge)
+    HttpResponseFields(_ => StatusCodes.ContentTooLarge)
 
   final private case object UnexpectedError
   private type UnexpectedError = UnexpectedError.type

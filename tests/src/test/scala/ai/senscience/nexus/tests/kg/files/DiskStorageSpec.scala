@@ -2,9 +2,9 @@ package ai.senscience.nexus.tests.kg.files
 
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.iam.types.Permission
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalatest.Assertion
 
 class DiskStorageSpec extends StorageSpec {

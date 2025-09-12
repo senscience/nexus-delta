@@ -1,8 +1,8 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
-import akka.http.scaladsl.model.{ContentType, ContentTypes}
 import cats.syntax.all.*
 import io.circe.{Decoder, Encoder}
+import org.apache.pekko.http.scaladsl.model.{ContentType, ContentTypes}
 import org.http4s.MediaType as Http4sMediaType
 
 final case class MediaType(mainType: String, subType: String) {
@@ -27,7 +27,7 @@ object MediaType {
   def parse(str: String): Either[String, MediaType] =
     Http4sMediaType.parse(str).bimap(_.sanitized, apply)
 
-  def toAkkaContentType(mt: MediaType): ContentType =
+  def toPekkoContentType(mt: MediaType): ContentType =
     ContentType.parse(mt.tree).getOrElse(ContentTypes.`application/octet-stream`)
 
 }

@@ -9,9 +9,9 @@ import ai.senscience.nexus.tests.StatisticsAssertions.expectStats
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import ai.senscience.nexus.tests.resources.SimpleResource
-import akka.http.scaladsl.model.StatusCodes
 import cats.syntax.all.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class MainIndexSpec extends BaseIntegrationSpec {
 

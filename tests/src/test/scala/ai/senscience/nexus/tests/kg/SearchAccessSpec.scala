@@ -4,10 +4,10 @@ import ai.senscience.nexus.tests.Identity.resources.Rick
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Resources, Views}
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import akka.http.scaladsl.model.StatusCodes
 import cats.implicits.*
 import io.circe.Json
 import io.circe.optics.JsonPath.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import tags.BlazegraphOnly
 
 @BlazegraphOnly

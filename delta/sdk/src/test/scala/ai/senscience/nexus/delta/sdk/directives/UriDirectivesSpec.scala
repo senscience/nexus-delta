@@ -15,12 +15,12 @@ import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
-import akka.http.javadsl.server.InvalidRequiredValueForQueryParamRejection
-import akka.http.scaladsl.model.MediaRanges.`*/*`
-import akka.http.scaladsl.model.headers.Accept
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.{MalformedQueryParamRejection, Route, ValidationRejection}
 import io.circe.literal.*
+import org.apache.pekko.http.javadsl.server.InvalidRequiredValueForQueryParamRejection
+import org.apache.pekko.http.scaladsl.model.MediaRanges.`*/*`
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.{MalformedQueryParamRejection, Route, ValidationRejection}
 
 import java.time.Instant
 import java.util.UUID

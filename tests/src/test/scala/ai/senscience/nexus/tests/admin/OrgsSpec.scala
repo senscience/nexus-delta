@@ -4,8 +4,8 @@ import ai.senscience.nexus.testkit.scalatest.OrgMatchers.deprecated
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.Identity.orgs.{Deleter, Reader, Writer}
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, OpticsValidators}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class OrgsSpec extends BaseIntegrationSpec with OpticsValidators {
 

@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.FileResponse
-import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.PekkoSource
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
@@ -28,14 +28,14 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.{JsonLdValue, ResourceShifts}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
-import akka.stream.alpakka.file.ArchiveMetadata
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, Printer}
+import org.apache.pekko.stream.connectors.file.ArchiveMetadata
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
@@ -46,7 +46,7 @@ import java.nio.charset.StandardCharsets
 trait ArchiveDownload {
 
   /**
-    * Generates an akka [[Source]] of bytes representing the archive.
+    * Generates an pekko [[Source]] of bytes representing the archive.
     *
     * @param value
     *   the archive value
@@ -61,7 +61,7 @@ trait ArchiveDownload {
       value: ArchiveValue,
       project: ProjectRef,
       ignoreNotFound: Boolean
-  )(implicit caller: Caller): IO[AkkaSource]
+  )(implicit caller: Caller): IO[PekkoSource]
 
 }
 
@@ -105,7 +105,7 @@ object ArchiveDownload {
           value: ArchiveValue,
           project: ProjectRef,
           ignoreNotFound: Boolean
-      )(implicit caller: Caller): IO[AkkaSource] = {
+      )(implicit caller: Caller): IO[PekkoSource] = {
         for {
           references  <- value.resources.toList.traverse(toFullReference)
           _           <- checkResourcePermissions(references, project)
@@ -144,11 +144,11 @@ object ArchiveDownload {
           .map(asSourceList)
       }
 
-      private def sortWith(list: List[(ArchiveMetadata, IO[AkkaSource])]): List[(ArchiveMetadata, IO[AkkaSource])] =
+      private def sortWith(list: List[(ArchiveMetadata, IO[PekkoSource])]): List[(ArchiveMetadata, IO[PekkoSource])] =
         list.sortBy { case (entry, _) => entry }(Zip.ordering)
 
       private def asSourceList(
-          list: List[(ArchiveMetadata, IO[AkkaSource])]
+          list: List[(ArchiveMetadata, IO[PekkoSource])]
       ) =
         list.map { case (metadata, source) =>
           metadata -> Source.lazyFutureSource(() => source.unsafeToFuture())
@@ -173,7 +173,7 @@ object ArchiveDownload {
           ignoreNotFound: Boolean
       )(implicit
           caller: Caller
-      ): IO[Option[(ArchiveMetadata, IO[AkkaSource])]] = {
+      ): IO[Option[(ArchiveMetadata, IO[PekkoSource])]] = {
         val refProject = ref.project.getOrElse(project)
         // the required permissions are checked for each file content fetch
         val entry      = fetchFileContent(ref.ref, refProject, caller)
@@ -183,9 +183,9 @@ object ArchiveDownload {
             case _: FileRejection.RevisionNotFound => ResourceNotFound(ref.ref, project)
           }
           .map { case FileResponse(fileMetadata, content) =>
-            val path                        = pathOf(ref, project, fileMetadata.filename)
-            val archiveMetadata             = Zip.metadata(path)
-            val contentTask: IO[AkkaSource] = content.flatMap {
+            val path                         = pathOf(ref, project, fileMetadata.filename)
+            val archiveMetadata              = Zip.metadata(path)
+            val contentTask: IO[PekkoSource] = content.flatMap {
               case Left(response) =>
                 logger.error(
                   s"Error streaming file '${fileMetadata.filename}' for archive: ${response.value.value}"
@@ -211,7 +211,7 @@ object ArchiveDownload {
           ref: ResourceReference,
           project: ProjectRef,
           ignoreNotFound: Boolean
-      ): IO[Option[(ArchiveMetadata, IO[AkkaSource])]] = {
+      ): IO[Option[(ArchiveMetadata, IO[PekkoSource])]] = {
         val archiveEntry = resourceRefToByteString(ref, project).map { content =>
           val path     = pathOf(ref, project)
           val metadata = Zip.metadata(path)

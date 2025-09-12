@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.plugins.archive.model.*
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{ArchiveNotFound, InvalidArchiveId, ResourceAlreadyExists}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.PekkoSource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceDecoder
@@ -123,7 +123,7 @@ class Archives(
   }.span("fetchArchive")
 
   /**
-    * Provides an [[AkkaSource]] for streaming an archive content.
+    * Provides an [[PekkoSource]] for streaming an archive content.
     *
     * @param id
     *   the archive identifier
@@ -136,7 +136,7 @@ class Archives(
       id: IdSegment,
       project: ProjectRef,
       ignoreNotFound: Boolean
-  )(implicit caller: Caller): IO[AkkaSource] =
+  )(implicit caller: Caller): IO[PekkoSource] =
     (for {
       resource <- fetch(id, project)
       value     = resource.value

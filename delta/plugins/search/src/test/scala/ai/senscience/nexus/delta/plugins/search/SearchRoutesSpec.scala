@@ -8,11 +8,11 @@ import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 import org.http4s.Query
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 

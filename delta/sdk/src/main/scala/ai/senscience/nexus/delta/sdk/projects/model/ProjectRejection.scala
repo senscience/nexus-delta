@@ -12,9 +12,9 @@ import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectIsReferenced.ReferencesByProject
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.ReferencedBy
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Enumeration of Project rejection types.

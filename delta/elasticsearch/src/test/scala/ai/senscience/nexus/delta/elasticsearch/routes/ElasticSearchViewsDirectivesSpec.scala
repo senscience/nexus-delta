@@ -14,10 +14,10 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.http.scaladsl.model.MediaRanges.`*/*`
-import akka.http.scaladsl.model.headers.Accept
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.model.MediaRanges.`*/*`
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalactic.source.Position
 
 import java.time.Instant

@@ -13,9 +13,9 @@ import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Enumeration of schema rejection types.

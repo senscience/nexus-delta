@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.`application/ld+json`
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileId}
@@ -33,15 +33,15 @@ import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
 import ai.senscience.nexus.testkit.scalatest.FileMatchers.*
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.ContentTypes.`application/json`
-import akka.http.scaladsl.model.MediaRanges.*
-import akka.http.scaladsl.model.MediaTypes.{`multipart/form-data`, `text/html`}
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.ContentTypes.`application/json`
+import org.apache.pekko.http.scaladsl.model.MediaRanges.*
+import org.apache.pekko.http.scaladsl.model.MediaTypes.{`multipart/form-data`, `text/html`}
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.*
 
 import java.util.UUID
@@ -285,7 +285,7 @@ class FilesRoutesSpec
         "/v1/files/org/proj/file-too-large",
         randomEntity(filename = "large-file.txt", 1100)
       ) ~> as(writer) ~> routes ~> check {
-        status shouldEqual StatusCodes.PayloadTooLarge
+        status shouldEqual StatusCodes.ContentTooLarge
         response.asJson shouldEqual jsonContentOf("files/errors/file-too-large.json")
       }
     }

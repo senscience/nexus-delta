@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.tests.config.TestsConfig
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 
 /**
   * Utility methods to generate the self for the different entities

@@ -2,13 +2,13 @@ name: Delta Core unit tests
 on:
   pull_request:
     paths:
-      - 'akka/**'
       - 'delta/elasticsearch/**'
       - 'delta/kernel/**'
       - 'delta/rdf/**'
       - 'delta/sdk/**'
       - 'delta/sourcing-psql/**'
       - 'delta/testkit/**'
+      - 'pekko/**'
       - 'build.sbt'
       - 'project/**'
       - '.github/workflows/ci-delta-core.yml'

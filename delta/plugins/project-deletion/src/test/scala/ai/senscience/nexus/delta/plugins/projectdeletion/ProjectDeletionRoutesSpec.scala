@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.plugins.projectdeletion
 
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes
 import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRoutes
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 import scala.concurrent.duration.DurationInt
 

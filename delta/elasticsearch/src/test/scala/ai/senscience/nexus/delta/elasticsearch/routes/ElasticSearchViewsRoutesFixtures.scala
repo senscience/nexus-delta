@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceMarshalling
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.model.schema as elasticSearchSchema
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -15,9 +14,10 @@ import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ProjectResource}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.pekko.marshalling.CirceMarshalling
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import org.scalatest.CancelAfterFailure
 
 import java.util.UUID

@@ -15,11 +15,11 @@ import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
-import akka.http.scaladsl.model.MediaRanges.`*/*`
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.headers.Accept
-import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
+import org.apache.pekko.http.scaladsl.model.MediaRanges.`*/*`
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.headers.Accept
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.time.Instant
 

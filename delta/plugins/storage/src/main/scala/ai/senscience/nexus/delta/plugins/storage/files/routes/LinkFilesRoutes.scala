@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileId, FileLinkRequest}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.storageParam
 import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files}
@@ -12,11 +11,12 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
-import akka.http.scaladsl.model.StatusCodes.Created
-import akka.http.scaladsl.server.*
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
+import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
+import org.apache.pekko.http.scaladsl.server.*
 
 class LinkFilesRoutes(identities: Identities, aclCheck: AclCheck, files: Files, index: IndexingAction.Execute[File])(
     implicit

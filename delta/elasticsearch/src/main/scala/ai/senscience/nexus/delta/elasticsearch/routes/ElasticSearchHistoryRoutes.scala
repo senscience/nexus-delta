@@ -12,8 +12,8 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
-import akka.http.scaladsl.server.Route
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * Routes allowing to get the history of events for resources

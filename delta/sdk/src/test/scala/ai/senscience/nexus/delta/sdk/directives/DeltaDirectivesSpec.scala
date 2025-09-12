@@ -1,7 +1,5 @@
 package ai.senscience.nexus.delta.sdk.directives
 
-import ai.senscience.nexus.akka.marshalling.CirceMarshalling
-import ai.senscience.nexus.akka.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
@@ -20,21 +18,23 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
+import ai.senscience.nexus.pekko.marshalling.CirceMarshalling
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.MediaRange.*
-import akka.http.scaladsl.model.MediaRanges.{`*/*`, `application/*`, `audio/*`, `text/*`}
-import akka.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`, `text/plain`}
-import akka.http.scaladsl.model.StatusCodes.*
-import akka.http.scaladsl.model.headers.*
-import akka.http.scaladsl.model.headers.HttpEncodings.gzip
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.MediaRange.*
+import org.apache.pekko.http.scaladsl.model.MediaRanges.{`*/*`, `application/*`, `audio/*`, `text/*`}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`, `text/plain`}
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
+import org.apache.pekko.http.scaladsl.model.headers.*
+import org.apache.pekko.http.scaladsl.model.headers.HttpEncodings.gzip
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import org.scalatest.Inspectors
 
 import java.time.Instant

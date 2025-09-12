@@ -14,7 +14,7 @@ import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.scalatest.TestMatchers
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{CancelAfterFailure, Inspectors, OptionValues}
 

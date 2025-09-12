@@ -7,9 +7,9 @@ import ai.senscience.nexus.tests.Optics.sparql
 import ai.senscience.nexus.tests.builders.SchemaPayloads
 import ai.senscience.nexus.tests.builders.SchemaPayloads.*
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Optics}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.Json
 import io.circe.optics.JsonPath.root
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class SchemasSpec extends BaseIntegrationSpec {
 

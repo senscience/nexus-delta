@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 
 class ViewsRoutesSpec extends BaseRouteSpec {
 

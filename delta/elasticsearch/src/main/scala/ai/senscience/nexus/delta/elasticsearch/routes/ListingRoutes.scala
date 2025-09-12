@@ -18,8 +18,8 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
-import akka.http.scaladsl.server.*
 import io.circe.JsonObject
+import org.apache.pekko.http.scaladsl.server.*
 
 class ListingRoutes(
     identities: Identities,

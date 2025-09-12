@@ -5,9 +5,9 @@ import ai.senscience.nexus.tests.Identity.listings.Bob
 import ai.senscience.nexus.tests.Optics._rev
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, SchemaPayload}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 class ResourceUpdatesSpec extends BaseIntegrationSpec {
 

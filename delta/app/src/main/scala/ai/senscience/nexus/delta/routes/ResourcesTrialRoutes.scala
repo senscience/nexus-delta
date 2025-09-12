@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -21,11 +20,12 @@ import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.{Decoder, Json}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 
 /**
   * The resource trial routes allowing to do read-only operations on resources

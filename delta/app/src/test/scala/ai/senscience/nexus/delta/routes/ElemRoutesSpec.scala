@@ -13,12 +13,12 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import ai.senscience.nexus.testkit.CirceLiteral
-import akka.http.scaladsl.model.headers.`Last-Event-ID`
-import akka.http.scaladsl.model.sse.ServerSentEvent
-import akka.http.scaladsl.model.{MediaTypes, StatusCodes}
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import fs2.Stream
+import org.apache.pekko.http.scaladsl.model.headers.`Last-Event-ID`
+import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
+import org.apache.pekko.http.scaladsl.model.{MediaTypes, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.time.Instant
 

@@ -1,17 +1,17 @@
 package ai.senscience.nexus.tests.iam
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.tests.Identity.Authenticated
 import ai.senscience.nexus.tests.Optics.error
 import ai.senscience.nexus.tests.iam.types.*
 import ai.senscience.nexus.tests.{HttpClient, Identity}
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCodes}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{Assertion, OptionValues}
 

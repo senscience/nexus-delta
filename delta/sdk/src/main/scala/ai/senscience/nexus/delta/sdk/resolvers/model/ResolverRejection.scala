@@ -13,9 +13,9 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.Re
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 /**
   * Enumeration of Resolver rejection types.

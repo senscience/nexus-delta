@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.FileResponse
-import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.PekkoSource
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -34,14 +34,14 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.test.archive.ArchiveHelpers
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
-import akka.stream.scaladsl.Source
-import akka.testkit.TestKit
-import akka.util.ByteString
 import cats.data.NonEmptySet
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.ContentTypes.`text/plain(UTF-8)`
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.testkit.TestKit
+import org.apache.pekko.util.ByteString
 import org.http4s.Uri
 import org.scalactic.source.Position
 
@@ -74,7 +74,7 @@ class ArchiveDownloadSpec
   private val permissions = Set(Permissions.resources.read)
   private val aclCheck    = AclSimpleCheck((subject, AclAddress.Root, permissions)).accepted
 
-  def sourceToMap(source: AkkaSource): Map[String, String] = fromZip(source).map { case (k, v) => k -> v.utf8String }
+  def sourceToMap(source: PekkoSource): Map[String, String] = fromZip(source).map { case (k, v) => k -> v.utf8String }
 
   "An ArchiveDownload" should {
     val storageRef                                    = ResourceRef.Revision(iri"http://localhost/${genString()}", 5)

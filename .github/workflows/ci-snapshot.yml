@@ -4,8 +4,8 @@ on:
     branches:
       - master
     paths:
-      - 'akka/**'
       - 'delta/**'
+      - 'pekko/**'
       - 'build.sbt'
       - 'project/**'
       - '.github/workflows/ci-snapshot.yml'

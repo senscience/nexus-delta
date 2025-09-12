@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.typesafe.config.impl.ConfigImpl
 import izumi.distage.model.definition.ModuleDef
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 
 class PluginLoaderSpec extends CatsEffectSpec with ScalatestRouteTest {
 

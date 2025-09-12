@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.wiring.DeltaModule
 import ai.senscience.nexus.testkit.config.SystemPropertyOverride
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.postgres.PostgresContainer
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.config.impl.ConfigImpl
 import izumi.distage.model.definition.{Module, ModuleDef}
@@ -15,6 +14,7 @@ import izumi.distage.model.plan.Roots
 import izumi.distage.planning.solver.PlanVerifier
 import munit.catseffect.IOFixture
 import munit.{AnyFixture, CatsEffectSuite}
+import org.apache.pekko.http.scaladsl.server.Route
 
 import java.nio.file.{Files, Paths}
 import scala.concurrent.duration.Duration

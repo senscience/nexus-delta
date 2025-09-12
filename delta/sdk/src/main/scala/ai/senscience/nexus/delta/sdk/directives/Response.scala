@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.syntax.*
-import akka.http.scaladsl.model.{HttpHeader, StatusCode}
-import akka.http.scaladsl.server.{Rejection, Route}
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, StatusCode}
+import org.apache.pekko.http.scaladsl.server.{Rejection, Route}
 
 /**
   * An enumeration of possible Route responses

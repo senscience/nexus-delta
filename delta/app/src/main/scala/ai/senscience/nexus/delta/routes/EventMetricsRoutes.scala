@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 
 final class EventMetricsRoutes(
     identities: Identities,

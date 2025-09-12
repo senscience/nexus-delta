@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import akka.http.scaladsl.model.{StatusCode as AkkaStatusCode, StatusCodes}
 import cats.effect.IO
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.{StatusCode as PekkoStatusCode, StatusCodes}
 import org.http4s.{Response, Status}
 
 import java.net.ConnectException
@@ -111,10 +111,10 @@ object ElasticSearchClientError {
 
   implicit val elasticSearchClientErrorHttpResponseFields: HttpResponseFields[ElasticSearchClientError] =
     HttpResponseFields {
-      case ElasticsearchActionError(status, _)      => AkkaStatusCode.int2StatusCode(status.code)
-      case ElasticsearchCreateIndexError(status, _) => AkkaStatusCode.int2StatusCode(status.code)
-      case ElasticsearchQueryError(status, _)       => AkkaStatusCode.int2StatusCode(status.code)
-      case ElasticsearchWriteError(status, _)       => AkkaStatusCode.int2StatusCode(status.code)
+      case ElasticsearchActionError(status, _)      => PekkoStatusCode.int2StatusCode(status.code)
+      case ElasticsearchCreateIndexError(status, _) => PekkoStatusCode.int2StatusCode(status.code)
+      case ElasticsearchQueryError(status, _)       => PekkoStatusCode.int2StatusCode(status.code)
+      case ElasticsearchWriteError(status, _)       => PekkoStatusCode.int2StatusCode(status.code)
       case InvalidResourceId(_)                     => StatusCodes.BadRequest
       case _                                        => StatusCodes.InternalServerError
     }

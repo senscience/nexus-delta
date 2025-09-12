@@ -21,8 +21,8 @@ object ArchiveValue {
 
   /**
     * A safe constructor for ArchiveValue that checks for path duplication and validate that paths respect tar
-    * implementation in alpakka
-    * https://github.com/akka/alpakka/blob/f2971ca8a4a71b541cddbd5bf35af3a2a56efe71/file/src/main/scala/akka/stream/alpakka/file/model.scala#L115
+    * implementation in pekko
+    * https://github.com/apache/pekko-connectors/blob/main/file/src/main/scala/org/apache/pekko/stream/connectors/file/model.scala
     *
     * @param resources
     *   the collection of referenced resources

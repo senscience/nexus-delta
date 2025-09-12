@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileRef
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.ArchiveNotFound
 import ai.senscience.nexus.delta.plugins.archive.model.{Archive, ArchiveValue}
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema}
-import ai.senscience.nexus.delta.sdk.directives.FileResponse.AkkaSource
+import ai.senscience.nexus.delta.sdk.directives.FileResponse.PekkoSource
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -19,10 +19,10 @@ import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.stream.scaladsl.Source
 import cats.data.NonEmptySet
 import cats.effect.IO
 import io.circe.literal.*
+import org.apache.pekko.stream.scaladsl.Source
 import org.http4s.Uri
 
 import java.time.Instant
@@ -49,7 +49,7 @@ class ArchivesSpec extends CatsEffectSpec with DoobieScalaTestFixture with Remot
   private val download = new ArchiveDownload {
     override def apply(value: ArchiveValue, project: ProjectRef, ignoreNotFound: Boolean)(implicit
         caller: Caller
-    ): IO[AkkaSource] =
+    ): IO[PekkoSource] =
       IO.pure(Source.empty)
   }
 

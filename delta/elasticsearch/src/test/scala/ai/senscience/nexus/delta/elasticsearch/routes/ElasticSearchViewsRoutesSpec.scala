@@ -19,11 +19,11 @@ import ai.senscience.nexus.delta.sdk.resources.ResourceErrors.*
 import ai.senscience.nexus.delta.sdk.views.ElasticSearchViewErrors.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{Accept, Location}
-import akka.http.scaladsl.model.{StatusCodes, Uri}
-import akka.http.scaladsl.server.Route
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
+import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.Assertion
 
 class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with DoobieScalaTestFixture {

@@ -7,12 +7,12 @@ import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.IriVoc
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ProjectRef}
-import akka.http.scaladsl.model.HttpMethods
-import akka.http.scaladsl.model.Uri.Path./
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.{Directive0, Directive1}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import org.apache.pekko.http.scaladsl.model.HttpMethods
+import org.apache.pekko.http.scaladsl.model.Uri.Path./
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directive1}
 
 /**
   * Directives requiring interactions with the projects and organizations modules

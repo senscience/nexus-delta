@@ -26,7 +26,7 @@
     </logger>
 
     <logger name="com.zaxxer.hikari" level="WARN"/>
-    <logger name="akka.http.impl.engine.client" level="INFO"/>
+    <logger name="org.apache.pekko.http.impl.engine.client" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="org.apache.jena" level="WARN" />
 </configuration>

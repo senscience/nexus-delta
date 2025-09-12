@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.search
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.NamedSuite
@@ -14,9 +13,10 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 
 class SearchRoutes(
     identities: Identities,

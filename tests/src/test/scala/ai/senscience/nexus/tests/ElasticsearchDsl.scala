@@ -1,14 +1,14 @@
 package ai.senscience.nexus.tests
 
-import ai.senscience.nexus.akka.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.CirceLiteral
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.HttpMethods.{DELETE, GET}
-import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.model.{HttpRequest, StatusCode}
-import akka.stream.Materializer
 import cats.effect.IO
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.HttpMethods.{DELETE, GET}
+import org.apache.pekko.http.scaladsl.model.headers.BasicHttpCredentials
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, StatusCode}
+import org.apache.pekko.stream.Materializer
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 

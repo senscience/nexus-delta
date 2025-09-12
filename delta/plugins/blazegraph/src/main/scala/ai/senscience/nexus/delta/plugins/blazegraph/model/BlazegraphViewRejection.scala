@@ -13,9 +13,9 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import akka.http.scaladsl.model.StatusCodes
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 
 sealed abstract class BlazegraphViewRejection(val reason: String) extends Rejection
 

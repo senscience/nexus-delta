@@ -4,15 +4,15 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.tests.Identity.{ClientCredentials, UserCredentials}
 import ai.senscience.nexus.tests.Optics.*
-import akka.actor.ActorSystem
-import akka.http.javadsl.model.headers.HttpCredentials
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.HttpMethods.*
-import akka.http.scaladsl.model.headers.Authorization
-import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
-import akka.stream.Materializer
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.javadsl.model.headers.HttpCredentials
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.HttpMethods.*
+import org.apache.pekko.http.scaladsl.model.headers.Authorization
+import org.apache.pekko.http.scaladsl.unmarshalling.FromEntityUnmarshaller
+import org.apache.pekko.stream.Materializer
 
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
@@ -87,15 +87,13 @@ class KeycloakDsl(implicit
     val request = HttpRequest(
       method = POST,
       uri = realmEndpoint(user.realm),
-      entity = akka.http.scaladsl.model
-        .FormData(
-          Map(
-            "username"   -> user.name,
-            "password"   -> user.password,
-            "grant_type" -> "password"
-          ) ++ clientFields
-        )
-        .toEntity
+      entity = FormData(
+        Map(
+          "username"   -> user.name,
+          "password"   -> user.password,
+          "grant_type" -> "password"
+        ) ++ clientFields
+      ).toEntity
     )
 
     for {
@@ -119,14 +117,12 @@ class KeycloakDsl(implicit
           method = POST,
           uri = realmEndpoint(client.realm),
           headers = Authorization(HttpCredentials.createBasicHttpCredentials(client.id, client.secret)) :: Nil,
-          entity = akka.http.scaladsl.model
-            .FormData(
-              Map(
-                "scope"      -> "openid",
-                "grant_type" -> "client_credentials"
-              )
+          entity = FormData(
+            Map(
+              "scope"      -> "openid",
+              "grant_type" -> "client_credentials"
             )
-            .toEntity
+          ).toEntity
         )
       ).flatMap { res =>
         IO.fromFuture { IO(um(res.entity)) }

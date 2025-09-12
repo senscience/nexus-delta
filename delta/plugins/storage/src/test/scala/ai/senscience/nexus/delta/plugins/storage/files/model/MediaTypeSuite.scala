@@ -5,7 +5,7 @@ import io.circe.Json
 
 class MediaTypeSuite extends NexusSuite {
 
-  test("Should deserialize legacy akka content types") {
+  test("Should deserialize legacy pekko content types") {
     Json
       .fromString("text/plain; charset=UTF-8")
       .as[MediaType]

@@ -8,12 +8,12 @@ import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Views}
 import ai.senscience.nexus.tests.kg.CompositeViewsSpec.{albumQuery, bandQuery}
-import akka.http.scaladsl.model.StatusCodes
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import io.circe.Json
 import io.circe.optics.JsonPath.*
+import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalatest.Assertion
 
 class CompositeViewsSpec extends BaseIntegrationSpec {

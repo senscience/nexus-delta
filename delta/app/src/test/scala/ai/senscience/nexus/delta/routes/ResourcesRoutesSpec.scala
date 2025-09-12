@@ -24,12 +24,12 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
-import akka.http.scaladsl.model.MediaTypes.`text/html`
-import akka.http.scaladsl.model.headers.{Accept, Location, RawHeader}
-import akka.http.scaladsl.model.{RequestEntity, StatusCodes, Uri}
-import akka.http.scaladsl.server.Route
 import cats.syntax.all.*
 import io.circe.{Json, Printer}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
+import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location, RawHeader}
+import org.apache.pekko.http.scaladsl.model.{RequestEntity, StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.Assertion
 
 import java.util.UUID

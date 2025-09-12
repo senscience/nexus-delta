@@ -16,11 +16,11 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, Us
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ProjectMatchers.deprecated
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives.handleExceptions
-import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import io.circe.Json
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Directives.handleExceptions
+import org.apache.pekko.http.scaladsl.server.Route
 import org.scalactic.source.Position
 
 import java.util.UUID

@@ -18,7 +18,7 @@ In order to successfully run Nexus Delta there is a minimum set of configuration
 
 @link:[The `http` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L11){ open=new } of the configuration defines the binding address and port where the service will be listening.
 
-The configuration flag `akka.http.server.parsing.max-content-length` can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.
+The configuration flag `pekko.http.server.parsing.max-content-length` can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.
 
 ## Postgres configuration
 

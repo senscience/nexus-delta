@@ -5,12 +5,12 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.FileDataHelpers
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.ContentTypes.*
-import akka.http.scaladsl.model.{ContentType, HttpEntity, Multipart}
-import akka.testkit.TestKit
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.ContentTypes.*
+import org.apache.pekko.http.scaladsl.model.{ContentType, HttpEntity, Multipart}
+import org.apache.pekko.testkit.TestKit
 
 class FormDataExtractorSpec
     extends TestKit(ActorSystem("FormDataExtractorSpec"))
@@ -33,7 +33,7 @@ class FormDataExtractorSpec
         description: Option[String] = None,
         name: Option[String] = None
     ) = {
-      val contentType = mediaType.fold(NoContentType: ContentType)(MediaType.toAkkaContentType)
+      val contentType = mediaType.fold(NoContentType: ContentType)(MediaType.toPekkoContentType)
       Multipart
         .FormData(
           Multipart.FormData
@@ -85,7 +85,7 @@ class FormDataExtractorSpec
       consume(contents).accepted shouldEqual content
     }
 
-    "be extracted with the akka detection from the extension" in {
+    "be extracted with the pekko detection from the extension" in {
       val entity = createEntity("file", None, Some("file.txt"))
 
       val UploadedFileInformation(filename, contentType, contents) = extractor(entity, 250).accepted

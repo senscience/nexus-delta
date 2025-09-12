@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.schema
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import akka.http.scaladsl.server.Directives.concat
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Directives.concat
+import org.apache.pekko.http.scaladsl.server.Route
 
 /**
   * Transforms the incoming request to consume the baseUri prefix and rewrite the generic resource endpoint

@@ -9,10 +9,10 @@ import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
 import cats.effect.{IO, Ref}
 import io.circe.{Json, JsonObject}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
 import org.http4s.Query
 
 class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
