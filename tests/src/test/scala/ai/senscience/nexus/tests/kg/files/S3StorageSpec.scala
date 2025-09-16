@@ -79,9 +79,8 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
       "kg/storages/s3.json",
       "storageId" -> s"https://bluebrain.github.io/nexus/vocabulary/${storId}2",
       "bucket"    -> bucket
-    ) deepMerge Json.obj(
-      "readPermission"  -> Json.fromString(s"$storName/read"),
-      "writePermission" -> Json.fromString(s"$storName/write")
+    ).deepMerge(
+      Json.obj("readPermission" := s"$storName/read", "writePermission" := s"$storName/write")
     )
 
     val expectedStorage          = storageResponse(projectRef, storId, bucket, "resources/read", "files/write")

@@ -33,18 +33,18 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
       // Init
       _                    <- store.save(List(lastProject1, lastProject2))
       expectedAll           = List(lastProject1, lastProject2)
-      _                    <- stream(Offset.start).assert(expectedAll)
+      _                    <- stream(Offset.start).assertList(expectedAll)
       offset42              = Offset.at(42L)
       expectedAfter42       = List(lastProject2)
-      _                    <- stream(offset42).assert(expectedAfter42)
+      _                    <- stream(offset42).assertList(expectedAfter42)
       // Update
       _                    <- store.save(List(lastProject1Updated))
-      expectedAfterUpdate   = List(lastProject1Updated, lastProject2)
-      _                    <- stream(offset42).assert(expectedAfterUpdate)
+      expectedAfterUpdated  = List(lastProject1Updated, lastProject2)
+      _                    <- stream(offset42).assertList(expectedAfterUpdated)
       // Deletion
       _                    <- store.delete(project1)
       expectedAfterDeletion = List(lastProject2)
-      _                    <- stream(offset42).assert(expectedAfterDeletion)
+      _                    <- stream(offset42).assertList(expectedAfterDeletion)
     } yield ()
   }
 

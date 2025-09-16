@@ -80,7 +80,7 @@ class AdminDsl(cl: HttpClient, config: TestsConfig)
   }
 
   private def queryParams(rev: Int) =
-    if (rev == 0L) {
+    if rev == 0L then {
       ""
     } else {
       s"?rev=$rev"
@@ -118,13 +118,10 @@ class AdminDsl(cl: HttpClient, config: TestsConfig)
                       case Some(status) =>
                         response.status shouldEqual status
                       case None         =>
-                        if (ignoreConflict && response.status == StatusCodes.Conflict)
-                          succeed
+                        if ignoreConflict && response.status == StatusCodes.Conflict then succeed
                         else {
-                          if (rev == 0L)
-                            response.status shouldEqual StatusCodes.Created
-                          else
-                            response.status shouldEqual StatusCodes.OK
+                          if rev == 0L then response.status shouldEqual StatusCodes.Created
+                          else response.status shouldEqual StatusCodes.OK
 
                           filterMetadataKeys(json) shouldEqual expected
                         }
@@ -200,10 +197,8 @@ class AdminDsl(cl: HttpClient, config: TestsConfig)
               case Some(status) =>
                 response.status shouldEqual status
               case None         =>
-                if (rev == 0)
-                  response.status shouldEqual StatusCodes.Created
-                else
-                  response.status shouldEqual StatusCodes.OK
+                if rev == 0 then response.status shouldEqual StatusCodes.Created
+                else response.status shouldEqual StatusCodes.OK
 
                 filterProjectMetadataKeys(json) shouldEqual expected
             }

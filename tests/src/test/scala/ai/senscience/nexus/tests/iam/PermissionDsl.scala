@@ -22,7 +22,7 @@ class PermissionDsl(cl: HttpClient) extends CirceUnmarshalling with Matchers {
     cl.get[Permissions]("/permissions", Identity.ServiceAccount) { (permissions, response) =>
       response.status shouldEqual StatusCodes.OK
 
-      if (!list.toSet.subsetOf(permissions.permissions)) {
+      if !list.toSet.subsetOf(permissions.permissions) then {
         (for {
           body   <- loader.jsonContentOf(
                       "iam/permissions/append.json",

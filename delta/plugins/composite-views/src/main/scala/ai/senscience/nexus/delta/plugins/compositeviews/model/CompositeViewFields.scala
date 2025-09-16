@@ -55,6 +55,10 @@ object CompositeViewFields {
     deriveConfiguredEncoder[CompositeViewFields]
   }
 
+  private val ctx = Configuration.default.context
+    .addAliasIdType("description", iri"https://schema.org/description")
+    .addAliasIdType("name", iri"https://schema.org/name")
+
   final def jsonLdDecoder(minIntervalRebuild: FiniteDuration): JsonLdDecoder[CompositeViewFields] = {
     implicit val rebuildStrategyDecoder: JsonLdDecoder[RebuildStrategy] = {
       implicit val scopedFiniteDurationDecoder: JsonLdDecoder[FiniteDuration] =
@@ -73,10 +77,7 @@ object CompositeViewFields {
       deriveDefaultJsonLdDecoder[RebuildStrategy]
     }
 
-    val ctx             = Configuration.default.context
-      .addAliasIdType("description", iri"https://schema.org/description")
-      .addAliasIdType("name", iri"https://schema.org/name")
-    implicit val config = Configuration.default.copy(context = ctx)
+    implicit val config: Configuration = Configuration.default.copy(context = ctx)
 
     deriveConfigJsonLdDecoder[CompositeViewFields]
   }

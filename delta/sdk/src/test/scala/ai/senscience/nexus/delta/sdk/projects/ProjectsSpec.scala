@@ -182,7 +182,7 @@ class ProjectsSpec extends CatsEffectSpec {
     }
 
     "producing next state" should {
-      val next = Projects.next _
+      val next = Projects.next(_, _)
 
       "create a new ProjectCreated state" in {
         next(

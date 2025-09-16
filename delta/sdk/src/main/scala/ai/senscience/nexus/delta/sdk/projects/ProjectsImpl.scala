@@ -67,7 +67,7 @@ final class ProjectsImpl private (
 
   override def fetchAt(ref: ProjectRef, rev: Int): IO[ProjectResource] =
     log
-      .stateOr(ref, ref, rev, ProjectNotFound(ref), RevisionNotFound)
+      .stateOr(ref, ref, rev, ProjectNotFound(ref), RevisionNotFound(_, _))
       .map(_.toResource(defaultApiMappings))
       .span("fetchProjectAt")
 
@@ -80,7 +80,7 @@ final class ProjectsImpl private (
   ): IO[SearchResults.UnscoredSearchResults[ProjectResource]] =
     SearchResults(
       log
-        .currentStates(params.organization.fold(Scope.root)(Scope.Org), _.toResource(defaultApiMappings))
+        .currentStates(params.organization.fold(Scope.root)(Scope.Org(_)), _.toResource(defaultApiMappings))
         .evalFilter(params.matches),
       pagination,
       ordering

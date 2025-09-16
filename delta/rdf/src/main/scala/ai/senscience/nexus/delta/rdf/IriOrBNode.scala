@@ -76,7 +76,7 @@ object IriOrBNode {
       *   the keys to remove
       */
     def removeQueryParams(keys: String*): Iri =
-      if (rawQuery().isEmpty) this
+      if rawQuery().isEmpty then this
       else {
         queryParams {
           keys.foldLeft(query()) { case (acc, key) =>
@@ -89,7 +89,7 @@ object IriOrBNode {
       * Override the current query parameters with the passed ones
       */
     def queryParams(query: Query): Iri =
-      if (Option(value.getRawAuthority).nonEmpty) {
+      if Option(value.getRawAuthority).nonEmpty then {
         Iri.unsafe(
           scheme = Option(value.getScheme),
           userInfo = Option(value.getRawUserinfo),
@@ -182,10 +182,8 @@ object IriOrBNode {
     def /(segment: String): Iri = {
       lazy val segmentStartsWithSlash = segment.startsWith("/")
       lazy val iriEndsWithSlash       = toString.endsWith("/")
-      if (iriEndsWithSlash && segmentStartsWithSlash)
-        unsafe(s"$value${segment.drop(1)}")
-      else if (iriEndsWithSlash || segmentStartsWithSlash)
-        unsafe(s"$value$segment")
+      if iriEndsWithSlash && segmentStartsWithSlash then unsafe(s"$value${segment.drop(1)}")
+      else if iriEndsWithSlash || segmentStartsWithSlash then unsafe(s"$value$segment")
       else unsafe(s"$value/$segment")
     }
 
@@ -218,10 +216,10 @@ object IriOrBNode {
       * passed [[Iri]] is not absolute, there is nothing to resolve against and the current [[Iri]] is returned.
       */
     def resolvedAgainst(iri: Iri): Iri =
-      if (isReference) this
-      else if (iri.isReference) {
-        val relative = if (toString.endsWith("/")) toString.takeRight(1) else toString
-        val absolute = if (iri.toString.startsWith("/")) iri.toString.take(1) else iri.toString
+      if isReference then this
+      else if iri.isReference then {
+        val relative = if toString.endsWith("/") then toString.takeRight(1) else toString
+        val absolute = if iri.toString.startsWith("/") then iri.toString.take(1) else iri.toString
         Iri.unsafe(s"$absolute/$relative")
 
       } else this
@@ -242,8 +240,8 @@ object IriOrBNode {
       @tailrec
       def inner(rest: String): Option[String] = {
         val idx = rest.lastIndexOf("/")
-        if (idx == -1) None
-        else if (idx < rest.length - 1) Some(rest.substring(idx + 1))
+        if idx == -1 then None
+        else if idx < rest.length - 1 then Some(rest.substring(idx + 1))
         else inner(rest.dropRight(1))
       }
 
@@ -406,7 +404,7 @@ object IriOrBNode {
   }
 
   implicit final val iriOrBNodeDecoder: Decoder[IriOrBNode] =
-    Decoder.decodeString.emap(Iri.reference) or Decoder.decodeString.map(BNode.unsafe)
+    Decoder.decodeString.emap(Iri.reference).or(Decoder.decodeString.map(BNode.unsafe))
 
   implicit final val iriOrBNodeEncoder: Encoder[IriOrBNode] =
     Encoder.encodeString.contramap(_.toString)

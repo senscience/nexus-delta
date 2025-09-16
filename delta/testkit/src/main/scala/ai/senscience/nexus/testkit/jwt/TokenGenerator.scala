@@ -33,7 +33,7 @@ object TokenGenerator {
       .notBeforeTime(Date.from(notBefore))
 
     groups.foreach { set =>
-      if (useCommas) csb.claim("groups", set.mkString(","))
+      if useCommas then csb.claim("groups", set.mkString(","))
       else csb.claim("groups", set.toArray)
     }
 

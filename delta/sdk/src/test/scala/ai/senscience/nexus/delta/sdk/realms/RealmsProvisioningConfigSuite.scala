@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmFields
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 import pureconfig.ConfigSource
 
 class RealmsProvisioningConfigSuite extends NexusSuite {

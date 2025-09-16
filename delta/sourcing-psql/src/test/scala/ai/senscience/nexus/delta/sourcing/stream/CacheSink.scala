@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, 
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable

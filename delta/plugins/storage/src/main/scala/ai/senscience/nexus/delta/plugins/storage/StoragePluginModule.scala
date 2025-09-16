@@ -55,9 +55,9 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   makeConfig[StoragePluginConfig]("plugins.storage")
 
-  make[StorageTypeConfig].from { cfg: StoragePluginConfig => cfg.storages.storageTypeConfig }
+  make[StorageTypeConfig].from { (cfg: StoragePluginConfig) => cfg.storages.storageTypeConfig }
 
-  make[ShowFileLocation].from { cfg: StorageTypeConfig => cfg.showFileLocation }
+  make[ShowFileLocation].from { (cfg: StorageTypeConfig) => cfg.showFileLocation }
 
   make[S3StorageClient].fromResource { (cfg: StoragePluginConfig) =>
     S3StorageClient.resource(cfg.storages.storageTypeConfig.amazon)

@@ -93,7 +93,7 @@ class SchemaImportsSuite extends NexusSuite with Fixtures {
   test("Fail to resolve an import if it is not found") {
     val other        = iri"$neuroshapes/other"
     val other2       = iri"$neuroshapes/other2"
-    val parcellation = json deepMerge json"""{"imports": ["$neuroshapes/commons/entity", "$other", "$other2"]}"""
+    val parcellation = json.deepMerge(json"""{"imports": ["$neuroshapes/commons/entity", "$other", "$other2"]}""")
 
     val expectedError = InvalidSchemaResolution(
       parcellationlabel,
@@ -109,7 +109,7 @@ class SchemaImportsSuite extends NexusSuite with Fixtures {
 
   test("Fail to resolve an import if it is a resource without owl:Ontology type") {
     val wrong        = iri"$neuroshapes/wrong/vocabulary"
-    val parcellation = json deepMerge json"""{"imports": ["$neuroshapes/commons/entity", "$wrong"]}"""
+    val parcellation = json.deepMerge(json"""{"imports": ["$neuroshapes/commons/entity", "$wrong"]}""")
 
     val expectedError = InvalidSchemaResolution(
       parcellationlabel,

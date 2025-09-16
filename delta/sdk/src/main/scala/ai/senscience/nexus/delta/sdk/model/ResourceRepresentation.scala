@@ -23,7 +23,7 @@ object ResourceRepresentation {
   /**
     * Source representation of a resource.
     */
-  final case object SourceJson extends ResourceRepresentation {
+  case object SourceJson extends ResourceRepresentation {
     override def extension: String = ".json"
 
     override val toString: String = "source"
@@ -32,7 +32,7 @@ object ResourceRepresentation {
   /**
     * Source representation of a resource.
     */
-  final case object AnnotatedSourceJson extends ResourceRepresentation {
+  case object AnnotatedSourceJson extends ResourceRepresentation {
     override def extension: String = ".json"
 
     override val toString: String = "annotated-source"
@@ -41,7 +41,7 @@ object ResourceRepresentation {
   /**
     * Compacted JsonLD representation of a resource.
     */
-  final case object CompactedJsonLd extends ResourceRepresentation {
+  case object CompactedJsonLd extends ResourceRepresentation {
     override def extension: String = ".json"
 
     override val toString: String = "compacted"
@@ -50,7 +50,7 @@ object ResourceRepresentation {
   /**
     * Expanded JsonLD representation of a resource.
     */
-  final case object ExpandedJsonLd extends ResourceRepresentation {
+  case object ExpandedJsonLd extends ResourceRepresentation {
     override def extension: String = ".json"
 
     override val toString: String = "expanded"
@@ -59,13 +59,13 @@ object ResourceRepresentation {
   /**
     * NTriples representation of a resource.
     */
-  final case object NTriples extends ResourceRepresentation {
+  case object NTriples extends ResourceRepresentation {
     override def extension: String = ".nt"
 
     override val toString: String = "n-triples"
   }
 
-  final case object NQuads extends ResourceRepresentation {
+  case object NQuads extends ResourceRepresentation {
     override def extension: String = ".nq"
 
     override val toString: String = "n-quads"
@@ -74,7 +74,7 @@ object ResourceRepresentation {
   /**
     * Dot representation of a resource.
     */
-  final case object Dot extends ResourceRepresentation {
+  case object Dot extends ResourceRepresentation {
     override def extension: String = ".dot"
 
     override val toString: String = "dot"

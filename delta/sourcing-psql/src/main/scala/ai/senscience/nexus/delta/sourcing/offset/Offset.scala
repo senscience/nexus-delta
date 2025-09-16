@@ -27,11 +27,11 @@ object Offset {
   /**
     * To fetch all rows from the beginning
     */
-  final case object Start extends Offset {
+  case object Start extends Offset {
     override val value: Long = 0L
   }
 
-  def from(value: Long): Offset = if (value > 0L) Offset.at(value) else Offset.Start
+  def from(value: Long): Offset = if value > 0L then Offset.at(value) else Offset.Start
 
   /**
     * To fetch rows from the given offset

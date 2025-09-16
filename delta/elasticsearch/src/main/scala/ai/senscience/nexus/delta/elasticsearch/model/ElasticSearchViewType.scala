@@ -27,7 +27,7 @@ object ElasticSearchViewType {
   /**
     * ElasticSearch view that indexes resources as documents.
     */
-  final case object ElasticSearch extends ElasticSearchViewType {
+  case object ElasticSearch extends ElasticSearchViewType {
     override val toString: String = "ElasticSearchView"
     override val tpe: Iri         = nxv + toString
   }
@@ -35,7 +35,7 @@ object ElasticSearchViewType {
   /**
     * ElasticSearch view that delegates queries to a collection of existing ElasticSearch views based on access.
     */
-  final case object AggregateElasticSearch extends ElasticSearchViewType {
+  case object AggregateElasticSearch extends ElasticSearchViewType {
     override val toString: String = "AggregateElasticSearchView"
     override val tpe: Iri         = nxv + toString
   }

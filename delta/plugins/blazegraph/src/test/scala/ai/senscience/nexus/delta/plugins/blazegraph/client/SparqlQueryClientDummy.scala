@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy.bNode
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
@@ -24,15 +23,15 @@ class SparqlQueryClientDummy(
       q: SparqlQuery,
       responseType: Aux[R],
       additionalHeaders: Seq[Header.ToRaw] = Seq.empty
-  ): IO[R] =
+  ): IO[R] = {
     responseType match {
-      case SparqlResultsJson =>
-        IO.pure(SparqlResultsResponse(sparqlResults(namespaces)))
+      case SparqlResultsJson => IO.pure(SparqlResultsResponse(sparqlResults(namespaces)))
       case SparqlResultsXml  => IO.pure(SparqlXmlResultsResponse(sparqlResultsXml(namespaces)))
       case SparqlJsonLd      => IO.pure(SparqlJsonLdResponse(sparqlJsonLd(namespaces)))
       case SparqlNTriples    => IO.pure(SparqlNTriplesResponse(sparqlNTriples(namespaces)))
       case SparqlRdfXml      => IO.pure(SparqlRdfXmlResponse(sparqlRdfXml(namespaces)))
     }
+  }.map(_.asInstanceOf[R])
 
 }
 

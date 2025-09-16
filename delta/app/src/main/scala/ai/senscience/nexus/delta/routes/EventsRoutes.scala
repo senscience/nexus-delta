@@ -32,10 +32,8 @@ class EventsRoutes(
 
   private def resolveSelector: Directive1[Label] =
     label.flatMap { l =>
-      if (sseEventLog.selectors.contains(l))
-        provide(l)
-      else
-        reject()
+      if sseEventLog.selectors.contains(l) then provide(l)
+      else reject()
     }
 
   def routes: Route =

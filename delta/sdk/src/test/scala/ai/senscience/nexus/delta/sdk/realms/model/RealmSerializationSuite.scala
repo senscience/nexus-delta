@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
 import io.circe.Json
 import org.http4s.Uri
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 

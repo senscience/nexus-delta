@@ -138,7 +138,7 @@ class DeltaClientSuite extends NexusSuite {
     val expected = (0 to 4).map(elem).toList
     val stream   = deltaClient.elems(source, CompositeBranch.Run.Main, Offset.Start)
 
-    stream.take(5).assert(expected)
+    stream.take(5).assertList(expected)
   }
 
   test("Getting a resource as n-quads should work") {

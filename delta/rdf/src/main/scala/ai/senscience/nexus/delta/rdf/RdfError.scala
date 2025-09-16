@@ -75,7 +75,7 @@ object RdfError {
   /**
     * Invalid Iri
     */
-  final case object InvalidIri extends RdfError(s"keyword '${keywords.id}' could not be converted to an Iri")
+  case object InvalidIri extends RdfError(s"keyword '${keywords.id}' could not be converted to an Iri")
   type InvalidIri = InvalidIri.type
 
   /**

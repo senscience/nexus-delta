@@ -10,10 +10,10 @@ object IndexingMode {
   /**
     * Asynchronously indexing resources
     */
-  final case object Async extends IndexingMode
+  case object Async extends IndexingMode
 
   /**
     * Synchronously indexing resources
     */
-  final case object Sync extends IndexingMode
+  case object Sync extends IndexingMode
 }

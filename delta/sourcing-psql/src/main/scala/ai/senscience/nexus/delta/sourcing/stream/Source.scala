@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.{SourceOutMatchErr, SourceOutPipeInMatchErr}
 import cats.data.NonEmptyChain
 import cats.implicits.*
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Sources emit Stream elements of type [[Source#Out]] from a predefined [[Offset]]. Its elements are wrapped in an

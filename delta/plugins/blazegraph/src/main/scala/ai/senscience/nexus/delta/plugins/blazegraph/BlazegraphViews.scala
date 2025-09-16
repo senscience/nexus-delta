@@ -249,7 +249,7 @@ final class BlazegraphViews(
       notFound = ViewNotFound(iri, project)
       state   <- id match {
                    case Latest(_)        => log.stateOr(project, iri, notFound)
-                   case Revision(_, rev) => log.stateOr(project, iri, rev, notFound, RevisionNotFound)
+                   case Revision(_, rev) => log.stateOr(project, iri, rev, notFound, RevisionNotFound(_, _))
                    case t: Tag           => IO.raiseError(FetchByTagNotSupported(t))
                  }
     } yield state

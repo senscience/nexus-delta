@@ -45,7 +45,7 @@ object DiskFileOperations {
       for {
         path   <- absoluteDiskPath(path)
         exists <- Stream.eval(Files[IO].exists(path))
-        data   <- if (exists) Files[IO].readAll(path).chunks.map { c => ByteBuffer.wrap(c.toArray) }
+        data   <- if exists then Files[IO].readAll(path).chunks.map { c => ByteBuffer.wrap(c.toArray) }
                   else Stream.raiseError[IO](FetchFileRejection.FileNotFound(path.toString))
       } yield data
 

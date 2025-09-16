@@ -40,8 +40,7 @@ object SparqlClientError {
   final case class SparqlTimeoutError(cause: TimeoutException)
       extends SparqlClientError(s"The request to sparql resulted in a timeout: '${cause.getMessage}'", None)
 
-  final case object SparqlUnknownHost
-      extends SparqlClientError("The hostname for the sparql engine can't be resolved", None)
+  case object SparqlUnknownHost extends SparqlClientError("The hostname for the sparql engine can't be resolved", None)
 
   final case class SparqlActionError(status: Status, action: String)
       extends SparqlClientError(

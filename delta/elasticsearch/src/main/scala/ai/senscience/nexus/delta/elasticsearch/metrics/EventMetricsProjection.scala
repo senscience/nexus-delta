@@ -51,7 +51,7 @@ object EventMetricsProjection {
       batchConfig: BatchConfig,
       queryConfig: QueryConfig,
       indexingEnabled: Boolean
-  ): IO[EventMetricsProjection] = if (indexingEnabled) {
+  ): IO[EventMetricsProjection] = if indexingEnabled then {
     val allEntityTypes = metricEncoders.map(_.entityType).toList
 
     implicit val multiDecoder: MultiDecoder[ProjectScopedMetric] =

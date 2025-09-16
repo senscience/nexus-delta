@@ -194,10 +194,8 @@ final class ElemStreaming(
     val (_, buffer) = elems.foldRight((Set.empty[(ProjectRef, Iri)], new ListBuffer[Elem[A]])) {
       case (elem, (seen, buffer)) =>
         val key = (elem.project, elem.id)
-        if (seen.contains(key))
-          (seen, buffer)
-        else
-          (seen + key, buffer.prepend(elem))
+        if seen.contains(key) then (seen, buffer)
+        else (seen + key, buffer.prepend(elem))
     }
     Chunk.from(buffer)
   }

@@ -4,7 +4,7 @@ import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 
-final case class PointInTime(id: String) extends AnyVal with Serializable
+final case class PointInTime(id: String)
 
 object PointInTime {
   implicit private val config: Configuration          = Configuration.default

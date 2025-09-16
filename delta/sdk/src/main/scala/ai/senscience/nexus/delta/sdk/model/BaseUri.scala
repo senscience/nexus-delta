@@ -64,7 +64,7 @@ object BaseUri {
     * Construct a [[BaseUri]] from an [[Uri]]
     */
   def apply(uri: Uri): Either[FormatError, BaseUri] = {
-    if (uri.path.isEmpty || uri.path.absolute) {
+    if uri.path.isEmpty || uri.path.absolute then {
       val normalized = uri.path.normalize
       normalized.segments.lastOption match {
         case Some(segment) =>

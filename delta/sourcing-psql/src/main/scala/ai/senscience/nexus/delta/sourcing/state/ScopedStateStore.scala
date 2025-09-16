@@ -122,10 +122,10 @@ object ScopedStateStore {
   sealed private[sourcing] trait StateNotFound extends ThrowableValue
 
   private[sourcing] object StateNotFound {
-    sealed trait UnknownState      extends StateNotFound
-    final case object UnknownState extends UnknownState
-    sealed trait TagNotFound       extends StateNotFound
-    final case object TagNotFound  extends TagNotFound
+    sealed trait UnknownState extends StateNotFound
+    case object UnknownState  extends UnknownState
+    sealed trait TagNotFound  extends StateNotFound
+    case object TagNotFound   extends TagNotFound
   }
 
   def apply[Id, S <: ScopedState](
@@ -212,7 +212,7 @@ object ScopedStateStore {
         exists <- value.fold(exists(project, id))(_ => true.pure[ConnectionIO])
       } yield value -> exists
     }.transact(xas.read).flatMap { case (s, exists) =>
-      IO.fromOption(s)(if (exists) TagNotFound else UnknownState)
+      IO.fromOption(s)(if exists then TagNotFound else UnknownState)
     }
 
     private def states(

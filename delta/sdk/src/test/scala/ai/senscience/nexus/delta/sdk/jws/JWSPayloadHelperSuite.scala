@@ -7,7 +7,7 @@ import cats.effect.IO
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import io.circe.Json
-import io.circe.literal.JsonStringContext
+import io.circe.literal.json
 import io.circe.syntax.EncoderOps
 import munit.CatsEffectSuite
 

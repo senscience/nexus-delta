@@ -21,7 +21,7 @@ sealed trait ElasticSearchCoordinator
 object ElasticSearchCoordinator {
 
   /** If indexing is disabled we can only log */
-  final private case object Noop extends ElasticSearchCoordinator {
+  private case object Noop extends ElasticSearchCoordinator {
     def log: IO[Unit] =
       logger.info("Elasticsearch indexing has been disabled via config")
 
@@ -133,7 +133,7 @@ object ElasticSearchCoordinator {
       client: ElasticSearchClient,
       config: ElasticSearchViewsConfig
   )(implicit cr: RemoteContextResolution): IO[ElasticSearchCoordinator] = {
-    if (config.indexingEnabled) {
+    if config.indexingEnabled then {
       apply(
         views.indexingViews,
         graphStream,

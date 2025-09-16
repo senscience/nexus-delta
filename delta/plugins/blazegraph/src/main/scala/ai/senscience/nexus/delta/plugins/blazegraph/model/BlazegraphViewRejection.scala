@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
@@ -34,15 +33,6 @@ object BlazegraphViewRejection {
       extends BlazegraphViewRejection(
         s"Revision requested '$provided' not found, last known revision is '$current'."
       )
-
-  /**
-    * Rejection returned when a subject intends to retrieve a view at a specific tag, but the provided tag does not
-    * exist.
-    *
-    * @param tag
-    *   the provided tag
-    */
-  final case class TagNotFound(tag: UserTag) extends BlazegraphViewRejection(s"Tag requested '$tag' not found.")
 
   /**
     * Rejection returned when attempting to create a blazegraph view but the id already exists.
@@ -86,7 +76,7 @@ object BlazegraphViewRejection {
   /**
     * Rejection returned when attempting to update/deprecate the default view.
     */
-  final case object ViewIsDefaultView
+  case object ViewIsDefaultView
       extends BlazegraphViewRejection(s"Cannot perform write operations on the default Blazegraph view.")
 
   type ViewIsDefaultView = ViewIsDefaultView.type
@@ -196,7 +186,6 @@ object BlazegraphViewRejection {
   implicit val blazegraphViewHttpResponseFields: HttpResponseFields[BlazegraphViewRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
-      case TagNotFound(_)              => StatusCodes.NotFound
       case ViewNotFound(_, _)          => StatusCodes.NotFound
       case ResourceAlreadyExists(_, _) => StatusCodes.Conflict
       case ViewIsDefaultView           => StatusCodes.Forbidden

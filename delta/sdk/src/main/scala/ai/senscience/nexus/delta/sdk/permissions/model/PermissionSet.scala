@@ -9,7 +9,7 @@ import io.circe.{Decoder, Encoder}
 /**
   * A wrapper for a collection of permissions
   */
-final case class PermissionSet(permissions: Set[Permission]) extends AnyVal
+final case class PermissionSet(permissions: Set[Permission])
 
 object PermissionSet {
 

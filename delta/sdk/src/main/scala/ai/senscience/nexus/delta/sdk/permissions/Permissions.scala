@@ -264,9 +264,9 @@ object Permissions {
       clock: Clock[IO]
   )(state: PermissionsState, cmd: PermissionsCommand): IO[PermissionsEvent] = {
     def replace(c: ReplacePermissions) =
-      if (c.rev != state.rev) IO.raiseError(IncorrectRev(c.rev, state.rev))
-      else if (c.permissions.isEmpty) IO.raiseError(CannotReplaceWithEmptyCollection)
-      else if ((c.permissions -- minimum).isEmpty) IO.raiseError(CannotReplaceWithEmptyCollection)
+      if c.rev != state.rev then IO.raiseError(IncorrectRev(c.rev, state.rev))
+      else if c.permissions.isEmpty then IO.raiseError(CannotReplaceWithEmptyCollection)
+      else if (c.permissions -- minimum).isEmpty then IO.raiseError(CannotReplaceWithEmptyCollection)
       else clock.realTimeInstant.map(PermissionsReplaced(c.rev + 1, c.permissions, _, c.subject))
 
     def append(c: AppendPermissions) =
@@ -275,7 +275,7 @@ object Permissions {
         case _ if c.permissions.isEmpty => IO.raiseError(CannotAppendEmptyCollection)
         case s                          =>
           val appended = c.permissions -- s.permissions -- minimum
-          if (appended.isEmpty) IO.raiseError(CannotAppendEmptyCollection)
+          if appended.isEmpty then IO.raiseError(CannotAppendEmptyCollection)
           else clock.realTimeInstant.map(PermissionsAppended(c.rev + 1, appended, _, c.subject))
       }
 
@@ -288,8 +288,8 @@ object Permissions {
           val intendedDelta = c.permissions -- s.permissions
           val delta         = c.permissions & s.permissions
           val subtracted    = delta -- minimum
-          if (intendedDelta.nonEmpty) IO.raiseError(CannotSubtractUndefinedPermissions(intendedDelta))
-          else if (subtracted.isEmpty) IO.raiseError(CannotSubtractFromMinimumCollection(minimum))
+          if intendedDelta.nonEmpty then IO.raiseError(CannotSubtractUndefinedPermissions(intendedDelta))
+          else if subtracted.isEmpty then IO.raiseError(CannotSubtractFromMinimumCollection(minimum))
           else clock.realTimeInstant.map(PermissionsSubtracted(c.rev + 1, subtracted, _, c.subject))
       }
 

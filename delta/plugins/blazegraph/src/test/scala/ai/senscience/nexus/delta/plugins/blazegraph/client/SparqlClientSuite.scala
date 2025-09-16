@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.testkit.mu.{NexusSuite, StringAssertions}
 import cats.syntax.all.*
@@ -21,6 +20,7 @@ import org.apache.jena.graph.Graph
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.{Lang, RDFParser}
 import org.http4s.Uri
+import org.http4s.syntax.literals.uri
 
 import scala.xml.Elem
 

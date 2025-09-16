@@ -81,7 +81,7 @@ object ProjectRejection {
   /**
     * Signals an attempt to delete a project when deletion is disabled.
     */
-  final case object ProjectDeletionIsDisabled extends ProjectRejection(s"Project deletion is disabled.")
+  case object ProjectDeletionIsDisabled extends ProjectRejection(s"Project deletion is disabled.")
 
   object ProjectIsReferenced {
 

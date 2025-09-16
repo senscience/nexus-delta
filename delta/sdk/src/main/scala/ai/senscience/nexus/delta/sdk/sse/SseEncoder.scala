@@ -17,11 +17,7 @@ abstract class SseEncoder[E <: ScopedEvent] {
 
   def toSse: Decoder[SseData] = databaseDecoder.map { event =>
     val data = sseEncoder.encodeObject(event)
-    event match {
-      case e: ScopedEvent => SseData(ClassUtils.simpleName(e), Some(e.project), data)
-      case e              => SseData(ClassUtils.simpleName(e), None, data)
-    }
-
+    SseData(ClassUtils.simpleName(event), Some(event.project), data)
   }
 
 }

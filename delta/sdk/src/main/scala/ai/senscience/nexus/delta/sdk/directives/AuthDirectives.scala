@@ -30,7 +30,7 @@ abstract class AuthDirectives(identities: Identities, aclCheck: AclCheck) extend
         .exchange(AuthToken(cred.token))
         .attemptNarrow[TokenRejection]
         .flatMap { attempt =>
-          IO.fromEither(attempt.bimap(InvalidToken, Some(_)))
+          IO.fromEither(attempt.bimap(InvalidToken(_), Some(_)))
         }
         .unsafeToFuture()
   }
@@ -52,10 +52,11 @@ abstract class AuthDirectives(identities: Identities, aclCheck: AclCheck) extend
     * Checks whether given [[Caller]] has the [[Permission]] on the [[AclAddress]].
     */
   def authorizeFor(path: AclAddress, permission: Permission)(implicit caller: Caller): Directive0 =
-    authorizeAsync(aclCheck.authorizeFor(path, permission).unsafeToFuture()) or
+    authorizeAsync(aclCheck.authorizeFor(path, permission).unsafeToFuture()).or(
       extractRequest.flatMap { request =>
         failWith(AuthorizationFailed(request, path, permission))
       }
+    )
 
   def authorizeForIO(path: AclAddress, fetchPermission: IO[Permission])(implicit caller: Caller): Directive0 =
     onSuccess(fetchPermission.unsafeToFuture()).flatMap { permission =>

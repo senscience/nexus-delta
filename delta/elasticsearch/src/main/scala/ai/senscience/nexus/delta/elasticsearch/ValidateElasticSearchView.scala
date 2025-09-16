@@ -60,9 +60,9 @@ object ValidateElasticSearchView {
 
     private val validateAggregate = ValidateAggregate(
       ElasticSearchViews.entityType,
-      InvalidViewReferences,
+      InvalidViewReferences(_),
       maxViewRefs,
-      TooManyViewReferences,
+      TooManyViewReferences(_, _),
       xas
     )
 
@@ -71,7 +71,7 @@ object ValidateElasticSearchView {
         _ <- fetchPermissionSet.flatMap { set =>
                IO.raiseUnless(set.contains(value.permission))(PermissionIsNotDefined(value.permission))
              }
-        _ <- IO.fromEither(value.pipeChain.traverse(pipeChainCompiler(_)).leftMap(InvalidPipeline))
+        _ <- IO.fromEither(value.pipeChain.traverse(pipeChainCompiler(_)).leftMap(InvalidPipeline(_)))
         _ <- createIndex(
                IndexLabel.fromView(prefix, uuid, indexingRev),
                value.mapping.orElse(Some(defaultViewDef.mapping)),

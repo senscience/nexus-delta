@@ -144,7 +144,7 @@ object IncomingOutgoingBlazegraphSpec {
     }
 
     implicit val referenceDecoder: Decoder[Reference] =
-      Internal.internalReferenceDecoder or External.externalReferenceDecoder.map(_.asInstanceOf[Reference])
+      Internal.internalReferenceDecoder.or(External.externalReferenceDecoder.map(_.asInstanceOf[Reference]))
   }
 
 }

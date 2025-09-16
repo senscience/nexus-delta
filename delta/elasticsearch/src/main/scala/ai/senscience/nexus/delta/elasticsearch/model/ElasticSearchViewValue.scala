@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
-import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.defaultPipeline
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
@@ -162,7 +161,7 @@ object ElasticSearchViewValue {
     ): IndexingRev =
       (view1.asIndexingValue, view2.asIndexingValue)
         .mapN { case (v1, v2) =>
-          if (!v1.hasSameIndexingFields(v2)) IndexingRev(newEventRev)
+          if !v1.hasSameIndexingFields(v2) then IndexingRev(newEventRev)
           else currentIndexingRev
         }
         .getOrElse(currentIndexingRev)

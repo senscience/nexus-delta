@@ -12,17 +12,21 @@ import org.typelevel.otel4s.oteljava.OtelJava
   * @see
   *   https://typelevel.org/otel4s/sdk/configuration.html
   */
-object OpenTelemetryInit {
+sealed trait OpenTelemetry {
+  def otelJava: OtelJava[IO]
+}
 
-  private val logger = Logger[OpenTelemetryInit.type]
+object OpenTelemetry {
+
+  private val logger = Logger[OpenTelemetry.type]
 
   // Open telemetry is disabled by default
   private def disabled: Boolean =
     sys.props.getOrElse("otel.sdk.disabled", "true").toBooleanOption.getOrElse(true) &&
       sys.env.getOrElse("OTEL_SDK_DISABLED", "true").toBooleanOption.getOrElse(true)
 
-  def apply(description: DescriptionConfig): Resource[IO, OtelJava[IO]] =
-    if (disabled) {
+  def apply(description: DescriptionConfig): Resource[IO, OpenTelemetry] = {
+    if disabled then {
       Resource.eval(OtelJava.noop[IO]).evalTap { _ =>
         logger.info("OpenTelemetry is disabled.")
       }
@@ -34,4 +38,9 @@ object OpenTelemetryInit {
         } >> logger.info("OpenTelemetry is enabled.")
       }
     }
+  }.map { instance =>
+    new OpenTelemetry {
+      override def otelJava: OtelJava[IO] = instance
+    }
+  }
 }

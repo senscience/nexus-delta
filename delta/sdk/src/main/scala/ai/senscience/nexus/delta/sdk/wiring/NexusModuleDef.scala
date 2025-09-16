@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.sdk.wiring
 
 import ai.senscience.nexus.delta.kernel.config.Configs
+import com.typesafe.config.Config
 import distage.{ModuleDef, Tag}
 import izumi.distage.model.definition.dsl.ModuleDefDSL.MakeDSLUnnamedAfterFrom
 import pureconfig.ConfigReader

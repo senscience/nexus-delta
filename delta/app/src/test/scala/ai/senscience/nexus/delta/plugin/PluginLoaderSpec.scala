@@ -3,12 +3,12 @@ package ai.senscience.nexus.delta.plugin
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
 import com.typesafe.config.impl.ConfigImpl
 import izumi.distage.model.definition.ModuleDef
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
+import org.http4s.syntax.literals.uri
 
 class PluginLoaderSpec extends CatsEffectSpec with ScalatestRouteTest {
 

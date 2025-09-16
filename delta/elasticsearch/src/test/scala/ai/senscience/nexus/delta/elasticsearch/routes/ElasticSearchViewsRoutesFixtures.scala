@@ -22,7 +22,7 @@ import org.scalatest.CancelAfterFailure
 
 import java.util.UUID
 
-class ElasticSearchViewsRoutesFixtures
+trait ElasticSearchViewsRoutesFixtures
     extends CatsEffectSpec
     with RouteHelpers
     with CatsIOValues

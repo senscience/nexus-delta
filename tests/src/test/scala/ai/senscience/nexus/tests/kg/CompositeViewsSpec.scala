@@ -119,7 +119,7 @@ class CompositeViewsSpec extends BaseIntegrationSpec {
       )
 
       deltaClient.put[Json](s"/views/$orgId/bands/composite", view, Jerry) { (json, response) =>
-        if (response.status == StatusCodes.Created) succeed
+        if response.status == StatusCodes.Created then succeed
         else fail(s"""The system returned an unexpected status code.
                |Expected: ${StatusCodes.Created}
                |Actual: ${response.status}
@@ -260,7 +260,7 @@ class CompositeViewsSpec extends BaseIntegrationSpec {
       )
 
       deltaClient.put[Json](s"/views/$orgId/bands/composite-ctx", view, Jerry) { (json, response) =>
-        if (response.status == StatusCodes.Created) succeed
+        if response.status == StatusCodes.Created then succeed
         else fail(s"""The system returned an unexpected status code.
                      |Expected: ${StatusCodes.Created}
                      |Actual: ${response.status}

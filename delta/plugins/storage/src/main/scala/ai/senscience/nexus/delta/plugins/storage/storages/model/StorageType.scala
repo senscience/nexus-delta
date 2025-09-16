@@ -25,15 +25,15 @@ sealed trait StorageType extends Product with Serializable {
 object StorageType {
 
   def apply(iri: Iri): Either[String, StorageType] =
-    if (iri == DiskStorage.iri) Right(DiskStorage)
-    else if (iri == S3Storage.iri) Right(S3Storage)
-    else if (iri == RemoteDiskStorage.iri) Right(RemoteDiskStorage)
+    if iri == DiskStorage.iri then Right(DiskStorage)
+    else if iri == S3Storage.iri then Right(S3Storage)
+    else if iri == RemoteDiskStorage.iri then Right(RemoteDiskStorage)
     else Left(s"iri '$iri' does not match a StorageType")
 
   /**
     * A local disk storage type.
     */
-  final case object DiskStorage extends StorageType {
+  case object DiskStorage extends StorageType {
     override val toString: String = "DiskStorage"
     override val iri: Iri         = nxv + toString
   }
@@ -41,7 +41,7 @@ object StorageType {
   /**
     * An S3 compatible storage type.
     */
-  final case object S3Storage extends StorageType {
+  case object S3Storage extends StorageType {
     override val toString: String = "S3Storage"
     override val iri: Iri         = nxv + toString
   }
@@ -49,7 +49,7 @@ object StorageType {
   /**
     * A remote disk storage type.
     */
-  final case object RemoteDiskStorage extends StorageType {
+  case object RemoteDiskStorage extends StorageType {
     override val toString: String = "RemoteDiskStorage"
     override val iri: Iri         = nxv + toString
   }

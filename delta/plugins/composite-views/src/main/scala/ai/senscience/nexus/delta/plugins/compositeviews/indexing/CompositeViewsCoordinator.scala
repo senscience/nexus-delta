@@ -16,7 +16,7 @@ sealed trait CompositeViewsCoordinator
 object CompositeViewsCoordinator {
 
   /** If indexing is disabled we can only log */
-  final private case object Noop extends CompositeViewsCoordinator {
+  private case object Noop extends CompositeViewsCoordinator {
     def log: IO[Unit] = logger.info("Composite Views indexing has been disabled via config")
   }
 
@@ -96,7 +96,7 @@ object CompositeViewsCoordinator {
       builder: CompositeProjectionLifeCycle,
       config: CompositeViewsConfig
   ): IO[CompositeViewsCoordinator] = {
-    if (config.indexingEnabled) {
+    if config.indexingEnabled then {
       for {
         cache      <- LocalCache[ViewRef, ActiveViewDef]()
         coordinator = new Active(

@@ -53,7 +53,7 @@ object TypeHierarchy {
       log.stateOr(typeHierarchyId, TypeHierarchyDoesNotExist).map(_.toResource)
 
     override def fetch(rev: Int): IO[TypeHierarchyResource] =
-      log.stateOr(typeHierarchyId, rev, TypeHierarchyDoesNotExist, RevisionNotFound).map(_.toResource)
+      log.stateOr(typeHierarchyId, rev, TypeHierarchyDoesNotExist, RevisionNotFound(_, _)).map(_.toResource)
 
     private def eval(cmd: TypeHierarchyCommand): IO[TypeHierarchyResource] =
       log.evaluate(typeHierarchyId, cmd).map(_._2.toResource)

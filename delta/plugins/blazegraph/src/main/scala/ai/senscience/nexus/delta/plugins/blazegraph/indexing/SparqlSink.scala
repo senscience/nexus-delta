@@ -18,7 +18,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import org.http4s.Uri
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Sink that pushed N-Triples into a given namespace in Sparql
@@ -33,7 +33,7 @@ final class SparqlSink(
     client: SparqlClient,
     override val batchConfig: BatchConfig,
     namespace: String,
-    retryStrategy: RetryStrategy[Throwable]
+    retryStrategy: RetryStrategy
 )(implicit base: BaseUri)
     extends Sink {
 
@@ -56,7 +56,7 @@ final class SparqlSink(
         acc
     }
 
-    if (bulk.queries.nonEmpty)
+    if bulk.queries.nonEmpty then
       client
         .bulk(namespace, bulk.queries)
         .retry(retryStrategy)
@@ -69,16 +69,13 @@ final class SparqlSink(
             logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
         }
         .span("sparqlSink")
-    else
-      IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
+    else IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
   }
 
   private def markInvalidIdsAsFailed(elements: ElemChunk[NTriples], invalidIds: Set[Iri]) =
     elements.map { e =>
-      if (invalidIds.contains(e.id))
-        e.failed(InvalidIri)
-      else
-        e.void
+      if invalidIds.contains(e.id) then e.failed(InvalidIri)
+      else e.void
     }
 
 }
@@ -93,7 +90,7 @@ object SparqlSink {
       batchConfig: BatchConfig,
       namespace: String
   )(implicit base: BaseUri): SparqlSink = {
-    val retryStrategy = RetryStrategy[Throwable](
+    val retryStrategy = RetryStrategy(
       retryStrategyConfig,
       {
         case _: SparqlWriteError => true

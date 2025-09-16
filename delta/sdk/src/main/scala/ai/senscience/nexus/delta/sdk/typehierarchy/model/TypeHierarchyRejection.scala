@@ -21,7 +21,7 @@ object TypeHierarchyRejection {
   /**
     * Signals that the type hierarchy does not exist.
     */
-  final case object TypeHierarchyDoesNotExist extends NotFound("The type hierarchy does not exist.")
+  case object TypeHierarchyDoesNotExist extends NotFound("The type hierarchy does not exist.")
 
   /**
     * Signals an attempt to retrieve a type hierarchy at a specific revision when the provided revision does not exist.
@@ -50,7 +50,7 @@ object TypeHierarchyRejection {
   /**
     * Signals the type hierarchy already exists.
     */
-  final case object TypeHierarchyAlreadyExists extends TypeHierarchyRejection(s"Type hierarchy already exists.")
+  case object TypeHierarchyAlreadyExists extends TypeHierarchyRejection(s"Type hierarchy already exists.")
 
   implicit val typeHierarchyRejectionEncoder: Encoder.AsObject[TypeHierarchyRejection] =
     Encoder.AsObject.instance(r => JsonObject.singleton("reason", r.reason.asJson))

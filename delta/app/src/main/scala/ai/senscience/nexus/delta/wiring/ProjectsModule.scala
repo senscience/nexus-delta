@@ -145,7 +145,7 @@ object ProjectsModule extends NexusModuleDef {
       )
   }
 
-  many[SseEncoder[?]].add { base: BaseUri => ProjectEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => ProjectEvent.sseEncoder(base) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/projects-metadata.json"))
 

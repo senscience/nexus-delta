@@ -66,8 +66,7 @@ final class SchemaImports(resolveSchema: Resolve[Schema], resolveResource: Resol
 
     val imports   = expanded.cursor.downField(owl.imports).get[Set[ResourceRef]]
     val toResolve = imports.getOrElse(Set.empty)
-    if (toResolve.isEmpty)
-      IO.pure(NonEmptyList.of(expanded))
+    if toResolve.isEmpty then IO.pure(NonEmptyList.of(expanded))
     else
       lookupFromSchemasAndResources(toResolve).map { documents =>
         NonEmptyList(expanded, documents.toList)

@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.sdk.model
 
-import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
 import pureconfig.ConfigSource
+import org.http4s.syntax.literals.uri
 
 class BaseUriSpec extends BaseSpec {
 

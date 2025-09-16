@@ -101,7 +101,7 @@ object DeltaClient {
           }
     }
 
-    final case object RemoteCheckTimeout
+    case object RemoteCheckTimeout
         extends RemoteCheckError(s"Remote check took more than '${remoteCheckTimeout.toSeconds} seconds'", None)
 
     final case class RemoteUnknownHost(endpoint: Uri)

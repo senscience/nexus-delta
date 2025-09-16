@@ -17,7 +17,7 @@ final class AclProvisioning(acls: Acls, config: AclProvisioningConfig, serviceAc
     extends ProvisioningAction {
 
   override def run: IO[ProvisioningAction.Outcome] =
-    if (config.enabled) {
+    if config.enabled then {
       acls.isRootAclSet.flatMap {
         case true  =>
           logger.warn("Root acls are already set in this instance, skipping the provisioning...").as(Outcome.Skipped)

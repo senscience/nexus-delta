@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import cats.data.NonEmptySet
+import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 

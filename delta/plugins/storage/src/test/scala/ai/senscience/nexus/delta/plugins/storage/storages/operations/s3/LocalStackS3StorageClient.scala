@@ -24,7 +24,7 @@ object LocalStackS3StorageClient {
     s3Client.createBucket(CreateBucketRequest.builder().bucket(bucket).build)
 
   def uploadFileToS3(s3Client: S3AsyncClientOp[IO], bucket: String, path: Path): IO[PutObjectResponse] = {
-    val absoluteResourcePath = if (path.isAbsolute) path else Path("/" + path.toString)
+    val absoluteResourcePath = if path.isAbsolute then path else Path("/" + path.toString)
     createBucket(s3Client, bucket) >>
       s3Client.putObject(
         PutObjectRequest.builder
@@ -59,7 +59,7 @@ object LocalStackS3StorageClient {
       }
     }
 
-  trait Fixture { self: CatsEffectSuite with Generators =>
+  trait Fixture { self: CatsEffectSuite & Generators =>
     val localStackS3Client: IOFixture[(S3StorageClient, S3AsyncClientOp[IO], S3StorageConfig)] =
       ResourceSuiteLocalFixture(
         "s3storageclient",

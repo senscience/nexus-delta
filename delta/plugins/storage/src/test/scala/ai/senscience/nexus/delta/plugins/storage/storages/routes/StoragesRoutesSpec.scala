@@ -87,8 +87,7 @@ class StoragesRoutesSpec
 
   private val storageStatistics: StoragesStatistics =
     (storage, project) =>
-      if (project.equals(projectRef) && storage.toString.equals("s3-storage"))
-        IO.pure(StorageStatEntry(50, 5000))
+      if project.equals(projectRef) && storage.toString.equals("s3-storage") then IO.pure(StorageStatEntry(50, 5000))
       else IO.raiseError(StorageNotFound(iri"https://bluebrain.github.io/nexus/vocabulary/$storage", project))
 
   private val cfg = StoragesConfig(eventLogConfig, pagination, config)
@@ -122,14 +121,14 @@ class StoragesRoutesSpec
 
     "fail to create a storage without storages/write permission" in {
       aclCheck.append(AclAddress.Root, Anonymous -> Set(events.read)).accepted
-      val payload = s3FieldsJson deepMerge json"""{"@id": "$s3Id"}"""
+      val payload = s3FieldsJson.deepMerge(json"""{"@id": "$s3Id"}""")
       Post("/v1/storages/myorg/myproject", payload.toEntity) ~> routes ~> check {
         response.shouldBeForbidden
       }
     }
 
     "create a storage" in {
-      val payload = s3FieldsJson deepMerge json"""{"@id": "$s3Id", "bucket": "mybucket2"}"""
+      val payload = s3FieldsJson.deepMerge(json"""{"@id": "$s3Id", "bucket": "mybucket2"}""")
       Post("/v1/storages/myorg/myproject", payload.toEntity) ~> as(writer) ~> routes ~> check {
         status shouldEqual StatusCodes.Created
         response.asJson shouldEqual storageMetadata(projectRef, s3Id, StorageType.S3Storage)

@@ -96,7 +96,7 @@ object AclSimpleCheck {
     emptyAclSimpleCheck.flatTap { checker =>
       input.toList
         .traverse { case (subject, address, permissions) =>
-          checker append (address, (subject, permissions))
+          checker.append(address, (subject, permissions))
         }
     }
 

@@ -10,18 +10,19 @@ import org.scalatest.Assertions
 import org.scalatest.enablers.Retrying
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.time.Span
+import retry.RetryDetails.NextStep
 
 trait CatsEffectEventually { self: Assertions =>
   implicit def ioRetrying[T]: Retrying[IO[T]] = new Retrying[IO[T]] {
     override def retry(timeout: Span, interval: Span, pos: Position)(fun: => IO[T]): IO[T] = {
-      val strategy = RetryStrategy[Throwable](
+      val strategy = RetryStrategy(
         MaximumCumulativeDelayConfig(timeout, interval),
         {
           case _: TestFailedException => true
           case _                      => false
         },
         onError = (err, details) =>
-          IO.whenA(details.givingUp) {
+          IO.whenA(details.nextStepIfUnsuccessful == NextStep.GiveUp) {
             logger.error(err)(
               s"Giving up on ${err.getClass.getSimpleName}, ${details.retriesSoFar} retries after ${details.cumulativeDelay}."
             )

@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that filters deprecated resources.
@@ -20,7 +20,7 @@ class FilterDeprecated extends Pipe {
   override def outType: Typeable[GraphResource] = Typeable[GraphResource]
 
   override def apply(element: SuccessElem[GraphResource]): IO[Elem[GraphResource]] =
-    if (!element.value.deprecated) IO.pure(element)
+    if !element.value.deprecated then IO.pure(element)
     else IO.pure(element.dropped)
 
 }

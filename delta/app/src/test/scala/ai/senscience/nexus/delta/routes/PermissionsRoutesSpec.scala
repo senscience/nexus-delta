@@ -153,10 +153,13 @@ class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "reject on PATCH request with unknown @type" in {
-      val wrongPatch = json"""{"@type": "Other", "permissions": ["${realms.read}"]}"""
+      val wrongPatch   = json"""{"@type": "Other", "permissions": ["${realms.read}"]}"""
+      val errorMessage = "DecodingFailure at : type PatchPermissions has no class/object/case named 'Other'."
 
       Patch("/v1/permissions?rev=5", wrongPatch.toEntity) ~> Accept(`*/*`) ~> route ~> check {
-        response.asJson shouldEqual jsonContentOf("permissions/reject_malformed.jsonld")
+        response.asJson shouldEqual jsonContentOf("permissions/reject_malformed.jsonld").deepMerge(
+          json"""{"details": "$errorMessage"}"""
+        )
         response.status shouldEqual StatusCodes.BadRequest
         response.entity.contentType shouldEqual `application/ld+json`.toContentType
       }
@@ -167,7 +170,7 @@ class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
       Patch("/v1/permissions?rev=5", wrongPatch.toEntity) ~> Accept(`*/*`) ~> route ~> check {
         val errMsg   = s"Value for field '${keywords.tpe}' must be 'Append' or 'Subtract' when using 'PATCH'."
-        val expected = jsonContentOf("permissions/reject_malformed.jsonld") deepMerge json"""{"details": "$errMsg"}"""
+        val expected = jsonContentOf("permissions/reject_malformed.jsonld").deepMerge(json"""{"details": "$errMsg"}""")
         response.asJson shouldEqual expected
         response.status shouldEqual StatusCodes.BadRequest
         response.entity.contentType shouldEqual `application/ld+json`.toContentType
@@ -176,10 +179,12 @@ class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
     "reject on PUT request" in {
       val wrongReplace = json"""{"@type": "Other", "permissions": ["${realms.write}"]}"""
-      val err          = s"Expected value 'Replace' when using 'PUT'."
+      val errorMessage = "DecodingFailure at : type PatchPermissions has no class/object/case named 'Other'."
 
       Put("/v1/permissions?rev=5", wrongReplace.toEntity) ~> Accept(`*/*`) ~> route ~> check {
-        response.asJson shouldEqual jsonContentOf("permissions/reject_malformed.jsonld", "msg" -> err)
+        response.asJson shouldEqual jsonContentOf("permissions/reject_malformed.jsonld").deepMerge(
+          json"""{"details": "$errorMessage"}"""
+        )
         response.status shouldEqual StatusCodes.BadRequest
         response.entity.contentType shouldEqual `application/ld+json`.toContentType
       }

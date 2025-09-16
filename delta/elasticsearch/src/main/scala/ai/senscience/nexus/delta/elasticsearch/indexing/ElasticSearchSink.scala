@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import io.circe.Json
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Sink that pushes json documents into an Elasticsearch index
@@ -47,16 +47,15 @@ final class ElasticSearchSink private (
   override def apply(elements: ElemChunk[Json]): IO[ElemChunk[Unit]] = {
     val actions = elements.foldLeft(Vector.empty[ElasticSearchAction]) {
       case (actions, successElem @ Elem.SuccessElem(_, _, _, _, _, json, _)) =>
-        if (json.isEmpty()) {
+        if json.isEmpty() then {
           actions :+ Delete(index, documentId(successElem), routing(successElem))
-        } else
-          actions :+ Index(index, documentId(successElem), routing(successElem), json)
+        } else actions :+ Index(index, documentId(successElem), routing(successElem), json)
       case (actions, droppedElem: Elem.DroppedElem)                          =>
         actions :+ Delete(index, documentId(droppedElem), routing(droppedElem))
       case (actions, _: Elem.FailedElem)                                     => actions
     }
 
-    if (actions.nonEmpty) {
+    if actions.nonEmpty then {
       client
         .bulk(actions, refresh)
         .map(MarkElems(_, elements, documentId))

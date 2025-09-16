@@ -68,8 +68,7 @@ object AclAddress {
   /**
     * The top level address.
     */
-  final case object Root extends AclAddress {
-
+  case object Root extends AclAddress {
     val string: String                      = "/"
     val parent: Option[AclAddress]          = None
     val ancestors: NonEmptyList[AclAddress] = NonEmptyList.one(this)
@@ -79,7 +78,6 @@ object AclAddress {
     * The organization level address.
     */
   final case class Organization(org: Label) extends AclAddress {
-
     val string                              = s"/$org"
     val parent: Option[AclAddress]          = Some(Root)
     val ancestors: NonEmptyList[AclAddress] = NonEmptyList.of(this, Root)
@@ -89,7 +87,6 @@ object AclAddress {
     * The project level address.
     */
   final case class Project(org: Label, project: Label) extends AclAddress {
-
     val string                              = s"/$org/$project"
     val parent: Option[AclAddress]          = Some(Organization(org))
     val ancestors: NonEmptyList[AclAddress] = NonEmptyList.of(this, Organization(org), Root)

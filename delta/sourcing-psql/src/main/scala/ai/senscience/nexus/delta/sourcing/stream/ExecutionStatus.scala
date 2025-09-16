@@ -33,31 +33,31 @@ object ExecutionStatus {
   /**
     * Status for projections that are ignored by the supervision.
     */
-  final case object Ignored extends ExecutionStatus
+  case object Ignored extends ExecutionStatus
 
   /**
     * Status for projections that are prepared for executions.
     */
-  final case object Pending extends ExecutionStatus
+  case object Pending extends ExecutionStatus
 
   /**
     * Status for projections that are running.
     */
-  final case object Running extends ExecutionStatus {
+  case object Running extends ExecutionStatus {
     override def isRunning: Boolean = true
   }
 
   /**
     * Status for projections that have stopped.
     */
-  final case object Stopped extends ExecutionStatus {
+  case object Stopped extends ExecutionStatus {
     override def isStopped: Boolean = true
   }
 
   /**
     * Status for projections that have completed.
     */
-  final case object Completed extends ExecutionStatus
+  case object Completed extends ExecutionStatus
 
   /**
     * Status for projections that have failed.

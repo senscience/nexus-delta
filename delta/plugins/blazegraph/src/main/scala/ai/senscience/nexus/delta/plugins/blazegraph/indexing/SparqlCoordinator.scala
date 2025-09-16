@@ -15,7 +15,7 @@ sealed trait SparqlCoordinator
 object SparqlCoordinator {
 
   /** If indexing is disabled we can only log */
-  final private case object Noop extends SparqlCoordinator {
+  private case object Noop extends SparqlCoordinator {
     def log: IO[Unit] =
       logger.info("Sparql indexing has been disabled via config")
   }
@@ -93,7 +93,7 @@ object SparqlCoordinator {
       supervisor: Supervisor,
       indexingEnabled: Boolean
   ): IO[SparqlCoordinator] =
-    if (indexingEnabled) {
+    if indexingEnabled then {
       apply(views.indexingViews, projectionLifeCycle, supervisor)
     } else {
       Noop.log.as(Noop)

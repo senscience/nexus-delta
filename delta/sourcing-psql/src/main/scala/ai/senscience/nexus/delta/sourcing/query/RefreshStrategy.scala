@@ -12,7 +12,7 @@ object RefreshStrategy {
   /**
     * Completes the stream
     */
-  final case object Stop extends RefreshStrategy
+  case object Stop extends RefreshStrategy
 
   /**
     * Resumes the stream for new events after the given delay

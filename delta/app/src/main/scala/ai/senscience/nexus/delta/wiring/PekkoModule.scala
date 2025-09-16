@@ -41,7 +41,7 @@ final class PekkoModule(implicit classLoader: ClassLoader) extends ModuleDef {
     (cr: RemoteContextResolution @Id("aggregate"), ordering: JsonKeyOrdering, base: BaseUri) =>
       RdfExceptionHandler(cr, ordering, base)
   }
-  make[CorsSettings].from { config: Config =>
+  make[CorsSettings].from { (config: Config) =>
     CorsSettings(config)
       .withAllowedMethods(List(GET, PUT, POST, PATCH, DELETE, OPTIONS, HEAD))
       .withExposedHeaders(List(Location.name))

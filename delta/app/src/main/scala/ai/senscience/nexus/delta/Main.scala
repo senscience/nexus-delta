@@ -72,8 +72,7 @@ object Main extends IOApp {
 
   private def logClusterConfig(locator: Locator) = Resource.eval {
     val config = locator.get[ProjectionConfig].cluster
-    if (config.size == 1)
-      logger.info(s"Delta is running in standalone mode.")
+    if config.size == 1 then logger.info(s"Delta is running in standalone mode.")
     else
       logger.info(
         s"Delta is running in clustered mode. The current node is number ${config.nodeIndex} out of a total of ${config.size} nodes."
@@ -84,9 +83,8 @@ object Main extends IOApp {
     def pluginLogEntry(pdef: PluginDef): String =
       s"${pdef.info.name} - version: '${pdef.info.version}', enabled: '${pdef.enabled}'"
 
-    if (pluginDefs.isEmpty) logger.info("No plugins discovered.")
-    else
-      logger.info(s"Discovered plugins: ${pluginDefs.map(p => pluginLogEntry(p)).mkString("\n- ", "\n- ", "")}")
+    if pluginDefs.isEmpty then logger.info("No plugins discovered.")
+    else logger.info(s"Discovered plugins: ${pluginDefs.map(p => pluginLogEntry(p)).mkString("\n- ", "\n- ", "")}")
   }
 
   private def validatePriority(pluginsDef: List[PluginDef]): IO[Unit] =

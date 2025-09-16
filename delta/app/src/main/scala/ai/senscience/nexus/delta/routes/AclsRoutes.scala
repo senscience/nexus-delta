@@ -119,7 +119,7 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implici
                   // Replace ACLs
                   (put & entity(as[ReplaceAcl])) { case ReplaceAcl(AclValues(values)) =>
                     authorizeFor(address, aclsPermissions.write).apply {
-                      val status = if (rev == 0) Created else OK
+                      val status = if rev == 0 then Created else OK
                       emitMetadata(status, acls.replace(Acl(address, values*), rev))
                     }
                   },

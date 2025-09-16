@@ -76,7 +76,7 @@ final case class JsonLdContext(
     *      using the prefix mappings to create a CURIE
     */
   def compact(iri: Iri, useVocab: Boolean): String = {
-    lazy val compactedVocabOrBase = if (useVocab) compactVocab(iri) else compactBase(iri)
+    lazy val compactedVocabOrBase = if useVocab then compactVocab(iri) else compactBase(iri)
     alias(iri).orElse(curie(iri).orElse(compactedVocabOrBase)).getOrElse(iri.toString)
   }
 
@@ -85,7 +85,7 @@ final case class JsonLdContext(
     * expand to https://schema.org/Person if in the ''prefixMappings'' exists the key values (schema ->
     * https://schema.org/)
     */
-  def expandCurie(value: String): Option[Iri] =
+  private def expandCurie(value: String): Option[Iri] =
     value.split(":").toList match {
       case prefix :: suffix :: Nil if prefix.nonEmpty && suffix.nonEmpty && prefixMappings.contains(prefix) =>
         expandWith(prefixMappings(prefix), suffix)
@@ -103,7 +103,7 @@ final case class JsonLdContext(
     */
   def expand(value: String, useVocab: Boolean): Option[Iri] = {
     def expandedVocabOrBase =
-      if (useVocab) vocab.flatMap(expandWith(_, value)) else base.flatMap(expandWith(_, value))
+      if useVocab then vocab.flatMap(expandWith(_, value)) else base.flatMap(expandWith(_, value))
 
     aliases.get(value) orElse expandCurie(value) orElse Iri.reference(value).toOption orElse expandedVocabOrBase
   }
@@ -193,7 +193,7 @@ final case class JsonLdContext(
     Json.obj(keywords.tpe -> dt.asJson, keywords.id -> iri.asJson)
 
   private def min(a: String, b: String): String =
-    if (a.compareTo(b) > 0) b else a
+    if a.compareTo(b) > 0 then b else a
 }
 
 object JsonLdContext {
@@ -259,7 +259,7 @@ object JsonLdContext {
     *   repeated in both jsons, the one in ''that'' will override the one in ''json''
     */
   def addContext(json: Json, that: Json): Json =
-    json deepMerge topContextValueOrEmpty(json).merge(topContextValueOrEmpty(that)).contextObj.asJson
+    json.deepMerge(topContextValueOrEmpty(json).merge(topContextValueOrEmpty(that)).contextObj.asJson)
 
   /**
     * Adds a context Iri to an existing @context, or creates an @context with the Iri as a value.

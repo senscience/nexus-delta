@@ -62,7 +62,7 @@ object S3StorageClient {
   def resource(s3Config: Option[S3StorageConfig]): Resource[IO, S3StorageClient] = s3Config match {
     case Some(cfg) =>
       val creds =
-        if (cfg.useDefaultCredentialProvider) DefaultCredentialsProvider.builder().build()
+        if cfg.useDefaultCredentialProvider then DefaultCredentialsProvider.builder().build()
         else {
           StaticCredentialsProvider.create(
             AwsBasicCredentials.create(cfg.defaultAccessKey.value, cfg.defaultSecretKey.value)

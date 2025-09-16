@@ -8,7 +8,7 @@ import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 import fs2.{Pull, Stream}
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Operations represent individual steps in a [[Projection]] where [[Elem]] values are processed.

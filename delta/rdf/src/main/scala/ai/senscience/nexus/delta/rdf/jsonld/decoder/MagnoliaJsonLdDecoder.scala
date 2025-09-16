@@ -2,11 +2,27 @@ package ai.senscience.nexus.delta.rdf.jsonld.decoder
 
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.DecodingDerivationFailure
-import magnolia1.{CaseClass, SealedTrait}
+import magnolia1.*
 
-private[decoder] object MagnoliaJsonLdDecoder {
+import scala.annotation.nowarn
+import scala.deriving.*
 
-  def join[A](caseClass: CaseClass[JsonLdDecoder, A])(implicit config: Configuration): JsonLdDecoder[A] = {
+private[decoder] object MagnoliaJsonLdDecoder { self =>
+
+  @nowarn
+  inline def derived[A](using config: Configuration, inline m: Mirror.Of[A]): JsonLdDecoder[A] = {
+    val derivation: Derivation[JsonLdDecoder] = new Derivation[JsonLdDecoder] {
+
+      override def split[T](ctx: SealedTrait[Typeclass, T]): Typeclass[T] =
+        self.split[T](ctx)
+
+      override def join[T](ctx: CaseClass[Typeclass, T]): Typeclass[T] =
+        self.join[T](ctx)
+    }
+    derivation.derived[A]
+  }
+
+  def join[A](caseClass: CaseClass[JsonLdDecoder, A])(using config: Configuration): JsonLdDecoder[A] = {
     val keysMap = caseClass.parameters
       .filter { p => p.label != config.idPredicateName }
       .map { p =>
@@ -39,15 +55,15 @@ private[decoder] object MagnoliaJsonLdDecoder {
     }
   }
 
-  def split[A](sealedTrait: SealedTrait[JsonLdDecoder, A])(implicit config: Configuration): JsonLdDecoder[A] =
+  def split[A](sealedTrait: SealedTrait[JsonLdDecoder, A])(using config: Configuration): JsonLdDecoder[A] =
     (c: ExpandedJsonLdCursor) =>
       c.getTypes match {
         case Right(types) =>
           sealedTrait.subtypes
-            .find(st => types.exists(config.context.expand(st.typeName.short, useVocab = true).contains)) match {
+            .find(st => types.exists(config.context.expand(st.typeInfo.short, useVocab = true).contains)) match {
             case Some(st) => st.typeclass.apply(c)
             case None     =>
-              val err = s"Unable to find type discriminator for '${sealedTrait.typeName.short}'"
+              val err = s"Unable to find type discriminator for '${sealedTrait.typeInfo.short}'"
               Left(DecodingDerivationFailure(err))
           }
         case Left(err)    => Left(err)

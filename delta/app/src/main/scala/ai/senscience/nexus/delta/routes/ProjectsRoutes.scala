@@ -52,7 +52,7 @@ final class ProjectsRoutes(
 
   private def projectsSearchParams(org: Option[Label])(implicit caller: Caller): Directive1[ProjectSearchParams] = {
     (searchParams & parameter("label".?)).tmap { case (deprecated, rev, createdBy, updatedBy, label) =>
-      val filter = projectScopeResolver.access(org.fold(Scope.root)(Scope.Org), ReadProjects).memoize
+      val filter = projectScopeResolver.access(org.fold(Scope.root)(Scope.Org(_)), ReadProjects).memoize
       ProjectSearchParams(
         org,
         deprecated,

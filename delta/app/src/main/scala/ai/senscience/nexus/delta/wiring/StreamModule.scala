@@ -48,7 +48,7 @@ object StreamModule extends ModuleDef {
       Supervisor(projections, projectionErrors, cfg)
   }
 
-  make[ProjectionsRestartScheduler].from { projections =>
+  make[ProjectionsRestartScheduler].from { (projections: Projections) =>
     ProjectionsRestartScheduler(projections)
   }
 

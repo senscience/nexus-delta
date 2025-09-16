@@ -194,7 +194,7 @@ object ArchiveDownload {
             }
             Option((archiveMetadata, contentTask))
           }
-        if (ignoreNotFound) entry.recover { case _: ResourceNotFound => None } else entry
+        if ignoreNotFound then entry.recover { case _: ResourceNotFound => None } else entry
       }
 
       private def pathOf(
@@ -217,7 +217,7 @@ object ArchiveDownload {
           val metadata = Zip.metadata(path)
           Option((metadata, IO.pure(Source.single(content))))
         }
-        if (ignoreNotFound) archiveEntry.recover { case _: ResourceNotFound => None } else archiveEntry
+        if ignoreNotFound then archiveEntry.recover { case _: ResourceNotFound => None } else archiveEntry
       }
 
       private def resourceRefToByteString(

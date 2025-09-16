@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeRef}
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe that transforms a [[GraphResource]] into a Json document
@@ -36,7 +36,7 @@ final class GraphResourceToDocument(context: ContextValue, includeContext: Boole
   def graphToDocument(element: GraphResource): IO[Option[Json]] = {
     val graph = element.graph ++ element.metadataGraph
     val json  =
-      if (element.source.isEmpty())
+      if element.source.isEmpty() then
         graph
           .toCompactedJsonLd(context)
           .map(ld => injectContext(ld.obj.asJson))
@@ -61,15 +61,13 @@ final class GraphResourceToDocument(context: ContextValue, includeContext: Boole
     json.deepMerge(JsonObject("@id" -> Json.fromString(sourceId)).asJson)
 
   private def injectContext(json: Json) =
-    if (includeContext)
-      json.removeAllKeys(keywords.context).deepMerge(contextAsJson)
-    else
-      json.removeAllKeys(keywords.context)
+    if includeContext then json.removeAllKeys(keywords.context).deepMerge(contextAsJson)
+    else json.removeAllKeys(keywords.context)
 
   private def mergeJsonLd(a: Json, b: Json): Json =
-    if (a.isEmpty()) b
-    else if (b.isEmpty()) a
-    else a deepMerge b
+    if a.isEmpty() then b
+    else if b.isEmpty() then a
+    else a.deepMerge(b)
 }
 
 object GraphResourceToDocument {

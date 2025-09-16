@@ -16,7 +16,7 @@ final case class MetadataContextValue(value: ContextValue) extends AnyVal {
     * @param that
     *   another metadata context to be merged with the current
     */
-  def merge(that: MetadataContextValue): MetadataContextValue = MetadataContextValue(value merge that.value)
+  def merge(that: MetadataContextValue): MetadataContextValue = MetadataContextValue(value.merge(that.value))
 }
 
 object MetadataContextValue {

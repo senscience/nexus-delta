@@ -25,18 +25,18 @@ object TokenRejection {
   /**
     * Rejection for cases where the access token does not contain a subject in the claim set.
     */
-  final case object AccessTokenDoesNotContainSubject extends TokenRejection("The token doesn't contain a subject.")
+  case object AccessTokenDoesNotContainSubject extends TokenRejection("The token doesn't contain a subject.")
 
   /**
     * Rejection for cases where the access token does not contain an issuer in the claim set.
     */
-  final case object AccessTokenDoesNotContainAnIssuer extends TokenRejection("The token doesn't contain an issuer.")
+  case object AccessTokenDoesNotContainAnIssuer extends TokenRejection("The token doesn't contain an issuer.")
 
   /**
     * Rejection for cases where the issuer specified in the access token claim set is unknown; also applies to issuers
     * of deprecated realms.
     */
-  final case object UnknownAccessTokenIssuer extends TokenRejection("The issuer referenced in the token was not found.")
+  case object UnknownAccessTokenIssuer extends TokenRejection("The issuer referenced in the token was not found.")
 
   /**
     * Rejection for cases where the access token is invalid according to JWTClaimsVerifier

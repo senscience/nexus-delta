@@ -328,7 +328,7 @@ final class JsonOps(private val json: Json) extends AnyVal {
     * Adds to the current json the passed ''key'' and ''valueOpt'' when the value is a Some
     */
   def addIfExists[A: Encoder](key: String, valueOpt: Option[A]): Json =
-    valueOpt.fold(json)(value => json deepMerge Json.obj(key -> value.asJson))
+    valueOpt.fold(json)(value => json.deepMerge(Json.obj(key -> value.asJson)))
 
   /**
     * Adds to the current json the passed ''key'' and ''values'' when the values are not empty
@@ -336,7 +336,7 @@ final class JsonOps(private val json: Json) extends AnyVal {
   def addIfNonEmpty[A: Encoder](key: String, values: Iterable[A]): Json =
     values.take(2).toList match {
       case Nil         => json
-      case head :: Nil => json deepMerge Json.obj(key -> head.asJson)
-      case _           => json deepMerge Json.obj(key -> values.asJson)
+      case head :: Nil => json.deepMerge(Json.obj(key -> head.asJson))
+      case _           => json.deepMerge(Json.obj(key -> values.asJson))
     }
 }

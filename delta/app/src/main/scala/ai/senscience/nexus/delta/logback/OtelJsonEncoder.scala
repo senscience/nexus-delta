@@ -51,7 +51,7 @@ class OtelJsonEncoder extends EncoderBase[ILoggingEvent] {
 
     val timestamp = timestampInNanos(event.getTimeStamp, event.getNanoseconds)
 
-    if (event.getNanoseconds == -1) {
+    if event.getNanoseconds == -1 then {
       TimeUnit.MILLISECONDS.toNanos(event.getTimeStamp)
     } else {
       TimeUnit.MILLISECONDS.toNanos(event.getTimeStamp) + event.getNanoseconds

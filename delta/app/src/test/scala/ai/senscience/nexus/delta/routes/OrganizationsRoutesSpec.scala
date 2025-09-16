@@ -67,11 +67,11 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     "label"       -> org1.label.value,
     "uuid"        -> fixedUuid.toString,
     "description" -> org1.description.value
-  ) deepMerge org1CreatedMeta.removeKeys("@context")
+  ).deepMerge(org1CreatedMeta.removeKeys("@context"))
 
   private val org1UpdatedMeta = orgMetadata(org1.label, fixedUuid, rev = 2, createdBy = creator, updatedBy = writer)
   private val org1Updated     =
-    org1Created deepMerge json"""{"description": "updated"}""" deepMerge org1UpdatedMeta.removeKeys("@context")
+    org1Created.deepMerge(json"""{"description": "updated"}""").deepMerge(org1UpdatedMeta.removeKeys("@context"))
 
   private val org2CreatedMeta = orgMetadata(org2.label, fixedUuid, createdBy = creatorOrg2, updatedBy = creatorOrg2)
 
@@ -79,7 +79,7 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     "organizations/org-resource.json",
     "label" -> org2.label.value,
     "uuid"  -> fixedUuid.toString
-  ).removeKeys("description") deepMerge org2CreatedMeta.removeKeys("@context")
+  ).removeKeys("description").deepMerge(org2CreatedMeta.removeKeys("@context"))
 
   private val org2DeprecatedMeta =
     orgMetadata(
@@ -150,8 +150,8 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     }
 
     def expectedResults(results: Json*): Json =
-      json"""{"@context": ["${contexts.metadata}", "${contexts.organizations}", "${contexts.search}"], "_total": ${results.size}}""" deepMerge
-        Json.obj("_results" -> Json.arr(results*))
+      json"""{"@context": ["${contexts.metadata}", "${contexts.organizations}", "${contexts.search}"], "_total": ${results.size}}"""
+        .deepMerge(Json.obj("_results" -> Json.arr(results*)))
 
     "list organizations" in {
 

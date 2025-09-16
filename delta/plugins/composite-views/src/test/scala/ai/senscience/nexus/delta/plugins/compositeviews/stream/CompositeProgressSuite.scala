@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
+import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
@@ -42,7 +43,7 @@ class CompositeProgressSuite extends FunSuite {
       rebuildBranch11 -> rebuildProgress11
     )
 
-    val expectedSources = Map(
+    val expectedSources: Map[(IriOrBNode.Iri, Run), Offset] = Map(
       (source1, Run.Main)    -> mainProgress11.offset,
       (source1, Run.Rebuild) -> rebuildProgress11.offset,
       (source2, Run.Main)    -> mainProgress21.offset,

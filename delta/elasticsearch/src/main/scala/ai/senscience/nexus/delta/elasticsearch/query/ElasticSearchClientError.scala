@@ -25,12 +25,12 @@ sealed abstract class ElasticSearchClientError(val reason: String, val body: Opt
 object ElasticSearchClientError {
 
   final case class ElasticSearchConnectError(cause: ConnectException)
-      extends ElasticSearchClientError(s"The sparql engine can't be reached: ${cause.getMessage}", None)
+      extends ElasticSearchClientError(s"elasticsearch can't be reached: ${cause.getMessage}", None)
 
   final case class ElasticSearchTimeoutError(cause: TimeoutException)
-      extends ElasticSearchClientError(s"The request to sparql resulted in a timeout: ${cause.getMessage}", None)
+      extends ElasticSearchClientError(s"The request to elasticsearch resulted in a timeout: ${cause.getMessage}", None)
 
-  final case object ElasticSearchUnknownHost
+  case object ElasticSearchUnknownHost
       extends ElasticSearchClientError("The hostname for elasticsearch can't be resolved", None)
 
   final case class ElasticsearchActionError(status: Status, action: String)

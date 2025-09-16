@@ -43,12 +43,12 @@ class ResourceDeletionSpec extends BaseIntegrationSpec {
     eventually {
       deltaClient.get[Json](s"/resources/$project?locate=$encodedId", Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        _total.getOption(json).value shouldEqual (if (exists) 1 else 0)
+        _total.getOption(json).value shouldEqual (if exists then 1 else 0)
       } >> IO.unit
     }
 
   private def assertGraph(id: String, exists: Boolean)(implicit position: Position) = eventually {
-    val count = if (exists) 1 else 0
+    val count = if exists then 1 else 0
     deltaClient.sparqlQuery[Json](s"/views/$project/graph/sparql", query(id), Bob) { (json, response) =>
       response.status shouldEqual StatusCodes.OK
       sparql.countResult(json).value shouldEqual count
@@ -56,7 +56,7 @@ class ResourceDeletionSpec extends BaseIntegrationSpec {
   }
 
   private def assertSearchGraph(id: String, exists: Boolean)(implicit position: Position) = eventually {
-    val count = if (exists) 1 else 0
+    val count = if exists then 1 else 0
     deltaClient.sparqlQuery[Json](s"/views/$project/search/sparql", query(id), Bob) { (json, response) =>
       response.status shouldEqual StatusCodes.OK
       sparql.countResult(json).value shouldEqual count

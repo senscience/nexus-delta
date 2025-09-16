@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotDecodePipeConfigErr
 import cats.implicits.*
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Contract for definition for pipes. PipeDefs are used to construct [[Pipe]] instances to be used when materializing

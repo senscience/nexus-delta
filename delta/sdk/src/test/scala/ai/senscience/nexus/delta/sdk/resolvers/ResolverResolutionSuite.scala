@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverResolutionRejection
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverValue.CrossProjectValue
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.ResolverReport
 import ai.senscience.nexus.delta.sdk.resolvers.model.{IdentityResolution, Priority, Resolver, ResourceResolutionReport}
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
@@ -22,6 +21,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import cats.effect.IO
 import io.circe.Json
+import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 
@@ -90,7 +90,7 @@ class ResolverResolutionSuite extends NexusSuite {
 
   def fetchResolver(resolver: Resolver): (Iri, ProjectRef) => IO[Resolver] =
     (id: Iri, projectRef: ProjectRef) =>
-      if (id == resolver.id) IO.pure(resolver)
+      if id == resolver.id then IO.pure(resolver)
       else IO.raiseError(ResolverNotFound(id, projectRef))
 
   def fetchResource(

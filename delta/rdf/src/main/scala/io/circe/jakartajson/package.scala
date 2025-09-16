@@ -33,7 +33,7 @@ package object jakartajson {
       case false => JakartaJsonValue.FALSE
     },
     number =>
-      if (json == negativeZeroJson) {
+      if json == negativeZeroJson then {
         jsonProvider.createValue(number.toDouble)
       } else
         number match {
@@ -50,7 +50,8 @@ package object jakartajson {
             } catch {
               case _: NumberFormatException => jsonProvider.createValue(x)
             }
-        },
+        }
+    ,
     jsonProvider.createValue,
     array =>
       array
@@ -80,10 +81,8 @@ package object jakartajson {
       case JakartaValueType.FALSE  => Json.False
       case JakartaValueType.NUMBER =>
         val numberValue = value.asInstanceOf[JakartaJsonNumber]
-        if (numberValue.isIntegral)
-          Json.fromLong(numberValue.longValue())
-        else
-          Json.fromBigDecimal(numberValue.bigDecimalValue())
+        if numberValue.isIntegral then Json.fromLong(numberValue.longValue())
+        else Json.fromBigDecimal(numberValue.bigDecimalValue())
       case JakartaValueType.STRING => Json.fromString(value.asInstanceOf[JsonString].getString)
       case JakartaValueType.ARRAY  =>
         val values = value.asJsonArray().getValuesAs(classOf[JakartaJsonValue]).asScala.map(jakartaJsonToCirce)

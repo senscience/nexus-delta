@@ -37,7 +37,7 @@ object FetchResource {
       override def stateOrNotFound(id: IdSegmentRef, iri: Iri, ref: ProjectRef): IO[ResourceState] =
         id match {
           case Latest(_)        => log.stateOr(ref, iri, notFound(iri, ref))
-          case Revision(_, rev) => log.stateOr(ref, iri, rev, notFound(iri, ref), RevisionNotFound)
+          case Revision(_, rev) => log.stateOr(ref, iri, rev, notFound(iri, ref), RevisionNotFound(_, _))
           case Tag(_, tag)      => log.stateOr(ref, iri, tag, notFound(iri, ref), TagNotFound(tag))
         }
     }

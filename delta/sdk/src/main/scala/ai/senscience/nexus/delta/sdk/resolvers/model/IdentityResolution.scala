@@ -17,7 +17,7 @@ object IdentityResolution {
   /**
     * The resolution will use the identities of the caller at the moment of the resolution
     */
-  final case object UseCurrentCaller extends IdentityResolution
+  case object UseCurrentCaller extends IdentityResolution
 
   /**
     * The resolution will rely on the provided entities

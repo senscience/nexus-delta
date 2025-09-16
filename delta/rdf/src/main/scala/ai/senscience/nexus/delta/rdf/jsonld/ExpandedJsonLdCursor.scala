@@ -66,7 +66,7 @@ final class ExpandedJsonLdCursor private (value: ACursor) {
     *   the value returned when the focus did not succed on the current cursor
     */
   def getOrElse[A](default: => A)(implicit decoder: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
-    if (succeeded) decoder(this) else Right(default)
+    if succeeded then decoder(this) else Right(default)
 
   /**
     * Get the set of types from the current cursor.

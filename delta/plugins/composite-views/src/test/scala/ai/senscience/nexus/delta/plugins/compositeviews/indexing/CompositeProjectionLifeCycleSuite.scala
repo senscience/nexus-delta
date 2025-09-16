@@ -202,7 +202,7 @@ object CompositeProjectionLifeCycleSuite {
 
     val skipped: DestroyResult = Skipped
 
-    final case object Skipped extends DestroyResult
+    case object Skipped extends DestroyResult
 
     final case class DestroyAll(view: IndexingViewRef)                               extends DestroyResult
     final case class DestroyProjection(view: IndexingViewRef, projections: Set[Iri]) extends DestroyResult

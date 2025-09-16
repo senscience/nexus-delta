@@ -54,7 +54,7 @@ object SearchConfig {
     def getFilePath(configPath: String) = Path.of(pluginConfig.getString(configPath))
     def loadSuites                      = {
       val suiteSource = ConfigSource.fromConfig(pluginConfig).at("suites")
-      IO.fromEither(suiteSource.load[Suites].leftMap(InvalidSuites))
+      IO.fromEither(suiteSource.load[Suites].leftMap(InvalidSuites(_)))
     }
     for {
       fields        <- loadOption(pluginConfig, "fields", loadJsonAs[JsonObject])
@@ -82,8 +82,7 @@ object SearchConfig {
   }
 
   private def loadOption[A](config: Config, path: String, io: Path => IO[A]) =
-    if (config.hasPath(path))
-      io(Path.of(config.getString(path))).map(Some(_))
+    if config.hasPath(path) then io(Path.of(config.getString(path))).map(Some(_))
     else IO.none
 
   private def loadSparqlQuery(filePath: Path): IO[SparqlConstructQuery] =

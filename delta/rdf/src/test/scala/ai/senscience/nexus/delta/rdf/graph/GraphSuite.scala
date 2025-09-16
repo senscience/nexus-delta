@@ -66,7 +66,7 @@ class GraphSuite
 
     loadGraphFromExpanded().map { graph =>
       val newGraph        = graph.replaceRootNode(newRootId)
-      val expectedTriples = graph.triples.map { case (s, p, o) => (if (s == iriSubject) newSubject else s, p, o) }
+      val expectedTriples = graph.triples.map { case (s, p, o) => (if s == iriSubject then newSubject else s, p, o) }
 
       assertEquals(newGraph.rootNode, newRootId)
       assertEquals(newGraph.triples, expectedTriples)

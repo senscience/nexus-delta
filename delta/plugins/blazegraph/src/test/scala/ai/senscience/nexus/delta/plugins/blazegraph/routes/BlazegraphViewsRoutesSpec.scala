@@ -71,7 +71,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
         project: ProjectRef,
         pagination: Pagination.FromPagination
     ): IO[SearchResults[SparqlLink]] =
-      if (project == projectRef) IO.pure(linksResults)
+      if project == projectRef then IO.pure(linksResults)
       else IO.raiseError(ViewNotFound(defaultViewId, project))
 
     override def outgoing(
@@ -80,7 +80,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
         pagination: Pagination.FromPagination,
         includeExternalLinks: Boolean
     ): IO[SearchResults[SparqlLink]] =
-      if (project == projectRef) IO.pure(linksResults)
+      if project == projectRef then IO.pure(linksResults)
       else IO.raiseError(ViewNotFound(defaultViewId, project))
   }
 
@@ -157,7 +157,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
 
     "reject creation of a view which already exits" in {
       givenAView { view =>
-        val viewPayload = indexingSource deepMerge json"""{"@id": "$view"}"""
+        val viewPayload = indexingSource.deepMerge(json"""{"@id": "$view"}""")
         Put(s"/v1/views/org/proj/$view", viewPayload.toEntity) ~> as(writer) ~> routes ~> check {
           response.status shouldEqual StatusCodes.Conflict
           response.asJson shouldEqual resourceAlreadyExistsError(nxv + view, projectRef)
@@ -376,7 +376,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
 
   private def givenAView(test: String => Assertion): Assertion = {
     val viewName       = genString()
-    val viewDefPayload = indexingSource deepMerge json"""{"@id": "$viewName"}"""
+    val viewDefPayload = indexingSource.deepMerge(json"""{"@id": "$viewName"}""")
     Post("/v1/views/org/proj", viewDefPayload.toEntity) ~> as(writer) ~> routes ~> check {
       response.status shouldEqual StatusCodes.Created
     }

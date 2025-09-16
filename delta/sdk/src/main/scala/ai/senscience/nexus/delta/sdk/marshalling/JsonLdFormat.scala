@@ -10,10 +10,10 @@ object JsonLdFormat {
   /**
     * Expanded JSON-LD output format as defined in https://www.w3.org/TR/json-ld-api/#expansion-algorithms
     */
-  final case object Expanded extends JsonLdFormat
+  case object Expanded extends JsonLdFormat
 
   /**
     * Compacted JSON-LD output format as defined in https://www.w3.org/TR/json-ld-api/#compaction-algorithms
     */
-  final case object Compacted extends JsonLdFormat
+  case object Compacted extends JsonLdFormat
 }

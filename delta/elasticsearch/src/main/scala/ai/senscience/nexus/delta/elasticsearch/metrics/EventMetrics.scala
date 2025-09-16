@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import io.circe.JsonObject
-import io.circe.literal.JsonStringContext
+import io.circe.literal.json
 import io.circe.syntax.EncoderOps
 import org.http4s.Query
 

@@ -10,8 +10,8 @@ import scala.io.Source
 
 class PluginClassLoaderSpec extends BaseSpec with BeforeAndAfterAll {
 
-  val jarPath = Path.of("../plugins/test-plugin/target/delta-test-plugin.jar")
-  val cl      = new PluginClassLoader(
+  private val jarPath = Path.of("../plugins/test-plugin/target/delta-test-plugin.jar")
+  private val cl      = new PluginClassLoader(
     jarPath.toUri.toURL,
     this.getClass.getClassLoader
   )
@@ -24,13 +24,11 @@ class PluginClassLoaderSpec extends BaseSpec with BeforeAndAfterAll {
   "A PluginClassLoader" should {
 
     "load class from plugin classpath first" in {
-
-      cl.create[ClassLoaderTestClass](
-        classOf[ClassLoaderTestClassImpl].getName,
-        println
-      )()
-        .loadedFrom shouldEqual "plugin classpath"
+      cl.create[ClassLoaderTestClass](classOf[ClassLoaderTestClassImpl].getName)
+        .map(_.loadedFrom)
+        .value shouldEqual "plugin classpath"
     }
+
     "load resource from plugin classpath first" in {
       Source
         .fromInputStream(cl.getResourceAsStream("plugin-classloader-test.txt"))

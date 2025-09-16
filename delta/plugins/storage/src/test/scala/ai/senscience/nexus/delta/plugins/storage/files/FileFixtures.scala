@@ -65,18 +65,17 @@ trait FileFixtures extends Generators {
     FileCustomMetadata(Some(genString()), Some(genString()), Some(genKeywords()))
 
   def entity(filename: String = "file.txt"): MessageEntity =
+    entity(filename, content)
+
+  def randomEntity(filename: String, size: Int): MessageEntity =
+    entity(filename, "0" * size)
+
+  private def entity(filename: String, content: String) =
     Multipart
       .FormData(
         Multipart.FormData.BodyPart("file", HttpEntity(`text/plain(UTF-8)`, content), Map("filename" -> filename))
       )
-      .toEntity()
-
-  def randomEntity(filename: String, size: Int): MessageEntity =
-    Multipart
-      .FormData(
-        Multipart.FormData.BodyPart("file", HttpEntity(`text/plain(UTF-8)`, "0" * size), Map("filename" -> filename))
-      )
-      .toEntity()
+      .toEntity
 
   def base64encode(input: String) = {
     val encodedBytes = Base64.getEncoder.encode(input.getBytes("UTF-8"))

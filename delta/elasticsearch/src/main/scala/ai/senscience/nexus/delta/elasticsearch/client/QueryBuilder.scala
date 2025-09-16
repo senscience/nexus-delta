@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import io.circe.literal.JsonStringContext
+import io.circe.literal.json
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
 
@@ -49,13 +49,13 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     * Adds sort to the current payload
     */
   def withSort(sortList: SortList): QueryBuilder =
-    if (sortList.isEmpty) this
+    if sortList.isEmpty then this
     else copy(query.add("sort", sortList.values.asJson))
 
   private def typesTerms(typeOperator: TypeOperator, types: List[Type]) = {
     val terms = types.map(tpe => term(keywords.tpe, tpe.value))
 
-    if (types.isEmpty) {
+    if types.isEmpty then {
       Nil
     } else {
       typeOperator match {
@@ -72,25 +72,27 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     val (includeTypes, excludeTypes) = params.types.partition(_.include)
     val projectsTerm                 = or(projects.map { project => term("_project", project) }.toSeq*)
     QueryBuilder(
-      query deepMerge queryPayload(
-        mustTerms = typesTerms(params.typeOperator, includeTypes) ++
-          params.locate.map { l => or(term(keywords.id, l), term(nxv.self.prefix, l)) } ++
-          params.id.map(term(keywords.id, _)) ++
-          params.q.map(multiMatch) ++
-          params.schema.map(term(nxv.constrainedBy.prefix, _)) ++
-          params.deprecated.map(term(nxv.deprecated.prefix, _)) ++
-          params.rev.map(term(nxv.rev.prefix, _)) ++
-          params.createdBy.map(term(nxv.createdBy.prefix, _)) ++
-          range(nxv.createdAt.prefix, params.createdAt) ++
-          params.updatedBy.map(term(nxv.updatedBy.prefix, _)) ++
-          range(nxv.updatedAt.prefix, params.updatedAt) ++
-          params.tag.map(term(nxv.tags.prefix, _)) ++
-          params.keywords.map { case (key, value) =>
-            term(s"_keywords.$key", value)
-          } ++
-          List(projectsTerm),
-        mustNotTerms = typesTerms(params.typeOperator.negate, excludeTypes),
-        withScore = params.q.isDefined
+      query.deepMerge(
+        queryPayload(
+          mustTerms = typesTerms(params.typeOperator, includeTypes) ++
+            params.locate.map { l => or(term(keywords.id, l), term(nxv.self.prefix, l)) } ++
+            params.id.map(term(keywords.id, _)) ++
+            params.q.map(multiMatch) ++
+            params.schema.map(term(nxv.constrainedBy.prefix, _)) ++
+            params.deprecated.map(term(nxv.deprecated.prefix, _)) ++
+            params.rev.map(term(nxv.rev.prefix, _)) ++
+            params.createdBy.map(term(nxv.createdBy.prefix, _)) ++
+            range(nxv.createdAt.prefix, params.createdAt) ++
+            params.updatedBy.map(term(nxv.updatedBy.prefix, _)) ++
+            range(nxv.updatedAt.prefix, params.updatedAt) ++
+            params.tag.map(term(nxv.tags.prefix, _)) ++
+            params.keywords.map { case (key, value) =>
+              term(s"_keywords.$key", value)
+            } ++
+            List(projectsTerm),
+          mustNotTerms = typesTerms(params.typeOperator.negate, excludeTypes),
+          withScore = params.q.isDefined
+        )
       )
     )
   }
@@ -112,7 +114,7 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     val newQuery = query("query") match {
       case None               => query.add("query", Json.obj("bool" -> filter))
       case Some(currentQuery) =>
-        val boolQuery = Json.obj("must" -> currentQuery) deepMerge filter
+        val boolQuery = Json.obj("must" -> currentQuery).deepMerge(filter)
         query.add("query", Json.obj("bool" -> boolQuery))
     }
     QueryBuilder(newQuery)
@@ -123,7 +125,7 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
       mustNotTerms: List[JsonObject],
       withScore: Boolean
   ): JsonObject = {
-    val eval = if (withScore) "must" else "filter"
+    val eval = if withScore then "must" else "filter"
     JsonObject(
       "query" -> Json.obj(
         "bool" -> Json
@@ -167,7 +169,7 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     )
 
     iri match {
-      case Some(_) => payload deepMerge analyzer
+      case Some(_) => payload.deepMerge(analyzer)
       case None    => payload
     }
   }
@@ -181,7 +183,7 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
         ),
         "size" := 0
       )
-    QueryBuilder(query deepMerge aggregations)
+    QueryBuilder(query.deepMerge(aggregations))
   }
 
   private def termAggregation(name: String, fieldName: String, bucketSize: Int) =

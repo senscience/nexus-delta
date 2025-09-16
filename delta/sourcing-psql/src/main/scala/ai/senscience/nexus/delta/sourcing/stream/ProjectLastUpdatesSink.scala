@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.ProjectLastUpdatesSink.logger
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Sink that computes new project last updates from the elem stream and push them to the database

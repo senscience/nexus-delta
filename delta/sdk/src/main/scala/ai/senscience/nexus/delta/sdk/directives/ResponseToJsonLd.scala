@@ -120,7 +120,7 @@ object ResponseToJsonLd extends FileBytesInstances {
           case Left(c)                    => emit(c)
           case Right((metadata, content)) =>
             headerValueByType(Accept) { accept =>
-              if (accept.mediaRanges.exists(_.matches(metadata.contentType.mediaType))) {
+              if accept.mediaRanges.exists(_.matches(metadata.contentType.mediaType)) then {
                 val encodedFilename    = attachmentString(metadata.filename)
                 val contentDisposition =
                   RawHeader("Content-Disposition", s"""attachment; filename="$encodedFilename"""")
@@ -132,8 +132,7 @@ object ResponseToJsonLd extends FileBytesInstances {
                   }
                 }
 
-              } else
-                reject(unacceptedMediaTypeRejection(Seq(metadata.contentType.mediaType)))
+              } else reject(unacceptedMediaTypeRejection(Seq(metadata.contentType.mediaType)))
             }
         }
       }

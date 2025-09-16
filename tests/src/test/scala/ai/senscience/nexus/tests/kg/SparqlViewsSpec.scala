@@ -117,8 +117,8 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
         val id           = `@id`.getOption(payload).value
         val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-        val projectId    = if (i > 5) project2 else project1
-        val indexingMode = if (i % 2 == 0) "sync" else "async"
+        val projectId    = if i > 5 then project2 else project1
+        val indexingMode = if i % 2 == 0 then "sync" else "async"
         val targetUrl    = s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode"
         deltaClient.put[Json](targetUrl, payload, ScoobyDoo) { expectCreated }
       }

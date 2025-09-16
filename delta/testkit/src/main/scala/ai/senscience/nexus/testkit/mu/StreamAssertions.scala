@@ -12,7 +12,7 @@ trait StreamAssertions extends Assertions {
 
     private def compileToList(take: Long) = stream.take(take).timeout(3.seconds).mask.compile.toList
 
-    def assert(expected: List[A]): IO[Unit] =
+    def assertList(expected: List[A]): IO[Unit] =
       compileToList(expected.size.toLong).map { obtained =>
         assertEquals(obtained, expected, s"Got ${obtained.size} elements, ${expected.size} elements were expected.")
       }
@@ -22,7 +22,7 @@ trait StreamAssertions extends Assertions {
         assertEquals(obtained.size, expected, s"Got ${obtained.size} elements, $expected elements were expected.")
       }
 
-    def assert(expected: A*): IO[Unit] = assert(expected.toList)
+    def assert(expected: A*): IO[Unit] = assertList(expected.toList)
 
     def assertEmpty: IO[Unit] = assertSize(0)
 

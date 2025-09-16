@@ -4,8 +4,8 @@ sealed trait S3OperationResult extends Product with Serializable
 
 object S3OperationResult {
 
-  final case object Success extends S3OperationResult
+  case object Success extends S3OperationResult
 
-  final case object AlreadyExists extends S3OperationResult
+  case object AlreadyExists extends S3OperationResult
 
 }

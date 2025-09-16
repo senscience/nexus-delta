@@ -79,7 +79,7 @@ object RdfExceptionHandler {
   implicit private val entityStreamSizeExceptionHttpFields: HttpResponseFields[EntityStreamSizeException] =
     HttpResponseFields(_ => StatusCodes.ContentTooLarge)
 
-  final private case object UnexpectedError
+  private case object UnexpectedError
   private type UnexpectedError = UnexpectedError.type
 
   implicit private val unexpectedErrorEncoder: Encoder[UnexpectedError] =

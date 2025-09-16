@@ -102,7 +102,7 @@ final case class AclCollection private (value: SortedMap[AclAddress, AclResource
       case (acc, (_, acl)) if acl.value.isEmpty => acc
       case (acc, (address, acl))                =>
         val filteredAcl = acl.value.removeEmpty()
-        if (filteredAcl.isEmpty) acc else acc + (address -> acl.as(filteredAcl))
+        if filteredAcl.isEmpty then acc else acc + (address -> acl.as(filteredAcl))
 
     })
 

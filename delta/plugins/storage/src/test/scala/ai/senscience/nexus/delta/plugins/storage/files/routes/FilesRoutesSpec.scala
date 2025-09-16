@@ -25,7 +25,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sdk.utils.{BaseRouteSpec, HeadersUtils}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
@@ -122,7 +122,9 @@ class FilesRoutesSpec
   private val s3IdRev   = ResourceRef.Revision(s3Id, 2)
   private val tag       = "mytag"
 
-  private val varyHeader = RawHeader("Vary", "Accept,Accept-Encoding")
+  private val varyHeader     = RawHeader("Vary", "Accept,Accept-Encoding")
+  private val jsonHeader     = HeadersUtils.contentType(`application/json`)
+  private val formDataHeader = HeadersUtils.contentType(`multipart/form-data`)
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -136,35 +138,31 @@ class FilesRoutesSpec
 
     val defaults = json"""{"maxFileSize": 1000, "volume": "$path"}"""
     val s3Perms  = json"""{"readPermission": "$s3Read", "writePermission": "$s3Write"}"""
-    storages.create(s3Id, projectRef, diskFieldsJson deepMerge defaults deepMerge s3Perms)(Caller(writer)).accepted
-    storages.create(dId, projectRef, diskFieldsJson deepMerge defaults)(Caller(s3writer)).void.accepted
+    storages.create(s3Id, projectRef, diskFieldsJson.deepMerge(defaults).deepMerge(s3Perms))(Caller(writer)).accepted
+    storages.create(dId, projectRef, diskFieldsJson.deepMerge(defaults))(Caller(s3writer)).void.accepted
   }
 
-  def postJson(path: String, json: Json): HttpRequest = {
-    Post(path, json.toEntity).withHeaders(`Content-Type`(`application/json`))
-  }
+  def postJson(path: String, json: Json): HttpRequest =
+    Post(path, json.toEntity).withHeaders(jsonHeader)
 
-  def postFile(path: String, entity: RequestEntity): HttpRequest = {
-    Post(path, entity).withHeaders(`Content-Type`(`multipart/form-data`))
-  }
+  def postFile(path: String, entity: RequestEntity): HttpRequest =
+    Post(path, entity).withHeaders(formDataHeader)
 
   def postFileWithMetadata(path: String, entity: RequestEntity, metadata: Json): HttpRequest = {
-    val headers =
-      `Content-Type`(`multipart/form-data`) :: RawHeader(NexusHeaders.fileMetadata, metadata.noSpaces) :: Nil
+    val headers = formDataHeader :: RawHeader(NexusHeaders.fileMetadata, metadata.noSpaces) :: Nil
     Post(path, entity).withHeaders(headers)
   }
 
   def putJson(path: String, json: Json): HttpRequest = {
-    Put(path, json.toEntity).withHeaders(`Content-Type`(`application/json`))
+    Put(path, json.toEntity).withHeaders(jsonHeader)
   }
 
   def putFile(path: String, entity: RequestEntity): HttpRequest = {
-    Put(path, entity).withHeaders(`Content-Type`(`multipart/form-data`))
+    Put(path, entity).withHeaders(formDataHeader)
   }
 
   def putFileWithMetadata(path: String, entity: RequestEntity, metadata: Json): HttpRequest = {
-    val headers =
-      `Content-Type`(`multipart/form-data`) :: RawHeader(NexusHeaders.fileMetadata, metadata.noSpaces) :: Nil
+    val headers = formDataHeader :: RawHeader(NexusHeaders.fileMetadata, metadata.noSpaces) :: Nil
     Put(path, entity).withHeaders(headers)
   }
 

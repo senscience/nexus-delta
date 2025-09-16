@@ -162,7 +162,7 @@ class BlazegraphViewsRoutes(
   }
 
   private def consumeIdSegmentIf(condition: Boolean): Directive0 =
-    if (condition) idSegment.flatMap(_ => pass)
+    if condition then idSegment.flatMap(_ => pass)
     else pass
 
   private def incomingOutgoing(id: IdSegment, project: ProjectRef)(implicit caller: Caller) = {

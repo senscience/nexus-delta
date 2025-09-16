@@ -12,7 +12,7 @@ import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import org.http4s.Uri
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 

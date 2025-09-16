@@ -138,10 +138,8 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
       response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
         val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)
         val namespaceName = binding.get("object").map(_.value)
-        if (isNamespace)
-          acc ++ namespaceName
-        else
-          acc
+        if isNamespace then acc ++ namespaceName
+        else acc
       }
     }
   }

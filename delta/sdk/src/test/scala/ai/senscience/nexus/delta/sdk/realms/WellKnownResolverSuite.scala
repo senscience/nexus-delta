@@ -13,7 +13,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import io.circe.Json
 import io.circe.syntax.KeyOps
 import org.http4s.client.UnexpectedStatus
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 import org.http4s.{Method, Status, Uri}
 
 class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral with CirceInstances with JsonSyntax {
@@ -70,15 +70,17 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
       }
     """
 
-  private val fullConfig = defaultConfig deepMerge Json.obj(
-    "revocation_endpoint"  := revocationUri,
-    "end_session_endpoint" := endSessionUri
+  private val fullConfig = defaultConfig.deepMerge(
+    Json.obj(
+      "revocation_endpoint"  := revocationUri,
+      "end_session_endpoint" := endSessionUri
+    )
   )
 
   test("Succeed with the expected grant types") {
     val config = defaultConfig
 
-    val expectedGrantTypes = Set(AuthorizationCode, Implicit, RefreshToken, Password, ClientCredentials)
+    val expectedGrantTypes: Set[GrantType] = Set(AuthorizationCode, Implicit, RefreshToken, Password, ClientCredentials)
     resolveWellKnown(
       config,
       validJwks
@@ -90,7 +92,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
   }
 
   test("Succeed with empty grant types") {
-    val emptyGrantTypes = defaultConfig deepMerge Json.obj("grant_types_supported" -> Json.arr())
+    val emptyGrantTypes = defaultConfig.deepMerge(Json.obj("grant_types_supported" -> Json.arr()))
     resolveWellKnown(
       emptyGrantTypes,
       validJwks
@@ -128,7 +130,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
   }
 
   test("Fail if the openid contains an invalid issuer") {
-    val invalidIssuer = defaultConfig deepMerge Json.obj("issuer" := " ")
+    val invalidIssuer = defaultConfig.deepMerge(Json.obj("issuer" := " "))
 
     resolveWellKnown(
       invalidIssuer,
@@ -137,7 +139,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
   }
 
   test("Fail if the openid contains an issuer with an invalid type") {
-    val invalidIssuer = defaultConfig deepMerge Json.obj("issuer" := 42)
+    val invalidIssuer = defaultConfig.deepMerge(Json.obj("issuer" := 42))
 
     resolveWellKnown(
       invalidIssuer,
@@ -146,7 +148,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
   }
 
   test("Fail if the openid contains an issuer with an invalid type") {
-    val invalidIssuer = defaultConfig deepMerge Json.obj("jwks_uri" := "asd")
+    val invalidIssuer = defaultConfig.deepMerge(Json.obj("jwks_uri" := "asd"))
 
     resolveWellKnown(
       invalidIssuer,
@@ -162,7 +164,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
     "end_session_endpoint"
   ).foreach { key =>
     test(s"Fail if the openid contains an invalid '$key' endpoint") {
-      val invalidEndpoint = fullConfig deepMerge Json.obj(key := 42)
+      val invalidEndpoint = fullConfig.deepMerge(Json.obj(key := 42))
       resolveWellKnown(
         invalidEndpoint,
         validJwks
@@ -182,7 +184,7 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
 
   test("Fail if there is a bad response for the jwks document") {
     val invalidJwksUri = uri"https://localhost/invalid"
-    val invalidJwks    = defaultConfig deepMerge Json.obj("jwks_uri" := invalidJwksUri)
+    val invalidJwks    = defaultConfig.deepMerge(Json.obj("jwks_uri" := invalidJwksUri))
 
     resolveWellKnown(
       invalidJwks,

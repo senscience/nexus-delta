@@ -56,8 +56,8 @@ object RemoteContextRef {
   }
 
   implicit val coder: Codec.AsObject[RemoteContextRef] = {
-    implicit val configuration: Configuration = Serializer.circeConfiguration
-    implicit val resourceContextRefCoder      = deriveConfiguredCodec[ResourceContext]
+    implicit val configuration: Configuration                             = Serializer.circeConfiguration
+    implicit val resourceContextRefCoder: Codec.AsObject[ResourceContext] = deriveConfiguredCodec[ResourceContext]
     deriveConfiguredCodec[RemoteContextRef]
   }
 

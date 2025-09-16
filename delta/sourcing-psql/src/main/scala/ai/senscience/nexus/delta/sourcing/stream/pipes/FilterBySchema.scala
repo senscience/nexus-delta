@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that filters resources based on their schema.

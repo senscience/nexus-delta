@@ -81,12 +81,10 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     val left     = DatasetFactory.create().asDatasetGraph()
     val right    = DatasetFactory.create().asDatasetGraph()
     val iterator = value.find()
-    while (iterator.hasNext) {
+    while iterator.hasNext do {
       val quad = iterator.next()
-      if (evalTriple(Triple(quad)))
-        left.add(quad)
-      else
-        right.add(quad)
+      if evalTriple(Triple(quad)) then left.add(quad)
+      else right.add(quad)
     }
     (Graph(rootNode, left), Graph(rootNode, right))
   }
@@ -99,11 +97,10 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
 
     @tailrec
     def inner(result: Option[Triple] = None): Option[Triple] =
-      if (result.isEmpty && iter.hasNext) {
+      if result.isEmpty && iter.hasNext then {
         val triple = Triple(iter.next())
         inner(Option.when(evalTriple(triple))(triple))
-      } else
-        result
+      } else result
 
     inner()
   }
@@ -139,11 +136,11 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
   private def replace(current: Node, replace: Node): Graph = {
     val iter     = value.find()
     val newGraph = DatasetFactory.create().asDatasetGraph()
-    while (iter.hasNext) {
+    while iter.hasNext do {
       val quad      = iter.next
       val (s, p, o) = Triple(quad)
-      val ss        = if (s == current) replace else s
-      val oo        = if (o == current) replace else o
+      val ss        = if s == current then replace else s
+      val oo        = if o == current then replace else o
       newGraph.add(quad.getGraph, ss, p, oo)
     }
     copy(value = newGraph)
@@ -255,21 +252,20 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
   ): IO[CompactedJsonLd] = {
 
     def computeCompacted(id: IriOrBNode, input: Json): IO[CompactedJsonLd] = {
-      if (isEmpty) IO.delay(CompactedJsonLd.unsafe(id, contextValue, JsonObject.empty))
-      else if (value.listGraphNodes().hasNext) {
+      if isEmpty then IO.delay(CompactedJsonLd.unsafe(id, contextValue, JsonObject.empty))
+      else if value.listGraphNodes().hasNext then {
         CompactedJsonLd(id, contextValue, input)
       } else {
         CompactedJsonLd.frame(id, contextValue, input)
       }
     }
 
-    if (rootNode.isBNode)
+    if rootNode.isBNode then
       for {
         expanded <- api.fromRdf(replace(rootNode, fakeId).value)
         framed   <- computeCompacted(fakeId, expanded.asJson)
       } yield framed.replaceId(self.rootNode)
-    else
-      api.fromRdf(value).flatMap(expanded => computeCompacted(rootNode, expanded.asJson))
+    else api.fromRdf(value).flatMap(expanded => computeCompacted(rootNode, expanded.asJson))
   }
 
   /**
@@ -290,7 +286,7 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
   override def hashCode(): Int = (rootNode, quads).##
 
   override def equals(obj: Any): Boolean =
-    obj match {
+    obj.asInstanceOf[Matchable] match {
       case that: Graph if rootNode.isBNode && that.rootNode.isBNode => quads == that.quads
       case that: Graph                                              => rootNode == that.rootNode && quads == that.quads
       case _                                                        => false

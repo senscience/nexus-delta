@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{extractHttp4sUri, iriSegment}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.*

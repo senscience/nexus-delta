@@ -42,8 +42,10 @@ object AbsolutePath {
     *   the unsafe path value
     */
   final def apply(path: Path): Either[String, AbsolutePath] =
-    if (path.isAbsolute) Right(new AbsolutePath(path))
+    if path.isAbsolute then Right(new AbsolutePath(path))
     else Left(s"The provided path '$path' is not absolute.")
+
+  final def unsafe(path: Path) = new AbsolutePath(path)
 
   implicit final val absolutePathJsonEncoder: Encoder[AbsolutePath] =
     Encoder.encodeString.contramap(_.toString)

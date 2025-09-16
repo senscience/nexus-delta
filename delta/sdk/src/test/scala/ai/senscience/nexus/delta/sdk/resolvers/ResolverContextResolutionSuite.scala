@@ -21,6 +21,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.*
+import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 

@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.*
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.UriDirectives.{baseUriPrefix, projectRef}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -43,11 +42,11 @@ class SupervisionRoutes(
             authorizeFor(AclAddress.Root, supervision.read).apply {
               concat(
                 (pathPrefix("projections") & get & pathEndOrSingleSlash) {
-                  emitJson(supervised.map(SupervisionBundle))
+                  emitJson(supervised.map(SupervisionBundle(_)))
                 },
                 (pathPrefix("projects") & get & pathEndOrSingleSlash) {
                   onSuccess(projectsHealth.health.unsafeToFuture()) { projects =>
-                    if (projects.isEmpty) complete(StatusCodes.OK, allProjectsAreHealthy)
+                    if projects.isEmpty then complete(StatusCodes.OK, allProjectsAreHealthy)
                     else complete(StatusCodes.InternalServerError, unhealthyProjectsEncoder(projects))
                   }
                 },

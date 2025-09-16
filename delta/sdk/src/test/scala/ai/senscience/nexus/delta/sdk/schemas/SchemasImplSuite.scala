@@ -77,9 +77,7 @@ class SchemasImplSuite extends NexusSuite with Doobie.Fixture with ConfigFixture
   private lazy val schemas: Schemas =
     SchemasImpl(schemaLog, fetchContext, schemaImports, resolverContextResolution)
 
-  private def schemaSourceWithId(id: Iri) = {
-    source deepMerge json"""{"@id": "$id"}"""
-  }
+  private def schemaSourceWithId(id: Iri) = source.deepMerge(json"""{"@id": "$id"}""")
 
   test("Creating a schema Succeeds with the id present in the payload") {
     val expected = SchemaGen.resourceFor(schema, subject = subject)

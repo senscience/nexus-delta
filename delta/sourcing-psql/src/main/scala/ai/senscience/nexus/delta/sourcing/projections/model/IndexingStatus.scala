@@ -9,11 +9,11 @@ sealed trait IndexingStatus extends Product with Serializable
 
 object IndexingStatus {
 
-  final case object Pending extends IndexingStatus
+  case object Pending extends IndexingStatus
 
-  final case object Discarded extends IndexingStatus
+  case object Discarded extends IndexingStatus
 
-  final case object Completed extends IndexingStatus
+  case object Completed extends IndexingStatus
 
   implicit val indexingStatusEncoder: Encoder[IndexingStatus] = Encoder.instance {
     case Pending   => Json.obj("status" := "Pending")
@@ -22,9 +22,7 @@ object IndexingStatus {
   }
 
   def fromOffsets(projectionOffset: Offset, resourceOffset: Offset): IndexingStatus =
-    if (resourceOffset > projectionOffset)
-      IndexingStatus.Pending
-    else
-      IndexingStatus.Completed
+    if resourceOffset > projectionOffset then IndexingStatus.Pending
+    else IndexingStatus.Completed
 
 }

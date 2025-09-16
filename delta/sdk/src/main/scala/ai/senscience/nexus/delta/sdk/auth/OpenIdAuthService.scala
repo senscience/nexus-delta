@@ -63,7 +63,7 @@ class OpenIdAuthService(client: Client[IO], realms: Realms) {
   private def parseResponse(json: Json) =
     json.hcursor
       .get[String]("access_token")
-      .leftMap(AuthTokenNotFoundInResponse)
+      .leftMap(AuthTokenNotFoundInResponse(_))
       .flatMap { rawToken =>
         ParsedToken.fromToken(AuthToken(rawToken))
       }

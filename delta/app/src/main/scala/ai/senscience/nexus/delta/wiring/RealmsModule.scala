@@ -36,7 +36,7 @@ object RealmsModule extends NexusModuleDef {
         client: Client[IO] @Id("realm"),
         xas: Transactors
     ) =>
-      val wellKnownResolver = WellKnownResolver(client) _
+      val wellKnownResolver = WellKnownResolver(client)(_)
       RealmsImpl(cfg, wellKnownResolver, xas, clock)
   }
 

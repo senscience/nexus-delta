@@ -82,10 +82,8 @@ object WellKnownResolver {
                 .map(_ => key)
 
           }
-          if (validKeys.isEmpty)
-            IO.raiseError(NoValidKeysFound(jwkUri))
-          else
-            IO.pure(validKeys)
+          if validKeys.isEmpty then IO.raiseError(NoValidKeysFound(jwkUri))
+          else IO.pure(validKeys)
         }
       } yield validKeys
 

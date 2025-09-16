@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.syntax
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import org.http4s.Uri
 
-trait UriSyntax extends org.http4s.syntax.LiteralsSyntax {
+trait UriSyntax {
   implicit final def uriSyntax(uri: Uri): UriOps         = new UriOps(uri)
   implicit final def pathSyntax(path: Uri.Path): PathOps = new PathOps(path)
 }

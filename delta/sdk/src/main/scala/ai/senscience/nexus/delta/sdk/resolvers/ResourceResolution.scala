@@ -88,7 +88,7 @@ object ResourceResolution {
     apply(
       aclCheck,
       resolvers,
-      fetchResource.fetch _,
+      fetchResource.fetch,
       Permissions.resources.read,
       excludeDeprecated
     )
@@ -114,7 +114,7 @@ object ResourceResolution {
     apply(
       aclCheck,
       resolvers,
-      fetchSchema.option _,
+      fetchSchema.option,
       Permissions.schemas.read,
       excludeDeprecated
     )

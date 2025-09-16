@@ -55,10 +55,8 @@ object Transactors {
 
     def jdbcUrl(access: DatabaseAccess, readOnly: Boolean) = {
       val baseUrl = s"jdbc:postgresql://${access.host}:${access.port}/${config.name}"
-      if (!readOnly && config.rewriteBatchInserts)
-        s"$baseUrl?reWriteBatchedInserts=true"
-      else
-        baseUrl
+      if !readOnly && config.rewriteBatchInserts then s"$baseUrl?reWriteBatchedInserts=true"
+      else baseUrl
     }
 
     def transactor(access: DatabaseAccess, readOnly: Boolean, poolName: String): Resource[IO, HikariTransactor[IO]] = {

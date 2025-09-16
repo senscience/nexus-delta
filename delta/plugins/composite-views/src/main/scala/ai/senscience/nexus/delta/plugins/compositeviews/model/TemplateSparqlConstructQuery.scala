@@ -17,7 +17,7 @@ object TemplateSparqlConstructQuery {
     * is a valid CONSTRUCT query
     */
   final def apply(value: String): Either[String, SparqlConstructQuery] =
-    if (!value.contains(idTemplating))
+    if !value.contains(idTemplating) then
       Left(s"Required templating '$idTemplating' in the provided SPARQL query is not found")
     else
       SparqlConstructQuery(value.replaceAll(quote(idTemplating), fakeIri.rdfFormat))

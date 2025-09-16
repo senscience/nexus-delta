@@ -38,7 +38,7 @@ object Configs {
     */
   def merge(configs: Config*): IO[Config] = IO.blocking {
     configs
-      .foldLeft(ConfigFactory.defaultOverrides())(_ withFallback _)
+      .foldLeft(ConfigFactory.defaultOverrides())(_.withFallback(_))
       .withFallback(ConfigFactory.load())
       .resolve(resolverOptions)
   }

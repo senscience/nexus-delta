@@ -28,6 +28,7 @@ import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import scala.language.adhocExtensions
 import scala.concurrent.*
 import scala.concurrent.duration.*
 import scala.util.*

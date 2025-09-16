@@ -27,7 +27,7 @@ object ProjectionType {
   /**
     * ElasticSearch projection.
     */
-  final case object ElasticSearchProjectionType extends ProjectionType {
+  case object ElasticSearchProjectionType extends ProjectionType {
 
     override val toString: String = "ElasticSearchProjection"
 
@@ -37,7 +37,7 @@ object ProjectionType {
   /**
     * SPARQL projection.
     */
-  final case object SparqlProjectionType extends ProjectionType {
+  case object SparqlProjectionType extends ProjectionType {
 
     override val toString: String = "SparqlProjection"
 

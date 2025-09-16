@@ -12,7 +12,7 @@ object ApiMappings {
     *   lazy val myProject = project.settings(Seq(
     *     apiMappings += {
     *       val scalaDocUrl = "http://scala-lang.org/api/" + scalaVersion.value + "/"
-    *       apiMappingFor((fullClasspath in Compile).value)("scala-library", scalaDocUrl)
+    *       apiMappingFor((fullClasspath in Compile).value)("scala3-library", scalaDocUrl)
     *     }
     *   ))
     * }}}

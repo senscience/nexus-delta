@@ -58,7 +58,7 @@ object IndexingViewDef {
       prefix: String
   ): Option[IndexingViewDef] =
     state.value.asIndexingValue.map { indexing =>
-      if (state.deprecated)
+      if state.deprecated then
         DeprecatedViewDef(
           ViewRef(state.project, state.id)
         )

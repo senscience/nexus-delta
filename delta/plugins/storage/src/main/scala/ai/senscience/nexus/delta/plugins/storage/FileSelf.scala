@@ -90,10 +90,8 @@ object FileSelf {
         validateSelfPrefix(input) >> parseSelf(input)
 
       private def validateSelfPrefix(self: Iri) =
-        if (self.isReference)
-          IO.raiseUnless(self.startsWith(filePrefixIri))(ExternalLink(self))
-        else
-          IO.raiseError(ParsingError.NonAbsoluteLink(self))
+        if self.isReference then IO.raiseUnless(self.startsWith(filePrefixIri))(ExternalLink(self))
+        else IO.raiseError(ParsingError.NonAbsoluteLink(self))
 
       private def parseSelf(self: Iri): IO[(ProjectRef, ResourceRef)] =
         self.stripPrefix(filePrefixIri).split('/') match {

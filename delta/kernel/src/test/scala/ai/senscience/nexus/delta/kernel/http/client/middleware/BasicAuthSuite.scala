@@ -18,7 +18,7 @@ class BasicAuthSuite extends CatsEffectSuite {
   private val realm = "test"
 
   private val authStore = (incomingCredentials: BasicCredentials) =>
-    if (incomingCredentials == validCredentials) IO.some(incomingCredentials.username)
+    if incomingCredentials == validCredentials then IO.some(incomingCredentials.username)
     else IO.none
 
   private val basicAuth = ServerBasicAuth(realm, authStore)

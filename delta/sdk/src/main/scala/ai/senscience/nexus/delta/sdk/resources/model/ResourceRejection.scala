@@ -236,7 +236,7 @@ object ResourceRejection {
     * Rejection returned when attempting to do an operation that requires an explicit schema but the schema is not
     * provided.
     */
-  final case object NoSchemaProvided extends ResourceRejection(s"A schema is required but was not provided.")
+  case object NoSchemaProvided extends ResourceRejection(s"A schema is required but was not provided.")
 
   implicit val resourceRejectionEncoder: Encoder.AsObject[ResourceRejection] =
     Encoder.AsObject.instance { r =>

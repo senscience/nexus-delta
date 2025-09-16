@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
-import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
@@ -72,7 +71,6 @@ object SparqlSlowQuery {
 
   implicit private def sparqlSlowQueryEncoder(implicit baseUri: BaseUri): Encoder.AsObject[SparqlSlowQuery] = {
     import ai.senscience.nexus.delta.sdk.implicits.*
-    implicit val subjectEncoder: Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
     Encoder.AsObject.instance { query =>
       JsonObject(
         "view"     := query.view,

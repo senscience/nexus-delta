@@ -129,7 +129,7 @@ object CompositeViewDef {
     * Create the definition from the state
     */
   def apply(state: CompositeViewState): CompositeViewDef =
-    if (state.deprecated)
+    if state.deprecated then
       DeprecatedViewDef(
         ViewRef(state.project, state.id)
       )
@@ -359,7 +359,7 @@ object CompositeViewDef {
                          )
           diffOffset   = diffMain || diffRebuild
           noRemaining <-
-            if (diffOffset)
+            if diffOffset then
               graphStream.remaining(s, view.ref.project)(offset).map(r => r.isEmpty || r.exists(_.count == 0L))
             else IO.pure(false)
           _           <- test(noRemaining, s"The main branch for source '${s.id}' in view '${view.ref}' completed indexing.")

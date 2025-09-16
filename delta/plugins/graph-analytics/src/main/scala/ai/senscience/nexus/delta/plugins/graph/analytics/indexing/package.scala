@@ -3,15 +3,13 @@ package ai.senscience.nexus.delta.plugins.graph.analytics
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
-import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.IO
 import io.circe.JsonObject
-import org.typelevel.log4cats
 
 package object indexing {
 
-  implicit private val logger: log4cats.Logger[IO] = Logger[GraphAnalytics]
-  private val loader                               = ClasspathResourceLoader.withContext(classOf[GraphAnalyticsPluginModule])
+  private val logger = Logger[GraphAnalytics]
+  private val loader = ClasspathResourceLoader.withContext(classOf[GraphAnalyticsPluginModule])
 
   val updateRelationshipsScriptId = "updateRelationships"
 
@@ -34,7 +32,9 @@ package object indexing {
       "size"       -> config.size,
       "type"       -> "{{type}}"
     )
-    .logErrors("ElasticSearch 'paths-properties-aggregations.json' template not found")
+    .onError { err =>
+      logger.error(err)("ElasticSearch 'paths-properties-aggregations.json' template not found")
+    }
 
   def relationshipsAggQuery(config: TermAggregationsConfig): IO[JsonObject] =
     loader
@@ -43,6 +43,7 @@ package object indexing {
         "shard_size" -> config.shardSize,
         "size"       -> config.size
       )
-      .logErrors("ElasticSearch 'paths-relationships-aggregations.json' template not found")
-
+      .onError { err =>
+        logger.error(err)("ElasticSearch 'paths-relationships-aggregations.json' template not found")
+      }
 }

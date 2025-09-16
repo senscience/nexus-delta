@@ -20,7 +20,7 @@ trait Generators {
 
     @tailrec
     def inner(acc: String, remaining: Int): String =
-      if (remaining <= 0) acc
+      if remaining <= 0 then acc
       else inner(acc + pool(Random.nextInt(size)), remaining - 1)
 
     inner("", length)

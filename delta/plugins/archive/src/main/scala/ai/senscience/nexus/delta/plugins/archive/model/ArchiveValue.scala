@@ -49,7 +49,7 @@ object ArchiveValue {
       )
     }
 
-    if (duplicates.nonEmpty || invalids.nonEmpty || longIds.nonEmpty)
+    if duplicates.nonEmpty || invalids.nonEmpty || longIds.nonEmpty then
       Left(InvalidResourceCollection(duplicates, invalids, longIds))
     else Right(unsafe(resources))
   }

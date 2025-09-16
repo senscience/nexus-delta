@@ -58,7 +58,7 @@ object Arithmetic {
 
     final case class Boom(message: String) extends ArithmeticCommand
 
-    final case object Never extends ArithmeticCommand
+    case object Never extends ArithmeticCommand
   }
 
   sealed trait ArithmeticEvent extends GlobalEvent {
@@ -91,7 +91,7 @@ object Arithmetic {
   }
 
   object ArithmeticRejection {
-    final case object NotFound                                          extends ArithmeticRejection
+    case object NotFound                                                extends ArithmeticRejection
     final case class RevisionNotFound(provided: Int, current: Int)      extends ArithmeticRejection
     final case class AlreadyExists(id: Iri, command: ArithmeticCommand) extends ArithmeticRejection
     final case class NegativeTotal(invalidValue: Int)                   extends ArithmeticRejection

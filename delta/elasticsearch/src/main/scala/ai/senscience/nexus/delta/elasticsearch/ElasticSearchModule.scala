@@ -350,7 +350,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   make[MetadataContextValue]
     .named("search-metadata")
-    .from((agg: Set[MetadataContextValue]) => agg.foldLeft(MetadataContextValue.empty)(_ merge _))
+    .from((agg: Set[MetadataContextValue]) => agg.foldLeft(MetadataContextValue.empty)(_.merge(_)))
 
   make[MetadataContextValue]
     .named("indexing-metadata")
@@ -360,7 +360,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       }))
     }
 
-  many[SseEncoder[?]].add { base: BaseUri => ElasticSearchViewEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => ElasticSearchViewEvent.sseEncoder(base) }
 
   many[RemoteContextResolution].addEffect {
     (

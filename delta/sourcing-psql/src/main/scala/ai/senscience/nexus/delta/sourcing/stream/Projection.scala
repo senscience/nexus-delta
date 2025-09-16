@@ -137,7 +137,7 @@ object Projection {
           .drain
       // update status to Running at the beginning and to Completed at the end if it's still running
       task         = status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
-                       if (s.isRunning) ExecutionStatus.Completed else s
+                       if s.isRunning then ExecutionStatus.Completed else s
                      )
       fiber       <- task.start
       fiberRef    <- Ref[IO].of(fiber)

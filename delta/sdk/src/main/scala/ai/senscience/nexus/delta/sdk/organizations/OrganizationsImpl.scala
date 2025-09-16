@@ -57,7 +57,7 @@ final class OrganizationsImpl private (
 
   override def fetchAt(label: Label, rev: Int): IO[OrganizationResource] = {
     log
-      .stateOr(label, rev, OrganizationNotFound(label), RevisionNotFound)
+      .stateOr(label, rev, OrganizationNotFound(label), RevisionNotFound(_, _))
       .map(_.toResource)
       .span("fetchOrganizationAt")
   }

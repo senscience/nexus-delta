@@ -172,8 +172,8 @@ trait ElasticSearchViewsDirectives extends UriDirectives {
       baseUri: BaseUri
   ): Directive[(ResourcesSearchParams, SortList)] =
     (searchParameters(baseUri) & sortList).tflatMap { case (params, sortList) =>
-      if (params.q.isDefined && !sortList.isEmpty) reject(simultaneousSortAndQRejection)
-      else if (params.q.isEmpty && sortList.isEmpty) tprovide((params, SortList.byCreationDateAndId))
+      if params.q.isDefined && !sortList.isEmpty then reject(simultaneousSortAndQRejection)
+      else if params.q.isEmpty && sortList.isEmpty then tprovide((params, SortList.byCreationDateAndId))
       else tprovide((params, sortList))
     }
 
@@ -186,8 +186,8 @@ trait ElasticSearchViewsDirectives extends UriDirectives {
       pc: ProjectContext
   ): Directive[(ResourcesSearchParams, SortList)] =
     (searchParameters(baseUri, pc) & sortList).tflatMap { case (params, sortList) =>
-      if (params.q.isDefined && !sortList.isEmpty) reject(simultaneousSortAndQRejection)
-      else if (params.q.isEmpty && sortList.isEmpty) tprovide((params, SortList.byCreationDateAndId))
+      if params.q.isDefined && !sortList.isEmpty then reject(simultaneousSortAndQRejection)
+      else if params.q.isEmpty && sortList.isEmpty then tprovide((params, SortList.byCreationDateAndId))
       else tprovide((params, sortList))
     }
 

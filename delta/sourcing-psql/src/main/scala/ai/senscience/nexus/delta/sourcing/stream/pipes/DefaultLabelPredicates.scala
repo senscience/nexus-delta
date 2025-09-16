@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.*
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.stream.pipes.SelectPredicates.SelectPredicatesConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeDef, PipeRef}
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that transforms the resource graph keeping only the specific predicates defined in

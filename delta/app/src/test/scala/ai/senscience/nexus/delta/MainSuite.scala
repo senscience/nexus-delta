@@ -35,7 +35,7 @@ class MainSuite extends NexusSuite with MainSuite.Fixture {
   override def munitFixtures: Seq[AnyFixture[?]] = List(main)
 
   test("ensure the plugin jar files have been copied correctly") {
-    if (Files.list(pluginsParentPath).toArray.length == 0)
+    if Files.list(pluginsParentPath).toArray.length == 0 then
       fail(s"No plugin jar files were found in '$pluginsParentPath'")
   }
 

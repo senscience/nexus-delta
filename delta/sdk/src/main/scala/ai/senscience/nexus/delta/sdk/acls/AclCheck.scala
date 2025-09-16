@@ -171,10 +171,8 @@ object AclCheck {
       values.toList.foldLeftM(Set.empty[B]) { case (acc, value) =>
         val (address, permission) = extractAddressPermission(value)
         authorizeFor(address, permission, caller.identities).flatMap { success =>
-          if (success)
-            IO.pure(acc + onAuthorized(value))
-          else
-            onFailure(address) >> IO.pure(acc)
+          if success then IO.pure(acc + onAuthorized(value))
+          else onFailure(address) >> IO.pure(acc)
         }
       }
 
@@ -188,10 +186,8 @@ object AclCheck {
       values.toList.foldLeftM(Set.empty[B]) { case (acc, value) =>
         val permission = extractPermission(value)
         authorizeFor(address, permission, caller.identities).flatMap { success =>
-          if (success)
-            IO.pure(acc + onAuthorized(value))
-          else
-            onFailure(address) >> IO.pure(acc)
+          if success then IO.pure(acc + onAuthorized(value))
+          else onFailure(address) >> IO.pure(acc)
         }
       }
   }

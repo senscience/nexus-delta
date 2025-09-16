@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.*
-import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.testkit.CirceEq
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.syntax.*
+import org.http4s.syntax.literals.uri
 
 class SparqlResultsSpec extends CatsEffectSpec with CirceEq {
 

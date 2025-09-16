@@ -3,13 +3,11 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import fs2.io.file.Path
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredEncoder}
 import io.circe.syntax.*
 import io.circe.{Codec, Encoder}
-
-import java.io.File
-import scala.reflect.io.Directory
 
 sealed trait StorageValue extends Product with Serializable {
 
@@ -83,8 +81,8 @@ object StorageValue {
 
     override val tpe: StorageType = StorageType.DiskStorage
 
-    def rootDirectory(project: ProjectRef): Directory =
-      new Directory(new File(volume.value.toFile, project.toString))
+    def rootDirectory(project: ProjectRef): Path =
+      Path.fromNioPath(volume.value.resolve(project.toString))
   }
 
   object DiskStorageValue {
@@ -157,7 +155,6 @@ object StorageValue {
     }
   }
 
-  @SuppressWarnings(Array("TryGet"))
   def databaseCodec(implicit configuration: Configuration): Codec.AsObject[StorageValue] =
     deriveConfiguredCodec[StorageValue]
 

@@ -26,7 +26,7 @@ object MainIndexingCoordinator {
   private val logger = Logger[MainIndexingCoordinator]
 
   /** If indexing is disabled we can only log */
-  final private case object Noop extends MainIndexingCoordinator {
+  private case object Noop extends MainIndexingCoordinator {
     def log: IO[Unit] =
       logger.info("Main indexing has been disabled via config")
 
@@ -112,7 +112,7 @@ object MainIndexingCoordinator {
       batch: BatchConfig,
       indexingEnabled: Boolean
   )(implicit cr: RemoteContextResolution): IO[MainIndexingCoordinator] =
-    if (indexingEnabled) {
+    if indexingEnabled then {
       val targetIndex = mainIndex.name
 
       def fetchProjects(offset: Offset) =

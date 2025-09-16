@@ -51,7 +51,7 @@ class GlobalStateStoreSuite extends NexusSuite with Doobie.Fixture with Doobie.A
   }
 
   test("List ids") {
-    GlobalStateStore.listIds(Arithmetic.entityType, xas.read).assert(List(id1, id2))
+    GlobalStateStore.listIds(Arithmetic.entityType, xas.read).assert(id1, id2)
   }
 
   test("get state 1") {

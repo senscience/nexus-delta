@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEn
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.otel.OpenTelemetryInit
+import ai.senscience.nexus.delta.otel.OpenTelemetry
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -30,7 +30,6 @@ import cats.data.NonEmptyList
 import cats.effect.{Clock, IO, Sync}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
-import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
   * Complete service wiring definitions.
@@ -59,9 +58,11 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
   makeConfig[ProjectLastUpdateConfig]("app.project-last-update")
   makeConfig[ServiceAccount]("app.service-account")
 
-  make[OtelJava[IO]].fromResource(OpenTelemetryInit(_))
+  make[OpenTelemetry].fromResource { (description: DescriptionConfig) =>
+    OpenTelemetry(description)
+  }
 
-  make[Transactors].fromResource { config: DatabaseConfig => Transactors(config) }
+  make[Transactors].fromResource { (config: DatabaseConfig) => Transactors(config) }
 
   make[DatabasePartitioner].fromEffect { (config: DatabaseConfig, xas: Transactors) =>
     DatabasePartitioner(config.partitionStrategy, xas)
@@ -128,7 +129,7 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
   )
 
   makeConfig[JWSConfig]("app.jws")
-  make[JWSPayloadHelper].from { config: JWSConfig =>
+  make[JWSPayloadHelper].from { (config: JWSConfig) =>
     JWSPayloadHelper(config)
   }
 
