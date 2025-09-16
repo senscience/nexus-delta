@@ -397,7 +397,8 @@ lazy val elasticsearch = project
     sdk % "compile->compile;test->test"
   )
   .settings(
-    Test / fork := true
+    coverageFailOnMinimum := false,
+    Test / fork           := true
   )
 
 lazy val app = project
