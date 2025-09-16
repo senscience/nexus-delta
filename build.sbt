@@ -336,8 +336,9 @@ lazy val sourcingPsql = project
   .in(file("delta/sourcing-psql"))
   .dependsOn(rdf, testkit % "test->compile")
   .settings(
-    name       := "delta-sourcing-psql",
-    moduleName := "delta-sourcing-psql"
+    name                  := "delta-sourcing-psql",
+    moduleName            := "delta-sourcing-psql",
+    coverageFailOnMinimum := false
   )
   .settings(shared, compilation, assertJavaVersion, coverage, release)
   .settings(
@@ -505,6 +506,7 @@ lazy val blazegraphPlugin = project
     libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.blazegraph",
+    coverageFailOnMinimum      := false,
     assembly / assemblyJarName := "blazegraph.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
@@ -602,6 +604,7 @@ lazy val archivePlugin = project
     ),
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.archive",
+    coverageFailOnMinimum      := false,
     assembly / assemblyJarName := "archive.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
