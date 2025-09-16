@@ -336,18 +336,18 @@ lazy val sourcingPsql = project
   .in(file("delta/sourcing-psql"))
   .dependsOn(rdf, testkit % "test->compile")
   .settings(
-    name                  := "delta-sourcing-psql",
-    moduleName            := "delta-sourcing-psql",
-    coverageFailOnMinimum := false
+    name       := "delta-sourcing-psql",
+    moduleName := "delta-sourcing-psql"
   )
   .settings(shared, compilation, assertJavaVersion, coverage, release)
   .settings(
-    libraryDependencies ++= Seq(
+    libraryDependencies  ++= Seq(
       classgraph,
       distageCore,
       shapeless3Typeable
     ) ++ doobie,
-    Test / fork          := true
+    coverageFailOnMinimum := false,
+    Test / fork           := true
   )
 
 lazy val rdf = project
