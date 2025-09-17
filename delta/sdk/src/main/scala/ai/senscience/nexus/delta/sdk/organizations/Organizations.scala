@@ -188,7 +188,7 @@ object Organizations {
         case Some(s) if c.rev != s.rev => IO.raiseError(IncorrectRev(c.rev, s.rev))
         case Some(s) if s.deprecated   =>
           IO.raiseError(OrganizationIsDeprecated(s.label)) // remove this check if we want to allow un-deprecate
-        case Some(s) =>
+        case Some(s)                   =>
           clock.realTimeInstant.map(OrganizationUpdated(s.label, s.uuid, s.rev + 1, c.description, _, c.subject))
       }
 
