@@ -57,29 +57,6 @@ object RetryStrategy {
       logger.error(message)
   }
 
-  /**
-    * Retry at a constant interval
-    * @param constant
-    *   the interval before a retry will be attempted
-    * @param maxRetries
-    *   the maximum number of retries
-    * @param retryWhen
-    *   the errors we are willing to retry for
-    * @param onError
-    *   what action to perform on error
-    */
-  def constant(
-      constant: FiniteDuration,
-      maxRetries: Int,
-      retryWhen: Throwable => Boolean,
-      onError: (Throwable, RetryDetails) => IO[Unit]
-  ): RetryStrategy =
-    RetryStrategy(
-      RetryStrategyConfig.ConstantStrategyConfig(constant, maxRetries),
-      retryWhen,
-      onError
-    )
-
   def retryOnNonFatal(
       config: RetryStrategyConfig,
       logger: Logger[IO],

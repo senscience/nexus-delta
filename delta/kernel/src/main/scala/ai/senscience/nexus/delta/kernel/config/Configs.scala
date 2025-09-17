@@ -33,6 +33,9 @@ object Configs {
   def parseReader(reader: Reader): IO[Config] =
     IO.blocking(ConfigFactory.parseReader(reader, parseOptions))
 
+  def parseString(s: String): Config =
+    ConfigFactory.parseString(s, parseOptions)
+
   /**
     * Merge the configs in order and load the namespace according to the config reader
     */
