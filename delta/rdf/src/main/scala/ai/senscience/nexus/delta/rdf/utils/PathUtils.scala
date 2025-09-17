@@ -15,8 +15,8 @@ object PathUtils {
   @tailrec
   @SuppressWarnings(Array("NullParameter"))
   private def inner(parent: Path, child: Path): Boolean = {
-    if (child == null) false
-    else if (parent == child) true
+    if child == null then false
+    else if parent == child then true
     else inner(parent, child.getParent)
   }
 }

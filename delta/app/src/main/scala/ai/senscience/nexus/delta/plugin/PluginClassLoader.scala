@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugin
 
-import java.net.URL
-import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
+import java.net.{URL, URLClassLoader}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -9,11 +8,19 @@ import scala.util.{Failure, Success, Try}
   *
   * Inspired by https://github.com/pf4j/pf4j/blob/master/pf4j/src/main/java/org/pf4j/PluginClassLoader.java
   */
-class PluginClassLoader(url: URL, parent: ClassLoader) extends URLClassLoader(Seq(url), parent) {
+class PluginClassLoader(url: URL, parent: ClassLoader) extends URLClassLoader(Array(url), parent) {
 
   override def toString: String = s"plugin_$url"
 
   override def getName: String = toString
+
+  def create[T](path: String): Option[T] = {
+    val clazz      = loadClass(path)
+    val contructor = clazz.getDeclaredConstructors.find(_.getParameterCount == 0)
+    contructor.map { ct =>
+      ct.newInstance().asInstanceOf[T]
+    }
+  }
 
   /**
     * Loads the class with the specified class name.

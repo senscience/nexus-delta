@@ -19,7 +19,7 @@ sealed trait GraphAnalyticsCoordinator
 object GraphAnalyticsCoordinator {
 
   /** If indexing is disabled we can only log */
-  final private case object Noop extends GraphAnalyticsCoordinator {
+  private case object Noop extends GraphAnalyticsCoordinator {
     def log: IO[Unit] =
       logger.info("Graph Analytics indexing has been disabled via config")
   }
@@ -129,7 +129,7 @@ object GraphAnalyticsCoordinator {
       client: ElasticSearchClient,
       config: GraphAnalyticsConfig
   ): IO[GraphAnalyticsCoordinator] =
-    if (config.indexingEnabled) {
+    if config.indexingEnabled then {
       val coordinator = apply(
         projects.states(_).map(_.map { p => ProjectDef(p.project, p.markedForDeletion) }),
         analyticsStream,

@@ -112,7 +112,7 @@ object BlazegraphViewValue {
       view2: IndexingBlazegraphViewValue,
       currentRev: Int
   ): Int =
-    if (!view1.hasSameIndexingFields(view2)) currentRev + 1
+    if !view1.hasSameIndexingFields(view2) then currentRev + 1
     else currentRev
 
   /**

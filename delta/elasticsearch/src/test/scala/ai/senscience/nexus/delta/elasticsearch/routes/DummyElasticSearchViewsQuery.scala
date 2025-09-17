@@ -28,9 +28,8 @@ private[routes] class DummyElasticSearchViewsQuery(views: ElasticSearchViews) ex
     for {
       view <- views.fetch(id, project)
       _    <- IO.raiseWhen(view.deprecated)(ViewIsDeprecated(view.id))
-    } yield json"""{"id": "$id", "project": "$project"}""" deepMerge toJsonObject(
-      qp.params
-    ).asJson deepMerge query.asJson
+    } yield json"""{"id": "$id", "project": "$project"}"""
+      .deepMerge(toJsonObject(qp.params).asJson.deepMerge(query.asJson))
   }
 
   override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit

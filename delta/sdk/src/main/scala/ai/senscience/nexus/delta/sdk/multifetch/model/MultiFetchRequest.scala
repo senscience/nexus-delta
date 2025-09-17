@@ -13,7 +13,7 @@ import io.circe.Decoder
   * @param resources
   *   the list of resources
   */
-final case class MultiFetchRequest(format: ResourceRepresentation, resources: NonEmptyList[Input]) {}
+final case class MultiFetchRequest(format: ResourceRepresentation, resources: NonEmptyList[Input])
 
 object MultiFetchRequest {
 
@@ -25,8 +25,8 @@ object MultiFetchRequest {
   implicit val multiFetchRequestDecoder: Decoder[MultiFetchRequest] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val cfg: Configuration = Configuration.default
-    implicit val inputDecoder       = deriveConfiguredDecoder[Input]
+    implicit val cfg: Configuration           = Configuration.default
+    implicit val inputDecoder: Decoder[Input] = deriveConfiguredDecoder[Input]
     deriveConfiguredDecoder[MultiFetchRequest]
   }
 

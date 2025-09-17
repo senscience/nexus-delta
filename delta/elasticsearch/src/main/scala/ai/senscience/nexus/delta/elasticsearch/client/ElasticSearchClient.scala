@@ -179,7 +179,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     *   the value for the `refresh` Elasticsearch parameter
     */
   def bulk(actions: Seq[ElasticSearchAction], refresh: Refresh = Refresh.False): IO[BulkResponse] = {
-    if (actions.isEmpty) IO.pure(BulkResponse.Success)
+    if actions.isEmpty then IO.pure(BulkResponse.Success)
     else {
       val payload      = actions.map(_.payload).mkString("", newLine, newLine)
       val bulkEndpoint = (endpoint / bulkPath).withQueryParam(refreshParam, refresh.value)
@@ -292,7 +292,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   )(
       sort: SortList = SortList.empty
   ): IO[Json] =
-    if (indices.isEmpty) IO.pure(emptyResults)
+    if indices.isEmpty then IO.pure(emptyResults)
     else {
       val (indexPath, q) = indexPathAndQuery(indices, QueryBuilder(query))
       val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
@@ -315,8 +315,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       indices: Set[String],
       qp: Query
   )(onEmpty: => T): IO[T] =
-    if (indices.isEmpty)
-      IO.pure(onEmpty)
+    if indices.isEmpty then IO.pure(onEmpty)
     else {
       val (indexPath, q) = indexPathAndQuery(indices, query)
       val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
@@ -405,7 +404,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
 
   private def indexPathAndQuery(indices: Set[String], query: QueryBuilder): (String, QueryBuilder) = {
     val indexPath = indices.mkString(",")
-    if (indexPath.length < maxIndexPathLength) (indexPath, query)
+    if indexPath.length < maxIndexPathLength then (indexPath, query)
     else (allIndexPath, query.withIndices(indices))
   }
 

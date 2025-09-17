@@ -35,7 +35,7 @@ final class PermissionsImpl private (
         labelId,
         rev,
         UnexpectedState,
-        RevisionNotFound
+        RevisionNotFound(_, _)
       )
       .map(_.toResource(minimum))
       .span("fetchPermissionsAt")

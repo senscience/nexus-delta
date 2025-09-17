@@ -155,8 +155,8 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
         val id           = `@id`.getOption(payload).value
         val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-        val projectId    = if (i > 5) project2 else project1
-        val indexingMode = if (i % 2 == 0) "sync" else "async"
+        val projectId    = if i > 5 then project2 else project1
+        val indexingMode = if i % 2 == 0 then "sync" else "async"
 
         deltaClient.put[Json](
           s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode",
@@ -214,8 +214,8 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     }
 
     val sort             = json"""{ "sort": [{ "name.raw": { "order": "asc" } }] }"""
-    val sortedMatchCells = json"""{ "query": { "term": { "@type": "Cell" } } }""" deepMerge sort
-    val matchAll         = json"""{ "query": { "match_all": {} } }""" deepMerge sort
+    val sortedMatchCells = json"""{ "query": { "term": { "@type": "Cell" } } }""".deepMerge(sort)
+    val matchAll         = json"""{ "query": { "match_all": {} } }""".deepMerge(sort)
 
     "search instances on project 1 in cell-view" in eventually {
       deltaClient.post[Json](s"/views/$project1/test-resource:cell-view/_search", sortedMatchCells, ScoobyDoo) {

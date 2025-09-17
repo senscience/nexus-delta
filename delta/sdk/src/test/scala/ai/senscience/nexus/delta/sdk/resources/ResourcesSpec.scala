@@ -376,7 +376,7 @@ class ResourcesSpec extends CatsEffectSpec with CirceLiteral with ValidateResour
 
       "create a new ResourceUpdated state" in {
         val newTypes  = types + (nxv + "Other")
-        val newSource = source deepMerge Json.obj("key" := "value")
+        val newSource = source.deepMerge(Json.obj("key" := "value"))
         next(
           None,
           ResourceUpdated(

@@ -115,7 +115,7 @@ object IncomingOutgoingLinks {
       for {
         iri          <- expandResourceIri(resourceId, project)
         namespace    <- fetchDefaultNamespace(project)
-        queryTemplate = if (includeExternalLinks) queries.outgoingWithExternal else queries.outgoingScoped
+        queryTemplate = if includeExternalLinks then queries.outgoingWithExternal else queries.outgoingScoped
         q             = SparqlQuery(replace(queryTemplate, iri, pagination))
         bindings     <- client.query(Set(namespace), q, SparqlResultsJson)
         links         = toSparqlLinks(bindings.value)

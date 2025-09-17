@@ -15,7 +15,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.{IO, Ref}
 import fs2.Stream
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 import scala.concurrent.duration.*
 

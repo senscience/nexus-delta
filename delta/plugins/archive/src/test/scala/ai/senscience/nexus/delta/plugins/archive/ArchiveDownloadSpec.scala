@@ -43,11 +43,14 @@ import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.testkit.TestKit
 import org.apache.pekko.util.ByteString
 import org.http4s.Uri
+import org.http4s.syntax.literals.uri
 import org.scalactic.source.Position
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
+
+import language.adhocExtensions
 
 class ArchiveDownloadSpec
     extends TestKit(ActorSystem())
@@ -208,9 +211,9 @@ class ArchiveDownloadSpec
           )
         )
         val result       = downloadAndExtract(value, ignoreNotFound = false)
-        if (repr == Dot) {
+        if repr == Dot then {
           result(resourcePath.value.toString).contains(s"""digraph "$id1"""") shouldEqual true
-        } else if (repr == NTriples || repr == NQuads) {
+        } else if repr == NTriples || repr == NQuads then {
           result(resourcePath.value.toString).contains(s"""<$id1>""") shouldEqual true
         } else {
           val expected = Map(

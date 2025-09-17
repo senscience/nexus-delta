@@ -143,7 +143,7 @@ object PermissionsRoutes {
 
     implicit val patchPermissionsDecoder: Decoder[PatchPermissions] =
       Decoder.instance { hc =>
-        deriveConfiguredDecoder[PatchPermissions].decodeJson(replacedType deepMerge hc.value)
+        deriveConfiguredDecoder[PatchPermissions].decodeJson(replacedType.deepMerge(hc.value))
       }
   }
 

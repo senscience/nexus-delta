@@ -35,7 +35,7 @@ object FetchSchema {
       {
         ref match {
           case Latest(iri)           => log.stateOr(project, iri, notFound(iri, project))
-          case Revision(_, iri, rev) => log.stateOr(project, iri, rev, notFound(iri, project), RevisionNotFound)
+          case Revision(_, iri, rev) => log.stateOr(project, iri, rev, notFound(iri, project), RevisionNotFound(_, _))
           case Tag(_, iri, tag)      => log.stateOr(project, iri, tag, notFound(iri, project), TagNotFound(tag))
         }
       }.map(_.toResource)

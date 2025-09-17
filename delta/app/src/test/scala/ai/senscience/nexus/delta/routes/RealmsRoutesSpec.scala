@@ -68,11 +68,10 @@ class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IO
     "userInfoEndpoint"      -> githubWk.userInfoEndpoint,
     "revocationEndpoint"    -> githubWk.revocationEndpoint.value,
     "endSessionEndpoint"    -> githubWk.endSessionEndpoint.value
-  ) deepMerge githubCreatedMeta.removeKeys("@context")
+  ).deepMerge(githubCreatedMeta.removeKeys("@context"))
 
-  private val githubUpdated = githubCreated deepMerge
-    json"""{"name": "updated"}""" deepMerge
-    githubUpdatedMeta.removeKeys("@context")
+  private val githubUpdated =
+    githubCreated.deepMerge(json"""{"name": "updated"}""".deepMerge(githubUpdatedMeta.removeKeys("@context")))
 
   private val gitlabCreated = jsonContentOf(
     "realms/realm-resource.json",
@@ -86,7 +85,7 @@ class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IO
     "userInfoEndpoint"      -> gitlabWk.userInfoEndpoint,
     "revocationEndpoint"    -> gitlabWk.revocationEndpoint.value,
     "endSessionEndpoint"    -> gitlabWk.endSessionEndpoint.value
-  ) deepMerge gitlabCreatedMeta
+  ).deepMerge(gitlabCreatedMeta)
 
   "A RealmsRoute" should {
 

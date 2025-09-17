@@ -45,7 +45,7 @@ object CompositeViewFactory {
       sources             <- fields.sources.traverse { upsert(_, current.sources.lookup) }.map(_.toNem)
       // If any source has changed, we update the indexing rev for sources
       sourceHasChanged     = current.sources != sources
-      newSourceIndexingRev = if (sourceHasChanged) nextRev else current.sourceIndexingRev
+      newSourceIndexingRev = if sourceHasChanged then nextRev else current.sourceIndexingRev
       projections         <- fields.projections
                                .traverse {
                                  upsert(_, current.projections.lookup, nextRev, sourceHasChanged)
@@ -113,7 +113,7 @@ object CompositeViewFactory {
           val newProjection  =
             input.toProjection(currentProjection.uuid, currentProjection.id, currentProjection.indexingRev)
           val newIndexingRev =
-            if (sourceHasChanged || currentProjection != newProjection) newRev else currentProjection.indexingRev
+            if sourceHasChanged || currentProjection != newProjection then newRev else currentProjection.indexingRev
           currentProjection.id -> newProjection.updateIndexingRev(newIndexingRev)
         }
       }

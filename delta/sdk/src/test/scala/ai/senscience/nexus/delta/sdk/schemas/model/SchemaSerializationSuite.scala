@@ -26,7 +26,8 @@ class SchemaSerializationSuite extends SerializationSuite {
     myId,
     projectRef,
     jsonContentOf("resources/schema.json")
-      .addContext(contexts.shacl, contexts.schemasMetadata) deepMerge json"""{"@id": "$myId"}"""
+      .addContext(contexts.shacl, contexts.schemasMetadata)
+      .deepMerge(json"""{"@id": "$myId"}""")
   )
 
   private val created      =

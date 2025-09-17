@@ -54,7 +54,7 @@ object ElasticSearchAction {
   }
   final case class Update(index: IndexLabel, id: String, routing: Option[String], content: Json, retry: Int = 0)
       extends ElasticSearchAction {
-    val modified = if (retry > 0) json deepMerge Json.obj("retry_on_conflict" -> retry.asJson) else json
+    val modified = if retry > 0 then json.deepMerge(Json.obj("retry_on_conflict" -> retry.asJson)) else json
 
     def payload: String = Json.obj("update" -> modified).noSpaces + newLine + content.asJson.noSpaces
   }

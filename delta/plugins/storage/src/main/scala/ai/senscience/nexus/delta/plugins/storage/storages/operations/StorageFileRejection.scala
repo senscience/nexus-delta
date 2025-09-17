@@ -95,7 +95,7 @@ object StorageFileRejection {
     /**
       * Rejection returned when a file can not be saved because content-length is not provided
       */
-    final case object FileContentLengthIsMissing
+    case object FileContentLengthIsMissing
         extends SaveFileRejection(
           s"'${NexusHeaders.fileContentLength}' must be supplied when uploading a file to a S3 storage."
         )
@@ -116,7 +116,7 @@ object StorageFileRejection {
 
   object LinkFileRejection {
 
-    final case object Disabled extends LinkFileRejection(s"Linking a file is disabled")
+    case object Disabled extends LinkFileRejection(s"Linking a file is disabled")
 
     final case class InvalidPath(path: Uri.Path)
         extends LinkFileRejection(s"An S3 path must contain at least the filename. Path was $path")

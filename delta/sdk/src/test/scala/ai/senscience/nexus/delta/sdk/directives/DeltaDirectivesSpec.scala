@@ -35,6 +35,7 @@ import org.apache.pekko.http.scaladsl.model.headers.*
 import org.apache.pekko.http.scaladsl.model.headers.HttpEncodings.gzip
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
+import org.http4s.syntax.literals.uri
 import org.scalatest.Inspectors
 
 import java.time.Instant

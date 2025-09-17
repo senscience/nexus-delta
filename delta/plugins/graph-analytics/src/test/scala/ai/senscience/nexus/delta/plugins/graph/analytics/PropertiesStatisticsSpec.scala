@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatist
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
+import io.circe.Decoder
 
 class PropertiesStatisticsSpec extends CatsEffectSpec with ContextFixtures {
 
@@ -16,7 +17,8 @@ class PropertiesStatisticsSpec extends CatsEffectSpec with ContextFixtures {
     val expected     = jsonContentOf("properties-tree.json")
 
     "be converted from Elasticsearch response to client response" in {
-      implicit val d = propertiesDecoderFromEsAggregations(iri"https://neuroshapes.org/Trace")
+      implicit val d: Decoder[PropertiesStatistics] =
+        propertiesDecoderFromEsAggregations(iri"https://neuroshapes.org/Trace")
       responseJson.as[PropertiesStatistics].rightValue.toCompactedJsonLd.accepted.json shouldEqual expected
     }
   }

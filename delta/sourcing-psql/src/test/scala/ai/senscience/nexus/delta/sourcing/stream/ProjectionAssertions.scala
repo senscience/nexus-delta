@@ -6,7 +6,7 @@ import cats.effect.IO
 import munit.{Assertions, CatsEffectAssertions, Location}
 
 trait ProjectionAssertions extends CatsEffectEventually {
-  self: Assertions with CatsEffectAssertions =>
+  self: Assertions & CatsEffectAssertions =>
 
   /**
     * Wait for the given project to complete its execution on the supervisor

@@ -51,9 +51,9 @@ object RdfRejectionHandler {
       .handle { case r: CircuitBreakerOpenRejection => discardEntityAndForceEmit(r) }
       .handle { case r: UnsatisfiableRangeRejection => discardEntityAndForceEmit(r) }
       .handleAll[Reject[?]] {
-        case Seq(head)                   => head.forceComplete
-        case multiple @ Seq(head, _ @_*) => discardEntityAndForceEmit(head.status, multiple)
-        case _                           => discardEntityAndForceEmit(StatusCodes.InternalServerError, RejectionExpected)
+        case Seq(head)                => head.forceComplete
+        case multiple @ Seq(head, _*) => discardEntityAndForceEmit(head.status, multiple)
+        case _                        => discardEntityAndForceEmit(StatusCodes.InternalServerError, RejectionExpected)
       }
       .handleAll[AuthenticationFailedRejection] { rejections => discardEntityAndForceEmit(rejections) }
       .handleAll[UnacceptedResponseContentTypeRejection] { discardEntityAndForceEmit(_) }
@@ -65,7 +65,8 @@ object RdfRejectionHandler {
       .handle { case r: ValidationRejection => discardEntityAndForceEmit(r) }
       .handle { case ResourceNotFound => discardEntityAndForceEmit(StatusCodes.NotFound, ResourceNotFound) }
       .handleNotFound { discardEntityAndForceEmit(StatusCodes.NotFound, ResourceNotFound) }
-      .result() withFallback RejectionHandler.default
+      .result()
+      .withFallback(RejectionHandler.default)
 
   private val bnode = BNode.random
 
@@ -186,7 +187,7 @@ object RdfRejectionHandler {
     Encoder.AsObject.instance { rejection =>
       val unsupported = rejection.contentType.fold("")(_.toString)
       val supported   = rejection.supported.mkString(" or ")
-      val expected    = if (supported.isEmpty) "" else s" Expected: $supported"
+      val expected    = if supported.isEmpty then "" else s" Expected: $supported"
       jsonObj(rejection, s"The request's Content-Type $unsupported is not supported.$expected")
     }
 
@@ -195,7 +196,7 @@ object RdfRejectionHandler {
     Encoder.AsObject.instance { rejections =>
       val unsupported = rejections.find(_.contentType.isDefined).flatMap(_.contentType).fold("")(" [" + _ + "]")
       val supported   = rejections.flatMap(_.supported).mkString(" or ")
-      val expected    = if (supported.isEmpty) "" else s" Expected: $supported"
+      val expected    = if supported.isEmpty then "" else s" Expected: $supported"
       jsonObj(rejections.head, s"The request's Content-Type $unsupported is not supported.$expected")
     }
 
@@ -372,17 +373,13 @@ object RdfRejectionHandler {
     HttpResponseFields(_ => StatusCodes.InternalServerError)
 
   implicit private[marshalling] val tooManyRangesEncoder: Encoder.AsObject[TooManyRangesRejection] =
-    Encoder.AsObject.instance { r: TooManyRangesRejection =>
-      jsonObj(r, "Request contains too many ranges")
-    }
+    Encoder.AsObject.instance { r => jsonObj(r, "Request contains too many ranges") }
 
   implicit private val tooManyRangesResponseFields: HttpResponseFields[TooManyRangesRejection] =
     HttpResponseFields(_ => StatusCodes.RangeNotSatisfiable)
 
   implicit private[marshalling] val circuitBreakerEncoder: Encoder.AsObject[CircuitBreakerOpenRejection] =
-    Encoder.AsObject.instance { r: CircuitBreakerOpenRejection =>
-      jsonObj(r, "")
-    }
+    Encoder.AsObject.instance { r => jsonObj(r, "") }
 
   implicit private val circuitBreakerResponseFields: HttpResponseFields[CircuitBreakerOpenRejection] =
     HttpResponseFields(_ => StatusCodes.ServiceUnavailable)
@@ -436,7 +433,7 @@ object RdfRejectionHandler {
   /**
     * A resource endpoint cannot be found on the platform
     */
-  final case object ResourceNotFound extends Rejection {
+  case object ResourceNotFound extends Rejection {
 
     type ResourceNotFound = ResourceNotFound.type
 
@@ -450,9 +447,9 @@ object RdfRejectionHandler {
       JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.error))
   }
 
-  final case object RejectionExpected extends Rejection {
+  case object RejectionExpected extends Rejection {
 
-    type RejectionExpected = RejectionExpected.type
+    private type RejectionExpected = RejectionExpected.type
 
     private[marshalling] val rejectionRejectedJson =
       JsonObject(keywords.tpe -> "RejectionExpected".asJson, "reason" -> "At least one rejection was expected.".asJson)
@@ -505,7 +502,7 @@ object RdfRejectionHandler {
       case r: MalformedHeaderRejection                   => (r.status, r.headers)
       case r: MalformedQueryParamRejection               => (r.status, r.headers)
       case r: ValidationRejection                        => (r.status, r.headers)
-      case r: MissingAttributeRejection[_]               => (r.status, r.headers)
+      case r: MissingAttributeRejection[?]               => (r.status, r.headers)
       case RequestEntityExpectedRejection                => (RequestEntityExpectedRejection.status, RequestEntityExpectedRejection.headers)
       case ExpectedWebSocketRequestRejection             => (ExpectedWebSocketRequestRejection.status, ExpectedWebSocketRequestRejection.headers)
       case r: TooManyRangesRejection                     => (r.status, r.headers)

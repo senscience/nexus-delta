@@ -119,7 +119,7 @@ final class ResolversImpl private (
       state   <- id match {
                    case Latest(_)        => log.stateOr(projectRef, iri, notFound)
                    case Revision(_, rev) =>
-                     log.stateOr(projectRef, iri, rev, notFound, RevisionNotFound)
+                     log.stateOr(projectRef, iri, rev, notFound, RevisionNotFound(_, _))
                    case Tag(_, tag)      =>
                      log.stateOr(projectRef, iri, tag, notFound, FetchByTagNotSupported(tag))
                  }

@@ -30,7 +30,7 @@ object IdentityError {
   /**
     * Signals that the provided authentication is not valid.
     */
-  final case object AuthenticationFailed extends IdentityError("The supplied authentication is invalid.")
+  case object AuthenticationFailed extends IdentityError("The supplied authentication is invalid.")
 
   /**
     * Signals an attempt to consume the service without a valid oauth2 bearer token.

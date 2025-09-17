@@ -63,7 +63,8 @@ class ResolversRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     schemaId,
     project.ref,
     jsonContentOf("resources/schema.json")
-      .addContext(contexts.shacl, contexts.schemasMetadata) deepMerge json"""{"@id": "$schemaId"}"""
+      .addContext(contexts.shacl, contexts.schemasMetadata)
+      .deepMerge(json"""{"@id": "$schemaId"}""")
   )
   private val resourceFS     = SchemaGen.resourceFor(schemaResource)
 

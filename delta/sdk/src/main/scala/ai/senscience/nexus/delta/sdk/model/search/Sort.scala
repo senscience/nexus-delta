@@ -43,14 +43,14 @@ object Sort {
     /**
       * Descending ordering
       */
-    final case object Desc extends OrderType {
+    case object Desc extends OrderType {
       override def toString: String = "-"
     }
 
     /**
       * Ascending ordering
       */
-    final case object Asc extends OrderType {
+    case object Asc extends OrderType {
       override def toString: String = ""
     }
 

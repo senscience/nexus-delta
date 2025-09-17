@@ -86,7 +86,7 @@ object CirceInstances {
 
     InvalidMessageBodyFailure(
       s"Could not decode JSON: $str",
-      if (failures.tail.isEmpty) Some(failures.head) else Some(DecodingFailures(failures))
+      if failures.tail.isEmpty then Some(failures.head) else Some(DecodingFailures(failures))
     )
   }
 

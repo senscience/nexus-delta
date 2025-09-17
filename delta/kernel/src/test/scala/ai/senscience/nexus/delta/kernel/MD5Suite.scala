@@ -20,7 +20,7 @@ class MD5Suite extends CatsEffectSuite {
     val task       = xs.parTraverse { x =>
       cache.get.flatMap { c =>
         val hash = MD5.hash(x)
-        if (c.contains(hash)) IO.unit
+        if c.contains(hash) then IO.unit
         else cache.update(_ + hash)
       }
     }

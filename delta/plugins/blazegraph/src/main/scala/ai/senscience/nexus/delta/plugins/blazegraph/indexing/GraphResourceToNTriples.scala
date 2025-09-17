@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeRef}
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe that transforms a [[GraphResource]] into NTriples

@@ -91,7 +91,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       q: SparqlQuery,
       responseType: SparqlQueryResponseType.Aux[R],
       additionalHeaders: Seq[Header.ToRaw] = Seq.empty
-  ): IO[R] =
+  ): IO[R] = {
     responseType match {
       case SparqlResultsJson => sparqlResultsResponse(namespaces, q, additionalHeaders)
       case SparqlResultsXml  => sparqlXmlResultsResponse(namespaces, q, additionalHeaders)
@@ -99,6 +99,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       case SparqlNTriples    => sparqlNTriplesResponse(namespaces, q, additionalHeaders)
       case SparqlRdfXml      => sparqlRdfXmlResponse(namespaces, q, additionalHeaders)
     }
+  }.map(_.asInstanceOf[R])
 
   /**
     * Executes the argument update queries against the underlying sparql endpoint.
@@ -169,7 +170,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
         queryRequest[SparqlResults](namespace, q, SparqlResultsJson.mediaTypes, additionalHeaders)
           .map(results ++ _)
       }
-      .map(SparqlResultsResponse)
+      .map(SparqlResultsResponse(_))
   }
 
   private def sparqlXmlResultsResponse(
@@ -220,7 +221,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
         queryRequest[String](namespace, q, SparqlNTriples.mediaTypes, additionalHeaders)
           .map(s => results ++ NTriples(s, BNode.random))
       }
-      .map(SparqlNTriplesResponse)
+      .map(SparqlNTriplesResponse(_))
 
   private def sparqlRdfXmlResponse(
       namespaces: Iterable[String],

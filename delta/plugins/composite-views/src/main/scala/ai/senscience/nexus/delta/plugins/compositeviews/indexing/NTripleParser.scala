@@ -11,7 +11,7 @@ object NTripleParser {
   private val logger = Logger[NTripleParser.type]
 
   def apply(ntriples: NTriples, rootNodeOpt: Option[Iri]): IO[Option[Graph]] =
-    if (ntriples.isEmpty) {
+    if ntriples.isEmpty then {
       // If nothing is returned by the query, we skip
       IO.none
     } else

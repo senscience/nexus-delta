@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import fs2.Stream
-import org.typelevel.log4cats
+import fs2.io.file.Files
 
 /**
   * Creates a project deletion step that deletes the directory associated to a local storage and all the physical files
@@ -37,22 +37,19 @@ final class StorageDeletionTask(currentStorages: ProjectRef => Stream[IO, Storag
 
   private def deleteRecursively(project: ProjectRef, disk: DiskStorageValue) = {
     val directory = disk.rootDirectory(project)
-    if (directory.exists)
-      IO.blocking {
-        if (!directory.deleteRecursively()) {
-          s"Local directory '${directory.path}' could not be deleted."
-        } else
-          s"Local directory '${directory.path}' have been deleted."
-      }
-    else
-      IO.pure(s"Local directory '${directory.path}' does no exist.")
+    Files[IO].exists(directory).flatMap {
+      case true  =>
+        Files[IO].deleteRecursively(directory).as(s"Local directory '$directory' has been deleted.")
+      case false =>
+        IO.pure(s"Local directory '$directory' does no exist.")
+    }
   }
 
 }
 
 object StorageDeletionTask {
 
-  private val logger: log4cats.Logger[IO] = Logger[StorageDeletionTask]
+  private val logger = Logger[StorageDeletionTask]
 
   private val init = ProjectDeletionReport.Stage.empty("storage")
 

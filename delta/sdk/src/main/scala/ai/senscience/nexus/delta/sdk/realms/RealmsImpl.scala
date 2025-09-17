@@ -52,7 +52,7 @@ final class RealmsImpl private (log: RealmsLog) extends Realms {
 
   override def fetchAt(label: Label, rev: Int): IO[RealmResource] =
     log
-      .stateOr(label, rev, RealmNotFound(label), RevisionNotFound)
+      .stateOr(label, rev, RealmNotFound(label), RevisionNotFound(_, _))
       .map(_.toResource)
       .span("fetchRealmAt")
 

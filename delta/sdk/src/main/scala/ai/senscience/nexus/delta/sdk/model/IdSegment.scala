@@ -35,7 +35,7 @@ object IdSegment {
     * Construct an [[IdSegment]] from the passed ''string''
     */
   final def apply(string: String): IdSegment =
-    Iri.reference(string).fold[IdSegment](_ => StringSegment(string), IriSegment)
+    Iri.reference(string).fold[IdSegment](_ => StringSegment(string), IriSegment(_))
 
   /**
     * A segment that holds a free form string (which can expand into an Iri)
@@ -60,9 +60,8 @@ object IdSegment {
   final case class IriSegment(value: Iri) extends IdSegment {
     override def asString: String                                             = value.toString
     override def toIri(mappings: ApiMappings, base: ProjectBase): Option[Iri] =
-      if (value.scheme.exists(mappings.prefixMappings.contains))
+      if value.scheme.exists(mappings.prefixMappings.contains) then
         StringSegment(value.toString).toIri(mappings, base) orElse Some(value)
-      else
-        Some(value)
+      else Some(value)
   }
 }

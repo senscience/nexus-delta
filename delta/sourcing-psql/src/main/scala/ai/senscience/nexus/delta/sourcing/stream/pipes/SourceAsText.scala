@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
 import io.circe.Json
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that embeds the resource source into the metadata graph.

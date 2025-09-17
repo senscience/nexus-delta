@@ -46,7 +46,7 @@ object Triple {
     dataType match {
       case Some(dt) =>
         val tpe = TypeMapper.getInstance().getSafeTypeByName(dt.toString)
-        if (tpe.isValid(value)) NodeFactory.createLiteralDT(value, tpe)
+        if tpe.isValid(value) then NodeFactory.createLiteralDT(value, tpe)
         else obj(value, languageTag)
       case None     => obj(value, languageTag)
 

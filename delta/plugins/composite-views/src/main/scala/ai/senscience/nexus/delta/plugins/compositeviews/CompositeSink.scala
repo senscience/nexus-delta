@@ -27,7 +27,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import cats.implicits.*
 import fs2.Chunk
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * A composite sink handles querying the common blazegraph namespace, transforming the result into a format that can be
@@ -53,7 +53,7 @@ final class Single[SinkFormat](
     transform: GraphResource => IO[Option[SinkFormat]],
     sink: ElemChunk[SinkFormat] => IO[ElemChunk[Unit]],
     override val batchConfig: BatchConfig,
-    retryStrategy: RetryStrategy[Throwable]
+    retryStrategy: RetryStrategy
 ) extends CompositeSink {
 
   override type In = GraphResource
@@ -95,7 +95,7 @@ final class Batch[SinkFormat](
     transform: GraphResource => IO[Option[SinkFormat]],
     sink: ElemChunk[SinkFormat] => IO[ElemChunk[Unit]],
     override val batchConfig: BatchConfig,
-    retryStrategy: RetryStrategy[Throwable]
+    retryStrategy: RetryStrategy
 )(implicit rcr: RemoteContextResolution)
     extends CompositeSink {
 
@@ -229,7 +229,7 @@ object CompositeSink {
       sinkConfig: SinkConfig,
       retryStrategyConfig: RetryStrategyConfig
   )(implicit rcr: RemoteContextResolution): CompositeSink = {
-    val retryStrategy = RetryStrategy[Throwable](
+    val retryStrategy = RetryStrategy(
       retryStrategyConfig,
       {
         case _: SparqlQueryError => true

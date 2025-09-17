@@ -176,10 +176,9 @@ trait DeltaDirectives extends UriDirectives {
 
   def emitOrFusionRedirect(fusionUri: org.http4s.Uri, emitDelta: Route)(implicit config: FusionConfig): Route =
     extractRequest { req =>
-      if (config.enableRedirects && req.header[Accept].exists(_.mediaRanges.contains(fusionRange))) {
+      if config.enableRedirects && req.header[Accept].exists(_.mediaRanges.contains(fusionRange)) then {
         emitRedirect(SeeOther, IO.pure(fusionUri))
-      } else
-        emitDelta
+      } else emitDelta
     }
 
   /**

@@ -53,7 +53,7 @@ final class AclsImpl private (
 
   override def fetchAt(address: AclAddress, rev: Int): IO[AclResource] =
     log
-      .stateOr(address, rev, AclNotFound(address), RevisionNotFound)
+      .stateOr(address, rev, AclNotFound(address), RevisionNotFound(_, _))
       .recover {
         case AclNotFound(a) if a == AclAddress.Root && rev == 0 => AclState.initial(minimum)
       }

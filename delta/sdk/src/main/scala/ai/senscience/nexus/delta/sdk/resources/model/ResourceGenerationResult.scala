@@ -33,7 +33,7 @@ final case class ResourceGenerationResult(
                            errorField,
                            toJsonField("result", _)
                          )
-    } yield schema deepMerge resourceOrError
+    } yield schema.deepMerge(resourceOrError)
   }
 
   private def errorField(rejection: Rejection)(implicit rcr: RemoteContextResolution) = rejection match {

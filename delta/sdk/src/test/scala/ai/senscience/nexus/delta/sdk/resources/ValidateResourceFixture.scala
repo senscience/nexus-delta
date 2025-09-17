@@ -90,7 +90,7 @@ trait ValidateResourceFixture {
     override def apply(jsonld: JsonLdAssembly, schema: SchemaClaim, enforceSchema: Boolean): IO[ValidationResult] = ???
 
     override def apply(jsonld: JsonLdAssembly, schema: SchemaResource): IO[ValidationResult] =
-      if (validResources.contains(jsonld.id)) {
+      if validResources.contains(jsonld.id) then {
         IO.pure(
           Validated(
             schema.value.project,

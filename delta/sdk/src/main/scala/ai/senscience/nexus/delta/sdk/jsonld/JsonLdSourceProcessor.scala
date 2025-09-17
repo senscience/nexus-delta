@@ -42,11 +42,10 @@ sealed abstract class JsonLdSourceProcessor {
   ): IO[(ContextValue, ExplainResult[ExpandedJsonLd])] = {
     implicit val opts: JsonLdOptions = JsonLdOptions(base = Some(projectContext.base.iri))
     val sourceContext                = source.topContextValueOrEmpty
-    if (sourceContext.isEmpty) {
+    if sourceContext.isEmpty then {
       val defaultContext = defaultCtx(projectContext)
       ExpandedJsonLd.explain(source.addContext(defaultContext.contextObj)).map(defaultContext -> _)
-    } else
-      ExpandedJsonLd.explain(source).map(sourceContext -> _)
+    } else ExpandedJsonLd.explain(source).map(sourceContext -> _)
   }.adaptError { case err: RdfError => InvalidJsonLdFormat(None, err) }
 
   protected def checkAndSetSameId(iri: Iri, expanded: ExpandedJsonLd): IO[ExpandedJsonLd] =
@@ -239,7 +238,7 @@ object JsonLdSourceProcessor {
         (_, result)  <- expandSource(context, source.addContext(contextIri))
         expanded      = result.value
         iri          <- getOrGenerateId(expanded.rootId.asIri, context)
-        decodedValue <- IO.fromEither(expanded.to[A].leftMap(DecodingFailed))
+        decodedValue <- IO.fromEither(expanded.to[A].leftMap(DecodingFailed(_)))
       } yield (iri, decodedValue)
     }
 
@@ -262,7 +261,7 @@ object JsonLdSourceProcessor {
         (_, result)     <- expandSource(context, source.addContext(contextIri))
         originalExpanded = result.value
         expanded        <- checkAndSetSameId(iri, originalExpanded)
-        decodedValue    <- IO.fromEither(expanded.to[A].leftMap(DecodingFailed))
+        decodedValue    <- IO.fromEither(expanded.to[A].leftMap(DecodingFailed(_)))
       } yield decodedValue
     }
   }

@@ -39,6 +39,7 @@ import org.scalatest.Assertion
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 
 import java.util.UUID
+import language.adhocExtensions
 
 class FilesSpec
     extends TestKit(ActorSystem("FilesSpec"))
@@ -159,11 +160,12 @@ class FilesSpec
 
       "create storages for files" in {
         val defaultStoragePayload =
-          diskFieldsJson deepMerge json"""{"maxFileSize": 300, "volume": "$defaultStorageFolder"}"""
+          diskFieldsJson.deepMerge(json"""{"maxFileSize": 300, "volume": "$defaultStorageFolder"}""")
         storages.create(defaultStorageId, projectRef, defaultStoragePayload).accepted
 
-        val customStoragePayload = diskFieldsJson deepMerge
+        val customStoragePayload = diskFieldsJson.deepMerge(
           json"""{"maxFileSize": 300, "volume": "$customStorageFolder", "readPermission": "$otherRead", "writePermission": "$otherWrite", "default": false}"""
+        )
         storages.create(customStorageId, projectRef, customStoragePayload).accepted
       }
 

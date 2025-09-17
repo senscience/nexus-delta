@@ -52,7 +52,7 @@ object StreamingUtils {
           val hdAsBytes =
             Stream.chunk(hd).intersperse(lineSeparator).append(newLine).through(text.utf8.encode)
           cursor.writeAll(hdAsBytes).flatMap { nc =>
-            if (newAcc >= limit)
+            if newAcc >= limit then
               Pull
                 .eval {
                   fileHotswap
@@ -60,8 +60,7 @@ object StreamingUtils {
                     .flatMap(newCursor)
                 }
                 .flatMap(nc => go(fileHotswap, nc, 0, tl))
-            else
-              go(fileHotswap, nc, newAcc, tl)
+            else go(fileHotswap, nc, newAcc, tl)
           }
         case None           => Pull.done
       }

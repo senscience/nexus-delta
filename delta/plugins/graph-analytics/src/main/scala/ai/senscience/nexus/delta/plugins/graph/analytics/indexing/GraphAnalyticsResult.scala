@@ -22,7 +22,7 @@ object GraphAnalyticsResult {
   /**
     * No action is required (i.e. it is not among the entity types we analyse)
     */
-  final case object Noop extends GraphAnalyticsResult
+  case object Noop extends GraphAnalyticsResult
 
   /**
     * An update by query action is required so that the type of this resource is propagated to the resources pointing to

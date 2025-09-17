@@ -129,10 +129,8 @@ object ElasticSearchViewJsonLdSourceDecoder {
               )
             case (true, false)  =>
               // TODO implement strict json-ld decoding
-              if (cursor.downField(pipeline).succeeded)
-                indexingFieldsJsonLdDecoder(cursor)
-              else
-                legacyFieldsJsonLdDecoder(cursor)
+              if cursor.downField(pipeline).succeeded then indexingFieldsJsonLdDecoder(cursor)
+              else legacyFieldsJsonLdDecoder(cursor)
             case (false, true)  =>
               aggregateFieldsJsonLdDecoder(cursor)
             case (false, false) =>

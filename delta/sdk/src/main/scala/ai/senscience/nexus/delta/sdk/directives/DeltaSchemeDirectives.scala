@@ -58,7 +58,7 @@ final class DeltaSchemeDirectives(
     (pathPrefix("resources") & projectRef & pathPrefix("_") & pathPrefix(Segment) & extractMethod)
       .tflatMap { case (projectRef, id, method) =>
         mapRequestContext { ctx =>
-          if (method == HttpMethods.GET || method == HttpMethods.DELETE) {
+          if method == HttpMethods.GET || method == HttpMethods.DELETE then {
             val basePath = /(rootResourceType) / projectRef.organization.value / projectRef.project.value / id
             ctx.withUnmatchedPath(basePath ++ ctx.unmatchedPath)
           } else ctx

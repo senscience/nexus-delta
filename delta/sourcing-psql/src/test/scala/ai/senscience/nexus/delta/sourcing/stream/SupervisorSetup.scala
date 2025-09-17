@@ -51,7 +51,7 @@ object SupervisorSetup {
       Supervisor(projections, projectionErrors, config).map(s => SupervisorSetup(s, projections, projectionErrors))
     }
 
-  trait Fixture { self: NexusSuite with FixedClock =>
+  trait Fixture { self: NexusSuite & FixedClock =>
 
     private def suiteLocalFixture(name: String, cluster: ClusterConfig): IOFixture[SupervisorSetup] =
       ResourceSuiteLocalFixture(name, resource(cluster, clock))

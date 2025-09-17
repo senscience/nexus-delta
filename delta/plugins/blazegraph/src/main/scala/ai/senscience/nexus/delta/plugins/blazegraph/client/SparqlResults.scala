@@ -5,10 +5,9 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.{Bindin
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import io.circe.generic.auto.*
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
-import io.circe.{Decoder, Encoder}
+import io.circe.{Codec, Decoder, Encoder}
 import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
 import org.http4s.Uri
 
@@ -59,8 +58,12 @@ object SparqlResults {
       */
     def ++(that: Head): Head = {
       val newLink = (link ++ that.link).flatten.toList
-      Head((vars ++ that.vars).distinct, if (newLink.isEmpty) None else Some(newLink))
+      Head((vars ++ that.vars).distinct, if newLink.isEmpty then None else Some(newLink))
     }
+  }
+
+  object Head {
+    given Codec[Head] = deriveCodec[Head]
   }
 
   /**
@@ -79,6 +82,8 @@ object SparqlResults {
 
   object Bindings {
     def apply(values: Map[String, Binding]*): Bindings = Bindings(values.toList)
+
+    given Codec[Bindings] = deriveCodec[Bindings]
   }
 
   /**
@@ -100,14 +105,18 @@ object SparqlResults {
       datatype: Option[String] = None
   )
 
-  implicit final val sparqlResultsEncoder: Encoder[SparqlResults] = deriveEncoder[SparqlResults]
+  object Binding {
+    given Codec[Binding] = deriveCodec[Binding]
+  }
+
+  given Encoder[SparqlResults] = deriveEncoder[SparqlResults]
 
   private val askResultDecoder: Decoder[SparqlResults] =
     Decoder.instance(_.get[Boolean]("boolean").map { boolean => SparqlResults(Head(), Bindings(), Some(boolean)) })
 
-  implicit final val sparqlResultsDecoder: Decoder[SparqlResults] = {
+  given Decoder[SparqlResults] = {
     val default = deriveDecoder[SparqlResults]
-    Decoder.instance(hc => default(hc) orElse askResultDecoder(hc))
+    Decoder.instance { hc => default(hc).orElse(askResultDecoder(hc)) }
   }
 
   implicit def sparqlResultsMarshaller(implicit ordering: JsonKeyOrdering): ToEntityMarshaller[SparqlResults] =

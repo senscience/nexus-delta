@@ -38,7 +38,7 @@ sealed trait ContextValue {
     * The context object. E.g.: {"@context": {...}}
     */
   def contextObj: JsonObject =
-    if (isEmpty) JsonObject.empty
+    if isEmpty then JsonObject.empty
     else JsonObject(keywords.context -> value)
 
   /**
@@ -84,7 +84,7 @@ object ContextValue {
   /**
     * An empty context value
     */
-  final case object ContextEmpty extends ContextValue {
+  case object ContextEmpty extends ContextValue {
     override val value: Json                             = Json.obj()
     override val isEmpty: Boolean                        = true
     override def merge(that: ContextValue): ContextValue = that
@@ -150,7 +150,7 @@ object ContextValue {
       that match {
         case ContextEmpty                                    => self
         case ContextObject(`obj`)                            => self
-        case ContextObject(thatObj)                          => ContextObject(obj deepMerge thatObj)
+        case ContextObject(thatObj)                          => ContextObject(obj.deepMerge(thatObj))
         case ctx: ContextRemoteIri                           => ContextArray(Vector(self, ctx))
         case ContextArray(thatCtx) if thatCtx.contains(self) => that
         case ContextArray(thatCtx)                           => ContextArray(self +: thatCtx)
@@ -182,7 +182,7 @@ object ContextValue {
     iri.toList match {
       case Nil         => empty
       case head :: Nil => ContextRemoteIri(head)
-      case rest        => ContextArray(rest.map(ContextRemoteIri).toVector)
+      case rest        => ContextArray(rest.map(ContextRemoteIri(_)).toVector)
     }
 
   /**
@@ -198,7 +198,7 @@ object ContextValue {
     // format: off
     (json.asObject.filter(_.nonEmpty).map(ContextObject.apply) orElse
       json.asArray.filter(_.nonEmpty).map(arr => ContextArray(arr.map(apply).collect { case c: ContextValueEntry => c })) orElse
-      json.as[Iri].toOption.filter(_.isReference).map(ContextRemoteIri)).getOrElse(ContextEmpty)
+      json.as[Iri].toOption.filter(_.isReference).map(ContextRemoteIri(_))).getOrElse(ContextEmpty)
   // format: on
 
   implicit val contextValueEncoder: Encoder[ContextValue] = Encoder.instance(_.value)

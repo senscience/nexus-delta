@@ -56,7 +56,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
   private val myIdEncoded    = encodeUriPath(myId.toString)
   private val myId2          = nxv + "myid2"
   private val myId2Encoded   = encodeUriPath(myId2.toString)
-  private val payload        = jsonContentOf("resources/schema.json") deepMerge json"""{"@id": "$myId"}"""
+  private val payload        = jsonContentOf("resources/schema.json").deepMerge(json"""{"@id": "$myId"}""")
   private val payloadNoId    = payload.removeKeys(keywords.id)
   private val payloadUpdated = payloadNoId.replace("datatype" -> "xsd:integer", "xsd:double")
 
@@ -455,7 +455,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
 
     def givenASchema(test: String => Assertion): Assertion = {
       val id      = genString()
-      val payload = jsonContentOf("resources/schema.json") deepMerge json"""{"@id": "${nxv + id}"}"""
+      val payload = jsonContentOf("resources/schema.json").deepMerge(json"""{"@id": "${nxv + id}"}""")
       Put(s"/v1/schemas/myorg/myproject/$id", payload.toEntity) ~> as(writer) ~> routes ~> check {
         status shouldEqual StatusCodes.Created
       }

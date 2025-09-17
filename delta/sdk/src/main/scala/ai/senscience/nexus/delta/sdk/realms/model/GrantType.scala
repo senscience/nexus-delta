@@ -19,7 +19,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/rfc6749#section-1.3.1
     */
-  final case object AuthorizationCode extends GrantType
+  case object AuthorizationCode extends GrantType
 
   /**
     * The Implicit grant type is a simplified flow that can be used by public clients, where the access token is
@@ -28,7 +28,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/rfc6749#section-1.3.2
     */
-  final case object Implicit extends GrantType
+  case object Implicit extends GrantType
 
   /**
     * The Password grant type is used by first-party clients to exchange a user's credentials for an access token.
@@ -36,7 +36,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/rfc6749#section-1.3.3
     */
-  final case object Password extends GrantType
+  case object Password extends GrantType
 
   /**
     * The Client Credentials grant type is used by clients to obtain an access token outside of the context of a user.
@@ -44,7 +44,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/rfc6749#section-1.3.4
     */
-  final case object ClientCredentials extends GrantType
+  case object ClientCredentials extends GrantType
 
   /**
     * The Device Code grant type is used by browserless or input-constrained devices in the device flow to exchange a
@@ -53,7 +53,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/draft-ietf-oauth-device-flow-07#section-3.4
     */
-  final case object DeviceCode extends GrantType
+  case object DeviceCode extends GrantType
 
   /**
     * The Refresh Token grant type is used by clients to exchange a refresh token for an access token when the access
@@ -62,7 +62,7 @@ object GrantType {
     * @see
     *   https://tools.ietf.org/html/rfc6749#section-1.5
     */
-  final case object RefreshToken extends GrantType
+  case object RefreshToken extends GrantType
 
   /**
     * A newly defined authorization grant type
@@ -106,5 +106,5 @@ object GrantType {
   }
 
   private def toCustom(string: String): Option[CustomGrantType] =
-    Uri.fromString(string).toOption.filter(_.scheme.isDefined).map(CustomGrantType)
+    Uri.fromString(string).toOption.filter(_.scheme.isDefined).map(CustomGrantType(_))
 }

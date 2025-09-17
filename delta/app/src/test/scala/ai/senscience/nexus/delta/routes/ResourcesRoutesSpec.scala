@@ -106,9 +106,9 @@ class ResourcesRoutesSpec
     )
   )
 
-  private val payloadUpdated             = payload deepMerge json"""{"name": "Alice", "address": null}"""
+  private val payloadUpdated             = payload.deepMerge(json"""{"name": "Alice", "address": null}""")
   private def payloadUpdated(id: String) =
-    simplePayload(id) deepMerge json"""{"name": "Alice", "address": null , "uuid": "${UUID.randomUUID()}"}"""
+    simplePayload(id).deepMerge(json"""{"name": "Alice", "address": null , "uuid": "${UUID.randomUUID()}"}""")
 
   private val varyHeader = RawHeader("Vary", "Accept,Accept-Encoding")
 
@@ -481,7 +481,7 @@ class ResourcesRoutesSpec
     }
 
     "fetch a resource where the source has a null value" in {
-      val payloadWithNullField = (id: String) => simplePayload(id) deepMerge json"""{ "empty": null }"""
+      val payloadWithNullField = (id: String) => simplePayload(id).deepMerge(json"""{ "empty": null }""")
       givenAResourceWithPayload(payloadWithNullField(_).toEntity(Printer.noSpaces)) { id =>
         Get(s"/v1/resources/myorg/myproject/_/$id") ~> as(reader) ~> routes ~> check {
           response.asJson shouldEqual

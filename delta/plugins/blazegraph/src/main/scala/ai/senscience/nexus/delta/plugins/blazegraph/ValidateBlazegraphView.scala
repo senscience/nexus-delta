@@ -22,9 +22,9 @@ object ValidateBlazegraphView {
     case v: AggregateBlazegraphViewValue =>
       ValidateAggregate(
         BlazegraphViews.entityType,
-        InvalidViewReferences,
+        InvalidViewReferences(_),
         maxViewRefs,
-        TooManyViewReferences,
+        TooManyViewReferences(_, _),
         xas
       )(v.views)
     case v: IndexingBlazegraphViewValue  =>

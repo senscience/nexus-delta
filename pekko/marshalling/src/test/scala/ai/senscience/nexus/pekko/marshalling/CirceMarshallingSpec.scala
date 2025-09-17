@@ -11,6 +11,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import language.adhocExtensions
+
 import java.time.Instant
 
 class CirceMarshallingSpec

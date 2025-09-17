@@ -50,7 +50,7 @@ object FetchContext {
     def fetchProject(ref: ProjectRef, onWrite: Boolean) = {
       implicit val putId: Put[ProjectRef]      = ProjectState.serializer.putId
       implicit val getValue: Get[ProjectState] = ProjectState.serializer.getValue
-      val xa                                   = if (onWrite) xas.write else xas.read
+      val xa                                   = if onWrite then xas.write else xas.read
       ScopedStateGet
         .latest[ProjectRef, ProjectState](Projects.entityType, ref, ref)
         .transact(xa)

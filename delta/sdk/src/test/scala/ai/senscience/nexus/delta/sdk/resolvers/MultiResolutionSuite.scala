@@ -37,7 +37,7 @@ class MultiResolutionSuite extends NexusSuite with Fixtures {
   private val schema     = SchemaGen.schema(
     schemaId,
     projectRef,
-    jsonContentOf("resources/schema.json") deepMerge json"""{"@id": "$schemaId"}"""
+    jsonContentOf("resources/schema.json").deepMerge(json"""{"@id": "$schemaId"}""")
   )
   private val resourceFS = SchemaGen.resourceFor(schema)
 

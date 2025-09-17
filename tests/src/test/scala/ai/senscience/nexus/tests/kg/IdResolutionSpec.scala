@@ -91,13 +91,13 @@ class IdResolutionSpec extends BaseIntegrationSpec {
 
     "redirect to delta resolve if the request comes to the proxy endpoint" in {
       deltaClient.get[String](s"/resolve-proxy-pass/$neurosciencegraphSegment", Bob) { (_, response) =>
-        response isRedirectTo deltaResolveEndpoint(encodedNeurosciencegraphId)
+        response.isRedirectTo(deltaResolveEndpoint(encodedNeurosciencegraphId))
       }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
     }
 
     "redirect to fusion resolve if the request comes to the proxy endpoint with text/html accept header is present" in {
       deltaClient.get[String](s"/resolve-proxy-pass/$neurosciencegraphSegment", Bob, acceptTextHtml) { (_, response) =>
-        response isRedirectTo fusionResolveEndpoint(encodedNeurosciencegraphId)
+        response.isRedirectTo(fusionResolveEndpoint(encodedNeurosciencegraphId))
       }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
     }
 

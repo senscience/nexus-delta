@@ -155,7 +155,7 @@ class JsonLdContextSpec extends CatsEffectSpec with Fixtures {
       val expected = jsonContentOf("jsonld/context/context12-merged.json")
       context1.addContext(context2) shouldEqual expected
 
-      val json1 = context1 deepMerge json"""{"@id": "$iri", "age": 30}"""
+      val json1 = context1.deepMerge(json"""{"@id": "$iri", "age": 30}""")
       json1.addContext(context2) shouldEqual expected.deepMerge(json"""{"@id": "$iri", "age": 30}""")
     }
 
@@ -181,7 +181,7 @@ class JsonLdContextSpec extends CatsEffectSpec with Fixtures {
       val expected      = jsonContentOf("jsonld/context/context12-merged-array.json")
       context1Array.addContext(context2) shouldEqual expected
 
-      val json1 = context1Array deepMerge json"""{"@id": "$iri", "age": 30}"""
+      val json1 = context1Array.deepMerge(json"""{"@id": "$iri", "age": 30}""")
       json1.addContext(context2) shouldEqual expected.deepMerge(json"""{"@id": "$iri", "age": 30}""")
     }
 

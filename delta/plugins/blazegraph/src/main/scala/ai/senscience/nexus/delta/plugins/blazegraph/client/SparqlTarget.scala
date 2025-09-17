@@ -7,9 +7,9 @@ sealed trait SparqlTarget
 
 object SparqlTarget {
 
-  final case object Blazegraph extends SparqlTarget
+  case object Blazegraph extends SparqlTarget
 
-  final case object Rdf4j extends SparqlTarget
+  case object Rdf4j extends SparqlTarget
 
   implicit val sparqlTargetReader: ConfigReader[SparqlTarget] = ConfigReader.stringConfigReader.emap {
     case "blazegraph" => Right(Blazegraph)

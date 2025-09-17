@@ -12,6 +12,8 @@ import org.apache.pekko.http.scaladsl.model.ContentTypes.*
 import org.apache.pekko.http.scaladsl.model.{ContentType, HttpEntity, Multipart}
 import org.apache.pekko.testkit.TestKit
 
+import language.adhocExtensions
+
 class FormDataExtractorSpec
     extends TestKit(ActorSystem("FormDataExtractorSpec"))
     with CatsEffectSpec
@@ -43,7 +45,7 @@ class FormDataExtractorSpec
               dispositionParameters(filename, keywords, description, name)
             )
         )
-        .toEntity()
+        .toEntity
     }
 
     def dispositionParameters(

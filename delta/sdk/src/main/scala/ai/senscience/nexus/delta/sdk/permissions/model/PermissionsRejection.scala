@@ -24,7 +24,7 @@ object PermissionsRejection {
   /**
     * Rejection returned when a subject intends to subtract an empty collection of permissions.
     */
-  final case object CannotSubtractEmptyCollection
+  case object CannotSubtractEmptyCollection
       extends PermissionsRejection("Cannot subtract an empty collection of permissions.")
 
   /**
@@ -38,7 +38,7 @@ object PermissionsRejection {
   /**
     * Rejection returned when a subject intends to subtract permissions when the current collection is empty.
     */
-  final case object CannotSubtractFromEmptyCollection
+  case object CannotSubtractFromEmptyCollection
       extends PermissionsRejection("Cannot subtract from an empty collection of permissions.")
 
   /**
@@ -52,20 +52,20 @@ object PermissionsRejection {
   /**
     * Rejection returned when a subject intends to append an empty collection of permissions.
     */
-  final case object CannotAppendEmptyCollection
+  case object CannotAppendEmptyCollection
       extends PermissionsRejection("Cannot append an empty collection of permissions.")
 
   /**
     * Rejection returned when a subject intends to replace the current collection of permission with an empty set.
     */
-  final case object CannotReplaceWithEmptyCollection
+  case object CannotReplaceWithEmptyCollection
       extends PermissionsRejection("Cannot replace the permissions with an empty collection.")
 
   /**
     * Rejection returned when a subject intends to delete (empty) the current collection of permissions, but the
     * collection is already empty.
     */
-  final case object CannotDeleteMinimumCollection
+  case object CannotDeleteMinimumCollection
       extends PermissionsRejection("Cannot delete the minimum collection of permissions.")
 
   /**
@@ -99,7 +99,7 @@ object PermissionsRejection {
     * provided
     */
   sealed abstract class UnexpectedState(reason: String) extends PermissionsRejection(reason)
-  final case object UnexpectedState
+  case object UnexpectedState
       extends UnexpectedState(s"Unexpected state for permissions. Please try again later or contact the administrator.")
 
   implicit val permissionsRejectionEncoder: Encoder.AsObject[PermissionsRejection] =

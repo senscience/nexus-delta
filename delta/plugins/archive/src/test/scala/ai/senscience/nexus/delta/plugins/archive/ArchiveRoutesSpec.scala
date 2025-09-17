@@ -51,6 +51,7 @@ import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.util.ByteString
 import org.http4s.Uri
+import org.http4s.syntax.literals.uri
 
 import java.util.UUID
 import scala.concurrent.duration.*
@@ -238,7 +239,7 @@ class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with S
       Post(s"/v1/archives/$projectRef", archive.toEntity) ~> as(readAll) ~> acceptAll ~> routes ~> check {
         uuidF.fixed(uuid).accepted
         status shouldEqual StatusCodes.SeeOther
-        header[Location].value.uri.toString() startsWith baseUri.endpoint.toString() shouldEqual true
+        header[Location].value.uri.toString() should startWith(baseUri.endpoint.toString())
       }
     }
 

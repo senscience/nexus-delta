@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import cats.syntax.all.*
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfig: BatchConfig) extends Sink {
 

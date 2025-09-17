@@ -35,7 +35,7 @@ object TimeRange {
   /**
     * Defines a time range with no bounds
     */
-  final case object Anytime extends TimeRange
+  case object Anytime extends TimeRange
 
   val default: TimeRange = TimeRange.Anytime
 
@@ -70,8 +70,8 @@ object TimeRange {
   def parse(value: String): Either[ParseError, TimeRange] =
     value.split(splitRegex) match {
       case Array(`wildCard`, `wildCard`) => Right(Anytime)
-      case Array(value, `wildCard`)      => parseInstant(value).map(After)
-      case Array(`wildCard`, value)      => parseInstant(value).map(Before)
+      case Array(value, `wildCard`)      => parseInstant(value).map(After(_))
+      case Array(`wildCard`, value)      => parseInstant(value).map(Before(_))
       case Array(startValue, endValue)   =>
         for {
           start <- parseInstant(startValue)

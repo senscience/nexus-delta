@@ -67,7 +67,7 @@ object SparqlProjectionLifeCycle {
               .as(SparqlHealth.Healthy)
           case (f: SparqlHealth.Failing, false)       =>
             IO.realTimeInstant.flatMap { now =>
-              if (now.getEpochSecond - f.lastLog.getEpochSecond > 60L) {
+              if now.getEpochSecond - f.lastLog.getEpochSecond > 60L then {
                 logger
                   .error(s"The sparql database has not been responding since '${f.since}'")
                   .as(SparqlHealth.Failing(f.since, now))

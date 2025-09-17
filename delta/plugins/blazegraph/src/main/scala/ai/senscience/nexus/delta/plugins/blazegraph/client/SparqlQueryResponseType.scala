@@ -32,40 +32,36 @@ object SparqlQueryResponseType {
     * Constructor helper that creates a [[SparqlQueryResponseType]] from the passed ''mediaType''
     */
   def fromMediaType(mediaType: MediaType): Option[SparqlQueryResponseType] = {
-    mediaType match {
-      case mediaTypeWfc: MediaType =>
-        if (SparqlResultsJson.mediaTypes.contains_(mediaTypeWfc)) Some(SparqlResultsJson)
-        else if (SparqlResultsXml.mediaTypes.contains_(mediaTypeWfc)) Some(SparqlResultsXml)
-        else if (SparqlJsonLd.mediaTypes.contains_(mediaTypeWfc)) Some(SparqlJsonLd)
-        else if (SparqlNTriples.mediaTypes.contains_(mediaTypeWfc)) Some(SparqlNTriples)
-        else if (SparqlRdfXml.mediaTypes.contains_(mediaTypeWfc)) Some(SparqlRdfXml)
-        else None
-      case _                       => None
-    }
+    if SparqlResultsJson.mediaTypes.contains_(mediaType) then Some(SparqlResultsJson)
+    else if SparqlResultsXml.mediaTypes.contains_(mediaType) then Some(SparqlResultsXml)
+    else if SparqlJsonLd.mediaTypes.contains_(mediaType) then Some(SparqlJsonLd)
+    else if SparqlNTriples.mediaTypes.contains_(mediaType) then Some(SparqlNTriples)
+    else if SparqlRdfXml.mediaTypes.contains_(mediaType) then Some(SparqlRdfXml)
+    else None
   }
 
-  final case object SparqlResultsJson extends SparqlQueryResponseType {
+  case object SparqlResultsJson extends SparqlQueryResponseType {
     override type R = SparqlResultsResponse
     override val mediaTypes: NonEmptyList[MediaType] = NonEmptyList.of(`application/sparql-results+json`)
   }
 
-  final case object SparqlResultsXml extends SparqlQueryResponseType {
+  case object SparqlResultsXml extends SparqlQueryResponseType {
     override type R = SparqlXmlResultsResponse
     override val mediaTypes: NonEmptyList[MediaType] = NonEmptyList.of(`application/sparql-results+xml`)
   }
 
-  final case object SparqlJsonLd extends SparqlQueryResponseType {
+  case object SparqlJsonLd extends SparqlQueryResponseType {
     override type R = SparqlJsonLdResponse
     override val mediaTypes: NonEmptyList[MediaType] = NonEmptyList.of(`application/ld+json`)
   }
 
-  final case object SparqlNTriples extends SparqlQueryResponseType {
+  case object SparqlNTriples extends SparqlQueryResponseType {
     override type R = SparqlNTriplesResponse
     override val mediaTypes: NonEmptyList[MediaType] =
       NonEmptyList.of(`text/plain(UTF-8)`, `application/n-triples`)
   }
 
-  final case object SparqlRdfXml extends SparqlQueryResponseType {
+  case object SparqlRdfXml extends SparqlQueryResponseType {
     override type R = SparqlRdfXmlResponse
     override val mediaTypes: NonEmptyList[MediaType] = NonEmptyList.of(`application/rdf+xml`)
   }

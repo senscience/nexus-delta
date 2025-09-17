@@ -28,7 +28,7 @@ object BlazegraphViewType {
   /**
     * Blazegraph view that indexes resources as triples.
     */
-  final case object IndexingBlazegraphView extends BlazegraphViewType {
+  case object IndexingBlazegraphView extends BlazegraphViewType {
     override val toString: String = "SparqlView"
 
     override def tpe: Iri = nxv + toString
@@ -37,7 +37,7 @@ object BlazegraphViewType {
   /**
     * Blazegraph view that delegates queries to a collections of existing Blazegraph views based on access.
     */
-  final case object AggregateBlazegraphView extends BlazegraphViewType {
+  case object AggregateBlazegraphView extends BlazegraphViewType {
     override val toString: String = "AggregateSparqlView"
 
     override def tpe: Iri = nxv + toString

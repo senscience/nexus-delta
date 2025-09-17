@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.DataConstructQuery.DataCo
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that transforms the resource graph with a provided query.

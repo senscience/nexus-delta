@@ -40,7 +40,7 @@ object ConfigLoader {
       pluginConfigs  <- pluginsConfigPaths.traverse { path =>
                           Configs.parseReader(new InputStreamReader(accClassLoader.getResourceAsStream(path), UTF_8))
                         }
-      mergedConfig   <- Configs.merge(externalConfig :: defaultConfig :: pluginConfigs: _*)
+      mergedConfig   <- Configs.merge(externalConfig :: defaultConfig :: pluginConfigs*)
     } yield mergedConfig
   }
 }

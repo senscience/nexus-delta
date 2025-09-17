@@ -29,7 +29,7 @@ object ProjectDeletionCoordinator {
   /**
     * If deletion is disabled, we do nothing
     */
-  final private[deletion] case object Noop extends ProjectDeletionCoordinator
+  private[deletion] case object Noop extends ProjectDeletionCoordinator
 
   /**
     * If deletion is enabled, we go through the project state log, looking for those marked for deletion
@@ -98,7 +98,7 @@ object ProjectDeletionCoordinator {
       xas: Transactors,
       clock: Clock[IO]
   ): ProjectDeletionCoordinator =
-    if (deletionConfig.enabled) {
+    if deletionConfig.enabled then {
       new Active(
         projects.states,
         deletionTasks.toList,
@@ -108,8 +108,7 @@ object ProjectDeletionCoordinator {
         new ProjectDeletionStore(xas, databasePartitioner),
         clock
       )
-    } else
-      Noop
+    } else Noop
 
   /**
     * Build and run the project deletion stream in the supervisor

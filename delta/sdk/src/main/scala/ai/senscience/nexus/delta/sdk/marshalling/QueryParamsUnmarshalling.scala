@@ -35,7 +35,7 @@ trait QueryParamsUnmarshalling {
     * Unmarshaller to transform a String to an IriBase
     */
   val iriBaseFromStringUnmarshallerNoExpansion: FromStringUnmarshaller[IriBase] =
-    iriFromStringUnmarshaller.map(IriBase)
+    iriFromStringUnmarshaller.map(IriBase(_))
 
   /**
     * Unmarsaller to transform a String to an IriVocab
@@ -47,7 +47,7 @@ trait QueryParamsUnmarshalling {
     * Unmarshaller to transform a String to an IriBase
     */
   implicit def iriBaseFromStringUnmarshaller(implicit pc: ProjectContext): FromStringUnmarshaller[IriBase] =
-    expandIriFromStringUnmarshaller(useVocab = false).map(IriBase)
+    expandIriFromStringUnmarshaller(useVocab = false).map(IriBase(_))
 
   private def expandIriFromStringUnmarshaller(
       useVocab: Boolean

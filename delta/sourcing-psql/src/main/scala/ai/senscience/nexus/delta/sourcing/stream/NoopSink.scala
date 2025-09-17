@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 import scala.concurrent.duration.*
 

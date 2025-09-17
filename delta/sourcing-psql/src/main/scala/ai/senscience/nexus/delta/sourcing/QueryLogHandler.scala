@@ -66,14 +66,16 @@ object QueryLogHandler {
 
     private def formatQuery(sql: String) = sql.linesIterator.dropWhile(_.trim.isEmpty).mkString("\n  ")
 
-    private def formatArguments(params: Parameters) = params.allParams.flatten
-      .map {
-        case _: Json  => "{json blob}"
-        case e: Event => s"{event ${e.getClass.getSimpleName}}"
-        case s: State => s"{state ${s.getClass.getSimpleName}}"
-        case other    => other.toString
-      }
-      .mkString("[", ", ", "]")
+    private def formatArguments(params: Parameters) =
+      params.allParams
+        .flatMap(_.map(_.asInstanceOf[Matchable]))
+        .map {
+          case _: Json  => "{json blob}"
+          case e: Event => s"{event ${e.getClass.getSimpleName}}"
+          case s: State => s"{state ${s.getClass.getSimpleName}}"
+          case other    => other.toString
+        }
+        .mkString("[", ", ", "]")
   }
 
 }

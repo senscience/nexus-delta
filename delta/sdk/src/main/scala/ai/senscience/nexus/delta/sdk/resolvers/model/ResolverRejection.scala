@@ -105,7 +105,7 @@ object ResolverRejection {
   /**
     * Rejection returned when no identities has been provided
     */
-  final case object NoIdentities extends ResolverRejection(s"At least one identity of the caller must be provided.")
+  case object NoIdentities extends ResolverRejection(s"At least one identity of the caller must be provided.")
 
   /**
     * Rejection return when the logged caller does not have one of the provided identities

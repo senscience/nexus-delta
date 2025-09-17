@@ -22,6 +22,6 @@ class SourceAsTextSuite extends NexusSuite with ElemFixtures {
     )
     val newMetadataGraph = graph.metadataGraph.add(nxv.originalSource.iri, graph.source.noSpaces)
     val expected         = elem.copy(value = graph.copy(metadataGraph = newMetadataGraph, source = Json.obj()))
-    SourceAsText.withConfig()(elem).assertEquals(expected)
+    SourceAsText.withConfig(())(elem).assertEquals(expected)
   }
 }

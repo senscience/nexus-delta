@@ -14,7 +14,7 @@ object BulkResponse {
   /**
     * No indexing error were returned by elasticsearch
     */
-  final case object Success extends BulkResponse
+  case object Success extends BulkResponse
 
   /**
     * At least one indexing error has been returned by elasticsearch
@@ -68,12 +68,11 @@ object BulkResponse {
   implicit private[client] val bulkResponseDecoder: Decoder[BulkResponse] =
     Decoder.instance { hc =>
       hc.get[Boolean]("errors").flatMap { hasErrors =>
-        if (hasErrors)
+        if hasErrors then
           hc.get[Vector[Outcome]]("items").map { outcomes =>
             MixedOutcomes(outcomes.map { o => o.id -> o }.toMap)
           }
-        else
-          Right(Success)
+        else Right(Success)
       }
     }
 }

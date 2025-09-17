@@ -14,7 +14,7 @@ import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 import org.http4s.Uri
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 
 class RealmProvisioningSuite extends NexusSuite with Doobie.Fixture with ConfigFixtures with IOFromMap {
 

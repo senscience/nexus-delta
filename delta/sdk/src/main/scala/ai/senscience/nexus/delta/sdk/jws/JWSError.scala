@@ -24,12 +24,11 @@ sealed abstract class JWSError(val reason: String) extends SDKError {
 
 object JWSError {
 
-  final case object UnconfiguredJWS
-      extends JWSError("JWS config is incorrect or missing. Please contact your administrator.")
+  case object UnconfiguredJWS extends JWSError("JWS config is incorrect or missing. Please contact your administrator.")
 
-  final case object InvalidJWSPayload extends JWSError("Signature missing, flattened JWS format expected")
+  case object InvalidJWSPayload extends JWSError("Signature missing, flattened JWS format expected")
 
-  final case object JWSSignatureExpired extends JWSError("The payload expired")
+  case object JWSSignatureExpired extends JWSError("The payload expired")
 
   implicit val jwsErrorHttpResponseFields: HttpResponseFields[JWSError] = HttpResponseFields.fromStatusAndHeaders {
     case InvalidJWSPayload   => (StatusCodes.BadRequest, Seq.empty)

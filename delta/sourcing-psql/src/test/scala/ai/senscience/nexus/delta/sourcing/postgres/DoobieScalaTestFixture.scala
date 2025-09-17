@@ -8,6 +8,8 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import cats.effect.IO
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
+import scala.compiletime.uninitialized
+
 trait DoobieScalaTestFixture
     extends BeforeAndAfterAll
     with PostgresDocker
@@ -17,8 +19,8 @@ trait DoobieScalaTestFixture
 
   self: Suite =>
 
-  var xas: Transactors              = _
-  private var xasTeardown: IO[Unit] = _
+  var xas: Transactors              = uninitialized
+  private var xasTeardown: IO[Unit] = uninitialized
 
   private val defaultPartitioningStrategy = PartitionStrategy.Hash(1)
 

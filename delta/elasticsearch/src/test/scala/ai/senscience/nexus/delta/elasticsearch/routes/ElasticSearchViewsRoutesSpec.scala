@@ -44,7 +44,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
   private val payload        =
     json"""{"@id": "$myId", "@type": "ElasticSearchView", "mapping": $mapping, "settings": $settings  }"""
   private val payloadNoId    = payload.removeKeys(keywords.id)
-  private val payloadUpdated = payloadNoId deepMerge json"""{"includeDeprecated": false}"""
+  private val payloadUpdated = payloadNoId.deepMerge(json"""{"includeDeprecated": false}""")
 
   implicit private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
 
@@ -371,7 +371,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
 
   private def givenAView(test: String => Assertion): Assertion = {
     val viewId         = genString()
-    val viewDefPayload = payload deepMerge json"""{"@id": "$viewId"}"""
+    val viewDefPayload = payload.deepMerge(json"""{"@id": "$viewId"}""")
     Post("/v1/views/myorg/myproject", viewDefPayload.toEntity) ~> as(writer) ~> routes ~> check {
       status shouldEqual StatusCodes.Created
     }

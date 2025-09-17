@@ -81,9 +81,9 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
   ) = {
     val expectedOffsets = expected.map(_.offset)
     for {
-      _ <- store.stream(ProjectionSelector.Name(metadata.name), offset).map(byElemOffset).assert(expectedOffsets)
+      _ <- store.stream(ProjectionSelector.Name(metadata.name), offset).map(byElemOffset).assertList(expectedOffsets)
       _ <- selectById(metadata).traverse { selector =>
-             store.stream(selector, offset).map(byElemOffset).assert(expectedOffsets)
+             store.stream(selector, offset).map(byElemOffset).assertList(expectedOffsets)
            }
     } yield ()
   }

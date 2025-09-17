@@ -17,7 +17,7 @@ object Scope {
   /**
     * Get all results for any org and any project
     */
-  final case object Root extends Scope
+  case object Root extends Scope
 
   /**
     * Get all results within the given org

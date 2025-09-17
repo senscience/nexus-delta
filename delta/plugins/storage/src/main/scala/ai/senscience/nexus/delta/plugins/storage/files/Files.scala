@@ -369,7 +369,7 @@ final class Files(
     resourceRef match {
       case ResourceRef.Latest(iri)           => log.stateOr(project, iri, FileNotFound(iri, project))
       case ResourceRef.Revision(_, iri, rev) =>
-        log.stateOr(project, iri, rev, FileNotFound(iri, project), RevisionNotFound)
+        log.stateOr(project, iri, rev, FileNotFound(iri, project), RevisionNotFound(_, _))
       case ResourceRef.Tag(_, iri, tag)      => log.stateOr(project, iri, tag, FileNotFound(iri, project), TagNotFound(tag))
     }
   }

@@ -29,15 +29,12 @@ object FilesAssertions extends Matchers with OptionValues with ScalaFutures {
       dispositionType(response) shouldEqual ContentDispositionTypes.attachment
       attachmentName(response) shouldEqual attachmentString(expectedFilename)
       contentType(response) shouldEqual expectedContentType
-      if (compressed) {
+      if compressed then {
         httpEncodings(response) shouldEqual Seq(HttpEncodings.gzip)
         decodeGzip(content) shouldEqual expectedContent
-      } else
-        content.utf8String shouldEqual expectedContent
-      if (cacheable)
-        expectConditionalCacheHeaders(response)
-      else
-        expectNoConditionalCacheHeaders(response)
+      } else content.utf8String shouldEqual expectedContent
+      if cacheable then expectConditionalCacheHeaders(response)
+      else expectNoConditionalCacheHeaders(response)
 
     }
 

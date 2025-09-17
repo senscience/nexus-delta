@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.kg.files
 
 import ai.senscience.nexus.tests.config.ConfigLoader.*
-import ai.senscience.nexus.tests.config.StorageConfig
+import ai.senscience.nexus.tests.config.TestsConfig.StorageConfig
 import cats.effect.IO
 import cats.syntax.all.*
 import com.typesafe.config.ConfigFactory

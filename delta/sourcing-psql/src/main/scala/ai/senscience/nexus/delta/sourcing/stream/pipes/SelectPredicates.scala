@@ -15,7 +15,7 @@ import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 import org.apache.jena.graph.Node
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Pipe implementation that transforms the resource graph keeping only the specific predicates.
@@ -28,7 +28,7 @@ class SelectPredicates(config: SelectPredicatesConfig) extends Pipe {
   override def outType: Typeable[GraphResource] = Typeable[GraphResource]
 
   override def apply(element: SuccessElem[GraphResource]): IO[Elem[GraphResource]] = IO.pure {
-    if (config.forwardTypes.exists { p => p.exists(element.value.types.contains) }) {
+    if config.forwardTypes.exists { p => p.exists(element.value.types.contains) } then {
       element
     } else {
       val id            = subject(element.value.id)

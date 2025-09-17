@@ -302,7 +302,7 @@ object Resources {
     * Expands the segment to a [[ResourceRef]]
     */
   def expandResourceRef(segment: IdSegment, context: ProjectContext): Either[Rejection, ResourceRef] =
-    expandResourceRef(segment, context.apiMappings, context.base, InvalidResourceId)
+    expandResourceRef(segment, context.apiMappings, context.base, InvalidResourceId(_))
 
   /**
     * Expands the segment to a [[ResourceRef]] if defined
@@ -458,7 +458,7 @@ object Resources {
             val nextRev = state.rev + 1
             ResourceSchemaUpdated(u.id, u.project, schemaRev, schemaProject, types, nextRev, time, u.subject, u.tag)
           }
-          event                      <- if (!sameSchema) IO.pure(schemaUpdatedEvent) else fallbackToTag(state)
+          event                      <- if !sameSchema then IO.pure(schemaUpdatedEvent) else fallbackToTag(state)
         } yield event
 
       // If there is no changes but a tag is provided, we still apply it

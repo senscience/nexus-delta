@@ -169,9 +169,13 @@ object ResourceF {
 
   implicit def resourceFEncoderObj[A: Encoder.AsObject](implicit base: BaseUri): Encoder.AsObject[ResourceF[A]] =
     Encoder.encodeJsonObject.contramapObject { r =>
-      ResourceIdAndTypes(r.resolvedId, r.types).asJsonObject deepMerge
-        r.value.asJsonObject deepMerge
-        ResourceMetadata(r).asJsonObject
+      ResourceIdAndTypes(r.resolvedId, r.types).asJsonObject
+        .deepMerge(
+          r.value.asJsonObject.deepMerge(
+            ResourceMetadata(r).asJsonObject
+          )
+        )
+
     }
 
   final private case class ResourceIdAndTypes(resolvedId: Iri, types: Set[Iri])
@@ -185,7 +189,7 @@ object ResourceF {
     JsonLdEncoder.computeFromCirce(_.resolvedId, context)
 
   implicit def defaultResourceFAJsonLdEncoder[A: JsonLdEncoder](implicit base: BaseUri): JsonLdEncoder[ResourceF[A]] =
-    resourceFAJsonLdEncoder((encoder, value) => encoder.context(value.value) merge ContextValue(contexts.metadata))
+    resourceFAJsonLdEncoder((encoder, value) => encoder.context(value.value).merge(ContextValue(contexts.metadata)))
 
   /**
     * Creates a [[JsonLdEncoder]] of a [[ResourceF]] of ''A'' using the available [[JsonLdEncoder]] of ''A'' and the
@@ -194,7 +198,7 @@ object ResourceF {
   def resourceFAJsonLdEncoder[A: JsonLdEncoder](ctx: ContextValue)(implicit
       base: BaseUri
   ): JsonLdEncoder[ResourceF[A]] =
-    resourceFAJsonLdEncoder((_, _) => ctx merge ContextValue(contexts.metadata))
+    resourceFAJsonLdEncoder((_, _) => ctx.merge(ContextValue(contexts.metadata)))
 
   /**
     * It generates an encoder of [[ResourceF]] of ''A'' using the [[JsonLdEncoder]] of ''A'', the [[JsonLdEncoder]] of

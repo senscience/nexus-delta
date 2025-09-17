@@ -83,7 +83,7 @@ object ElasticSearchViewRejection {
   /**
     * Rejection returned when attempting to update/deprecate the default view.
     */
-  final case object ViewIsDefaultView
+  case object ViewIsDefaultView
       extends ElasticSearchViewRejection(s"Cannot perform write operations on the default ElasticSearch view.")
   type ViewIsDefaultView = ViewIsDefaultView.type
 

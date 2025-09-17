@@ -153,10 +153,8 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
     val init = Map.empty[String, Iri]
     activeContext.getTermsMapping.asScala.foldLeft((init, init)) { case ((aliases, prefixMappings), (key, term)) =>
       val entry = key -> iri"${term.getUriMapping}"
-      if (term.isPrefix)
-        (aliases, prefixMappings + entry)
-      else
-        (aliases + entry, prefixMappings)
+      if term.isPrefix then (aliases, prefixMappings + entry)
+      else (aliases + entry, prefixMappings)
     }
   }
 

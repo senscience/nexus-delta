@@ -13,12 +13,10 @@ class SparqlDsl(isBlazegraph: Boolean)(implicit as: ActorSystem) extends CirceUn
 
   import as.dispatcher
 
-  private val sparqlUrl      = if (isBlazegraph) "http://localhost:9999" else "http://localhost:7070"
+  private val sparqlUrl      = if isBlazegraph then "http://localhost:9999" else "http://localhost:7070"
   private val listNamespaces =
-    if (isBlazegraph)
-      "/blazegraph/namespace?describe-each-named-graph=false"
-    else
-      "/rdf4j-server/repositories"
+    if isBlazegraph then "/blazegraph/namespace?describe-each-named-graph=false"
+    else "/rdf4j-server/repositories"
   private val sparqlClient   = HttpClient(sparqlUrl)
 
   private def filterNamespaces =
@@ -43,10 +41,8 @@ class SparqlDsl(isBlazegraph: Boolean)(implicit as: ActorSystem) extends CirceUn
     ).flatMap { res =>
       IO.fromFuture(IO(jsonUnmarshaller(res.entity)))
         .map { json =>
-          if (isBlazegraph)
-            root.results.bindings.each.filter(filterNamespaces).`object`.value.string.getAll(json)
-          else
-            root.results.bindings.each.id.value.string.getAll(json)
+          if isBlazegraph then root.results.bindings.each.filter(filterNamespaces).`object`.value.string.getAll(json)
+          else root.results.bindings.each.id.value.string.getAll(json)
         }
     }
   }

@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.UriDirectives.baseUriPrefix
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.{jsonCodecDropNull, jsonSourceCodec}
@@ -47,12 +46,9 @@ class MultiFetchRoutes(
     }
 
   private def selectCodec(request: MultiFetchRequest) =
-    if (
-      request.format == ResourceRepresentation.SourceJson ||
+    if request.format == ResourceRepresentation.SourceJson ||
       request.format == ResourceRepresentation.AnnotatedSourceJson
-    )
-      jsonSourceCodec
-    else
-      jsonCodecDropNull
+    then jsonSourceCodec
+    else jsonCodecDropNull
 
 }

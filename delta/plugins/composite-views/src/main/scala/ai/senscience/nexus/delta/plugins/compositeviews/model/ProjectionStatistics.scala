@@ -24,6 +24,6 @@ object ProjectionStatistics {
 
   implicit val projectionStatisticsEncoder: Encoder.AsObject[ProjectionStatistics] =
     Encoder.encodeJsonObject.contramapObject { case ProjectionStatistics(source, projection, stats) =>
-      JsonObject("sourceId" -> source.asJson, "projectionId" -> projection.asJson) deepMerge stats.asJsonObject
+      JsonObject("sourceId" := source, "projectionId" := projection).deepMerge(stats.asJsonObject)
     }
 }

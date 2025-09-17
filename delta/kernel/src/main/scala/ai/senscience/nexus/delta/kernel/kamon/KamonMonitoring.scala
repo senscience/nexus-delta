@@ -64,7 +64,7 @@ object KamonMonitoring {
       tags: Map[String, Any] = Map.empty,
       takeSamplingDecision: Boolean = true
   )(io: IO[A]): IO[A] = {
-    if (enabled)
+    if enabled then
       buildSpan(name, component, tags).bracketCase(_ => io) {
         case (span, Outcome.Succeeded(_))   => finishSpan(span, takeSamplingDecision)
         case (span, Outcome.Errored(cause)) => failSpan(span, cause, takeSamplingDecision)
@@ -84,7 +84,7 @@ object KamonMonitoring {
 
   private def finishSpan(span: Span, takeSamplingDecision: Boolean): IO[Unit] =
     IO.blocking {
-      val s = if (takeSamplingDecision) span.takeSamplingDecision() else span
+      val s = if takeSamplingDecision then span.takeSamplingDecision() else span
       s.finish()
     }
 

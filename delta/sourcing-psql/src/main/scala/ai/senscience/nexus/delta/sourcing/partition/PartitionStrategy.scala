@@ -8,8 +8,7 @@ import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import pureconfig.ConfigReader
-import pureconfig.generic.auto.*
-import pureconfig.generic.semiauto.deriveReader
+import pureconfig.generic.semiauto.*
 
 /**
   * Partition strategy for the scoped event and state tables in PostgreSQL
@@ -25,7 +24,7 @@ object PartitionStrategy {
     * Creates a partition per organization and project, fits scenarios where the number of projects is small and the
     * projects can contain a large number of events and resources
     */
-  final case object List extends PartitionStrategy
+  case object List extends PartitionStrategy
 
   /**
     * Creates a partition per organization and project, fits scenarios where the number of projects is large * and the

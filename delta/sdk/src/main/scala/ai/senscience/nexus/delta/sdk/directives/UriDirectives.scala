@@ -23,7 +23,6 @@ import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.http.scaladsl.model.Uri.Path
 import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.http.scaladsl.server.Directives.*
-import org.apache.pekko.http.scaladsl.server.directives.BasicDirectives.extractRequestContext
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -57,9 +56,9 @@ trait UriDirectives extends QueryParamsUnmarshalling {
 
     def ordering(field: String) = {
       val (fieldName, descending) =
-        if (field.startsWith("-") || field.startsWith("+")) (field.drop(1), field.startsWith("-"))
+        if field.startsWith("-") || field.startsWith("+") then (field.drop(1), field.startsWith("-"))
         else (field, false)
-      ResourceF.sortBy[A](fieldName).map(ord => if (descending) ord.reverse else ord).toRight(fieldName)
+      ResourceF.sortBy[A](fieldName).map(ord => if descending then ord.reverse else ord).toRight(fieldName)
     }
     parameter("sort".as[String].*).map(_.toList.reverse).flatMap {
       case Nil           => provide(ResourceF.defaultSort)
@@ -159,7 +158,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
     }
 
   def resourceRef(idSegment: IdSegment)(implicit pc: ProjectContext): Directive1[ResourceRef] =
-    Resources.expandResourceRef(idSegment, pc.apiMappings, pc.base, InvalidResourceId) match {
+    Resources.expandResourceRef(idSegment, pc.apiMappings, pc.base, InvalidResourceId(_)) match {
       case Right(resourceRef) => provide(resourceRef)
       case Left(err)          => reject(validationRejection(err.getMessage))
     }
@@ -271,7 +270,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
         )
         reject(r)
       case _                  =>
-        afterPaginated.map[Pagination](identity) or fromPaginated.map[Pagination](identity)
+        afterPaginated.map[Pagination](identity).or(fromPaginated.map[Pagination](identity))
     }
   }
 

@@ -65,13 +65,13 @@ private class StoragesSpec
     "creating a storage" should {
 
       "succeed with the id present on the payload" in {
-        val payload = diskFieldsJson deepMerge Json.obj(keywords.id -> dId.asJson)
+        val payload = diskFieldsJson.deepMerge(Json.obj(keywords.id -> dId.asJson))
         storages.create(projectRef, payload).accepted shouldEqual
           resourceFor(dId, projectRef, diskVal, payload, createdBy = bob, updatedBy = bob)
       }
 
       "succeed with the id present on the payload and passed" in {
-        val payload = s3FieldsJson deepMerge Json.obj(keywords.id -> s3Id.asJson)
+        val payload = s3FieldsJson.deepMerge(Json.obj(keywords.id -> s3Id.asJson))
         storages.create("s3-storage", projectRef, payload).accepted shouldEqual
           resourceFor(s3Id, projectRef, s3Val, payload, createdBy = bob, updatedBy = bob)
 
@@ -88,7 +88,7 @@ private class StoragesSpec
 
       "reject with different ids on the payload and passed" in {
         val otherId = nxv + "other"
-        val payload = s3FieldsJson deepMerge Json.obj(keywords.id -> s3Id.asJson)
+        val payload = s3FieldsJson.deepMerge(Json.obj(keywords.id -> s3Id.asJson))
         storages.create(otherId, projectRef, payload).rejected shouldEqual UnexpectedId(id = otherId, payloadId = s3Id)
       }
 
@@ -110,7 +110,7 @@ private class StoragesSpec
     "updating a storage" should {
 
       "succeed" in {
-        val payload = diskFieldsJson deepMerge json"""{"default": false, "maxFileSize": 40}"""
+        val payload = diskFieldsJson.deepMerge(json"""{"default": false, "maxFileSize": 40}""")
         storages.update(dId, projectRef, 2, payload).accepted shouldEqual
           resourceFor(dId, projectRef, diskValUpdate, payload, rev = 3, createdBy = bob, updatedBy = bob)
       }
@@ -133,7 +133,7 @@ private class StoragesSpec
     "deprecating a storage" should {
 
       "succeed" in {
-        val payload = s3FieldsJson deepMerge json"""{"@id": "$s3Id", "default": false}"""
+        val payload = s3FieldsJson.deepMerge(json"""{"@id": "$s3Id", "default": false}""")
         storages.deprecate(s3Id, projectRef, 2).accepted shouldEqual
           resourceFor(
             s3Id,
@@ -171,7 +171,7 @@ private class StoragesSpec
 
       "succeed" in {
         givenADeprecatedStorage { storage =>
-          val payload = diskFieldsJson deepMerge json"""{"@id": "${nxv + storage}", "default": false}"""
+          val payload = diskFieldsJson.deepMerge(json"""{"@id": "${nxv + storage}", "default": false}""")
           storages.undeprecate(nxv + storage, projectRef, 2).accepted shouldEqual
             resourceFor(
               nxv + storage,
@@ -268,7 +268,7 @@ private class StoragesSpec
     def givenAStorage(assertion: String => Assertion): Assertion = {
       val storageName = genString()
       val storageId   = nxv + storageName
-      val payload     = diskFieldsJson deepMerge Json.obj(keywords.id -> storageId.asJson, "default" -> false.asJson)
+      val payload     = diskFieldsJson.deepMerge(Json.obj(keywords.id -> storageId.asJson, "default" -> false.asJson))
       storages.create(projectRef, payload).accepted
       storages.fetch(storageId, projectRef).accepted
       assertion(storageName)

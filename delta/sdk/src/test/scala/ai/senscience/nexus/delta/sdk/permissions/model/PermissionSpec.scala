@@ -12,7 +12,7 @@ class PermissionSpec extends BaseSpec {
 
   "A Permission" should {
     "be constructed correctly for valid strings" in {
-      for (_ <- 1 to 100) {
+      for _ <- 1 to 100 do {
         val valid = genValid
         Permission(valid).rightValue shouldEqual Permission.unsafe(valid)
       }

@@ -87,52 +87,51 @@ final class OrganizationsRoutes(
                     .widen[SearchResults[OrganizationResource]]
                 )
             },
-            label.apply { org =>
-              concat(
-                pathEndOrSingleSlash {
-                  concat(
-                    put {
-                      parameter("rev".as[Int]) { rev =>
-                        authorizeFor(org, orgs.write).apply {
-                          // Update organization
-                          entity(as[OrganizationInput]) { case OrganizationInput(description) =>
-                            emitMetadata(organizations.update(org, description, rev))
-                          }
+            concat(
+              (label & pathEndOrSingleSlash) { org =>
+                concat(
+                  put {
+                    parameter("rev".as[Int]) { rev =>
+                      authorizeFor(org, orgs.write).apply {
+                        // Update organization
+                        entity(as[OrganizationInput]) { case OrganizationInput(description) =>
+                          emitMetadata(organizations.update(org, description, rev))
                         }
-                      }
-                    },
-                    get {
-                      authorizeFor(org, orgs.read).apply {
-                        parameter("rev".as[Int].?) {
-                          case Some(rev) => // Fetch organization at specific revision
-                            emit(organizations.fetchAt(org, rev))
-                          case None      => // Fetch organization
-                            emit(organizations.fetch(org))
-
-                        }
-                      }
-                    },
-                    // Deprecate or delete organization
-                    delete {
-                      parameters("rev".as[Int].?, "prune".as[Boolean].?) {
-                        case (Some(rev), None)        => deprecate(org, rev)
-                        case (Some(rev), Some(false)) => deprecate(org, rev)
-                        case (None, Some(true))       =>
-                          authorizeFor(org, orgs.delete).apply {
-                            emit(orgDeleter.apply(org))
-                          }
-                        case (_, _)                   => discardEntityAndForceEmit(InvalidDeleteRequest(org): OrganizationRejection)
                       }
                     }
-                  )
-                },
-                (put & pathPrefix("undeprecate") & pathEndOrSingleSlash & parameter("rev".as[Int])) { rev =>
+                  },
+                  get {
+                    authorizeFor(org, orgs.read).apply {
+                      parameter("rev".as[Int].?) {
+                        case Some(rev) => // Fetch organization at specific revision
+                          emit(organizations.fetchAt(org, rev))
+                        case None      => // Fetch organization
+                          emit(organizations.fetch(org))
+
+                      }
+                    }
+                  },
+                  // Deprecate or delete organization
+                  delete {
+                    parameters("rev".as[Int].?, "prune".as[Boolean].?) {
+                      case (Some(rev), None)        => deprecate(org, rev)
+                      case (Some(rev), Some(false)) => deprecate(org, rev)
+                      case (None, Some(true))       =>
+                        authorizeFor(org, orgs.delete).apply {
+                          emit(orgDeleter.apply(org))
+                        }
+                      case (_, _)                   => discardEntityAndForceEmit(InvalidDeleteRequest(org): OrganizationRejection)
+                    }
+                  }
+                )
+              },
+              (label & put & pathPrefix("undeprecate") & pathEndOrSingleSlash & parameter("rev".as[Int])) {
+                (org, rev) =>
                   authorizeFor(org, orgs.write).apply {
                     emitMetadata(organizations.undeprecate(org, rev))
                   }
-                }
-              )
-            },
+              }
+            ),
             (label & pathEndOrSingleSlash) { label =>
               (put & authorizeFor(label, orgs.create)) {
                 // Create organization

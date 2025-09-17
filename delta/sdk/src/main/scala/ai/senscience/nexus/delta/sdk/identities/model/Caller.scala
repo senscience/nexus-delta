@@ -30,7 +30,7 @@ object Caller {
   val Anonymous: Caller = Caller(Identity.Anonymous, Set(Identity.Anonymous))
 
   def apply(subject: Subject, identities: Set[Identity] = Set.empty): Caller =
-    if (identities.contains(subject)) new Caller(subject, identities)
+    if identities.contains(subject) then new Caller(subject, identities)
     else new Caller(subject, identities + subject)
 
   implicit final def callerEncoder(implicit base: BaseUri): Encoder.AsObject[Caller] = {

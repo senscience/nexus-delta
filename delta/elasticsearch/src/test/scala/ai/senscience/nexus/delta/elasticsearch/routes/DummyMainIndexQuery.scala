@@ -17,10 +17,8 @@ class DummyMainIndexQuery extends MainIndexQuery {
     IO.raiseError(AuthorizationFailed("Fail !!!!"))
 
   override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] =
-    if (request.pagination == allowedPage)
-      IO.pure(SearchResults(1, List(listResponse)))
-    else
-      IO.raiseError(AuthorizationFailed("Fail !!!!"))
+    if request.pagination == allowedPage then IO.pure(SearchResults(1, List(listResponse)))
+    else IO.raiseError(AuthorizationFailed("Fail !!!!"))
 
   override def aggregate(request: MainIndexRequest, projects: Set[ProjectRef]): IO[AggregationResult] =
     IO.pure(AggregationResult(1, aggregationResponse))

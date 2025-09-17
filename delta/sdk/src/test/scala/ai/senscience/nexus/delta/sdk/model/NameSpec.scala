@@ -7,7 +7,7 @@ class NameSpec extends BaseSpec {
 
   "A Name" should {
     "be constructed correctly from alphanumeric chars, - and _" in {
-      forAll(1 to 128) { length =>
+      forAll((1 to 128).toList) { length =>
         val string = genString(
           length,
           Vector.range('a', 'z') ++ Vector.range('0', '9') ++ Vector.range('A', 'Z') :+ '-' :+ '_' :+ ' '

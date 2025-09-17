@@ -60,6 +60,6 @@ object DetectChange {
         .guarantee(IO.cede)
   }
 
-  def apply(enabled: Boolean): DetectChange = if (enabled) Impl else Disabled
+  def apply(enabled: Boolean): DetectChange = if enabled then Impl else Disabled
 
 }

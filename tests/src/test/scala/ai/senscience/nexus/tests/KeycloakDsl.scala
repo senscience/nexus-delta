@@ -74,7 +74,7 @@ class KeycloakDsl(implicit
     Uri(s"$keycloakUrl/realms/${realm.name}/protocol/openid-connect/token")
 
   def userToken(user: UserCredentials, client: ClientCredentials): IO[String] = {
-    val clientFields = if (client.secret == "") {
+    val clientFields = if client.secret == "" then {
       Map("scope" -> "openid", "client_id" -> client.id)
     } else {
       Map(

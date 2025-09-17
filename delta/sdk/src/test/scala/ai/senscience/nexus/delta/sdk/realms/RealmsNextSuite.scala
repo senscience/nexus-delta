@@ -36,9 +36,9 @@ class RealmsNextSuite extends NexusSuite with OptionAssertions {
 
   private val updated = RealmUpdated(label, 2, name, wellKnown2Uri, None, None, wk2, time2, subject)
   test("Updating a realm returns an updated state") {
-      // format: off
-      val expected = RealmState(label, 2, deprecated = false, name, wellKnown2Uri, wk2.issuer, wk2.keys, wk2.grantTypes, None, None, wk2.authorizationEndpoint, wk2.tokenEndpoint, wk2.userInfoEndpoint, wk2.revocationEndpoint, wk2.endSessionEndpoint, epoch, Anonymous, time2, subject)
-      // format: on
+    // format: off
+    val expected = RealmState(label, 2, deprecated = false, name, wellKnown2Uri, wk2.issuer, wk2.keys, wk2.grantTypes, None, None, wk2.authorizationEndpoint, wk2.tokenEndpoint, wk2.userInfoEndpoint, wk2.revocationEndpoint, wk2.endSessionEndpoint, epoch, Anonymous, time2, subject)
+    // format: on
     next(Some(current), updated).assertSome(expected)
   }
 

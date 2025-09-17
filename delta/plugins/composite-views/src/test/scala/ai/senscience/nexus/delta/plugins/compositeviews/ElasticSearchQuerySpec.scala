@@ -34,7 +34,6 @@ import org.http4s.{Query, Status}
 import org.scalatest.CancelAfterFailure
 
 import java.util.UUID
-import scala.annotation.nowarn
 
 class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with CancelAfterFailure {
 
@@ -120,13 +119,8 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
 
   private val indexResults = Map(esP1Idx -> document(), esP2Idx -> document())
 
-  @nowarn("cat=unused")
-  private def esQuery(
-      q: JsonObject,
-      indices: Set[String],
-      qp: Query
-  ): IO[Json] =
-    if (q == query)
+  private val esQuery = (q: JsonObject, indices: Set[String], _: Query) =>
+    if q == query then
       IO.pure(Json.arr(indices.foldLeft(Seq.empty[Json])((acc, idx) => acc :+ indexResults(idx).asJson)*))
     else IO.raiseError(ElasticsearchQueryError(Status.BadRequest, None))
 

@@ -36,19 +36,19 @@ object ExecutionStrategy {
   /**
     * Strategy for projections that must run on a single node without persisting the offset.
     */
-  final case object TransientSingleNode extends SingleNode
+  case object TransientSingleNode extends SingleNode
   type TransientSingleNode = TransientSingleNode.type
 
   /**
     * Strategy for projections that must run on a single node persisting the offset.
     */
-  final case object PersistentSingleNode extends SingleNode
+  case object PersistentSingleNode extends SingleNode
   type PersistentSingleNode = PersistentSingleNode.type
 
   /**
     * Strategy for projections that must run on all the nodes, useful for populating caches.
     */
-  final case object EveryNode extends ExecutionStrategy
+  case object EveryNode extends ExecutionStrategy
   type EveryNode = EveryNode.type
 
   implicit final val executionStrategyEncoder: Encoder[ExecutionStrategy] =

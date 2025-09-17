@@ -25,6 +25,8 @@ import org.scalatest.Assertion
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 import org.testcontainers.utility.Base58.randomString
 
+import scala.concurrent.Future
+
 class ResourcesSpec extends BaseIntegrationSpec {
 
   private val orgId      = genId()
@@ -211,7 +213,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
       )
 
       forAll(urls) { url =>
-        eventually {
+        val result = eventually {
           for {
             response   <- deltaClient.getResponse(url, Morty)
             etag        = response.header[ETag].value.etag
@@ -221,6 +223,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
                           }
           } yield succeed
         }
+        Future(result)
       }
     }
 
@@ -327,7 +330,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
     }
 
     "update a cross-project-resolver for proj2" in {
-      val updated = resolverPayload deepMerge Json.obj("priority" -> Json.fromInt(20))
+      val updated = resolverPayload.deepMerge(Json.obj("priority" -> Json.fromInt(20)))
       deltaClient.put[Json](s"/resolvers/$project2/test-resolver?rev=1", updated, Rick) { (_, response) =>
         response.status shouldEqual StatusCodes.OK
       }
@@ -527,7 +530,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
     "fetch a tagged value" in {
       val expectedTag1 = resource1Response(2, 3).accepted
       val expectedTag2 = resource1Response(1, 5).accepted
-      val expectedTag3 = resource1Response(5, 3).accepted deepMerge Json.obj("_deprecated" -> Json.True)
+      val expectedTag3 = resource1Response(5, 3).accepted.deepMerge(Json.obj("_deprecated" -> Json.True))
 
       for {
         _ <-

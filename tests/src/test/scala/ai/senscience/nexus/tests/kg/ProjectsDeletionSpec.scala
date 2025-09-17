@@ -8,12 +8,11 @@ import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Pr
 import ai.senscience.nexus.tests.kg.files.model.FileInput
 import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
+import cats.effect.IO
+import fs2.io.file.{Files, Path}
 import io.circe.Json
 import io.circe.optics.JsonPath.root
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-
-import java.io.File
-import scala.reflect.io.Directory
 
 final class ProjectsDeletionSpec extends BaseIntegrationSpec {
 
@@ -190,8 +189,8 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
       deltaClient.sseEvents(s"/resources/$org/events", Bojack, None) { events =>
         events.foreach {
           case (_, Some(json)) =>
-            root._projectId.string.exist(_ == ref1)(json) shouldEqual false withClue events
-            root._project.string.exist(_ == ref1)(json) shouldEqual false withClue events
+            root._projectId.string.exist(_ == ref1)(json) shouldEqual (false).withClue(events)
+            root._project.string.exist(_ == ref1)(json) shouldEqual (false).withClue(events)
           case (_, None)       =>
             fail("Every event should have a payload")
         }
@@ -203,7 +202,7 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
       deltaClient.sseEvents(s"/acls/events", ServiceAccount, None) { events =>
         events.foreach {
           case (_, Some(json)) =>
-            root._path.string.exist(_ == s"/$ref1")(json) shouldEqual false withClue events
+            root._path.string.exist(_ == s"/$ref1")(json) shouldEqual (false).withClue(events)
           case (_, None)       =>
             fail("Every event should have a payload")
         }
@@ -243,10 +242,8 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
     }
 
     "have deleted the default storage folder" in {
-      val proj1Directory = new Directory(new File(s"/tmp/$ref1"))
-      proj1Directory.exists shouldEqual false
-      val proj2Directory = new Directory(new File(s"/tmp/$ref2"))
-      proj2Directory.exists shouldEqual true
+      Files[IO].exists(Path(s"/tmp/$ref1")).map { _ shouldEqual false } >>
+        Files[IO].exists(Path(s"/tmp/$ref2")).map { _ shouldEqual true }
     }
 
     "have stopped all the projections related to the project" in {

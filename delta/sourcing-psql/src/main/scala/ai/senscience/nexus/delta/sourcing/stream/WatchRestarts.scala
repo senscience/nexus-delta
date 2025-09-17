@@ -44,10 +44,9 @@ object WatchRestarts {
             .restarts(offset)
             .evalMap { case (offset, restart) =>
               supervisor.restart(restart.name, restart.fromOffset).flatMap { status =>
-                if (status.exists(_ != ExecutionStatus.Ignored))
+                if status.exists(_ != ExecutionStatus.Ignored) then
                   projections.acknowledgeRestart(offset).as(success(offset, restart))
-                else
-                  IO.pure(dropped(offset, restart))
+                else IO.pure(dropped(offset, restart))
               }
             }
       )

@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import fs2.Stream
+import fs2.io.file.Files
 
 class StorageDeletionTaskSuite extends NexusSuite with FileDataHelpers with StorageFixtures {
 
@@ -35,8 +36,7 @@ class StorageDeletionTaskSuite extends NexusSuite with FileDataHelpers with Stor
       result      <- deletionTask(project)
       _            = assertEquals(result.log.size, 2, s"The two storages should have been processed:\n$result")
       _            = fileExists(metadata).assertEquals(false, s"'${metadata.location}' should have been deleted.")
-      _            = assert(!storageDir.exists, s"The directory '$storageDir' should have been deleted.")
-
+      _           <- Files[IO].exists(storageDir).assertEquals(false, s"The directory '$storageDir' should have been deleted.")
     } yield ()
   }
 }

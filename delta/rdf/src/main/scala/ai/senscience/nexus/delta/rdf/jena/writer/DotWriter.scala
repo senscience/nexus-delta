@@ -54,12 +54,13 @@ private object DotWriterImpl extends WriterGraphRIOTBase {
 
     val iter = graph.find()
     out.write(s"""digraph ${formatSubject(root).get} {\n""")
-    while (iter.hasNext) {
+    while iter.hasNext do {
       val triple    = iter.next()
       val (s, p, o) = (triple.getSubject, triple.getPredicate, triple.getObject)
       (formatSubject(s), formatPredicate(p), formatObject(o, p.toString == rdf.tpe.toString)).mapN {
         case (ss, pp, oo) => out.write(s"""  $ss -> $oo [label = $pp]\n""")
       }
+      ()
     }
     out.write("}")
   }

@@ -162,7 +162,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
     ) =>
       JsonLdContext(listingsMetadataCtx.value)(cr, JsonLdOptions.defaults)
         .map(_.aliasesInv.keySet.map(Triple.predicate))
-        .map(MetadataPredicates)
+        .map(MetadataPredicates(_))
   }
 
   make[RemoteGraphStream].from {

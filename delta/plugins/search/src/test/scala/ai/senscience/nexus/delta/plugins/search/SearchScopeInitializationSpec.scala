@@ -11,12 +11,12 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import io.circe.JsonObject
+import org.http4s.syntax.literals.uri
 
 import scala.concurrent.duration.*
 

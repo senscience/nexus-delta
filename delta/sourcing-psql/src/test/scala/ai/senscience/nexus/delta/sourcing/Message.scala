@@ -43,7 +43,7 @@ object Message {
 
   object MessageRejection {
     trait NotFound                                                extends MessageRejection
-    final case object NotFound                                    extends NotFound
+    case object NotFound                                          extends NotFound
     final case class AlreadyExists(id: Iri, project: ProjectRef)  extends MessageRejection
     final case class MessageTooLong(id: Iri, project: ProjectRef) extends MessageRejection
   }

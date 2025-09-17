@@ -14,7 +14,7 @@ import cats.effect.IO
 import io.circe.JsonObject
 import io.circe.literal.*
 import io.circe.syntax.EncoderOps
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * Sink that pushes the [[GraphAnalyticsResult]] to the given index

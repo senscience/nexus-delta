@@ -42,7 +42,9 @@ trait IdentityInstances {
 
   implicit def identityEncoder(implicit base: BaseUri): Encoder[Identity] = {
     val idEncoder: Encoder[Identity] = IriEncoder.jsonEncoder[Identity]
-    Encoder.encodeJson.contramap { ident => baseEncoder(ident) deepMerge Json.obj("@id" -> idEncoder(ident)) }
+    Encoder.encodeJson.contramap { ident =>
+      baseEncoder(ident).deepMerge(Json.obj("@id" -> idEncoder(ident)))
+    }
   }
 
   implicit def subjectEncoder(implicit base: BaseUri): Encoder[Subject] =

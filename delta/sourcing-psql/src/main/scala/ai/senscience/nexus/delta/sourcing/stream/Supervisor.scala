@@ -255,7 +255,7 @@ object Supervisor {
     private def controlTask(projection: CompiledProjection, init: IO[Unit]): IO[Control] = {
       val metadata = projection.metadata
       val strategy = projection.executionStrategy
-      if (!strategy.shouldRun(metadata.name, cfg.cluster))
+      if !strategy.shouldRun(metadata.name, cfg.cluster) then
         log.debug(s"Ignoring '${metadata.module}/${metadata.name}' with strategy '$strategy'.").as(ignored)
       else
         log.info(s"Starting '${metadata.module}/${metadata.name}' with strategy '$strategy'.") >>
@@ -289,7 +289,7 @@ object Supervisor {
           supervised <- mapRef.get.map(_.get(name))
           status     <- supervised.traverse { s =>
                           val metadata = s.metadata
-                          if (!s.executionStrategy.shouldRun(name, cfg.cluster))
+                          if !s.executionStrategy.shouldRun(name, cfg.cluster) then
                             log
                               .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping restart...")
                               .as(ExecutionStatus.Ignored)
@@ -316,7 +316,7 @@ object Supervisor {
           status     <- supervised.traverse { s =>
                           val metadata      = s.metadata
                           val retryStrategy = createRetryStrategy(cfg, metadata, "destroying")
-                          if (!s.executionStrategy.shouldRun(name, cfg.cluster))
+                          if !s.executionStrategy.shouldRun(name, cfg.cluster) then
                             log
                               .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping...")
                               .as(ExecutionStatus.Ignored)

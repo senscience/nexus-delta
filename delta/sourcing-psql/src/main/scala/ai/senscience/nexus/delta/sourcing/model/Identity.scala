@@ -40,7 +40,7 @@ object Identity {
   /**
     * The Anonymous singleton identity.
     */
-  final case object Anonymous extends Subject
+  case object Anonymous extends Subject
 
   /**
     * A user identity. It represents a unique person or a service account.
@@ -87,7 +87,7 @@ object Identity {
     }
 
   private def decodeAuthenticated(hc: HCursor): Result[Identity] =
-    hc.get[Label]("realm").map(Authenticated)
+    hc.get[Label]("realm").map(Authenticated(_))
 
   private val attempts        =
     List[HCursor => Result[Identity]](decodeAnonymous, decodeUser, decodeGroup, decodeAuthenticated)

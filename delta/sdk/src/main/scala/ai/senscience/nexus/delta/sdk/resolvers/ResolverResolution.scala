@@ -205,7 +205,7 @@ final class ResolverResolution[R](
   }
 
   private def runDeprecationCheck(resourceRef: ResourceRef, project: ProjectRef, resource: R): IO[Boolean] = {
-    if (deprecationCheck.enabled) {
+    if deprecationCheck.enabled then {
       resourceRef match {
         case _: ResourceRef.Latest => IO.pure(deprecationCheck(resource))
         // Fetch the latest version to get its deprecation status

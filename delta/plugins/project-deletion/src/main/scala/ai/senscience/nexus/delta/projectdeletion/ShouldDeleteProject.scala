@@ -11,8 +11,8 @@ import java.time.{Duration, Instant}
 
 object ShouldDeleteProject {
 
-  val andSemigroup: Semigroup[Boolean] = (x: Boolean, y: Boolean) => x && y
-  val orSemigroup: Semigroup[Boolean]  = (x: Boolean, y: Boolean) => x || y
+  private val andSemigroup: Semigroup[Boolean] = (x: Boolean, y: Boolean) => x && y
+  private val orSemigroup: Semigroup[Boolean]  = (x: Boolean, y: Boolean) => x || y
 
   def apply(
       config: ProjectDeletionConfig,
@@ -20,20 +20,17 @@ object ShouldDeleteProject {
       clock: Clock[IO]
   ): ProjectResource => IO[Boolean] = (pr: ProjectResource) => {
 
-    def isIncluded(pr: ProjectResource): Boolean = {
+    def isIncluded(pr: ProjectResource): Boolean =
       config.includedProjects.exists(regex => regex.matches(pr.value.ref.toString))
-    }
 
-    def notExcluded(pr: ProjectResource): Boolean = {
+    def notExcluded(pr: ProjectResource): Boolean =
       !config.excludedProjects.exists(regex => regex.matches(pr.value.ref.toString))
-    }
 
-    def deletableDueToDeprecation(pr: ProjectResource): Boolean = {
+    def deletableDueToDeprecation(pr: ProjectResource): Boolean =
       config.deleteDeprecatedProjects && pr.deprecated
-    }
 
     def deletableDueToBeingIdle(pr: ProjectResource): IO[Boolean] = {
-      implicit val and = andSemigroup
+      implicit val and: Semigroup[Boolean] = andSemigroup
       for {
         now  <- clock.realTimeInstant
         idle <- NonEmptyList.of(IO.pure(projectIsIdle(pr, now)), resourcesAreIdle(pr, now)).reduce
@@ -42,24 +39,20 @@ object ShouldDeleteProject {
       }
     }
 
-    def projectIsIdle(pr: ProjectResource, now: Instant) = {
-      (now diff pr.updatedAt).toSeconds > config.idleInterval.toSeconds
-    }
+    def projectIsIdle(pr: ProjectResource, now: Instant) =
+      now.diff(pr.updatedAt).toSeconds > config.idleInterval.toSeconds
 
-    def resourcesAreIdle(pr: ProjectResource, now: Instant): IO[Boolean] = {
+    def resourcesAreIdle(pr: ProjectResource, now: Instant): IO[Boolean] =
       lastEventTime(pr, now).map(_.isBefore(now.minus(Duration.ofMillis(config.idleInterval.toMillis))))
-    }
 
-    def alreadyDeleted(pr: ProjectResource): Boolean = {
-      pr.value.markedForDeletion
-    }
+    def alreadyDeleted(pr: ProjectResource): Boolean = pr.value.markedForDeletion
 
     def worthyOfDeletion(pr: ProjectResource): IO[Boolean] = {
-      implicit val or = orSemigroup
+      implicit val or: Semigroup[Boolean] = orSemigroup
       NonEmptyList.of(IO.pure(deletableDueToDeprecation(pr)), deletableDueToBeingIdle(pr)).reduce
     }
 
-    implicit val and = andSemigroup
+    implicit val and: Semigroup[Boolean] = andSemigroup
     NonEmptyList
       .of(
         IO.pure(isIncluded(pr)),

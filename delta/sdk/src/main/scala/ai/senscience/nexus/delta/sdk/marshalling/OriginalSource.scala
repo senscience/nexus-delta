@@ -42,10 +42,8 @@ object OriginalSource {
       extends OriginalSource
 
   def apply[A](resourceF: ResourceF[A], source: Json, annotated: Boolean)(implicit baseUri: BaseUri): OriginalSource = {
-    if (annotated)
-      Annotated(resourceF.void, source)
-    else
-      apply(resourceF, source)
+    if annotated then Annotated(resourceF.void, source)
+    else apply(resourceF, source)
   }
 
   def apply[A](resourceF: ResourceF[A], source: Json): OriginalSource = Standard(resourceF.void, source)

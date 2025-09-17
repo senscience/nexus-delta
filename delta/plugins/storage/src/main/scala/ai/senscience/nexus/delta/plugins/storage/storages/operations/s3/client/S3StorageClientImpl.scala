@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{checksu
 import ai.senscience.nexus.delta.sdk.FileData
 import cats.effect.IO
 import cats.implicits.*
-import eu.timepit.refined.refineMV
 import eu.timepit.refined.types.string.NonEmptyString
 import fs2.Stream
 import fs2.aws.s3.S3
@@ -41,7 +40,7 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
   override def readFileMultipart(bucket: String, fileKey: String): Stream[IO, Byte] = {
     val bucketName           = BucketName(NonEmptyString.unsafeFrom(bucket))
     val objectKey            = FileKey(NonEmptyString.unsafeFrom(fileKey))
-    val partSize: PartSizeMB = refineMV(5)
+    val partSize: PartSizeMB = PartSizeMB.unsafeFrom(5)
 
     S3.create(client).readFileMultipart(bucketName, objectKey, partSize)
   }
@@ -66,7 +65,7 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
       options: CopyOptions
   ): IO[S3OperationResult] =
     approveCopy(destinationBucket, destinationKey, options.overwriteTarget).flatMap { approved =>
-      if (approved) {
+      if approved then {
         val requestBuilder     = CopyObjectRequest
           .builder()
           .sourceBucket(sourceBucket)
@@ -91,7 +90,7 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
       options: CopyOptions
   ): IO[S3OperationResult] =
     approveCopy(destinationBucket, destinationKey, options.overwriteTarget).flatMap { approved =>
-      if (approved) {
+      if approved then {
         copyObjectMultiPart(sourceBucket, sourceKey, destinationBucket, destinationKey, options.mediaType).as(
           S3OperationResult.Success
         )
@@ -153,10 +152,8 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
   }
 
   private def approveCopy(destinationBucket: String, destinationKey: String, overwriteEnabled: Boolean) =
-    if (overwriteEnabled)
-      IO.pure(true)
-    else
-      objectExists(destinationBucket, destinationKey).map { exists => !exists }
+    if overwriteEnabled then IO.pure(true)
+    else objectExists(destinationBucket, destinationKey).map { exists => !exists }
 
   override def objectExists(bucket: String, key: String): IO[Boolean] = {
     headObject(bucket, key)
@@ -204,11 +201,10 @@ final private[client] class S3StorageClientImpl(client: S3AsyncClientOp[IO]) ext
   override def bucketExists(bucket: String): IO[Boolean] = {
     listObjectsV2(bucket)
       .redeemWith(
-        err =>
-          err match {
-            case _: NoSuchBucketException => IO.pure(false)
-            case e                        => IO.raiseError(StorageNotAccessible(e.getMessage))
-          },
+        {
+          case _: NoSuchBucketException => IO.pure(false)
+          case e                        => IO.raiseError(StorageNotAccessible(e.getMessage))
+        },
         _ => IO.pure(true)
       )
   }

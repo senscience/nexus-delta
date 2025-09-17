@@ -152,7 +152,7 @@ object JsonLdEncoder {
 
       override def context(value: A): ContextValue = contextFromJson(value.asJson)
 
-      private def contextFromJson(json: Json): ContextValue = json.topContextValueOrEmpty merge ctx
+      private def contextFromJson(json: Json): ContextValue = json.topContextValueOrEmpty.merge(ctx)
     }
 
   implicit val jsonLdEncoderUnit: JsonLdEncoder[Unit] = new JsonLdEncoder[Unit] {

@@ -16,6 +16,7 @@ import org.scalatest.Assertion
 import org.scalatest.LoneElement.*
 
 import java.util.UUID
+import scala.concurrent.Future
 
 final class ListingsSpec extends BaseIntegrationSpec {
 
@@ -328,6 +329,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
             json shouldEqual jsonContentOf("kg/listings/from-and-after-error.json")
           }
         }
+        Future(succeed)
       }
     }
 
@@ -339,6 +341,7 @@ final class ListingsSpec extends BaseIntegrationSpec {
             json shouldEqual jsonContentOf("kg/listings/from-over-limit-error.json")
           }
         }
+        Future(succeed)
       }
     }
 

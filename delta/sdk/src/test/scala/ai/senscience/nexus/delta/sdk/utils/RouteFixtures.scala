@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.scalatest.ClasspathResources
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import org.http4s.implicits.http4sLiteralsSyntax
+import org.http4s.syntax.literals.uri
 
 trait RouteFixtures {
   self: ClasspathResources =>

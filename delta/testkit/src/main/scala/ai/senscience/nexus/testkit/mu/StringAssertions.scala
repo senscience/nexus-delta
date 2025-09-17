@@ -4,7 +4,7 @@ import munit.{Assertions, Location}
 
 trait StringAssertions { self: Assertions =>
 
-  implicit class StringAssertionsOps(obtained: String)(implicit loc: Location) {
+  implicit class StringAssertionsOps(obtained: String) {
 
     private def sort(value: String) = value.split("\n").filterNot(_.trim.isEmpty).sorted.toList
 

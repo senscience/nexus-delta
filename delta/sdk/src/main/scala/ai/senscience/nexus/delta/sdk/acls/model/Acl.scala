@@ -27,7 +27,7 @@ final case class Acl(address: AclAddress, value: Map[Identity, Set[Permission]])
     *   the acl to be added
     */
   def ++(acl: Acl): Acl =
-    if (acl.address == address)
+    if acl.address == address then
       copy(value = acl.value.foldLeft(value) { case (acc, (id, permsToAdd)) =>
         acc.updatedWith(id)(perms => Some(perms.fold(permsToAdd)(_ ++ permsToAdd)))
       })
@@ -40,7 +40,7 @@ final case class Acl(address: AclAddress, value: Map[Identity, Set[Permission]])
     *   the acl to be subtracted
     */
   def --(acl: Acl): Acl =
-    if (acl.address == address)
+    if acl.address == address then
       copy(value = acl.value.foldLeft(value) { case (acc, (id, permsToDelete)) =>
         acc.updatedWith(id)(_.map(_ -- permsToDelete).filter(_.nonEmpty))
       })

@@ -74,7 +74,7 @@ final class CompositeRestartStore(xas: Transactors) {
     fetchOne(view, asc = false)
 
   private def fetchOne(view: ViewRef, asc: Boolean) = {
-    val direction = if (asc) fr"ASC" else fr"DESC"
+    val direction = if asc then fr"ASC" else fr"DESC"
     sql"""SELECT ordering, project, id, value, instant from public.composite_restarts
          |WHERE project = ${view.project} and id = ${view.viewId} and acknowledged = false
          |ORDER BY ordering $direction

@@ -16,8 +16,7 @@ class PermissionsSpec extends BaseIntegrationSpec {
       deltaClient.get[Permissions]("/permissions", Identity.ServiceAccount) { (permissions, response) =>
         runIO {
           response.status shouldEqual StatusCodes.OK
-          if (permissions.permissions == Permission.minimalPermissions)
-            IO.pure(succeed)
+          if permissions.permissions == Permission.minimalPermissions then IO.pure(succeed)
           else
             deltaClient.delete[Json](s"/permissions?rev=${permissions._rev}", Identity.ServiceAccount) {
               (_, response) =>

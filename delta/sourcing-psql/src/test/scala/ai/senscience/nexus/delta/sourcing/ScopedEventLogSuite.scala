@@ -192,15 +192,15 @@ class ScopedEventLogSuite extends NexusSuite with Doobie.Fixture {
   }
 
   test("Get state at the specified revision") {
-    eventLog.stateOr(proj, id, 1, NotFound, RevisionNotFound).assertEquals(state1)
+    eventLog.stateOr(proj, id, 1, NotFound, RevisionNotFound(_, _)).assertEquals(state1)
   }
 
   test("Raise an error with a non-existent id") {
-    eventLog.stateOr(proj, nxv + "xxx", 1, NotFound, RevisionNotFound).interceptEquals(NotFound)
+    eventLog.stateOr(proj, nxv + "xxx", 1, NotFound, RevisionNotFound(_, _)).interceptEquals(NotFound)
   }
 
   test("Raise an error when providing a nonexistent revision") {
-    eventLog.stateOr(proj, id, 10, NotFound, RevisionNotFound).interceptEquals(RevisionNotFound(10, 3))
+    eventLog.stateOr(proj, id, 10, NotFound, RevisionNotFound(_, _)).interceptEquals(RevisionNotFound(10, 3))
   }
 
   test("Stream continuously the current states") {

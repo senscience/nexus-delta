@@ -66,7 +66,7 @@ final case class ExpandedJsonLd private (rootId: IriOrBNode, obj: JsonObject) ex
     *   the document to merge with the current one
     */
   def merge(rootId: IriOrBNode, that: ExpandedJsonLd): ExpandedJsonLd =
-    ExpandedJsonLd(rootId, obj deepMerge that.obj)
+    ExpandedJsonLd(rootId, obj.deepMerge(that.obj))
 
   /**
     * Merges the current document with the passed ''that'' on the matching ids while keeping the ''rootId''.
@@ -195,7 +195,7 @@ object ExpandedJsonLd {
         case explain if explain.value.isEmpty =>
           // try to add a predicate and value in order for the expanded jsonld to at least detect the @id
           for {
-            fallback <- api.explainExpand(input deepMerge Json.obj(fakeKey -> "fake".asJson))
+            fallback <- api.explainExpand(input.deepMerge(Json.obj(fakeKey -> "fake".asJson)))
             result   <- fallback.evalMap { value => IO.fromEither(expanded(value).map(_.copy(obj = JsonObject.empty))) }
           } yield result
         case explain                          =>
@@ -212,7 +212,7 @@ object ExpandedJsonLd {
     */
   final def apply(seq: Seq[ExpandedJsonLd]): ExpandedJsonLd =
     seq match {
-      case head +: tail => tail.foldLeft(head)(_ merge _)
+      case head +: tail => tail.foldLeft(head)(_.merge(_))
       case _            => ExpandedJsonLd.empty
     }
 
@@ -235,12 +235,11 @@ object ExpandedJsonLd {
   ) =
     for {
       (expandedSeqFinal, isGraph) <-
-        if (expandedSeq.size > 1)
+        if expandedSeq.size > 1 then
           api
             .expand(Json.obj(keywords.id -> graphId.asJson, keywords.graph -> expandedSeq.asJson))
             .map(_ -> true)
-        else
-          IO.pure((expandedSeq, false))
+        else IO.pure((expandedSeq, false))
       result                      <- IO.fromEither(expanded(expandedSeqFinal))
 
     } yield (result, isGraph)

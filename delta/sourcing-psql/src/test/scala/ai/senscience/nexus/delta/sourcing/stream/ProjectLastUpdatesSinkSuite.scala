@@ -22,9 +22,9 @@ class ProjectLastUpdatesSinkSuite extends NexusSuite with Doobie.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
-  private lazy val xas    = doobie()
-  private lazy val store  = ProjectLastUpdateStore(xas)
-  private lazy val stream = ProjectLastUpdateStream(xas, QueryConfig(10, RefreshStrategy.Stop))
+  private lazy val xas                             = doobie()
+  private lazy val store                           = ProjectLastUpdateStore(xas)
+  private lazy val stream: ProjectLastUpdateStream = ProjectLastUpdateStream(xas, QueryConfig(10, RefreshStrategy.Stop))
 
   private val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
 
@@ -57,7 +57,7 @@ class ProjectLastUpdatesSinkSuite extends NexusSuite with Doobie.Fixture {
                    ProjectLastUpdate(project3, now, Offset.at(95L)),
                    ProjectLastUpdate(project1, now, Offset.at(100L))
                  )
-      _       <- stream(Offset.start).assert(expected)
+      _       <- stream(Offset.start).assertList(expected)
     } yield ()
   }
 

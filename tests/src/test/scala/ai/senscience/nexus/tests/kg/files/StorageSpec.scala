@@ -6,7 +6,7 @@ import ai.senscience.nexus.tests.HttpClient.*
 import ai.senscience.nexus.tests.Identity.storages.Coyote
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.config.ConfigLoader.*
-import ai.senscience.nexus.tests.config.StorageConfig
+import ai.senscience.nexus.tests.config.TestsConfig.StorageConfig
 import ai.senscience.nexus.tests.iam.types.Permission
 import ai.senscience.nexus.tests.kg.files.FilesAssertions.expectFileContent
 import ai.senscience.nexus.tests.kg.files.model.FileInput

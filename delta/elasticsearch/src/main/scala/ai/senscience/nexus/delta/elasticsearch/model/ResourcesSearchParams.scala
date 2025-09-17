@@ -124,9 +124,9 @@ object ResourcesSearchParams {
     def typeFromStringUnmarshallerNoExpansion: FromStringUnmarshaller[Type] =
       Unmarshaller.withMaterializer[String, Type](implicit ec =>
         implicit mt => {
-          case str if str.startsWith("-") => iriFromStringUnmarshaller.apply(str.drop(1)).map(ExcludedType)
-          case str if str.startsWith("+") => iriFromStringUnmarshaller.apply(str.drop(1)).map(IncludedType)
-          case str                        => iriFromStringUnmarshaller.apply(str).map(IncludedType)
+          case str if str.startsWith("-") => iriFromStringUnmarshaller.apply(str.drop(1)).map(ExcludedType(_))
+          case str if str.startsWith("+") => iriFromStringUnmarshaller.apply(str.drop(1)).map(IncludedType(_))
+          case str                        => iriFromStringUnmarshaller.apply(str).map(IncludedType(_))
         }
       )
   }

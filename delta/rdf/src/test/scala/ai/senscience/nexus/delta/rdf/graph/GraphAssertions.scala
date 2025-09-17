@@ -22,7 +22,7 @@ trait GraphAssertions { suite: NexusSuite =>
       graph.find().asScala.toList.map(_.toString).sorted.mkString("\n")
     }
 
-    if (!leftDefaultGraph.isIsomorphicWith(rightDefaultGraph)) {
+    if !leftDefaultGraph.isIsomorphicWith(rightDefaultGraph) then {
       fail(
         s"""
            |Default graphs should be isomorphic:
@@ -41,7 +41,7 @@ trait GraphAssertions { suite: NexusSuite =>
     leftGraphNodes.foreach { graphNode =>
       val leftGraph  = left.value.getGraph(graphNode)
       val rightGraph = right.value.getGraph(graphNode)
-      if (!leftGraph.isIsomorphicWith(rightGraph)) {
+      if !leftGraph.isIsomorphicWith(rightGraph) then {
         fail(
           s"""
              |'$graphNode' should be isomorphic in both graphs:

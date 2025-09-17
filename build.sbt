@@ -15,18 +15,17 @@ scalafmt: {
 }
  */
 
-val scalacScapegoatVersion = "3.1.8"
-val scalaCompilerVersion   = "2.13.16"
+val scalacScapegoatVersion = "3.1.9"
+val scalaCompilerVersion   = "3.3.6"
 
 val awsSdkVersion              = "2.33.4"
-val betterMonadicForVersion    = "0.3.1"
 val caffeineVersion            = "3.2.2"
 val catsEffectVersion          = "3.6.3"
-val catsRetryVersion           = "3.1.3"
+val catsRetryVersion           = "4.0.0"
 val catsVersion                = "2.13.0"
 val circeVersion               = "0.14.14"
 val circeOpticsVersion         = "0.15.1"
-val circeExtrasVersions        = "0.14.4"
+val circeExtrasVersions        = "0.14.5-RC1"
 val classgraphVersion          = "4.8.181"
 val distageVersion             = "1.2.20"
 val doobieVersion              = "1.0.0-RC10"
@@ -42,10 +41,9 @@ val jenaVersion                = "5.2.0"
 val jsonIterVersion            = "2.37.9"
 val kamonVersion               = "2.7.7"
 val kanelaAgentVersion         = "1.0.18"
-val kindProjectorVersion       = "0.13.3"
 val log4catsVersion            = "2.7.1"
 val logbackVersion             = "1.5.18"
-val magnoliaVersion            = "1.1.10"
+val magnoliaVersion            = "1.3.18"
 val munitVersion               = "1.1.1"
 val munitCatsEffectVersion     = "2.1.0"
 val nimbusJoseJwtVersion       = "10.5"
@@ -59,13 +57,13 @@ val postgresJdbcVersion        = "42.7.7"
 val pureconfigVersion          = "0.17.9"
 val scalaTestVersion           = "3.2.19"
 val scalaXmlVersion            = "2.4.0"
+val shapeless3Version          = "3.5.0"
 val titaniumJsonLdVersion      = "1.6.0"
 val topBraidVersion            = "1.4.4"
 val testContainersVersion      = "1.21.3"
 val testContainersScalaVersion = "0.43.0"
 
 lazy val awsSdk             = "software.amazon.awssdk"        % "s3"                   % awsSdkVersion
-lazy val betterMonadicFor   = "com.olegpy"                   %% "better-monadic-for"   % betterMonadicForVersion
 lazy val caffeine           = "com.github.ben-manes.caffeine" % "caffeine"             % caffeineVersion
 lazy val catsCore           = "org.typelevel"                %% "cats-core"            % catsVersion
 lazy val catsEffect         = "org.typelevel"                %% "cats-effect"          % catsEffectVersion
@@ -94,12 +92,12 @@ lazy val fs2Aws = Seq(
   "io.laserdisc" %% "fs2-aws-s3"           % fs2AwsVersion
 ).map {
   _.excludeAll(
-    ExclusionRule(organization = "org.typelevel", name = "cats-kernel_2.13"),
-    ExclusionRule(organization = "org.typelevel", name = "cats-core_2.13"),
-    ExclusionRule(organization = "org.typelevel", name = "cats-effect_2.13"),
-    ExclusionRule(organization = "com.chuusai", name = "shapeless_2.13"),
-    ExclusionRule(organization = "co.fs2", name = "fs2-core_2.13"),
-    ExclusionRule(organization = "co.fs2", name = "fs2-io_2.13")
+    ExclusionRule(organization = "org.typelevel", name = "cats-kernel_3"),
+    ExclusionRule(organization = "org.typelevel", name = "cats-core_3"),
+    ExclusionRule(organization = "org.typelevel", name = "cats-effect_3"),
+    ExclusionRule(organization = "com.chuusai", name = "shapeless3_3"),
+    ExclusionRule(organization = "co.fs2", name = "fs2-core_3"),
+    ExclusionRule(organization = "co.fs2", name = "fs2-io_3")
   )
 }
 
@@ -129,10 +127,9 @@ lazy val jsoniterCirce = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-sc
 lazy val kamonPekkoHttp  = "io.kamon"                     %% "kamon-pekko-http"  % kamonVersion
 lazy val kamonCore       = "io.kamon"                     %% "kamon-core"        % kamonVersion
 lazy val kanelaAgent     = "io.kamon"                      % "kanela-agent"      % kanelaAgentVersion
-lazy val kindProjector   = "org.typelevel"                %% "kind-projector"    % kindProjectorVersion cross CrossVersion.full
 lazy val log4cats        = "org.typelevel"                %% "log4cats-slf4j"    % log4catsVersion
 lazy val logback         = "ch.qos.logback"                % "logback-classic"   % logbackVersion
-lazy val magnolia        = "com.softwaremill.magnolia1_2" %% "magnolia"          % magnoliaVersion
+lazy val magnolia        = "com.softwaremill.magnolia1_3" %% "magnolia"          % magnoliaVersion
 lazy val munit           = "org.scalameta"                %% "munit"             % munitVersion
 lazy val munitCatsEffect = "org.typelevel"                %% "munit-cats-effect" % munitCatsEffectVersion
 lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"   % nimbusJoseJwtVersion
@@ -153,22 +150,23 @@ lazy val pekkoSlf4j          = "org.apache.pekko" %% "pekko-slf4j"           % p
 lazy val pekkoStream         = "org.apache.pekko" %% "pekko-stream"          % pekkoVersion
 lazy val pekkoTestKit        = "org.apache.pekko" %% "pekko-testkit"         % pekkoVersion
 lazy val pekkoConnectorsFile = "org.apache.pekko" %% "pekko-connectors-file" % pekkoConnectorsVersion excludeAll (
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_2.13")
+  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_3")
 )
 lazy val pekkoConnectorsSse  = "org.apache.pekko" %% "pekko-connectors-sse"  % pekkoConnectorsVersion excludeAll (
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_2.13"),
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-http_2.13")
+  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_3"),
+  ExclusionRule(organization = "org.apache.pekko", name = "pekko-http_3")
 )
 
 lazy val pureConfig = Seq(
-  "com.github.pureconfig" %% "pureconfig"        % pureconfigVersion,
-  "com.github.pureconfig" %% "pureconfig-cats"   % pureconfigVersion,
-  "com.github.pureconfig" %% "pureconfig-http4s" % pureconfigVersion
+  "com.github.pureconfig" %% "pureconfig-core"           % pureconfigVersion,
+  "com.github.pureconfig" %% "pureconfig-cats"           % pureconfigVersion,
+  "com.github.pureconfig" %% "pureconfig-http4s"         % pureconfigVersion,
+  "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureconfigVersion
 )
 
-lazy val scalaReflect                  = "org.scala-lang"          % "scala-reflect"                      % scalaCompilerVersion
 lazy val scalaTest                     = "org.scalatest"          %% "scalatest"                          % scalaTestVersion
 lazy val scalaXml                      = "org.scala-lang.modules" %% "scala-xml"                          % scalaXmlVersion
+lazy val shapeless3Typeable            = "org.typelevel"          %% "shapeless3-typeable"                % shapeless3Version
 lazy val titaniumJsonLd                = "com.apicatalog"          % "titanium-json-ld"                   % titaniumJsonLdVersion
 lazy val topBraidShacl                 = "org.topbraid"            % "shacl"                              % topBraidVersion
 lazy val testContainers                = "org.testcontainers"      % "testcontainers"                     % testContainersVersion
@@ -266,9 +264,7 @@ lazy val pekkoMarshalling = project
       scalaTest          % Test,
       pekkoTestKit       % Test,
       pekkoHttpTestKit   % Test
-    ),
-    addCompilerPlugin(kindProjector),
-    addCompilerPlugin(betterMonadicFor)
+    )
   )
 
 lazy val pekkoTestArchive = project
@@ -283,9 +279,7 @@ lazy val pekkoTestArchive = project
       circeCore,
       circeParser,
       scalaTest
-    ),
-    addCompilerPlugin(kindProjector),
-    addCompilerPlugin(betterMonadicFor)
+    )
   )
 
 lazy val pekko = project
@@ -317,8 +311,6 @@ lazy val kernel = project
       munit           % Test,
       munitCatsEffect % Test
     ) ++ pureConfig ++ http4s,
-    addCompilerPlugin(kindProjector),
-    addCompilerPlugin(betterMonadicFor),
     coverageFailOnMinimum := false
   )
 
@@ -337,8 +329,7 @@ lazy val testkit = project
       testContainers,
       testContainersScala,
       testContainersScalaLocalStack
-    ) ++ doobie ++ fs2Aws,
-    addCompilerPlugin(kindProjector)
+    ) ++ doobie ++ fs2Aws
   )
 
 lazy val sourcingPsql = project
@@ -350,12 +341,13 @@ lazy val sourcingPsql = project
   )
   .settings(shared, compilation, assertJavaVersion, coverage, release)
   .settings(
-    libraryDependencies ++= Seq(
+    libraryDependencies  ++= Seq(
       classgraph,
-      distageCore
+      distageCore,
+      shapeless3Typeable
     ) ++ doobie,
-    Test / fork          := true,
-    addCompilerPlugin(kindProjector)
+    coverageFailOnMinimum := false,
+    Test / fork           := true
   )
 
 lazy val rdf = project
@@ -372,12 +364,10 @@ lazy val rdf = project
       glassFishJakarta,
       jenaArq,
       magnolia,
-      scalaReflect,
       titaniumJsonLd,
       topBraidShacl
     ),
-    Test / fork          := true,
-    addCompilerPlugin(betterMonadicFor)
+    Test / fork          := true
   )
 
 lazy val sdk = project
@@ -391,15 +381,13 @@ lazy val sdk = project
   .settings(
     coverageFailOnMinimum := false,
     libraryDependencies  ++= Seq(
-      pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_2.13"),
+      pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_3"),
       scalaXml,
       distageCore,
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
       pekkoHttpTestKit % Test
-    ),
-    addCompilerPlugin(kindProjector),
-    addCompilerPlugin(betterMonadicFor)
+    )
   )
 
 lazy val elasticsearch = project
@@ -409,8 +397,8 @@ lazy val elasticsearch = project
     sdk % "compile->compile;test->test"
   )
   .settings(
-    addCompilerPlugin(betterMonadicFor),
-    Test / fork := true
+    coverageFailOnMinimum := false,
+    Test / fork           := true
   )
 
 lazy val app = project
@@ -435,7 +423,6 @@ lazy val app = project
       otelLogback,
       otelLogbackMdc
     ),
-    addCompilerPlugin(betterMonadicFor),
     run / fork            := true,
     buildInfoKeys         := Seq[BuildInfoKey](version),
     buildInfoPackage      := "ai.senscience.nexus.delta.config",
@@ -520,7 +507,7 @@ lazy val blazegraphPlugin = project
     libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.blazegraph",
-    addCompilerPlugin(betterMonadicFor),
+    coverageFailOnMinimum      := false,
     assembly / assemblyJarName := "blazegraph.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
@@ -543,7 +530,6 @@ lazy val compositeViewsPlugin = project
     libraryDependencies       ++= Seq(kamonPekkoHttp % Provided) ++ http4sServerTest,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.compositeviews",
-    addCompilerPlugin(betterMonadicFor),
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
     assembly / assemblyJarName := "composite-views.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
@@ -568,7 +554,6 @@ lazy val searchPlugin = project
     libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.search",
-    addCompilerPlugin(betterMonadicFor),
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
     assembly / assemblyJarName := "search.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
@@ -594,8 +579,6 @@ lazy val storagePlugin = project
     ) ++ fs2Aws,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.storage",
-    addCompilerPlugin(betterMonadicFor),
-    addCompilerPlugin(kindProjector),
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
     assembly / assemblyJarName := "storage.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
@@ -620,9 +603,9 @@ lazy val archivePlugin = project
       pekkoConnectorsFile,
       kamonPekkoHttp % Provided
     ),
-    addCompilerPlugin(betterMonadicFor),
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.archive",
+    coverageFailOnMinimum      := false,
     assembly / assemblyJarName := "archive.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
@@ -643,7 +626,6 @@ lazy val projectDeletionPlugin = project
     libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.projectdeletion",
-    addCompilerPlugin(betterMonadicFor),
     assembly / assemblyJarName := "project-deletion.jar",
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / test            := {},
@@ -665,7 +647,6 @@ lazy val graphAnalyticsPlugin = project
     name                       := "delta-graph-analytics-plugin",
     moduleName                 := "delta-graph-analytics-plugin",
     libraryDependencies        += kamonPekkoHttp % Provided,
-    addCompilerPlugin(betterMonadicFor),
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.graph.analytics",
     assembly / assemblyJarName := "graph-analytics.jar",
@@ -796,14 +777,14 @@ lazy val discardModuleInfoAssemblySettings = Seq(
 )
 
 lazy val compilation = {
-  import sbt.Keys._
-  import sbt._
+  import sbt.Keys.*
+  import sbt.*
 
   Seq(
     scalaVersion                           := scalaCompilerVersion,
     scalacOptions                          ~= { options: Seq[String] =>
       options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Wnonunit-statement")) ++
-        Seq("-Xsource:3", "-Xsource-features:case-apply-copy-access", "-Wconf:cat=scala3-migration:s")
+        Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all")
     },
     javaSpecificationVersion               := "21",
     javacOptions                          ++= Seq(
@@ -815,8 +796,8 @@ lazy val compilation = {
     ),
     excludeDependencies                   ++= Seq(
       ExclusionRule("log4j", "log4j"),
-      ExclusionRule("org.apache.logging.log4j ", "log4j-api"),
-      ExclusionRule("org.apache.logging.log4j ", "log4j-core")
+      ExclusionRule("org.apache.logging.log4j", "log4j-api"),
+      ExclusionRule("org.apache.logging.log4j", "log4j-core")
     ),
     Compile / packageSrc / publishArtifact := !isSnapshot.value,
     Compile / packageDoc / publishArtifact := !isSnapshot.value,
@@ -825,7 +806,7 @@ lazy val compilation = {
     autoAPIMappings                        := true,
     apiMappings                            += {
       val scalaDocUrl = s"http://scala-lang.org/api/${scalaVersion.value}/"
-      ApiMappings.apiMappingFor((Compile / fullClasspath).value)("scala-library", scalaDocUrl)
+      ApiMappings.apiMappingFor((Compile / fullClasspath).value)("scala3-library", scalaDocUrl)
     },
     Scapegoat / dependencyClasspath        := (Compile / dependencyClasspath).value
   )

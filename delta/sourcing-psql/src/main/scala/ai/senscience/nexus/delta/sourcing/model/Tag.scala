@@ -25,7 +25,7 @@ object Tag {
 
   sealed trait Latest extends Tag
 
-  final case object Latest extends Latest {
+  case object Latest extends Latest {
     override val value: String = "latest"
 
     implicit val latestTagJsonLdDecoder: JsonLdDecoder[Latest] =
@@ -36,7 +36,7 @@ object Tag {
         }
 
     implicit val latestTagDecoder: Decoder[Latest] =
-      Decoder.decodeString.emap(str => if (str == "latest") Right(Latest) else Left("Expected 'latest' string"))
+      Decoder.decodeString.emap(str => if str == "latest" then Right(Latest) else Left("Expected 'latest' string"))
   }
 
   val latest: Tag = Latest
@@ -80,10 +80,10 @@ object Tag {
     Encoder.encodeString.contramap(_.value)
 
   implicit val tagDecoder: Decoder[Tag] =
-    Latest.latestTagDecoder or UserTag.userTagDecoder.map(identity[Tag])
+    Latest.latestTagDecoder.or(UserTag.userTagDecoder.map(identity[Tag]))
 
   implicit val tagJsonLdDecoder: JsonLdDecoder[Tag] =
-    Latest.latestTagJsonLdDecoder or UserTag.userTagJsonLdDecoder.covary[Tag]
+    Latest.latestTagJsonLdDecoder.or(UserTag.userTagJsonLdDecoder.covary[Tag])
 
   implicit val tagFragmentEncoder: FragmentEncoder[Tag] =
     FragmentEncoder.instance { tag => Some(fr"tag = $tag") }

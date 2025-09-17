@@ -51,11 +51,12 @@ class DiskStorageSpec extends StorageSpec {
   "creating a disk storage" should {
     "fail creating a DiskStorage on a wrong volume" in {
       val volume  = "/" + genString()
-      val payload = jsonContentOf("kg/storages/disk.json") deepMerge
+      val payload = jsonContentOf("kg/storages/disk.json").deepMerge(
         Json.obj(
           "@id"    -> Json.fromString("https://bluebrain.github.io/nexus/vocabulary/invalid-volume"),
           "volume" -> Json.fromString(volume)
         )
+      )
 
       deltaClient.post[Json](s"/storages/$projectRef", payload, Coyote) { (json, response) =>
         json shouldEqual jsonContentOf("kg/storages/error.json", "volume" -> volume)

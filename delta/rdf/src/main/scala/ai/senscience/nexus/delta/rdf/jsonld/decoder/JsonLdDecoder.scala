@@ -98,7 +98,7 @@ object JsonLdDecoder {
 
   implicit val bNodeJsonLdDecoder: JsonLdDecoder[BNode]     = _ => Right(BNode.random)
   implicit val iOrBJsonLdDecoder: JsonLdDecoder[IriOrBNode] =
-    iriJsonLdDecoder or bNodeJsonLdDecoder.map[IriOrBNode](identity)
+    iriJsonLdDecoder.or(bNodeJsonLdDecoder.map[IriOrBNode](identity))
 
   implicit val stringJsonLdDecoder: JsonLdDecoder[String]   = _.get[String](keywords.value)
   implicit val intJsonLdDecoder: JsonLdDecoder[Int]         = _.getOr(keywords.value, _.toIntOption)
@@ -139,10 +139,11 @@ object JsonLdDecoder {
 
   implicit def optionJsonLdDecoder[A](implicit dec: JsonLdDecoder[A]): JsonLdDecoder[Option[A]] =
     cursor =>
-      if (cursor.succeeded) dec(cursor).map(Some.apply).recover {
-        case k: KeyMissingFailure if k.path.isEmpty =>
-          None
-      }
+      if cursor.succeeded then
+        dec(cursor).map(Some.apply).recover {
+          case k: KeyMissingFailure if k.path.isEmpty =>
+            None
+        }
       else Right(None)
 
   // assumes the field is encoded as a string

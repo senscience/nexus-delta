@@ -38,14 +38,14 @@ object Digest {
   /**
     * A digest that does not yield a value because it is still being computed
     */
-  final case object NoDigest extends Digest
+  case object NoDigest extends Digest
 
   val none: Digest = NoDigest
 
   /**
     * A digest that does not yield a value because it is still being computed
     */
-  final case object NotComputedDigest extends Digest
+  case object NotComputedDigest extends Digest
 
   implicit val digestEncoder: Encoder.AsObject[Digest] = Encoder.encodeJsonObject.contramapObject {
     case ComputedDigest(algorithm, value)                 => JsonObject("_algorithm" -> algorithm.asJson, "_value" -> value.asJson)

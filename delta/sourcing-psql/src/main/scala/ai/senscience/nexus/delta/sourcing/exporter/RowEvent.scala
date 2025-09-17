@@ -25,7 +25,7 @@ object RowEvent {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.deriveConfiguredCodec
     implicit val offsetEncoder: Encoder[Offset.At] = Encoder.encodeLong.contramap(_.value)
-    implicit val offsetDecoder: Decoder[Offset.At] = Decoder.decodeLong.map(Offset.At)
+    implicit val offsetDecoder: Decoder[Offset.At] = Decoder.decodeLong.map(Offset.At(_))
     implicit val config: Configuration             = Configuration.default
     deriveConfiguredCodec[RowEvent]
   }

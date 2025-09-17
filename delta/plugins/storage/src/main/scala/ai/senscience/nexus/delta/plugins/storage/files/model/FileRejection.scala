@@ -126,10 +126,10 @@ object FileRejection {
     * Rejection returned when attempting to create/update a file with a Multipart/Form-Data payload that does not
     * contain a ''file'' fieldName
     */
-  final case object InvalidMultipartFieldName
+  case object InvalidMultipartFieldName
       extends FileRejection(s"Multipart/Form-Data payload does not contain a 'file' part.")
 
-  final case object EmptyCustomMetadata extends FileRejection(s"No metadata was provided")
+  case object EmptyCustomMetadata extends FileRejection(s"No metadata was provided")
 
   /**
     * Rejection returned when attempting to create/update a file with a Multipart/Form-Data payload that does not
@@ -176,7 +176,7 @@ object FileRejection {
     * Rejection returned when attempting to link a file without providing a filename or a path that ends with a
     * filename.
     */
-  final case object InvalidFilePath
+  case object InvalidFilePath
       extends FileRejection(
         s"Linking a file cannot be performed without a 'filename' or a 'path' that does not end with a filename."
       )

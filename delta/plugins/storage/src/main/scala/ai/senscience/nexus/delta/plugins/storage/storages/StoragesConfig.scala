@@ -11,7 +11,7 @@ import org.http4s.Uri
 import org.http4s.Uri.Path
 import pureconfig.ConvertHelpers.optF
 import pureconfig.error.{CannotConvert, ConfigReaderFailures, ConvertFailure, FailureReason}
-import pureconfig.generic.auto.*
+import pureconfig.generic.semiauto.*
 import pureconfig.module.http4s.*
 import pureconfig.{ConfigConvert, ConfigReader}
 
@@ -58,8 +58,8 @@ object StoragesConfig {
       amazon: Option[S3StorageConfig]
   ) {
     def showFileLocation: ShowFileLocation = {
-      val diskType = if (disk.showLocation) Set(StorageType.DiskStorage) else Set.empty
-      val s3Type   = if (amazon.exists(_.showLocation)) Set(StorageType.S3Storage) else Set.empty
+      val diskType = if disk.showLocation then Set(StorageType.DiskStorage) else Set.empty
+      val s3Type   = if amazon.exists(_.showLocation) then Set(StorageType.S3Storage) else Set.empty
       ShowFileLocation(diskType ++ s3Type)
     }
   }
@@ -72,22 +72,27 @@ object StoragesConfig {
       val description: String = s"'allowed-volumes' must contain at least '$defaultVolume' (default-volume)"
     }
 
-    implicit val storageTypeConfigReader: ConfigReader[StorageTypeConfig] = ConfigReader.fromCursor { cursor =>
-      for {
-        obj                 <- cursor.asObjectCursor
-        diskCursor          <- obj.atKey("disk")
-        disk                <- ConfigReader[DiskStorageConfig].from(diskCursor)
-        _                   <- Either.raiseUnless(disk.allowedVolumes.contains(disk.defaultVolume))(
-                                 ConfigReaderFailures(ConvertFailure(WrongAllowedKeys(disk.defaultVolume), None, "disk.allowed-volumes"))
-                               )
-        amazonCursor        <- obj.atKeyOrUndefined("amazon").asObjectCursor
-        amazonEnabledCursor <- amazonCursor.atKey("enabled")
-        amazonEnabled       <- amazonEnabledCursor.asBoolean
-        amazon              <- ConfigReader[S3StorageConfig].from(amazonCursor)
-      } yield StorageTypeConfig(
-        disk,
-        Option.when(amazonEnabled)(amazon)
-      )
+    implicit val storageTypeConfigReader: ConfigReader[StorageTypeConfig] = {
+      val diskStorageConfig = deriveReader[DiskStorageConfig]
+      val s3StorageConfig   = deriveReader[S3StorageConfig]
+      ConfigReader.fromCursor { cursor =>
+        for {
+          obj                 <- cursor.asObjectCursor
+          diskCursor          <- obj.atKey("disk")
+          disk                <- diskStorageConfig.from(diskCursor)
+          _                   <-
+            Either.raiseUnless(disk.allowedVolumes.contains(disk.defaultVolume))(
+              ConfigReaderFailures(ConvertFailure(WrongAllowedKeys(disk.defaultVolume), None, "disk.allowed-volumes"))
+            )
+          amazonCursor        <- obj.atKeyOrUndefined("amazon").asObjectCursor
+          amazonEnabledCursor <- amazonCursor.atKey("enabled")
+          amazonEnabled       <- amazonEnabledCursor.asBoolean
+          amazon              <- s3StorageConfig.from(amazonCursor)
+        } yield StorageTypeConfig(
+          disk,
+          Option.when(amazonEnabled)(amazon)
+        )
+      }
     }
 
   }
@@ -116,7 +121,7 @@ object StoragesConfig {
     * @param defaultWritePermission
     *   the default permission required in order to upload a file to a disk storage
     * @param showLocation
-    *   flag to decide whether or not to show the absolute location of the files in the metadata response
+    *   flag to show the absolute location of the files in the metadata response
     * @param defaultMaxFileSize
     *   the default maximum allowed file size (in bytes) for uploaded files
     */
@@ -148,7 +153,7 @@ object StoragesConfig {
     * @param defaultWritePermission
     *   the default permission required in order to upload a file to a s3 storage
     * @param showLocation
-    *   flag to decide whether or not to show the absolute location of the files in the metadata response
+    *   flag to show the absolute location of the files in the metadata response
     * @param defaultMaxFileSize
     *   the default maximum allowed file size (in bytes) for uploaded files
     * @param defaultBucket

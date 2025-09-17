@@ -41,7 +41,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
   private def fromFuture[A](future: => Future[A]) = IO.fromFuture { IO.delay(future) }
 
   private def assertDeltaNodeHeader(response: HttpResponse) =
-    response.headers.map(_.name()) should contain("X-Delta-Node") withClue "A default header is missing."
+    response.headers.map(_.name()) should contain("X-Delta-Node").withClue("A default header is missing.")
 
   def apply(req: HttpRequest): IO[HttpResponse] =
     fromFuture(httpExt.singleRequest(req))
@@ -101,7 +101,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       identity,
       (p: Path) => {
         val entity = HttpEntity(contentType, Files.readAllBytes(p))
-        FormData(BodyPart.Strict("file", entity, Map("filename" -> fileName))).toEntity()
+        FormData(BodyPart.Strict("file", entity, Map("filename" -> fileName))).toEntity
       },
       assertResponse,
       extraHeaders
@@ -144,11 +144,11 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       identity,
       (s: String) => {
         val entity = HttpEntity(file.contentType, s.getBytes)
-        FormData(BodyPart.Strict("file", entity, Map("filename" -> file.filename))).toEntity()
+        FormData(BodyPart.Strict("file", entity, Map("filename" -> file.filename))).toEntity
       },
       (a: Json, response: HttpResponse) => {
         assertDeltaNodeHeader(response)
-        assertResponse(a, response) withClue buildClue(a, response)
+        assertResponse(a, response).withClue(buildClue(a, response))
       },
       jsonHeaders ++ metadataHeader ++ Some(fileContentLengthHeader)
     )
@@ -224,7 +224,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       identity,
       (a: A, response: HttpResponse) => {
         assertDeltaNodeHeader(response)
-        a -> assertResponse(a, response) withClue buildClue(a, response)
+        a -> assertResponse(a, response).withClue(buildClue(a, response))
       },
       extraHeaders
     )

@@ -25,7 +25,7 @@ sealed trait JWSPayloadHelper {
 
 object JWSPayloadHelper {
 
-  final object JWSDisabled extends JWSPayloadHelper {
+  private object JWSDisabled extends JWSPayloadHelper {
 
     override def sign(payloadToSign: Json): IO[Json] = IO.raiseError(UnconfiguredJWS)
 

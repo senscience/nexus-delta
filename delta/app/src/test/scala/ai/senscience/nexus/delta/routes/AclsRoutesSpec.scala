@@ -75,17 +75,18 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
   def expectedResponse(total: Long, acls: Seq[(Acl, Int)]): Json = {
     val results = acls.map { case (acl, rev) =>
       val meta = aclMetadata(acl.address, rev, createdBy = user, updatedBy = user).removeKeys(keywords.context)
-      aclJson(acl) deepMerge meta
+      aclJson(acl).deepMerge(meta)
     }
-    jsonContentOf("acls/acls-route-response.json", "total" -> total) deepMerge
+    jsonContentOf("acls/acls-route-response.json", "total" -> total).deepMerge(
       Json.obj("_results" -> Json.fromValues(results))
+    )
   }
 
   private val identities = IdentitiesDummy(caller)
 
   private lazy val aclStore = new FlattenedAclStore(xas)
 
-  private lazy val acls =
+  private lazy val acls   =
     AclsImpl(
       IO.pure(Set(aclsPermissions.read, aclsPermissions.write, managePermission, events.read)),
       Acls.findUnknownRealms(_, Set(realm1, realm2)),
@@ -95,7 +96,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       xas,
       clock
     )
-  lazy val routes       = Route.seal(AclsRoutes(identities, acls, AclCheck(aclStore)).routes)
+  private lazy val routes = Route.seal(AclsRoutes(identities, acls, AclCheck(aclStore)).routes)
 
   val paths = Seq(
     "/"             -> AclAddress.Root,
@@ -127,7 +128,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "append ACL" in {
-      val patch = aclJson(groupAcl(Root)).removeKeys("_path") deepMerge Json.obj("@type" -> Json.fromString("Append"))
+      val patch = aclJson(groupAcl(Root)).removeKeys("_path").deepMerge(Json.obj("@type" -> Json.fromString("Append")))
       forAll(paths) { case (path, address) =>
         Patch(s"/v1/acls$path?rev=1", patch.toEntity) ~> as(user) ~> routes ~> check {
           response.asJson shouldEqual aclMetadata(address, rev = 2, createdBy = user, updatedBy = user)
@@ -137,8 +138,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "append non self acls" in {
-      val patch = aclJson(group2Acl(Root)).removeKeys("_path") deepMerge
-        Json.obj("@type" -> Json.fromString("Append"))
+      val patch = aclJson(group2Acl(Root)).removeKeys("_path").deepMerge(Json.obj("@type" -> Json.fromString("Append")))
       forAll(paths) { case (path, address) =>
         Patch(s"/v1/acls$path?rev=2", patch.toEntity) ~> as(user) ~> routes ~> check {
           response.asJson shouldEqual aclMetadata(address, rev = 3, createdBy = user, updatedBy = user)
@@ -329,8 +329,8 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "subtract ACL" in {
-      val patch = aclJson(userAclRead(Root)).removeKeys("_path") deepMerge
-        Json.obj("@type" -> Json.fromString("Subtract"))
+      val patch =
+        aclJson(userAclRead(Root)).removeKeys("_path").deepMerge(Json.obj("@type" -> Json.fromString("Subtract")))
       forAll(paths) { case (path, address) =>
         Patch(s"/v1/acls$path?rev=3", patch.toEntity) ~> as(user) ~> routes ~> check {
           response.asJson shouldEqual aclMetadata(address, rev = 4, createdBy = user, updatedBy = user)
@@ -377,6 +377,6 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       "createdBy"  -> createdBy.asIri,
       "updatedBy"  -> updatedBy.asIri,
       "path"       -> address,
-      "project"    -> (if (address == AclAddress.Root) "" else address)
+      "project"    -> (if address == AclAddress.Root then "" else address)
     )
 }

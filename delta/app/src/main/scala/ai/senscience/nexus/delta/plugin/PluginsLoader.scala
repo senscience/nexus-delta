@@ -81,11 +81,10 @@ class PluginsLoader(loaderConfig: PluginLoaderConfig) {
       pluginDefClasses  <- IO.blocking(loadPluginDefClasses(pluginClassLoader))
       pluginDef         <- pluginDefClasses match {
                              case pluginDef :: Nil =>
-                               IO.delay( // delayed because it can throw
-                                 Some(pluginClassLoader.create[PluginDef](pluginDef, _ => ())())
-                               ).redeemWith(
+                               IO.delay {
+                                 pluginClassLoader.create[PluginDef](pluginDef.getName)
+                               }.redeemWith(
                                  {
-                                   // raise class not found in the typed error channel as it may be recoverable
                                    case ex: ClassNotFoundException    => IO.raiseError(ClassNotFoundError(ex.getMessage))
                                    case ex: InvocationTargetException =>
                                      ex.getCause match {
@@ -100,7 +99,7 @@ class PluginsLoader(loaderConfig: PluginLoaderConfig) {
                              case Nil              =>
                                logger.warn(s"Jar file '$jar' does not contain a 'PluginDef' implementation.").as(None)
                              case multiple         =>
-                               IO.raiseError(MultiplePluginDefClassesFound(jar, multiple.toSet))
+                               IO.raiseError(MultiplePluginDefClassesFound(jar, multiple.map(_.getName).toSet))
 
                            }
     } yield pluginDef.map(_ -> pluginClassLoader)
@@ -111,7 +110,6 @@ class PluginsLoader(loaderConfig: PluginLoaderConfig) {
       .enableAllInfo()
       .scan()
       .getClassesImplementing(classOf[PluginDef].getName)
-      .getNames
       .asScala
       .toList
 

@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Pipe
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, PipeDef, PipeRef}
 import cats.effect.IO
-import shapeless.Typeable
+import shapeless3.typeable.Typeable
 
 /**
   * A generic pipe instance backed by a fn.
@@ -48,7 +48,7 @@ object GenericPipe {
   def apply[I: Typeable, O: Typeable](label: Label, fn: SuccessElem[I] => IO[Elem[O]]): PipeDef =
     new GenericPipeDef(label, fn)
 
-  private class GenericPipeDef[I: Typeable, O: Typeable] private[stream] (
+  private[stream] class GenericPipeDef[I: Typeable, O: Typeable] private[stream] (
       label: Label,
       fn: SuccessElem[I] => IO[Elem[O]]
   ) extends PipeDef {

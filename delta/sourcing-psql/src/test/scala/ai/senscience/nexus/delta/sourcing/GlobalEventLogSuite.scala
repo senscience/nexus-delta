@@ -59,7 +59,7 @@ class GlobalEventLogSuite extends NexusSuite with Doobie.Fixture {
       eventStore,
       stateStore,
       Arithmetic.stateMachine,
-      AlreadyExists,
+      AlreadyExists(_, _),
       projectionSave,
       maxDuration,
       xas
@@ -133,15 +133,15 @@ class GlobalEventLogSuite extends NexusSuite with Doobie.Fixture {
   }
 
   test("Get state at the specified revision") {
-    eventLog.stateOr(id, 1, NotFound, RevisionNotFound).assertEquals(total1)
+    eventLog.stateOr(id, 1, NotFound, RevisionNotFound(_, _)).assertEquals(total1)
   }
 
   test("Raise an error with a non-existent " + id) {
-    eventLog.stateOr(nxv + "xxx", 1, NotFound, RevisionNotFound).interceptEquals(NotFound)
+    eventLog.stateOr(nxv + "xxx", 1, NotFound, RevisionNotFound(_, _)).interceptEquals(NotFound)
   }
 
   test(s"Raise an error when providing a nonexistent revision") {
-    eventLog.stateOr(id, 10, NotFound, RevisionNotFound).interceptEquals(RevisionNotFound(10, 2))
+    eventLog.stateOr(id, 10, NotFound, RevisionNotFound(_, _)).interceptEquals(RevisionNotFound(10, 2))
   }
 
 }

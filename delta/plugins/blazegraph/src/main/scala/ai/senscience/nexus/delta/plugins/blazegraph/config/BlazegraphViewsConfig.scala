@@ -9,8 +9,7 @@ import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.ConfigReader
-import pureconfig.generic.auto.*
-import pureconfig.generic.semiauto.deriveReader
+import pureconfig.generic.semiauto.*
 import pureconfig.module.http4s.*
 
 import scala.concurrent.duration.*

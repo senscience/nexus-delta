@@ -28,7 +28,7 @@ object SourceType {
   /**
     * A source for the current project.
     */
-  final case object ProjectSourceType extends SourceType {
+  case object ProjectSourceType extends SourceType {
     override val toString: String = "ProjectEventStream"
     override val tpe: Iri         = nxv + toString
   }
@@ -36,7 +36,7 @@ object SourceType {
   /**
     * A cross project source.
     */
-  final case object CrossProjectSourceType extends SourceType {
+  case object CrossProjectSourceType extends SourceType {
     override val toString: String = "CrossProjectEventStream"
     override val tpe: Iri         = nxv + toString
   }
@@ -44,7 +44,7 @@ object SourceType {
   /**
     * A remote project source.
     */
-  final case object RemoteProjectSourceType extends SourceType {
+  case object RemoteProjectSourceType extends SourceType {
     override val toString: String = "RemoteProjectEventStream"
     override val tpe: Iri         = nxv + toString
   }

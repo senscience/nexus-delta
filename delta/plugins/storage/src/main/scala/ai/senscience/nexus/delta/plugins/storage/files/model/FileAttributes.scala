@@ -84,10 +84,10 @@ object FileAttributes {
   sealed trait FileAttributesOrigin
 
   object FileAttributesOrigin {
-    final case object Client extends FileAttributesOrigin
 
-    final case object Storage extends FileAttributesOrigin
-    final case object Link    extends FileAttributesOrigin
+    case object Client  extends FileAttributesOrigin
+    case object Storage extends FileAttributesOrigin
+    case object Link    extends FileAttributesOrigin
 
     implicit val fileAttributesEncoder: Encoder[FileAttributesOrigin] = Encoder.encodeString.contramap {
       case Client  => "Client"
@@ -118,7 +118,7 @@ object FileAttributes {
 
     object Key {
       def unapply(key: String): Option[String] = {
-        if (underscoreFieldsForMetadata && key.startsWith("_")) Some(key.drop(1))
+        if underscoreFieldsForMetadata && key.startsWith("_") then Some(key.drop(1))
         else Some(key)
       }
     }

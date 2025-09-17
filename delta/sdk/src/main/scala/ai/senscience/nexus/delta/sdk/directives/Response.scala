@@ -63,7 +63,7 @@ object Response {
 
     private[Response] def json: Json = error.asJson
 
-    private def jsonValueWithStatus: Json = json deepMerge Json.obj("status" -> status.intValue().asJson)
+    private def jsonValueWithStatus: Json = json.deepMerge(Json.obj("status" -> status.intValue().asJson))
   }
 
   object Reject {
@@ -75,7 +75,7 @@ object Response {
           case head :: Nil => head
           case _           => "MultipleRejections"
         }
-        rejectionsJson deepMerge Json.obj(keywords.tpe -> tpe.asJson)
+        rejectionsJson.deepMerge(Json.obj(keywords.tpe -> tpe.asJson))
       }
 
     private def extractDistinctTypes(rejections: Seq[Reject[?]]) =

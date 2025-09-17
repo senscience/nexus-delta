@@ -242,7 +242,7 @@ final class Storages private (
     resourceRef match {
       case ResourceRef.Latest(id)           => log.stateOr(project, id, StorageNotFound(id, project))
       case ResourceRef.Revision(_, id, rev) =>
-        log.stateOr(project, id, rev, StorageNotFound(id, project), RevisionNotFound)
+        log.stateOr(project, id, rev, StorageNotFound(id, project), RevisionNotFound(_, _))
       case t: ResourceRef.Tag               => IO.raiseError(FetchByTagNotSupported(t))
     }
   }.map(_.toResource).span("fetchStorage")
@@ -254,7 +254,7 @@ final class Storages private (
 
   def fetchDefault(project: ProjectRef): IO[StorageResource] = {
     for {
-      defaultOpt <- fetchDefaults(project).reduce(updatedByDesc.min(_, _)).head.compile.last
+      defaultOpt <- fetchDefaults(project).reduce(updatedByDesc.min).head.compile.last
       default    <- IO.fromOption(defaultOpt)(DefaultStorageNotFound(project))
     } yield default
   }.span("fetchDefaultStorage")
@@ -400,8 +400,7 @@ object Storages {
       } yield value
 
     def validatePermissions(value: StorageFields) =
-      if (value.readPermission.isEmpty && value.writePermission.isEmpty)
-        IO.unit
+      if value.readPermission.isEmpty && value.writePermission.isEmpty then IO.unit
       else {
         val storagePerms = Set.empty[Permission] ++ value.readPermission ++ value.writePermission
         fetchPermissions.flatMap {

@@ -42,10 +42,9 @@ object SchemaClaim {
     * Generate the schema claim on resource creation
     */
   def onCreate(project: ProjectRef, schema: ResourceRef, caller: Caller): SchemaClaim =
-    if (isUnconstrained(schema)) {
+    if isUnconstrained(schema) then {
       CreateUnconstrained(project)
-    } else
-      CreateWithSchema(project, schema, caller)
+    } else CreateWithSchema(project, schema, caller)
 
   /**
     * Generate the schema claim on resource update

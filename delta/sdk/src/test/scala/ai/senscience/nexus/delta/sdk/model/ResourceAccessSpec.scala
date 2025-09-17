@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.sdk.model
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess.{EphemeralAccess, InProjectAccess}
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.testkit.scalatest.BaseSpec
+import org.http4s.syntax.literals.uri
 
 class ResourceAccessSpec extends BaseSpec {
 
