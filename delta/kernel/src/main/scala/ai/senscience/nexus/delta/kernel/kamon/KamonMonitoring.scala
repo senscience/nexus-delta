@@ -17,6 +17,7 @@ object KamonMonitoring {
   def enabled: Boolean =
     sys.env.getOrElse("KAMON_ENABLED", "true").toBooleanOption.getOrElse(true)
 
+  // $COVERAGE-OFF$
   /**
     * Initialize Kamon with the provided config
     * @param config
@@ -40,6 +41,7 @@ object KamonMonitoring {
         }
         .void
     }
+  // $COVERAGE-ON$
 
   /**
     * Wraps the `io` effect in a new span with the provided name and tags. The created span is marked as finished after

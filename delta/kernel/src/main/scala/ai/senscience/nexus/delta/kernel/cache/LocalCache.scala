@@ -114,35 +114,6 @@ object LocalCache {
     }
 
   /**
-    * Constructs a local key-value store following a LRU policy
-    *
-    * @param config
-    *   the cache configuration
-    */
-  final def lru[K, V](config: CacheConfig): IO[LocalCache[K, V]] =
-    lru(config.maxSize.toLong, config.expireAfter)
-
-  /**
-    * Constructs a local key-value store following a LRU policy
-    *
-    * @param maxSize
-    *   the max number of entries
-    * @param expireAfterAccess
-    *   Entries will be removed one the givenduration has elapsed after the entry's creation, the most recent
-    *   replacement of its value, or its last access.
-    */
-  final def lru[K, V](maxSize: Long, expireAfterAccess: FiniteDuration = 1.hour): IO[LocalCache[K, V]] =
-    IO.delay {
-      val cache: Cache[K, V] =
-        Caffeine
-          .newBuilder()
-          .expireAfterAccess(expireAfterAccess.toJava)
-          .maximumSize(maxSize)
-          .build[K, V]()
-      new LocalCacheImpl(cache)
-    }
-
-  /**
     * Constructs a local key-value store
     *
     * @param config
