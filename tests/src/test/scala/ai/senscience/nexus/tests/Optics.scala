@@ -69,7 +69,7 @@ object Optics {
           v.arrayOrObject(
             k -> v,
             a =>
-              k -> Json.fromValues(
+              k    -> Json.fromValues(
                 a.map { element =>
                   element.asObject.fold(element) { e => Json.fromJsonObject(inner(e)) }
                 }
