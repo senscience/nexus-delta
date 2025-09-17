@@ -784,7 +784,7 @@ lazy val compilation = {
     scalaVersion                           := scalaCompilerVersion,
     scalacOptions                          ~= { options: Seq[String] =>
       options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Wnonunit-statement")) ++
-        Seq("-source:future", "-Yretain-trees")
+        Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all")
     },
     javaSpecificationVersion               := "21",
     javacOptions                          ++= Seq(
@@ -796,8 +796,8 @@ lazy val compilation = {
     ),
     excludeDependencies                   ++= Seq(
       ExclusionRule("log4j", "log4j"),
-      ExclusionRule("org.apache.logging.log4j ", "log4j-api"),
-      ExclusionRule("org.apache.logging.log4j ", "log4j-core")
+      ExclusionRule("org.apache.logging.log4j", "log4j-api"),
+      ExclusionRule("org.apache.logging.log4j", "log4j-core")
     ),
     Compile / packageSrc / publishArtifact := !isSnapshot.value,
     Compile / packageDoc / publishArtifact := !isSnapshot.value,
