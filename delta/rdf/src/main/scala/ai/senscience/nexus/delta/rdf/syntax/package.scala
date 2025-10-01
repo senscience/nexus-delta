@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.rdf
 
-import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, InstantSyntax}
+import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax}
 
 package object syntax
     extends JsonSyntax
@@ -11,4 +11,3 @@ package object syntax
     with PathSyntax
     with ClassTagSyntax
     with IOSyntax
-    with InstantSyntax

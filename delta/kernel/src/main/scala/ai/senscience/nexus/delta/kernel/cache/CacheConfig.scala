@@ -20,7 +20,6 @@ final case class CacheConfig(
 
 object CacheConfig {
 
-  implicit final val cacheConfigReader: ConfigReader[CacheConfig] =
-    deriveReader[CacheConfig]
+  given ConfigReader[CacheConfig] = deriveReader[CacheConfig]
 
 }

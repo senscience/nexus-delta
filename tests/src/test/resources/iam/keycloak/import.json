@@ -1,6 +1,7 @@
 {
   "enabled": true,
   "realm": "{{realm}}",
+  "sslRequired": "none",
   "accessTokenLifespan": 86313600,
   "ssoSessionIdleTimeout": 86313600,
   "ssoSessionMaxLifespan": 86313600,

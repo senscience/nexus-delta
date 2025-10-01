@@ -10,5 +10,18 @@ services:
       - --hostname=keycloak
       - --hostname-port=8080
       - --hostname-strict-backchannel=true
+    post_start:
+      - command:
+          - /bin/bash
+          - -c
+          - |
+            set -xe
+            sleep 60
+            /opt/keycloak/bin/kcadm.sh config credentials \
+              --server http://keycloak:8080 \
+              --realm master \
+              --user admin \
+              --password admin
+            /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
     ports:
       - 9090:8080

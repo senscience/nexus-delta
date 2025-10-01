@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.projectdeletion
 
-import ai.senscience.nexus.delta.kernel.syntax.instantSyntax
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
 import ai.senscience.nexus.delta.sdk.ProjectResource
 import cats.Semigroup
@@ -8,11 +7,15 @@ import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
 
 import java.time.{Duration, Instant}
+import concurrent.duration.DurationLong
 
 object ShouldDeleteProject {
 
   private val andSemigroup: Semigroup[Boolean] = (x: Boolean, y: Boolean) => x && y
   private val orSemigroup: Semigroup[Boolean]  = (x: Boolean, y: Boolean) => x || y
+
+  private def diff(left: Instant, right: Instant) =
+    Math.abs(left.toEpochMilli - right.toEpochMilli).millis
 
   def apply(
       config: ProjectDeletionConfig,
@@ -40,7 +43,7 @@ object ShouldDeleteProject {
     }
 
     def projectIsIdle(pr: ProjectResource, now: Instant) =
-      now.diff(pr.updatedAt).toSeconds > config.idleInterval.toSeconds
+      diff(now, pr.updatedAt).toSeconds > config.idleInterval.toSeconds
 
     def resourcesAreIdle(pr: ProjectResource, now: Instant): IO[Boolean] =
       lastEventTime(pr, now).map(_.isBefore(now.minus(Duration.ofMillis(config.idleInterval.toMillis))))
