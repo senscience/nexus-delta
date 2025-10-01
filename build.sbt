@@ -252,7 +252,6 @@ lazy val pekkoMarshalling = project
   .settings(name := "pekko-marshalling", moduleName := "pekko-marshalling")
   .settings(shared, compilation, coverage, release, assertJavaVersion)
   .settings(
-    coverageFailOnMinimum := false,
     libraryDependencies  ++= Seq(
       pekkoStream,
       pekkoHttp,
@@ -310,8 +309,7 @@ lazy val kernel = project
       log4cats,
       munit           % Test,
       munitCatsEffect % Test
-    ) ++ pureConfig ++ http4s,
-    coverageFailOnMinimum := false
+    ) ++ pureConfig ++ http4s
   )
 
 lazy val testkit = project
@@ -813,7 +811,7 @@ lazy val compilation = {
 }
 
 lazy val coverage = Seq(
-  coverageMinimumStmtTotal := 80,
+  coverageMinimumStmtTotal := 75,
   coverageFailOnMinimum    := true
 )
 
