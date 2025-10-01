@@ -252,7 +252,7 @@ lazy val pekkoMarshalling = project
   .settings(name := "pekko-marshalling", moduleName := "pekko-marshalling")
   .settings(shared, compilation, coverage, release, assertJavaVersion)
   .settings(
-    libraryDependencies  ++= Seq(
+    libraryDependencies ++= Seq(
       pekkoStream,
       pekkoHttp,
       circeCore,
@@ -291,7 +291,7 @@ lazy val kernel = project
   .settings(name := "delta-kernel", moduleName := "delta-kernel")
   .settings(shared, compilation, coverage, release, assertJavaVersion)
   .settings(
-    libraryDependencies  ++= Seq(
+    libraryDependencies ++= Seq(
       caffeine,
       catsCore,
       catsRetry,
