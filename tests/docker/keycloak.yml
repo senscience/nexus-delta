@@ -16,7 +16,7 @@ services:
           - -c
           - |
             set -xe
-            sleep 30
+            sleep 60
             /opt/keycloak/bin/kcadm.sh config credentials \
               --server http://keycloak:8080 \
               --realm master \
