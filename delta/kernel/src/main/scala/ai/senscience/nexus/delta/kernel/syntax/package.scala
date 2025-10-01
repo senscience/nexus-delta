@@ -5,5 +5,4 @@ package object syntax
     with ClassTagSyntax
     with Http4sResponseSyntax
     with IOSyntax
-    with InstantSyntax
     with NonEmptySetSyntax

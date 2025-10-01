@@ -1,47 +1,17 @@
 package ai.senscience.nexus.delta.kernel.kamon
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import cats.effect.{IO, Outcome}
-import com.typesafe.config.Config
 import kamon.tag.TagSet
 import kamon.trace.Span
-import kamon.{Kamon, Tracing}
-
-import scala.concurrent.duration.*
+import kamon.Kamon
 
 object KamonMonitoring {
 
-  private val logger = Logger[Tracing]
+  private val logger = Logger[KamonMonitoring.type]
 
   def enabled: Boolean =
     sys.env.getOrElse("KAMON_ENABLED", "true").toBooleanOption.getOrElse(true)
-
-  // $COVERAGE-OFF$
-  /**
-    * Initialize Kamon with the provided config
-    * @param config
-    *   the configuration
-    */
-  def initialize(config: Config): IO[Unit] =
-    IO.whenA(enabled) {
-      logger.info("Initializing Kamon") >> IO.blocking(Kamon.init(config))
-    }
-
-  /**
-    * Terminate Kamon
-    */
-  def terminate: IO[Unit] =
-    IO.whenA(enabled) {
-      IOFuture
-        .defaultCancelable { IO { Kamon.stopModules() } }
-        .timeout(15.seconds)
-        .onError { case e =>
-          logger.error(e)("Something went wrong while terminating Kamon")
-        }
-        .void
-    }
-  // $COVERAGE-ON$
 
   /**
     * Wraps the `io` effect in a new span with the provided name and tags. The created span is marked as finished after

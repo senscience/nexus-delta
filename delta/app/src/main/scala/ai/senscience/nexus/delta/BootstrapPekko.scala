@@ -2,7 +2,6 @@ package ai.senscience.nexus.delta
 
 import ai.senscience.nexus.delta.config.{HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMonitoring
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -77,12 +76,12 @@ object BootstrapPekko {
         s"Failed to perform an http binding on ${http.interface}:${http.port}"
       ) >> plugins
         .traverse(_.stop())
-        .timeout(30.seconds) >> KamonMonitoring.terminate
-    }
+        .timeout(30.seconds)
+    }.void
 
-    val release = IO.fromFuture(IO(as.terminate()))
+    val release = IO.fromFuture(IO(as.terminate())).void
 
-    Resource.make(acquire)(_ => release.void)
+    Resource.make(acquire)(_ => release)
   }
 
 }

@@ -9,7 +9,7 @@ import scala.deriving.*
 
 private[decoder] object MagnoliaJsonLdDecoder { self =>
 
-  @nowarn
+  @nowarn("msg=New anonymous class definition will be duplicated at each inline site")
   inline def derived[A](using config: Configuration, inline m: Mirror.Of[A]): JsonLdDecoder[A] = {
     val derivation: Derivation[JsonLdDecoder] = new Derivation[JsonLdDecoder] {
 

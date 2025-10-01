@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
-import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, InstantSyntax, KamonSyntax}
+import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, KamonSyntax}
 import ai.senscience.nexus.delta.rdf.syntax.{IriSyntax, IterableSyntax, JsonLdEncoderSyntax, JsonSyntax, PathSyntax, UriSyntax}
 
 /**
@@ -17,5 +17,4 @@ package object syntax
     with HttpResponseFieldsSyntax
     with ClassTagSyntax
     with IOSyntax
-    with InstantSyntax
     with UriSyntax
