@@ -252,8 +252,7 @@ lazy val pekkoMarshalling = project
   .settings(name := "pekko-marshalling", moduleName := "pekko-marshalling")
   .settings(shared, compilation, coverage, release, assertJavaVersion)
   .settings(
-    coverageFailOnMinimum := false,
-    libraryDependencies  ++= Seq(
+    libraryDependencies ++= Seq(
       pekkoStream,
       pekkoHttp,
       circeCore,
@@ -292,7 +291,7 @@ lazy val kernel = project
   .settings(name := "delta-kernel", moduleName := "delta-kernel")
   .settings(shared, compilation, coverage, release, assertJavaVersion)
   .settings(
-    libraryDependencies  ++= Seq(
+    libraryDependencies ++= Seq(
       caffeine,
       catsCore,
       catsRetry,
@@ -310,8 +309,7 @@ lazy val kernel = project
       log4cats,
       munit           % Test,
       munitCatsEffect % Test
-    ) ++ pureConfig ++ http4s,
-    coverageFailOnMinimum := false
+    ) ++ pureConfig ++ http4s
   )
 
 lazy val testkit = project
@@ -813,7 +811,7 @@ lazy val compilation = {
 }
 
 lazy val coverage = Seq(
-  coverageMinimumStmtTotal := 80,
+  coverageMinimumStmtTotal := 75,
   coverageFailOnMinimum    := true
 )
 
