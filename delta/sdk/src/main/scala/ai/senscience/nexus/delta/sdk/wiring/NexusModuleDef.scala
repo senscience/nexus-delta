@@ -1,14 +1,14 @@
 package ai.senscience.nexus.delta.sdk.wiring
 
 import ai.senscience.nexus.delta.kernel.config.Configs
-import ai.senscience.nexus.delta.sdk.otel.OpenTelemetry
 import cats.effect.IO
 import com.typesafe.config.Config
 import distage.{ModuleDef, Tag}
 import izumi.distage.model.definition.dsl.ModuleDefDSL
 import izumi.distage.model.definition.dsl.ModuleDefDSL.MakeDSLUnnamedAfterFrom
-import pureconfig.ConfigReader
+import org.typelevel.otel4s.oteljava.OtelJava
 import org.typelevel.otel4s.trace.Tracer
+import pureconfig.ConfigReader
 
 import scala.reflect.ClassTag
 
@@ -18,8 +18,8 @@ trait NexusModuleDef extends ModuleDef {
     make[C].from(Configs.load[C](_, path))
 
   final def makeTracer(name: String): ModuleDefDSL.MakeDSLNamedAfterFrom[Tracer[IO]] =
-    make[Tracer[IO]].named(name).fromEffect { (otel: OpenTelemetry) =>
-      otel.otelJava.tracerProvider.get(name)
+    make[Tracer[IO]].named(name).fromEffect { (otel: OtelJava[IO]) =>
+      otel.tracerProvider.get(name)
     }
 
 }
