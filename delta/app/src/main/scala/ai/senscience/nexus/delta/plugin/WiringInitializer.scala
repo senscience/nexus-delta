@@ -8,7 +8,6 @@ import cats.syntax.traverse.*
 import distage.{Injector, Roots}
 import izumi.distage.model.Locator
 import izumi.distage.model.definition.ModuleDef
-import izumi.distage.modules.DefaultModule
 
 object WiringInitializer {
 
@@ -25,8 +24,6 @@ object WiringInitializer {
     val pluginsInfoModule = new ModuleDef { make[List[PluginDef]].from(pluginsDef) }
     val appModules        = (serviceModule :: pluginsInfoModule :: pluginsDef.map(_.module)).merge
 
-    // workaround for: java.lang.NoClassDefFoundError: zio/blocking/package$Blocking$Service
-    implicit val defaultModule: DefaultModule[IO] = DefaultModule.empty
     Injector[IO]()
       .produce(appModules, Roots.Everything)
       .toCats

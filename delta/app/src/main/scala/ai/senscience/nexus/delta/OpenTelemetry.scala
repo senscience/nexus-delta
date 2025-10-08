@@ -33,21 +33,23 @@ object OpenTelemetry {
       sys.env.getOrElse("OTEL_SDK_DISABLED", "true").toBooleanOption.getOrElse(true)
 
   def apply(description: DescriptionConfig, runtime: IORuntime): Resource[IO, OpenTelemetry] =
-    init(description)
-      .flatTap(registerJVMMetrics)
-      .flatTap(registerCatsEffectMetrics(_, runtime))
-      .evalTap(registerLogback)
+    init(description, runtime)
       .map { otel =>
         new OpenTelemetry {
           override def otelJava: OtelJava[IO] = otel
         }
       }
 
-  private def init(description: DescriptionConfig) = {
+  private def init(description: DescriptionConfig, runtime: IORuntime) = {
     if disabled then {
-      Resource.eval(OtelJava.noop[IO]).evalTap { _ =>
-        logger.info("OpenTelemetry is disabled.")
-      }
+      Resource
+        .eval(OtelJava.noop[IO])
+        .evalTap { _ =>
+          logger.info("OpenTelemetry is disabled.")
+        }
+        .flatTap(registerJVMMetrics)
+        .flatTap(registerCatsEffectMetrics(_, runtime))
+        .evalTap(registerLogback)
     } else {
       sys.props.getOrElseUpdate("otel.service.name", description.name.value)
       OtelJava.autoConfigured[IO]().evalTap { otel =>

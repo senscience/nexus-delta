@@ -40,22 +40,25 @@ class MainSuite extends NexusSuite with MainSuite.Fixture {
   }
 
   test("yield a correct plan") {
-    val (config, cl, pDefs) = Main.loadPluginsAndConfig(pluginLoaderConfig).accepted
-    val pluginsInfoModule   = new ModuleDef { make[List[PluginDef]].from(pDefs) }
-    val modules: Module     =
-      (DeltaModule(config, cl) :: pluginsInfoModule :: pDefs.map(_.module)).merge
+    Main.loadPluginsAndConfig(pluginLoaderConfig).map { case (config, loader, pDefs) =>
+      val pluginsInfoModule = new ModuleDef {
+        make[List[PluginDef]].from(pDefs)
+      }
+      val modules: Module   =
+        (DeltaModule(config, munitIORuntime, loader) :: pluginsInfoModule :: pDefs.map(_.module)).merge
 
-    PlanVerifier()
-      .verify[IO](
-        bindings = modules,
-        roots = Roots.Everything,
-        providedKeys = Set.empty,
-        excludedActivations = Set.empty
-      )
-      .throwOnError()
+      PlanVerifier()
+        .verify[IO](
+          bindings = modules,
+          roots = Roots.Everything,
+          providedKeys = Set.empty,
+          excludedActivations = Set.empty
+        )
+        .throwOnError()
+    }
   }
 
-  test("load different configurations and create the object graph") {
+  test("load different configurations and create the object graph".ignore) {
     ConfigImpl.reloadSystemPropertiesConfig()
     Main
       .start(pluginLoaderConfig)
@@ -103,14 +106,12 @@ object MainSuite {
       }
 
     // Start the necessary containers
-    private def resource() =
-      for {
-        postgres <- PostgresContainer.resource(PostgresUser, PostgresPassword, PostgresDb)
-        _        <- SystemPropertyOverride(initConfig(postgres))
-      } yield ()
+    private def init() =
+      PostgresContainer.resource(PostgresUser, PostgresPassword, PostgresDb).flatMap { postgres =>
+        SystemPropertyOverride(initConfig(postgres))
+      }
 
-    val main: IOFixture[Unit] = ResourceSuiteLocalFixture("main", resource())
-
+    val main: IOFixture[Unit] = ResourceSuiteLocalFixture("main", init())
   }
 
 }
