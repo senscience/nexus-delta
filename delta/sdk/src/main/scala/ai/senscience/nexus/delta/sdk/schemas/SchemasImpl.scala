@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.schemas.Schemas.{expandIri, kamonComponent, SchemaLog}
+import ai.senscience.nexus.delta.sdk.schemas.Schemas.{expandIri, SchemaLog}
 import ai.senscience.nexus.delta.sdk.schemas.SchemasImpl.SchemasLog
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaCommand.*
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
@@ -25,26 +25,28 @@ import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 final class SchemasImpl private (
     log: SchemasLog,
     fetchContext: FetchContext,
     schemaImports: SchemaImports,
     sourceParser: JsonLdSourceResolvingParser
-) extends Schemas {
+)(using Tracer[IO])
+    extends Schemas {
 
   override def create(
       projectRef: ProjectRef,
       source: Json
   )(implicit caller: Caller): IO[SchemaResource] =
-    createCommand(None, projectRef, source).flatMap(eval).span("createSchema")
+    createCommand(None, projectRef, source).flatMap(eval).surround("createSchema")
 
   override def create(
       id: IdSegment,
       projectRef: ProjectRef,
       source: Json
   )(implicit caller: Caller): IO[SchemaResource] =
-    createCommand(Some(id), projectRef, source).flatMap(eval).span("createSchema")
+    createCommand(Some(id), projectRef, source).flatMap(eval).surround("createSchema")
 
   override def createDryRun(projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[SchemaResource] =
     createCommand(None, projectRef, source).flatMap(dryRun)
@@ -73,7 +75,7 @@ final class SchemasImpl private (
       res                   <-
         eval(UpdateSchema(iri, projectRef, source, compacted, expandedResolved, rev, caller.subject))
     } yield res
-  }.span("updateSchema")
+  }.surround("updateSchema")
 
   override def refresh(
       id: IdSegment,
@@ -88,7 +90,7 @@ final class SchemasImpl private (
       res                   <-
         eval(RefreshSchema(iri, projectRef, compacted, expandedResolved, schema.rev, caller.subject))
     } yield res
-  }.span("refreshSchema")
+  }.surround("refreshSchema")
 
   override def tag(
       id: IdSegment,
@@ -102,7 +104,7 @@ final class SchemasImpl private (
       iri <- expandIri(id, pc)
       res <- eval(TagSchema(iri, projectRef, tagRev, tag, rev, caller))
     } yield res
-  }.span("tagSchema")
+  }.surround("tagSchema")
 
   override def deleteTag(
       id: IdSegment,
@@ -114,7 +116,7 @@ final class SchemasImpl private (
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
       res <- eval(DeleteSchemaTag(iri, projectRef, tag, rev, caller))
-    } yield res).span("deleteSchemaTag")
+    } yield res).surround("deleteSchemaTag")
 
   override def deprecate(
       id: IdSegment,
@@ -125,7 +127,7 @@ final class SchemasImpl private (
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
       res <- eval(DeprecateSchema(iri, projectRef, rev, caller))
-    } yield res).span("deprecateSchema")
+    } yield res).surround("deprecateSchema")
 
   override def undeprecate(
       id: IdSegment,
@@ -136,7 +138,7 @@ final class SchemasImpl private (
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
       res <- eval(UndeprecateSchema(iri, projectRef, rev, caller))
-    } yield res).span("undeprecateSchema")
+    } yield res).surround("undeprecateSchema")
 
   override def fetch(id: IdSegmentRef, projectRef: ProjectRef): IO[SchemaResource] = {
     for {
@@ -144,7 +146,7 @@ final class SchemasImpl private (
       ref      <- expandIri(id, pc)
       resource <- FetchSchema(log)(ref, projectRef)
     } yield resource
-  }.span("fetchSchema")
+  }.surround("fetchSchema")
 
   private def eval(cmd: SchemaCommand) =
     log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
@@ -161,7 +163,7 @@ final class SchemasImpl private (
       .compile
       .toList
       .map { results => SearchResults(results.size.toLong, results) }
-      .span("listSchemas")
+      .surround("listSchemas")
 }
 
 object SchemasImpl {
@@ -176,7 +178,7 @@ object SchemasImpl {
       fetchContext: FetchContext,
       schemaImports: SchemaImports,
       contextResolution: ResolverContextResolution
-  )(implicit uuidF: UUIDF): Schemas = {
+  )(using uuidF: UUIDF)(using Tracer[IO]): Schemas = {
     val parser =
       new JsonLdSourceResolvingParser(
         List(contexts.shacl, contexts.schemasMetadata),

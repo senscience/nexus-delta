@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategyConfig}
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingAction.logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
@@ -16,6 +15,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -27,9 +27,8 @@ final class SparqlIndexingAction(
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
-) extends IndexingAction {
-
-  override protected def kamonMetricComponent: KamonMetricComponent = KamonMetricComponent("blazegraph-indexing")
+)(using Tracer[IO])
+    extends IndexingAction {
 
   private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
@@ -44,6 +43,8 @@ final class SparqlIndexingAction(
 
   override def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
     currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
+
+  override def tracer: Tracer[IO] = Tracer[IO]
 }
 
 object SparqlIndexingAction {
@@ -55,7 +56,7 @@ object SparqlIndexingAction {
       pipeChainCompiler: PipeChainCompiler,
       client: SparqlClient,
       timeout: FiniteDuration
-  )(implicit baseUri: BaseUri): SparqlIndexingAction = {
+  )(using BaseUri, Tracer[IO]): SparqlIndexingAction = {
     val batchConfig   = BatchConfig.individual
     val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
     new SparqlIndexingAction(

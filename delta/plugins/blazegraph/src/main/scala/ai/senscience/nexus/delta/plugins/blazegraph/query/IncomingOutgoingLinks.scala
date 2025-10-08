@@ -1,8 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.query
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
-import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlResultsJson
@@ -19,8 +17,11 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
+import org.typelevel.otel4s.{Attribute, AttributeKey}
+import org.typelevel.otel4s.trace.Tracer
 
 import java.util.regex.Pattern.quote
 
@@ -61,8 +62,6 @@ trait IncomingOutgoingLinks {
 
 object IncomingOutgoingLinks {
 
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent("incomingOutgoing")
-
   private val loader = ClasspathResourceLoader.withContext(getClass)
 
   final case class Queries(incoming: String, outgoingWithExternal: String, outgoingScoped: String)
@@ -75,8 +74,9 @@ object IncomingOutgoingLinks {
     } yield Queries(incoming, outgoingWithExternal, outgoingScoped)
   }
 
-  def apply(fetchContext: FetchContext, views: BlazegraphViews, client: SparqlQueryClient, queries: Queries)(implicit
-      base: BaseUri
+  def apply(fetchContext: FetchContext, views: BlazegraphViews, client: SparqlQueryClient, queries: Queries)(using
+      BaseUri,
+      Tracer[IO]
   ): IncomingOutgoingLinks = {
     def fetchNamespace: ProjectRef => IO[String] =
       views.fetchIndexingView(IriSegment(defaultViewId), _).map(_.namespace)
@@ -88,9 +88,14 @@ object IncomingOutgoingLinks {
       fetchDefaultNamespace: ProjectRef => IO[String],
       client: SparqlQueryClient,
       queries: Queries
-  )(implicit base: BaseUri): IncomingOutgoingLinks = new IncomingOutgoingLinks {
+  )(using BaseUri, Tracer[IO]): IncomingOutgoingLinks = new IncomingOutgoingLinks {
 
     private val expandIri: ExpandIri[BlazegraphViewRejection] = new ExpandIri(InvalidResourceId.apply)
+
+    private val includeExternalLinksKey = AttributeKey[Boolean]("includeExternalLinks")
+
+    private def includeExternal(includeExternalLinks: Boolean) =
+      Attribute(includeExternalLinksKey, includeExternalLinks)
 
     override def incoming(
         resourceId: IdSegment,
@@ -104,7 +109,7 @@ object IncomingOutgoingLinks {
         bindings  <- client.query(Set(namespace), q, SparqlResultsJson)
         links      = toSparqlLinks(bindings.value)
       } yield links
-    }.span("incoming")
+    }.surround("incoming")
 
     override def outgoing(
         resourceId: IdSegment,
@@ -120,7 +125,7 @@ object IncomingOutgoingLinks {
         bindings     <- client.query(Set(namespace), q, SparqlResultsJson)
         links         = toSparqlLinks(bindings.value)
       } yield links
-    }.span("outgoing", Map("includeExternalLinks" -> includeExternalLinks))
+    }.surround("outgoing", includeExternal(includeExternalLinks))
 
     private def expandResourceIri(resourceId: IdSegment, project: ProjectRef) =
       fetchContext.onRead(project).flatMap { pc => expandIri(resourceId, pc) }

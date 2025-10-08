@@ -1,9 +1,8 @@
-package ai.senscience.nexus.delta.otel
+package ai.senscience.nexus.delta.sdk.otel
 
-import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.sdk.model.Name
 import cats.effect.{IO, Resource}
-import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
@@ -25,17 +24,15 @@ object OpenTelemetry {
     sys.props.getOrElse("otel.sdk.disabled", "true").toBooleanOption.getOrElse(true) &&
       sys.env.getOrElse("OTEL_SDK_DISABLED", "true").toBooleanOption.getOrElse(true)
 
-  def apply(description: DescriptionConfig): Resource[IO, OpenTelemetry] = {
+  def apply(name: Name, configure: OtelJava[IO] => IO[Unit]): Resource[IO, OpenTelemetry] = {
     if disabled then {
       Resource.eval(OtelJava.noop[IO]).evalTap { _ =>
         logger.info("OpenTelemetry is disabled.")
       }
     } else {
-      sys.props.getOrElseUpdate("otel.service.name", description.name.value)
+      sys.props.getOrElseUpdate("otel.service.name", name.value)
       OtelJava.autoConfigured[IO]().evalTap { otel =>
-        IO.delay {
-          OpenTelemetryAppender.install(otel.underlying)
-        } >> logger.info("OpenTelemetry is enabled.")
+        configure(otel) >> logger.info("OpenTelemetry is enabled.")
       }
     }
   }.map { instance =>

@@ -17,15 +17,18 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Archive plugin wiring.
   */
 object ArchivePluginModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ArchivePluginConfig]("plugins.archive")
+
+  makeTracer("archives")
 
   make[ArchiveDownload].from {
     (
@@ -52,9 +55,10 @@ object ArchivePluginModule extends NexusModuleDef {
         xas: Transactors,
         uuidF: UUIDF,
         rcr: RemoteContextResolution @Id("aggregate"),
-        clock: Clock[IO]
+        clock: Clock[IO],
+        tracer: Tracer[IO] @Id("archives")
     ) =>
-      Archives(fetchContext, archiveDownload, cfg, xas, clock)(uuidF, rcr)
+      Archives(fetchContext, archiveDownload, cfg, xas, clock)(using uuidF, rcr, tracer)
   }
 
   make[ArchiveRoutes].from {

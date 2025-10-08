@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ai.senscience.nexus.delta.kernel.http.circe.*
 import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOidcError, InvalidAccessToken, UnknownAccessTokenIssuer}
 import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{extractGroups, logger, GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -25,6 +24,7 @@ import org.http4s.client.dsl.io.*
 import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.headers.Authorization
 import org.http4s.{AuthScheme, Credentials, Status, Uri}
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
@@ -34,9 +34,8 @@ class IdentitiesImpl private[identities] (
     findActiveRealm: String => IO[Option[Realm]],
     getUserInfo: (Uri, Credentials.Token) => IO[Json],
     groups: GroupsCache
-) extends Identities {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent("identities")
+)(using Tracer[IO])
+    extends Identities {
 
   override def exchange(token: AuthToken): IO[Caller] = {
     def realmKeyset(realm: Realm) = {
@@ -62,7 +61,7 @@ class IdentitiesImpl private[identities] (
               parsedToken.rawToken,
               extractGroups(getUserInfo)(parsedToken, realm).map(_.getOrElse(Set.empty))
             )
-            .span("fetchGroups")
+            .surround("fetchGroups")
         }
     }
 
@@ -75,7 +74,7 @@ class IdentitiesImpl private[identities] (
       val user = User(parsedToken.subject, activeRealm.label)
       Caller(user, groups ++ Set(Anonymous, user, Authenticated(activeRealm.label)))
     }
-    result.span("exchangeToken")
+    result.surround("exchangeToken")
   }.onError { case rejection =>
     logger.debug(s"Extracting and validating the caller failed for the reason: $rejection")
   }
@@ -122,7 +121,7 @@ object IdentitiesImpl {
     * @param config
     *   the cache configuration
     */
-  def apply(realms: Realms, client: Client[IO], config: CacheConfig): IO[Identities] = {
+  def apply(realms: Realms, client: Client[IO], config: CacheConfig)(using Tracer[IO]): IO[Identities] = {
     val groupsCache = LocalCache[String, Set[Group]](config)
     val realmCache  = LocalCache[String, Realm](config)
 

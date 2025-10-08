@@ -28,19 +28,27 @@ import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Schemas wiring
   */
 object SchemasModule extends NexusModuleDef {
-
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[SchemasConfig]("app.schemas")
 
+  makeTracer("schemas")
+
   make[ValidateShacl].fromEffect { (rcr: RemoteContextResolution @Id("aggregate")) => ValidateShacl(rcr) }
 
-  make[ValidateSchema].from { (validateShacl: ValidateShacl) => ValidateSchema(validateShacl) }
+  make[ValidateSchema].from {
+    (
+        validateShacl: ValidateShacl,
+        tracer: Tracer[IO] @Id("schemas")
+    ) =>
+      ValidateSchema(validateShacl)(using tracer)
+  }
 
   make[SchemaDefinition].from { (validateSchema: ValidateSchema, clock: Clock[IO]) =>
     Schemas.definition(validateSchema, clock)
@@ -60,14 +68,15 @@ object SchemasModule extends NexusModuleDef {
         fetchContext: FetchContext,
         schemaImports: SchemaImports,
         resolverContextResolution: ResolverContextResolution,
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("schemas")
     ) =>
       SchemasImpl(
         schemaLog,
         fetchContext,
         schemaImports,
         resolverContextResolution
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[SchemaImports].from {

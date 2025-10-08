@@ -1,11 +1,10 @@
 package ai.senscience.nexus.delta.plugins.storage
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields
-import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
+import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.DiskStorageFields
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection.ResourceAlreadyExists
-import ai.senscience.nexus.delta.plugins.storage.storages.{defaultS3StorageId, defaultStorageId, Storages}
+import ai.senscience.nexus.delta.plugins.storage.storages.{defaultStorageId, Storages}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
@@ -14,6 +13,7 @@ import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, ProjectRef}
 import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The default creation of the default disk storage as part of the project initialization.
@@ -32,10 +32,10 @@ class StorageScopeInitialization(
     serviceAccount: ServiceAccount,
     defaultStorageId: Iri,
     defaultStorageFields: StorageFields
-) extends ScopeInitialization {
+)(using Tracer[IO])
+    extends ScopeInitialization {
 
-  private val logger                                        = Logger[StorageScopeInitialization]
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(Storages.entityType.value)
+  private val logger = Logger[StorageScopeInitialization]
 
   implicit private val caller: Caller = serviceAccount.caller
 
@@ -50,7 +50,7 @@ class StorageScopeInitialization(
             s"Failed to create the default ${defaultStorageFields.tpe} for project '$project' due to '${rej.getMessage}'."
           logger.error(str) >> IO.raiseError(ScopeInitializationFailed(str))
       }
-      .span("createDefaultStorage")
+      .surround("createDefaultStorage")
 
   override def onOrganizationCreation(
       organization: Organization,
@@ -66,7 +66,9 @@ object StorageScopeInitialization {
     * Creates a [[StorageScopeInitialization]] that creates a default DiskStorage with the provided default
     * name/description
     */
-  def apply(storages: Storages, serviceAccount: ServiceAccount, defaults: Defaults): StorageScopeInitialization = {
+  def apply(storages: Storages, serviceAccount: ServiceAccount, defaults: Defaults)(using
+      Tracer[IO]
+  ): StorageScopeInitialization = {
     val defaultFields: DiskStorageFields = DiskStorageFields(
       name = Some(defaults.name),
       description = Some(defaults.description),
@@ -78,15 +80,4 @@ object StorageScopeInitialization {
     )
     new StorageScopeInitialization(storages, serviceAccount, defaultStorageId, defaultFields)
   }
-
-  /**
-    * Creates a [[StorageScopeInitialization]] that creates a default S3Storage with the provided default fields
-    */
-  def s3(
-      storages: Storages,
-      serviceAccount: ServiceAccount,
-      defaultFields: S3StorageFields
-  ): StorageScopeInitialization =
-    new StorageScopeInitialization(storages, serviceAccount, defaultS3StorageId, defaultFields)
-
 }

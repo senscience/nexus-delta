@@ -32,6 +32,7 @@ import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAc
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
+import ai.senscience.nexus.delta.sdk.otel.OpenTelemetry
 import ai.senscience.nexus.delta.sdk.permissions.{Permissions, StoragePermissionProvider}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -45,6 +46,7 @@ import izumi.distage.model.definition.Id
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.server.Directives.concat
 import org.http4s.Uri.Path
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Storages and Files wiring
@@ -54,6 +56,14 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[StoragePluginConfig]("plugins.storage")
+
+  make[Tracer[IO]].named("storages").fromEffect { (otel: OpenTelemetry) =>
+    otel.otelJava.tracerProvider.get("storages")
+  }
+
+  make[Tracer[IO]].named("files").fromEffect { (otel: OpenTelemetry) =>
+    otel.otelJava.tracerProvider.get("files")
+  }
 
   make[StorageTypeConfig].from { (cfg: StoragePluginConfig) => cfg.storages.storageTypeConfig }
 
@@ -81,7 +91,8 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
           cfg: StoragePluginConfig,
           serviceAccount: ServiceAccount,
           clock: Clock[IO],
-          uuidF: UUIDF
+          uuidF: UUIDF,
+          tracer: Tracer[IO] @Id("storages")
       ) =>
         Storages(
           fetchContext,
@@ -92,7 +103,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
           cfg.storages,
           serviceAccount,
           clock
-        )(uuidF)
+        )(using uuidF)(using tracer)
     }
 
   make[FetchStorage].from { (storages: Storages, aclCheck: AclCheck) =>
@@ -178,7 +189,8 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         as: ActorSystem,
         fileOps: FileOperations,
         mediaTypeDetector: MediaTypeDetector,
-        linkFileAction: LinkFileAction
+        linkFileAction: LinkFileAction,
+        tracer: Tracer[IO] @Id("files")
     ) =>
       Files(
         fetchContext,
@@ -189,7 +201,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         fileOps,
         linkFileAction,
         clock
-      )(uuidF)
+      )(using uuidF, tracer)
   }
 
   make[FilesRoutes].from {
@@ -263,8 +275,18 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   many[ResourceShift[?, ?]].ref[File.Shift]
 
-  many[ScopeInitialization].addSet { (storages: Storages, serviceAccount: ServiceAccount, cfg: StoragePluginConfig) =>
-    Option.when(cfg.enableDefaultCreation)(StorageScopeInitialization(storages, serviceAccount, cfg.defaults)).toSet
+  many[ScopeInitialization].addSet {
+    (
+        storages: Storages,
+        serviceAccount: ServiceAccount,
+        cfg: StoragePluginConfig,
+        tracer: Tracer[IO] @Id("storages")
+    ) =>
+      Option
+        .when(cfg.enableDefaultCreation)(
+          StorageScopeInitialization(storages, serviceAccount, cfg.defaults)(using tracer)
+        )
+        .toSet
   }
 
   many[ProjectDeletionTask].add { (storages: Storages) => StorageDeletionTask(storages) }

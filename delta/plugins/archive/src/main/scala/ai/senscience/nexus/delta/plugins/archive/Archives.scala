@@ -1,9 +1,7 @@
 package ai.senscience.nexus.delta.plugins.archive
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.plugins.archive.Archives.{entityType, expandIri, ArchiveLog}
+import ai.senscience.nexus.delta.plugins.archive.Archives.{expandIri, ArchiveLog}
 import ai.senscience.nexus.delta.plugins.archive.model.*
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.{ArchiveNotFound, InvalidArchiveId, ResourceAlreadyExists}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -15,12 +13,14 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceDe
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.config.EphemeralLogConfig
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.{EphemeralDefinition, EphemeralLog, Transactors}
 import cats.effect.{Clock, IO}
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Archives module.
@@ -44,9 +44,7 @@ class Archives(
     archiveDownload: ArchiveDownload,
     sourceDecoder: JsonLdSourceDecoder[ArchiveValue],
     config: EphemeralLogConfig
-)(implicit rcr: RemoteContextResolution) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using RemoteContextResolution, Tracer[IO]) {
 
   /**
     * Creates an archive with a specific id.
@@ -61,7 +59,7 @@ class Archives(
     *   the subject that initiated the action
     */
   def create(iri: Iri, project: ProjectRef, value: ArchiveValue)(implicit subject: Subject): IO[ArchiveResource] =
-    eval(CreateArchive(iri, project, value, subject)).span("createArchive")
+    eval(CreateArchive(iri, project, value, subject)).surround("createArchive")
 
   /**
     * Creates an archive from a json-ld representation. If an id is detected in the source document it will be used.
@@ -79,7 +77,7 @@ class Archives(
       p            <- fetchContext.onRead(project)
       (iri, value) <- sourceDecoder(p, source)
       res          <- create(iri, project, value)
-    } yield res).span("createArchive")
+    } yield res).surround("createArchive")
 
   /**
     * Creates an archive from a json-ld representation with a user specified id. If an id is also detected in the source
@@ -104,7 +102,7 @@ class Archives(
       (iri, p) <- expandWithContext(id, project)
       value    <- sourceDecoder(p, iri, source)
       res      <- create(iri, project, value)
-    } yield res).span("createArchive")
+    } yield res).surround("createArchive")
 
   /**
     * Fetches an existing archive.
@@ -120,7 +118,7 @@ class Archives(
       state    <- log.stateOr(project, iri, ArchiveNotFound(iri, project))
       res       = state.toResource(config.ttl)
     } yield res
-  }.span("fetchArchive")
+  }.surround("fetchArchive")
 
   /**
     * Provides an [[PekkoSource]] for streaming an archive content.
@@ -141,7 +139,7 @@ class Archives(
       resource <- fetch(id, project)
       value     = resource.value
       source   <- archiveDownload(value.value, project, ignoreNotFound)
-    } yield source).span("downloadArchive")
+    } yield source).surround("downloadArchive")
 
   private def expandWithContext(id: IdSegment, project: ProjectRef) =
     for {
@@ -183,7 +181,7 @@ object Archives {
       cfg: ArchivePluginConfig,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF, rcr: RemoteContextResolution): Archives = new Archives(
+  )(using UUIDF, RemoteContextResolution, Tracer[IO]): Archives = new Archives(
     EphemeralLog(
       definition(clock),
       cfg.ephemeral,
@@ -203,7 +201,7 @@ object Archives {
       onUniqueViolation = (id: Iri, c: CreateArchive) => ResourceAlreadyExists(id, c.project)
     )
 
-  private[archive] def sourceDecoder(implicit uuidF: UUIDF): JsonLdSourceDecoder[ArchiveValue] =
+  private[archive] def sourceDecoder(using uuidF: UUIDF): JsonLdSourceDecoder[ArchiveValue] =
     new JsonLdSourceDecoder[ArchiveValue](contexts.archives, uuidF)
 
   private[archive] def evaluate(clock: Clock[IO])(

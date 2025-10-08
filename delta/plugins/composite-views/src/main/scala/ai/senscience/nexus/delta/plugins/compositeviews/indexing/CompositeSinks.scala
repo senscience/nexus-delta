@@ -13,6 +13,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Defines the sinks for the indexing progress for a composite view
@@ -40,7 +42,7 @@ object CompositeSinks {
       sparqlBatch: BatchConfig,
       sinkConfig: SinkConfig,
       retryStrategy: RetryStrategyConfig
-  )(implicit base: BaseUri, rcr: RemoteContextResolution): CompositeSinks = new CompositeSinks {
+  )(using BaseUri, RemoteContextResolution, Tracer[IO]): CompositeSinks = new CompositeSinks {
 
     /**
       * The sink for the current namespace

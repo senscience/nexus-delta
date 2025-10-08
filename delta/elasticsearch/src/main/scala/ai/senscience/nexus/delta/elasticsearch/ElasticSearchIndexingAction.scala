@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refr
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchSink, IndexingViewDef}
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
@@ -16,6 +15,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -27,12 +27,8 @@ final class ElasticSearchIndexingAction(
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
     override val timeout: FiniteDuration
-)(implicit cr: RemoteContextResolution)
+)(using RemoteContextResolution, Tracer[IO])
     extends IndexingAction {
-
-  override protected def kamonMetricComponent: KamonMetricComponent = KamonMetricComponent(
-    "elasticsearch-custom-indexing"
-  )
 
   private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
@@ -47,6 +43,8 @@ final class ElasticSearchIndexingAction(
 
   def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
     currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
+
+  override def tracer: Tracer[IO] = Tracer[IO]
 }
 object ElasticSearchIndexingAction {
 
@@ -58,7 +56,7 @@ object ElasticSearchIndexingAction {
       client: ElasticSearchClient,
       timeout: FiniteDuration,
       syncIndexingRefresh: Refresh
-  )(implicit cr: RemoteContextResolution): ElasticSearchIndexingAction = {
+  )(using RemoteContextResolution, Tracer[IO]): ElasticSearchIndexingAction = {
     val batchConfig = BatchConfig.individual
     new ElasticSearchIndexingAction(
       currentViews,

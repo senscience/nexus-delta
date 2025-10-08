@@ -4,6 +4,7 @@ include:
   - elasticsearch.yml
   - blazegraph.yml
   - localstack.yml
+  #- otel-lgtm.yml
 
 networks:
   default:
@@ -27,7 +28,7 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
-      - KAMON_ENABLED
+      - OTEL_SDK_DISABLED
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true
       - SPARQL_TARGET=blazegraph

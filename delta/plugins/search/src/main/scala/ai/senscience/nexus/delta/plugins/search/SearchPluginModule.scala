@@ -15,16 +15,20 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
+import cats.effect.IO
 import com.typesafe.config.Config
-import distage.ModuleDef
 import io.circe.syntax.EncoderOps
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
-class SearchPluginModule(priority: Int) extends ModuleDef {
+class SearchPluginModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   make[SearchConfig].fromEffect { (cfg: Config) => SearchConfig.load(cfg) }
+
+  makeTracer("search")
 
   make[Search].from {
     (
@@ -38,15 +42,21 @@ class SearchPluginModule(priority: Int) extends ModuleDef {
   }
 
   make[SearchScopeInitialization].from {
-    (views: CompositeViews, config: SearchConfig, serviceAccount: ServiceAccount, baseUri: BaseUri) =>
-      new SearchScopeInitialization(views, config.indexing, serviceAccount, config.defaults)(baseUri)
+    (
+        views: CompositeViews,
+        config: SearchConfig,
+        serviceAccount: ServiceAccount,
+        baseUri: BaseUri,
+        tracer: Tracer[IO] @Id("search")
+    ) =>
+      new SearchScopeInitialization(views, config.indexing, serviceAccount, config.defaults)(using baseUri, tracer)
   }
   many[ScopeInitialization].ref[SearchScopeInitialization]
 
   many[RemoteContextResolution].addEffect(
-    for {
-      suitesCtx <- ContextValue.fromFile("contexts/suites.json")
-    } yield RemoteContextResolution.fixed(contexts.suites -> suitesCtx)
+    ContextValue.fromFile("contexts/suites.json").map { suitesCtx =>
+      RemoteContextResolution.fixed(contexts.suites -> suitesCtx)
+    }
   )
 
   many[ApiMappings].add(defaulMappings)

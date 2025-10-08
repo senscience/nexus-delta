@@ -1,9 +1,7 @@
 package ai.senscience.nexus.delta.sdk.acls
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.sdk.AclResource
-import ai.senscience.nexus.delta.sdk.acls.Acls.entityType
 import ai.senscience.nexus.delta.sdk.acls.AclsImpl.AclsLog
 import ai.senscience.nexus.delta.sdk.acls.model.*
 import ai.senscience.nexus.delta.sdk.acls.model.AclCommand.{AppendAcl, DeleteAcl, ReplaceAcl, SubtractAcl}
@@ -23,13 +21,19 @@ import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.otel4s.{Attribute, AttributeKey}
+import org.typelevel.otel4s.trace.Tracer
 
 final class AclsImpl private (
     log: AclsLog,
     minimum: Set[Permission]
-) extends Acls {
+)(using Tracer[IO])
+    extends Acls {
 
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+  private val withAncestorsKey = AttributeKey[Boolean]("withAncestors")
+
+  private def withAncestors(filter: AclAddressFilter) =
+    Attribute(withAncestorsKey, filter.withAncestors)
 
   override def isRootAclSet: IO[Boolean] =
     log
@@ -46,10 +50,10 @@ final class AclsImpl private (
         case AclNotFound(a) if a == AclAddress.Root => AclState.initial(minimum)
       }
       .map(_.toResource)
-      .span("fetchAcl")
+      .surround("fetchAcl")
 
   override def fetchWithAncestors(address: AclAddress): IO[AclCollection] =
-    super.fetchWithAncestors(address).span("fetchWithAncestors")
+    super.fetchWithAncestors(address).surround("fetchWithAncestors")
 
   override def fetchAt(address: AclAddress, rev: Int): IO[AclResource] =
     log
@@ -58,7 +62,7 @@ final class AclsImpl private (
         case AclNotFound(a) if a == AclAddress.Root && rev == 0 => AclState.initial(minimum)
       }
       .map(_.toResource)
-      .span("fetchAclAt")
+      .surround("fetchAclAt")
 
   override def list(filter: AclAddressFilter): IO[AclCollection] = {
     log
@@ -75,27 +79,27 @@ final class AclsImpl private (
           case _                            => col
         }
       }
-      .span("listAcls", Map("withAncestors" -> filter.withAncestors))
+      .surround("listAcls", withAncestors(filter))
   }
 
   override def listSelf(filter: AclAddressFilter)(implicit caller: Caller): IO[AclCollection] =
     list(filter)
       .map(_.filter(caller.identities))
-      .span("listSelfAcls", Map("withAncestors" -> filter.withAncestors))
+      .surround("listSelfAcls", withAncestors(filter))
 
   override def states(offset: Offset): Stream[IO, AclState] = log.currentStates(offset, identity)
 
   override def replace(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
-    eval(ReplaceAcl(acl, rev, caller)).span("replaceAcls")
+    eval(ReplaceAcl(acl, rev, caller)).surround("replaceAcls")
 
   override def append(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
-    eval(AppendAcl(acl, rev, caller)).span("appendAcls")
+    eval(AppendAcl(acl, rev, caller)).surround("appendAcls")
 
   override def subtract(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
-    eval(SubtractAcl(acl, rev, caller)).span("subtractAcls")
+    eval(SubtractAcl(acl, rev, caller)).surround("subtractAcls")
 
   override def delete(address: AclAddress, rev: Int)(implicit caller: Subject): IO[AclResource] =
-    eval(DeleteAcl(address, rev, caller)).span("deleteAcls")
+    eval(DeleteAcl(address, rev, caller)).surround("deleteAcls")
 
   private def eval(cmd: AclCommand): IO[AclResource] = log.evaluate(cmd.address, cmd).map(_._2.toResource)
 
@@ -132,7 +136,7 @@ object AclsImpl {
       flattenedAclStore: FlattenedAclStore,
       xas: Transactors,
       clock: Clock[IO]
-  ): Acls =
+  )(using Tracer[IO]): Acls =
     new AclsImpl(
       GlobalEventLog(Acls.definition(fetchPermissionSet, findUnknownRealms, flattenedAclStore, clock), config, xas),
       minimum
@@ -146,7 +150,7 @@ object AclsImpl {
       flattenedAclStore: FlattenedAclStore,
       xas: Transactors,
       clock: Clock[IO]
-  ): IO[Acls] = {
+  )(using Tracer[IO]): IO[Acls] = {
     val acls = apply(fetchPermissionSet, findUnknownRealms, minimum, config, flattenedAclStore, xas, clock)
     for {
       shouldReplay <- Env[IO].get("RESET_ACL_PROJECTION").map(_.getOrElse("false").toBoolean)

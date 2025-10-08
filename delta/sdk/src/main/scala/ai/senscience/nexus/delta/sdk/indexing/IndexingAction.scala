@@ -1,8 +1,7 @@
 package ai.senscience.nexus.delta.sdk.indexing
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.*
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.ResourceShift
 import ai.senscience.nexus.delta.sdk.error.ServiceError.IndexingFailed
@@ -18,6 +17,7 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
 import fs2.Stream
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.*
 
@@ -25,7 +25,7 @@ trait IndexingAction {
 
   implicit private val bc: BatchConfig = BatchConfig.individual
 
-  protected def kamonMetricComponent: KamonMetricComponent
+  def tracer: Tracer[IO]
 
   /**
     * The maximum duration accepted to perform the synchronous indexing
@@ -38,12 +38,14 @@ trait IndexingAction {
     */
   def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection]
 
-  def apply(project: ProjectRef, elem: Elem[GraphResource], context: IndexingActionContext): IO[Unit] =
+  def apply(project: ProjectRef, elem: Elem[GraphResource], context: IndexingActionContext): IO[Unit] = {
+    given Tracer[IO] = tracer
     projections(project, elem)
       .evalMap(runProjection(_, context))
       .compile
       .drain
-      .span("sync-indexing")(kamonMetricComponent)
+      .surround("sync-indexing")
+  }
 
   private def runProjection(compiled: CompiledProjection, context: IndexingActionContext) = {
     for {

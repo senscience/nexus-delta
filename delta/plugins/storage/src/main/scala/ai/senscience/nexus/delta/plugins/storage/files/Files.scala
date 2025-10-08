@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.storage.files
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.files.Files.*
 import ai.senscience.nexus.delta.plugins.storage.files.model.*
@@ -34,6 +33,7 @@ import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import org.http4s.Uri
+import org.typelevel.otel4s.trace.Tracer
 
 import java.util.UUID
 
@@ -47,9 +47,7 @@ final class Files(
     fetchStorage: FetchStorage,
     fileOperations: FileOperations,
     linkFile: LinkFileAction
-)(implicit uuidF: UUIDF) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using uuidF: UUIDF)(using Tracer[IO]) {
 
   // format: off
   private val testStorageRef = ResourceRef.Revision(iri"http://localhost/test", 1)
@@ -84,7 +82,7 @@ final class Files(
       attributes            <- saveFileToStorage(iri, storage, uploadRequest)
       res                   <- eval(CreateFile(iri, project, storageRef, storage.tpe, attributes, caller.subject, tag))
     } yield res
-  }.span("createFile")
+  }.surround("createFile")
 
   /**
     * Create a new file with the provided id
@@ -112,7 +110,7 @@ final class Files(
       metadata              <- saveFileToStorage(iri, storage, uploadRequest)
       res                   <- eval(CreateFile(iri, id.project, storageRef, storage.tpe, metadata, caller.subject, tag))
     } yield res
-  }.span("createFile")
+  }.surround("createFile")
 
   /**
     * Grants a delegation to create the physical file on the given storage
@@ -142,7 +140,7 @@ final class Files(
       (_, storage)   <- fetchStorage.onWrite(storageIri, project)
       targetLocation <- fileOperations.delegate(storage, description.filename)
     } yield FileDelegationCreationRequest(project, iri, targetLocation, description, tag)
-  }.span("createDelegate")
+  }.surround("createDelegate")
 
   /**
     * Grants a delegation to create the physical file on the given storage
@@ -173,7 +171,7 @@ final class Files(
       (_, storage)   <- fetchStorage.onWrite(storageIri, project)
       targetLocation <- fileOperations.delegate(storage, description.filename)
     } yield FileDelegationUpdateRequest(project, iri, rev, targetLocation, description, tag)
-  }.span("updateDelegate")
+  }.surround("updateDelegate")
 
   /**
     * Update an existing file
@@ -204,7 +202,7 @@ final class Files(
       attributes            <- saveFileToStorage(iri, storage, uploadRequest)
       res                   <- eval(UpdateFile(iri, id.project, storageRef, storage.tpe, attributes, rev, caller.subject, tag))
     } yield res
-  }.span("updateFile")
+  }.surround("updateFile")
 
   def updateMetadata(
       id: FileId,
@@ -216,7 +214,7 @@ final class Files(
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(UpdateFileCustomMetadata(iri, id.project, metadata, rev, caller.subject, tag))
     } yield res
-  }.span("updateFileMetadata")
+  }.surround("updateFileMetadata")
 
   def linkFile(
       id: Option[IdSegment],
@@ -232,7 +230,7 @@ final class Files(
       storageWrite   <- linkFile(storageIri, project, linkRequest)
       res            <- eval(CreateFile(iri, project, storageWrite, caller.subject, tag))
     } yield res
-  }.span("linkFile")
+  }.surround("linkFile")
 
   def updateLinkedFile(
       id: FileId,
@@ -249,7 +247,7 @@ final class Files(
       storageWrite <- linkFile(storageIri, project, linkRequest)
       res          <- eval(UpdateFile(iri, project, storageWrite, rev, caller.subject, tag))
     } yield res
-  }.span("updateLinkedFile")
+  }.surround("updateLinkedFile")
 
   /**
     * Add a tag to an existing file
@@ -273,7 +271,7 @@ final class Files(
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(TagFile(iri, id.project, tagRev, tag, rev, subject))
     } yield res
-  }.span("tagFile")
+  }.surround("tagFile")
 
   /**
     * Delete a tag on an existing file.
@@ -294,7 +292,7 @@ final class Files(
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(DeleteFileTag(iri, id.project, tag, rev, subject))
     } yield res
-  }.span("deleteFileTag")
+  }.surround("deleteFileTag")
 
   /**
     * Deprecate an existing file
@@ -312,7 +310,7 @@ final class Files(
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(DeprecateFile(iri, id.project, rev, subject))
     } yield res
-  }.span("deprecateFile")
+  }.surround("deprecateFile")
 
   /**
     * Undeprecate an existing file
@@ -330,7 +328,7 @@ final class Files(
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(UndeprecateFile(iri, id.project, rev, subject))
     } yield res
-  }.span("undeprecateFile")
+  }.surround("undeprecateFile")
 
   /**
     * Fetch the last version of a file content
@@ -352,7 +350,7 @@ final class Files(
       Some(attributes.bytes),
       s
     )
-  }.span("fetchFileContent")
+  }.surround("fetchFileContent")
 
   private def fetchFile(storage: Storage, attr: FileAttributes, fileId: Iri): FileData =
     fileOperations.fetch(storage, attr).adaptError { case e: FetchFileRejection =>
@@ -363,7 +361,7 @@ final class Files(
     id.expandRef(fetchContext.onRead).flatMap { fetch(_, id.project) }
 
   def fetch(resourceRef: ResourceRef, project: ProjectRef): IO[FileResource] =
-    fetchState(resourceRef, project).map(_.toResource).span("fetchFile")
+    fetchState(resourceRef, project).map(_.toResource).surround("fetchFile")
 
   private[files] def fetchState(resourceRef: ResourceRef, project: ProjectRef): IO[FileState] = {
     resourceRef match {
@@ -616,9 +614,7 @@ object Files {
       fileOps: FileOperations,
       linkFile: LinkFileAction,
       clock: Clock[IO]
-  )(implicit
-      uuidF: UUIDF
-  ): Files =
+  )(using UUIDF, Tracer[IO]): Files =
     new Files(
       formDataExtractor,
       ScopedEventLog(definition(clock), eventLogConfig, xas),

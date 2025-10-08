@@ -13,8 +13,10 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, PermissionsImpl}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.wiring.AclsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Permissions module wiring config.
@@ -22,12 +24,15 @@ import izumi.distage.model.definition.Id
 // $COVERAGE-OFF$
 object PermissionsModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[PermissionsConfig]("app.permissions")
 
-  make[Permissions].from { (cfg: PermissionsConfig, xas: Transactors, clock: Clock[IO]) =>
-    PermissionsImpl(cfg, xas, clock)
+  makeTracer("permissions")
+
+  make[Permissions].from {
+    (cfg: PermissionsConfig, xas: Transactors, clock: Clock[IO], tracer: Tracer[IO] @Id("permissions")) =>
+      PermissionsImpl(cfg, xas, clock)(using tracer)
   }
 
   make[PermissionsRoutes].from {

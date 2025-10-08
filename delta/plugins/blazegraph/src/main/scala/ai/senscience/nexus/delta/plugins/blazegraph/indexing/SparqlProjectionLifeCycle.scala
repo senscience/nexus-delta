@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler}
 import cats.effect.IO
 import fs2.Stream
+import org.typelevel.otel4s.trace.Tracer
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -50,7 +51,7 @@ object SparqlProjectionLifeCycle {
       client: SparqlClient,
       retryStrategy: RetryStrategyConfig,
       batchConfig: BatchConfig
-  )(implicit baseUri: BaseUri): SparqlProjectionLifeCycle = new SparqlProjectionLifeCycle {
+  )(using BaseUri, Tracer[IO]): SparqlProjectionLifeCycle = new SparqlProjectionLifeCycle {
 
     override def failing: Stream[IO, Boolean] = {
       client

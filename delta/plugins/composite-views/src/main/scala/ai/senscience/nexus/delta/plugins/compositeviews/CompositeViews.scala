@@ -1,9 +1,8 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews.{entityType, expandIri, CompositeViewsLog}
+import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews.{expandIri, CompositeViewsLog}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.*
@@ -32,6 +31,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import cats.effect.{Clock, IO}
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -42,9 +42,7 @@ final class CompositeViews private (
     log: CompositeViewsLog,
     fetchContext: FetchContext,
     sourceDecoder: CompositeViewFieldsJsonLdSourceDecoder
-) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using Tracer[IO]) {
 
   /**
     * Create a new composite view with a provided id
@@ -65,7 +63,7 @@ final class CompositeViews private (
       iri <- expandIri(id, pc)
       res <- eval(CreateCompositeView(iri, project, value, value.toJson(iri), subject, pc.base))
     } yield res
-  }.span("createCompositeView")
+  }.surround("createCompositeView")
 
   /**
     * Creates a new composite from a json representation. If an identifier exists in the provided json it will be used;
@@ -84,7 +82,7 @@ final class CompositeViews private (
       (iri, value) <- sourceDecoder(project, pc, source)
       res          <- eval(CreateCompositeView(iri, project, value, source, caller.subject, pc.base))
     } yield res
-  }.span("createCompositeView")
+  }.surround("createCompositeView")
 
   /**
     * Creates a new composite from a json representation. If an identifier exists in the provided json it will be used
@@ -104,7 +102,7 @@ final class CompositeViews private (
       viewValue <- sourceDecoder(project, pc, iri, source)
       res       <- eval(CreateCompositeView(iri, project, viewValue, source, caller.subject, pc.base))
     } yield res
-  }.span("createCompositeView")
+  }.surround("createCompositeView")
 
   /**
     * Updates an existing composite view.
@@ -135,7 +133,7 @@ final class CompositeViews private (
       source = value.toJson(iri)
       res   <- eval(UpdateCompositeView(iri, project, rev, value, source, subject, pc.base))
     } yield res
-  }.span("updateCompositeView")
+  }.surround("updateCompositeView")
 
   /**
     * Updates an existing composite view.
@@ -158,7 +156,7 @@ final class CompositeViews private (
       viewValue <- sourceDecoder(project, pc, iri, source)
       res       <- eval(UpdateCompositeView(iri, project, rev, viewValue, source, caller.subject, pc.base))
     } yield res
-  }.span("updateCompositeView")
+  }.surround("updateCompositeView")
 
   /**
     * Deprecates an existing composite view.
@@ -182,7 +180,7 @@ final class CompositeViews private (
       iri <- expandIri(id, pc)
       res <- eval(DeprecateCompositeView(iri, project, rev, subject))
     } yield res
-  }.span("deprecateCompositeView")
+  }.surround("deprecateCompositeView")
 
   /**
     * Undeprecates an existing composite view.
@@ -206,7 +204,7 @@ final class CompositeViews private (
       iri <- expandIri(id, pc)
       res <- eval(UndeprecateCompositeView(iri, project, rev, subject))
     } yield res
-  }.span("undeprecateCompositeView")
+  }.surround("undeprecateCompositeView")
 
   /**
     * Deprecates an existing composite view without applying preliminary checks on the project status
@@ -250,7 +248,7 @@ final class CompositeViews private (
                    case t: Tag           => IO.raiseError(FetchByTagNotSupported(t))
                  }
     } yield state
-  }.span("fetchCompositeView")
+  }.surround("fetchCompositeView")
 
   /**
     * Fetch a non-deprecated view as an active view
@@ -290,13 +288,13 @@ final class CompositeViews private (
       log.currentStates(scope, _.toResource).evalFilter(params.matches),
       pagination,
       ordering
-    ).span("listCompositeViews")
+    ).surround("listCompositeViews")
   }
 
   def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource)
-    ).span("listCompositeViews")
+    ).surround("listCompositeViews")
 
   /**
     * Return all existing views for the given project in a finite stream
@@ -388,7 +386,7 @@ object CompositeViews {
   private[compositeviews] def evaluate(
       validate: ValidateCompositeView,
       clock: Clock[IO]
-  )(state: Option[CompositeViewState], cmd: CompositeViewCommand)(implicit
+  )(state: Option[CompositeViewState], cmd: CompositeViewCommand)(using
       uuidF: UUIDF
   ): IO[CompositeViewEvent] = {
 
@@ -450,8 +448,8 @@ object CompositeViews {
     }
   }
 
-  def definition(validate: ValidateCompositeView, clock: Clock[IO])(implicit
-      uuidF: UUIDF
+  def definition(validate: ValidateCompositeView, clock: Clock[IO])(using
+      UUIDF
   ): ScopedEntityDefinition[Iri, CompositeViewState, CompositeViewCommand, CompositeViewEvent, CompositeViewRejection] =
     ScopedEntityDefinition.untagged(
       entityType,
@@ -477,7 +475,7 @@ object CompositeViews {
       eventLogConfig: EventLogConfig,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): IO[CompositeViews] =
+  )(using uuidF: UUIDF)(using Tracer[IO]): IO[CompositeViews] =
     IO
       .delay(
         CompositeViewFieldsJsonLdSourceDecoder(uuidF, contextResolution, minIntervalRebuild)

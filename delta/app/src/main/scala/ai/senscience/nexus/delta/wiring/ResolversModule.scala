@@ -22,17 +22,20 @@ import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.wiring.AclsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Resolvers wiring
   */
 object ResolversModule extends NexusModuleDef {
-
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ResolversConfig]("app.resolvers")
+
+  makeTracer("resolvers")
 
   make[Resolvers].from {
     (
@@ -41,7 +44,8 @@ object ResolversModule extends NexusModuleDef {
         config: ResolversConfig,
         xas: Transactors,
         clock: Clock[IO],
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("resolvers")
     ) =>
       ResolversImpl(
         fetchContext,
@@ -50,7 +54,7 @@ object ResolversModule extends NexusModuleDef {
         config.eventLog,
         xas,
         clock
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[MultiResolution].from {
@@ -99,8 +103,13 @@ object ResolversModule extends NexusModuleDef {
   many[SseEncoder[?]].add { (base: BaseUri) => ResolverEvent.sseEncoder(base) }
 
   make[ResolverScopeInitialization].from {
-    (resolvers: Resolvers, serviceAccount: ServiceAccount, config: ResolversConfig) =>
-      ResolverScopeInitialization(resolvers, serviceAccount, config.defaults)
+    (
+        resolvers: Resolvers,
+        serviceAccount: ServiceAccount,
+        config: ResolversConfig,
+        tracer: Tracer[IO] @Id("resolvers")
+    ) =>
+      ResolverScopeInitialization(resolvers, serviceAccount, config.defaults)(using tracer)
   }
   many[ScopeInitialization].ref[ResolverScopeInitialization]
 

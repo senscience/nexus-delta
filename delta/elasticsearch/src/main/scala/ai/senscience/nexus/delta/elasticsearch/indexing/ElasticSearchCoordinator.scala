@@ -15,6 +15,7 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 sealed trait ElasticSearchCoordinator
 
@@ -132,7 +133,7 @@ object ElasticSearchCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: ElasticSearchViewsConfig
-  )(implicit cr: RemoteContextResolution): IO[ElasticSearchCoordinator] = {
+  )(using RemoteContextResolution, Tracer[IO]): IO[ElasticSearchCoordinator] = {
     if config.indexingEnabled then {
       apply(
         views.indexingViews,
@@ -162,7 +163,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(implicit cr: RemoteContextResolution): IO[ElasticSearchCoordinator] =
+  )(using RemoteContextResolution, Tracer[IO]): IO[ElasticSearchCoordinator] =
     for {
       cache      <- LocalCache[ViewRef, ActiveViewDef]()
       coordinator = new Active(

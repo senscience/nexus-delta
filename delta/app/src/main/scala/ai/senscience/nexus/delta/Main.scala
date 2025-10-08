@@ -39,7 +39,6 @@ object Main extends IOApp {
       _                        <- Resource.eval(logger.info(s"Starting Nexus Delta version '${BuildInfo.version}'."))
       _                        <- Resource.eval(logger.info(s"Loading plugins and config..."))
       (config, cl, pluginDefs) <- Resource.eval(loadPluginsAndConfig(loaderConfig))
-      _                        <- BootstrapKamon(config)
       modules                   = DeltaModule(config, cl)
       (plugins, locator)       <- WiringInitializer(modules, pluginDefs)
       _                        <- logDatabaseConfig(locator)

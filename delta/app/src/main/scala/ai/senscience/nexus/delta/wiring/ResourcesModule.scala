@@ -27,6 +27,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Resources wiring
@@ -34,14 +35,21 @@ import izumi.distage.model.definition.Id
 object ResourcesModule extends NexusModuleDef {
   makeConfig[ResourcesConfig]("app.resources")
 
+  makeTracer("resources")
+
   make[ResourceResolution[Schema]].from { (aclCheck: AclCheck, resolvers: Resolvers, fetchSchema: FetchSchema) =>
     ResourceResolution.schemaResource(aclCheck, resolvers, fetchSchema, excludeDeprecated = false)
   }
 
   make[ValidateResource].from {
-    (resourceResolution: ResourceResolution[Schema], validateShacl: ValidateShacl, config: ResourcesConfig) =>
+    (
+        resourceResolution: ResourceResolution[Schema],
+        validateShacl: ValidateShacl,
+        config: ResourcesConfig,
+        tracer: Tracer[IO] @Id("resources")
+    ) =>
       val schemaClaimResolver = SchemaClaimResolver(resourceResolution, config.schemaEnforcement)
-      ValidateResource(schemaClaimResolver, validateShacl)
+      ValidateResource(schemaClaimResolver, validateShacl)(using tracer)
   }
 
   make[DetectChange].from { (config: ResourcesConfig) => DetectChange(config.skipUpdateNoChange) }
@@ -63,13 +71,14 @@ object ResourcesModule extends NexusModuleDef {
         resourceLog: ResourceLog,
         fetchContext: FetchContext,
         resolverContextResolution: ResolverContextResolution,
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("resources")
     ) =>
       ResourcesImpl(
         resourceLog,
         fetchContext,
         resolverContextResolution
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[ResolverContextResolution].from {
@@ -92,19 +101,15 @@ object ResourcesModule extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("resources")
     ) =>
       new ResourcesRoutes(
         identities,
         aclCheck,
         resources,
         indexingAction(_, _, _)(shift)
-      )(
-        baseUri,
-        cr,
-        ordering,
-        fusionConfig
-      )
+      )(using baseUri)(using cr, ordering, fusionConfig, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => ResourceEvent.sseEncoder(base) }

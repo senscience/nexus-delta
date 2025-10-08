@@ -15,8 +15,10 @@ import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
+import ai.senscience.nexus.delta.wiring.AclsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Organizations module wiring config.
@@ -24,9 +26,11 @@ import izumi.distage.model.definition.Id
 // $COVERAGE-OFF$
 object OrganizationsModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[OrganizationsConfig]("app.organizations")
+
+  makeTracer("orgs")
 
   make[Organizations].from {
     (
@@ -34,14 +38,15 @@ object OrganizationsModule extends NexusModuleDef {
         scopeInitializer: ScopeInitializer,
         clock: Clock[IO],
         uuidF: UUIDF,
-        xas: Transactors
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("orgs")
     ) =>
       OrganizationsImpl(
         scopeInitializer,
         config.eventLog,
         xas,
         clock
-      )(uuidF)
+      )(using uuidF, tracer)
   }
 
   make[OrganizationDeleter].from {

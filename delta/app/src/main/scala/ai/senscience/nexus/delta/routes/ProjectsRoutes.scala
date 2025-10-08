@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -30,6 +31,7 @@ import cats.implicits.*
 import io.circe.Decoder
 import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The project routes
@@ -40,13 +42,12 @@ final class ProjectsRoutes(
     projects: Projects,
     projectScopeResolver: ProjectScopeResolver,
     projectsStatistics: ProjectsStatistics
-)(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
-    prefixConfig: PrefixConfig,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
+)(using baseUri: BaseUri, prefixConfig: PrefixConfig)(using
+    PaginationConfig,
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    FusionConfig,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
@@ -83,70 +84,77 @@ final class ProjectsRoutes(
               sort[Project]) { (uri, pagination, params, order) =>
               implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectResource]] =
                 searchResultsJsonLdEncoder(Project.context, pagination, uri)
-
-              emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
+              routeSpan("projects") {
+                emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
+              }
             },
             projectRef.apply { project =>
               implicit val projectFieldsDecoder: Decoder[ProjectFields] = ProjectFields.decoder(project, prefixConfig)
               concat(
-                concat(
-                  (put & pathEndOrSingleSlash) {
-                    parameter("rev".as[Int].?) {
-                      case None      =>
-                        // Create project
-                        authorizeFor(project, CreateProjects).apply {
-                          entity(as[ProjectFields]) { fields =>
-                            emitMetadata(StatusCodes.Created, projects.create(project, fields))
+                routeSpan("projects/<str:org>/<str:project>") {
+                  concat(
+                    (put & pathEndOrSingleSlash) {
+                      parameter("rev".as[Int].?) {
+                        case None      =>
+                          // Create project
+                          authorizeFor(project, CreateProjects).apply {
+                            entity(as[ProjectFields]) { fields =>
+                              emitMetadata(StatusCodes.Created, projects.create(project, fields))
+                            }
                           }
-                        }
-                      case Some(rev) =>
-                        // Update project
-                        authorizeFor(project, WriteProjects).apply {
-                          entity(as[ProjectFields]) { fields =>
-                            emitMetadata(projects.update(project, rev, fields))
+                        case Some(rev) =>
+                          // Update project
+                          authorizeFor(project, WriteProjects).apply {
+                            entity(as[ProjectFields]) { fields =>
+                              emitMetadata(projects.update(project, rev, fields))
+                            }
                           }
-                        }
-                    }
-                  },
-                  (get & pathEndOrSingleSlash) {
-                    parameter("rev".as[Int].?) {
-                      case Some(rev) => // Fetch project at specific revision
-                        authorizeFor(project, ReadProjects).apply {
-                          emit(projects.fetchAt(project, rev))
-                        }
-                      case None      => // Fetch project
-                        emitOrFusionRedirect(
-                          project,
+                      }
+                    },
+                    (get & pathEndOrSingleSlash) {
+                      parameter("rev".as[Int].?) {
+                        case Some(rev) => // Fetch project at specific revision
                           authorizeFor(project, ReadProjects).apply {
-                            emit(projects.fetch(project))
+                            emit(projects.fetchAt(project, rev))
                           }
-                        )
+                        case None      => // Fetch project
+                          emitOrFusionRedirect(
+                            project,
+                            authorizeFor(project, ReadProjects).apply {
+                              emit(projects.fetch(project))
+                            }
+                          )
+                      }
+                    },
+                    // Deprecate/delete project
+                    (delete & pathEndOrSingleSlash) {
+                      parameters("rev".as[Int], "prune".?(false)) {
+                        case (rev, true)  =>
+                          authorizeFor(project, DeleteProjects).apply {
+                            emitMetadata(projects.delete(project, rev))
+                          }
+                        case (rev, false) =>
+                          authorizeFor(project, WriteProjects).apply {
+                            emitMetadata(projects.deprecate(project, rev))
+                          }
+                      }
                     }
-                  },
-                  // Deprecate/delete project
-                  (delete & pathEndOrSingleSlash) {
-                    parameters("rev".as[Int], "prune".?(false)) {
-                      case (rev, true)  =>
-                        authorizeFor(project, DeleteProjects).apply {
-                          emitMetadata(projects.delete(project, rev))
-                        }
-                      case (rev, false) =>
-                        authorizeFor(project, WriteProjects).apply {
-                          emitMetadata(projects.deprecate(project, rev))
-                        }
-                    }
-                  }
-                ),
+                  )
+                },
                 (pathPrefix("undeprecate") & put & revisionParam) { revision =>
-                  authorizeFor(project, WriteProjects).apply {
-                    emit(projects.undeprecate(project, revision))
+                  routeSpan("projects/<str:org>/<str:project>/undeprecate") {
+                    authorizeFor(project, WriteProjects).apply {
+                      emit(projects.undeprecate(project, revision))
+                    }
                   }
                 },
                 // Project statistics
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeFor(project, ReadResources).apply {
-                    val stats = projectsStatistics.get(project)
-                    emit(OptionT(stats).toRight[ProjectRejection](ProjectNotFound(project)).rethrowT)
+                  routeSpan("projects/<str:org>/<str:project>/statistics") {
+                    authorizeFor(project, ReadResources).apply {
+                      val stats = projectsStatistics.get(project)
+                      emit(OptionT(stats).toRight[ProjectRejection](ProjectNotFound(project)).rethrowT)
+                    }
                   }
                 }
               )
@@ -178,13 +186,14 @@ object ProjectsRoutes {
       projects: Projects,
       projectScopeResolver: ProjectScopeResolver,
       projectsStatistics: ProjectsStatistics
-  )(implicit
-      baseUri: BaseUri,
-      pagination: PaginationConfig,
-      prefixConfig: PrefixConfig,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
+  )(using
+      BaseUri,
+      PaginationConfig,
+      PrefixConfig,
+      RemoteContextResolution,
+      JsonKeyOrdering,
+      FusionConfig,
+      Tracer[IO]
   ): Route =
     new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics).routes
 

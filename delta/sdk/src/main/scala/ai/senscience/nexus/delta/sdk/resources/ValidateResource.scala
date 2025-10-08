@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.resources
 
-import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
@@ -8,12 +7,13 @@ import ai.senscience.nexus.delta.rdf.shacl.{ValidateShacl, ValidationReport}
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.model.ResourceF
-import ai.senscience.nexus.delta.sdk.resources.Resources.kamonComponent
 import ai.senscience.nexus.delta.sdk.resources.ValidationResult.{NoValidation, Validated}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidResource, NoTargetedNode, ReservedResourceId, ReservedResourceTypes, ResourceShaclEngineRejection}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Allows to validate the resource:
@@ -51,7 +51,7 @@ object ValidateResource {
   def apply(
       schemaClaimResolver: SchemaClaimResolver,
       validateShacl: ValidateShacl
-  ): ValidateResource =
+  )(using Tracer[IO]): ValidateResource =
     new ValidateResource {
       override def apply(
           jsonld: JsonLdAssembly,
@@ -87,14 +87,12 @@ object ValidateResource {
         } yield report
       }.adaptError { e =>
         ResourceShaclEngineRejection(jsonld.id, schemaRef, e)
-      }.span("validateShacl")
+      }.surround("validateShacl")
 
-      private def assertNotReservedId(resourceId: Iri) = {
+      private def assertNotReservedId(resourceId: Iri) =
         IO.raiseWhen(resourceId.startsWith(contexts.base))(ReservedResourceId(resourceId))
-      }
 
-      private def assertNotReservedTypes(types: Set[Iri]) = {
+      private def assertNotReservedTypes(types: Set[Iri]) =
         IO.raiseWhen(types.exists(_.startsWith(Vocabulary.nxv.base)))(ReservedResourceTypes(types))
-      }
     }
 }

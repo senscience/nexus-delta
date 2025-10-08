@@ -1,8 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
-import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.entityType
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.Aux
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, SparqlQueryResponse, SparqlQueryResponseType}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
@@ -15,11 +12,13 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 trait BlazegraphViewsQuery {
 
@@ -46,8 +45,6 @@ trait BlazegraphViewsQuery {
 
 object BlazegraphViewsQuery {
 
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
-
   final def apply(
       aclCheck: AclCheck,
       views: BlazegraphViews,
@@ -55,7 +52,7 @@ object BlazegraphViewsQuery {
       logSlowQueries: SparqlSlowQueryLogger,
       prefix: String,
       xas: Transactors
-  ): BlazegraphViewsQuery = {
+  )(using Tracer[IO]): BlazegraphViewsQuery = {
     val viewsStore = ViewsStore[BlazegraphViewRejection, BlazegraphViewState](
       BlazegraphViewState.serializer,
       views.fetchState,
@@ -91,7 +88,7 @@ object BlazegraphViewsQuery {
           queryIO     = client.query(namespaces, sparqlQuery, responseType)
           qr         <- logSlowQueries.save(view.ref, sparqlQuery, caller.subject, queryIO)
         } yield qr
-      }.span("blazegraphUserQuery")
+      }.surround("sparqlUserQuery")
 
       // Translate a view to the set of underlying namespaces according to the current caller acls
       private def viewToNamespaces(view: View)(implicit caller: Caller) =

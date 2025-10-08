@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, 
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 sealed trait MainIndexingCoordinator
 
@@ -48,7 +49,7 @@ object MainIndexingCoordinator {
       supervisor: Supervisor,
       sink: Sink,
       createAlias: ProjectRef => IO[Unit]
-  )(implicit cr: RemoteContextResolution)
+  )(using RemoteContextResolution, Tracer[IO])
       extends MainIndexingCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
@@ -111,7 +112,7 @@ object MainIndexingCoordinator {
       mainIndex: MainIndexDef,
       batch: BatchConfig,
       indexingEnabled: Boolean
-  )(implicit cr: RemoteContextResolution): IO[MainIndexingCoordinator] =
+  )(using RemoteContextResolution, Tracer[IO]): IO[MainIndexingCoordinator] =
     if indexingEnabled then {
       val targetIndex = mainIndex.name
 
@@ -134,7 +135,7 @@ object MainIndexingCoordinator {
       supervisor: Supervisor,
       sink: Sink,
       createAlias: ProjectRef => IO[Unit]
-  )(implicit cr: RemoteContextResolution): IO[MainIndexingCoordinator] = {
+  )(using RemoteContextResolution, Tracer[IO]): IO[MainIndexingCoordinator] = {
     val coordinator = new Active(fetchProjects, graphStream, supervisor, sink, createAlias)
     val compiled    =
       CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => coordinator.run(offset))

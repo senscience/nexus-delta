@@ -1,23 +1,21 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
-import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlWriteError
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlWriteQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{logger, SparqlBulk}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError.InvalidIri
 import ai.senscience.nexus.delta.rdf.graph.NTriples
-import ai.senscience.nexus.delta.rdf.syntax.*
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import org.http4s.Uri
+import org.typelevel.otel4s.trace.Tracer
 import shapeless3.typeable.Typeable
 
 /**
@@ -34,7 +32,7 @@ final class SparqlSink(
     override val batchConfig: BatchConfig,
     namespace: String,
     retryStrategy: RetryStrategy
-)(implicit base: BaseUri)
+)(using base: BaseUri)(using Tracer[IO])
     extends Sink {
 
   override type In = NTriples
@@ -42,9 +40,6 @@ final class SparqlSink(
   override def inType: Typeable[NTriples] = Typeable[NTriples]
 
   private val endpoint: Iri = base.endpoint.toIri
-
-  implicit private val kamonComponent: KamonMetricComponent =
-    KamonMetricComponent(BlazegraphViews.entityType.value)
 
   override def apply(elements: ElemChunk[NTriples]): IO[ElemChunk[Unit]] = {
     val bulk = elements.foldLeft(SparqlBulk.empty(endpoint)) {
@@ -68,7 +63,7 @@ final class SparqlSink(
             val allFailed = elements.map { _.failed(err) }
             logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
         }
-        .span("sparqlSink")
+        .surround("sparqlSink")
     else IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
   }
 
@@ -89,7 +84,7 @@ object SparqlSink {
       retryStrategyConfig: RetryStrategyConfig,
       batchConfig: BatchConfig,
       namespace: String
-  )(implicit base: BaseUri): SparqlSink = {
+  )(using BaseUri, Tracer[IO]): SparqlSink = {
     val retryStrategy = RetryStrategy(
       retryStrategyConfig,
       {

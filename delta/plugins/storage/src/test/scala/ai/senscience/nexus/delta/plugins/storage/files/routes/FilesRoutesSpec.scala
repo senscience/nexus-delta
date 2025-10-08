@@ -111,7 +111,7 @@ class FilesRoutesSpec
   private val dataExtractor     = FormDataExtractor(mediaTypeDetector)(system)
   private val linkAction        = LinkFileAction.alwaysFails
   lazy val files: Files         =
-    Files(fetchContext, fetchStorage, dataExtractor, xas, eventLogConfig, fileOps, linkAction, clock)(uuidF)
+    Files(fetchContext, fetchStorage, dataExtractor, xas, eventLogConfig, fileOps, linkAction, clock)
   private val groupDirectives   = DeltaSchemeDirectives(fetchContext)
   private lazy val routes       = routesWithIdentities(identities)
 

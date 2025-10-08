@@ -3,8 +3,6 @@ package ai.senscience.nexus.delta.plugins.compositeviews
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticSearchSink, GraphResourceToDocument}
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlQueryError
@@ -17,17 +15,18 @@ import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import fs2.Chunk
 import shapeless3.typeable.Typeable
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * A composite sink handles querying the common blazegraph namespace, transforming the result into a format that can be
@@ -96,11 +95,8 @@ final class Batch[SinkFormat](
     sink: ElemChunk[SinkFormat] => IO[ElemChunk[Unit]],
     override val batchConfig: BatchConfig,
     retryStrategy: RetryStrategy
-)(implicit rcr: RemoteContextResolution)
+)(using RemoteContextResolution, Tracer[IO])
     extends CompositeSink {
-
-  implicit private val kamonComponent: KamonMetricComponent =
-    KamonMetricComponent("batchCompositeSink")
 
   override type In = GraphResource
 
@@ -115,7 +111,7 @@ final class Batch[SinkFormat](
 
   /** Replaces the graph of a provided [[GraphResource]] by extracting its new graph from the provided (full) graph. */
   private def replaceGraph(gr: GraphResource, fullGraph: Graph) = {
-    implicit val api: JsonLdApi = TitaniumJsonLdApi.lenient
+    given JsonLdApi = TitaniumJsonLdApi.lenient
     fullGraph
       .replaceRootNode(iri"${gr.id}/alias")
       .toCompactedJsonLd(ContextValue.empty)
@@ -125,7 +121,7 @@ final class Batch[SinkFormat](
 
   override def apply(elements: Chunk[Elem[GraphResource]]): IO[Chunk[Elem[Unit]]] =
     for {
-      graph       <- query(elements).span("batchQueryGraph")
+      graph       <- query(elements).surround("batchQueryGraph")
       transformed <- graph match {
                        case Some(fullGraph) =>
                          elements.traverse { elem =>
@@ -165,7 +161,7 @@ object CompositeSink {
       batchConfig: BatchConfig,
       sinkConfig: SinkConfig,
       retryStrategy: RetryStrategyConfig
-  )(implicit baseUri: BaseUri, rcr: RemoteContextResolution): SparqlProjection => CompositeSink = { target =>
+  )(using BaseUri, RemoteContextResolution, Tracer[IO]): SparqlProjection => CompositeSink = { target =>
     compositeSink(
       sparqlClient,
       common,
@@ -202,8 +198,8 @@ object CompositeSink {
       batchConfig: BatchConfig,
       sinkConfig: SinkConfig,
       retryStrategyConfig: RetryStrategyConfig
-  )(implicit rcr: RemoteContextResolution): ElasticSearchProjection => CompositeSink = { target =>
-    implicit val jsonLdOptions: JsonLdOptions = JsonLdOptions.AlwaysEmbed
+  )(using BaseUri, RemoteContextResolution, Tracer[IO]): ElasticSearchProjection => CompositeSink = { target =>
+    given JsonLdOptions = JsonLdOptions.AlwaysEmbed
 
     val esSink = ElasticSearchSink.states(esClient, batchConfig, index, Refresh.False)
 
@@ -228,7 +224,7 @@ object CompositeSink {
       batchConfig: BatchConfig,
       sinkConfig: SinkConfig,
       retryStrategyConfig: RetryStrategyConfig
-  )(implicit rcr: RemoteContextResolution): CompositeSink = {
+  )(using RemoteContextResolution, Tracer[IO]): CompositeSink = {
     val retryStrategy = RetryStrategy(
       retryStrategyConfig,
       {

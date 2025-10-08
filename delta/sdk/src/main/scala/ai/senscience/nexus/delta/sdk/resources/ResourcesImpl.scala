@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, expandResourceRef, kamonComponent, ResourceLog}
+import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, expandResourceRef, ResourceLog}
 import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{logger, ResourcesLog}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{NoChangeDetected, ResourceNotFound}
@@ -24,12 +24,14 @@ import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog}
 import cats.effect.IO
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 final class ResourcesImpl private (
     log: ResourcesLog,
     fetchContext: FetchContext,
     sourceParser: JsonLdSourceResolvingParser
-) extends Resources {
+)(using Tracer[IO])
+    extends Resources {
 
   override def create(
       projectRef: ProjectRef,
@@ -43,7 +45,7 @@ final class ResourcesImpl private (
       jsonld         <- sourceParser(projectRef, projectContext, source)
       res            <- eval(CreateResource(projectRef, projectContext, schemeRef, jsonld, caller, tag))
     } yield res
-  }.span("createResource")
+  }.surround("createResource")
 
   override def create(
       id: IdSegment,
@@ -58,7 +60,7 @@ final class ResourcesImpl private (
       jsonld                <- sourceParser(projectRef, projectContext, iri, source)
       res                   <- eval(CreateResource(projectRef, projectContext, schemeRef, jsonld, caller, tag))
     } yield res
-  }.span("createResource")
+  }.surround("createResource")
 
   override def update(
       id: IdSegment,
@@ -74,7 +76,7 @@ final class ResourcesImpl private (
       jsonld                <- sourceParser(projectRef, projectContext, iri, source)
       res                   <- eval(UpdateResource(projectRef, projectContext, schemeRefOpt, jsonld, rev, caller, tag))
     } yield res
-  }.span("updateResource")
+  }.surround("updateResource")
 
   override def updateAttachedSchema(
       id: IdSegment,
@@ -87,7 +89,7 @@ final class ResourcesImpl private (
       resource              <- log.stateOr(projectRef, iri, ResourceNotFound(iri, projectRef))
       res                   <- eval(UpdateResourceSchema(iri, projectRef, projectContext, schemaRef, resource.rev, caller))
     } yield res
-  }.span("updateResourceSchema")
+  }.surround("updateResourceSchema")
 
   override def refresh(
       id: IdSegment,
@@ -101,7 +103,7 @@ final class ResourcesImpl private (
       jsonld                <- sourceParser(projectRef, projectContext, iri, resource.source)
       res                   <- eval(RefreshResource(projectRef, projectContext, schemaRefOpt, jsonld, resource.rev, caller))
     } yield res
-  }.span("refreshResource")
+  }.surround("refreshResource")
 
   override def tag(
       id: IdSegment,
@@ -115,7 +117,7 @@ final class ResourcesImpl private (
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
       res                   <- eval(TagResource(iri, projectRef, schemeRefOpt, tagRev, tag, rev, caller))
-    } yield res).span("tagResource")
+    } yield res).surround("tagResource")
 
   override def deleteTag(
       id: IdSegment,
@@ -128,7 +130,7 @@ final class ResourcesImpl private (
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
       res                   <- eval(DeleteResourceTag(iri, projectRef, schemeRefOpt, tag, rev, caller))
-    } yield res).span("deleteResourceTag")
+    } yield res).surround("deleteResourceTag")
 
   override def deprecate(
       id: IdSegment,
@@ -141,7 +143,7 @@ final class ResourcesImpl private (
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
       res                   <- eval(DeprecateResource(iri, projectRef, schemeRefOpt, rev, caller))
     } yield res
-  }.span("deprecateResource")
+  }.surround("deprecateResource")
 
   override def undeprecate(
       id: IdSegment,
@@ -154,7 +156,7 @@ final class ResourcesImpl private (
       schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
       res                   <- eval(UndeprecateResource(iri, projectRef, schemaRefOpt, rev, caller))
     } yield res
-  }.span("undeprecateResource")
+  }.surround("undeprecateResource")
 
   override def delete(id: IdSegment, project: ProjectRef)(implicit caller: Subject): IO[Unit] = {
     for {
@@ -162,7 +164,7 @@ final class ResourcesImpl private (
       _        <- logger.info(s"Deleting resource $iri in project $project")
       _        <- log.delete(project, iri, ResourceNotFound(iri, project))
     } yield ()
-  }.span("deleteResource")
+  }.surround("deleteResource")
 
   def fetchState(
       id: IdSegmentRef,
@@ -175,7 +177,7 @@ final class ResourcesImpl private (
       state        <- FetchResource(log).stateOrNotFound(id, iri, projectRef)
       _            <- IO.raiseWhen(schemaRefOpt.exists(_.iri != state.schema.iri))(notFound(iri, projectRef))
     } yield state
-  }.span("fetchResource")
+  }.surround("fetchResource")
 
   private def notFound(iri: Iri, ref: ProjectRef) = ResourceNotFound(iri, ref)
 
@@ -225,7 +227,7 @@ object ResourcesImpl {
       scopedLog: ResourceLog,
       fetchContext: FetchContext,
       contextResolution: ResolverContextResolution
-  )(implicit uuidF: UUIDF = UUIDF.random): Resources =
+  )(using uuidF: UUIDF)(using Tracer[IO]): Resources =
     new ResourcesImpl(
       scopedLog,
       fetchContext,

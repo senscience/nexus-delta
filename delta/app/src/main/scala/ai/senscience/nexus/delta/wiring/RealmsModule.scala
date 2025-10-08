@@ -14,10 +14,12 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.realms.*
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.wiring.AclsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Realms module wiring config.
@@ -25,19 +27,22 @@ import org.http4s.ember.client.EmberClientBuilder
 // $COVERAGE-OFF$
 object RealmsModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[RealmsConfig]("app.realms")
+
+  makeTracer("realms")
 
   make[Realms].from {
     (
         cfg: RealmsConfig,
         clock: Clock[IO],
         client: Client[IO] @Id("realm"),
-        xas: Transactors
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("realms")
     ) =>
       val wellKnownResolver = WellKnownResolver(client)(_)
-      RealmsImpl(cfg, wellKnownResolver, xas, clock)
+      RealmsImpl(cfg, wellKnownResolver, xas, clock)(using tracer)
   }
 
   make[RealmProvisioning].from { (realms: Realms, cfg: RealmsConfig, serviceAccount: ServiceAccount) =>

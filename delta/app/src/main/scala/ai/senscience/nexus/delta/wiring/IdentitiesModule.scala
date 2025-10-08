@@ -17,6 +17,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.http4s.client.Client
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Identities module wiring config.
@@ -28,8 +29,11 @@ object IdentitiesModule extends NexusModuleDef {
 
   makeConfig[CacheConfig]("app.identities")
 
-  make[Identities].fromEffect { (realms: Realms, client: Client[IO] @Id("realm"), config: CacheConfig) =>
-    IdentitiesImpl(realms, client, config)
+  makeTracer("identities")
+
+  make[Identities].fromEffect {
+    (realms: Realms, client: Client[IO] @Id("realm"), config: CacheConfig, tracer: Tracer[IO] @Id("identities")) =>
+      IdentitiesImpl(realms, client, config)(using tracer)
   }
 
   make[AuthTokenProvider].fromEffect { (client: Client[IO] @Id("realm"), realms: Realms, clock: Clock[IO]) =>
