@@ -132,8 +132,8 @@ lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"  
 lazy val otel4s            = "org.typelevel"                   %% "otel4s-oteljava"                           % otel4sVersion
 lazy val otel4sStorage     = "org.typelevel"                   %% "otel4s-oteljava-context-storage"           % otel4sVersion
 lazy val otel4sSemconv     = "org.typelevel"                   %% "otel4s-semconv"                            % otel4sVersion
-lazy val otelAutoconfigure = "io.opentelemetry"                 % "opentelemetry-sdk-extension-autoconfigure" % otelVersion        % Runtime
-lazy val otelExporterOtlp  = "io.opentelemetry"                 % "opentelemetry-exporter-otlp"               % otelVersion        % Runtime
+lazy val otelAutoconfigure = "io.opentelemetry"                 % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
+lazy val otelExporterOtlp  = "io.opentelemetry"                 % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
 lazy val otelLogback       = "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0"        % otelLogbackVersion
 lazy val otelLogbackMdc    = "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"             % otelLogbackVersion
 
