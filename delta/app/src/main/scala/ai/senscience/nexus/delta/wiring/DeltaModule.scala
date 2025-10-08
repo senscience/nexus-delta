@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
-import ai.senscience.nexus.delta.Main
+import ai.senscience.nexus.delta.{Main, OpenTelemetry}
 import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
@@ -17,7 +17,6 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.jws.{JWSConfig, JWSPayloadHelper}
 import ai.senscience.nexus.delta.sdk.model.*
-import ai.senscience.nexus.delta.sdk.otel.OpenTelemetry
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore
 import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning
@@ -27,21 +26,18 @@ import ai.senscience.nexus.delta.sourcing.config.{DatabaseConfig, ElemQueryConfi
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
 import cats.data.NonEmptyList
+import cats.effect.unsafe.IORuntime
 import cats.effect.{Clock, IO, Sync}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
-import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
+import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
   * Complete service wiring definitions.
-  *
-  * @param config
-  *   the raw merged and resolved configuration
   */
-class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends NexusModuleDef {
-
+class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends NexusModuleDef {
   addImplicit[Sync[IO]]
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   make[Config].from(config)
   makeConfig[DescriptionConfig]("app.description")
@@ -60,14 +56,10 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
   makeConfig[ServiceAccount]("app.service-account")
 
   make[OpenTelemetry].fromResource { (description: DescriptionConfig) =>
-    OpenTelemetry(
-      description.name,
-      otel =>
-        IO.delay {
-          OpenTelemetryAppender.install(otel.underlying)
-        }
-    )
+    OpenTelemetry(description, runtime)
   }
+
+  make[OtelJava[IO]].from { (otel: OpenTelemetry) => otel.otelJava }
 
   make[Transactors].fromResource { (config: DatabaseConfig) => Transactors(config) }
 
@@ -170,17 +162,9 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
 
 object DeltaModule {
 
-  /**
-    * Complete service wiring definitions.
-    *
-    * @param config
-    *   the raw merged and resolved configuration
-    * @param classLoader
-    *   the aggregated class loader
-    */
   final def apply(
       config: Config,
+      runtime: IORuntime,
       classLoader: ClassLoader
-  ): DeltaModule =
-    new DeltaModule(config)(classLoader)
+  ): DeltaModule = new DeltaModule(config, runtime)(using classLoader)
 }

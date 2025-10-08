@@ -32,7 +32,6 @@ import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAc
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
-import ai.senscience.nexus.delta.sdk.otel.OpenTelemetry
 import ai.senscience.nexus.delta.sdk.permissions.{Permissions, StoragePermissionProvider}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -57,13 +56,9 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   makeConfig[StoragePluginConfig]("plugins.storage")
 
-  make[Tracer[IO]].named("storages").fromEffect { (otel: OpenTelemetry) =>
-    otel.otelJava.tracerProvider.get("storages")
-  }
+  makeTracer("storages")
 
-  make[Tracer[IO]].named("files").fromEffect { (otel: OpenTelemetry) =>
-    otel.otelJava.tracerProvider.get("files")
-  }
+  makeTracer("files")
 
   make[StorageTypeConfig].from { (cfg: StoragePluginConfig) => cfg.storages.storageTypeConfig }
 

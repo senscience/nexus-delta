@@ -47,7 +47,7 @@ val munitCatsEffectVersion     = "2.1.0"
 val nimbusJoseJwtVersion       = "10.5"
 val otelVersion                = "1.54.1"
 val otel4sVersion              = "0.13.2"
-val otelLogbackVersion         = "2.20.1-alpha"
+val otelInstrumentationVersion = "2.20.1-alpha"
 val pekkoVersion               = "1.1.5"
 val pekkoConnectorsVersion     = "1.2.0"
 val pekkoHttpVersion           = "1.2.0"
@@ -129,13 +129,17 @@ lazy val munit           = "org.scalameta"                %% "munit"            
 lazy val munitCatsEffect = "org.typelevel"                %% "munit-cats-effect" % munitCatsEffectVersion
 lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"   % nimbusJoseJwtVersion
 
-lazy val otel4s            = "org.typelevel"                   %% "otel4s-oteljava"                           % otel4sVersion
-lazy val otel4sStorage     = "org.typelevel"                   %% "otel4s-oteljava-context-storage"           % otel4sVersion
-lazy val otel4sSemconv     = "org.typelevel"                   %% "otel4s-semconv"                            % otel4sVersion
-lazy val otelAutoconfigure = "io.opentelemetry"                 % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
-lazy val otelExporterOtlp  = "io.opentelemetry"                 % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
-lazy val otelLogback       = "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0"        % otelLogbackVersion
-lazy val otelLogbackMdc    = "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"             % otelLogbackVersion
+lazy val otel4s            = "org.typelevel"   %% "otel4s-oteljava"                           % otel4sVersion
+lazy val otel4sStorage     = "org.typelevel"   %% "otel4s-oteljava-context-storage"           % otel4sVersion
+lazy val otel4sSemconv     = "org.typelevel"   %% "otel4s-semconv"                            % otel4sVersion
+lazy val otelAutoconfigure = "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
+lazy val otelExporterOtlp  = "io.opentelemetry" % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
+lazy val otelDependencies  = Seq(
+  "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0"    % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"         % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-runtime-telemetry-java8" % otelInstrumentationVersion,
+  "org.typelevel"                   %% "otel4s-instrumentation-metrics"        % otel4sVersion
+)
 
 lazy val pekkoHttp        = "org.apache.pekko" %% "pekko-http"         % pekkoHttpVersion
 lazy val pekkoHttpCore    = "org.apache.pekko" %% "pekko-http-core"    % pekkoHttpVersion
@@ -736,10 +740,8 @@ lazy val shared = Seq(
 lazy val otelSettings = Seq(
   libraryDependencies ++= Seq(
     otelAutoconfigure,
-    otelExporterOtlp,
-    otelLogback,
-    otelLogbackMdc
-  ),
+    otelExporterOtlp
+  ) ++ otelDependencies,
   // Enable Cats Effect fiber context tracking
   javaOptions          += "-Dcats.effect.trackFiberContext=true"
 )
