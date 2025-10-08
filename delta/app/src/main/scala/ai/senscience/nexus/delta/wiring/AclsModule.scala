@@ -20,6 +20,7 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.apache.pekko.http.scaladsl.server.RouteConcatenation
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Acls module wiring config.
@@ -27,9 +28,11 @@ import org.apache.pekko.http.scaladsl.server.RouteConcatenation
 // $COVERAGE-OFF$
 object AclsModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[AclsConfig]("app.acls")
+
+  makeTracer("acls")
 
   make[FlattenedAclStore].from { (xas: Transactors) => new FlattenedAclStore(xas) }
 
@@ -39,7 +42,8 @@ object AclsModule extends NexusModuleDef {
         permissions: Permissions,
         flattenedAclStore: FlattenedAclStore,
         xas: Transactors,
-        clock: Clock[IO]
+        clock: Clock[IO],
+        tracer: Tracer[IO] @Id("acls")
     ) =>
       AclsImpl.applyWithInitial(
         permissions.fetchPermissionSet,
@@ -49,7 +53,7 @@ object AclsModule extends NexusModuleDef {
         flattenedAclStore,
         xas,
         clock
-      )
+      )(using tracer)
   }
 
   make[AclCheck].from { (flattenedAclStore: FlattenedAclStore) => AclCheck(flattenedAclStore) }
@@ -67,10 +71,16 @@ object AclsModule extends NexusModuleDef {
   }
 
   many[ScopeInitialization].addSet {
-    (acls: Acls, serviceAccount: ServiceAccount, aclsConfig: AclsConfig, permissionConfig: PermissionsConfig) =>
+    (
+        acls: Acls,
+        serviceAccount: ServiceAccount,
+        aclsConfig: AclsConfig,
+        permissionConfig: PermissionsConfig,
+        tracer: Tracer[IO] @Id("acls")
+    ) =>
       Option
         .when(aclsConfig.enableOwnerPermissions)(
-          OwnerPermissionsScopeInitialization(acls, permissionConfig.ownerPermissions, serviceAccount)
+          OwnerPermissionsScopeInitialization(acls, permissionConfig.ownerPermissions, serviceAccount)(using tracer)
         )
         .toSet
   }

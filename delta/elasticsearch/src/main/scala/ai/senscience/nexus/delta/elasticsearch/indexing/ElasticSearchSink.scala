@@ -1,15 +1,14 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 import shapeless3.typeable.Typeable
 
 /**
@@ -36,13 +35,11 @@ final class ElasticSearchSink private (
     documentId: Elem[Json] => String,
     routing: Elem[Json] => Option[String],
     refresh: Refresh
-) extends Sink {
+)(using Tracer[IO])
+    extends Sink {
   override type In = Json
 
   override def inType: Typeable[Json] = Typeable[Json]
-
-  implicit private val kamonComponent: KamonMetricComponent =
-    KamonMetricComponent(ElasticSearchViews.entityType.value)
 
   override def apply(elements: ElemChunk[Json]): IO[ElemChunk[Unit]] = {
     val actions = elements.foldLeft(Vector.empty[ElasticSearchAction]) {
@@ -59,7 +56,7 @@ final class ElasticSearchSink private (
       client
         .bulk(actions, refresh)
         .map(MarkElems(_, elements, documentId))
-        .span("elasticSearchSink")
+        .surround("elasticSearchSink")
     } else {
       IO.pure(elements.map(_.void))
     }
@@ -85,7 +82,7 @@ object ElasticSearchSink {
       batchConfig: BatchConfig,
       index: IndexLabel,
       refresh: Refresh
-  ): ElasticSearchSink =
+  )(using Tracer[IO]): ElasticSearchSink =
     new ElasticSearchSink(
       client,
       batchConfig,
@@ -110,7 +107,7 @@ object ElasticSearchSink {
       batchConfig: BatchConfig,
       index: IndexLabel,
       refresh: Refresh
-  ): ElasticSearchSink =
+  )(using Tracer[IO]): ElasticSearchSink =
     new ElasticSearchSink(
       client,
       batchConfig,

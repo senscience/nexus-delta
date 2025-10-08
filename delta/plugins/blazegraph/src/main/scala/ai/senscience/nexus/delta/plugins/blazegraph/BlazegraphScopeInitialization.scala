@@ -1,18 +1,18 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
-import ai.senscience.nexus.delta.kernel.syntax.kamonSyntax
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ResourceAlreadyExists
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.IndexingBlazegraphViewValue
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{defaultViewId, permissions}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, IriFilter, ProjectRef}
 import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The default creation of the default SparqlView as part of the project initialization.
@@ -28,11 +28,11 @@ class BlazegraphScopeInitialization(
     views: BlazegraphViews,
     serviceAccount: ServiceAccount,
     defaults: Defaults
-) extends ScopeInitialization {
+)(using Tracer[IO])
+    extends ScopeInitialization {
 
-  private val logger                                        = Logger[BlazegraphScopeInitialization]
-  implicit private val serviceAccountSubject: Subject       = serviceAccount.subject
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(BlazegraphViews.entityType.value)
+  private val logger                                  = Logger[BlazegraphScopeInitialization]
+  implicit private val serviceAccountSubject: Subject = serviceAccount.subject
 
   private def defaultValue: IndexingBlazegraphViewValue = IndexingBlazegraphViewValue(
     name = Some(defaults.name),
@@ -56,7 +56,7 @@ class BlazegraphScopeInitialization(
             s"Failed to create the default SparqlView for project '$project' due to '${rej.getMessage}'."
           logger.error(str) >> IO.raiseError(ScopeInitializationFailed(str))
       }
-      .span("createDefaultSparqlView")
+      .surround("createDefaultSparqlView")
 
   override def onOrganizationCreation(
       organization: Organization,

@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewType.{Aggr
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.nextIndexingRev
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -35,6 +34,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 import java.util.UUID
 
@@ -47,9 +47,7 @@ final class ElasticSearchViews private (
     sourceDecoder: ElasticSearchViewJsonLdSourceDecoder,
     defaultViewDef: DefaultIndexDef,
     prefix: String
-)(implicit uuidF: UUIDF) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using uuidF: UUIDF)(using Tracer[IO]) {
 
   /**
     * Creates a new ElasticSearchView with a generated id.
@@ -88,7 +86,7 @@ final class ElasticSearchViews private (
       (iri, _) <- expandWithContext(fetchContext.onCreate, project, id)
       res      <- eval(CreateElasticSearchView(iri, project, value, value.toJson(iri), subject))
     } yield res
-  }.span("createElasticSearchView")
+  }.surround("createElasticSearchView")
 
   /**
     * Creates a new ElasticSearchView from a json representation. If an identifier exists in the provided json it will
@@ -110,7 +108,7 @@ final class ElasticSearchViews private (
       (iri, value) <- sourceDecoder(project, pc, source)
       res          <- eval(CreateElasticSearchView(iri, project, value, source, caller.subject))
     } yield res
-  }.span("createElasticSearchView")
+  }.surround("createElasticSearchView")
 
   /**
     * Creates a new ElasticSearchView from a json representation. If an identifier exists in the provided json it will
@@ -133,7 +131,7 @@ final class ElasticSearchViews private (
       value     <- sourceDecoder(project, pc, iri, source)
       res       <- eval(CreateElasticSearchView(iri, project, value, source, caller.subject))
     } yield res
-  }.span("createElasticSearchView")
+  }.surround("createElasticSearchView")
 
   /**
     * Updates an existing ElasticSearchView.
@@ -159,7 +157,7 @@ final class ElasticSearchViews private (
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       res      <- eval(UpdateElasticSearchView(iri, project, rev, value, value.toJson(iri), subject))
     } yield res
-  }.span("updateElasticSearchView")
+  }.surround("updateElasticSearchView")
 
   /**
     * Updates an existing ElasticSearchView.
@@ -187,7 +185,7 @@ final class ElasticSearchViews private (
       value     <- sourceDecoder(project, pc, iri, source)
       res       <- eval(UpdateElasticSearchView(iri, project, rev, value, source, caller.subject))
     } yield res
-  }.span("updateElasticSearchView")
+  }.surround("updateElasticSearchView")
 
   /**
     * Deprecates an existing ElasticSearchView. View deprecation implies blocking any query capabilities and in case of
@@ -212,7 +210,7 @@ final class ElasticSearchViews private (
       _        <- validateNotDefaultView(iri)
       res      <- eval(DeprecateElasticSearchView(iri, project, rev, subject))
     } yield res
-  }.span("deprecateElasticSearchView")
+  }.surround("deprecateElasticSearchView")
 
   private def validateNotDefaultView(iri: Iri): IO[Unit] =
     IO.raiseWhen(iri == defaultViewId)(ViewIsDefaultView)
@@ -239,7 +237,7 @@ final class ElasticSearchViews private (
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       res      <- eval(UndeprecateElasticSearchView(iri, project, rev, subject))
     } yield res
-  }.span("undeprecateElasticSearchView")
+  }.surround("undeprecateElasticSearchView")
 
   /**
     * Deprecates an existing ElasticSearchView without applying preliminary checks on the project status
@@ -277,7 +275,7 @@ final class ElasticSearchViews private (
       (iri, _) <- expandWithContext(fetchContext.onRead, project, id.value)
       state    <- stateOrNotFound(id, project, iri)
     } yield state
-  }.span("fetchElasticSearchView")
+  }.surround("fetchElasticSearchView")
 
   private def stateOrNotFound(id: IdSegmentRef, project: ProjectRef, iri: Iri) = {
     val notFound = ViewNotFound(iri, project)
@@ -342,7 +340,7 @@ final class ElasticSearchViews private (
   def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource(defaultViewDef))
-    ).span("listElasticsearchViews")
+    ).surround("listElasticsearchViews")
 
   private def eval(cmd: ElasticSearchViewCommand): IO[ViewResource] =
     log
@@ -401,7 +399,7 @@ object ElasticSearchViews {
       xas: Transactors,
       defaultViewDef: DefaultIndexDef,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): IO[ElasticSearchViews] =
+  )(using uuidF: UUIDF)(using Tracer[IO]): IO[ElasticSearchViews] =
     ElasticSearchViewJsonLdSourceDecoder(uuidF, contextResolution).map(decoder =>
       new ElasticSearchViews(
         ScopedEventLog(

@@ -36,6 +36,7 @@ import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.Purg
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Blazegraph plugin wiring
@@ -45,6 +46,9 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[BlazegraphViewsConfig]("plugins.blazegraph")
+
+  makeTracer("sparql")
+  makeTracer("sparql-indexing")
 
   make[SparqlSlowQueryStore].from { (xas: Transactors) => SparqlSlowQueryStore(xas) }
 
@@ -87,7 +91,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
           config: BlazegraphViewsConfig,
           xas: Transactors,
           clock: Clock[IO],
-          uuidF: UUIDF
+          uuidF: UUIDF,
+          tracer: Tracer[IO] @Id("sparql")
       ) =>
         BlazegraphViews(
           fetchContext,
@@ -98,7 +103,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
           config.prefix,
           xas,
           clock
-        )(uuidF)
+        )(using uuidF)(using tracer)
     }
 
   make[CurrentActiveViews].from { (views: BlazegraphViews) =>
@@ -111,8 +116,13 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
-        baseUri: BaseUri
-    ) => SparqlProjectionLifeCycle(graphStream, pipeChainCompiler, client, config.retryStrategy, config.batch)(baseUri)
+        baseUri: BaseUri,
+        tracer: Tracer[IO] @Id("sparql-indexing")
+    ) =>
+      SparqlProjectionLifeCycle(graphStream, pipeChainCompiler, client, config.retryStrategy, config.batch)(using
+        baseUri,
+        tracer
+      )
   }
 
   make[SparqlCoordinator].fromEffect {
@@ -137,9 +147,10 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         client: SparqlClient @Id("sparql-query-client"),
         slowQueryLogger: SparqlSlowQueryLogger,
         cfg: BlazegraphViewsConfig,
-        xas: Transactors
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("sparql")
     ) =>
-      BlazegraphViewsQuery(aclCheck, views, client, slowQueryLogger, cfg.prefix, xas)
+      BlazegraphViewsQuery(aclCheck, views, client, slowQueryLogger, cfg.prefix, xas)(using tracer)
   }
 
   make[IncomingOutgoingLinks].fromEffect {
@@ -147,10 +158,11 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         fetchContext: FetchContext,
         views: BlazegraphViews,
         client: SparqlClient @Id("sparql-query-client"),
-        base: BaseUri
+        base: BaseUri,
+        tracer: Tracer[IO] @Id("sparql")
     ) =>
       Queries.load.map { queries =>
-        IncomingOutgoingLinks(fetchContext, views, client, queries)(base)
+        IncomingOutgoingLinks(fetchContext, views, client, queries)(using base, tracer)
       }
   }
 
@@ -225,8 +237,13 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   make[BlazegraphScopeInitialization].from {
-    (views: BlazegraphViews, serviceAccount: ServiceAccount, config: BlazegraphViewsConfig) =>
-      new BlazegraphScopeInitialization(views, serviceAccount, config.defaults)
+    (
+        views: BlazegraphViews,
+        serviceAccount: ServiceAccount,
+        config: BlazegraphViewsConfig,
+        tracer: Tracer[IO] @Id("sparql")
+    ) =>
+      new BlazegraphScopeInitialization(views, serviceAccount, config.defaults)(using tracer)
   }
   many[ScopeInitialization].ref[BlazegraphScopeInitialization]
 
@@ -282,8 +299,12 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
-        baseUri: BaseUri
+        baseUri: BaseUri,
+        tracer: Tracer[IO] @Id("sparql-indexing")
     ) =>
-      SparqlIndexingAction(currentActiveViews, pipeChainCompiler, client, config.syncIndexingTimeout)(baseUri)
+      SparqlIndexingAction(currentActiveViews, pipeChainCompiler, client, config.syncIndexingTimeout)(using
+        baseUri,
+        tracer
+      )
   }
 }

@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
@@ -15,6 +14,7 @@ import ai.senscience.nexus.delta.sdk.{Defaults, ScopeInitialization}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.effect.IO
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The default creation of the InProject resolver as part of the project initialization.
@@ -24,11 +24,11 @@ import cats.effect.IO
   * @param defaults
   *   default name and description for the resolver
   */
-class ResolverScopeInitialization(createResolver: CreateResolver, defaults: Defaults) extends ScopeInitialization {
+class ResolverScopeInitialization(createResolver: CreateResolver, defaults: Defaults)(using Tracer[IO])
+    extends ScopeInitialization {
 
-  private val defaultInProjectResolverValue: ResolverValue  =
+  private val defaultInProjectResolverValue: ResolverValue =
     InProjectValue(Some(defaults.name), Some(defaults.description), Priority.unsafe(1))
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
 
   override def onProjectCreation(project: ProjectRef, subject: Subject): IO[Unit] =
     createResolver(project, defaultInProjectResolverValue)
@@ -39,7 +39,7 @@ class ResolverScopeInitialization(createResolver: CreateResolver, defaults: Defa
             s"Failed to create the default InProject resolver for project '$project' due to '${rej.getMessage}'."
           logger.error(str) >> IO.raiseError(ScopeInitializationFailed(str))
       }
-      .span("createDefaultResolver")
+      .surround("createDefaultResolver")
 
   override def onOrganizationCreation(organization: Organization, subject: Subject): IO[Unit] = IO.unit
 
@@ -52,7 +52,9 @@ object ResolverScopeInitialization {
 
   private val logger = Logger[ResolverScopeInitialization]
 
-  def apply(resolvers: Resolvers, serviceAccount: ServiceAccount, defaults: Defaults) = {
+  def apply(resolvers: Resolvers, serviceAccount: ServiceAccount, defaults: Defaults)(using
+      Tracer[IO]
+  ): ResolverScopeInitialization = {
     implicit val caller: Caller        = serviceAccount.caller
     def createResolver: CreateResolver = resolvers.create(nxv.defaultResolver, _, _).void
     new ResolverScopeInitialization(

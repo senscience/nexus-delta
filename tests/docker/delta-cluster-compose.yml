@@ -28,7 +28,7 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
-      - KAMON_ENABLED
+      - OTEL_SDK_DISABLED
       - CLUSTER_SIZE
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true
@@ -59,7 +59,7 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
-      - KAMON_ENABLED
+      - OTEL_SDK_DISABLED
       - CLUSTER_SIZE
       - NODE_INDEX=1
       - PARTITION_STRATEGY
@@ -88,7 +88,7 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
-      - KAMON_ENABLED
+      - OTEL_SDK_DISABLED
       - PARTITION_STRATEGY
       - CLUSTER_SIZE
       - NODE_INDEX=2

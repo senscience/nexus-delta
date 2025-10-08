@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 sealed trait GraphAnalyticsCoordinator
 
@@ -128,7 +129,7 @@ object GraphAnalyticsCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: GraphAnalyticsConfig
-  ): IO[GraphAnalyticsCoordinator] =
+  )(using Tracer[IO]): IO[GraphAnalyticsCoordinator] =
     if config.indexingEnabled then {
       val coordinator = apply(
         projects.states(_).map(_.map { p => ProjectDef(p.project, p.markedForDeletion) }),

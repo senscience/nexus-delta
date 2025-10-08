@@ -17,7 +17,9 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
+import cats.effect.IO
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Graph analytics plugin wiring.
@@ -27,6 +29,8 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[GraphAnalyticsConfig]("plugins.graph-analytics")
+
+  makeTracer("graph-analytics")
 
   make[GraphAnalytics]
     .from { (client: ElasticSearchClient, fetchContext: FetchContext, config: GraphAnalyticsConfig) =>
@@ -43,9 +47,10 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         analyticsStream: GraphAnalyticsStream,
         supervisor: Supervisor,
         client: ElasticSearchClient,
-        config: GraphAnalyticsConfig
+        config: GraphAnalyticsConfig,
+        tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
-      GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)
+      GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)(using tracer)
   }
 
   make[GraphAnalyticsViewsQuery].from { (client: ElasticSearchClient, config: GraphAnalyticsConfig) =>

@@ -38,6 +38,7 @@ import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsR
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * ElasticSearch plugin wiring.
@@ -47,6 +48,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ElasticSearchViewsConfig]("app.elasticsearch")
+
+  makeTracer("elasticsearch")
+
+  makeTracer("elasticsearch-indexing")
 
   make[MetricsIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
     MetricsIndexDef(cfg.prefix, loader)
@@ -91,7 +96,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         defaultIndex: DefaultIndexDef,
         xas: Transactors,
         clock: Clock[IO],
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       ElasticSearchViews(
         fetchContext,
@@ -102,7 +108,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         xas,
         defaultIndex,
         clock
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[CurrentActiveViews].from { (views: ElasticSearchViews) =>
@@ -122,7 +128,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         supervisor: Supervisor,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate")
+        cr: RemoteContextResolution @Id("aggregate"),
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       ElasticSearchCoordinator(
         views,
@@ -131,7 +138,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         supervisor,
         client,
         config
-      )(cr)
+      )(using cr, tracer)
   }
 
   make[MainRestartScheduler].from { (projects: Projects, restartScheduler: ProjectionsRestartScheduler) =>
@@ -146,7 +153,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         client: ElasticSearchClient,
         mainIndex: MainIndexDef,
         config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate")
+        cr: RemoteContextResolution @Id("aggregate"),
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       MainIndexingCoordinator(
         projects,
@@ -156,7 +164,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         mainIndex,
         config.batch,
         config.indexingEnabled
-      )(cr)
+      )(using cr, tracer)
   }
 
   make[EventMetricsProjection].fromEffect {
@@ -420,7 +428,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         pipeChainCompiler: PipeChainCompiler,
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate")
+        cr: RemoteContextResolution @Id("aggregate"),
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       ElasticSearchIndexingAction(
         currentViews,
@@ -428,17 +437,22 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         client,
         config.syncIndexingTimeout,
         config.syncIndexingRefresh
-      )(
-        cr
-      )
+      )(using cr, tracer)
   }
 
   many[IndexingAction].add {
     (
         client: ElasticSearchClient,
         config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate")
-    ) => MainIndexingAction(client, config.mainIndex, config.syncIndexingTimeout, config.syncIndexingRefresh)(cr)
+        cr: RemoteContextResolution @Id("aggregate"),
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
+    ) =>
+      MainIndexingAction(
+        client,
+        config.mainIndex,
+        config.syncIndexingTimeout,
+        config.syncIndexingRefresh
+      )(using cr, tracer)
   }
 
 }

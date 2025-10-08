@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
 import ai.senscience.nexus.delta.kernel.error.Rejection
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.DataResource
@@ -288,8 +287,6 @@ object Resources {
     * The resource entity type.
     */
   final val entityType: EntityType = EntityType("resource")
-
-  implicit val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
 
   val expandIri: ExpandIri[InvalidResourceId] = new ExpandIri(InvalidResourceId.apply)
 

@@ -37,12 +37,16 @@ import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[CompositeViewsConfig]("plugins.composite-views")
+
+  makeTracer("composite")
+  makeTracer("composite-indexing")
 
   make[DeltaClient].fromResource { (cfg: CompositeViewsConfig, authTokenProvider: AuthTokenProvider) =>
     DeltaClient(authTokenProvider, cfg.remoteSourceCredentials, cfg.remoteSourceClient.retryDelay)
@@ -88,7 +92,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         config: CompositeViewsConfig,
         xas: Transactors,
         uuidF: UUIDF,
-        clock: Clock[IO]
+        clock: Clock[IO],
+        tracer: Tracer[IO] @Id("composite")
     ) =>
       CompositeViews(
         fetchContext,
@@ -98,7 +103,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         config.eventLog,
         xas,
         clock
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[CompositeRestartStore].from { (xas: Transactors) =>
@@ -142,7 +147,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         sparqlClient: SparqlClient @Id("sparql-composite-indexing-client"),
         cfg: CompositeViewsConfig,
         baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate")
+        cr: RemoteContextResolution @Id("aggregate"),
+        tracer: Tracer[IO] @Id("composite-indexing")
     ) =>
       CompositeSinks(
         cfg.prefix,
@@ -152,7 +158,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         cfg.blazegraphBatch,
         cfg.sinkConfig,
         cfg.retryStrategy
-      )(baseUri, cr)
+      )(using baseUri, cr, tracer)
   }
 
   make[MetadataPredicates].fromEffect {

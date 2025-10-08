@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.storage.storages.Storages.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.StorageTypeConfig
@@ -32,7 +31,7 @@ import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.Json
-import org.typelevel.log4cats
+import org.typelevel.otel4s.trace.Tracer
 
 import java.time.Instant
 
@@ -44,9 +43,7 @@ final class Storages private (
     fetchContext: FetchContext,
     sourceDecoder: JsonLdSourceResolvingDecoder[StorageFields],
     serviceAccount: ServiceAccount
-) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using Tracer[IO]) {
 
   private val updatedByDesc: Ordering[StorageResource] = Ordering.by[StorageResource, Instant](_.updatedAt).reverse
 
@@ -68,7 +65,7 @@ final class Storages private (
       res                  <- eval(CreateStorage(iri, projectRef, storageFields, source, caller.subject))
       _                    <- unsetPreviousDefaultIfRequired(projectRef, res)
     } yield res
-  }.span("createStorage")
+  }.surround("createStorage")
 
   /**
     * Create a new storage with the provided id
@@ -92,7 +89,7 @@ final class Storages private (
       res           <- eval(CreateStorage(iri, projectRef, storageFields, source, caller.subject))
       _             <- unsetPreviousDefaultIfRequired(projectRef, res)
     } yield res
-  }.span("createStorage")
+  }.surround("createStorage")
 
   /**
     * Create a new storage with the provided id and the [[StorageValue]] instead of the payload
@@ -116,7 +113,7 @@ final class Storages private (
       res   <- eval(CreateStorage(iri, projectRef, storageFields, source, caller.subject))
       _     <- unsetPreviousDefaultIfRequired(projectRef, res)
     } yield res
-  }.span("createStorage")
+  }.surround("createStorage")
 
   /**
     * Update an existing storage with the passed Json ''payload''
@@ -152,7 +149,7 @@ final class Storages private (
       res           <- eval(UpdateStorage(iri, projectRef, storageFields, source, rev, caller.subject))
       _             <- IO.whenA(unsetPreviousDefault)(unsetPreviousDefaultIfRequired(projectRef, res))
     } yield res
-  }.span("updateStorage")
+  }.surround("updateStorage")
 
   /**
     * Update an existing storage with the passed [[StorageValue]]
@@ -179,7 +176,7 @@ final class Storages private (
       res   <- eval(UpdateStorage(iri, projectRef, storageFields, source, rev, caller.subject))
       _     <- unsetPreviousDefaultIfRequired(projectRef, res)
     } yield res
-  }.span("updateStorage")
+  }.surround("updateStorage")
 
   /**
     * Deprecate an existing storage
@@ -201,7 +198,7 @@ final class Storages private (
       iri <- expandIri(id, pc)
       res <- eval(DeprecateStorage(iri, projectRef, rev, subject))
     } yield res
-  }.span("deprecateStorage")
+  }.surround("deprecateStorage")
 
   /**
     * Undeprecate a storage
@@ -223,7 +220,7 @@ final class Storages private (
       iri <- expandIri(id, pc)
       res <- eval(UndeprecateStorage(iri, projectRef, rev, subject))
     } yield res
-  }.span("undeprecateStorage")
+  }.surround("undeprecateStorage")
 
   def fetch(idSegment: IdSegmentRef, project: ProjectRef): IO[StorageResource] = {
     for {
@@ -245,7 +242,7 @@ final class Storages private (
         log.stateOr(project, id, rev, StorageNotFound(id, project), RevisionNotFound(_, _))
       case t: ResourceRef.Tag               => IO.raiseError(FetchByTagNotSupported(t))
     }
-  }.map(_.toResource).span("fetchStorage")
+  }.map(_.toResource).surround("fetchStorage")
 
   private def fetchDefaults(project: ProjectRef): Stream[IO, StorageResource] =
     log
@@ -257,7 +254,7 @@ final class Storages private (
       defaultOpt <- fetchDefaults(project).reduce(updatedByDesc.min).head.compile.last
       default    <- IO.fromOption(defaultOpt)(DefaultStorageNotFound(project))
     } yield default
-  }.span("fetchDefaultStorage")
+  }.surround("fetchDefaultStorage")
 
   /**
     * Return the existing storages in a project in a finite stream
@@ -268,7 +265,7 @@ final class Storages private (
   def list(project: ProjectRef): IO[SearchResults[StorageResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource)
-    ).span("listStorages")
+    ).surround("listStorages")
 
   private def unsetPreviousDefaultIfRequired(
       project: ProjectRef,
@@ -320,7 +317,7 @@ object Storages {
     */
   val mappings: ApiMappings = ApiMappings("storage" -> storageSchema, "defaultStorage" -> defaultStorageId)
 
-  implicit private[storages] val logger: log4cats.Logger[IO] = Logger[Storages]
+  private[storages] val logger = Logger[Storages]
 
   private[storages] def next(state: Option[StorageState], event: StorageEvent): Option[StorageState] = {
 
@@ -493,7 +490,7 @@ object Storages {
       config: StoragesConfig,
       serviceAccount: ServiceAccount,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): IO[Storages] = {
+  )(using uuidF: UUIDF)(using Tracer[IO]): IO[Storages] = {
     implicit val rcr: RemoteContextResolution = contextResolution.rcr
 
     StorageDecoderConfiguration.apply

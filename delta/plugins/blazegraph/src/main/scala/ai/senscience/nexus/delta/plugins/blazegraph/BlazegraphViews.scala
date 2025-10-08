@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.blazegraph
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews.*
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
@@ -35,6 +34,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 import java.util.UUID
 
@@ -47,9 +47,7 @@ final class BlazegraphViews(
     sourceDecoder: JsonLdSourceResolvingDecoder[BlazegraphViewValue],
     createNamespace: ViewResource => IO[Unit],
     prefix: String
-) {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using Tracer[IO]) {
 
   /**
     * Create a new Blazegraph view where the id is either present on the payload or self generated.
@@ -66,7 +64,7 @@ final class BlazegraphViews(
       res              <- eval(CreateBlazegraphView(iri, project, viewValue, source, caller.subject))
       _                <- createNamespace(res)
     } yield res
-  }.span("createBlazegraphView")
+  }.surround("createBlazegraphView")
 
   /**
     * Create a new view with the provided id.
@@ -90,7 +88,7 @@ final class BlazegraphViews(
       res       <- eval(CreateBlazegraphView(iri, project, viewValue, source, caller.subject))
       _         <- createNamespace(res)
     } yield res
-  }.span("createBlazegraphView")
+  }.surround("createBlazegraphView")
 
   /**
     * Create a new view with the provided id and the [[BlazegraphViewValue]] instead of [[Json]] payload.
@@ -111,7 +109,7 @@ final class BlazegraphViews(
       res   <- eval(CreateBlazegraphView(iri, project, view, source, subject))
       _     <- createNamespace(res)
     } yield res
-  }.span("createBlazegraphView")
+  }.surround("createBlazegraphView")
 
   /**
     * Update an existing view with [[Json]] source.
@@ -138,7 +136,7 @@ final class BlazegraphViews(
       res       <- eval(UpdateBlazegraphView(iri, project, viewValue, rev, source, caller.subject))
       _         <- createNamespace(res)
     } yield res
-  }.span("updateBlazegraphView")
+  }.surround("updateBlazegraphView")
 
   /**
     * Update an existing view.
@@ -162,7 +160,7 @@ final class BlazegraphViews(
       res   <- eval(UpdateBlazegraphView(iri, project, view, rev, source, subject))
       _     <- createNamespace(res)
     } yield res
-  }.span("updateBlazegraphView")
+  }.surround("updateBlazegraphView")
 
   /**
     * Deprecate a view.
@@ -185,7 +183,7 @@ final class BlazegraphViews(
       _   <- validateNotDefaultView(iri)
       res <- eval(DeprecateBlazegraphView(iri, project, rev, subject))
     } yield res
-  }.span("deprecateBlazegraphView")
+  }.surround("deprecateBlazegraphView")
 
   private def validateNotDefaultView(iri: Iri): IO[Unit] = {
     IO.raiseWhen(iri == defaultViewId)(ViewIsDefaultView)
@@ -211,7 +209,7 @@ final class BlazegraphViews(
       iri <- expandIri(id, pc)
       res <- eval(UndeprecateBlazegraphView(iri, project, rev, subject))
     } yield res
-  }.span("undeprecateBlazegraphView")
+  }.surround("undeprecateBlazegraphView")
 
   /**
     * Deprecate a view without applying preliminary checks on the project status
@@ -253,7 +251,7 @@ final class BlazegraphViews(
                    case t: Tag           => IO.raiseError(FetchByTagNotSupported(t))
                  }
     } yield state
-  }.span("fetchBlazegraphView")
+  }.surround("fetchBlazegraphView")
 
   /**
     * Retrieves a current [[IndexingBlazegraphView]] resource.
@@ -309,7 +307,7 @@ final class BlazegraphViews(
   def list(project: ProjectRef): IO[SearchResults[ViewResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource)
-    ).span("listBlazegraphViews")
+    ).surround("listBlazegraphViews")
 
   private def eval(cmd: BlazegraphViewCommand): IO[ViewResource] =
     log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
@@ -526,7 +524,7 @@ object BlazegraphViews {
       prefix: String,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): IO[BlazegraphViews] = {
+  )(using uuidF: UUIDF)(using Tracer[IO]): IO[BlazegraphViews] = {
     val createNameSpace = (v: ViewResource) =>
       v.value match {
         case i: IndexingBlazegraphView =>
@@ -547,7 +545,7 @@ object BlazegraphViews {
       prefix: String,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): IO[BlazegraphViews] = {
+  )(using uuidF: UUIDF)(using Tracer[IO]): IO[BlazegraphViews] = {
     implicit val rcr: RemoteContextResolution = contextResolution.rcr
 
     BlazegraphDecoderConfiguration.apply

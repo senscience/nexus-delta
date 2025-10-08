@@ -25,8 +25,10 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
+import ai.senscience.nexus.delta.wiring.PermissionsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Projects wiring
@@ -34,13 +36,15 @@ import izumi.distage.model.definition.Id
 @SuppressWarnings(Array("UnsafeTraversableMethods"))
 object ProjectsModule extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   final case class ApiMappingsCollection(value: Set[ApiMappings]) {
     def merge: ApiMappings = value.foldLeft(ApiMappings.empty)(_ + _)
   }
 
   makeConfig[ProjectsConfig]("app.projects")
+
+  makeTracer("projects")
 
   make[ApiMappingsCollection].from { (mappings: Set[ApiMappings]) =>
     ApiMappingsCollection(mappings)
@@ -54,7 +58,8 @@ object ProjectsModule extends NexusModuleDef {
         mappings: ApiMappingsCollection,
         xas: Transactors,
         clock: Clock[IO],
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("projects")
     ) =>
       IO.pure(
         ProjectsImpl(
@@ -66,7 +71,7 @@ object ProjectsModule extends NexusModuleDef {
           config.eventLog,
           xas,
           clock
-        )(uuidF)
+        )(using uuidF, tracer)
       )
   }
 
@@ -133,15 +138,18 @@ object ProjectsModule extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("projects")
     ) =>
-      new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics)(
+      new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics)(using
         baseUri,
+        config.prefix
+      )(using
         config.pagination,
-        config.prefix,
         cr,
         ordering,
-        fusionConfig
+        fusionConfig,
+        tracer
       )
   }
 

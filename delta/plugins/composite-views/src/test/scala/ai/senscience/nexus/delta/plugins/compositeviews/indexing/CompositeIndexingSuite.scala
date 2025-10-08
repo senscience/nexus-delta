@@ -60,6 +60,7 @@ import io.circe.{Encoder, Json}
 import munit.catseffect.IOFixture
 import munit.{AnyFixture, CatsEffectSuite}
 import org.http4s.{Query, Uri}
+import org.typelevel.otel4s.trace.Tracer
 
 import java.time.Instant
 import java.util.UUID
@@ -70,8 +71,9 @@ class BatchCompositeIndexingSuite  extends CompositeIndexingSuite(SinkConfig.Bat
 
 trait CompositeIndexingFixture { self: CatsEffectSuite & FixedClock =>
 
-  implicit private val baseUri: BaseUri             = BaseUri.unsafe("http://localhost", "v1")
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.never
+  private given BaseUri                 = BaseUri.unsafe("http://localhost", "v1")
+  private given RemoteContextResolution = RemoteContextResolution.never
+  private given Tracer[IO]              = Tracer.noop[IO]
 
   val prefix: String = "delta"
 

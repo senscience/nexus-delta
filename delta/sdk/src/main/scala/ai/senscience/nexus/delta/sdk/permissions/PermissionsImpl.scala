@@ -1,8 +1,7 @@
 package ai.senscience.nexus.delta.sdk.permissions
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.sdk.PermissionsResource
-import ai.senscience.nexus.delta.sdk.permissions.Permissions.{entityType, labelId}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions.labelId
 import ai.senscience.nexus.delta.sdk.permissions.PermissionsImpl.PermissionsLog
 import ai.senscience.nexus.delta.sdk.permissions.model.*
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsCommand.*
@@ -12,13 +11,13 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
+import org.typelevel.otel4s.trace.Tracer
 
 final class PermissionsImpl private (
     override val minimum: Set[Permission],
     log: PermissionsLog
-) extends Permissions {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using Tracer[IO])
+    extends Permissions {
 
   private val initial = PermissionsState.initial(minimum)
 
@@ -27,7 +26,7 @@ final class PermissionsImpl private (
       .stateOr[PermissionsRejection](labelId, UnexpectedState)
       .handleErrorWith(_ => IO.pure(initial))
       .map(_.toResource(minimum))
-      .span("fetchPermissions")
+      .surround("fetchPermissions")
 
   override def fetchAt(rev: Int): IO[PermissionsResource] =
     log
@@ -38,28 +37,28 @@ final class PermissionsImpl private (
         RevisionNotFound(_, _)
       )
       .map(_.toResource(minimum))
-      .span("fetchPermissionsAt")
+      .surround("fetchPermissionsAt")
 
   override def replace(
       permissions: Set[Permission],
       rev: Int
   )(implicit caller: Subject): IO[PermissionsResource] =
-    eval(ReplacePermissions(rev, permissions, caller)).span("replacePermissions")
+    eval(ReplacePermissions(rev, permissions, caller)).surround("replacePermissions")
 
   override def append(
       permissions: Set[Permission],
       rev: Int
   )(implicit caller: Subject): IO[PermissionsResource] =
-    eval(AppendPermissions(rev, permissions, caller)).span("appendPermissions")
+    eval(AppendPermissions(rev, permissions, caller)).surround("appendPermissions")
 
   override def subtract(
       permissions: Set[Permission],
       rev: Int
   )(implicit caller: Subject): IO[PermissionsResource] =
-    eval(SubtractPermissions(rev, permissions, caller)).span("subtractPermissions")
+    eval(SubtractPermissions(rev, permissions, caller)).surround("subtractPermissions")
 
   override def delete(rev: Int)(implicit caller: Subject): IO[PermissionsResource] =
-    eval(DeletePermissions(rev, caller)).span("deletePermissions")
+    eval(DeletePermissions(rev, caller)).surround("deletePermissions")
 
   private def eval(cmd: PermissionsCommand): IO[PermissionsResource] =
     log
@@ -85,7 +84,7 @@ object PermissionsImpl {
       config: PermissionsConfig,
       xas: Transactors,
       clock: Clock[IO]
-  ): Permissions =
+  )(using Tracer[IO]): Permissions =
     new PermissionsImpl(
       config.minimum,
       GlobalEventLog(Permissions.definition(config.minimum, clock), config.eventLog, xas)

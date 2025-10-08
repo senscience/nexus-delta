@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.schemas
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -214,8 +213,6 @@ object Schemas {
     * The schemas entity type.
     */
   final val entityType: EntityType = EntityType("schema")
-
-  implicit val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
 
   val expandIri: ExpandIri[InvalidSchemaId] = new ExpandIri(InvalidSchemaId.apply)
 

@@ -39,8 +39,6 @@ val http4sVersion              = "0.23.32"
 val http4sXMLVersion           = "0.24.0"
 val jenaVersion                = "5.2.0"
 val jsonIterVersion            = "2.38.2"
-val kamonVersion               = "2.7.7"
-val kanelaAgentVersion         = "1.0.18"
 val log4catsVersion            = "2.7.1"
 val logbackVersion             = "1.5.19"
 val magnoliaVersion            = "1.3.18"
@@ -124,9 +122,6 @@ lazy val jenaArq = "org.apache.jena" % "jena-arq" % jenaVersion
 
 lazy val jsoniterCirce = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-circe" % jsonIterVersion
 
-lazy val kamonPekkoHttp  = "io.kamon"                     %% "kamon-pekko-http"  % kamonVersion
-lazy val kamonCore       = "io.kamon"                     %% "kamon-core"        % kamonVersion
-lazy val kanelaAgent     = "io.kamon"                      % "kanela-agent"      % kanelaAgentVersion
 lazy val log4cats        = "org.typelevel"                %% "log4cats-slf4j"    % log4catsVersion
 lazy val logback         = "ch.qos.logback"                % "logback-classic"   % logbackVersion
 lazy val magnolia        = "com.softwaremill.magnolia1_3" %% "magnolia"          % magnoliaVersion
@@ -135,8 +130,10 @@ lazy val munitCatsEffect = "org.typelevel"                %% "munit-cats-effect"
 lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"   % nimbusJoseJwtVersion
 
 lazy val otel4s            = "org.typelevel"                   %% "otel4s-oteljava"                           % otel4sVersion
-lazy val otelAutoconfigure = "io.opentelemetry"                 % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
-lazy val otelExporterOtlp  = "io.opentelemetry"                 % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
+lazy val otel4sStorage     = "org.typelevel"                   %% "otel4s-oteljava-context-storage"           % otel4sVersion
+lazy val otel4sSemconv     = "org.typelevel"                   %% "otel4s-semconv"                            % otel4sVersion
+lazy val otelAutoconfigure = "io.opentelemetry"                 % "opentelemetry-sdk-extension-autoconfigure" % otelVersion        % Runtime
+lazy val otelExporterOtlp  = "io.opentelemetry"                 % "opentelemetry-exporter-otlp"               % otelVersion        % Runtime
 lazy val otelLogback       = "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0"        % otelLogbackVersion
 lazy val otelLogbackMdc    = "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"             % otelLogbackVersion
 
@@ -305,7 +302,6 @@ lazy val kernel = project
       jsoniterCirce,
       handleBars,
       nimbusJoseJwt,
-      kamonCore,
       log4cats,
       munit           % Test,
       munitCatsEffect % Test
@@ -321,6 +317,7 @@ lazy val testkit = project
     coverageMinimumStmtTotal := 0,
     libraryDependencies     ++= Seq(
       logback,
+      otel4s,
       munit,
       munitCatsEffect,
       scalaTest,
@@ -382,6 +379,8 @@ lazy val sdk = project
       pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_3"),
       scalaXml,
       distageCore,
+      otel4s,
+      otel4sSemconv,
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
       pekkoHttpTestKit % Test
@@ -405,8 +404,8 @@ lazy val app = project
     name       := "delta-app",
     moduleName := "delta-app"
   )
-  .enablePlugins(UniversalPlugin, JavaAppPackaging, JavaAgent, DockerPlugin, BuildInfoPlugin)
-  .settings(shared, compilation, servicePackaging, assertJavaVersion, kamonSettings, coverage, release)
+  .enablePlugins(UniversalPlugin, JavaAppPackaging, DockerPlugin, BuildInfoPlugin)
+  .settings(shared, compilation, servicePackaging, assertJavaVersion, otelSettings, coverage, release)
   .dependsOn(sdk % "compile->compile;test->test", elasticsearch, testkit % "test->compile")
   .settings(Test / compile := (Test / compile).dependsOn(testPlugin / assembly).value)
   .settings(
@@ -414,12 +413,7 @@ lazy val app = project
       pekkoHttpCors,
       pekkoSlf4j,
       classgraph,
-      logback,
-      otel4s,
-      otelAutoconfigure,
-      otelExporterOtlp,
-      otelLogback,
-      otelLogbackMdc
+      logback
     ),
     run / fork            := true,
     buildInfoKeys         := Seq[BuildInfoKey](version),
@@ -502,7 +496,6 @@ lazy val blazegraphPlugin = project
   .settings(
     name                       := "delta-blazegraph-plugin",
     moduleName                 := "delta-blazegraph-plugin",
-    libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.blazegraph",
     coverageFailOnMinimum      := false,
@@ -525,7 +518,7 @@ lazy val compositeViewsPlugin = project
   .settings(
     name                       := "delta-composite-views-plugin",
     moduleName                 := "delta-composite-views-plugin",
-    libraryDependencies       ++= Seq(kamonPekkoHttp % Provided) ++ http4sServerTest,
+    libraryDependencies       ++= http4sServerTest,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.compositeviews",
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
@@ -549,7 +542,6 @@ lazy val searchPlugin = project
   .settings(
     name                       := "delta-search-plugin",
     moduleName                 := "delta-search-plugin",
-    libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.search",
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
@@ -572,9 +564,7 @@ lazy val storagePlugin = project
   .settings(
     name                       := "delta-storage-plugin",
     moduleName                 := "delta-storage-plugin",
-    libraryDependencies       ++= Seq(
-      kamonPekkoHttp % Provided
-    ) ++ fs2Aws,
+    libraryDependencies       ++= fs2Aws,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.storage",
     coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
@@ -597,10 +587,7 @@ lazy val archivePlugin = project
   .settings(
     name                       := "delta-archive-plugin",
     moduleName                 := "delta-archive-plugin",
-    libraryDependencies       ++= Seq(
-      pekkoConnectorsFile,
-      kamonPekkoHttp % Provided
-    ),
+    libraryDependencies        += pekkoConnectorsFile,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.archive",
     coverageFailOnMinimum      := false,
@@ -621,7 +608,6 @@ lazy val projectDeletionPlugin = project
   .settings(
     name                       := "delta-project-deletion-plugin",
     moduleName                 := "delta-project-deletion-plugin",
-    libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.projectdeletion",
     assembly / assemblyJarName := "project-deletion.jar",
@@ -644,7 +630,6 @@ lazy val graphAnalyticsPlugin = project
   .settings(
     name                       := "delta-graph-analytics-plugin",
     moduleName                 := "delta-graph-analytics-plugin",
-    libraryDependencies        += kamonPekkoHttp % Provided,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := "ai.senscience.nexus.delta.plugins.graph.analytics",
     assembly / assemblyJarName := "graph-analytics.jar",
@@ -748,20 +733,15 @@ lazy val shared = Seq(
   organization := "ai.senscience.nexus"
 )
 
-lazy val kamonSettings = Seq(
+lazy val otelSettings = Seq(
   libraryDependencies ++= Seq(
-    kamonPekkoHttp,
-    "io.kamon" %% "kamon-pekko"          % kamonVersion,
-    "io.kamon" %% "kamon-core"           % kamonVersion,
-    "io.kamon" %% "kamon-executors"      % kamonVersion,
-    "io.kamon" %% "kamon-jaeger"         % kamonVersion,
-    "io.kamon" %% "kamon-logback"        % kamonVersion,
-    "io.kamon" %% "kamon-prometheus"     % kamonVersion,
-    "io.kamon" %% "kamon-scala-future"   % kamonVersion,
-    "io.kamon" %% "kamon-status-page"    % kamonVersion,
-    "io.kamon" %% "kamon-system-metrics" % kamonVersion
+    otelAutoconfigure,
+    otelExporterOtlp,
+    otelLogback,
+    otelLogbackMdc
   ),
-  javaAgents           += kanelaAgent
+  // Enable Cats Effect fiber context tracking
+  javaOptions          += "-Dcats.effect.trackFiberContext=true"
 )
 
 lazy val discardModuleInfoAssemblySettings = Seq(

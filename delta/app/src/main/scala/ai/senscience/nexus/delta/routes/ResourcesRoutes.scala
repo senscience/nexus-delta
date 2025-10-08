@@ -8,6 +8,7 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -26,6 +27,7 @@ import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The resource routes
@@ -44,11 +46,11 @@ final class ResourcesRoutes(
     aclCheck: AclCheck,
     resources: Resources,
     index: IndexingAction.Execute[Resource]
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
+)(using baseUri: BaseUri)(using
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    FusionConfig,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling { self =>
@@ -91,14 +93,16 @@ final class ResourcesRoutes(
               // Create a resource without schema nor id segment
               (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & indexingMode & tagParam) {
                 (source, mode, tag) =>
-                  (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
-                    emit(
-                      Created,
-                      resources
-                        .create(project, resourceSchema, source.value, tag)
-                        .index(mode)
-                        .map(_.void)
-                    )
+                  routeSpan("resources/<str:org>/<str:project>") {
+                    (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
+                      emit(
+                        Created,
+                        resources
+                          .create(project, resourceSchema, source.value, tag)
+                          .index(mode)
+                          .map(_.void)
+                      )
+                    }
                   }
               },
               (idSegment & indexingMode) { (schema, mode) =>
@@ -106,120 +110,134 @@ final class ResourcesRoutes(
                 concat(
                   // Create a resource with schema but without id segment
                   (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & tagParam) { (source, tag) =>
-                    (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
-                      emit(
-                        Created,
-                        resources
-                          .create(project, schema, source.value, tag)
-                          .index(mode)
-                          .map(_.void)
-                      )
+                    routeSpan("resources/<str:org>/<str:project>/<str:schema>") {
+                      (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
+                        emit(
+                          Created,
+                          resources
+                            .create(project, schema, source.value, tag)
+                            .index(mode)
+                            .map(_.void)
+                        )
+                      }
                     }
                   },
                   idSegment { resource =>
                     concat(
                       pathEndOrSingleSlash {
-                        concat(
-                          // Create or update a resource
-                          put {
-                            (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
-                              (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[NexusSource]) & tagParam) {
-                                case (None, source, tag)      =>
-                                  // Create a resource with schema and id segments
-                                  emit(
-                                    Created,
-                                    resources
-                                      .create(resource, project, schema, source.value, tag)
-                                      .index(mode)
-                                      .map(_.void)
-                                  )
-                                case (Some(rev), source, tag) =>
-                                  // Update a resource
-                                  emit(
-                                    resources
-                                      .update(resource, project, schemaOpt, rev, source.value, tag)
-                                      .index(mode)
-                                      .map(_.void)
-                                  )
+                        routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>") {
+                          concat(
+                            // Create or update a resource
+                            put {
+                              (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
+                                (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(
+                                  as[NexusSource]
+                                ) & tagParam) {
+                                  case (None, source, tag)      =>
+                                    // Create a resource with schema and id segments
+                                    emit(
+                                      Created,
+                                      resources
+                                        .create(resource, project, schema, source.value, tag)
+                                        .index(mode)
+                                        .map(_.void)
+                                    )
+                                  case (Some(rev), source, tag) =>
+                                    // Update a resource
+                                    emit(
+                                      resources
+                                        .update(resource, project, schemaOpt, rev, source.value, tag)
+                                        .index(mode)
+                                        .map(_.void)
+                                    )
+                                }
                               }
-                            }
-                          },
-                          // Deprecate a resource
-                          (pathEndOrSingleSlash & delete) {
-                            concat(
-                              parameter("rev".as[Int]) { rev =>
-                                (authorizeWrite & exceptionHandler(notFound)) {
+                            },
+                            // Deprecate a resource
+                            (pathEndOrSingleSlash & delete) {
+                              concat(
+                                parameter("rev".as[Int]) { rev =>
+                                  (authorizeWrite & exceptionHandler(notFound)) {
+                                    emit(
+                                      resources
+                                        .deprecate(resource, project, schemaOpt, rev)
+                                        .index(mode)
+                                        .map(_.void)
+                                    )
+                                  }
+                                },
+                                (prune & authorizeDelete) {
                                   emit(
-                                    resources
-                                      .deprecate(resource, project, schemaOpt, rev)
-                                      .index(mode)
-                                      .map(_.void)
+                                    StatusCodes.NoContent,
+                                    resources.delete(resource, project)
                                   )
                                 }
-                              },
-                              (prune & authorizeDelete) {
-                                emit(
-                                  StatusCodes.NoContent,
-                                  resources.delete(resource, project)
-                                )
-                              }
-                            )
-                          },
-                          // Fetch a resource
-                          (pathEndOrSingleSlash & get & idSegmentRef(resource) & varyAcceptHeaders) { resourceRef =>
-                            emitOrFusionRedirect(
-                              project,
-                              resourceRef,
-                              (authorizeRead & exceptionHandler(notFound)) {
-                                emit(resources.fetch(resourceRef, project, schemaOpt))
-                              }
-                            )
-                          }
-                        )
+                              )
+                            },
+                            // Fetch a resource
+                            (pathEndOrSingleSlash & get & idSegmentRef(resource) & varyAcceptHeaders) { resourceRef =>
+                              emitOrFusionRedirect(
+                                project,
+                                resourceRef,
+                                (authorizeRead & exceptionHandler(notFound)) {
+                                  emit(resources.fetch(resourceRef, project, schemaOpt))
+                                }
+                              )
+                            }
+                          )
+                        }
                       },
                       // Undeprecate a resource
                       (pathPrefix("undeprecate") & put & parameter("rev".as[Int])) { rev =>
-                        (authorizeWrite & exceptionHandler(notFound)) {
-                          emit(
-                            resources
-                              .undeprecate(resource, project, schemaOpt, rev)
-                              .index(mode)
-                              .map(_.void)
-                          )
+                        routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/undeprecate") {
+                          (authorizeWrite & exceptionHandler(notFound)) {
+                            emit(
+                              resources
+                                .undeprecate(resource, project, schemaOpt, rev)
+                                .index(mode)
+                                .map(_.void)
+                            )
+                          }
                         }
                       },
                       (pathPrefix("update-schema") & put & pathEndOrSingleSlash) {
-                        (authorizeWrite & exceptionHandler(notFound)) {
-                          emit(
-                            IO.fromOption(schemaOpt)(NoSchemaProvided)
-                              .flatMap { schema =>
-                                resources
-                                  .updateAttachedSchema(resource, project, schema)
-                                  .flatTap(index(project, _, mode))
-                              }
-                          )
+                        routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/update-schema") {
+                          (authorizeWrite & exceptionHandler(notFound)) {
+                            emit(
+                              IO.fromOption(schemaOpt)(NoSchemaProvided)
+                                .flatMap { schema =>
+                                  resources
+                                    .updateAttachedSchema(resource, project, schema)
+                                    .flatTap(index(project, _, mode))
+                                }
+                            )
+                          }
                         }
                       },
                       (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
-                        (authorizeWrite & exceptionHandler(notFound)) {
-                          emit(
-                            resources
-                              .refresh(resource, project, schemaOpt)
-                              .index(mode)
-                              .map(_.void)
-                          )
+                        routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/refresh") {
+                          (authorizeWrite & exceptionHandler(notFound)) {
+                            emit(
+                              resources
+                                .refresh(resource, project, schemaOpt)
+                                .index(mode)
+                                .map(_.void)
+                            )
+                          }
                         }
                       },
                       // Fetch a resource original source
                       (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(resource) & varyAcceptHeaders) {
                         resourceRef =>
-                          (authorizeRead & exceptionHandler(notFound)) {
-                            annotateSource { annotate =>
-                              emit(
-                                resources
-                                  .fetch(resourceRef, project, schemaOpt)
-                                  .map { resource => OriginalSource(resource, resource.value.source, annotate) }
-                              )
+                          routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/source") {
+                            (authorizeRead & exceptionHandler(notFound)) {
+                              annotateSource { annotate =>
+                                emit(
+                                  resources
+                                    .fetch(resourceRef, project, schemaOpt)
+                                    .map { resource => OriginalSource(resource, resource.value.source, annotate) }
+                                )
+                              }
                             }
                           }
                       },
@@ -228,52 +246,56 @@ final class ResourcesRoutes(
                         (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(_ =>
                           false
                         )) { resourceRef =>
-                          emit(
-                            resources
-                              .fetchState(resourceRef, project, schemaOpt)
-                              .map(_.remoteContexts)
-                          )
+                          routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/remote-contexts") {
+                            emit(
+                              resources
+                                .fetchState(resourceRef, project, schemaOpt)
+                                .map(_.remoteContexts)
+                            )
+                          }
                         }
                       },
                       // Tag a resource
                       pathPrefix("tags") {
-                        concat(
-                          // Fetch a resource tags
-                          (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(
-                            notFound
-                          )) { resourceRef =>
-                            emit(
-                              resources
-                                .fetch(resourceRef, project, schemaOpt)
-                                .map(_.value.tags)
-                            )
-                          },
-                          // Tag a resource
-                          (post & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-                            (authorizeWrite & exceptionHandler(notFound)) {
-                              entity(as[Tag]) { case Tag(tagRev, tag) =>
-                                emit(
-                                  Created,
-                                  resources
-                                    .tag(resource, project, schemaOpt, tag, tagRev, rev)
-                                    .index(mode)
-                                    .map(_.void)
-                                )
+                        routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/tags") {
+                          concat(
+                            // Fetch a resource tags
+                            (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(
+                              notFound
+                            )) { resourceRef =>
+                              emit(
+                                resources
+                                  .fetch(resourceRef, project, schemaOpt)
+                                  .map(_.value.tags)
+                              )
+                            },
+                            // Tag a resource
+                            (post & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
+                              (authorizeWrite & exceptionHandler(notFound)) {
+                                entity(as[Tag]) { case Tag(tagRev, tag) =>
+                                  emit(
+                                    Created,
+                                    resources
+                                      .tag(resource, project, schemaOpt, tag, tagRev, rev)
+                                      .index(mode)
+                                      .map(_.void)
+                                  )
+                                }
                               }
+                            },
+                            // Delete a tag
+                            (tagLabel & delete & parameter(
+                              "rev".as[Int]
+                            ) & pathEndOrSingleSlash & authorizeWrite & exceptionHandler(notFound)) { (tag, rev) =>
+                              emit(
+                                resources
+                                  .deleteTag(resource, project, schemaOpt, tag, rev)
+                                  .index(mode)
+                                  .map(_.void)
+                              )
                             }
-                          },
-                          // Delete a tag
-                          (tagLabel & delete & parameter(
-                            "rev".as[Int]
-                          ) & pathEndOrSingleSlash & authorizeWrite & exceptionHandler(notFound)) { (tag, rev) =>
-                            emit(
-                              resources
-                                .deleteTag(resource, project, schemaOpt, tag, rev)
-                                .index(mode)
-                                .map(_.void)
-                            )
-                          }
-                        )
+                          )
+                        }
                       }
                     )
                   }
@@ -297,11 +319,7 @@ object ResourcesRoutes {
       aclCheck: AclCheck,
       resources: Resources,
       index: IndexingAction.Execute[Resource]
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route = new ResourcesRoutes(identities, aclCheck, resources, index).routes
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+    new ResourcesRoutes(identities, aclCheck, resources, index).routes
 
 }

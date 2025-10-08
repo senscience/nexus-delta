@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
-import ai.senscience.nexus.delta.kernel.kamon.KamonMetricComponent
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
@@ -13,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
-import ai.senscience.nexus.delta.sdk.resolvers.Resolvers.{entityType, expandIri}
+import ai.senscience.nexus.delta.sdk.resolvers.Resolvers.expandIri
 import ai.senscience.nexus.delta.sdk.resolvers.ResolversImpl.ResolversLog
 import ai.senscience.nexus.delta.sdk.resolvers.model.*
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverCommand.{CreateResolver, DeprecateResolver, UpdateResolver}
@@ -23,14 +22,14 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.{Scope, ScopedEventLog, Transactors}
 import cats.effect.{Clock, IO}
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 final class ResolversImpl private (
     log: ResolversLog,
     fetchContext: FetchContext,
     sourceDecoder: JsonLdSourceResolvingDecoder[ResolverValue]
-) extends Resolvers {
-
-  implicit private val kamonComponent: KamonMetricComponent = KamonMetricComponent(entityType.value)
+)(using Tracer[IO])
+    extends Resolvers {
 
   override def create(
       projectRef: ProjectRef,
@@ -41,7 +40,7 @@ final class ResolversImpl private (
       (iri, resolverValue) <- sourceDecoder(projectRef, pc, source)
       res                  <- eval(CreateResolver(iri, projectRef, resolverValue, source, caller))
     } yield res
-  }.span("createResolver")
+  }.surround("createResolver")
 
   override def create(
       id: IdSegment,
@@ -54,7 +53,7 @@ final class ResolversImpl private (
       resolverValue <- sourceDecoder(projectRef, pc, iri, source)
       res           <- eval(CreateResolver(iri, projectRef, resolverValue, source, caller))
     } yield res
-  }.span("createResolver")
+  }.surround("createResolver")
 
   override def create(
       id: IdSegment,
@@ -67,7 +66,7 @@ final class ResolversImpl private (
       source = ResolverValue.generateSource(iri, resolverValue)
       res   <- eval(CreateResolver(iri, projectRef, resolverValue, source, caller))
     } yield res
-  }.span("createResolver")
+  }.surround("createResolver")
 
   override def update(
       id: IdSegment,
@@ -81,7 +80,7 @@ final class ResolversImpl private (
       resolverValue <- sourceDecoder(projectRef, pc, iri, source)
       res           <- eval(UpdateResolver(iri, projectRef, resolverValue, source, rev, caller))
     } yield res
-  }.span("updateResolver")
+  }.surround("updateResolver")
 
   override def update(
       id: IdSegment,
@@ -97,7 +96,7 @@ final class ResolversImpl private (
       source = ResolverValue.generateSource(iri, resolverValue)
       res   <- eval(UpdateResolver(iri, projectRef, resolverValue, source, rev, caller))
     } yield res
-  }.span("updateResolver")
+  }.surround("updateResolver")
 
   override def deprecate(
       id: IdSegment,
@@ -109,7 +108,7 @@ final class ResolversImpl private (
       iri <- expandIri(id, pc)
       res <- eval(DeprecateResolver(iri, projectRef, rev, subject))
     } yield res
-  }.span("deprecateResolver")
+  }.surround("deprecateResolver")
 
   override def fetch(id: IdSegmentRef, projectRef: ProjectRef): IO[ResolverResource] = {
     for {
@@ -124,12 +123,12 @@ final class ResolversImpl private (
                      log.stateOr(projectRef, iri, tag, notFound, FetchByTagNotSupported(tag))
                  }
     } yield state.toResource
-  }.span("fetchResolver")
+  }.surround("fetchResolver")
 
   def list(project: ProjectRef): IO[UnscoredSearchResults[ResolverResource]] =
     SearchResults(
       log.currentStates(Scope.Project(project), _.toResource)
-    ).span("listResolvers")
+    ).surround("listResolvers")
 
   private def eval(cmd: ResolverCommand): IO[ResolverResource] =
     log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
@@ -149,7 +148,7 @@ object ResolversImpl {
       config: EventLogConfig,
       xas: Transactors,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): Resolvers = {
+  )(using uuidF: UUIDF)(using Tracer[IO]): Resolvers = {
     new ResolversImpl(
       ScopedEventLog(Resolvers.definition(validatePriority, clock), config, xas),
       fetchContext,

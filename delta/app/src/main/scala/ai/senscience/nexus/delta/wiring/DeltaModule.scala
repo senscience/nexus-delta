@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEn
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.otel.OpenTelemetry
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -18,6 +17,7 @@ import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.jws.{JWSConfig, JWSPayloadHelper}
 import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.otel.OpenTelemetry
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore
 import ai.senscience.nexus.delta.sdk.realms.RealmProvisioning
@@ -30,6 +30,7 @@ import cats.data.NonEmptyList
 import cats.effect.{Clock, IO, Sync}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
+import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 
 /**
   * Complete service wiring definitions.
@@ -59,7 +60,13 @@ class DeltaModule(config: Config)(implicit classLoader: ClassLoader) extends Nex
   makeConfig[ServiceAccount]("app.service-account")
 
   make[OpenTelemetry].fromResource { (description: DescriptionConfig) =>
-    OpenTelemetry(description)
+    OpenTelemetry(
+      description.name,
+      otel =>
+        IO.delay {
+          OpenTelemetryAppender.install(otel.underlying)
+        }
+    )
   }
 
   make[Transactors].fromResource { (config: DatabaseConfig) => Transactors(config) }

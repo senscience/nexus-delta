@@ -28,7 +28,7 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
-      - KAMON_ENABLED
+      - OTEL_SDK_DISABLED
       - PARTITION_STRATEGY
       - SPARQL_TARGET=rdf4j
       - SPARQL_ENDPOINT=http://rdf4j:8080/rdf4j-server
