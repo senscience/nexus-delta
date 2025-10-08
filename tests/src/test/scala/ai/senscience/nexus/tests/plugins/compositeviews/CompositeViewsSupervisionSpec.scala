@@ -13,7 +13,9 @@ class CompositeViewsSupervisionSpec extends BaseIntegrationSpec {
     }
 
     s"accept calls with ${Supervision.Read.value}" in {
-      deltaClient.get[Json]("/supervision/composite-views", ServiceAccount) { expectOk }
+      eventually {
+        deltaClient.get[Json]("/supervision/composite-views", ServiceAccount) { expectOk }
+      }
     }
   }
 
