@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta
 import ai.senscience.nexus.delta.config.{HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
+import ai.senscience.nexus.delta.otel.OtelMetrics
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.plugin.Plugin
@@ -17,6 +18,8 @@ import org.apache.pekko.http.cors.scaladsl.settings.CorsSettings
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RouteResult}
+import org.typelevel.otel4s.metrics.MeterProvider
+import org.typelevel.otel4s.oteljava.OtelJava
 
 import scala.concurrent.duration.DurationInt
 
@@ -24,23 +27,25 @@ object BootstrapPekko {
 
   private val logger = Logger[BootstrapPekko.type]
 
-  private def routes(locator: Locator, clusterConfig: ClusterConfig): Route = {
+  private def routes(locator: Locator, otelMetrics: OtelMetrics, clusterConfig: ClusterConfig): Route = {
     import org.apache.pekko.http.scaladsl.server.Directives.*
     import sdk.directives.UriDirectives.*
     val nodeHeader = RawHeader("X-Delta-Node", clusterConfig.nodeIndex.toString)
-    respondWithHeader(nodeHeader) {
-      cors(locator.get[CorsSettings]) {
-        handleExceptions(locator.get[ExceptionHandler]) {
-          handleRejections(locator.get[RejectionHandler]) {
-            uriPrefix(locator.get[BaseUri].base) {
-              encodeResponse {
-                val (strict, rest) = locator.get[Set[PriorityRoute]].partition(_.requiresStrictEntity)
-                concat(
-                  concat(rest.toVector.sortBy(_.priority).map(_.route)*),
-                  locator.get[StrictEntity].apply() {
-                    concat(strict.toVector.sortBy(_.priority).map(_.route)*)
-                  }
-                )
+    otelMetrics.serverMetrics {
+      respondWithHeader(nodeHeader) {
+        cors(locator.get[CorsSettings]) {
+          handleExceptions(locator.get[ExceptionHandler]) {
+            handleRejections(locator.get[RejectionHandler]) {
+              uriPrefix(locator.get[BaseUri].base) {
+                encodeResponse {
+                  val (strict, rest) = locator.get[Set[PriorityRoute]].partition(_.requiresStrictEntity)
+                  concat(
+                    concat(rest.toVector.sortBy(_.priority).map(_.route)*),
+                    locator.get[StrictEntity].apply() {
+                      concat(strict.toVector.sortBy(_.priority).map(_.route)*)
+                    }
+                  )
+                }
               }
             }
           }
@@ -53,22 +58,25 @@ object BootstrapPekko {
     implicit val as: ActorSystem      = locator.get[ActorSystem]
     val http: HttpConfig              = locator.get[HttpConfig]
     val projections: ProjectionConfig = locator.get[ProjectionConfig]
+    val otel: OtelJava[IO]            = locator.get[OtelJava[IO]]
+    given MeterProvider[IO]           = otel.meterProvider
 
-    val startHttpServer = IOFuture.defaultCancelable(
+    def startHttpServer(otelMetrics: OtelMetrics) = IOFuture.defaultCancelable(
       IO(
         Http()
           .newServerAt(
             http.interface,
             http.port
           )
-          .bindFlow(RouteResult.routeToFlow(routes(locator, projections.cluster)))
+          .bindFlow(RouteResult.routeToFlow(routes(locator, otelMetrics, projections.cluster)))
       )
     )
 
     val acquire = {
       for {
         _       <- logger.info("Booting up service....")
-        binding <- startHttpServer
+        metrics <- OtelMetrics()
+        binding <- startHttpServer(metrics)
         _       <- logger.info(s"Bound to ${binding.localAddress.getHostString}:${binding.localAddress.getPort}")
       } yield ()
     }.recoverWith { th =>

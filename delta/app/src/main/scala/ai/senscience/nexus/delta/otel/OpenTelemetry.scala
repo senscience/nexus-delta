@@ -1,4 +1,4 @@
-package ai.senscience.nexus.delta
+package ai.senscience.nexus.delta.otel
 
 import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.kernel.Logger
