@@ -62,7 +62,9 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
 
   make[OtelJava[IO]].from { (otel: OpenTelemetry) => otel.otelJava }
 
-  make[Transactors].fromResource { (config: DatabaseConfig) => Transactors(config) }
+  make[Transactors].fromResource { (config: DatabaseConfig, otel: OtelJava[IO]) =>
+    Transactors(config, Some(otel))
+  }
 
   make[DatabasePartitioner].fromEffect { (config: DatabaseConfig, xas: Transactors) =>
     DatabasePartitioner(config.partitionStrategy, xas)
