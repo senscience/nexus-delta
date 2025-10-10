@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.wiring
 
-import ai.senscience.nexus.delta.{Main, OpenTelemetry}
+import ai.senscience.nexus.delta.Main
 import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
+import ai.senscience.nexus.delta.otel.OpenTelemetry
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}

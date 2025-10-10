@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.sdk.otel.OtelAttributes.*
 import cats.effect.IO
 import cats.effect.kernel.Outcome
 import cats.effect.unsafe.implicits.*
-import org.apache.pekko.http.scaladsl.model.headers.`X-Forwarded-Proto`
-import org.apache.pekko.http.scaladsl.model.{HttpHeader, HttpRequest, HttpResponse, Uri}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, HttpRequest, HttpResponse}
 import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequest, mapRouteResultFuture}
 import org.apache.pekko.http.scaladsl.server.RouteResult.{Complete, Rejected}
@@ -150,7 +150,7 @@ object OtelDirectives {
   def routeSpan(route: String)(using Tracer[IO]): Directive0 = {
     extractRequest.flatMap { request =>
       mapRouteResultFuture { result =>
-        val pouet = Tracer[IO].meta.isEnabled
+        Tracer[IO].meta.isEnabled
           .flatMap {
             case true  =>
               IO.uncancelable { poll =>
@@ -186,7 +186,6 @@ object OtelDirectives {
             case false => IO.fromFuture(IO.delay(result))
           }
           .unsafeToFuture()
-        pouet
       }
     }
   }
@@ -194,7 +193,7 @@ object OtelDirectives {
   private def requestAttributes(request: HttpRequest, route: String) = {
     val attributes = Attributes.newBuilder
     attributes += originalScheme(request)
-    attributes += method(request)
+    attributes += requestMethod(request)
     attributes ++= urlPath(request.uri.path)
     attributes += HttpAttributes.HttpRoute(route)
     attributes ++= urlQuery(request.uri.query())
@@ -204,30 +203,6 @@ object OtelDirectives {
     attributes ++= networkProtocolVersion(request)
     attributes ++= headers(request.headers)
     attributes.result()
-  }
-
-  private def originalScheme(request: HttpRequest) = {
-    val originalScheme = request.header[`X-Forwarded-Proto`].map(_.protocol).getOrElse(request.uri.scheme)
-    UrlAttributes.UrlScheme(originalScheme)
-  }
-
-  private def method(request: HttpRequest) =
-    HttpAttributes.HttpRequestMethod(request.method.name())
-
-  private def urlPath(path: Uri.Path) =
-    Option.unless(path.isEmpty)(UrlAttributes.UrlPath(path.toString))
-
-  private def urlQuery(query: Uri.Query) =
-    Option.unless(query.isEmpty)(UrlAttributes.UrlQuery(query.toString))
-
-  private def networkProtocolName(request: HttpRequest) =
-    Option.when(request.protocol.value.startsWith("HTTP/"))(NetworkAttributes.NetworkProtocolName("http"))
-
-  private def networkProtocolVersion(request: HttpRequest) = {
-    val protocol = request.protocol.value
-    Option.when(protocol.startsWith("HTTP/"))(
-      NetworkAttributes.NetworkProtocolVersion(protocol.substring("HTTP/".length))
-    )
   }
 
   private def headers(headers: Seq[HttpHeader]) =
@@ -243,13 +218,9 @@ object OtelDirectives {
 
   private def responseAttributes(response: HttpResponse) = {
     val attributes = Attributes.newBuilder
-    if serverError(response) then {
-      attributes += ErrorAttributes.ErrorType(response.status.value)
-    }
-    attributes += HttpAttributes.HttpResponseStatusCode(response.status.intValue)
+    attributes ++= errorTypeFromStatus(response)
+    attributes += responseStatus(response)
     attributes ++= headers(response.headers)
     attributes.result()
   }
-
-  private def serverError(response: HttpResponse) = response.status.intValue > 500
 }
