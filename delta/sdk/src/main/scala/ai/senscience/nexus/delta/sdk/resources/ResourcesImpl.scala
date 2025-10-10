@@ -195,12 +195,16 @@ final class ResourcesImpl private (
     fetchCtx(ref).flatMap(pc => expandIri(id, pc).map(_ -> pc))
 
   private def eval(cmd: ResourceCommand): IO[DataResource] =
-    log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource).recoverWith { case NoChangeDetected(currentState) =>
-      val message =
-        s"""Command ${cmd.getClass.getSimpleName} from '${cmd.subject}' did not result in any change on resource '${cmd.id}'
+    log
+      .evaluate(cmd.project, cmd.id, cmd)
+      .map(_._2.toResource)
+      .recoverWith { case NoChangeDetected(currentState) =>
+        val message =
+          s"""Command ${cmd.getClass.getSimpleName} from '${cmd.subject}' did not result in any change on resource '${cmd.id}'
            |in project '${cmd.project}', returning the original value.""".stripMargin
-      logger.info(message).as(currentState.toResource)
-    }
+        logger.info(message).as(currentState.toResource)
+      }
+      .surround("evalResourceCommand")
 
   override def currentStates(project: ProjectRef, offset: Offset): SuccessElemStream[ResourceState] =
     log.currentStates(Scope(project), offset)

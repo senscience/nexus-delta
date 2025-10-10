@@ -8,9 +8,11 @@ import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcement
 import ai.senscience.nexus.delta.sdk.resources.SchemaClaim.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{InvalidSchemaRejection, SchemaIsDeprecated, SchemaIsMandatory}
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 trait SchemaClaimResolver {
 
@@ -28,12 +30,12 @@ object SchemaClaimResolver {
   def apply(
       resourceResolution: ResourceResolution[Schema],
       schemaEnforcement: SchemaEnforcementConfig
-  ): SchemaClaimResolver = new SchemaClaimResolver {
+  )(using Tracer[IO]): SchemaClaimResolver = new SchemaClaimResolver {
     override def apply(
         schemaClaim: SchemaClaim,
         resourceTypes: Set[Iri],
         enforceSchema: Boolean
-    ): IO[Option[ResourceF[Schema]]] =
+    ): IO[Option[ResourceF[Schema]]] = {
       schemaClaim match {
         case CreateWithSchema(project, schema, caller) =>
           resolveSchema(project, schema, caller)
@@ -46,6 +48,7 @@ object SchemaClaimResolver {
         case KeepUnconstrained(_)                      =>
           IO.none
       }
+    }.surround("resolveSchema")
 
     private def assertNotDeprecated(schema: ResourceF[Schema]) = {
       IO.raiseWhen(schema.deprecated)(SchemaIsDeprecated(schema.value.id))

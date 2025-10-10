@@ -96,8 +96,13 @@ object ProjectsModule extends NexusModuleDef {
     ProjectsStatistics(xas)
   }
 
-  make[FetchContext].from { (mappings: ApiMappingsCollection, xas: Transactors) =>
-    FetchContext(mappings.merge, xas)
+  make[FetchContext].from {
+    (
+        mappings: ApiMappingsCollection,
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("projects")
+    ) =>
+      FetchContext(mappings.merge, xas)(using tracer)
   }
 
   make[ProjectDeletionCoordinator].fromEffect {

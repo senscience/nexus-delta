@@ -3,9 +3,11 @@ package ai.senscience.nexus.delta.sdk.acls
 import ai.senscience.nexus.delta.sdk.acls.model.{AclAddress, FlattenedAclStore}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.collection.immutable.Iterable
 
@@ -23,7 +25,7 @@ trait AclCheck {
     * Checks whether a given [[Caller]] has the passed ''permission'' on the passed ''path'', raising the error
     * ''onError'' when it doesn't
     */
-  def authorizeForOr[E <: Throwable](path: AclAddress, permission: Permission)(onError: => E)(implicit
+  def authorizeForOr[E <: Throwable](path: AclAddress, permission: Permission)(onError: => E)(using
       caller: Caller
   ): IO[Unit] =
     authorizeForOr(path, permission, caller.identities)(onError)
@@ -36,7 +38,7 @@ trait AclCheck {
   /**
     * Checks whether a given [[Caller]] has the passed ''permission'' on the passed ''path''.
     */
-  def authorizeFor(path: AclAddress, permission: Permission)(implicit caller: Caller): IO[Boolean] =
+  def authorizeFor(path: AclAddress, permission: Permission)(using caller: Caller): IO[Boolean] =
     authorizeFor(path, permission, caller.identities)
 
   /**
@@ -45,7 +47,7 @@ trait AclCheck {
     */
   def authorizeForEveryOr[E <: Throwable](path: AclAddress, permissions: Set[Permission])(
       onError: => E
-  )(implicit caller: Caller): IO[Unit]
+  )(using Caller): IO[Unit]
 
   /**
     * Map authorized values for the provided caller.
@@ -64,7 +66,7 @@ trait AclCheck {
       extractAddressPermission: A => (AclAddress, Permission),
       onAuthorized: A => B,
       onFailure: AclAddress => IO[Unit]
-  )(implicit caller: Caller): IO[Set[B]]
+  )(using Caller): IO[Set[B]]
 
   /**
     * Map authorized values for the provided caller while filtering out the unauthorized ones.
@@ -80,7 +82,7 @@ trait AclCheck {
       values: Iterable[A],
       extractAddressPermission: A => (AclAddress, Permission),
       onAuthorized: A => B
-  )(implicit caller: Caller): IO[Set[B]] =
+  )(using Caller): IO[Set[B]] =
     mapFilterOrRaise(values, extractAddressPermission, onAuthorized, _ => IO.unit)
 
   /**
@@ -101,7 +103,7 @@ trait AclCheck {
       extractPermission: A => Permission,
       onAuthorized: A => B,
       onFailure: AclAddress => IO[Unit]
-  )(implicit caller: Caller): IO[Set[B]]
+  )(using Caller): IO[Set[B]]
 
   /**
     * Map authorized values for the provided caller while filtering out the unauthorized ones.
@@ -120,76 +122,84 @@ trait AclCheck {
       address: AclAddress,
       extractPermission: A => Permission,
       onAuthorized: A => B
-  )(implicit caller: Caller): IO[Set[B]] =
+  )(using Caller): IO[Set[B]] =
     mapFilterAtAddressOrRaise(values, address, extractPermission, onAuthorized, _ => IO.unit)
 }
 
 object AclCheck {
 
-  def apply(aclStore: FlattenedAclStore): AclCheck =
-    apply(aclStore.exists(_, _, _))
+  def apply(aclStore: FlattenedAclStore)(using Tracer[IO]): AclCheck =
+    apply(aclStore.exists)
 
-  def apply(checkAcl: (AclAddress, Permission, Set[Identity]) => IO[Boolean]): AclCheck = new AclCheck {
+  def apply(checkAcl: (AclAddress, Permission, Set[Identity]) => IO[Boolean])(using Tracer[IO]): AclCheck =
+    new AclCheck {
 
-    def authorizeForOrFail[E <: Throwable](
-        path: AclAddress,
-        permission: Permission,
-        identities: Set[Identity]
-    )(onError: => E): IO[Unit] =
-      authorizeFor(path, permission, identities)
-        .flatMap { result => IO.raiseUnless(result)(onError) }
+      def authorizeForOrFail[E <: Throwable](
+          path: AclAddress,
+          permission: Permission,
+          identities: Set[Identity]
+      )(onError: => E): IO[Unit] =
+        authorizeFor(path, permission, identities)
+          .flatMap { result => IO.raiseUnless(result)(onError) }
 
-    /**
-      * Checks whether the provided entities have the passed ''permission'' on the passed ''path''.
-      */
-    override def authorizeFor(
-        path: AclAddress,
-        permission: Permission,
-        identities: Set[Identity]
-    ): IO[Boolean] = checkAcl(path, permission, identities)
+      /**
+        * Checks whether the provided entities have the passed ''permission'' on the passed ''path''.
+        */
+      override def authorizeFor(
+          path: AclAddress,
+          permission: Permission,
+          identities: Set[Identity]
+      ): IO[Boolean] = checkAcl(path, permission, identities)
+        .surround("authorizeFor")
 
-    override def authorizeForOr[E <: Throwable](path: AclAddress, permission: Permission, identities: Set[Identity])(
-        onError: => E
-    ): IO[Unit] = authorizeForOrFail(path, permission, identities)(onError)
+      override def authorizeForOr[E <: Throwable](path: AclAddress, permission: Permission, identities: Set[Identity])(
+          onError: => E
+      ): IO[Unit] = authorizeForOrFail(path, permission, identities)(onError)
 
-    override def authorizeForEveryOr[E <: Throwable](path: AclAddress, permissions: Set[Permission])(onError: => E)(
-        implicit caller: Caller
-    ): IO[Unit] = {
-      permissions.toList.traverse { permission =>
-        checkAcl(path, permission, caller.identities).flatMap { result =>
-          IO.raiseUnless(result)(onError)
-        }
-      }.void
+      override def authorizeForEveryOr[E <: Throwable](path: AclAddress, permissions: Set[Permission])(onError: => E)(
+          using caller: Caller
+      ): IO[Unit] =
+        permissions.toList
+          .traverse { permission =>
+            checkAcl(path, permission, caller.identities).flatMap { result =>
+              IO.raiseUnless(result)(onError)
+            }
+          }
+          .void
+          .surround("authorizeForEveryOr")
+
+      override def mapFilterOrRaise[A, B](
+          values: Iterable[A],
+          extractAddressPermission: A => (AclAddress, Permission),
+          onAuthorized: A => B,
+          onFailure: AclAddress => IO[Unit]
+      )(using caller: Caller): IO[Set[B]] =
+        values.toList
+          .foldLeftM(Set.empty[B]) { case (acc, value) =>
+            val (address, permission) = extractAddressPermission(value)
+            authorizeFor(address, permission, caller.identities).flatMap { success =>
+              if success then IO.pure(acc + onAuthorized(value))
+              else onFailure(address) >> IO.pure(acc)
+            }
+          }
+          .surround("authorizeMapFilterOrRaise")
+
+      def mapFilterAtAddressOrRaise[A, B](
+          values: Iterable[A],
+          address: AclAddress,
+          extractPermission: A => Permission,
+          onAuthorized: A => B,
+          onFailure: AclAddress => IO[Unit]
+      )(using caller: Caller): IO[Set[B]] =
+        values.toList
+          .foldLeftM(Set.empty[B]) { case (acc, value) =>
+            val permission = extractPermission(value)
+            authorizeFor(address, permission, caller.identities).flatMap { success =>
+              if success then IO.pure(acc + onAuthorized(value))
+              else onFailure(address) >> IO.pure(acc)
+            }
+          }
+          .surround("authorizeMapFilterAtAddressOrRaise")
     }
-
-    override def mapFilterOrRaise[A, B](
-        values: Iterable[A],
-        extractAddressPermission: A => (AclAddress, Permission),
-        onAuthorized: A => B,
-        onFailure: AclAddress => IO[Unit]
-    )(implicit caller: Caller): IO[Set[B]] =
-      values.toList.foldLeftM(Set.empty[B]) { case (acc, value) =>
-        val (address, permission) = extractAddressPermission(value)
-        authorizeFor(address, permission, caller.identities).flatMap { success =>
-          if success then IO.pure(acc + onAuthorized(value))
-          else onFailure(address) >> IO.pure(acc)
-        }
-      }
-
-    def mapFilterAtAddressOrRaise[A, B](
-        values: Iterable[A],
-        address: AclAddress,
-        extractPermission: A => Permission,
-        onAuthorized: A => B,
-        onFailure: AclAddress => IO[Unit]
-    )(implicit caller: Caller): IO[Set[B]] =
-      values.toList.foldLeftM(Set.empty[B]) { case (acc, value) =>
-        val permission = extractPermission(value)
-        authorizeFor(address, permission, caller.identities).flatMap { success =>
-          if success then IO.pure(acc + onAuthorized(value))
-          else onFailure(address) >> IO.pure(acc)
-        }
-      }
-  }
 
 }

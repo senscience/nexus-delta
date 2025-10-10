@@ -24,6 +24,8 @@ object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     // TODO: disable this for now, but investigate why it happens
     System.setProperty("cats.effect.logNonDaemonThreadsOnExit", "false")
+    // Enable Cats Effect fiber context tracking
+    System.setProperty("cats.effect.trackFiberContext", "true")
     val config = sys.env.get(pluginEnvVariable).fold(PluginLoaderConfig())(PluginLoaderConfig(_))
     start(config)
       .use(_ => IO.never)

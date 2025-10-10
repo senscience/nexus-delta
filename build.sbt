@@ -385,6 +385,7 @@ lazy val sdk = project
       distageCore,
       otel4s,
       otel4sSemconv,
+      otel4sStorage,
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
       pekkoHttpTestKit % Test
@@ -741,9 +742,7 @@ lazy val otelSettings = Seq(
   libraryDependencies ++= Seq(
     otelAutoconfigure,
     otelExporterOtlp
-  ) ++ otelDependencies,
-  // Enable Cats Effect fiber context tracking
-  javaOptions          += "-Dcats.effect.trackFiberContext=true"
+  ) ++ otelDependencies
 )
 
 lazy val discardModuleInfoAssemblySettings = Seq(
