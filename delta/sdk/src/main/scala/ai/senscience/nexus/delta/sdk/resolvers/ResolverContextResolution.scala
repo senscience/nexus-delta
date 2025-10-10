@@ -12,10 +12,12 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolu
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{DataResource, Resolve}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import io.circe.syntax.*
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.collection.concurrent
 
@@ -28,9 +30,11 @@ import scala.collection.concurrent
   * @param resolveResource
   *   a function to resolve resources
   */
-final class ResolverContextResolution(val rcr: RemoteContextResolution, resolveResource: Resolve[DataResource]) {
+final class ResolverContextResolution(val rcr: RemoteContextResolution, resolveResource: Resolve[DataResource])(using
+    Tracer[IO]
+) {
 
-  def apply(projectRef: ProjectRef)(implicit caller: Caller): RemoteContextResolution =
+  def apply(projectRef: ProjectRef)(using caller: Caller): RemoteContextResolution =
     new RemoteContextResolution {
       // The instance is living inside the scope of a request so we can cache the resolutions
       private val cache: concurrent.Map[Iri, RemoteContext] = new concurrent.TrieMap
@@ -59,7 +63,7 @@ final class ResolverContextResolution(val rcr: RemoteContextResolution, resolveR
                   logger.debug(s"Iri $iri has been resolved for project $projectRef and caller $caller.subject")
               }
         }
-      }
+      }.surround("resolveRemoteContexts")
     }
 }
 
@@ -88,7 +92,7 @@ object ResolverContextResolution {
     * @param rcr
     *   a previously defined 'RemoteContextResolution'
     */
-  def apply(rcr: RemoteContextResolution): ResolverContextResolution =
+  def apply(rcr: RemoteContextResolution)(using Tracer[IO]): ResolverContextResolution =
     new ResolverContextResolution(rcr, (_, _, _) => IO.pure(Left(ResourceResolutionReport())))
 
   /**
@@ -98,7 +102,9 @@ object ResolverContextResolution {
     * @param resourceResolution
     *   a resource resolution base on resolvers
     */
-  def apply(rcr: RemoteContextResolution, resourceResolution: ResourceResolution[Resource]): ResolverContextResolution =
+  def apply(rcr: RemoteContextResolution, resourceResolution: ResourceResolution[Resource])(using
+      Tracer[IO]
+  ): ResolverContextResolution =
     new ResolverContextResolution(
       rcr,
       (resourceRef: ResourceRef, projectRef: ProjectRef, caller: Caller) =>
@@ -121,11 +127,11 @@ object ResolverContextResolution {
       resolvers: Resolvers,
       rcr: RemoteContextResolution,
       fetchResource: FetchResource
-  ): ResolverContextResolution =
+  )(using Tracer[IO]): ResolverContextResolution =
     apply(rcr, ResourceResolution.dataResource(aclCheck, resolvers, fetchResource, excludeDeprecated = false))
 
   /**
     * A [[ResolverContextResolution]] that never resolves
     */
-  val never: ResolverContextResolution = apply(RemoteContextResolution.never)
+  val never: ResolverContextResolution = apply(RemoteContextResolution.never)(using Tracer.noop[IO])
 }

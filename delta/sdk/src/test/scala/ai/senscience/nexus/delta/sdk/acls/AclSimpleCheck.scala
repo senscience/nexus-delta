@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.collection.immutable
 
@@ -37,6 +38,8 @@ abstract class AclSimpleCheck private (cache: Ref[IO, Map[AclAddress, Acl]]) ext
 }
 
 object AclSimpleCheck {
+
+  given Tracer[IO] = Tracer.noop
 
   private def emptyAclSimpleCheck: IO[AclSimpleCheck] = {
     Ref.of[IO, Map[AclAddress, Acl]](Map.empty).map { cache =>

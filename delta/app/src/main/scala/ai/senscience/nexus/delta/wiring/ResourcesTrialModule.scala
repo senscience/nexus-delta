@@ -16,6 +16,7 @@ import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import cats.effect.{Clock, IO}
 import distage.ModuleDef
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Resources trial wiring
@@ -29,7 +30,8 @@ object ResourcesTrialModule extends ModuleDef {
         fetchContext: FetchContext,
         contextResolution: ResolverContextResolution,
         clock: Clock[IO],
-        uuidF: UUIDF
+        uuidF: UUIDF,
+        tracer: Tracer[IO] @Id("resources")
     ) =>
       ResourcesTrial(
         resources.fetchState(_, _, None),
@@ -37,7 +39,7 @@ object ResourcesTrialModule extends ModuleDef {
         fetchContext,
         contextResolution,
         clock
-      )(uuidF)
+      )(using uuidF)(using tracer)
   }
 
   make[ResourcesTrialRoutes].from {

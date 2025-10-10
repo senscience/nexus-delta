@@ -7,9 +7,11 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import io.opentelemetry.instrumentation.runtimemetrics.java8.*
+import org.typelevel.otel4s.context.LocalProvider
 import org.typelevel.otel4s.instrumentation.ce.IORuntimeMetrics
 import org.typelevel.otel4s.metrics.MeterProvider
 import org.typelevel.otel4s.oteljava.OtelJava
+import org.typelevel.otel4s.oteljava.context.{Context, IOLocalContextStorage}
 
 import scala.jdk.CollectionConverters.*
 
@@ -51,6 +53,7 @@ object OpenTelemetry {
         .flatTap(registerCatsEffectMetrics(_, runtime))
         .evalTap(registerLogback)
     } else {
+      given LocalProvider[IO, Context] = IOLocalContextStorage.localProvider[IO]
       sys.props.getOrElseUpdate("otel.service.name", description.name.value)
       OtelJava.autoConfigured[IO]().evalTap { otel =>
         logger.info("OpenTelemetry is enabled.")

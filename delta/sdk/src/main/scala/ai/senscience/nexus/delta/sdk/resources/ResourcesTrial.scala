@@ -14,7 +14,8 @@ import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, 
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.effect.{Clock, IO}
-import cats.implicits.*
+import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Operations allowing to perform read-only operations on resources
@@ -75,7 +76,7 @@ object ResourcesTrial {
       fetchContext: FetchContext,
       contextResolution: ResolverContextResolution,
       clock: Clock[IO]
-  )(implicit uuidF: UUIDF): ResourcesTrial = new ResourcesTrial {
+  )(using uuidF: UUIDF)(using Tracer[IO]): ResourcesTrial = new ResourcesTrial {
 
     private val sourceParser = JsonLdSourceResolvingParser(contextResolution, uuidF)
 

@@ -4,12 +4,14 @@ import ai.senscience.nexus.delta.sdk.ProjectResource
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext, ProjectState}
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateGet
 import cats.effect.IO
 import doobie.syntax.all.*
 import doobie.{Get, Put}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Define the rules to fetch project context for read and write operations
@@ -46,7 +48,7 @@ abstract class FetchContext { self =>
 
 object FetchContext {
 
-  def apply(dam: ApiMappings, xas: Transactors): FetchContext = {
+  def apply(dam: ApiMappings, xas: Transactors)(using Tracer[IO]): FetchContext = {
     def fetchProject(ref: ProjectRef, onWrite: Boolean) = {
       implicit val putId: Put[ProjectRef]      = ProjectState.serializer.putId
       implicit val getValue: Get[ProjectState] = ProjectState.serializer.getValue
@@ -75,17 +77,19 @@ object FetchContext {
       fetchActiveOrg: Label => IO[Unit],
       dam: ApiMappings,
       fetchProject: (ProjectRef, Boolean) => IO[Option[ProjectResource]]
-  ): FetchContext =
+  )(using Tracer[IO]): FetchContext =
     new FetchContext {
 
       override def defaultApiMappings: ApiMappings = dam
 
       override def onRead(ref: ProjectRef): IO[ProjectContext] =
-        fetchProject(ref, false).flatMap {
-          case None                                             => IO.raiseError(ProjectNotFound(ref))
-          case Some(project) if project.value.markedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
-          case Some(project)                                    => IO.pure(project.value.context)
-        }
+        fetchProject(ref, false)
+          .flatMap {
+            case None                                             => IO.raiseError(ProjectNotFound(ref))
+            case Some(project) if project.value.markedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
+            case Some(project)                                    => IO.pure(project.value.context)
+          }
+          .surround("fetchProjectContextRead")
 
       private def onWrite(ref: ProjectRef) =
         fetchProject(ref, true).flatMap {
@@ -97,10 +101,11 @@ object FetchContext {
 
       override def onCreate(ref: ProjectRef): IO[ProjectContext] = onModify(ref)
 
-      override def onModify(ref: ProjectRef): IO[ProjectContext] =
+      override def onModify(ref: ProjectRef): IO[ProjectContext] = {
         for {
           _       <- fetchActiveOrg(ref.organization)
           context <- onWrite(ref)
         } yield context
+      }.surround("fetchProjectContextWrite")
     }
 }

@@ -149,7 +149,10 @@ final class SchemasImpl private (
   }.surround("fetchSchema")
 
   private def eval(cmd: SchemaCommand) =
-    log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
+    log
+      .evaluate(cmd.project, cmd.id, cmd)
+      .map(_._2.toResource)
+      .surround("evalSchemaCommand")
 
   private def dryRun(cmd: SchemaCommand) =
     log.dryRun(cmd.project, cmd.id, cmd).map(_._2.toResource)

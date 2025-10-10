@@ -48,8 +48,9 @@ object ResourcesModule extends NexusModuleDef {
         config: ResourcesConfig,
         tracer: Tracer[IO] @Id("resources")
     ) =>
+      given Tracer[IO]        = tracer
       val schemaClaimResolver = SchemaClaimResolver(resourceResolution, config.schemaEnforcement)
-      ValidateResource(schemaClaimResolver, validateShacl)(using tracer)
+      ValidateResource(schemaClaimResolver, validateShacl)
   }
 
   make[DetectChange].from { (config: ResourcesConfig) => DetectChange(config.skipUpdateNoChange) }
@@ -86,9 +87,10 @@ object ResourcesModule extends NexusModuleDef {
         aclCheck: AclCheck,
         resolvers: Resolvers,
         rcr: RemoteContextResolution @Id("aggregate"),
-        fetchResource: FetchResource
+        fetchResource: FetchResource,
+        tracer: Tracer[IO] @Id("resolvers")
     ) =>
-      ResolverContextResolution(aclCheck, resolvers, rcr, fetchResource)
+      ResolverContextResolution(aclCheck, resolvers, rcr, fetchResource)(using tracer)
   }
 
   make[ResourcesRoutes].from {
