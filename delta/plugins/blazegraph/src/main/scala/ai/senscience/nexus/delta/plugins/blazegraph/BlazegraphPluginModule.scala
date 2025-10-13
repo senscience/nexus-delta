@@ -48,12 +48,14 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   makeTracer("sparql")
   makeTracer("sparql-indexing")
 
-  make[SparqlClient].named("sparql-indexing-client").fromResource { (cfg: BlazegraphViewsConfig) =>
-    SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials)
+  make[SparqlClient].named("sparql-indexing-client").fromResource {
+    (cfg: BlazegraphViewsConfig, tracer: Tracer[IO] @Id("sparql-indexing")) =>
+      SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials, cfg.otel)(using tracer)
   }
 
-  make[SparqlClient].named("sparql-query-client").fromResource { (cfg: BlazegraphViewsConfig) =>
-    SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials)
+  make[SparqlClient].named("sparql-query-client").fromResource {
+    (cfg: BlazegraphViewsConfig, tracer: Tracer[IO] @Id("sparql")) =>
+      SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials, cfg.otel)(using tracer)
   }
 
   make[ValidateBlazegraphView].from {

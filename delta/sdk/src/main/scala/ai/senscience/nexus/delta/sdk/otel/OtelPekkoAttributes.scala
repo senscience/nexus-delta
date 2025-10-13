@@ -5,7 +5,7 @@ import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import org.typelevel.otel4s.Attribute
 import org.typelevel.otel4s.semconv.attributes.{ErrorAttributes, HttpAttributes, NetworkAttributes, UrlAttributes}
 
-object OtelAttributes {
+object OtelPekkoAttributes {
 
   def errorType(throwable: Throwable): Attribute[String] =
     errorType(throwable.getClass.getName)
