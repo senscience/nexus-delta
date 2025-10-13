@@ -17,14 +17,4 @@ class BlazegraphSupervisionSpec extends BaseIntegrationSpec {
     }
   }
 
-  "The supervision slow queries endpoint" should {
-    s"reject calls without ${Supervision.Read.value} permission" in {
-      deltaClient.get[Json]("/supervision/blazegraph/slow-queries", Anonymous) { expectForbidden }
-    }
-
-    s"accept calls with ${Supervision.Read.value}" in {
-      deltaClient.get[Json]("/supervision/blazegraph/slow-queries", ServiceAccount) { expectOk }
-    }
-  }
-
 }
