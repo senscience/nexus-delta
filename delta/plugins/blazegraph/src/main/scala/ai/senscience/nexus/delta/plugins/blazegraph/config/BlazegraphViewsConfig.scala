@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.config
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
+import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
@@ -51,11 +52,17 @@ final case class BlazegraphViewsConfig(
     maxViewRefs: Int,
     syncIndexingTimeout: FiniteDuration,
     defaults: Defaults,
-    indexingEnabled: Boolean
+    indexingEnabled: Boolean,
+    otel: OpentelemetryConfig
 )
 
 object BlazegraphViewsConfig {
 
-  implicit final val blazegraphViewsConfigConfigReader: ConfigReader[BlazegraphViewsConfig] =
-    deriveReader[BlazegraphViewsConfig]
+  given ConfigReader[BlazegraphViewsConfig] = deriveReader[BlazegraphViewsConfig]
+
+  final case class OpentelemetryConfig(captureQueries: Boolean)
+
+  object OpentelemetryConfig {
+    given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
+  }
 }

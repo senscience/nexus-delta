@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlConnectError, SparqlTimeoutError, SparqlUnknownHost}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
+import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
@@ -19,6 +20,7 @@ import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.Accept
 import org.http4s.{BasicCredentials, EntityDecoder, Header, MediaType, QValue, Uri}
+import org.typelevel.otel4s.trace.Tracer
 
 import java.net.{ConnectException, UnknownHostException}
 import scala.concurrent.TimeoutException
@@ -264,8 +266,9 @@ object SparqlClient {
       target: SparqlTarget,
       endpoint: Uri,
       queryTimeout: Duration,
-      credentials: Option[BasicCredentials]
-  ): Resource[IO, SparqlClient] =
+      credentials: Option[BasicCredentials],
+      otel: OpentelemetryConfig
+  )(using Tracer[IO]): Resource[IO, SparqlClient] =
     EmberClientBuilder
       .default[IO]
       .withLogger(logger)
@@ -277,7 +280,7 @@ object SparqlClient {
         target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests
-            new BlazegraphClient(enrichedClient, endpoint, queryTimeout)
+            new BlazegraphClient(enrichedClient, endpoint, queryTimeout, otel)
           case SparqlTarget.Rdf4j      =>
             RDF4JClient.lmdb(enrichedClient, endpoint)
         }

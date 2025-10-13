@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.otel
 
 import ai.senscience.nexus.delta.config.BuildInfo
-import ai.senscience.nexus.delta.sdk.otel.OtelAttributes.*
+import ai.senscience.nexus.delta.sdk.otel.OtelPekkoAttributes.*
 import cats.effect.{IO, Resource}
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*

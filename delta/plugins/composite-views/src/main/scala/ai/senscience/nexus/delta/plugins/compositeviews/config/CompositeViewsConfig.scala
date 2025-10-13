@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.config
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
+import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{BlazegraphAccess, RemoteSourceClientConfig, SourcesConfig}
 import ai.senscience.nexus.delta.sdk.auth
@@ -92,7 +93,8 @@ object CompositeViewsConfig {
       base: Uri,
       sparqlTarget: SparqlTarget,
       credentials: Option[BasicCredentials],
-      queryTimeout: Duration
+      queryTimeout: Duration,
+      otel: OpentelemetryConfig
   )
 
   /**
@@ -122,7 +124,7 @@ object CompositeViewsConfig {
     /** A sink that supports querying multiple resources at once from blazegraph */
     case object Batch extends SinkConfig
 
-    implicit val sinkConfigReaderString: ConfigReader[SinkConfig] =
+    given ConfigReader[SinkConfig] =
       ConfigReader.fromString {
         case "batch"  => Right(Batch)
         case "single" => Right(Single)
@@ -131,6 +133,5 @@ object CompositeViewsConfig {
       }
   }
 
-  implicit final val compositeViewsConfigReader: ConfigReader[CompositeViewsConfig] =
-    deriveReader[CompositeViewsConfig]
+  given ConfigReader[CompositeViewsConfig] = deriveReader[CompositeViewsConfig]
 }

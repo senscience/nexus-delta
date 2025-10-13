@@ -52,14 +52,32 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
     DeltaClient(authTokenProvider, cfg.remoteSourceCredentials, cfg.remoteSourceClient.retryDelay)
   }
 
-  make[SparqlClient].named("sparql-composite-indexing-client").fromResource { (cfg: CompositeViewsConfig) =>
-    val access = cfg.blazegraphAccess
-    SparqlClient(access.sparqlTarget, access.base, access.queryTimeout, cfg.blazegraphAccess.credentials)
+  make[SparqlClient].named("sparql-composite-indexing-client").fromResource {
+    (cfg: CompositeViewsConfig, tracer: Tracer[IO] @Id("composite-indexing")) =>
+      val access = cfg.blazegraphAccess
+      SparqlClient(
+        access.sparqlTarget,
+        access.base,
+        access.queryTimeout,
+        cfg.blazegraphAccess.credentials,
+        access.otel
+      )(using
+        tracer
+      )
   }
 
-  make[SparqlClient].named("sparql-composite-query-client").fromResource { (cfg: CompositeViewsConfig) =>
-    val access = cfg.blazegraphAccess
-    SparqlClient(access.sparqlTarget, access.base, access.queryTimeout, cfg.blazegraphAccess.credentials)
+  make[SparqlClient].named("sparql-composite-query-client").fromResource {
+    (cfg: CompositeViewsConfig, tracer: Tracer[IO] @Id("composite")) =>
+      val access = cfg.blazegraphAccess
+      SparqlClient(
+        access.sparqlTarget,
+        access.base,
+        access.queryTimeout,
+        cfg.blazegraphAccess.credentials,
+        access.otel
+      )(using
+        tracer
+      )
   }
 
   make[ValidateCompositeView].from {
