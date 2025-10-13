@@ -9,7 +9,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphV
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler, SparqlSupervisionRoutes}
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.{SparqlSlowQueryLogger, SparqlSlowQueryStore}
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -32,7 +31,6 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
-import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
@@ -49,16 +47,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   makeTracer("sparql")
   makeTracer("sparql-indexing")
-
-  make[SparqlSlowQueryStore].from { (xas: Transactors) => SparqlSlowQueryStore(xas) }
-
-  many[PurgeProjection].add { (config: BlazegraphViewsConfig, store: SparqlSlowQueryStore) =>
-    SparqlSlowQueryStore.deleteExpired(config.slowQueries.purge, store)
-  }
-
-  make[SparqlSlowQueryLogger].from { (cfg: BlazegraphViewsConfig, store: SparqlSlowQueryStore, clock: Clock[IO]) =>
-    SparqlSlowQueryLogger(store, cfg.slowQueries.slowQueryThreshold, clock)
-  }
 
   make[SparqlClient].named("sparql-indexing-client").fromResource { (cfg: BlazegraphViewsConfig) =>
     SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials)
@@ -145,12 +133,11 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: BlazegraphViews,
         client: SparqlClient @Id("sparql-query-client"),
-        slowQueryLogger: SparqlSlowQueryLogger,
         cfg: BlazegraphViewsConfig,
         xas: Transactors,
         tracer: Tracer[IO] @Id("sparql")
     ) =>
-      BlazegraphViewsQuery(aclCheck, views, client, slowQueryLogger, cfg.prefix, xas)(using tracer)
+      BlazegraphViewsQuery(aclCheck, views, client, cfg.prefix, xas)(using tracer)
   }
 
   make[IncomingOutgoingLinks].fromEffect {
@@ -226,14 +213,11 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   make[SparqlSupervisionRoutes].from {
     (
         sparqlSupervision: SparqlSupervision,
-        slowQueryLogger: SparqlSlowQueryLogger,
         identities: Identities,
         aclCheck: AclCheck,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      new SparqlSupervisionRoutes(sparqlSupervision, slowQueryLogger, identities, aclCheck)(baseUri, cr, ordering)
+      new SparqlSupervisionRoutes(sparqlSupervision, identities, aclCheck)(using ordering)
   }
 
   make[BlazegraphScopeInitialization].from {

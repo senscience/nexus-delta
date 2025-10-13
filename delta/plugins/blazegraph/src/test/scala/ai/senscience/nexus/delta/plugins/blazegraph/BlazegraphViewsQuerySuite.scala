@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseTy
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.defaultViewId
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLogger
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
@@ -68,11 +67,10 @@ class BlazegraphViewsQuerySuite extends NexusSuite with ConfigFixtures with Fixt
 
   private def viewsAndQuery: Resource[IO, (BlazegraphViews, BlazegraphViewsQuery)] =
     for {
-      xas        <- Doobie.resourceDefault
-      views      <- Resource.eval(createBlazegraphViews(xas))
-      acls       <- Resource.eval(aclCheck)
-      queryLogger = SparqlSlowQueryLogger.noop
-      query       = BlazegraphViewsQuery(acls, views, client, queryLogger, "prefix", xas)
+      xas   <- Doobie.resourceDefault
+      views <- Resource.eval(createBlazegraphViews(xas))
+      acls  <- Resource.eval(aclCheck)
+      query  = BlazegraphViewsQuery(acls, views, client, "prefix", xas)
     } yield (views, query)
 
   private val fixture = ResourceSuiteLocalFixture("this", viewsAndQuery)

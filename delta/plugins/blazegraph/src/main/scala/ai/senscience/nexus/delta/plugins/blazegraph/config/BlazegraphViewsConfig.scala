@@ -23,8 +23,6 @@ import scala.concurrent.duration.*
   *   the Blazegraph HTTP endpoint credentials
   * @param queryTimeout
   *   the Blazegraph query timeout
-  * @param slowQueries
-  *   configuration of slow queries
   * @param eventLog
   *   configuration of the event log
   * @param pagination
@@ -45,7 +43,6 @@ final case class BlazegraphViewsConfig(
     sparqlTarget: SparqlTarget,
     credentials: Option[BasicCredentials],
     queryTimeout: Duration,
-    slowQueries: SlowQueriesConfig,
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
     batch: BatchConfig,

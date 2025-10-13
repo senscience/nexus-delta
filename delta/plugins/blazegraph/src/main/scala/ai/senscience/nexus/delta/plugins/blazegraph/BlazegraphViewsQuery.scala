@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlQueryClient, S
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewRejection.ViewIsDeprecated
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{AggregateBlazegraphViewValue, IndexingBlazegraphViewValue}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewRejection, BlazegraphViewState}
-import ai.senscience.nexus.delta.plugins.blazegraph.slowqueries.SparqlSlowQueryLogger
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
@@ -49,7 +48,6 @@ object BlazegraphViewsQuery {
       aclCheck: AclCheck,
       views: BlazegraphViews,
       client: SparqlQueryClient,
-      logSlowQueries: SparqlSlowQueryLogger,
       prefix: String,
       xas: Transactors
   )(using Tracer[IO]): BlazegraphViewsQuery = {
@@ -85,8 +83,7 @@ object BlazegraphViewsQuery {
         for {
           view       <- viewsStore.fetch(id, project)
           namespaces <- viewToNamespaces(view)
-          queryIO     = client.query(namespaces, sparqlQuery, responseType)
-          qr         <- logSlowQueries.save(view.ref, sparqlQuery, caller.subject, queryIO)
+          qr         <- client.query(namespaces, sparqlQuery, responseType)
         } yield qr
       }.surround("sparqlUserQuery")
 
