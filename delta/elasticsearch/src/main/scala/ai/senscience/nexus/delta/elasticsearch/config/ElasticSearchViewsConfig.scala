@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.config
 
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh
+import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
@@ -54,12 +55,13 @@ final case class ElasticSearchViewsConfig(
     syncIndexingRefresh: Refresh,
     maxIndexPathLength: Int,
     metricsQuery: QueryConfig,
-    indexingEnabled: Boolean
+    indexingEnabled: Boolean,
+    otel: OpentelemetryConfig
 )
 
 object ElasticSearchViewsConfig {
 
-  implicit private val refreshConfigReader: ConfigReader[Refresh] = ConfigReader.fromString {
+  private given ConfigReader[Refresh] = ConfigReader.fromString {
     case "true"     => Right(Refresh.True)
     case "false"    => Right(Refresh.False)
     case "wait_for" => Right(Refresh.WaitFor)
@@ -73,6 +75,12 @@ object ElasticSearchViewsConfig {
       )
   }
 
-  implicit final val elasticSearchViewsConfigReader: ConfigReader[ElasticSearchViewsConfig] =
+  final case class OpentelemetryConfig(captureQueries: Boolean)
+
+  object OpentelemetryConfig {
+    given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
+  }
+
+  given ConfigReader[ElasticSearchViewsConfig] =
     deriveReader[ElasticSearchViewsConfig]
 }

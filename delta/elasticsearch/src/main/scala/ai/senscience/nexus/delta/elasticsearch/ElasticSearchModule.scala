@@ -63,8 +63,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainIndexDef(cfg.mainIndex, loader)
   }
 
-  make[ElasticSearchClient].fromResource { (cfg: ElasticSearchViewsConfig) =>
-    ElasticSearchClient(cfg.base, cfg.credentials, cfg.maxIndexPathLength)
+  make[ElasticSearchClient].fromResource { (cfg: ElasticSearchViewsConfig, tracer: Tracer[IO] @Id("elasticsearch")) =>
+    ElasticSearchClient(cfg.base, cfg.credentials, cfg.maxIndexPathLength, cfg.otel)(using tracer)
   }
 
   make[ValidateElasticSearchView].from {
@@ -194,7 +194,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         views: ElasticSearchViews,
         client: ElasticSearchClient,
         xas: Transactors,
-        cfg: ElasticSearchViewsConfig
+        cfg: ElasticSearchViewsConfig,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       ElasticSearchViewsQuery(
         aclCheck,
@@ -202,15 +203,16 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         client,
         cfg.prefix,
         xas
-      )
+      )(using tracer)
   }
 
   make[MainIndexQuery].from {
     (
         client: ElasticSearchClient,
         baseUri: BaseUri,
-        config: ElasticSearchViewsConfig
-    ) => MainIndexQuery(client, config.mainIndex)(baseUri)
+        config: ElasticSearchViewsConfig,
+        tracer: Tracer[IO] @Id("elasticsearch")
+    ) => MainIndexQuery(client, config.mainIndex)(using baseUri, tracer)
   }
 
   make[ElasticSearchViewsRoutes].from {

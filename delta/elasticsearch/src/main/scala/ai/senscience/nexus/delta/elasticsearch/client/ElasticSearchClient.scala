@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
+import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.*
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
@@ -13,6 +14,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
 import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.otel.{OtelClient, SpanDef}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
@@ -26,6 +28,8 @@ import org.http4s.client.middleware.GZip
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.`Content-Type`
 import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Query, Status, Uri}
+import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
+import org.typelevel.otel4s.trace.Tracer
 
 import java.net.{ConnectException, UnknownHostException}
 import scala.concurrent.TimeoutException
@@ -34,7 +38,9 @@ import scala.concurrent.duration.*
 /**
   * A client that provides some of the functionality of the elasticsearch API.
   */
-final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathLength: Int) {
+final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathLength: Int, otel: OpentelemetryConfig)(
+    using Tracer[IO]
+) {
 
   private val serviceName            = "elasticsearch"
   private val scriptPath             = "_scripts"
@@ -63,6 +69,25 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   private val defaultUpdateByQuery   = defaultQuery + (waitForCompletion -> "false")
   private val defaultDeleteByQuery   = defaultQuery + (waitForCompletion -> "true")
 
+  private val indexKey = AttributeKey[String]("nexus.elasticsearch.index")
+
+  private def withIndex(index: String): Attribute[String] = Attribute(indexKey, index)
+
+  private def withIndex(index: IndexLabel): Attribute[String] = withIndex(index.value)
+
+  private val queryKey = AttributeKey[String]("nexus.elasticsearch.query")
+
+  private def searchQuery(query: JsonObject) = {
+    val attributes = Attributes.newBuilder
+    attributes ++= Option.when(otel.captureQueries)(Attribute(queryKey, query.toJson.noSpaces))
+    attributes += read
+    SpanDef(s"<string:index>/$searchPath", attributes.result())
+  }
+
+  private val accessKey = AttributeKey[String]("nexus.elasticsearch.access")
+  private val read      = Attribute(accessKey, "read")
+  private val write     = Attribute(accessKey, "write")
+
   /**
     * Fetches the service description information (name and version)
     */
@@ -80,12 +105,14 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @return
     *   ''true'' when the index exists and ''false'' when it doesn't, wrapped in an IO
     */
-  def existsIndex(index: IndexLabel): IO[Boolean] =
-    client.status(HEAD(endpoint / index.value)).flatMap {
+  def existsIndex(index: IndexLabel): IO[Boolean] = {
+    val spanDef = SpanDef("<string:index>", withIndex(index), read)
+    OtelClient(client, spanDef).status(HEAD(endpoint / index.value)).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(ElasticsearchActionError(status, "exists"))
     }
+  }
 
   /**
     * Attempts to create an index recovering gracefully when the index already exists.
@@ -97,14 +124,14 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @return
     *   ''true'' when the index has been created and ''false'' when it already existed, wrapped in an IO
     */
-  def createIndex(index: IndexLabel, payload: JsonObject = JsonObject.empty): IO[Boolean] = {
+  def createIndex(index: IndexLabel, payload: JsonObject = JsonObject.empty): IO[Boolean] =
     existsIndex(index).flatMap {
       case false =>
+        val spanDef = SpanDef("<string:index>", withIndex(index), write)
         val request = PUT(payload, endpoint / index.value)
-        client.expectOr[Json](request)(ElasticsearchCreateIndexError(_)).as(true)
+        OtelClient(client, spanDef).expectOr[Json](request)(ElasticsearchCreateIndexError(_)).as(true)
       case true  => IO.pure(false)
     }
-  }
 
   /**
     * Attempts to create an index recovering gracefully when the index already exists.
@@ -131,12 +158,14 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @return
     *   ''true'' when the index template has been created
     */
-  def createIndexTemplate(name: String, template: JsonObject): IO[Boolean] =
-    client.status(PUT(template, endpoint / indexTemplate / name)).flatMap {
+  def createIndexTemplate(name: String, template: JsonObject): IO[Boolean] = {
+    val spanDef = SpanDef(s"$indexTemplate/<string:template>", write)
+    OtelClient(client, spanDef).status(PUT(template, endpoint / indexTemplate / name)).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(ElasticsearchActionError(status, "createTemplate"))
     }
+  }
 
   /**
     * Attempts to delete an index recovering gracefully when the index is not found.
@@ -146,12 +175,14 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @return
     *   ''true'' when the index has been deleted and ''false'' when it didn't exist, wrapped in an IO
     */
-  def deleteIndex(index: IndexLabel): IO[Boolean] =
-    client.status(DELETE(endpoint / index.value)).flatMap {
+  def deleteIndex(index: IndexLabel): IO[Boolean] = {
+    val spanDef = SpanDef("<string:index>", withIndex(index), write)
+    OtelClient(client, spanDef).status(DELETE(endpoint / index.value)).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(ElasticsearchActionError(status, "deleteIndex"))
     }
+  }
 
   /**
     * Creates or replaces a new document inside the ''index'' with the provided ''payload''
@@ -167,8 +198,10 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       index: IndexLabel,
       id: String,
       payload: JsonObject
-  ): IO[Unit] =
-    client.successful(PUT(payload, endpoint / index.value / docPath / UrlUtils.encodeUri(id))).void
+  ): IO[Unit] = {
+    val spanDef = SpanDef(s"<string:index>/$docPath/<string:id>", withIndex(index), write)
+    OtelClient(client, spanDef).successful(PUT(payload, endpoint / index.value / docPath / UrlUtils.encodeUri(id))).void
+  }
 
   /**
     * Creates a bulk update with the operations defined on the provided ''ops'' argument.
@@ -184,7 +217,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       val payload      = actions.map(_.payload).mkString("", newLine, newLine)
       val bulkEndpoint = (endpoint / bulkPath).withQueryParam(refreshParam, refresh.value)
       val request      = POST(payload, bulkEndpoint, `Content-Type`(`application/x-ndjson`))(EntityEncoder.stringEncoder)
-      client.expectOr[BulkResponse](request)(ElasticsearchWriteError(_)).flatTap {
+      val spanDef      = SpanDef(bulkPath, write)
+      OtelClient(client, spanDef).expectOr[BulkResponse](request)(ElasticsearchWriteError(_)).flatTap {
         case BulkResponse.Success          => logger.debug("All operations in the bulk succeeded.")
         case BulkResponse.MixedOutcomes(_) =>
           logger.error("Some operations in the bulk failed, please check the indexing failures to find the reason(s).")
@@ -197,8 +231,9 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     */
   def createScript(id: String, content: String): IO[Unit] = {
     val payload = Json.obj("script" -> Json.obj("lang" -> "painless".asJson, "source" -> content.asJson))
+    val spanDef = SpanDef(scriptPath, write)
     val request = PUT(payload, endpoint / scriptPath / UrlUtils.encodeUri(id))
-    client.expectOr[Json](request)(ScriptCreationDismissed(_)).void
+    OtelClient(client, spanDef).expectOr[Json](request)(ScriptCreationDismissed(_)).void
   }
 
   /**
@@ -211,13 +246,15 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     *   the indices targeted by the update query
     */
   def updateByQuery(query: JsonObject, indices: Set[String]): IO[Unit] = {
-    val (indexPath, q) = indexPathAndQuery(indices, QueryBuilder(query))
-    val updateEndpoint = (endpoint / indexPath / updateByQueryPath).withQueryParams(defaultUpdateByQuery)
-    val request        = POST(q.build, updateEndpoint)
+    val (indexPath, q)       = indexPathAndQuery(indices, QueryBuilder(query))
+    val updateEndpoint       = (endpoint / indexPath / updateByQueryPath).withQueryParams(defaultUpdateByQuery)
+    val updateByQuerySpanDef = SpanDef(s"<string:index>/$updateByQueryPath", write)
+    val taskSpanDef          = SpanDef(s"$tasksPath/<string:task>", write)
+    val request              = POST(q.build, updateEndpoint)
     for {
-      response <- client.expect[UpdateByQueryResponse](request)
+      response <- OtelClient(client, updateByQuerySpanDef).expect[UpdateByQueryResponse](request)
       taskReq   = GET((endpoint / tasksPath / response.task).withQueryParam(waitForCompletion, "true"))
-      _        <- client.expect[Json](taskReq)
+      _        <- OtelClient(client, taskSpanDef).expect[Json](taskReq)
     } yield ()
   }
 
@@ -232,8 +269,9 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     */
   def deleteByQuery(query: JsonObject, index: IndexLabel): IO[Unit] = {
     val deleteEndpoint = (endpoint / index.value / deleteByQueryPath).withQueryParams(defaultDeleteByQuery)
+    val spanDef        = SpanDef(s"<string:index>/$deleteByQueryPath", withIndex(index), write)
     val req            = POST(query, deleteEndpoint)
-    client.expect[Json](req).void
+    OtelClient(client, spanDef).expect[Json](req).void
   }
 
   /**
@@ -245,7 +283,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     */
   def getSource[R: Decoder](index: IndexLabel, id: String): IO[Option[R]] = {
     val sourceEndpoint = endpoint / index.value / source / id
-    client.expectOption[R](GET(sourceEndpoint))
+    val spanDef        = SpanDef(s"<string:index>/$source/<string:id>", withIndex(index), read)
+    OtelClient(client, spanDef).expectOption[R](GET(sourceEndpoint))
   }
 
   /**
@@ -253,8 +292,10 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @param index
     *   the index to use
     */
-  def count(index: String): IO[Long] =
-    client.expect[Count](GET(endpoint / index / countPath)).map(_.value)
+  def count(index: String): IO[Long] = {
+    val spanDef = SpanDef(s"<string:index>/$countPath", withIndex(index), read)
+    OtelClient(client, spanDef).expect[Count](GET(endpoint / index / countPath)).map(_.value)
+  }
 
   /**
     * Search for the provided ''query'' inside the ''index'' returning a parsed result as a [[SearchResults]].
@@ -297,7 +338,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       val (indexPath, q) = indexPathAndQuery(indices, QueryBuilder(query))
       val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
       val payload        = q.withSort(sort).withTotalHits(true).build
-      client.expectOr[Json](POST(payload, searchEndpoint))(ElasticsearchQueryError(_))
+      val spanDef        = searchQuery(query)
+      OtelClient(client, spanDef).expectOr[Json](POST(payload, searchEndpoint))(ElasticsearchQueryError(_))
     }
 
   /**
@@ -319,7 +361,9 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     else {
       val (indexPath, q) = indexPathAndQuery(indices, query)
       val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
-      client.expect[T](POST(q.build, searchEndpoint))
+      val queryJson      = q.build
+      val spanDef        = searchQuery(queryJson)
+      OtelClient(client, spanDef).expect[T](POST(queryJson, searchEndpoint))
     }
 
   /**
@@ -338,18 +382,26 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       qp: Query
   ): IO[T] = {
     val searchEndpoint = (endpoint / index / searchPath).withQueryParams(defaultQuery ++ qp.params)
-    client.expect[T](POST(query.build, searchEndpoint))
+    val queryJson      = query.build
+    val spanDef        = searchQuery(queryJson)
+    OtelClient(client, spanDef).expect[T](POST(queryJson, searchEndpoint))
   }
 
   /**
     * Refresh the given index
     */
-  def refresh(index: IndexLabel): IO[Boolean] = client.successful(POST(endpoint / index.value / refreshPath))
+  def refresh(index: IndexLabel): IO[Boolean] = {
+    val spanDef = SpanDef(s"<string:index>/$refreshPath", withIndex(index), write)
+    OtelClient(client, spanDef).successful(POST(endpoint / index.value / refreshPath))
+  }
 
   /**
     * Obtain the mapping of the given index
     */
-  def mapping(index: IndexLabel): IO[Json] = client.expect[Json](GET(endpoint / index.value / mapping))
+  def mapping(index: IndexLabel): IO[Json] = {
+    val spanDef = SpanDef(s"<string:index>/$mapping", withIndex(index), read)
+    OtelClient(client, spanDef).expect[Json](GET(endpoint / index.value / mapping))
+  }
 
   /**
     * Creates a point-in-time to be used in further searches
@@ -363,7 +415,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     */
   def createPointInTime(index: IndexLabel, keepAlive: FiniteDuration): IO[PointInTime] = {
     val pitEndpoint = (endpoint / index.value / pit).withQueryParam("keep_alive", s"${keepAlive.toSeconds}s")
-    client.expect[PointInTime](POST(pitEndpoint))
+    val spanDef     = SpanDef(s"<string:index>/$pit", withIndex(index), read)
+    OtelClient(client, spanDef).expect[PointInTime](POST(pitEndpoint))
   }
 
   /**
@@ -372,8 +425,10 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * @see
     *   https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html
     */
-  def deletePointInTime(pointInTime: PointInTime): IO[Unit] =
-    client.successful(DELETE(pointInTime, endpoint / pit)).void
+  def deletePointInTime(pointInTime: PointInTime): IO[Unit] = {
+    val spanDef = SpanDef(s"<string:index>/$pit", read)
+    OtelClient(client, spanDef).successful(DELETE(pointInTime, endpoint / pit)).void
+  }
 
   def createAlias(indexAlias: IndexAlias): IO[Unit] = {
     val aliasPayload = Json.obj(
@@ -395,7 +450,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
 
   private def aliasAction(aliasAction: Json) = {
     val aliasWrap = Json.obj("actions" := Json.arr(aliasAction))
-    client
+    val spanDef   = SpanDef(aliasPath, write)
+    OtelClient(client, spanDef)
       .expectOr[Json](POST(aliasWrap, endpoint / aliasPath)) { r =>
         IO.pure(ElasticsearchActionError(r.status, "createAlias"))
       }
@@ -408,7 +464,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     else (allIndexPath, query.withIndices(indices))
   }
 
-  implicit private val resolvedServiceDescriptionDecoder: Decoder[ResolvedServiceDescription] =
+  given Decoder[ResolvedServiceDescription] =
     Decoder.instance { hc =>
       hc.downField("version").get[String]("number").map(ServiceDescription(serviceName, _))
     }
@@ -431,8 +487,9 @@ object ElasticSearchClient {
   def apply(
       endpoint: Uri,
       credentials: Option[BasicCredentials],
-      maxIndexPathLength: Int
-  ): Resource[IO, ElasticSearchClient] =
+      maxIndexPathLength: Int,
+      otel: OpentelemetryConfig
+  )(using Tracer[IO]): Resource[IO, ElasticSearchClient] =
     EmberClientBuilder
       .default[IO]
       .withLogger(logger)
@@ -441,7 +498,7 @@ object ElasticSearchClient {
         val enrichedClient = errorHandler(
           GZip()(BasicAuth(credentials)(client))
         )
-        new ElasticSearchClient(enrichedClient, endpoint, maxIndexPathLength)
+        new ElasticSearchClient(enrichedClient, endpoint, maxIndexPathLength, otel)
       }
 
   private val emptyResults = json"""{
@@ -504,7 +561,6 @@ object ElasticSearchClient {
 
   final private[client] case class Count(value: Long)
   private[client] object Count {
-    implicit val decodeCount: Decoder[Count] =
-      Decoder.instance(_.get[Long]("count").map(Count(_)))
+    given Decoder[Count] = Decoder.instance(_.get[Long]("count").map(Count(_)))
   }
 }

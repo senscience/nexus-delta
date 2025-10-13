@@ -44,7 +44,7 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
 
   private val accessKey = AttributeKey[String]("nexus.sparql.access")
   private val read      = Attribute(accessKey, "read")
-  private val write     = Attribute(accessKey, "read")
+  private val write     = Attribute(accessKey, "write")
 
   private def queryEndpoint(namespace: String): Uri = endpoint / "namespace" / namespace / "sparql"
 

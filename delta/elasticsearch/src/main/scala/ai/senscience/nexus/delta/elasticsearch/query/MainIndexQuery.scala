@@ -5,11 +5,13 @@ import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.indexing.mainProjectTargetAlias
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject}
 import org.http4s.Query
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Allow to list resources from the main Elasticsearch index
@@ -45,26 +47,26 @@ object MainIndexQuery {
   def apply(
       client: ElasticSearchClient,
       config: MainIndexConfig
-  )(implicit baseUri: BaseUri): MainIndexQuery = new MainIndexQuery {
+  )(using BaseUri, Tracer[IO]): MainIndexQuery = new MainIndexQuery {
 
     override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] = {
       val index = mainProjectTargetAlias(config.index, project)
       client.search(query, Set(index.value), qp)(SortList.empty)
-    }
+    }.surround("mainUserQuery")
 
     override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] = {
       val query =
         QueryBuilder(request.params, projects).withPage(request.pagination).withTotalHits(true).withSort(request.sort)
       client.search(query, Set(config.index.value), Query.fromPairs(excludeOriginalSource))
-    }
+    }.surround("mainListQuery")
 
     override def aggregate(request: MainIndexRequest, projects: Set[ProjectRef]): IO[AggregationResult] = {
       val query = QueryBuilder(request.params, projects).aggregation(config.bucketSize)
       client.searchAs[AggregationResult](query, config.index.value, Query.empty)
-    }
+    }.surround("mainAggregate")
   }
 
-  implicit val aggregationDecoder: Decoder[AggregationResult] =
+  given Decoder[AggregationResult] =
     Decoder.decodeJsonObject.emap { result =>
       result.asJson.hcursor
         .downField("aggregations")
