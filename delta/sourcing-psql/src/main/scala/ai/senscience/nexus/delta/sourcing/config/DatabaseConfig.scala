@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.config
 
 import ai.senscience.nexus.delta.kernel.Secret
-import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.DatabaseAccess
+import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.{DatabaseAccess, OpentelemetryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
@@ -41,16 +41,34 @@ final case class DatabaseConfig(
     password: Secret[String],
     tablesAutocreate: Boolean,
     rewriteBatchInserts: Boolean,
-    slowQueryThreshold: FiniteDuration
+    slowQueryThreshold: FiniteDuration,
+    otel: OpentelemetryConfig
 )
 
 object DatabaseConfig {
 
-  implicit final val databaseConfigReader: ConfigReader[DatabaseConfig] = {
-    implicit val accessReader: ConfigReader[DatabaseAccess] = deriveReader[DatabaseAccess]
+  given ConfigReader[DatabaseConfig] = {
+    given ConfigReader[DatabaseAccess]      = deriveReader[DatabaseAccess]
+    given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
     deriveReader[DatabaseConfig]
   }
 
   final case class DatabaseAccess(host: String, port: Int, poolSize: Int)
+
+  final case class OpentelemetryConfig(
+      statementInstrumenterEnabled: Boolean,
+      statementSanitizationEnabled: Boolean,
+      captureQueryParameters: Boolean,
+      transactionInstrumenterEnabled: Boolean
+  )
+
+  object OpentelemetryConfig {
+    val default = OpentelemetryConfig(
+      statementInstrumenterEnabled = true,
+      statementSanitizationEnabled = true,
+      captureQueryParameters = false,
+      transactionInstrumenterEnabled = false
+    )
+  }
 
 }

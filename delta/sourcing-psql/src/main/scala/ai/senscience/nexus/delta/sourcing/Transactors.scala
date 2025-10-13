@@ -2,13 +2,15 @@ package ai.senscience.nexus.delta.sourcing
 
 import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig
-import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.DatabaseAccess
+import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.{DatabaseAccess, OpentelemetryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import cats.effect.{IO, Resource}
-import com.zaxxer.hikari.HikariDataSource
+import cats.syntax.all.*
+import com.zaxxer.hikari.HikariConfig
 import doobie.hikari.HikariTransactor
-import doobie.util.ExecutionContexts
+import doobie.otel4s.hikari.TelemetryHikariTransactor
 import doobie.util.transactor.Transactor
+import org.typelevel.otel4s.oteljava.OtelJava
 
 import scala.concurrent.duration.*
 
@@ -23,35 +25,31 @@ final case class Transactors(
 
 object Transactors {
 
-  /**
-    * Create a test `Transactors` from the provided parameters
-    * @param host
-    *   the host
-    * @param port
-    *   the port
-    * @param username
-    *   the username
-    * @param password
-    *   the password
-    */
-  def test(host: String, port: Int, username: String, password: String, database: String): Resource[IO, Transactors] = {
+  def test(
+      host: String,
+      port: Int,
+      username: String,
+      password: String,
+      databaseName: String
+  ): Resource[IO, Transactors] = {
     val access         = DatabaseAccess(host, port, 10)
     val databaseConfig = DatabaseConfig(
       access,
       access,
       access,
       PartitionStrategy.Hash(1),
-      database,
+      databaseName,
       username,
       Secret(password),
       tablesAutocreate = false,
       rewriteBatchInserts = true,
-      5.seconds
+      5.seconds,
+      OpentelemetryConfig.default
     )
-    apply(databaseConfig)
+    apply(databaseConfig, None)
   }
 
-  def apply(config: DatabaseConfig): Resource[IO, Transactors] = {
+  def apply(config: DatabaseConfig, otelOpt: Option[OtelJava[IO]]): Resource[IO, Transactors] = {
 
     def jdbcUrl(access: DatabaseAccess, readOnly: Boolean) = {
       val baseUrl = s"jdbc:postgresql://${access.host}:${access.port}/${config.name}"
@@ -59,31 +57,41 @@ object Transactors {
       else baseUrl
     }
 
-    def transactor(access: DatabaseAccess, readOnly: Boolean, poolName: String): Resource[IO, HikariTransactor[IO]] = {
-      for {
-        ec         <- ExecutionContexts.fixedThreadPool[IO](access.poolSize)
-        dataSource <- Resource.make[IO, HikariDataSource](IO.delay {
-                        val ds = new HikariDataSource
-                        ds.setJdbcUrl(jdbcUrl(access, readOnly))
-                        ds.setUsername(config.username)
-                        ds.setPassword(config.password.value)
-                        ds.setDriverClassName("org.postgresql.Driver")
-                        ds.setMaximumPoolSize(access.poolSize)
-                        ds.setPoolName(poolName)
-                        ds.setAutoCommit(false)
-                        ds.setReadOnly(readOnly)
-                        ds
-                      })(ds => IO.delay(ds.close()))
-      } yield HikariTransactor[IO](dataSource, ec, Some(QueryLogHandler(poolName, config.slowQueryThreshold)))
+    def transactor(access: DatabaseAccess, readOnly: Boolean, poolName: String): Resource[IO, Transactor[IO]] = {
+      val hikariConfig = new HikariConfig()
+      hikariConfig.setJdbcUrl(jdbcUrl(access, readOnly))
+      hikariConfig.setUsername(config.username)
+      hikariConfig.setPassword(config.password.value)
+      hikariConfig.setDriverClassName("org.postgresql.Driver")
+      hikariConfig.setMaximumPoolSize(access.poolSize)
+      hikariConfig.setPoolName(poolName)
+      hikariConfig.setAutoCommit(false)
+      hikariConfig.setReadOnly(readOnly)
+
+      val logHandler = Some(QueryLogHandler(poolName, config.slowQueryThreshold))
+
+      otelOpt match {
+        case Some(otel) =>
+          val otelConfig = config.otel
+          TelemetryHikariTransactor.fromHikariConfig[IO](
+            otel = otel.underlying,
+            config = hikariConfig,
+            logHandler = Some(QueryLogHandler(poolName, config.slowQueryThreshold)),
+            statementInstrumenterEnabled = otelConfig.statementInstrumenterEnabled,
+            statementSanitizationEnabled = otelConfig.statementSanitizationEnabled,
+            captureQueryParameters = otelConfig.captureQueryParameters,
+            transactionInstrumenterEnabled = otelConfig.transactionInstrumenterEnabled
+          )
+        case None       =>
+          HikariTransactor.fromHikariConfig(hikariConfig, logHandler)
+      }
     }
 
-    val transactors = for {
-      read      <- transactor(config.read, readOnly = true, poolName = "ReadPool")
-      write     <- transactor(config.write, readOnly = false, poolName = "WritePool")
-      streaming <- transactor(config.streaming, readOnly = true, poolName = "StreamingPool")
-    } yield Transactors(read, write, streaming)
+    val read      = transactor(config.read, readOnly = true, poolName = "ReadPool")
+    val write     = transactor(config.write, readOnly = false, poolName = "WritePool")
+    val streaming = transactor(config.streaming, readOnly = true, poolName = "StreamingPool")
 
-    transactors.evalTap { xas =>
+    (read, write, streaming).mapN(Transactors(_, _, _)).evalTap { xas =>
       DDLLoader.setup(config.tablesAutocreate, config.partitionStrategy, xas)
     }
   }
