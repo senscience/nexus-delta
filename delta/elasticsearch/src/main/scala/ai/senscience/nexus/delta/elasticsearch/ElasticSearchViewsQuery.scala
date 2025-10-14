@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.search.SortList
+import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -19,6 +20,7 @@ import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.{Json, JsonObject}
 import org.http4s.Query
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -45,7 +47,7 @@ trait ElasticSearchViewsQuery {
       project: ProjectRef,
       query: JsonObject,
       qp: Query
-  )(implicit caller: Caller): IO[Json]
+  )(using Caller): IO[Json]
 
   /**
     * Queries the elasticsearch index (or indices) managed by the view. We check for the caller to have the necessary
@@ -57,9 +59,7 @@ trait ElasticSearchViewsQuery {
     * @param qp
     *   the extra query parameters for the elasticsearch index
     */
-  def query(view: ViewRef, query: JsonObject, qp: Query)(implicit
-      caller: Caller
-  ): IO[Json] =
+  def query(view: ViewRef, query: JsonObject, qp: Query)(using Caller): IO[Json] =
     this.query(view.viewId, view.project, query, qp)
 
   /**
@@ -74,9 +74,7 @@ trait ElasticSearchViewsQuery {
     * @param keepAlive
     *   extends the time to live of the corresponding point in time
     */
-  def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit
-      caller: Caller
-  ): IO[PointInTime]
+  def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(using Caller): IO[PointInTime]
 
   /**
     * Deletes the given point-in-time
@@ -84,7 +82,7 @@ trait ElasticSearchViewsQuery {
     * @see
     *   https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html
     */
-  def deletePointInTime(pointInTime: PointInTime)(implicit caller: Caller): IO[Unit]
+  def deletePointInTime(pointInTime: PointInTime)(using Caller): IO[Unit]
 
 }
 
@@ -95,22 +93,23 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
     viewStore: ViewsStore[ElasticSearchViewRejection],
     aclCheck: AclCheck,
     client: ElasticSearchClient
-) extends ElasticSearchViewsQuery {
+)(using Tracer[IO])
+    extends ElasticSearchViewsQuery {
 
   override def query(
       id: IdSegment,
       project: ProjectRef,
       query: JsonObject,
       qp: Query
-  )(implicit caller: Caller): IO[Json] = {
+  )(using Caller): IO[Json] = {
     for {
       view    <- viewStore.fetch(id, project)
       indices <- extractIndices(view)
       search  <- client.search(query, indices, qp)(SortList.empty)
     } yield search
-  }
+  }.surround("elasticsearchUserQuery")
 
-  private def extractIndices(view: View)(implicit c: Caller): IO[Set[String]] = view match {
+  private def extractIndices(view: View)(using Caller): IO[Set[String]] = view match {
     case v: IndexingView  =>
       aclCheck
         .authorizeForOr(v.ref.project, v.permission)(AuthorizationFailed(v.ref.project, v.permission))
@@ -123,8 +122,8 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
       )
   }
 
-  override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(implicit
-      caller: Caller
+  override def createPointInTime(id: IdSegment, project: ProjectRef, keepAlive: FiniteDuration)(using
+      Caller
   ): IO[PointInTime] =
     for {
       _     <- aclCheck.authorizeForOr(project, permissions.write)(AuthorizationFailed(project, permissions.write))
@@ -133,7 +132,7 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
       pit   <- client.createPointInTime(index, keepAlive)
     } yield pit
 
-  override def deletePointInTime(pointInTime: PointInTime)(implicit caller: Caller): IO[Unit] =
+  override def deletePointInTime(pointInTime: PointInTime)(using Caller): IO[Unit] =
     client.deletePointInTime(pointInTime)
 
   private def indexOrError(view: View, id: IdSegment): IO[IndexLabel] = view match {
@@ -158,7 +157,7 @@ object ElasticSearchViewsQuery {
       client: ElasticSearchClient,
       prefix: String,
       xas: Transactors
-  ): ElasticSearchViewsQuery =
+  )(using Tracer[IO]): ElasticSearchViewsQuery =
     new ElasticSearchViewsQueryImpl(
       ViewsStore[ElasticSearchViewRejection, ElasticSearchViewState](
         ElasticSearchViewState.serializer,
