@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.S3AsyncClient
 
 object LocalStackS3 {
   val ServiceType = Service.S3
-  val Version     = "4.8.1"
+  val Version     = "4.9.2"
 
   def localstackS3(): Resource[IO, LocalStackV2Container] = {
 
