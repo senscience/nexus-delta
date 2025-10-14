@@ -10,6 +10,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
+import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
@@ -267,6 +268,8 @@ object SparqlClient {
       endpoint: Uri,
       queryTimeout: Duration,
       credentials: Option[BasicCredentials],
+      otelMetricsClient: OtelMetricsClient,
+      traffic: String,
       otel: OpentelemetryConfig
   )(using Tracer[IO]): Resource[IO, SparqlClient] =
     EmberClientBuilder
@@ -274,9 +277,13 @@ object SparqlClient {
       .withLogger(logger)
       .build
       .map { client =>
-        val enrichedClient = errorHandler(
-          BasicAuth(credentials)(client)
-        )
+        val enrichedClient =
+          errorHandler(
+            otelMetricsClient.wrap(
+              BasicAuth(credentials)(client),
+              traffic
+            )
+          )
         target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests

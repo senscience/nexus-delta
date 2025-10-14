@@ -1,42 +1,36 @@
 package ai.senscience.nexus.delta.otel
 
 import ai.senscience.nexus.delta.config.BuildInfo
+import ai.senscience.nexus.delta.sdk.otel.{secondsFromDuration, HttpMetricsCollection}
 import ai.senscience.nexus.delta.sdk.otel.OtelPekkoAttributes.*
-import cats.effect.{IO, Resource}
 import cats.effect.unsafe.implicits.*
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.model.HttpRequest
-import org.apache.pekko.http.scaladsl.server.{Directive0, Directives, RouteResult}
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequest, mapRouteResultFuture, pass}
 import org.apache.pekko.http.scaladsl.server.RouteResult.{Complete, Rejected}
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directives, RouteResult}
+import org.typelevel.otel4s.metrics.{Histogram, MeterProvider, UpDownCounter}
 import org.typelevel.otel4s.{Attribute, Attributes}
-import org.typelevel.otel4s.metrics.{BucketBoundaries, Histogram, MeterProvider, UpDownCounter}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
-trait OtelMetrics {
+trait OtelPekkoMetrics {
 
   def serverMetrics: Directive0
 
 }
 
-object OtelMetrics {
+object OtelPekkoMetrics {
 
-  // Defined in https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration
-  private val bucketBoundaries = BucketBoundaries(
-    Vector(.005, .01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10)
-  )
-
-  private case object Disabled extends OtelMetrics {
+  private case object Disabled extends OtelPekkoMetrics {
     override def serverMetrics: Directive0 = pass
   }
 
-  final class Enabled(
-      requestDuration: Histogram[IO, Double],
-      activeRequests: UpDownCounter[IO, Long],
-      abnormalTerminations: Histogram[IO, Double]
-  ) extends OtelMetrics {
+  final class Enabled(metrics: HttpMetricsCollection) extends OtelPekkoMetrics {
+    import metrics.*
+
     override def serverMetrics: Directive0 =
       extractRequest.flatMap { request =>
         mapRouteResultFuture { result =>
@@ -45,7 +39,7 @@ object OtelMetrics {
       }
 
     private def recordMetrics(request: HttpRequest, result: Future[RouteResult]): Resource[IO, RouteResult] = {
-      val attributes = Attributes(requestMethod(request), requestMethod(request))
+      val attributes = Attributes(requestMethod(request), originalScheme(request))
       for {
         start  <- Resource.monotonic[IO]
         _      <- recordActiveRequests(attributes)
@@ -101,7 +95,7 @@ object OtelMetrics {
       }
   }
 
-  def apply()(using MeterProvider[IO]): IO[OtelMetrics] =
+  def apply()(using MeterProvider[IO]): IO[OtelPekkoMetrics] =
     MeterProvider[IO]
       .meter("ai.senscience.nexus.delta.otel.server.http")
       .withVersion(BuildInfo.version)
@@ -109,34 +103,7 @@ object OtelMetrics {
       .flatMap { meter =>
         meter.meta.isEnabled.flatMap {
           case false => IO.pure(Disabled)
-          case true  =>
-            val requestDuration: IO[Histogram[IO, Double]] =
-              meter
-                .histogram[Double](s"http.server.request.duration")
-                .withUnit("s")
-                .withDescription(s"Duration of HTTP server requests.")
-                .withExplicitBucketBoundaries(bucketBoundaries)
-                .create
-
-            val activeRequests: IO[UpDownCounter[IO, Long]] =
-              meter
-                .upDownCounter[Long](s"http.server.active_requests")
-                .withUnit("{request}")
-                .withDescription(s"Number of active HTTP server requests.")
-                .create
-
-            val abnormalTerminations: IO[Histogram[IO, Double]] =
-              meter
-                .histogram[Double](s"http.server.abnormal_terminations")
-                .withUnit("s")
-                .withDescription(s"Duration of HTTP server abnormal terminations.")
-                .withExplicitBucketBoundaries(bucketBoundaries)
-                .create
-
-            (requestDuration, activeRequests, abnormalTerminations).mapN(Enabled.apply)
+          case true  => HttpMetricsCollection("server", meter).map(Enabled(_))
         }
       }
-
-  private def secondsFromDuration(duration: FiniteDuration): Double =
-    duration.toMillis / 1000.0
 }

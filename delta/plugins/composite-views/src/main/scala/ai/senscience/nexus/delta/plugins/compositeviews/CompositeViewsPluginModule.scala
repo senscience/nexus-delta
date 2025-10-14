@@ -24,6 +24,7 @@ import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, Projecti
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
@@ -53,13 +54,15 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   make[SparqlClient].named("sparql-composite-indexing-client").fromResource {
-    (cfg: CompositeViewsConfig, tracer: Tracer[IO] @Id("composite-indexing")) =>
+    (cfg: CompositeViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("composite-indexing")) =>
       val access = cfg.blazegraphAccess
       SparqlClient(
         access.sparqlTarget,
         access.base,
         access.queryTimeout,
         cfg.blazegraphAccess.credentials,
+        metricsClient,
+        "composite-indexing",
         access.otel
       )(using
         tracer
@@ -67,13 +70,15 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   make[SparqlClient].named("sparql-composite-query-client").fromResource {
-    (cfg: CompositeViewsConfig, tracer: Tracer[IO] @Id("composite")) =>
+    (cfg: CompositeViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("composite")) =>
       val access = cfg.blazegraphAccess
       SparqlClient(
         access.sparqlTarget,
         access.base,
         access.queryTimeout,
         cfg.blazegraphAccess.credentials,
+        metricsClient,
+        "composite-query",
         access.otel
       )(using
         tracer

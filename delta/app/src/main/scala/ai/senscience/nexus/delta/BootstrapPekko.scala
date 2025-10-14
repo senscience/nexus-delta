@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta
 import ai.senscience.nexus.delta.config.{HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
-import ai.senscience.nexus.delta.otel.OtelMetrics
+import ai.senscience.nexus.delta.otel.OtelPekkoMetrics
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.plugin.Plugin
@@ -27,7 +27,7 @@ object BootstrapPekko {
 
   private val logger = Logger[BootstrapPekko.type]
 
-  private def routes(locator: Locator, otelMetrics: OtelMetrics, clusterConfig: ClusterConfig): Route = {
+  private def routes(locator: Locator, otelMetrics: OtelPekkoMetrics, clusterConfig: ClusterConfig): Route = {
     import org.apache.pekko.http.scaladsl.server.Directives.*
     import sdk.directives.UriDirectives.*
     val nodeHeader = RawHeader("X-Delta-Node", clusterConfig.nodeIndex.toString)
@@ -61,7 +61,7 @@ object BootstrapPekko {
     val otel: OtelJava[IO]            = locator.get[OtelJava[IO]]
     given MeterProvider[IO]           = otel.meterProvider
 
-    def startHttpServer(otelMetrics: OtelMetrics) = IOFuture.defaultCancelable(
+    def startHttpServer(otelMetrics: OtelPekkoMetrics) = IOFuture.defaultCancelable(
       IO(
         Http()
           .newServerAt(
@@ -75,7 +75,7 @@ object BootstrapPekko {
     val acquire = {
       for {
         _       <- logger.info("Booting up service....")
-        metrics <- OtelMetrics()
+        metrics <- OtelPekkoMetrics()
         binding <- startHttpServer(metrics)
         _       <- logger.info(s"Bound to ${binding.localAddress.getHostString}:${binding.localAddress.getPort}")
       } yield ()

@@ -5,17 +5,16 @@ import ai.senscience.nexus.delta.config.{DescriptionConfig, HttpConfig, StrictEn
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.otel.OpenTelemetry
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.jws.{JWSConfig, JWSPayloadHelper}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
@@ -55,12 +54,6 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
   makeConfig[ElemQueryConfig]("app.elem-query")
   makeConfig[ProjectLastUpdateConfig]("app.project-last-update")
   makeConfig[ServiceAccount]("app.service-account")
-
-  make[OpenTelemetry].fromResource { (description: DescriptionConfig) =>
-    OpenTelemetry(description, runtime)
-  }
-
-  make[OtelJava[IO]].from { (otel: OpenTelemetry) => otel.otelJava }
 
   make[Transactors].fromResource { (config: DatabaseConfig, otel: OtelJava[IO]) =>
     Transactors(config, Some(otel))
@@ -141,6 +134,7 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
   }
 
   include(new PekkoModule())
+  include(new OtelModule(runtime))
   include(PermissionsModule)
   include(AclsModule)
   include(RealmsModule)
