@@ -1,14 +1,16 @@
 package ai.senscience.nexus.delta.sdk.otel
 
-import ai.senscience.nexus.delta.sdk.otel.OtelHttp4sAttributes.{errorType, requestAttributes, responseAttributes}
+import ai.senscience.nexus.delta.sdk.otel.OtelHttp4sAttributes.*
 import cats.effect.kernel.Outcome
 import cats.effect.{IO, MonadCancelThrow, Resource}
 import fs2.Stream
-import org.http4s.Request
+import org.http4s.{Request, Response}
 import org.http4s.client.Client
+import org.typelevel.otel4s.Attributes
+import org.typelevel.otel4s.semconv.attributes.HttpAttributes
 import org.typelevel.otel4s.trace.{SpanKind, StatusCode, Tracer}
 
-object OtelClient {
+object OtelTracingClient {
 
   def apply(client: Client[IO], spanDef: SpanDef)(using Tracer[IO]) =
     Client[IO] { (request: Request[IO]) =>
@@ -40,6 +42,30 @@ object OtelClient {
         }
       }
     }
+
+  private def requestAttributes(request: Request[IO]): Attributes = {
+    val uri        = request.uri
+    val attributes = Attributes.newBuilder
+    attributes += requestMethod(request)
+    attributes ++= serverAddress(uri.host)
+    attributes ++= serverPort(request.remotePort, uri)
+    attributes += uriFull(uri)
+    attributes ++= uriScheme(uri.scheme)
+    request.remote.foreach { socketAddress =>
+      attributes += networkPeerAddress(socketAddress.host)
+      attributes += networkPeerPort(socketAddress.port)
+    }
+    attributes ++= headers(request.headers, HttpAttributes.HttpRequestHeader)
+    attributes.result()
+  }
+
+  private def responseAttributes(response: Response[IO]): Attributes = {
+    val attributes = Attributes.newBuilder
+    attributes += statusCode(response.status)
+    attributes ++= errorType(response.status)
+    attributes ++= headers(response.headers, HttpAttributes.HttpResponseHeader)
+    attributes.result()
+  }
 
   private def buildSpan(span: SpanDef, request: Request[IO])(using Tracer[IO]) = {
     val reqNoBody     = request.withBodyStream(Stream.empty)

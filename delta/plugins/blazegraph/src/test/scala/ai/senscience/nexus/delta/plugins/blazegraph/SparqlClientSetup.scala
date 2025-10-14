@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget.{Blazegraph, Rdf4j}
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
+import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.testkit.blazegraph.BlazegraphContainer
 import ai.senscience.nexus.testkit.rd4j.RDF4JContainer
 import cats.effect.{IO, Resource}
@@ -15,23 +16,24 @@ import scala.concurrent.duration.*
 
 object SparqlClientSetup extends Fixtures {
 
-  private given Tracer[IO] = Tracer.noop[IO]
-  private val queryTimeout = 10.seconds
-  private val credentials  = None
-  private val otel         = OpentelemetryConfig(captureQueries = false)
+  private given Tracer[IO]  = Tracer.noop[IO]
+  private val metricsClient = OtelMetricsClient.noop
+  private val queryTimeout  = 10.seconds
+  private val credentials   = None
+  private val otelConfig    = OpentelemetryConfig(captureQueries = false)
 
   def blazegraph(): Resource[IO, SparqlClient] =
     for {
       container <- BlazegraphContainer.resource()
       endpoint   = Uri.unsafeFromString(s"http://${container.getHost}:${container.getMappedPort(9999)}/blazegraph")
-      client    <- SparqlClient(Blazegraph, endpoint, queryTimeout, credentials, otel)
+      client    <- SparqlClient(Blazegraph, endpoint, queryTimeout, credentials, metricsClient, "test", otelConfig)
     } yield client
 
   def rdf4j(): Resource[IO, SparqlClient] =
     for {
       container <- RDF4JContainer.resource()
       endpoint   = Uri.unsafeFromString(s"http://${container.getHost}:${container.getMappedPort(8080)}/rdf4j-server")
-      client    <- SparqlClient(Rdf4j, endpoint, queryTimeout, credentials, otel)
+      client    <- SparqlClient(Rdf4j, endpoint, queryTimeout, credentials, metricsClient, "test", otelConfig)
     } yield client
 
   trait Fixture { self: CatsEffectSuite =>

@@ -21,6 +21,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.*
+import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -49,13 +50,29 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   makeTracer("sparql-indexing")
 
   make[SparqlClient].named("sparql-indexing-client").fromResource {
-    (cfg: BlazegraphViewsConfig, tracer: Tracer[IO] @Id("sparql-indexing")) =>
-      SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials, cfg.otel)(using tracer)
+    (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql-indexing")) =>
+      SparqlClient(
+        cfg.sparqlTarget,
+        cfg.base,
+        cfg.queryTimeout,
+        cfg.credentials,
+        metricsClient,
+        "sparql-indexing",
+        cfg.otel
+      )(using tracer)
   }
 
   make[SparqlClient].named("sparql-query-client").fromResource {
-    (cfg: BlazegraphViewsConfig, tracer: Tracer[IO] @Id("sparql")) =>
-      SparqlClient(cfg.sparqlTarget, cfg.base, cfg.queryTimeout, cfg.credentials, cfg.otel)(using tracer)
+    (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql")) =>
+      SparqlClient(
+        cfg.sparqlTarget,
+        cfg.base,
+        cfg.queryTimeout,
+        cfg.credentials,
+        metricsClient,
+        "sparql-query",
+        cfg.otel
+      )(using tracer)
   }
 
   make[ValidateBlazegraphView].from {
