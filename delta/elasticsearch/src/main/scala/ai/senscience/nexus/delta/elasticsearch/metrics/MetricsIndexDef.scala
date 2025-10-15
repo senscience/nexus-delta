@@ -18,7 +18,7 @@ final case class MetricsIndexDef(name: IndexLabel, mapping: JsonObject, settings
 
 object MetricsIndexDef {
 
-  def apply(prefix: String, loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
+  def apply(prefix: String)(using loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
     for {
       mm <- loader.jsonObjectContentOf("metrics/metrics-mapping.json")
       ms <- loader.jsonObjectContentOf("metrics/metrics-settings.json")

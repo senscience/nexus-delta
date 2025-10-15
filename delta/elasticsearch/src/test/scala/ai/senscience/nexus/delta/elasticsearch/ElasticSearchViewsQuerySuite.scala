@@ -74,7 +74,7 @@ class ElasticSearchViewsQuerySuite
     (charlie.subject, AclAddress.Project(project2.ref), Set(queryPermission, permissions.read))
   ).accepted
 
-  private val defaultIndexDef = DefaultIndexDef(loader).unsafeRunSync()
+  private val defaultIndexDef = DefaultIndexDef().unsafeRunSync()
 
   private val indexingValue: IndexingElasticSearchViewValue =
     IndexingElasticSearchViewValue(

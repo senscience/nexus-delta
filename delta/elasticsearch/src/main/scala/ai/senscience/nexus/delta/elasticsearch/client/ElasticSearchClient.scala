@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
 import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
-import ai.senscience.nexus.delta.sdk.otel.{OtelTracingClient, SpanDef}
+import ai.senscience.nexus.delta.sdk.otel.{OtelMetricsClient, OtelTracingClient, SpanDef}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
@@ -490,6 +490,8 @@ object ElasticSearchClient {
       endpoint: Uri,
       credentials: Option[BasicCredentials],
       maxIndexPathLength: Int,
+      otelMetricsClient: OtelMetricsClient,
+      traffic: String,
       otel: OpentelemetryConfig
   )(using Tracer[IO]): Resource[IO, ElasticSearchClient] =
     EmberClientBuilder
@@ -498,7 +500,10 @@ object ElasticSearchClient {
       .build
       .map { client =>
         val enrichedClient = errorHandler(
-          GZip()(BasicAuth(credentials)(client))
+          otelMetricsClient.wrap(
+            GZip()(BasicAuth(credentials)(client)),
+            traffic
+          )
         )
         new ElasticSearchClient(enrichedClient, endpoint, maxIndexPathLength, otel)
       }

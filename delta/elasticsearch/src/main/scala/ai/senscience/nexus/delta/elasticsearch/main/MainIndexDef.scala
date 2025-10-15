@@ -19,7 +19,7 @@ final case class MainIndexDef(name: IndexLabel, mapping: JsonObject, settings: J
 
 object MainIndexDef {
 
-  def apply(config: MainIndexConfig, loader: ClasspathResourceLoader): IO[MainIndexDef] =
+  def apply(config: MainIndexConfig)(using loader: ClasspathResourceLoader): IO[MainIndexDef] =
     for {
       dm <- loader.jsonObjectContentOf("defaults/default-mapping.json")
       ds <- loader.jsonObjectContentOf("defaults/default-settings.json", "number_of_shards" -> config.shards)

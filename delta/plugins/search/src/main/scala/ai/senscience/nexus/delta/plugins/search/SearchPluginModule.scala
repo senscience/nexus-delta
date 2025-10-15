@@ -34,7 +34,7 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
     (
         compositeViews: CompositeViews,
         aclCheck: AclCheck,
-        esClient: ElasticSearchClient,
+        esClient: ElasticSearchClient @Id("elasticsearch-query-client"),
         compositeConfig: CompositeViewsConfig,
         searchConfig: SearchConfig
     ) =>

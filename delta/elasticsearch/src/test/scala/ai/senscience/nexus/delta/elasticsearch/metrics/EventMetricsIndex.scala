@@ -7,11 +7,11 @@ import munit.catseffect.IOFixture
 
 object EventMetricsIndex {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader()
+  private given ClasspathResourceLoader = ClasspathResourceLoader()
 
   trait Fixture { self: CatsEffectSuite =>
     val metricsIndex: IOFixture[MetricsIndexDef] =
-      ResourceSuiteLocalFixture("metrics-index", Resource.eval(MetricsIndexDef("test", loader)))
+      ResourceSuiteLocalFixture("metrics-index", Resource.eval(MetricsIndexDef("test")))
   }
 
 }

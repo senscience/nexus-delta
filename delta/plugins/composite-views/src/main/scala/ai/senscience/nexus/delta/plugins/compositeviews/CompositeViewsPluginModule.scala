@@ -90,7 +90,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         projects: Projects,
         permissions: Permissions,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         deltaClient: DeltaClient,
         config: CompositeViewsConfig,
         baseUri: BaseUri
@@ -157,7 +157,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   make[CompositeSpaces].from {
     (
-        esClient: ElasticSearchClient,
+        esClient: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         sparqlClient: SparqlClient @Id("sparql-composite-indexing-client"),
         cfg: CompositeViewsConfig
     ) =>
@@ -166,7 +166,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   make[CompositeSinks].from {
     (
-        esClient: ElasticSearchClient,
+        esClient: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         sparqlClient: SparqlClient @Id("sparql-composite-indexing-client"),
         cfg: CompositeViewsConfig,
         baseUri: BaseUri,
@@ -269,7 +269,12 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   make[ElasticSearchQuery].from {
-    (aclCheck: AclCheck, views: CompositeViews, client: ElasticSearchClient, cfg: CompositeViewsConfig) =>
+    (
+        aclCheck: AclCheck,
+        views: CompositeViews,
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
+        cfg: CompositeViewsConfig
+    ) =>
       ElasticSearchQuery(aclCheck, views, client, cfg.prefix)
   }
 

@@ -33,8 +33,13 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
   makeTracer("graph-analytics")
 
   make[GraphAnalytics]
-    .from { (client: ElasticSearchClient, fetchContext: FetchContext, config: GraphAnalyticsConfig) =>
-      GraphAnalytics(client, fetchContext, config.prefix, config.termAggregations)
+    .from {
+      (
+          client: ElasticSearchClient @Id("elasticsearch-query-client"),
+          fetchContext: FetchContext,
+          config: GraphAnalyticsConfig
+      ) =>
+        GraphAnalytics(client, fetchContext, config.prefix, config.termAggregations)
     }
 
   make[GraphAnalyticsStream].from { (elemStreaming: ElemStreaming, xas: Transactors) =>
@@ -46,15 +51,16 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         projects: Projects,
         analyticsStream: GraphAnalyticsStream,
         supervisor: Supervisor,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: GraphAnalyticsConfig,
         tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
       GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)(using tracer)
   }
 
-  make[GraphAnalyticsViewsQuery].from { (client: ElasticSearchClient, config: GraphAnalyticsConfig) =>
-    new GraphAnalyticsViewsQueryImpl(config.prefix, client)
+  make[GraphAnalyticsViewsQuery].from {
+    (client: ElasticSearchClient @Id("elasticsearch-query-client"), config: GraphAnalyticsConfig) =>
+      new GraphAnalyticsViewsQueryImpl(config.prefix, client)
   }
 
   make[GraphAnalyticsRoutes].from {

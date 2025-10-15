@@ -51,7 +51,7 @@ class MainIndexDeletionTaskSuite
 
     for {
       // Indexing and checking count
-      mainIndexDef <- MainIndexDef(mainIndexConfig, loader)
+      mainIndexDef <- MainIndexDef(mainIndexConfig)
       _            <- client.createIndex(index, Some(mainIndexDef.mapping), Some(mainIndexDef.settings))
       _            <- client.createAlias(mainIndexingAlias(index, projectToDelete))
       _            <- client.bulk(bulk)
