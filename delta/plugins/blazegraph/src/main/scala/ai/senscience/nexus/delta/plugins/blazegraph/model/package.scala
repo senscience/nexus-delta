@@ -26,6 +26,11 @@ package object model {
   object contexts {
     val blazegraph: Iri         = nxvContexts + "sparql.json"
     val blazegraphMetadata: Iri = nxvContexts + "sparql-metadata.json"
+
+    val definition = Set(
+      blazegraph         -> "contexts/sparql.json",
+      blazegraphMetadata -> "contexts/sparql-metadata.json"
+    )
   }
 
   object permissions {

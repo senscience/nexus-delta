@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta
 
+import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.sdk.acls.model.Acl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -73,4 +74,17 @@ package object sdk {
     * Type alias for file data
     */
   type FileData = Stream[IO, ByteBuffer]
+
+  val coreContexts = Set(
+    contexts.error          -> "contexts/error.json",
+    contexts.metadata       -> "contexts/metadata.json",
+    contexts.offset         -> "contexts/offset.json",
+    contexts.pipeline       -> "contexts/pipeline.json",
+    contexts.remoteContexts -> "contexts/remote-contexts.json",
+    contexts.search         -> "contexts/search.json",
+    contexts.statistics     -> "contexts/statistics.json",
+    contexts.tags           -> "contexts/tags.json",
+    contexts.validation     -> "contexts/validation.json",
+    contexts.version        -> "contexts/version.json"
+  )
 }

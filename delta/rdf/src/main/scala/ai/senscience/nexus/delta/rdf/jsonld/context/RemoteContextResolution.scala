@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.rdf.jsonld.context
 
-import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceError.*
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextArray, ContextRemoteIri}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.{RemoteContextNotFound, RemoteContextWrongPayload}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotFound
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import cats.effect.IO
 import cats.syntax.all.*
@@ -73,40 +73,34 @@ object RemoteContextResolution {
     * Helper method to construct a [[RemoteContextResolution]] .
     *
     * @param f
-    *   a pair of [[Iri]] and the resolved Result of [[ContextValue]]
-    */
-  final def fixedIO(f: (Iri, IO[ContextValue])*): RemoteContextResolution = new RemoteContextResolution {
-    private val map = f.toMap
-
-    override def resolve(iri: Iri): IO[RemoteContext] =
-      map.get(iri) match {
-        case Some(result) => result.map { value => StaticContext(iri, value) }
-        case None         => IO.raiseError(RemoteContextNotFound(iri))
-      }
-  }
-
-  /**
-    * Helper method to construct a [[RemoteContextResolution]] .
-    *
-    * @param f
-    *   a pair of [[Iri]] and the resolved [[ContextValue]]
-    */
-  final def fixedIOResource(f: (Iri, IO[ContextValue])*): RemoteContextResolution =
-    fixedIO(f.map { case (iri, io) =>
-      iri -> io.adaptError {
-        case _: InvalidJson | _: InvalidJsonObject => RemoteContextWrongPayload(iri)
-        case _: ResourcePathNotFound               => RemoteContextNotFound(iri)
-      }
-    }*)
-
-  /**
-    * Helper method to construct a [[RemoteContextResolution]] .
-    *
-    * @param f
     *   a pair of [[Iri]] and the resolved [[ContextValue]]
     */
   final def fixed(f: (Iri, ContextValue)*): RemoteContextResolution =
-    fixedIO(f.map { case (iri, json) => iri -> IO.pure(json) }*)
+    new RemoteContextResolution {
+      private val map                                   = f.toMap
+      override def resolve(iri: Iri): IO[RemoteContext] =
+        map.get(iri) match {
+          case Some(value) => IO.pure(StaticContext(iri, value))
+          case None        => IO.raiseError(RemoteContextNotFound(iri))
+        }
+    }
+
+  final def loadResources(
+      contexts: Set[(Iri, String)]
+  )(using loader: ClasspathResourceLoader): IO[RemoteContextResolution] = {
+    contexts.toList
+      .traverse { case (iri, path) =>
+        ContextValue.fromFile(path).map(iri -> _)
+      }
+      .map { contexts => fixed(contexts*) }
+  }
+
+  final def loadResourcesUnsafe(
+      contexts: Set[(Iri, String)]
+  )(using loader: ClasspathResourceLoader): RemoteContextResolution = {
+    import cats.effect.unsafe.implicits.*
+    loadResources(contexts).unsafeRunSync()
+  }
 
   /**
     * A remote context resolution that never resolves

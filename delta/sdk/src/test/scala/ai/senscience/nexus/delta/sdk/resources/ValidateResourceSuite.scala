@@ -3,9 +3,10 @@ package ai.senscience.nexus.delta.sdk.resources
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
+import ai.senscience.nexus.delta.sdk.RemoteContextResolutionFixtures
 import ai.senscience.nexus.delta.sdk.generators.{ResourceResolutionGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
@@ -25,15 +26,10 @@ import cats.effect.IO
 import io.circe.Json
 import munit.Location
 
-class ValidateResourceSuite extends NexusSuite {
+class ValidateResourceSuite extends NexusSuite with RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi                       = TitaniumJsonLdApi.lenient
-  implicit private val rcr: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      contexts.metadata        -> ContextValue.fromFile("contexts/metadata.json"),
-      contexts.shacl           -> ContextValue.fromFile("contexts/shacl.json"),
-      contexts.schemasMetadata -> ContextValue.fromFile("contexts/schemas-metadata.json")
-    )
+  implicit val api: JsonLdApi                = TitaniumJsonLdApi.lenient
+  private given rcr: RemoteContextResolution = loadCoreContextsAndSchemas
 
   private val project = ProjectRef.unsafe("org", "proj")
 

@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.RealmsRoutes
 import ai.senscience.nexus.delta.sdk.*
@@ -32,6 +31,8 @@ object RealmsModule extends NexusModuleDef {
   makeConfig[RealmsConfig]("app.realms")
 
   makeTracer("realms")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[Realms].from {
     (
@@ -65,13 +66,6 @@ object RealmsModule extends NexusModuleDef {
   make[Client[IO]].named("realm").fromResource(EmberClientBuilder.default[IO].build)
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/realms-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      realmCtx      <- ContextValue.fromFile("contexts/realms.json")
-      realmsMetaCtx <- ContextValue.fromFile("contexts/realms-metadata.json")
-    } yield RemoteContextResolution.fixed(contexts.realms -> realmCtx, contexts.realmsMetadata -> realmsMetaCtx)
-  )
 
   many[PriorityRoute].add { (route: RealmsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 4, route.routes, requiresStrictEntity = true)

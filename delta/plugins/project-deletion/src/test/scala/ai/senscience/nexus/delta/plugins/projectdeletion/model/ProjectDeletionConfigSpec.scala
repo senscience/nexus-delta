@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.projectdeletion.model
 
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import com.typesafe.config.ConfigFactory
@@ -15,9 +15,7 @@ class ProjectDeletionConfigSpec extends CatsEffectSpec {
 
   implicit private val api: JsonLdApi = TitaniumJsonLdApi.strict
 
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.fixedIO(
-    contexts.projectDeletion -> ContextValue.fromFile("contexts/project-deletion.json")
-  )
+  private given RemoteContextResolution = RemoteContextResolution.loadResourcesUnsafe(contexts.definition)
 
   "A ProjectDeletionConfig" should {
     val config = ProjectDeletionConfig(

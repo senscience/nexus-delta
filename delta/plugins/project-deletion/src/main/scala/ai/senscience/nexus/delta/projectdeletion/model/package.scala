@@ -6,5 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts as nxvContexts
 package object model {
   object contexts {
     val projectDeletion: Iri = nxvContexts + "project-deletion.json"
+
+    val definition = Set(projectDeletion -> "contexts/project-deletion.json")
   }
 }

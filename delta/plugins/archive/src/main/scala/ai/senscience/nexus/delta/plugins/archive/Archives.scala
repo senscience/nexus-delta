@@ -35,8 +35,6 @@ import org.typelevel.otel4s.trace.Tracer
   *   a source decoder for [[ArchiveValue]]
   * @param config
   *   the log config
-  * @param rcr
-  *   the archive remote context resolution
   */
 class Archives(
     log: ArchiveLog,

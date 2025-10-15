@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ProjectsRoutes
 import ai.senscience.nexus.delta.sdk.*
@@ -25,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
-import ai.senscience.nexus.delta.wiring.PermissionsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -45,6 +43,8 @@ object ProjectsModule extends NexusModuleDef {
   makeConfig[ProjectsConfig]("app.projects")
 
   makeTracer("projects")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[ApiMappingsCollection].from { (mappings: Set[ApiMappings]) =>
     ApiMappingsCollection(mappings)
@@ -161,16 +161,6 @@ object ProjectsModule extends NexusModuleDef {
   many[SseEncoder[?]].add { (base: BaseUri) => ProjectEvent.sseEncoder(base) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/projects-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      projectsCtx     <- ContextValue.fromFile("contexts/projects.json")
-      projectsMetaCtx <- ContextValue.fromFile("contexts/projects-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.projects         -> projectsCtx,
-      contexts.projectsMetadata -> projectsMetaCtx
-    )
-  )
 
   many[PriorityRoute].add { (route: ProjectsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 7, route.routes, requiresStrictEntity = true)

@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeProjectionLifeCycle
+import ai.senscience.nexus.delta.plugins.search.contexts
 import ai.senscience.nexus.delta.plugins.search.model.{defaulMappings, SearchConfig}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -29,6 +29,8 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
   make[SearchConfig].fromEffect { (cfg: Config) => SearchConfig.load(cfg) }
 
   makeTracer("search")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[Search].from {
     (
@@ -52,12 +54,6 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
       new SearchScopeInitialization(views, config.indexing, serviceAccount, config.defaults)(using baseUri, tracer)
   }
   many[ScopeInitialization].ref[SearchScopeInitialization]
-
-  many[RemoteContextResolution].addEffect(
-    ContextValue.fromFile("contexts/suites.json").map { suitesCtx =>
-      RemoteContextResolution.fixed(contexts.suites -> suitesCtx)
-    }
-  )
 
   many[ApiMappings].add(defaulMappings)
 

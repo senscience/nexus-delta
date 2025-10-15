@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
+import ai.senscience.nexus.delta.plugins.archive.contexts
 import ai.senscience.nexus.delta.plugins.archive.model.Archive.Metadata
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue

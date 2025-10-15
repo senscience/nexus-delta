@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.elasticsearch.routes.*
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -404,21 +403,14 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         searchMetadataCtx: MetadataContextValue @Id("search-metadata"),
         indexingMetadataCtx: MetadataContextValue @Id("indexing-metadata")
     ) =>
-      for {
-        elasticsearchCtx     <- ContextValue.fromFile("contexts/elasticsearch.json")
-        elasticsearchMetaCtx <- ContextValue.fromFile("contexts/elasticsearch-metadata.json")
-        elasticsearchIdxCtx  <- ContextValue.fromFile("contexts/elasticsearch-indexing.json")
-        offsetCtx            <- ContextValue.fromFile("contexts/offset.json")
-        statisticsCtx        <- ContextValue.fromFile("contexts/statistics.json")
-      } yield RemoteContextResolution.fixed(
-        contexts.elasticsearch         -> elasticsearchCtx,
-        contexts.elasticsearchMetadata -> elasticsearchMetaCtx,
-        contexts.elasticsearchIndexing -> elasticsearchIdxCtx,
-        contexts.indexingMetadata      -> indexingMetadataCtx.value,
-        contexts.searchMetadata        -> searchMetadataCtx.value,
-        Vocabulary.contexts.offset     -> offsetCtx,
-        Vocabulary.contexts.statistics -> statisticsCtx
-      )
+      RemoteContextResolution.loadResources(contexts.definition).map {
+        _.merge(
+          RemoteContextResolution.fixed(
+            contexts.indexingMetadata -> indexingMetadataCtx.value,
+            contexts.searchMetadata   -> searchMetadataCtx.value
+          )
+        )
+      }
   }
 
   many[ApiMappings].add(ElasticSearchViews.mappings)

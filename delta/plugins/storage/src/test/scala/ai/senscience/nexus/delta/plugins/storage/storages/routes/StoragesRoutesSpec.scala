@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageCo
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
@@ -40,16 +40,8 @@ class StoragesRoutesSpec
     with StorageFixtures
     with UUIDFFixtures.Random {
 
-  // TODO: sort out how we handle this in tests
   implicit override def rcr: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      storageContexts.storages         -> ContextValue.fromFile("contexts/storages.json"),
-      storageContexts.storagesMetadata -> ContextValue.fromFile("contexts/storages-metadata.json"),
-      fileContexts.files               -> ContextValue.fromFile("contexts/files.json"),
-      Vocabulary.contexts.metadata     -> ContextValue.fromFile("contexts/metadata.json"),
-      Vocabulary.contexts.error        -> ContextValue.fromFile("contexts/error.json"),
-      Vocabulary.contexts.search       -> ContextValue.fromFile("contexts/search.json")
-    )
+    loadCoreContexts(storageContexts.definition ++ fileContexts.definition)
 
   private val serviceAccount: ServiceAccount = ServiceAccount(User("nexus-sa", Label.unsafe("sa")))
 

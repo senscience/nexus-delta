@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.kernel.utils.FileUtils.loadJsonAs
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery
+import ai.senscience.nexus.delta.plugins.search.contexts
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfigError.{InvalidRebuildStrategy, InvalidSparqlConstructQuery, InvalidSuites}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder

@@ -1,23 +1,16 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.model.contexts
-import ai.senscience.nexus.delta.elasticsearch.model.contexts.{elasticsearch, elasticsearchMetadata}
-import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.sdk.RemoteContextResolutionFixtures
 import ai.senscience.nexus.delta.sourcing.stream.PipeChainCompiler
 import ai.senscience.nexus.delta.sourcing.stream.pipes.defaultPipes
+import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
 
-object Fixtures {
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader()
-}
-
-trait Fixtures {
-
-  import Fixtures.*
+trait Fixtures extends RemoteContextResolutionFixtures {
 
   private val listingsMetadataCtx =
     List(
@@ -39,23 +32,13 @@ trait Fixtures {
 
   implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
 
-  implicit val rcr: RemoteContextResolution = RemoteContextResolution.fixedIOResource(
-    elasticsearch                  -> ContextValue.fromFile("contexts/elasticsearch.json"),
-    elasticsearchMetadata          -> ContextValue.fromFile("contexts/elasticsearch-metadata.json"),
-    contexts.elasticsearchIndexing -> ContextValue.fromFile("contexts/elasticsearch-indexing.json"),
-    contexts.searchMetadata        -> listingsMetadataCtx,
-    contexts.indexingMetadata      -> indexingMetadataCtx,
-    Vocabulary.contexts.metadata   -> ContextValue.fromFile("contexts/metadata.json"),
-    Vocabulary.contexts.error      -> ContextValue.fromFile("contexts/error.json"),
-    Vocabulary.contexts.metadata   -> ContextValue.fromFile("contexts/metadata.json"),
-    Vocabulary.contexts.error      -> ContextValue.fromFile("contexts/error.json"),
-    Vocabulary.contexts.shacl      -> ContextValue.fromFile("contexts/shacl.json"),
-    Vocabulary.contexts.statistics -> ContextValue.fromFile("contexts/statistics.json"),
-    Vocabulary.contexts.offset     -> ContextValue.fromFile("contexts/offset.json"),
-    Vocabulary.contexts.pipeline   -> ContextValue.fromFile("contexts/pipeline.json"),
-    Vocabulary.contexts.tags       -> ContextValue.fromFile("contexts/tags.json"),
-    Vocabulary.contexts.search     -> ContextValue.fromFile("contexts/search.json")
-  )
+  given rcr: RemoteContextResolution =
+    loadCoreContexts(contexts.definition).merge(
+      RemoteContextResolution.fixed(
+        contexts.searchMetadata   -> listingsMetadataCtx.unsafeRunSync(),
+        contexts.indexingMetadata -> indexingMetadataCtx.unsafeRunSync()
+      )
+    )
 
   val pipeChainCompiler = PipeChainCompiler(defaultPipes)
 }

@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartSt
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphStream, RemoteGraphStream}
 import ai.senscience.nexus.delta.rdf.Triple
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{JsonLdContext, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -48,6 +48,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   makeTracer("composite")
   makeTracer("composite-indexing")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[DeltaClient].fromResource { (cfg: CompositeViewsConfig, authTokenProvider: AuthTokenProvider) =>
     DeltaClient(authTokenProvider, cfg.remoteSourceCredentials, cfg.remoteSourceClient.retryDelay)
@@ -248,16 +250,6 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   many[ViewsList].add { (views: CompositeViews) => ViewsList(views.list) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/composite-views-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      ctx     <- ContextValue.fromFile("contexts/composite-views.json")
-      metaCtx <- ContextValue.fromFile("contexts/composite-views-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.compositeViews         -> ctx,
-      contexts.compositeViewsMetadata -> metaCtx
-    )
-  )
 
   make[BlazegraphQuery].from {
     (

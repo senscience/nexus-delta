@@ -1,7 +1,8 @@
 package ai.senscience.nexus.delta.plugins.archive.routes
 
 import ai.senscience.nexus.delta.plugins.archive.Archives
-import ai.senscience.nexus.delta.plugins.archive.model.{permissions, ArchiveRejection, ArchiveResource, Zip}
+import ai.senscience.nexus.delta.plugins.archive.{permissions, ArchiveResource}
+import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, Zip}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering

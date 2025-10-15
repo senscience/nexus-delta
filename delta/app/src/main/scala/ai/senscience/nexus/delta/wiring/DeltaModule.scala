@@ -6,8 +6,7 @@ import ai.senscience.nexus.delta.elasticsearch.ElasticSearchModule
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.PluginDescription
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.provisioning.ProvisioningCoordinator
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
@@ -92,27 +91,9 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
   }
 
   make[RemoteContextResolution].named("aggregate").fromEffect { (otherCtxResolutions: Set[RemoteContextResolution]) =>
-    for {
-      errorCtx          <- ContextValue.fromFile("contexts/error.json")
-      metadataCtx       <- ContextValue.fromFile("contexts/metadata.json")
-      searchCtx         <- ContextValue.fromFile("contexts/search.json")
-      pipelineCtx       <- ContextValue.fromFile("contexts/pipeline.json")
-      remoteContextsCtx <- ContextValue.fromFile("contexts/remote-contexts.json")
-      tagsCtx           <- ContextValue.fromFile("contexts/tags.json")
-      versionCtx        <- ContextValue.fromFile("contexts/version.json")
-      validationCtx     <- ContextValue.fromFile("contexts/validation.json")
-    } yield RemoteContextResolution
-      .fixed(
-        contexts.error          -> errorCtx,
-        contexts.metadata       -> metadataCtx,
-        contexts.search         -> searchCtx,
-        contexts.pipeline       -> pipelineCtx,
-        contexts.remoteContexts -> remoteContextsCtx,
-        contexts.tags           -> tagsCtx,
-        contexts.version        -> versionCtx,
-        contexts.validation     -> validationCtx
-      )
-      .merge(otherCtxResolutions.toSeq*)
+    RemoteContextResolution
+      .loadResources(coreContexts)
+      .map(_.merge(otherCtxResolutions.toSeq*))
   }
 
   make[Clock[IO]].from(implicitly[Clock[IO]])

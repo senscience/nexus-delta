@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.projectdeletion
 
 import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRoutes
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.utils.RouteHelpers
@@ -14,11 +14,9 @@ import scala.concurrent.duration.DurationInt
 
 class ProjectDeletionRoutesSpec extends CatsEffectSpec with RouteHelpers {
 
-  implicit private val ordering: JsonKeyOrdering    = JsonKeyOrdering.default()
-  implicit private val baseUri: BaseUri             = BaseUri.unsafe("http://localhost", "v1")
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.fixedIO(
-    contexts.projectDeletion -> ContextValue.fromFile("contexts/project-deletion.json")
-  )
+  implicit private val ordering: JsonKeyOrdering = JsonKeyOrdering.default()
+  implicit private val baseUri: BaseUri          = BaseUri.unsafe("http://localhost", "v1")
+  private given RemoteContextResolution          = RemoteContextResolution.loadResourcesUnsafe(contexts.definition)
 
   "A ProjectDeletionRoutes" should {
     val config     = ProjectDeletionConfig(

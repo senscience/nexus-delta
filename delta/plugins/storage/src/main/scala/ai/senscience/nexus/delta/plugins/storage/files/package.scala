@@ -42,5 +42,7 @@ package object files {
     */
   object contexts {
     val files: Iri = nxvContexts + "files.json"
+
+    val definition = Set(files -> "contexts/files.json")
   }
 }

@@ -8,6 +8,11 @@ package object analytics {
   object contexts {
     val relationships: Iri = nxvContexts + "relationships.json"
     val properties: Iri    = nxvContexts + "properties.json"
+
+    val definition = Set(
+      contexts.relationships -> "contexts/relationships.json",
+      contexts.properties    -> "contexts/properties.json"
+    )
   }
 
   object permissions {
