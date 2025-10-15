@@ -14,7 +14,7 @@ trait CatsIOValues {
 
   implicit final class CatsIOValuesOps[A](private val io: IO[A]) {
     def accepted(implicit pos: source.Position): A = {
-      io.unsafeRunTimed(45.seconds).getOrElse(fail("IO timed out during .accepted call"))
+      io.unsafeRunTimed(45.seconds).getOrElse(fail(s"IO timed out during .accepted call at $pos"))
     }
 
     def rejected(implicit pos: source.Position): Throwable = rejectedWith[Throwable]
@@ -32,11 +32,11 @@ trait CatsIOValues {
         case Left(EE(value)) => value
         case Left(value)     =>
           fail(
-            s"Wrong raised error type caught, expected: '${EE.runtimeClass.getName}', actual: '${value.getClass.getName}'"
+            s"Wrong raised error type caught, expected: '${EE.runtimeClass.getName}', actual: '${value.getClass.getName}' at $pos"
           )
         case Right(value)    =>
           fail(
-            s"Expected raising error, but returned successful response with type '${value.getClass.getName}'"
+            s"Expected raising error, but returned successful response with type '${value.getClass.getName}' at $pos"
           )
       }
     }

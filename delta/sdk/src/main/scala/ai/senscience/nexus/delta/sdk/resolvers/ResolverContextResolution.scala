@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotAccessible
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext, RemoteContextResolution}
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{logger, ProjectRemoteContext}

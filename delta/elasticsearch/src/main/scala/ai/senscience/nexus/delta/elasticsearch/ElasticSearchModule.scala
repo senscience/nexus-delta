@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck

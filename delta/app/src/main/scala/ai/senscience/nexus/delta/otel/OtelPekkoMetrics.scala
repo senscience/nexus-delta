@@ -9,7 +9,7 @@ import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.model.HttpRequest
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequest, mapRouteResultFuture, pass}
 import org.apache.pekko.http.scaladsl.server.RouteResult.{Complete, Rejected}
-import org.apache.pekko.http.scaladsl.server.{Directive0, Directives, RouteResult}
+import org.apache.pekko.http.scaladsl.server.{Directive0, RouteResult}
 import org.typelevel.otel4s.metrics.{Histogram, MeterProvider, UpDownCounter}
 import org.typelevel.otel4s.{Attribute, Attributes}
 

@@ -55,7 +55,7 @@ object OpenTelemetry {
     } else {
       given LocalProvider[IO, Context] = IOLocalContextStorage.localProvider[IO]
       sys.props.getOrElseUpdate("otel.service.name", description.name.value)
-      OtelJava.autoConfigured[IO]().evalTap { otel =>
+      OtelJava.autoConfigured[IO]().evalTap { _ =>
         logger.info("OpenTelemetry is enabled.")
       }
     }

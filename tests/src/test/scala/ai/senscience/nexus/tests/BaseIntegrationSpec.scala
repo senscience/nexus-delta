@@ -85,7 +85,7 @@ trait BaseIntegrationSpec
 
   implicit override def patienceConfig: PatienceConfig = PatienceConfig(config.patience, 100.millis)
 
-  def eventually(io: IO[Assertion])(implicit pos: Position): Assertion =
+  def eventually(io: IO[Assertion]): Assertion =
     eventually { io.unsafeRunSync() }
 
   def runIO[A](io: IO[A]): Assertion = io.map { _ => succeed }.unsafeRunSync()

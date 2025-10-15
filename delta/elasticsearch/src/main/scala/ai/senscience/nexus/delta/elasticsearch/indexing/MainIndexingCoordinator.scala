@@ -49,7 +49,7 @@ object MainIndexingCoordinator {
       supervisor: Supervisor,
       sink: Sink,
       createAlias: ProjectRef => IO[Unit]
-  )(using RemoteContextResolution, Tracer[IO])
+  )(using RemoteContextResolution)
       extends MainIndexingCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
@@ -135,7 +135,7 @@ object MainIndexingCoordinator {
       supervisor: Supervisor,
       sink: Sink,
       createAlias: ProjectRef => IO[Unit]
-  )(using RemoteContextResolution, Tracer[IO]): IO[MainIndexingCoordinator] = {
+  )(using RemoteContextResolution): IO[MainIndexingCoordinator] = {
     val coordinator = new Active(fetchProjects, graphStream, supervisor, sink, createAlias)
     val compiled    =
       CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => coordinator.run(offset))

@@ -40,9 +40,9 @@ class DiskStorageSaveFileSuite
 
   test("Save successfully the file to the volume") {
     for {
-      result      <- fileOps.save(uploading)
-      fileContent <- Files[IO].readUtf8(absoluteFilePath).assert(content)
-      fileSize    <- Files[IO].size(absoluteFilePath)
+      result   <- fileOps.save(uploading)
+      _        <- Files[IO].readUtf8(absoluteFilePath).assert(content)
+      fileSize <- Files[IO].size(absoluteFilePath)
     } yield {
       val expected = FileStorageMetadata(
         fixedUuid,

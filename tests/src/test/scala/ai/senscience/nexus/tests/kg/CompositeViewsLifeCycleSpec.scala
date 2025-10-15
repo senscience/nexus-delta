@@ -52,13 +52,13 @@ final class CompositeViewsLifeCycleSpec extends BaseIntegrationSpec {
 
   private def fetchSpaces = deltaClient.getJson[Spaces](s"$viewEndpoint/description", Jerry)
 
-  private def includeAllSpaces(spaces: Spaces)(implicit pos: Position) = {
+  private def includeAllSpaces(spaces: Spaces): Unit = {
     eventually { sparqlDsl.includes(spaces.commonSpace) }
     eventually { spaces.sparqlProjection.foreach { s => sparqlDsl.includes(s.value) } }
     eventually { spaces.elasticSearchProjection.foreach { e => elasticsearchDsl.includes(e.value) } }
   }
 
-  private def excludeAllSpaces(spaces: Spaces)(implicit pos: Position) = {
+  private def excludeAllSpaces(spaces: Spaces): Unit = {
     eventually { sparqlDsl.excludes(spaces.commonSpace) }
     eventually { spaces.sparqlProjection.foreach { s => sparqlDsl.excludes(s.value) } }
     eventually { spaces.elasticSearchProjection.foreach { e => elasticsearchDsl.excludes(e.value) } }

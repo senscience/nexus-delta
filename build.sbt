@@ -15,8 +15,7 @@ scalafmt: {
 }
  */
 
-val scalacScapegoatVersion = "3.1.9"
-val scalaCompilerVersion   = "3.3.6"
+val scalaCompilerVersion = "3.3.7"
 
 val awsSdkVersion              = "2.34.7"
 val caffeineVersion            = "3.2.2"
@@ -190,7 +189,6 @@ lazy val copyPlugins = taskKey[Unit]("Assembles and copies the plugin files plug
 lazy val docs = project
   .in(file("docs"))
   .enablePlugins(ParadoxMaterialThemePlugin, SitePreviewPlugin, ParadoxSitePlugin)
-  .disablePlugins(ScapegoatSbtPlugin)
   .settings(shared, compilation, assertJavaVersion, noPublish)
   .settings(ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings)
   .settings(
@@ -701,7 +699,6 @@ lazy val benchmarks = project
   .in(file("benchmarks"))
   .dependsOn(kernel)
   .enablePlugins(GatlingPlugin)
-  .disablePlugins(ScapegoatSbtPlugin)
   .settings(noPublish)
   .settings(shared, compilation)
   .settings(
@@ -792,8 +789,7 @@ lazy val compilation = {
     apiMappings                            += {
       val scalaDocUrl = s"http://scala-lang.org/api/${scalaVersion.value}/"
       ApiMappings.apiMappingFor((Compile / fullClasspath).value)("scala3-library", scalaDocUrl)
-    },
-    Scapegoat / dependencyClasspath        := (Compile / dependencyClasspath).value
+    }
   )
 }
 
@@ -809,7 +805,7 @@ lazy val release = Seq(
   Test / packageSrc / publishArtifact := false,
   // removes compile time only dependencies from the resulting pom
   pomPostProcess                      := { node =>
-    XmlTransformer.transformer(moduleFilter("org.scoverage") | moduleFilter("com.sksamuel.scapegoat")).transform(node).head
+    XmlTransformer.transformer(moduleFilter("org.scoverage")).transform(node).head
   },
   versionScheme                       := Some("strict")
 )
@@ -837,20 +833,10 @@ lazy val servicePackaging = {
   )
 }
 
-ThisBuild / scapegoatVersion             := scalacScapegoatVersion
-ThisBuild / scapegoatDisabledInspections := Seq(
-  "AsInstanceOf",
-  "ClassNames",
-  "IncorrectlyNamedExceptions",
-  "ObjectNames",
-  "RedundantFinalModifierOnCaseClass",
-  "RedundantFinalModifierOnMethod",
-  "VariableShadowing"
-)
-ThisBuild / homepage                     := Some(url("https://senscience.github.io/nexus-delta/docs/"))
-ThisBuild / licenses                     := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / scmInfo                      := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
-ThisBuild / developers                   := List(
+ThisBuild / homepage   := Some(url("https://senscience.github.io/nexus-delta/docs/"))
+ThisBuild / licenses   := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo    := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
+ThisBuild / developers := List(
   Developer("imsdu", "Simon Dumas", "noreply@senscience.ai", url("https://www.senscience.ai/"))
 )
 
@@ -867,7 +853,6 @@ addCommandAlias(
      |;test:scalafmtCheck
      |;scalafmtSbtCheck
      |;coverage
-     |;scapegoat
      |;test
      |;coverageReport
      |;coverageAggregate
@@ -880,7 +865,6 @@ addCommandAlias(
      |;delta/scalafmtCheck
      |;delta/test:scalafmtCheck
      |;scalafmtSbtCheck;coverage
-     |;delta/scapegoat
      |;delta/test
      |;delta/coverageReport
      |;delta/coverageAggregate
@@ -896,7 +880,6 @@ val staticAnalysis =
     |scalafmtSbtCheck ;
     |scalafmtCheck ;
     |Test/scalafmtCheck ;
-    |scapegoat ;
     |doc
     |""".stripMargin
 

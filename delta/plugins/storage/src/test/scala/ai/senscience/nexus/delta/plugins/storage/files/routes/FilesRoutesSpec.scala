@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContexts, permissions as storagesPermissions, FetchStorage, StorageFixtures, Storages, StoragesConfig}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.NexusHeaders
