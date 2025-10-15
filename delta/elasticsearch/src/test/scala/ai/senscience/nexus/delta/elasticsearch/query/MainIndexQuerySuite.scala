@@ -160,7 +160,7 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
 
   test("Create the index and populate it ") {
     for {
-      mainIndexDef <- MainIndexDef(mainIndexConfig, loader)
+      mainIndexDef <- MainIndexDef(mainIndexConfig)
       _            <- client.createIndex(mainIndex, Some(mainIndexDef.mapping), Some(mainIndexDef.settings))
       _            <- client.createAlias(mainIndexingAlias(mainIndex, project1))
       _            <- client.createAlias(mainIndexingAlias(mainIndex, project2))
