@@ -65,7 +65,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   }
 
   make[ElasticSearchClient].named("elasticsearch-indexing-client").fromResource {
-    (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch")) =>
+    (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch-indexing")) =>
       ElasticSearchClient(
         cfg.base,
         cfg.credentials,
