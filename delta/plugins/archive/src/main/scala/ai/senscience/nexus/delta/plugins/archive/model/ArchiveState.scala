@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.archive.model
 
-import ai.senscience.nexus.delta.plugins.archive.model
+import ai.senscience.nexus.delta.plugins.archive.{model, schema as archiveSchema, tpe, ArchiveResource}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.instances.*
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF, ResourceRepresentation}
@@ -38,7 +38,7 @@ final case class ArchiveState(
     createdBy: Subject
 ) extends EphemeralState {
 
-  override def schema: ResourceRef = model.schema
+  override def schema: ResourceRef = archiveSchema
 
   override def types: Set[Iri] = Set(tpe)
 

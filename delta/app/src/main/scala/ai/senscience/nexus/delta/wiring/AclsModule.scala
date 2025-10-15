@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{AclsRoutes, UserPermissionsRoutes}
 import ai.senscience.nexus.delta.sdk.*
@@ -33,6 +32,8 @@ object AclsModule extends NexusModuleDef {
   makeConfig[AclsConfig]("app.acls")
 
   makeTracer("acls")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[FlattenedAclStore].from { (xas: Transactors) => new FlattenedAclStore(xas) }
 
@@ -94,13 +95,6 @@ object AclsModule extends NexusModuleDef {
   many[ProjectDeletionTask].add { (acls: Acls) => Acls.projectDeletionTask(acls) }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/acls-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      aclsCtx     <- ContextValue.fromFile("contexts/acls.json")
-      aclsMetaCtx <- ContextValue.fromFile("contexts/acls-metadata.json")
-    } yield RemoteContextResolution.fixed(contexts.acls -> aclsCtx, contexts.aclsMetadata -> aclsMetaCtx)
-  )
 
   make[UserPermissionsRoutes].from {
     (

@@ -2,9 +2,9 @@ package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.kernel.jwt.AuthToken
 import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.InvalidAccessToken
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
+import ai.senscience.nexus.delta.sdk.RemoteContextResolutionFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
@@ -26,12 +26,17 @@ import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 import org.scalatest.matchers.should.Matchers
 
-class AuthDirectivesSpec extends BaseSpec with RouteHelpers with CatsEffectSpec with Matchers with CatsIOValues {
+class AuthDirectivesSpec
+    extends BaseSpec
+    with RouteHelpers
+    with CatsEffectSpec
+    with Matchers
+    with CatsIOValues
+    with RemoteContextResolutionFixtures {
 
   implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit private val rcr: RemoteContextResolution =
-    RemoteContextResolution.fixed(contexts.error -> ContextValue.fromFile("contexts/error.json").accepted)
+  private given RemoteContextResolution = loadCoreContexts(Set.empty)
 
   implicit private val jsonKeys: JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys = List("@context", "@id", "@type", "reason", "details"))

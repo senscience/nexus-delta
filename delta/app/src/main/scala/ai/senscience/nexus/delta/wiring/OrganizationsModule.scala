@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.OrganizationsRoutes
 import ai.senscience.nexus.delta.sdk.*
@@ -11,6 +10,7 @@ import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations, OrganizationsConfig, OrganizationsImpl}
+import ai.senscience.nexus.delta.sdk.organizations.contexts
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -31,6 +31,8 @@ object OrganizationsModule extends NexusModuleDef {
   makeConfig[OrganizationsConfig]("app.organizations")
 
   makeTracer("orgs")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[Organizations].from {
     (
@@ -74,16 +76,6 @@ object OrganizationsModule extends NexusModuleDef {
   }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/organizations-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      orgsCtx     <- ContextValue.fromFile("contexts/organizations.json")
-      orgsMetaCtx <- ContextValue.fromFile("contexts/organizations-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.organizations         -> orgsCtx,
-      contexts.organizationsMetadata -> orgsMetaCtx
-    )
-  )
 
   many[PriorityRoute].add { (route: OrganizationsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 6, route.routes, requiresStrictEntity = true)

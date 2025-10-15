@@ -1,11 +1,11 @@
 package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.plugins.archive.model.contexts
+import ai.senscience.nexus.delta.plugins.archive.contexts
 import ai.senscience.nexus.delta.plugins.archive.routes.ArchiveRoutes
 import ai.senscience.nexus.delta.plugins.storage.FileSelf
 import ai.senscience.nexus.delta.plugins.storage.files.Files
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -29,6 +29,8 @@ object ArchivePluginModule extends NexusModuleDef {
   makeConfig[ArchivePluginConfig]("plugins.archive")
 
   makeTracer("archives")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[ArchiveDownload].from {
     (
@@ -78,17 +80,6 @@ object ArchivePluginModule extends NexusModuleDef {
   }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/archives-metadata.json"))
-
-  many[RemoteContextResolution].addEffect {
-    for {
-      ctx     <- ContextValue.fromFile("contexts/archives.json")
-      metaCtx <- ContextValue.fromFile("contexts/archives-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.archives         -> ctx,
-      contexts.archivesMetadata -> metaCtx
-    )
-
-  }
 
   many[ApiMappings].add(Archives.mappings)
 

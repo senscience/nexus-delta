@@ -18,6 +18,11 @@ package object model {
   object contexts {
     val compositeViews         = nxvContexts + "composite-views.json"
     val compositeViewsMetadata = nxvContexts + "composite-views-metadata.json"
+
+    val definition = Set(
+      compositeViews         -> "contexts/composite-views.json",
+      compositeViewsMetadata -> "contexts/composite-views-metadata.json"
+    )
   }
 
   object permissions {

@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.search
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.plugins.search.SearchRoutesSpec.{name, projects}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -17,6 +18,8 @@ import org.http4s.Query
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 
 class SearchRoutesSpec extends BaseRouteSpec {
+
+  implicit override def rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
 
   private val unknownSuite = UnknownSuite(Label.unsafe("xxx"))
 

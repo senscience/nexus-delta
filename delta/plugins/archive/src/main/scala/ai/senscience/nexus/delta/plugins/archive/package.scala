@@ -1,5 +1,6 @@
-package ai.senscience.nexus.delta.plugins.archive
+package ai.senscience.nexus.delta.plugins
 
+import ai.senscience.nexus.delta.plugins.archive.model.Archive
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts as nxvContexts, nxv, schemas}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -8,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
 
-package object model {
+package object archive {
 
   /**
     * Type alias for an archive resource.
@@ -31,6 +32,11 @@ package object model {
   object contexts {
     final val archives: Iri         = nxvContexts + "archives.json"
     final val archivesMetadata: Iri = nxvContexts + "archives-metadata.json"
+
+    val definition = Set(
+      archives         -> "contexts/archives.json",
+      archivesMetadata -> "contexts/archives-metadata.json"
+    )
   }
 
   /**

@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStream
 import ai.senscience.nexus.delta.plugins.graph.analytics.routes.GraphAnalyticsRoutes
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -26,11 +26,13 @@ import org.typelevel.otel4s.trace.Tracer
   */
 class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[GraphAnalyticsConfig]("plugins.graph-analytics")
 
   makeTracer("graph-analytics")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[GraphAnalytics]
     .from {
@@ -85,16 +87,6 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         cr,
         ordering
       )
-  }
-
-  many[RemoteContextResolution].addEffect {
-    for {
-      relationshipsCtx <- ContextValue.fromFile("contexts/relationships.json")
-      propertiesCtx    <- ContextValue.fromFile("contexts/properties.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.relationships -> relationshipsCtx,
-      contexts.properties    -> propertiesCtx
-    )
   }
 
   many[PriorityRoute].add { (route: GraphAnalyticsRoutes) =>

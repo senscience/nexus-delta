@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{E
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
 import ai.senscience.nexus.delta.plugins.graph.analytics.{contexts, permissions, GraphAnalytics}
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
@@ -15,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
-import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
@@ -25,14 +23,7 @@ import org.scalatest.CancelAfterFailure
 
 class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
 
-  // TODO: sort out how we handle this in tests
-  implicit override def rcr: RemoteContextResolution =
-    RemoteContextResolution.fixed(
-      contexts.relationships         -> jsonContentOf("contexts/relationships.json").topContextValueOrEmpty,
-      contexts.properties            -> jsonContentOf("contexts/properties.json").topContextValueOrEmpty,
-      Vocabulary.contexts.statistics -> jsonContentOf("contexts/statistics.json").topContextValueOrEmpty,
-      Vocabulary.contexts.error      -> jsonContentOf("contexts/error.json").topContextValueOrEmpty
-    )
+  implicit override def rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
 
   private val identities = IdentitiesDummy.fromUsers(alice)
 

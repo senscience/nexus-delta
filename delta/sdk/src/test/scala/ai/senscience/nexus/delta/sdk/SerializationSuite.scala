@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances.{read, write}
@@ -20,15 +19,12 @@ abstract class SerializationSuite
     with CirceLiteral
     with MUnitExtractValue
     with ClasspathResources
-    with JsonAssertions {
+    with JsonAssertions
+    with RemoteContextResolutionFixtures {
 
   implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit def res: RemoteContextResolution =
-    RemoteContextResolution.fixed(
-      contexts.shacl           -> ContextValue.fromFile("contexts/shacl.json").unsafeRunSync(),
-      contexts.schemasMetadata -> ContextValue.fromFile("contexts/schemas-metadata.json").unsafeRunSync()
-    )
+  implicit def res: RemoteContextResolution = loadCoreContextsAndSchemas
 
   def loadEvents[E](module: String, eventsToFile: (E, String)*): Map[E, (Json, JsonObject)] =
     eventsToFile.foldLeft(VectorMap.empty[E, (Json, JsonObject)]) { case (acc, (event, fileName)) =>

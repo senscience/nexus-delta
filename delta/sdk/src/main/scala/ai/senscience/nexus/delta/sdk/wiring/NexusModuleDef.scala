@@ -1,6 +1,9 @@
 package ai.senscience.nexus.delta.sdk.wiring
 
 import ai.senscience.nexus.delta.kernel.config.Configs
+import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import cats.effect.IO
 import com.typesafe.config.Config
 import distage.{ModuleDef, Tag}
@@ -21,5 +24,12 @@ trait NexusModuleDef extends ModuleDef {
     make[Tracer[IO]].named(name).fromEffect { (otel: OtelJava[IO]) =>
       otel.tracerProvider.get(name)
     }
+
+  final def addRemoteContextResolution(
+      contexts: Set[(Iri, String)]
+  )(using loader: ClasspathResourceLoader): ModuleDefDSL.SetElementDSL[RemoteContextResolution] =
+    many[RemoteContextResolution].addEffect(
+      RemoteContextResolution.loadResources(contexts)
+    )
 
 }

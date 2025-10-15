@@ -3,8 +3,8 @@ package ai.senscience.nexus.delta.sdk.resources
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.sdk.SchemaResource
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.sdk.{RemoteContextResolutionFixtures, SchemaResource}
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, ResourceGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
@@ -22,19 +22,14 @@ import munit.Location
 
 import java.util.UUID
 
-class ResourcesTrialSuite extends NexusSuite with ValidateResourceFixture {
+class ResourcesTrialSuite extends NexusSuite with ValidateResourceFixture with RemoteContextResolutionFixtures {
 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
   implicit private val caller: Caller = Caller.Anonymous
 
-  implicit private val res: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      contexts.metadata        -> ContextValue.fromFile("contexts/metadata.json"),
-      contexts.shacl           -> ContextValue.fromFile("contexts/shacl.json"),
-      contexts.schemasMetadata -> ContextValue.fromFile("contexts/schemas-metadata.json")
-    )
+  private given res: RemoteContextResolution = loadCoreContextsAndSchemas
 
   private val fetchResourceFail = IO.raiseError(new IllegalStateException("Should not be attempt to fetch a resource"))
 

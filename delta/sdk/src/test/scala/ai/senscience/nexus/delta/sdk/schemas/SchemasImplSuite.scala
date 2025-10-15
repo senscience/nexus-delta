@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, SchemaGen}
@@ -15,6 +15,7 @@ import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sdk.schemas.contexts as schemaContexts
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
@@ -42,11 +43,8 @@ class SchemasImplSuite extends NexusSuite with Doobie.Fixture with ConfigFixture
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
-  implicit val rcr: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      contexts.shacl           -> ContextValue.fromFile("contexts/shacl.json"),
-      contexts.schemasMetadata -> ContextValue.fromFile("contexts/schemas-metadata.json")
-    )
+  given rcr: RemoteContextResolution =
+    RemoteContextResolution.loadResourcesUnsafe(schemaContexts.definition)
 
   private val schemaImports: SchemaImports = SchemaImports.alwaysFail
 

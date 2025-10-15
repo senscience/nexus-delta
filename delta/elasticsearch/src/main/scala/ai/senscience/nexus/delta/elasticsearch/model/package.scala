@@ -29,6 +29,12 @@ package object model {
     val elasticsearchIndexing = nxvContexts + "elasticsearch-indexing.json"
     val indexingMetadata      = nxvContexts + "indexing-metadata.json"
     val searchMetadata        = nxvContexts + "search-metadata.json"
+
+    val definition = Set(
+      elasticsearch         -> "contexts/elasticsearch.json",
+      elasticsearchMetadata -> "contexts/elasticsearch-metadata.json",
+      elasticsearchIndexing -> "contexts/elasticsearch-indexing.json"
+    )
   }
 
   object permissions {

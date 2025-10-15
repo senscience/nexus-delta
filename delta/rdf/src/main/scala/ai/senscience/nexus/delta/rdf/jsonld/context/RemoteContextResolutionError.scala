@@ -30,14 +30,7 @@ object RemoteContextResolutionError {
         details = details.map(_.noSpaces)
       )
 
-  /**
-    * The remote context with passed ''iri'' payload response is not a Json Document as expected.
-    */
-  final case class RemoteContextWrongPayload(iri: Iri)
-      extends RemoteContextResolutionError(s"Remote context '$iri' payload response cannot be transformed to Json")
+  private given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
-  implicit private val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
-
-  implicit val remoteContextResolutionErrorEncoder: Encoder.AsObject[RemoteContextResolutionError] =
-    deriveConfiguredEncoder[RemoteContextResolutionError]
+  given Encoder.AsObject[RemoteContextResolutionError] = deriveConfiguredEncoder[RemoteContextResolutionError]
 }

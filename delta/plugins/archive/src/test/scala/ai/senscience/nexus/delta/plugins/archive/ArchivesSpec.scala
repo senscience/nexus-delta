@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.archive
 
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
+import ai.senscience.nexus.delta.plugins.archive.{schema as archiveSchema, tpe}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveReference.{FileReference, ResourceReference}
 import ai.senscience.nexus.delta.plugins.archive.model.ArchiveRejection.ArchiveNotFound
 import ai.senscience.nexus.delta.plugins.archive.model.{Archive, ArchiveValue}
@@ -89,8 +90,8 @@ class ArchivesSpec extends CatsEffectSpec with DoobieScalaTestFixture with Remot
       resource.createdAt shouldEqual Instant.EPOCH
       resource.updatedAt shouldEqual Instant.EPOCH
       resource.deprecated shouldEqual false
-      resource.schema shouldEqual model.schema
-      resource.types shouldEqual Set(model.tpe)
+      resource.schema shouldEqual archiveSchema
+      resource.types shouldEqual Set(tpe)
       resource.rev shouldEqual 1L
 
       val id        = resource.id
@@ -204,8 +205,8 @@ class ArchivesSpec extends CatsEffectSpec with DoobieScalaTestFixture with Remot
       resource.createdAt shouldEqual Instant.EPOCH
       resource.updatedAt shouldEqual Instant.EPOCH
       resource.deprecated shouldEqual false
-      resource.schema shouldEqual model.schema
-      resource.types shouldEqual Set(model.tpe)
+      resource.schema shouldEqual archiveSchema
+      resource.types shouldEqual Set(tpe)
       resource.rev shouldEqual 1L
       resource.value shouldEqual Archive(id, project.ref, value.resources, 5.hours.toSeconds)
     }

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.projectdeletion
 
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -18,11 +18,7 @@ class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
 
   makeConfig[ProjectDeletionConfig]("plugins.project-deletion")
 
-  many[RemoteContextResolution].addEffect {
-    ContextValue.fromFile("contexts/project-deletion.json").map { ctx =>
-      RemoteContextResolution.fixed(contexts.projectDeletion -> ctx)
-    }
-  }
+  addRemoteContextResolution(contexts.definition)
 
   make[ProjectDeletionRoutes].from {
     (

@@ -4,22 +4,20 @@ import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.storage.files.Files.FilesLog
-import ai.senscience.nexus.delta.plugins.storage.files.contexts.files as fileCtxId
 import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileEvent}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.{DelegateFilesRoutes, FilesRoutes, LinkFilesRoutes}
 import ai.senscience.nexus.delta.plugins.storage.files.schemas.files as filesSchemaId
-import ai.senscience.nexus.delta.plugins.storage.files.{Files, FormDataExtractor, MediaTypeDetector}
-import ai.senscience.nexus.delta.plugins.storage.storages.*
+import ai.senscience.nexus.delta.plugins.storage.files.{contexts as fileContext, Files, FormDataExtractor, MediaTypeDetector}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{ShowFileLocation, StorageTypeConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.access.{S3StorageAccess, StorageAccess}
-import ai.senscience.nexus.delta.plugins.storage.storages.contexts.{storages as storageCtxId, storagesMetadata as storageMetaCtxId}
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContext, *}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageEvent
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileOperations, S3LocationGenerator}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -52,13 +50,15 @@ import org.typelevel.otel4s.trace.Tracer
   */
 class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[StoragePluginConfig]("plugins.storage")
 
   makeTracer("storages")
 
   makeTracer("files")
+
+  addRemoteContextResolution(storageContext.definition ++ fileContext.definition)
 
   make[StorageTypeConfig].from { (cfg: StoragePluginConfig) => cfg.storages.storageTypeConfig }
 
@@ -289,18 +289,6 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/storages-metadata.json"))
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/files.json"))
-
-  many[RemoteContextResolution].addEffect {
-    for {
-      storageCtx     <- ContextValue.fromFile("contexts/storages.json")
-      storageMetaCtx <- ContextValue.fromFile("contexts/storages-metadata.json")
-      fileCtx        <- ContextValue.fromFile("contexts/files.json")
-    } yield RemoteContextResolution.fixed(
-      storageCtxId     -> storageCtx,
-      storageMetaCtxId -> storageMetaCtx,
-      fileCtxId        -> fileCtx
-    )
-  }
 
   many[ResourceToSchemaMappings].add(
     ResourceToSchemaMappings(Label.unsafe("files") -> filesSchemaId)

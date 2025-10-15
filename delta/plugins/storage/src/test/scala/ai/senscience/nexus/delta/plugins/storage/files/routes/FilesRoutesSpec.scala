@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.plugins.storage.files.routes
 
-import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.delta.plugins.storage.files.mocks.FileOperationsMock
 import ai.senscience.nexus.delta.plugins.storage.files.model.Digest.ComputedDigest
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, FileId}
@@ -11,7 +10,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageCo
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.NexusHeaders
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -30,6 +29,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/ld+json`
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.errors.files.FileErrors.{fileAlreadyExistsError, fileIsNotDeprecatedError}
 import ai.senscience.nexus.testkit.scalatest.FileMatchers.*
@@ -53,17 +53,8 @@ class FilesRoutesSpec
     with StorageFixtures
     with FileFixtures {
 
-  // TODO: sort out how we handle this in tests
   implicit override def rcr: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      storageContexts.storages         -> ContextValue.fromFile("contexts/storages.json"),
-      storageContexts.storagesMetadata -> ContextValue.fromFile("contexts/storages-metadata.json"),
-      fileContexts.files               -> ContextValue.fromFile("contexts/files.json"),
-      Vocabulary.contexts.metadata     -> ContextValue.fromFile("contexts/metadata.json"),
-      Vocabulary.contexts.error        -> ContextValue.fromFile("contexts/error.json"),
-      Vocabulary.contexts.tags         -> ContextValue.fromFile("contexts/tags.json"),
-      Vocabulary.contexts.search       -> ContextValue.fromFile("contexts/search.json")
-    )
+    loadCoreContexts(storageContexts.definition ++ fileContexts.definition)
 
   private val reader   = User("reader", realm)
   private val writer   = User("writer", realm)

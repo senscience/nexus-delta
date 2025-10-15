@@ -26,6 +26,11 @@ package object storages {
   object contexts {
     val storages         = nxvContexts + "storages.json"
     val storagesMetadata = nxvContexts + "storages-metadata.json"
+
+    val definition = Set(
+      storages         -> "contexts/storages.json",
+      storagesMetadata -> "contexts/storages-metadata.json"
+    )
   }
 
   object permissions {

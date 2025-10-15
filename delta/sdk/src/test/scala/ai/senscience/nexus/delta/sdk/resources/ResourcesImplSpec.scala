@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, ResourceGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.*
@@ -17,7 +17,7 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ai.senscience.nexus.delta.sdk.{ConfigFixtures, DataResource}
+import ai.senscience.nexus.delta.sdk.{ConfigFixtures, DataResource, RemoteContextResolutionFixtures}
 import ai.senscience.nexus.delta.sourcing.ScopedEventLog
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -36,6 +36,7 @@ class ResourcesImplSpec
     with ValidateResourceFixture
     with CancelAfterFailure
     with ConfigFixtures
+    with RemoteContextResolutionFixtures
     with CirceLiteral {
 
   implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
@@ -44,12 +45,7 @@ class ResourcesImplSpec
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
-  implicit private val rcr: RemoteContextResolution =
-    RemoteContextResolution.fixedIO(
-      contexts.metadata        -> ContextValue.fromFile("contexts/metadata.json"),
-      contexts.shacl           -> ContextValue.fromFile("contexts/shacl.json"),
-      contexts.schemasMetadata -> ContextValue.fromFile("contexts/schemas-metadata.json")
-    )
+  private given rcr: RemoteContextResolution = loadCoreContextsAndSchemas
 
   private val schemaOrg         = Vocabulary.schema
   private val org               = Label.unsafe("myorg")

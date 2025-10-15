@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler, SparqlSupervisionRoutes}
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -48,6 +48,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   makeTracer("sparql")
   makeTracer("sparql-indexing")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[SparqlClient].named("sparql-indexing-client").fromResource {
     (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql-indexing")) =>
@@ -259,16 +261,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/sparql-metadata.json"))
 
   many[SseEncoder[?]].add { (base: BaseUri) => BlazegraphViewEvent.sseEncoder(base) }
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      blazegraphCtx     <- ContextValue.fromFile("contexts/sparql.json")
-      blazegraphMetaCtx <- ContextValue.fromFile("contexts/sparql-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.blazegraph         -> blazegraphCtx,
-      contexts.blazegraphMetadata -> blazegraphMetaCtx
-    )
-  )
 
   many[ApiMappings].add(BlazegraphViews.mappings)
 

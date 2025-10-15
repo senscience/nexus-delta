@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{SchemaJobRoutes, SchemasRoutes}
@@ -39,6 +38,8 @@ object SchemasModule extends NexusModuleDef {
   makeConfig[SchemasConfig]("app.schemas")
 
   makeTracer("schemas")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[ValidateShacl].fromEffect { (rcr: RemoteContextResolution @Id("aggregate")) => ValidateShacl(rcr) }
 
@@ -155,16 +156,6 @@ object SchemasModule extends NexusModuleDef {
   many[ApiMappings].add(Schemas.mappings)
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/schemas-metadata.json"))
-
-  many[RemoteContextResolution].addEffect(
-    for {
-      shaclCtx       <- ContextValue.fromFile("contexts/shacl.json")
-      schemasMetaCtx <- ContextValue.fromFile("contexts/schemas-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.shacl           -> shaclCtx,
-      contexts.schemasMetadata -> schemasMetaCtx
-    )
-  )
 
   many[PriorityRoute].add { (route: SchemasRoutes) =>
     PriorityRoute(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)

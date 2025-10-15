@@ -2,8 +2,7 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResolversRoutes
 import ai.senscience.nexus.delta.sdk.*
@@ -36,6 +35,8 @@ object ResolversModule extends NexusModuleDef {
   makeConfig[ResolversConfig]("app.resolvers")
 
   makeTracer("resolvers")
+
+  addRemoteContextResolution(contexts.definition)
 
   make[Resolvers].from {
     (
@@ -117,15 +118,6 @@ object ResolversModule extends NexusModuleDef {
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/resolvers-metadata.json"))
 
-  many[RemoteContextResolution].addEffect(
-    for {
-      resolversCtx     <- ContextValue.fromFile("contexts/resolvers.json")
-      resolversMetaCtx <- ContextValue.fromFile("contexts/resolvers-metadata.json")
-    } yield RemoteContextResolution.fixed(
-      contexts.resolvers         -> resolversCtx,
-      contexts.resolversMetadata -> resolversMetaCtx
-    )
-  )
   many[PriorityRoute].add { (route: ResolversRoutes) =>
     PriorityRoute(pluginsMaxPriority + 9, route.routes, requiresStrictEntity = true)
   }
