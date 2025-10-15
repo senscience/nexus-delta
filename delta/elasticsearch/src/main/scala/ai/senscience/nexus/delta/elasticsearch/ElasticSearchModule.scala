@@ -25,6 +25,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
+import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, ProjectScopeResolver, Projects}
@@ -63,15 +64,35 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainIndexDef(cfg.mainIndex, loader)
   }
 
-  make[ElasticSearchClient].fromResource { (cfg: ElasticSearchViewsConfig, tracer: Tracer[IO] @Id("elasticsearch")) =>
-    ElasticSearchClient(cfg.base, cfg.credentials, cfg.maxIndexPathLength, cfg.otel)(using tracer)
+  make[ElasticSearchClient].named("elasticsearch-indexing-client").fromResource {
+    (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch")) =>
+      ElasticSearchClient(
+        cfg.base,
+        cfg.credentials,
+        cfg.maxIndexPathLength,
+        metricsClient,
+        "elasticsearch-indexing",
+        cfg.otel
+      )(using tracer)
+  }
+
+  make[ElasticSearchClient].named("elasticsearch-query-client").fromResource {
+    (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch")) =>
+      ElasticSearchClient(
+        cfg.base,
+        cfg.credentials,
+        cfg.maxIndexPathLength,
+        metricsClient,
+        "elasticsearch-query",
+        cfg.otel
+      )(using tracer)
   }
 
   make[ValidateElasticSearchView].from {
     (
         pipeChainCompiler: PipeChainCompiler,
         permissions: Permissions,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: ElasticSearchViewsConfig,
         defaultIndex: DefaultIndexDef,
         xas: Transactors
@@ -79,7 +100,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       ValidateElasticSearchView(
         pipeChainCompiler,
         permissions,
-        client: ElasticSearchClient,
+        client,
         config.prefix,
         config.maxViewRefs,
         xas,
@@ -126,7 +147,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         graphStream: GraphResourceStream,
         pipeChainCompiler: PipeChainCompiler,
         supervisor: Supervisor,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
@@ -150,7 +171,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         projects: Projects,
         graphStream: GraphResourceStream,
         supervisor: Supervisor,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         mainIndex: MainIndexDef,
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
@@ -192,7 +213,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     (
         aclCheck: AclCheck,
         views: ElasticSearchViews,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
         xas: Transactors,
         cfg: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch")
@@ -208,7 +229,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   make[MainIndexQuery].from {
     (
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
         baseUri: BaseUri,
         config: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch")
@@ -282,7 +303,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: ElasticSearchViews,
         restartScheduler: ElasticsearchRestartScheduler,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
@@ -327,8 +348,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       )
   }
 
-  make[EventMetrics].from { (client: ElasticSearchClient, metricsIndex: MetricsIndexDef) =>
-    EventMetrics(client, metricsIndex)
+  make[EventMetrics].from {
+    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), metricsIndex: MetricsIndexDef) =>
+      EventMetrics(client, metricsIndex)
   }
 
   make[ElasticSearchHistoryRoutes].from {
@@ -348,8 +370,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   many[ProjectDeletionTask].add { (eventMetrics: EventMetrics) => new EventMetricsDeletionTask(eventMetrics) }
 
-  many[ProjectDeletionTask].add { (client: ElasticSearchClient, config: ElasticSearchViewsConfig) =>
-    new MainIndexDeletionTask(client, config.mainIndex.index)
+  many[ProjectDeletionTask].add {
+    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), config: ElasticSearchViewsConfig) =>
+      new MainIndexDeletionTask(client, config.mainIndex.index)
   }
 
   many[ViewsList].add { (views: ElasticSearchViews) =>
@@ -422,39 +445,34 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       )
   }
 
-  many[ServiceDependency].add { new ElasticSearchServiceDependency(_) }
+  many[ServiceDependency].add { (client: ElasticSearchClient @Id("elasticsearch-indexing-client")) =>
+    new ElasticSearchServiceDependency(client)
+  }
 
-  many[IndexingAction].add {
+  many[IndexingAction].addSet {
     (
         currentViews: CurrentActiveViews,
         pipeChainCompiler: PipeChainCompiler,
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      ElasticSearchIndexingAction(
-        currentViews,
-        pipeChainCompiler,
-        client,
-        config.syncIndexingTimeout,
-        config.syncIndexingRefresh
-      )(using cr, tracer)
-  }
+      Set(
+        ElasticSearchIndexingAction(
+          currentViews,
+          pipeChainCompiler,
+          client,
+          config.syncIndexingTimeout,
+          config.syncIndexingRefresh
+        )(using cr, tracer),
+        MainIndexingAction(
+          client,
+          config.mainIndex,
+          config.syncIndexingTimeout,
+          config.syncIndexingRefresh
+        )(using cr, tracer)
+      )
 
-  many[IndexingAction].add {
-    (
-        client: ElasticSearchClient,
-        config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate"),
-        tracer: Tracer[IO] @Id("elasticsearch-indexing")
-    ) =>
-      MainIndexingAction(
-        client,
-        config.mainIndex,
-        config.syncIndexingTimeout,
-        config.syncIndexingRefresh
-      )(using cr, tracer)
   }
-
 }

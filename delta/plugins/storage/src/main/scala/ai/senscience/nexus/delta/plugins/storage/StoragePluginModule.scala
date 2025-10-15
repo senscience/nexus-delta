@@ -111,7 +111,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   make[StoragesStatistics].from {
     (
-        client: ElasticSearchClient,
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
         storages: Storages,
         metricsIndex: MetricsIndexDef
     ) =>
