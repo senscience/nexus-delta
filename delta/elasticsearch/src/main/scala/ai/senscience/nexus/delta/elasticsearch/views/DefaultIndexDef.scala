@@ -15,7 +15,7 @@ final case class DefaultIndexDef(mapping: JsonObject, settings: JsonObject)
 
 object DefaultIndexDef {
 
-  def apply(loader: ClasspathResourceLoader): IO[DefaultIndexDef] =
+  def apply()(using loader: ClasspathResourceLoader): IO[DefaultIndexDef] =
     for {
       dm <- loader.jsonObjectContentOf("defaults/default-mapping.json")
       ds <- loader.jsonObjectContentOf("defaults/default-settings.json", "number_of_shards" -> 1)

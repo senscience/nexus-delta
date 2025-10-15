@@ -46,7 +46,7 @@ import org.typelevel.otel4s.trace.Tracer
   */
 class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ElasticSearchViewsConfig]("app.elasticsearch")
 
@@ -55,37 +55,41 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   makeTracer("elasticsearch-indexing")
 
   make[MetricsIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
-    MetricsIndexDef(cfg.prefix, loader)
+    MetricsIndexDef(cfg.prefix)
   }
 
-  make[DefaultIndexDef].fromEffect { DefaultIndexDef(loader) }
+  make[DefaultIndexDef].fromEffect { DefaultIndexDef() }
 
   make[MainIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
-    MainIndexDef(cfg.mainIndex, loader)
+    MainIndexDef(cfg.mainIndex)
   }
 
+  private def buildElasticsearchClient(
+      cfg: ElasticSearchViewsConfig,
+      metricsClient: OtelMetricsClient,
+      traffic: String
+  )(using tracer: Tracer[IO]) =
+    ElasticSearchClient(
+      cfg.base,
+      cfg.credentials,
+      cfg.maxIndexPathLength,
+      metricsClient,
+      traffic,
+      cfg.otel
+    )
+
   make[ElasticSearchClient].named("elasticsearch-indexing-client").fromResource {
-    (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch-indexing")) =>
-      ElasticSearchClient(
-        cfg.base,
-        cfg.credentials,
-        cfg.maxIndexPathLength,
-        metricsClient,
-        "elasticsearch-indexing",
-        cfg.otel
-      )(using tracer)
+    (
+        cfg: ElasticSearchViewsConfig,
+        metricsClient: OtelMetricsClient,
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
+    ) =>
+      buildElasticsearchClient(cfg, metricsClient, "elasticsearch-indexing")(using tracer)
   }
 
   make[ElasticSearchClient].named("elasticsearch-query-client").fromResource {
     (cfg: ElasticSearchViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("elasticsearch")) =>
-      ElasticSearchClient(
-        cfg.base,
-        cfg.credentials,
-        cfg.maxIndexPathLength,
-        metricsClient,
-        "elasticsearch-query",
-        cfg.otel
-      )(using tracer)
+      buildElasticsearchClient(cfg, metricsClient, "elasticsearch-query")(using tracer)
   }
 
   make[ValidateElasticSearchView].from {
