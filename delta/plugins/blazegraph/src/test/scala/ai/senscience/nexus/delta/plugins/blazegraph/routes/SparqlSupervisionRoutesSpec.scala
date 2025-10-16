@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
-import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route

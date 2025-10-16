@@ -163,7 +163,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(using RemoteContextResolution, Tracer[IO]): IO[ElasticSearchCoordinator] =
+  )(using RemoteContextResolution): IO[ElasticSearchCoordinator] =
     for {
       cache      <- LocalCache[ViewRef, ActiveViewDef]()
       coordinator = new Active(

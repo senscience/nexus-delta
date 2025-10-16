@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
 import ai.senscience.nexus.delta.sdk.realms.*
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.wiring.AclsModule.makeTracer
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.http4s.client.Client

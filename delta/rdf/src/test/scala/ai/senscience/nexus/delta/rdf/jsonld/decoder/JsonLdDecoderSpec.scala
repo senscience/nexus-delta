@@ -16,6 +16,7 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 import java.time.Instant
 import java.util.UUID
+import scala.annotation.unused
 import scala.concurrent.duration.*
 
 class JsonLdDecoderSpec extends CatsEffectSpec with Fixtures {
@@ -32,8 +33,8 @@ class JsonLdDecoderSpec extends CatsEffectSpec with Fixtures {
     implicit val volumeDecoder: JsonLdDecoder[Volume] = deriveConfigJsonLdDecoder[Volume]
 
     "decode a Menu" in {
-      implicit val drinkDecoder: JsonLdDecoder[Drink] = deriveConfigJsonLdDecoder[Drink]
-      implicit val menuDecoder: JsonLdDecoder[Menu]   = deriveConfigJsonLdDecoder[Menu]
+      @unused implicit val drinkDecoder: JsonLdDecoder[Drink] = deriveConfigJsonLdDecoder[Drink]
+      implicit val menuDecoder: JsonLdDecoder[Menu]           = deriveConfigJsonLdDecoder[Menu]
 
       jsonLd.to[Menu].rightValue shouldEqual
         DrinkMenu(
@@ -55,8 +56,8 @@ class JsonLdDecoderSpec extends CatsEffectSpec with Fixtures {
     }
 
     "fail decoding a Menu" in {
-      implicit val drinkDecoder: JsonLdDecoder[Drink] = deriveDefaultJsonLdDecoder[Drink]
-      implicit val menuDecoder: JsonLdDecoder[Menu]   = deriveDefaultJsonLdDecoder[Menu]
+      @unused implicit val drinkDecoder: JsonLdDecoder[Drink] = deriveDefaultJsonLdDecoder[Drink]
+      implicit val menuDecoder: JsonLdDecoder[Menu]           = deriveDefaultJsonLdDecoder[Menu]
       jsonLd.to[Menu].leftValue shouldBe a[DecodingDerivationFailure]
     }
 

@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageRejection
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{DigestAlgorithm, StorageStatEntry, StorageType}
 import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContexts, StorageFixtures, UUIDFFixtures, *}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck

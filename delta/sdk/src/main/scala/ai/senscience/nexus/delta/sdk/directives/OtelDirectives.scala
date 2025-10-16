@@ -9,7 +9,7 @@ import org.apache.pekko.http.scaladsl.model.{HttpHeader, HttpRequest, HttpRespon
 import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequest, mapRouteResultFuture}
 import org.apache.pekko.http.scaladsl.server.RouteResult.{Complete, Rejected}
-import org.apache.pekko.http.scaladsl.server.{Directive0, RouteResult}
+import org.apache.pekko.http.scaladsl.server.Directive0
 import org.typelevel.otel4s.context.propagation.TextMapGetter
 import org.typelevel.otel4s.semconv.attributes.*
 import org.typelevel.otel4s.trace.{SpanKind, StatusCode, Tracer}
