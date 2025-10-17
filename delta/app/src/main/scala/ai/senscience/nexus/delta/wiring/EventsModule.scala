@@ -15,7 +15,9 @@ import ai.senscience.nexus.delta.sdk.sse.{SseConfig, SseElemStream, SseEncoder, 
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
+import cats.effect.IO
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Events wiring
@@ -23,6 +25,8 @@ import izumi.distage.model.definition.Id
 object EventsModule extends NexusModuleDef {
 
   makeConfig[SseConfig]("app.sse")
+
+  makeTracer("sse")
 
   make[SseEventLog].fromEffect {
     (
@@ -66,9 +70,10 @@ object EventsModule extends NexusModuleDef {
         schemeDirectives: DeltaSchemeDirectives,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("sse")
     ) =>
-      new ElemRoutes(identities, aclCheck, sseElemStream, schemeDirectives)(baseUri, cr, ordering)
+      new ElemRoutes(identities, aclCheck, sseElemStream, schemeDirectives)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ElemRoutes) =>

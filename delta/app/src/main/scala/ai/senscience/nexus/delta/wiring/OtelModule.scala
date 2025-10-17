@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.wiring
 
-import ai.senscience.nexus.delta.config.BuildInfo
-import ai.senscience.nexus.delta.config.DescriptionConfig
+import ai.senscience.nexus.delta.config.{BuildInfo, DescriptionConfig}
 import ai.senscience.nexus.delta.otel.OpenTelemetry
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef

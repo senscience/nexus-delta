@@ -84,7 +84,8 @@ object ResolversModule extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("resolvers")
     ) =>
       new ResolversRoutes(
         identities,
@@ -92,11 +93,11 @@ object ResolversModule extends NexusModuleDef {
         resolvers,
         multiResolution,
         schemeDirectives
-      )(
-        baseUri,
+      )(using baseUri)(using
         cr,
         ordering,
-        fusionConfig
+        fusionConfig,
+        tracer
       )
   }
 

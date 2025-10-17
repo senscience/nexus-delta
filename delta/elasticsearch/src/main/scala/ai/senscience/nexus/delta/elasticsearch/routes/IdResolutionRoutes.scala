@@ -9,19 +9,17 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 class IdResolutionRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     idResolution: IdResolution
-)(implicit
-    baseUri: BaseUri,
-    jko: JsonKeyOrdering,
-    rcr: RemoteContextResolution,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck) {
+)(using baseUri: BaseUri, fusionConfig: FusionConfig)(using JsonKeyOrdering, RemoteContextResolution, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck) {
 
   def routes: Route =
     handleExceptions(ElasticSearchExceptionHandler.apply) {

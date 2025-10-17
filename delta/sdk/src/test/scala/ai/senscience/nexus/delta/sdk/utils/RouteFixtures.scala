@@ -10,12 +10,15 @@ import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import org.http4s.syntax.literals.uri
+import org.typelevel.otel4s.trace.Tracer
 
 trait RouteFixtures extends RemoteContextResolutionFixtures {
 
   implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  private given Tracer[IO]    = Tracer.noop[IO]
 
   implicit def rcr: RemoteContextResolution =
     loadCoreContexts(

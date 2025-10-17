@@ -57,9 +57,10 @@ object RealmsModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("realms")
     ) =>
-      new RealmsRoutes(identities, realms, aclCheck)(baseUri, cfg.pagination, cr, ordering)
+      new RealmsRoutes(identities, realms, aclCheck)(using baseUri)(using cfg.pagination, cr, ordering, tracer)
   }
 
   make[Client[IO]].named("realm").fromResource(EmberClientBuilder.default[IO].build)

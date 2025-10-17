@@ -68,9 +68,10 @@ object AclsModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("acls")
     ) =>
-      new AclsRoutes(identities, acls, aclCheck)(baseUri, cr, ordering)
+      new AclsRoutes(identities, acls, aclCheck)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[ScopeInitialization].addSet {

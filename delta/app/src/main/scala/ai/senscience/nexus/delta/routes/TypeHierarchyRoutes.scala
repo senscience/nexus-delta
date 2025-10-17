@@ -13,18 +13,17 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy as TypeHierarchyModel
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy, TypeHierarchyRejection}
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 final class TypeHierarchyRoutes(
     typeHierarchy: TypeHierarchyModel,
     identities: Identities,
     aclCheck: AclCheck
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
   private val exceptionHandler = ExceptionHandler { case err: TypeHierarchyRejection =>
@@ -64,5 +63,4 @@ final class TypeHierarchyRoutes(
         }
       }
     }
-
 }

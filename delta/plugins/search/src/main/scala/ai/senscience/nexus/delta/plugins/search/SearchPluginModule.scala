@@ -65,8 +65,14 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
         config: SearchConfig,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
-    ) => new SearchRoutes(identities, aclCheck, search, config.fields.asJson, config.suites)(baseUri, cr, ordering)
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("search")
+    ) =>
+      new SearchRoutes(identities, aclCheck, search, config.fields.asJson, config.suites)(using baseUri)(using
+        cr,
+        ordering,
+        tracer
+      )
   }
 
   many[PriorityRoute].add { (route: SearchRoutes) =>

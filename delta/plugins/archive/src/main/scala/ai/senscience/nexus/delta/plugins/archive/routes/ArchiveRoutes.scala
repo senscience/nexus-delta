@@ -21,6 +21,7 @@ import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCode
 import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, SeeOther}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The Archive routes.
@@ -36,7 +37,7 @@ class ArchiveRoutes(
     archives: Archives,
     identities: Identities,
     aclCheck: AclCheck
-)(implicit baseUri: BaseUri, rcr: RemoteContextResolution, jko: JsonKeyOrdering)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 

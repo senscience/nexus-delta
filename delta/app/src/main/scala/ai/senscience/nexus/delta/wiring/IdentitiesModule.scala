@@ -49,8 +49,9 @@ object IdentitiesModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
-    ) => new IdentitiesRoutes(identities, aclCheck)(baseUri, cr, ordering)
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("identities")
+    ) => new IdentitiesRoutes(identities, aclCheck)(using baseUri)(using cr, ordering, tracer)
 
   }
 

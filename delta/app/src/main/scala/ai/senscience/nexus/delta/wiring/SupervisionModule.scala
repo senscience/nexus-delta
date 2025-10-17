@@ -9,15 +9,20 @@ import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
+import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, Supervisor}
-import izumi.distage.model.definition.ModuleDef
+import cats.effect.IO
+import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Supervision module wiring config.
   */
 // $COVERAGE-OFF$
-object SupervisionModule extends ModuleDef {
+object SupervisionModule extends NexusModuleDef {
+
+  makeTracer("supervision")
 
   make[SupervisionRoutes].from {
     (
@@ -28,7 +33,8 @@ object SupervisionModule extends ModuleDef {
         jo: JsonKeyOrdering,
         projectsHealth: ProjectsHealth,
         projectHealer: ProjectHealer,
-        projectActivitySignals: ProjectActivitySignals
+        projectActivitySignals: ProjectActivitySignals,
+        tracer: Tracer[IO] @Id("supervision")
     ) =>
       new SupervisionRoutes(
         identities,
@@ -37,7 +43,7 @@ object SupervisionModule extends ModuleDef {
         projectsHealth,
         projectHealer,
         projectActivitySignals
-      )(baseUri, jo)
+      )(using baseUri)(using jo, tracer)
   }
 
   many[PriorityRoute].add { (route: SupervisionRoutes) =>
@@ -50,13 +56,14 @@ object SupervisionModule extends ModuleDef {
         aclCheck: AclCheck,
         projectionErrors: ProjectionErrors,
         baseUri: BaseUri,
-        jo: JsonKeyOrdering
+        jo: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("supervision")
     ) =>
       new IndexingSupervisionRoutes(
         identities,
         aclCheck,
         projectionErrors
-      )(baseUri, jo)
+      )(using baseUri)(using jo, tracer)
   }
 
   many[PriorityRoute].add { (route: IndexingSupervisionRoutes) =>
@@ -68,13 +75,14 @@ object SupervisionModule extends ModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         projectionsDirectives: ProjectionsDirectives,
-        baseUri: BaseUri
+        baseUri: BaseUri,
+        tracer: Tracer[IO] @Id("supervision")
     ) =>
       new EventMetricsRoutes(
         identities,
         aclCheck,
         projectionsDirectives
-      )(baseUri)
+      )(using baseUri)(using tracer)
   }
 
   many[PriorityRoute].add { (route: EventMetricsRoutes) =>

@@ -10,8 +10,10 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAnd
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat}
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Directives.reject
 import org.apache.pekko.http.scaladsl.server.ExceptionHandler
+import org.typelevel.otel4s.trace.Tracer
 
 object CompositeViewExceptionHandler {
 
@@ -20,7 +22,7 @@ object CompositeViewExceptionHandler {
     case _                                                            => false
   }
 
-  def apply(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering): ExceptionHandler = ExceptionHandler {
+  def apply(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ExceptionHandler = ExceptionHandler {
     case err: CompositeViewRejection if rejectPredicate(err) => reject(Reject(err))
     case err: CompositeViewRejection                         => discardEntityAndForceEmit(err)
     case err: JsonLdRejection if rejectPredicate(err)        => reject(Reject(err))

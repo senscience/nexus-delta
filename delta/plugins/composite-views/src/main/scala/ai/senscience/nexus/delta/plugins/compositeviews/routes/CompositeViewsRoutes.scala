@@ -21,6 +21,7 @@ import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCode
 import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, OK}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Composite views routes.
@@ -31,12 +32,8 @@ class CompositeViewsRoutes(
     views: CompositeViews,
     blazegraphQuery: BlazegraphQuery,
     elasticSearchQuery: ElasticSearchQuery
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with CirceUnmarshalling
     with RdfMarshalling
@@ -172,12 +169,7 @@ object CompositeViewsRoutes {
       views: CompositeViews,
       blazegraphQuery: BlazegraphQuery,
       elasticSearchQuery: ElasticSearchQuery
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
     new CompositeViewsRoutes(
       identities,
       aclCheck,

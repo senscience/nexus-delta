@@ -11,12 +11,16 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportConfig, Exporter}
+import cats.effect.IO
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 // $COVERAGE-OFF$
 object ExportModule extends NexusModuleDef {
 
   makeConfig[ExportConfig]("app.export")
+
+  makeTracer("export")
 
   make[Exporter].fromEffect { (config: ExportConfig, xas: Transactors) =>
     Exporter(config, xas)
@@ -29,9 +33,10 @@ object ExportModule extends NexusModuleDef {
         aclCheck: AclCheck,
         exporter: Exporter,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("export")
     ) =>
-      new ExportRoutes(identities, aclCheck, exporter)(baseUri, cr, ordering)
+      new ExportRoutes(identities, aclCheck, exporter)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ExportRoutes) =>

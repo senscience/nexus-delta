@@ -26,29 +26,30 @@ import cats.effect.IO
 import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 trait ProjectionsDirectives {
 
-  def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route
+  def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String)(using Tracer[IO]): Route
 
-  def statistics(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+  def statistics(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using Tracer[IO]): Route =
     statistics(Scope.Project(project), selectFilter, projectionName)
 
-  def offset(projectionName: String): Route
+  def offset(projectionName: String)(using Tracer[IO]): Route
 
-  def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route
+  def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route
 
-  def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route
+  def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using Tracer[IO]): Route
 
-  def indexingErrors(view: ViewRef): Route =
+  def indexingErrors(view: ViewRef)(using Tracer[IO]): Route =
     indexingErrors(view.project, view.viewId)
 
-  def indexingErrors(project: ProjectRef, id: Iri): Route =
+  def indexingErrors(project: ProjectRef, id: Iri)(using Tracer[IO]): Route =
     indexingErrors(ProjectId(project, id))
 
-  def indexingErrors(name: String): Route = indexingErrors(Name(name))
+  def indexingErrors(name: String)(using Tracer[IO]): Route = indexingErrors(Name(name))
 
-  def indexingErrors(selector: ProjectionSelector): Route
+  def indexingErrors(selector: ProjectionSelector)(using Tracer[IO]): Route
 }
 
 object ProjectionsDirectives extends RdfMarshalling {
@@ -56,20 +57,24 @@ object ProjectionsDirectives extends RdfMarshalling {
   def apply(
       projections: Projections,
       projectionErrors: ProjectionErrors
-  )(implicit baseUri: BaseUri, cr: RemoteContextResolution, ordering: JsonKeyOrdering): ProjectionsDirectives =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering): ProjectionsDirectives =
     new ProjectionsDirectives {
 
-      implicit val paginationConfig: PaginationConfig = PaginationConfig(50, 1_000, 10_000)
+      private given PaginationConfig = PaginationConfig(50, 1_000, 10_000)
 
-      override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
+      override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String)(using
+          Tracer[IO]
+      ): Route =
         emit(projections.statistics(scope, selectFilter, projectionName))
 
-      override def offset(projectionName: String): Route = emit(projections.offset(projectionName))
+      override def offset(projectionName: String)(using Tracer[IO]): Route = emit(projections.offset(projectionName))
 
-      override def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route =
+      override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
         emit(projections.scheduleRestart(projectionName, offset).as(offset))
 
-      override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+      override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using
+          Tracer[IO]
+      ): Route =
         (iriSegment & pathEndOrSingleSlash) { resourceId =>
           emitJson(
             projections
@@ -79,7 +84,7 @@ object ProjectionsDirectives extends RdfMarshalling {
           )
         }
 
-      override def indexingErrors(selector: ProjectionSelector): Route =
+      override def indexingErrors(selector: ProjectionSelector)(using Tracer[IO]): Route =
         (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
           (pagination, timeRange, uri) =>
             implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
@@ -106,17 +111,19 @@ object ProjectionsDirectives extends RdfMarshalling {
     }
 
   def testEcho: ProjectionsDirectives = new ProjectionsDirectives {
-    override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String): Route =
+    override def statistics(scope: Scope, selectFilter: SelectFilter, projectionName: String)(using Tracer[IO]): Route =
       complete("indexing-statistics")
 
-    override def offset(projectionName: String): Route = complete("offset")
+    override def offset(projectionName: String)(using Tracer[IO]): Route = complete("offset")
 
-    override def scheduleRestart(projectionName: String, offset: Offset)(implicit subject: Subject): Route =
+    override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
       complete("schedule-restart")
 
-    override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String): Route =
+    override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using
+        Tracer[IO]
+    ): Route =
       complete("indexing-status")
 
-    override def indexingErrors(selector: ProjectionSelector): Route = complete("indexing-errors")
+    override def indexingErrors(selector: ProjectionSelector)(using Tracer[IO]): Route = complete("indexing-errors")
   }
 }

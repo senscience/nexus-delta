@@ -11,13 +11,15 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
-class ExportRoutes(identities: Identities, aclCheck: AclCheck, exporter: Exporter)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
+class ExportRoutes(identities: Identities, aclCheck: AclCheck, exporter: Exporter)(using baseUri: BaseUri)(using
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 

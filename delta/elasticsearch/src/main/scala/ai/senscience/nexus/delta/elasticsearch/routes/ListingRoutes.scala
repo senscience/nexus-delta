@@ -18,8 +18,10 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
+import cats.effect.IO
 import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 class ListingRoutes(
     identities: Identities,
@@ -28,12 +30,8 @@ class ListingRoutes(
     resourcesToSchemas: ResourceToSchemaMappings,
     schemeDirectives: DeltaSchemeDirectives,
     defaultIndexQuery: MainIndexQuery
-)(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with ElasticSearchViewsDirectives
     with RdfMarshalling {
 

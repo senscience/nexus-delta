@@ -28,6 +28,7 @@ import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The organization routes.
@@ -44,12 +45,8 @@ final class OrganizationsRoutes(
     organizations: Organizations,
     orgDeleter: OrganizationDeleter,
     aclCheck: AclCheck
-)(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
   private def orgsSearchParams(implicit caller: Caller): Directive1[OrganizationSearchParams] =
@@ -169,12 +166,7 @@ object OrganizationsRoutes {
       organizations: Organizations,
       orgDeleter: OrganizationDeleter,
       aclCheck: AclCheck
-  )(implicit
-      baseUri: BaseUri,
-      paginationConfig: PaginationConfig,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Route =
+  )(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
     new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck).routes
 
 }

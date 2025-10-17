@@ -13,8 +13,10 @@ import ai.senscience.nexus.delta.sdk.sse.SseElemStream
 import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 import java.time.Instant
 
@@ -28,11 +30,8 @@ class ElemRoutes(
     aclCheck: AclCheck,
     sseElemStream: SseElemStream,
     schemeDirectives: DeltaSchemeDirectives
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck: AclCheck) {
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck: AclCheck) {
   import schemeDirectives.*
 
   def routes: Route =

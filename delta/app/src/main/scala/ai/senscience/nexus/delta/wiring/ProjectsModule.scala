@@ -36,7 +36,7 @@ object ProjectsModule extends NexusModuleDef {
 
   private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
-  final case class ApiMappingsCollection(value: Set[ApiMappings]) {
+  final private case class ApiMappingsCollection(value: Set[ApiMappings]) {
     def merge: ApiMappings = value.foldLeft(ApiMappings.empty)(_ + _)
   }
 

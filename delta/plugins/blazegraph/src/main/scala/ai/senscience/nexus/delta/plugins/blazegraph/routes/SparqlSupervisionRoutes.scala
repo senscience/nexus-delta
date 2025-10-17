@@ -9,13 +9,15 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 class SparqlSupervisionRoutes(
     supervision: SparqlSupervision,
     identities: Identities,
     aclCheck: AclCheck
-)(using JsonKeyOrdering)
+)(using JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 

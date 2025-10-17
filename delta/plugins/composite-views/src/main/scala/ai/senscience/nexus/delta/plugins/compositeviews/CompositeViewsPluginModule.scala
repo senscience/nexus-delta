@@ -280,7 +280,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("composite")
     ) =>
       new CompositeViewsRoutes(
         identities,
@@ -288,7 +289,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views,
         blazegraphQuery,
         elasticSearchQuery
-      )(baseUri, cr, ordering, fusionConfig)
+      )(using baseUri, cr, ordering, fusionConfig, tracer)
   }
 
   make[CompositeViewsIndexingRoutes].from {
@@ -301,7 +302,8 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         projectionsDirectives: ProjectionsDirectives,
         config: CompositeViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("composite")
     ) =>
       new CompositeViewsIndexingRoutes(
         identities,
@@ -311,7 +313,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         CompositeIndexingDetails(projections, graphStream, config.prefix),
         projections,
         projectionsDirectives
-      )(cr, ordering)
+      )(using cr, ordering, tracer)
   }
 
   make[CompositeSupervisionRoutes].from {
@@ -321,9 +323,10 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         config: CompositeViewsConfig,
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("composite")
     ) =>
-      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(ordering)
+      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(using ordering, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(base) }

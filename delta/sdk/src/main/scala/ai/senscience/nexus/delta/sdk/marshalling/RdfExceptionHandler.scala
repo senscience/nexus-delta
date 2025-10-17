@@ -16,12 +16,14 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection
+import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.model.{EntityStreamSizeException, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.ExceptionHandler
+import org.typelevel.otel4s.trace.Tracer
 
 object RdfExceptionHandler {
   private val logger = Logger[RdfExceptionHandler.type]
@@ -30,11 +32,7 @@ object RdfExceptionHandler {
     * An [[ExceptionHandler]] that returns RDF output (Json-LD compacted, Json-LD expanded, Dot or NTriples) depending
     * on content negotiation (Accept Header) and ''format'' query parameter
     */
-  def apply(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      base: BaseUri
-  ): ExceptionHandler =
+  def apply(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ExceptionHandler =
     ExceptionHandler {
       case err: IdentityError             => discardEntityAndForceEmit(err)
       case err: JWSError                  => discardEntityAndForceEmit(err)

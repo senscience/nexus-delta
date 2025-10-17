@@ -26,6 +26,7 @@ import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.{Decoder, Json}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The resource trial routes allowing to do read-only operations on resources
@@ -35,11 +36,8 @@ final class ResourcesTrialRoutes(
     aclCheck: AclCheck,
     generateSchema: GenerateSchema,
     resourcesTrial: ResourcesTrial
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
@@ -144,11 +142,7 @@ object ResourcesTrialRoutes {
       aclCheck: AclCheck,
       schemas: Schemas,
       resourcesTrial: ResourcesTrial
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): ResourcesTrialRoutes =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResourcesTrialRoutes =
     new ResourcesTrialRoutes(
       identities,
       aclCheck,

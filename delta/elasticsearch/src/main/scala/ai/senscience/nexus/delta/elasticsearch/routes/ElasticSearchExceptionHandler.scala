@@ -9,8 +9,10 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAnd
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat}
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Directives.reject
 import org.apache.pekko.http.scaladsl.server.ExceptionHandler
+import org.typelevel.otel4s.trace.Tracer
 
 object ElasticSearchExceptionHandler {
 
@@ -19,13 +21,13 @@ object ElasticSearchExceptionHandler {
     case _                                                            => false
   }
 
-  def apply(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering): ExceptionHandler = ExceptionHandler {
+  def apply(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ExceptionHandler = ExceptionHandler {
     case err: ElasticSearchViewRejection if rejectPredicate(err) => reject(Reject(err))
     case err: ElasticSearchViewRejection                         => discardEntityAndForceEmit(err)
     case err: JsonLdRejection if rejectPredicate(err)            => reject(Reject(err))
   }.withFallback(client)
 
-  def client(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering): ExceptionHandler =
+  def client(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ExceptionHandler =
     ExceptionHandler { case err: ElasticSearchClientError =>
       discardEntityAndForceEmit(err)
     }

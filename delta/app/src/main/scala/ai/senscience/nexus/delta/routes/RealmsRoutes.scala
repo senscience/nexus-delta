@@ -22,12 +22,13 @@ import cats.effect.IO
 import cats.implicits.*
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
-class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(implicit
-    baseUri: BaseUri,
-    paginationConfig: PaginationConfig,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
+class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(using baseUri: BaseUri)(using
+    PaginationConfig,
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
@@ -113,11 +114,12 @@ object RealmsRoutes {
     * @return
     *   the [[Route]] for realms
     */
-  def apply(identities: Identities, realms: Realms, aclCheck: AclCheck)(implicit
-      baseUri: BaseUri,
-      paginationConfig: PaginationConfig,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
+  def apply(identities: Identities, realms: Realms, aclCheck: AclCheck)(using
+      BaseUri,
+      PaginationConfig,
+      RemoteContextResolution,
+      JsonKeyOrdering,
+      Tracer[IO]
   ): Route =
     new RealmsRoutes(identities, realms, aclCheck).routes
 

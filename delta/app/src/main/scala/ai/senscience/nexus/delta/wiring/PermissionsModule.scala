@@ -43,8 +43,9 @@ object PermissionsModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
-    ) => new PermissionsRoutes(identities, permissions, aclCheck)(baseUri, cr, ordering)
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("permissions")
+    ) => new PermissionsRoutes(identities, permissions, aclCheck)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/permissions-metadata.json"))

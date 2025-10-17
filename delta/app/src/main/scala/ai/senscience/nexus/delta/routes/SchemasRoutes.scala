@@ -29,6 +29,7 @@ import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The schemas routes
@@ -47,12 +48,8 @@ final class SchemasRoutes(
     aclCheck: AclCheck,
     schemas: Schemas,
     schemeDirectives: DeltaSchemeDirectives
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
@@ -212,11 +209,7 @@ object SchemasRoutes {
       aclCheck: AclCheck,
       schemas: Schemas,
       schemeDirectives: DeltaSchemeDirectives
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route = new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives).routes
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+    new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives).routes
 
 }

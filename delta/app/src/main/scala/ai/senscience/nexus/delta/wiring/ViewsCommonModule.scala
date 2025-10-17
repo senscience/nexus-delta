@@ -13,9 +13,13 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import cats.effect.IO
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 object ViewsCommonModule extends NexusModuleDef {
+
+  makeTracer("views-list")
 
   make[ProjectionsDirectives].from {
     (
@@ -25,7 +29,7 @@ object ViewsCommonModule extends NexusModuleDef {
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering
     ) =>
-      ProjectionsDirectives(projections, projectionErrors)(baseUri, cr, ordering)
+      ProjectionsDirectives(projections, projectionErrors)(using baseUri, cr, ordering)
   }
 
   make[AggregateViewsList].from { (internal: Set[ViewsList]) =>
@@ -39,13 +43,14 @@ object ViewsCommonModule extends NexusModuleDef {
         viewsList: AggregateViewsList,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("views-list")
     ) =>
       new ViewsRoutes(
         identities,
         aclCheck,
         viewsList
-      )(baseUri, cr, ordering)
+      )(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ViewsRoutes) =>
