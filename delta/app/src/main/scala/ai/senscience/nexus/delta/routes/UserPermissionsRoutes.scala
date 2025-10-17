@@ -9,9 +9,13 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider
 import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
+import cats.effect.unsafe.implicits.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The user permissions routes. Used for checking whether the current logged in user has certain permissions.
@@ -26,6 +30,11 @@ final class UserPermissionsRoutes(identities: Identities, aclCheck: AclCheck, st
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
+  given Tracer[IO] = Tracer.noop
+
+  private def fetchStoragePermission(project: ProjectRef, storageId: IdSegment, accessType: AccessType) =
+    onSuccess(storages.permissionFor(IdSegmentRef(storageId), project, accessType).unsafeToFuture())
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("user") {
@@ -35,16 +44,15 @@ final class UserPermissionsRoutes(identities: Identities, aclCheck: AclCheck, st
               head {
                 concat(
                   parameter("permission".as[Permission]) { permission =>
-                    authorizeFor(project, permission)(caller) {
+                    authorizeFor(project, permission) {
                       complete(StatusCodes.NoContent)
                     }
                   },
-                  parameters("storage".as[IdSegment], "type".as[AccessType]) { (storageId, `type`) =>
-                    authorizeForIO(
-                      AclAddress.fromProject(project),
-                      storages.permissionFor(IdSegmentRef(storageId), project, `type`)
-                    )(caller) {
-                      complete(StatusCodes.NoContent)
+                  parameters("storage".as[IdSegment], "type".as[AccessType]) { (storageId, accessType) =>
+                    fetchStoragePermission(project, storageId, accessType) { permission =>
+                      authorizeFor(project, permission) {
+                        complete(StatusCodes.NoContent)
+                      }
                     }
                   }
                 )

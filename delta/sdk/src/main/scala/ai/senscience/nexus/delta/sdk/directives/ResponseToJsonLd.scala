@@ -58,7 +58,7 @@ object ResponseToJsonLd extends FileBytesInstances {
         ): Route = {
           def ioRoute(spanContext: Option[SpanContext]) = {
             logger.debug(s"Span context when emitting json-ld: ${spanContext.fold("none")(_.show)}") >>
-              emitSpan(spanContext, "emitJsonLd") {
+              childSpan(spanContext, "emitJsonLd") {
                 ioFinal.flatMap { case Complete(status, headers, entityTag, value) =>
                   handle(value).map { r =>
                     conditionalCache(entityTag, mediaType, jsonldFormat, encoding) {
@@ -122,7 +122,7 @@ object ResponseToJsonLd extends FileBytesInstances {
 
       override def apply(statusOverride: Option[StatusCode]): Route = {
         def ioFinal(spanContext: Option[SpanContext]) =
-          emitSpan(spanContext, "emitFile") {
+          childSpan(spanContext, "emitFile") {
             io.flatMap { fr =>
               fr.content.map {
                 _.map { s =>

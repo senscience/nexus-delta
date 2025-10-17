@@ -131,7 +131,7 @@ object OtelDirectives {
     attributes.result()
   }
 
-  def emitSpan[A](parentContext: Option[SpanContext], spanName: String)(io: IO[A])(using Tracer[IO]): IO[A] =
+  def childSpan[A](parentContext: Option[SpanContext], spanName: String)(io: IO[A])(using Tracer[IO]): IO[A] =
     Tracer[IO].childOrContinue(parentContext) {
       Tracer[IO].span(spanName).surround(io)
     }

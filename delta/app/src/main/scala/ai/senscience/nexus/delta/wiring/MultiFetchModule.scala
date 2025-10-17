@@ -38,9 +38,10 @@ object MultiFetchModule extends NexusModuleDef {
         multiFetch: MultiFetch,
         baseUri: BaseUri,
         rcr: RemoteContextResolution @Id("aggregate"),
-        jko: JsonKeyOrdering
+        jko: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("multi-fetch")
     ) =>
-      new MultiFetchRoutes(identities, aclCheck, multiFetch)(baseUri, rcr, jko)
+      new MultiFetchRoutes(identities, aclCheck, multiFetch)(using baseUri)(using rcr, jko, tracer)
   }
 
   many[PriorityRoute].add { (route: MultiFetchRoutes) =>
