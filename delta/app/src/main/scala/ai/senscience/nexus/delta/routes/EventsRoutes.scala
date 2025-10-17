@@ -10,8 +10,10 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
 import ai.senscience.nexus.delta.sourcing.model.Label
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
 import org.apache.pekko.http.scaladsl.server.{Directive1, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The global events route.
@@ -29,6 +31,8 @@ class EventsRoutes(
     sseEventLog: SseEventLog
 )(implicit baseUri: BaseUri)
     extends AuthDirectives(identities, aclCheck: AclCheck) {
+
+  given Tracer[IO] = Tracer.noop
 
   private def resolveSelector: Directive1[Label] =
     label.flatMap { l =>

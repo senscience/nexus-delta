@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCache, requestEncoding}
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.{emitSpan, extractParentSpanContext}
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.{childSpan, extractParentSpanContext}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import cats.effect.IO
@@ -26,7 +26,7 @@ object ResponseToJson extends RdfMarshalling {
   )(using JsonKeyOrdering, Tracer[IO]): ResponseToJson =
     () => {
       def ioRoute(spanContext: Option[SpanContext]) =
-        emitSpan(spanContext, "emitJson") {
+        childSpan(spanContext, "emitJson") {
           io.map { v =>
             requestEncoding { encoding =>
               conditionalCache(v.entityTag, MediaTypes.`application/json`, encoding) {
