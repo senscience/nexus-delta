@@ -195,7 +195,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
       )
   }
 
-  val revParam: Directive[Tuple1[Int]] = parameter("rev".as[Int])
+  val revParam: Directive1[Int] = parameter("rev".as[Int])
 
   /**
     * Creates optional [[UserTag]] from `tag` query param.
