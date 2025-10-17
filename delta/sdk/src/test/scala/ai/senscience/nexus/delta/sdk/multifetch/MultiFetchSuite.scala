@@ -79,7 +79,7 @@ class MultiFetchSuite extends NexusSuite with Fixtures {
       )
     )
 
-    multiFetch(request)(Caller.Anonymous).assertEquals(expected)
+    multiFetch(request)(using Caller.Anonymous).assertEquals(expected)
   }
 
 }

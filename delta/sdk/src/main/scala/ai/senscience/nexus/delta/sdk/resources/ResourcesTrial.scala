@@ -2,16 +2,15 @@ package ai.senscience.nexus.delta.sdk.resources
 
 import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingParser
-import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.Resources.expandResourceRef
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
-import ai.senscience.nexus.delta.sdk.schemas.model.Schema
+import ai.senscience.nexus.delta.sdk.{DataResource, SchemaResource}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
@@ -30,12 +29,8 @@ trait ResourcesTrial {
     *   the schema reference to validate on
     * @param source
     *   the original json payload
-    * @param caller
-    *   the user performing the action
     */
-  def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(implicit
-      caller: Caller
-  ): IO[ResourceGenerationResult]
+  def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using Caller): IO[ResourceGenerationResult]
 
   /**
     * Generates the resource and validate it against the provided schema
@@ -46,11 +41,9 @@ trait ResourcesTrial {
     *   the schema to validate on
     * @param source
     *   the original json payload
-    * @param caller
-    *   the user performing the action
     */
-  def generate(project: ProjectRef, schema: ResourceF[Schema], source: NexusSource)(implicit
-      caller: Caller
+  def generate(project: ProjectRef, schema: SchemaResource, source: NexusSource)(using
+      Caller
   ): IO[ResourceGenerationResult]
 
   /**
@@ -64,9 +57,7 @@ trait ResourcesTrial {
     *   the optional identifier that will be expanded to the schema reference to validate the resource. A None value
     *   uses the currently available resource schema reference.
     */
-  def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(implicit
-      caller: Caller
-  ): IO[ValidationResult]
+  def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using Caller): IO[ValidationResult]
 }
 
 object ResourcesTrial {
@@ -80,7 +71,7 @@ object ResourcesTrial {
 
     private val sourceParser = JsonLdSourceResolvingParser(contextResolution, uuidF)
 
-    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(implicit
+    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using
         caller: Caller
     ): IO[ResourceGenerationResult] = {
       for {
@@ -95,8 +86,8 @@ object ResourcesTrial {
       ResourceGenerationResult(None, attempt)
     }
 
-    override def generate(project: ProjectRef, schema: ResourceF[Schema], source: NexusSource)(implicit
-        caller: Caller
+    override def generate(project: ProjectRef, schema: SchemaResource, source: NexusSource)(using
+        Caller
     ): IO[ResourceGenerationResult] = {
       for {
         projectContext <- fetchContext.onRead(project)
@@ -108,7 +99,7 @@ object ResourcesTrial {
       ResourceGenerationResult(Some(schema), attempt)
     }
 
-    def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(implicit
+    def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using
         caller: Caller
     ): IO[ValidationResult] = {
       for {
@@ -126,7 +117,7 @@ object ResourcesTrial {
         jsonld: JsonLdAssembly,
         source: NexusSource,
         validation: ValidationResult
-    )(implicit caller: Caller): IO[DataResource] = {
+    )(using caller: Caller): IO[DataResource] = {
       clock.realTimeInstant.map { now =>
         ResourceState(
           id = jsonld.id,

@@ -12,6 +12,7 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
@@ -57,8 +58,7 @@ final class ResourcesRoutes(
 
   private val resourceSchema = schemas.resources
 
-  implicit private def resourceFAJsonLdEncoder[A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
-    ResourceF.resourceFAJsonLdEncoder(ContextValue.empty)
+  private given [A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] = ResourceF.resourceFAJsonLdEncoder(ContextValue.empty)
 
   private val nonGenericResourceCandidate: Throwable => Boolean = {
     case _: ResourceNotFound | _: InvalidSchemaRejection | _: ReservedResourceTypes => true
@@ -78,46 +78,45 @@ final class ResourcesRoutes(
       }
     )
 
+  private val rejectOnNonGeneric = exceptionHandler(nonGenericResourceCandidate)
+  private val rejectOnNotFound   = exceptionHandler(notFound)
+
+  private val resourceEntity = entity(as[NexusSource])
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("resources") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
             val authorizeDelete = authorizeFor(project, Delete)
             val authorizeRead   = authorizeFor(project, Read)
             val authorizeWrite  = authorizeFor(project, Write)
-            implicit class IndexOps(io: IO[DataResource]) {
-              def index(m: IndexingMode): IO[DataResource] = io.flatTap(self.index(project, _, m))
+            extension (io: IO[DataResource]) {
+              private def index(m: IndexingMode): IO[ResourceF[Unit]] =
+                io.flatTap(self.index(project, _, m)).map(_.void)
             }
             concat(
               // Create a resource without schema nor id segment
-              (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & indexingMode & tagParam) {
-                (source, mode, tag) =>
-                  routeSpan("resources/<str:org>/<str:project>") {
-                    (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
-                      emit(
-                        Created,
-                        resources
-                          .create(project, resourceSchema, source.value, tag)
-                          .index(mode)
-                          .map(_.void)
-                      )
-                    }
+              (pathEndOrSingleSlash & post & noRev & resourceEntity & indexingMode & tagParam) { (source, mode, tag) =>
+                routeSpan("resources/<str:org>/<str:project>") {
+                  (authorizeWrite & rejectOnNonGeneric) {
+                    emit(
+                      Created,
+                      resources.create(project, resourceSchema, source.value, tag).index(mode)
+                    )
                   }
+                }
               },
               (idSegment & indexingMode) { (schema, mode) =>
                 val schemaOpt = underscoreToOption(schema)
                 concat(
                   // Create a resource with schema but without id segment
-                  (pathEndOrSingleSlash & post & noRev & entity(as[NexusSource]) & tagParam) { (source, tag) =>
+                  (pathEndOrSingleSlash & post & noRev & resourceEntity & tagParam) { (source, tag) =>
                     routeSpan("resources/<str:org>/<str:project>/<str:schema>") {
-                      (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
+                      (authorizeWrite & rejectOnNonGeneric) {
                         emit(
                           Created,
-                          resources
-                            .create(project, schema, source.value, tag)
-                            .index(mode)
-                            .map(_.void)
+                          resources.create(project, schema, source.value, tag).index(mode)
                         )
                       }
                     }
@@ -129,26 +128,18 @@ final class ResourcesRoutes(
                           concat(
                             // Create or update a resource
                             put {
-                              (authorizeWrite & exceptionHandler(nonGenericResourceCandidate)) {
-                                (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(
-                                  as[NexusSource]
-                                ) & tagParam) {
+                              (authorizeWrite & rejectOnNonGeneric) {
+                                (revParamOpt & pathEndOrSingleSlash & resourceEntity & tagParam) {
                                   case (None, source, tag)      =>
                                     // Create a resource with schema and id segments
                                     emit(
                                       Created,
-                                      resources
-                                        .create(resource, project, schema, source.value, tag)
-                                        .index(mode)
-                                        .map(_.void)
+                                      resources.create(resource, project, schema, source.value, tag).index(mode)
                                     )
                                   case (Some(rev), source, tag) =>
                                     // Update a resource
                                     emit(
-                                      resources
-                                        .update(resource, project, schemaOpt, rev, source.value, tag)
-                                        .index(mode)
-                                        .map(_.void)
+                                      resources.update(resource, project, schemaOpt, rev, source.value, tag).index(mode)
                                     )
                                 }
                               }
@@ -156,21 +147,15 @@ final class ResourcesRoutes(
                             // Deprecate a resource
                             (pathEndOrSingleSlash & delete) {
                               concat(
-                                parameter("rev".as[Int]) { rev =>
-                                  (authorizeWrite & exceptionHandler(notFound)) {
+                                revParam { rev =>
+                                  (authorizeWrite & rejectOnNotFound) {
                                     emit(
-                                      resources
-                                        .deprecate(resource, project, schemaOpt, rev)
-                                        .index(mode)
-                                        .map(_.void)
+                                      resources.deprecate(resource, project, schemaOpt, rev).index(mode).map(_.void)
                                     )
                                   }
                                 },
                                 (prune & authorizeDelete) {
-                                  emit(
-                                    StatusCodes.NoContent,
-                                    resources.delete(resource, project)
-                                  )
+                                  emit(StatusCodes.NoContent, resources.delete(resource, project))
                                 }
                               )
                             },
@@ -179,7 +164,7 @@ final class ResourcesRoutes(
                               emitOrFusionRedirect(
                                 project,
                                 resourceRef,
-                                (authorizeRead & exceptionHandler(notFound)) {
+                                (authorizeRead & rejectOnNotFound) {
                                   emit(resources.fetch(resourceRef, project, schemaOpt))
                                 }
                               )
@@ -188,27 +173,22 @@ final class ResourcesRoutes(
                         }
                       },
                       // Undeprecate a resource
-                      (pathPrefix("undeprecate") & put & parameter("rev".as[Int])) { rev =>
+                      (pathPrefix("undeprecate") & put & revParam) { rev =>
                         routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/undeprecate") {
-                          (authorizeWrite & exceptionHandler(notFound)) {
+                          (authorizeWrite & rejectOnNotFound) {
                             emit(
-                              resources
-                                .undeprecate(resource, project, schemaOpt, rev)
-                                .index(mode)
-                                .map(_.void)
+                              resources.undeprecate(resource, project, schemaOpt, rev).index(mode)
                             )
                           }
                         }
                       },
                       (pathPrefix("update-schema") & put & pathEndOrSingleSlash) {
                         routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/update-schema") {
-                          (authorizeWrite & exceptionHandler(notFound)) {
+                          (authorizeWrite & rejectOnNotFound) {
                             emit(
                               IO.fromOption(schemaOpt)(NoSchemaProvided)
                                 .flatMap { schema =>
-                                  resources
-                                    .updateAttachedSchema(resource, project, schema)
-                                    .flatTap(index(project, _, mode))
+                                  resources.updateAttachedSchema(resource, project, schema).index(mode)
                                 }
                             )
                           }
@@ -216,12 +196,9 @@ final class ResourcesRoutes(
                       },
                       (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
                         routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/refresh") {
-                          (authorizeWrite & exceptionHandler(notFound)) {
+                          (authorizeWrite & rejectOnNotFound) {
                             emit(
-                              resources
-                                .refresh(resource, project, schemaOpt)
-                                .index(mode)
-                                .map(_.void)
+                              resources.refresh(resource, project, schemaOpt).index(mode)
                             )
                           }
                         }
@@ -230,7 +207,7 @@ final class ResourcesRoutes(
                       (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(resource) & varyAcceptHeaders) {
                         resourceRef =>
                           routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/source") {
-                            (authorizeRead & exceptionHandler(notFound)) {
+                            (authorizeRead & rejectOnNotFound) {
                               annotateSource { annotate =>
                                 emit(
                                   resources
@@ -247,11 +224,7 @@ final class ResourcesRoutes(
                           false
                         )) { resourceRef =>
                           routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/remote-contexts") {
-                            emit(
-                              resources
-                                .fetchState(resourceRef, project, schemaOpt)
-                                .map(_.remoteContexts)
-                            )
+                            emit(resources.fetchState(resourceRef, project, schemaOpt).map(_.remoteContexts))
                           }
                         }
                       },
@@ -260,39 +233,27 @@ final class ResourcesRoutes(
                         routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/tags") {
                           concat(
                             // Fetch a resource tags
-                            (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & exceptionHandler(
-                              notFound
-                            )) { resourceRef =>
-                              emit(
-                                resources
-                                  .fetch(resourceRef, project, schemaOpt)
-                                  .map(_.value.tags)
-                              )
+                            (get & idSegmentRef(resource) & pathEndOrSingleSlash & authorizeRead & rejectOnNotFound) {
+                              resourceRef =>
+                                emit(
+                                  resources.fetch(resourceRef, project, schemaOpt).map(_.value.tags)
+                                )
                             },
                             // Tag a resource
-                            (post & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-                              (authorizeWrite & exceptionHandler(notFound)) {
-                                entity(as[Tag]) { case Tag(tagRev, tag) =>
-                                  emit(
-                                    Created,
-                                    resources
-                                      .tag(resource, project, schemaOpt, tag, tagRev, rev)
-                                      .index(mode)
-                                      .map(_.void)
-                                  )
-                                }
+                            (post & revParam & pathEndOrSingleSlash) { rev =>
+                              (authorizeWrite & exceptionHandler(notFound) & entity(as[Tag])) { case Tag(tagRev, tag) =>
+                                emit(
+                                  Created,
+                                  resources
+                                    .tag(resource, project, schemaOpt, tag, tagRev, rev)
+                                    .index(mode)
+                                )
                               }
                             },
                             // Delete a tag
-                            (tagLabel & delete & parameter(
-                              "rev".as[Int]
-                            ) & pathEndOrSingleSlash & authorizeWrite & exceptionHandler(notFound)) { (tag, rev) =>
-                              emit(
-                                resources
-                                  .deleteTag(resource, project, schemaOpt, tag, rev)
-                                  .index(mode)
-                                  .map(_.void)
-                              )
+                            (tagLabel & delete & revParam & pathEndOrSingleSlash & authorizeWrite & rejectOnNotFound) {
+                              (tag, rev) =>
+                                emit(resources.deleteTag(resource, project, schemaOpt, tag, rev).index(mode))
                             }
                           )
                         }

@@ -9,13 +9,14 @@ import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment.IriSegment
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.write as Write
-import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection
+import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
@@ -56,12 +57,14 @@ final class ResourcesTrialRoutes(
 
   private def validateRoute: Route =
     pathPrefix("resources") {
-      extractCaller { implicit caller =>
-        projectRef.apply { project =>
+      extractCaller { case given Caller =>
+        projectRef { project =>
           (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
-            authorizeFor(project, Write).apply {
-              val schemaOpt = underscoreToOption(schema)
-              emit(resourcesTrial.validate(id, project, schemaOpt))
+            routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/validate") {
+              authorizeFor(project, Write).apply {
+                val schemaOpt = underscoreToOption(schema)
+                emit(resourcesTrial.validate(id, project, schemaOpt))
+              }
             }
           }
         }
@@ -70,11 +73,13 @@ final class ResourcesTrialRoutes(
 
   private def generateRoute: Route =
     (pathPrefix("trial") & pathPrefix("resources") & post) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         (projectRef & pathEndOrSingleSlash) { project =>
-          authorizeFor(project, Write).apply {
-            entity(as[GenerationInput]) { input =>
-              generate(project, input)
+          routeSpan("trial/resources/<str:org>/<str:project>") {
+            authorizeFor(project, Write).apply {
+              entity(as[GenerationInput]) { input =>
+                generate(project, input)
+              }
             }
           }
         }
@@ -82,29 +87,22 @@ final class ResourcesTrialRoutes(
     }
 
   // Call the generate method matching the schema input
-  private def generate(project: ProjectRef, input: GenerationInput)(implicit caller: Caller) =
-    input.schema match {
-      case ExistingSchema(schemaId) =>
-        emit(
-          resourcesTrial
-            .generate(project, schemaId, input.resource)
-            .flatMap(_.asJson)
-        )
-      case NewSchema(schemaSource)  =>
-        emit(
-          generateSchema(project, schemaSource, caller)
-            .flatMap { schema =>
-              resourcesTrial
-                .generate(project, schema, input.resource)
-                .flatMap(_.asJson)
-            }
+  private def generate(project: ProjectRef, input: GenerationInput)(using caller: Caller) = {
+    def emitResult(io: IO[ResourceGenerationResult]) = emit(io.flatMap(_.asJson))
+    input match {
+      case GenerationInput(ExistingSchema(schemaId), resource) =>
+        emitResult(resourcesTrial.generate(project, schemaId, resource))
+      case GenerationInput(NewSchema(schemaSource), resource)  =>
+        emitResult(
+          generateSchema(project, schemaSource, caller).flatMap { resourcesTrial.generate(project, _, resource) }
         )
     }
+  }
 }
 
 object ResourcesTrialRoutes {
 
-  type GenerateSchema = (ProjectRef, Json, Caller) => IO[SchemaResource]
+  private[routes] type GenerateSchema = (ProjectRef, Json, Caller) => IO[SchemaResource]
 
   sealed private[routes] trait SchemaInput extends Product
 
@@ -116,7 +114,7 @@ object ResourcesTrialRoutes {
     // Validate the generated resource with the new schema bundled in the request
     final case class NewSchema(json: Json) extends SchemaInput
 
-    implicit val schemaInputDecoder: Decoder[SchemaInput] =
+    given Decoder[SchemaInput] =
       Decoder.instance { hc =>
         val value          = hc.value
         val existingSchema = value.asString.map { s => ExistingSchema(IdSegment(s)) }
@@ -130,9 +128,8 @@ object ResourcesTrialRoutes {
   final private[routes] case class GenerationInput(schema: SchemaInput = noSchema, resource: NexusSource)
 
   private[routes] object GenerationInput {
-
-    implicit val generationInputDecoder: Decoder[GenerationInput] = {
-      implicit val configuration: Configuration = Configuration.default.withDefaults
+    given Decoder[GenerationInput] = {
+      given Configuration = Configuration.default.withDefaults
       deriveConfiguredDecoder[GenerationInput]
     }
   }
