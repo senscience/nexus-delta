@@ -20,6 +20,7 @@ import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
@@ -41,12 +42,8 @@ final class ElasticSearchViewsRoutes(
     aclCheck: AclCheck,
     views: ElasticSearchViews,
     viewsQuery: ElasticSearchViewsQuery
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with ElasticSearchViewsDirectives
     with RdfMarshalling {
@@ -171,12 +168,7 @@ object ElasticSearchViewsRoutes {
       aclCheck: AclCheck,
       views: ElasticSearchViews,
       viewsQuery: ElasticSearchViewsQuery
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
     new ElasticSearchViewsRoutes(
       identities,
       aclCheck,

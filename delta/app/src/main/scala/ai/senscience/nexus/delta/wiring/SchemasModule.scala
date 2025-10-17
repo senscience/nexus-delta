@@ -115,13 +115,14 @@ object SchemasModule extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("schemas")
     ) =>
-      new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives)(
-        baseUri,
+      new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives)(using baseUri)(using
         cr,
         ordering,
-        fusionConfig
+        fusionConfig,
+        tracer
       )
   }
 
@@ -135,7 +136,8 @@ object SchemasModule extends NexusModuleDef {
         projectionsErrors: ProjectionErrors,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("schemas")
     ) =>
       new SchemaJobRoutes(
         identities,
@@ -144,10 +146,10 @@ object SchemasModule extends NexusModuleDef {
         schemaValidationCoordinator,
         projections,
         projectionsErrors
-      )(
-        baseUri,
+      )(using baseUri)(using
         cr,
-        ordering
+        ordering,
+        tracer
       )
   }
 

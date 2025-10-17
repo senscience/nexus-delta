@@ -14,12 +14,15 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 object TypeHierarchyModule extends NexusModuleDef {
 
   private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[TypeHierarchyConfig]("app.type-hierarchy")
+
+  makeTracer("type-hierarchy")
 
   addRemoteContextResolution(contexts.definition)
 
@@ -34,13 +37,14 @@ object TypeHierarchyModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("type-hierarchy")
     ) =>
       new TypeHierarchyRoutes(
         typeHierarchy,
         identities,
         aclCheck
-      )(baseUri, cr, ordering)
+      )(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: TypeHierarchyRoutes) =>

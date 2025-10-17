@@ -11,9 +11,11 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 class BlazegraphViewsIndexingRoutes(
     fetch: FetchIndexingView,
@@ -21,10 +23,8 @@ class BlazegraphViewsIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projectionDirectives: ProjectionsDirectives
-)(implicit
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with DeltaDirectives
     with RdfMarshalling
@@ -105,10 +105,7 @@ object BlazegraphViewsIndexingRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       projectionDirectives: ProjectionsDirectives
-  )(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Route = {
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route = {
     new BlazegraphViewsIndexingRoutes(
       fetch,
       sparqlRestartScheduler,

@@ -13,18 +13,18 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
+import cats.effect.IO
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 final class IndexingSupervisionRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projectionErrors: ProjectionErrors
-)(implicit
-    baseUri: BaseUri,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
   def routes: Route =

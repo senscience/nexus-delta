@@ -20,6 +20,7 @@ import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 class SupervisionRoutes(
     identities: Identities,
@@ -28,10 +29,8 @@ class SupervisionRoutes(
     projectsHealth: ProjectsHealth,
     projectHealer: ProjectHealer,
     activitySignals: ProjectActivitySignals
-)(implicit
-    baseUri: BaseUri,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
   def routes: Route =

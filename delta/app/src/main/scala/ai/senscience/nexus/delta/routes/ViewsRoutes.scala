@@ -13,25 +13,24 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.ViewsList.AggregateViewsList
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 final class ViewsRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     viewsList: AggregateViewsList
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck: AclCheck) {
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck: AclCheck) {
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       extractCaller { implicit caller =>
         pathPrefix("views") {
           projectRef { project =>
-            val authorizeRead                                                               = authorizeFor(project, Read)
-            implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[ResourceF[Unit]]] =
+            val authorizeRead                                   = authorizeFor(project, Read)
+            given JsonLdEncoder[SearchResults[ResourceF[Unit]]] =
               searchResultsJsonLdEncoder(ContextEmpty)
             (get & authorizeRead & pathEndOrSingleSlash) {
               emit(viewsList(project))
@@ -40,5 +39,4 @@ final class ViewsRoutes(
         }
       }
     }
-
 }

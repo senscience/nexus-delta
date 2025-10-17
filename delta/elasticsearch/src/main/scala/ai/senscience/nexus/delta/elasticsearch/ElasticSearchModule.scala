@@ -248,18 +248,20 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       new ElasticSearchViewsRoutes(
         identities,
         aclCheck,
         views,
         viewsQuery
-      )(
+      )(using
         baseUri,
         cr,
         ordering,
-        fusionConfig
+        fusionConfig,
+        tracer
       )
   }
 
@@ -271,9 +273,14 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         restartScheduler: MainRestartScheduler,
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new MainIndexRoutes(identities, aclCheck, mainIndexQuery, restartScheduler, projectionsDirectives)(cr, ordering)
+      new MainIndexRoutes(identities, aclCheck, mainIndexQuery, restartScheduler, projectionsDirectives)(using
+        cr,
+        ordering,
+        tracer
+      )
   }
 
   make[ListingRoutes].from {
@@ -287,7 +294,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         resourcesToSchemaSet: Set[ResourceToSchemaMappings],
-        esConfig: ElasticSearchViewsConfig
+        esConfig: ElasticSearchViewsConfig,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       val resourceToSchema = resourcesToSchemaSet.foldLeft(ResourceToSchemaMappings.empty)(_ + _)
       new ListingRoutes(
@@ -297,7 +305,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         resourceToSchema,
         schemeDirectives,
         mainIndexQuery
-      )(baseUri, esConfig.pagination, cr, ordering)
+      )(using baseUri, esConfig.pagination, cr, ordering, tracer)
   }
 
   make[ElasticSearchIndexingRoutes].from {
@@ -309,7 +317,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         client: ElasticSearchClient @Id("elasticsearch-query-client"),
         projectionsDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       ElasticSearchIndexingRoutes(
         identities,
@@ -318,10 +327,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         restartScheduler,
         projectionsDirectives,
         client
-      )(
-        cr,
-        ordering
-      )
+      )(using cr, ordering, tracer)
   }
 
   make[IdResolution].from {
@@ -341,13 +347,13 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         ordering: JsonKeyOrdering,
         rcr: RemoteContextResolution @Id("aggregate"),
         fusionConfig: FusionConfig,
-        baseUri: BaseUri
+        baseUri: BaseUri,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new IdResolutionRoutes(identities, aclCheck, idResolution)(
-        baseUri,
+      new IdResolutionRoutes(identities, aclCheck, idResolution)(using baseUri, fusionConfig)(using
         ordering,
         rcr,
-        fusionConfig
+        tracer
       )
   }
 
@@ -362,9 +368,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         eventMetrics: EventMetrics,
         rcr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new ElasticSearchHistoryRoutes(identities, aclCheck, eventMetrics)(rcr, ordering)
+      new ElasticSearchHistoryRoutes(identities, aclCheck, eventMetrics)(using rcr, ordering, tracer)
   }
 
   many[ProjectDeletionTask].add { (currentViews: CurrentActiveViews, views: ElasticSearchViews) =>

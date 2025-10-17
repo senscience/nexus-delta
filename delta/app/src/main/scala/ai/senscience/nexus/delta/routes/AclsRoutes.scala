@@ -34,11 +34,12 @@ import org.apache.pekko.http.scaladsl.model.Uri.Path
 import org.apache.pekko.http.scaladsl.model.Uri.Path.*
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
+import org.typelevel.otel4s.trace.Tracer
 
-class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
+class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using baseUri: BaseUri)(using
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with QueryParamsUnmarshalling {
@@ -221,10 +222,12 @@ object AclsRoutes {
     * @return
     *   the [[Route]] for ACLs
     */
-  def apply(identities: Identities, acls: Acls, aclCheck: AclCheck)(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): AclsRoutes = new AclsRoutes(identities, acls, aclCheck)
+  def apply(identities: Identities, acls: Acls, aclCheck: AclCheck)(using
+      BaseUri,
+      RemoteContextResolution,
+      JsonKeyOrdering,
+      Tracer[IO]
+  ): AclsRoutes =
+    new AclsRoutes(identities, acls, aclCheck)
 
 }

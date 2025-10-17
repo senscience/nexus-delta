@@ -10,8 +10,10 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.discardEntityAnd
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.marshalling.RdfExceptionHandler
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Directives.{handleExceptions, reject}
 import org.apache.pekko.http.scaladsl.server.{Directive0, ExceptionHandler}
+import org.typelevel.otel4s.trace.Tracer
 
 object StoragePluginExceptionHandler {
 
@@ -25,11 +27,7 @@ object StoragePluginExceptionHandler {
     case _               => false
   }
 
-  private def apply(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): ExceptionHandler =
+  private def apply(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ExceptionHandler =
     ExceptionHandler {
       case err: StorageRejection if rejectStoragePredicate(err) => reject(Reject(err))
       case err: StorageRejection                                => discardEntityAndForceEmit(err)
@@ -37,10 +35,7 @@ object StoragePluginExceptionHandler {
       case err: FileRejection                                   => discardEntityAndForceEmit(err)
     }.withFallback(RdfExceptionHandler.apply)
 
-  def handleStorageExceptions(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Directive0 = handleExceptions(StoragePluginExceptionHandler.apply)
+  def handleStorageExceptions(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Directive0 =
+    handleExceptions(StoragePluginExceptionHandler.apply)
 
 }

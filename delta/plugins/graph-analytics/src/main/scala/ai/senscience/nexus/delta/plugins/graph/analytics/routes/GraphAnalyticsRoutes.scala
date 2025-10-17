@@ -16,8 +16,10 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
 import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The graph analytics routes.
@@ -28,7 +30,7 @@ class GraphAnalyticsRoutes(
     graphAnalytics: GraphAnalytics,
     projectionsDirectives: ProjectionsDirectives,
     viewsQuery: GraphAnalyticsViewsQuery
-)(implicit baseUri: BaseUri, cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {

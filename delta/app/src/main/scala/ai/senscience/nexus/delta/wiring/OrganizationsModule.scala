@@ -64,13 +64,14 @@ object OrganizationsModule extends NexusModuleDef {
         baseUri: BaseUri,
         aclCheck: AclCheck,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("orgs")
     ) =>
-      new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck)(
-        baseUri,
+      new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck)(using baseUri)(using
         orgConfig.pagination,
         cr,
-        ordering
+        ordering,
+        tracer
       )
   }
 

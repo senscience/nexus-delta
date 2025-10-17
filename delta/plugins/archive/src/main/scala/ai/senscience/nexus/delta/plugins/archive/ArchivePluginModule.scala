@@ -70,9 +70,10 @@ object ArchivePluginModule extends NexusModuleDef {
         aclCheck: AclCheck,
         baseUri: BaseUri,
         rcr: RemoteContextResolution @Id("aggregate"),
-        jko: JsonKeyOrdering
+        jko: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("archives")
     ) =>
-      new ArchiveRoutes(archives, identities, aclCheck)(baseUri, rcr, jko)
+      new ArchiveRoutes(archives, identities, aclCheck)(using baseUri)(using rcr, jko, tracer)
   }
 
   many[PriorityRoute].add { (cfg: ArchivePluginConfig, routes: ArchiveRoutes) =>

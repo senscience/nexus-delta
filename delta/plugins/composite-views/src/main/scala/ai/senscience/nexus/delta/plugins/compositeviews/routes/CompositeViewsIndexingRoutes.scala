@@ -26,6 +26,7 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 class CompositeViewsIndexingRoutes(
     identities: Identities,
@@ -35,10 +36,8 @@ class CompositeViewsIndexingRoutes(
     details: CompositeIndexingDetails,
     projections: CompositeProjections,
     projectionDirectives: ProjectionsDirectives
-)(implicit
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with CirceUnmarshalling
     with RdfMarshalling
@@ -226,10 +225,7 @@ object CompositeViewsIndexingRoutes {
       statistics: CompositeIndexingDetails,
       projections: CompositeProjections,
       projectionDirectives: ProjectionsDirectives
-  )(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Route =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
     new CompositeViewsIndexingRoutes(
       identities,
       aclCheck,

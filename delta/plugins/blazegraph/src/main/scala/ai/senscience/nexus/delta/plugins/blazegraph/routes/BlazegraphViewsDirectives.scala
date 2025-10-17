@@ -7,11 +7,13 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.*
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
 import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.MediaType
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/plain`
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequest, provide}
 import org.apache.pekko.http.scaladsl.server.{Directive, Directive1, Route}
 import org.http4s.MediaType as Http4sMediaType
+import org.typelevel.otel4s.trace.Tracer
 
 trait BlazegraphViewsDirectives {
 
@@ -28,15 +30,13 @@ trait BlazegraphViewsDirectives {
   /**
     * Completes with ''UnacceptedResponseContentTypeRejection'' immediately (without rejecting)
     */
-  private def emitUnacceptedMediaType(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): Route =
+  private def emitUnacceptedMediaType(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
     discardEntityAndForceEmit(unacceptedMediaTypeRejection(queryMediaTypes))
 
-  def queryResponseType(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
+  def queryResponseType(using
+      RemoteContextResolution,
+      JsonKeyOrdering,
+      Tracer[IO]
   ): Directive1[SparqlQueryResponseType.Aux[SparqlQueryResponse]] =
     extractRequest.flatMap { req =>
       HeadersUtils.findFirst(req.headers, queryMediaTypes).flatMap { pekkoMediaType =>

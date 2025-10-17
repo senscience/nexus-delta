@@ -27,6 +27,7 @@ import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
 import io.circe.syntax.*
 import io.circe.{Decoder, Json}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, MalformedRequestContentRejection, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The permissions routes.
@@ -38,11 +39,10 @@ import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, MalformedRequest
   * @param aclCheck
   *   verify the acls for users
   */
-final class PermissionsRoutes(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+final class PermissionsRoutes(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(using
+    baseUri: BaseUri
+)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
   implicit private val resourceFUnitJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] =
@@ -121,10 +121,11 @@ object PermissionsRoutes {
     * @return
     *   the [[Route]] for the permission resources
     */
-  def apply(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
+  def apply(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(using
+      BaseUri,
+      RemoteContextResolution,
+      JsonKeyOrdering,
+      Tracer[IO]
   ): Route =
     new PermissionsRoutes(identities, permissions, aclCheck: AclCheck).routes
 

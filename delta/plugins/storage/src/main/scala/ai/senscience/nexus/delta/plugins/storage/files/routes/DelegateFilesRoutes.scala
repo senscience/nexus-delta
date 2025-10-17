@@ -24,6 +24,7 @@ import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, OK}
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 final class DelegateFilesRoutes(
     identities: Identities,
@@ -31,12 +32,8 @@ final class DelegateFilesRoutes(
     files: Files,
     jwsPayloadHelper: JWSPayloadHelper,
     index: IndexingAction.Execute[File]
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    showLocation: ShowFileLocation
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, ShowFileLocation, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with CirceMarshalling { self =>
 
@@ -86,7 +83,7 @@ final class DelegateFilesRoutes(
       storageId: Option[IdSegment],
       desc: FileDescription,
       tag: Option[UserTag]
-  )(implicit c: Caller) =
+  )(using Caller) =
     files.createDelegate(id, project, desc, storageId, tag).flatMap { request =>
       jwsPayloadHelper.sign(request.asJson)
     }
@@ -98,7 +95,7 @@ final class DelegateFilesRoutes(
       storageId: Option[IdSegment],
       desc: FileDescription,
       tag: Option[UserTag]
-  )(implicit c: Caller) =
+  )(using Caller) =
     files.updateDelegate(id, project, rev, desc, storageId, tag).flatMap { request =>
       jwsPayloadHelper.sign(request.asJson)
     }
@@ -106,7 +103,7 @@ final class DelegateFilesRoutes(
   private def linkDelegatedFile(
       jwsPayload: Json,
       mode: IndexingMode
-  )(implicit c: Caller): IO[FileResource] =
+  )(using Caller): IO[FileResource] =
     jwsPayloadHelper
       .verifyAs[FileDelegationRequest](jwsPayload)
       .flatMap {

@@ -26,6 +26,7 @@ import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive0, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The Blazegraph views routes
@@ -36,13 +37,8 @@ class BlazegraphViewsRoutes(
     incomingOutgoingLinks: IncomingOutgoingLinks,
     identities: Identities,
     aclCheck: AclCheck
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    pc: PaginationConfig,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, PaginationConfig, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with DeltaDirectives
     with RdfMarshalling
@@ -197,13 +193,7 @@ object BlazegraphViewsRoutes {
       incomingOutgoingLinks: IncomingOutgoingLinks,
       identities: Identities,
       aclCheck: AclCheck
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      pc: PaginationConfig,
-      fusionConfig: FusionConfig
-  ): Route = {
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, PaginationConfig, FusionConfig, Tracer[IO]): Route = {
     new BlazegraphViewsRoutes(
       views,
       viewsQuery,

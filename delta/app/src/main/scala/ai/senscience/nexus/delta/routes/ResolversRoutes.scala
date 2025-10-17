@@ -31,6 +31,7 @@ import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The resolver routes
@@ -50,12 +51,8 @@ final class ResolversRoutes(
     resolvers: Resolvers,
     multiResolution: MultiResolution,
     schemeDirectives: DeltaSchemeDirectives
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
@@ -244,12 +241,7 @@ object ResolversRoutes {
       resolvers: Resolvers,
       multiResolution: MultiResolution,
       schemeDirectives: DeltaSchemeDirectives
-  )(implicit
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
     new ResolversRoutes(identities, aclCheck, resolvers, multiResolution, schemeDirectives).routes
 
 }

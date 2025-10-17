@@ -17,6 +17,7 @@ import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 class SearchRoutes(
     identities: Identities,
@@ -24,7 +25,7 @@ class SearchRoutes(
     search: Search,
     configFields: Json,
     suites: SearchConfig.Suites
-)(implicit baseUri: BaseUri, cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling

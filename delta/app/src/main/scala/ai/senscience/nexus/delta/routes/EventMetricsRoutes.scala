@@ -11,13 +11,15 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 final class EventMetricsRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projectionsDirectives: ProjectionsDirectives
-)(implicit baseUri: BaseUri)
+)(using baseUri: BaseUri)(using Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with RdfMarshalling {

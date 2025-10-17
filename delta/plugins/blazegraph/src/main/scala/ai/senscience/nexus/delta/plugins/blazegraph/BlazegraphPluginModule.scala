@@ -195,7 +195,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         cfg: BlazegraphViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("sparql")
     ) =>
       new BlazegraphViewsRoutes(
         views,
@@ -203,13 +204,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         incomingOutgoingLinks,
         identities,
         aclCheck
-      )(
-        baseUri,
-        cr,
-        ordering,
-        cfg.pagination,
-        fusionConfig
-      )
+      )(using baseUri, cr, ordering, cfg.pagination, fusionConfig, tracer)
   }
 
   make[BlazegraphViewsIndexingRoutes].from {
@@ -220,7 +215,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         sparqlRestartScheduler: SparqlRestartScheduler,
         projectionDirectives: ProjectionsDirectives,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("sparql")
     ) =>
       new BlazegraphViewsIndexingRoutes(
         views.fetchIndexingView(_, _),
@@ -228,7 +224,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         projectionDirectives
-      )(cr, ordering)
+      )(using cr, ordering, tracer)
   }
 
   make[SparqlSupervisionRoutes].from {
@@ -236,9 +232,10 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         sparqlSupervision: SparqlSupervision,
         identities: Identities,
         aclCheck: AclCheck,
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("sparql")
     ) =>
-      new SparqlSupervisionRoutes(sparqlSupervision, identities, aclCheck)(using ordering)
+      new SparqlSupervisionRoutes(sparqlSupervision, identities, aclCheck)(using ordering, tracer)
   }
 
   make[BlazegraphScopeInitialization].from {

@@ -132,7 +132,8 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("storages")
     ) =>
       {
         new StoragesRoutes(
@@ -141,12 +142,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
           storages,
           storagesStatistics,
           schemeDirectives
-        )(
-          baseUri,
-          cr,
-          ordering,
-          fusionConfig
-        )
+        )(using baseUri)(using cr, ordering, fusionConfig, tracer)
       }
   }
 
@@ -211,14 +207,16 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig
+        fusionConfig: FusionConfig,
+        tracer: Tracer[IO] @Id("files")
     ) =>
-      new FilesRoutes(identities, aclCheck, files, schemeDirectives, indexingAction(_, _, _)(shift))(
-        baseUri,
+      new FilesRoutes(identities, aclCheck, files, schemeDirectives, indexingAction(_, _, _)(shift))(using baseUri)(
+        using
         showLocation,
         cr,
         ordering,
-        fusionConfig
+        fusionConfig,
+        tracer
       )
   }
 
@@ -232,13 +230,14 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         shift: File.Shift,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("files")
     ) =>
-      new LinkFilesRoutes(identities, aclCheck, files, indexingAction(_, _, _)(shift))(
-        baseUri,
+      new LinkFilesRoutes(identities, aclCheck, files, indexingAction(_, _, _)(shift))(using baseUri)(using
         cr,
         ordering,
-        showLocation
+        showLocation,
+        tracer
       )
   }
 
@@ -253,7 +252,8 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        showLocation: ShowFileLocation
+        showLocation: ShowFileLocation,
+        tracer: Tracer[IO] @Id("files")
     ) =>
       new DelegateFilesRoutes(
         identities,
@@ -261,7 +261,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         files,
         jwsPayloadHelper,
         indexingAction(_, _, _)(shift)
-      )(baseUri, cr, ordering, showLocation)
+      )(using baseUri)(using cr, ordering, showLocation, tracer)
   }
 
   make[File.Shift].from { (files: Files, base: BaseUri, showLocation: ShowFileLocation) =>

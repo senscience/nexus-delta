@@ -11,12 +11,15 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
+import org.typelevel.otel4s.trace.Tracer
 
 class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
 
   implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ProjectDeletionConfig]("plugins.project-deletion")
+
+  makeTracer("project-deletion")
 
   addRemoteContextResolution(contexts.definition)
 
@@ -25,8 +28,9 @@ class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
         config: ProjectDeletionConfig,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
-    ) => new ProjectDeletionRoutes(config)(baseUri, cr, ordering)
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("project-deletion")
+    ) => new ProjectDeletionRoutes(config)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ProjectDeletionRoutes) =>

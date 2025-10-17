@@ -1,11 +1,13 @@
 package ai.senscience.nexus.delta.sdk.directives
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.JsonLdValue
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat.{Compacted, Expanded}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
@@ -14,6 +16,7 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
+import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.marshalling.ToEntityMarshaller
 import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
@@ -21,6 +24,7 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
 import org.apache.pekko.http.scaladsl.model.headers.{Accept, HttpEncoding, RawHeader}
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.{SpanContext, Tracer}
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
@@ -31,14 +35,16 @@ sealed trait ResponseToJsonLd {
 
 object ResponseToJsonLd extends FileBytesInstances {
 
+  private val logger = Logger[ResponseToJsonLd]
+
   def apply(
       io: IO[Complete[JsonLdValue]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     new ResponseToJsonLd {
 
       // Some resources may not have been created in the system with a strict configuration
       // (and if they are, there is no need to check them again)
-      implicit private val api: JsonLdApi = TitaniumJsonLdApi.lenient
+      private given JsonLdApi = TitaniumJsonLdApi.lenient
 
       override def apply(statusOverride: Option[StatusCode]): Route = {
 
@@ -50,14 +56,21 @@ object ResponseToJsonLd extends FileBytesInstances {
             jsonldFormat: Option[JsonLdFormat],
             encoding: HttpEncoding
         ): Route = {
-          val ioRoute = ioFinal.flatMap { case Complete(status, headers, entityTag, value) =>
-            handle(value).map { r =>
-              conditionalCache(entityTag, mediaType, jsonldFormat, encoding) {
-                complete(status, headers, r)
+          def ioRoute(spanContext: Option[SpanContext]) = {
+            logger.debug(s"Span context when emitting json-ld: ${spanContext.fold("none")(_.show)}") >>
+              emitSpan(spanContext, "emitJsonLd") {
+                ioFinal.flatMap { case Complete(status, headers, entityTag, value) =>
+                  handle(value).map { r =>
+                    conditionalCache(entityTag, mediaType, jsonldFormat, encoding) {
+                      complete(status, headers, r)
+                    }
+                  }
+                }
               }
-            }
           }
-          onSuccess(ioRoute.unsafeToFuture())(identity)
+          extractParentSpanContext { spanContext =>
+            onSuccess(ioRoute(spanContext).unsafeToFuture())(identity)
+          }
         }
 
         requestEncoding { encoding =>
@@ -93,12 +106,12 @@ object ResponseToJsonLd extends FileBytesInstances {
 
   def fromComplete[A: JsonLdEncoder](
       io: IO[Complete[A]]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     apply(io.map { c => c.map(JsonLdValue(_)) })
 
   def fromFile(
       io: IO[FileResponse]
-  )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     new ResponseToJsonLd {
 
       // From the RFC 2047: "=?" charset "?" encoding "?" encoded-text "?="
@@ -108,32 +121,37 @@ object ResponseToJsonLd extends FileBytesInstances {
       }
 
       override def apply(statusOverride: Option[StatusCode]): Route = {
-        val flattened = io.flatMap { fr =>
-          fr.content.map {
-            _.map { s =>
-              fr.metadata -> s
+        def ioFinal(spanContext: Option[SpanContext]) =
+          emitSpan(spanContext, "emitFile") {
+            io.flatMap { fr =>
+              fr.content.map {
+                _.map { s =>
+                  fr.metadata -> s
+                }
+              }
             }
           }
-        }
 
-        onSuccess(flattened.unsafeToFuture()) {
-          case Left(c)                    => emit(c)
-          case Right((metadata, content)) =>
-            headerValueByType(Accept) { accept =>
-              if accept.mediaRanges.exists(_.matches(metadata.contentType.mediaType)) then {
-                val encodedFilename    = attachmentString(metadata.filename)
-                val contentDisposition =
-                  RawHeader("Content-Disposition", s"""attachment; filename="$encodedFilename"""")
-                requestEncoding { encoding =>
-                  conditionalCache(metadata.entityTag, metadata.contentType.mediaType, encoding) {
-                    respondWithHeaders(contentDisposition, metadata.headers*) {
-                      complete(statusOverride.getOrElse(OK), HttpEntity(metadata.contentType, content))
+        extractParentSpanContext { spanContext =>
+          onSuccess(ioFinal(spanContext).unsafeToFuture()) {
+            case Left(c)                    => emit(c)
+            case Right((metadata, content)) =>
+              headerValueByType(Accept) { accept =>
+                if accept.mediaRanges.exists(_.matches(metadata.contentType.mediaType)) then {
+                  val encodedFilename    = attachmentString(metadata.filename)
+                  val contentDisposition =
+                    RawHeader("Content-Disposition", s"""attachment; filename="$encodedFilename"""")
+                  requestEncoding { encoding =>
+                    conditionalCache(metadata.entityTag, metadata.contentType.mediaType, encoding) {
+                      respondWithHeaders(contentDisposition, metadata.headers*) {
+                        complete(statusOverride.getOrElse(OK), HttpEntity(metadata.contentType, content))
+                      }
                     }
                   }
-                }
 
-              } else reject(unacceptedMediaTypeRejection(Seq(metadata.contentType.mediaType)))
-            }
+                } else reject(unacceptedMediaTypeRejection(Seq(metadata.contentType.mediaType)))
+              }
+          }
         }
       }
     }
@@ -143,12 +161,12 @@ sealed trait FileBytesInstances extends ValueInstances {
 
   implicit def ioFileBytes(
       io: IO[FileResponse]
-  )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromFile(io)
 
   implicit def fileBytesValue(
       value: FileResponse
-  )(implicit jo: JsonKeyOrdering, cr: RemoteContextResolution): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromFile(IO.pure(value))
 
 }
@@ -157,12 +175,12 @@ sealed trait ValueInstances extends LowPriorityValueInstances {
 
   implicit def ioValue[A: JsonLdEncoder: HttpResponseFields](
       io: IO[A]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromComplete(io.map(v => Complete(v)))
 
   implicit def ioJsonLdValue(
       io: IO[JsonLdValue]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd(
       io.map { value =>
         Complete(OK, Seq.empty, None, value)
@@ -171,18 +189,18 @@ sealed trait ValueInstances extends LowPriorityValueInstances {
 
   implicit def completeValue[A: JsonLdEncoder](
       value: Complete[A]
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromComplete(IO.pure(value))
 
   implicit def valueWithHttpResponseFields[A: JsonLdEncoder: HttpResponseFields](
       value: A
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromComplete(IO.pure(Complete(value)))
 }
 
 sealed trait LowPriorityValueInstances {
   implicit def valueWithoutHttpResponseFields[A: JsonLdEncoder](
       value: A
-  )(implicit cr: RemoteContextResolution, jo: JsonKeyOrdering): ResponseToJsonLd =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
     ResponseToJsonLd.fromComplete(IO.pure(Complete(OK, Seq.empty, None, value)))
 }

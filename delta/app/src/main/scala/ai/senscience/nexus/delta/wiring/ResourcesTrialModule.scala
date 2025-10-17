@@ -50,14 +50,15 @@ object ResourcesTrialModule extends ModuleDef {
         resourcesTrial: ResourcesTrial,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("resources")
     ) =>
       ResourcesTrialRoutes(
         identities,
         aclCheck,
         schemas,
         resourcesTrial
-      )(baseUri, cr, ordering)
+      )(using baseUri, cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ResourcesTrialRoutes) =>

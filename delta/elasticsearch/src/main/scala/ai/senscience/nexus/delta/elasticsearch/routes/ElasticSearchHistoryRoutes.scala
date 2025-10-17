@@ -12,15 +12,18 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
+import cats.effect.IO
 import io.circe.{Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Routes allowing to get the history of events for resources
   */
-class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fetchHistory: FetchHistory)(implicit
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
+class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fetchHistory: FetchHistory)(using
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
   implicit private val searchEncoder: Encoder.AsObject[SearchResults[JsonObject]] = searchResultsEncoder(_ => None)

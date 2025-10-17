@@ -30,6 +30,7 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.headers.{`Content-Length`, Accept}
 import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.http.scaladsl.server.Directives.{extractRequestEntity, optionalHeaderValueByName, provide, reject}
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The files routes
@@ -51,13 +52,8 @@ final class FilesRoutes(
     files: Files,
     schemeDirectives: DeltaSchemeDirectives,
     index: IndexingAction.Execute[File]
-)(implicit
-    baseUri: BaseUri,
-    showLocation: ShowFileLocation,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering,
-    fusionConfig: FusionConfig
-) extends AuthDirectives(identities, aclCheck)
+)(using baseUri: BaseUri)(using ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling { self =>
 
   import schemeDirectives.*
@@ -161,7 +157,7 @@ final class FilesRoutes(
       }
     }
 
-  def fetch(id: FileId)(implicit caller: Caller): Route =
+  def fetch(id: FileId)(using Caller): Route =
     (headerValueByType(Accept) & varyAcceptHeaders) {
       case accept if accept.mediaRanges.exists(metadataMediaRanges.contains) =>
         emit(fetchMetadata(id))
@@ -169,7 +165,7 @@ final class FilesRoutes(
         emit(files.fetchContent(id))
     }
 
-  def fetchMetadata(id: FileId)(implicit caller: Caller): IO[FileResource] =
+  def fetchMetadata(id: FileId)(using Caller): IO[FileResource] =
     aclCheck.authorizeForOr(id.project, Read)(AuthorizationFailed(id.project, Read)) >> files.fetch(id)
 }
 
@@ -189,13 +185,8 @@ object FilesRoutes {
       files: Files,
       schemeDirectives: DeltaSchemeDirectives,
       index: IndexingAction.Execute[File]
-  )(implicit
-      baseUri: BaseUri,
-      showLocation: ShowFileLocation,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering,
-      fusionConfig: FusionConfig
-  ): Route = new FilesRoutes(identities, aclCheck, files, schemeDirectives, index).routes
+  )(using BaseUri, ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+    new FilesRoutes(identities, aclCheck, files, schemeDirectives, index).routes
 
   /**
     * A pekko directive to extract the optional [[FileCustomMetadata]] from a request. This metadata is extracted from

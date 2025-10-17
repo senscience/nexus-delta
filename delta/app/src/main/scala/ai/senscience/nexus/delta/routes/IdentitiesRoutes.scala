@@ -10,14 +10,15 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The identities routes
   */
-class IdentitiesRoutes(identities: Identities, aclCheck: AclCheck)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
+class IdentitiesRoutes(identities: Identities, aclCheck: AclCheck)(using baseUri: BaseUri)(using
+    RemoteContextResolution,
+    JsonKeyOrdering,
+    Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck) {
 
   def routes: Route = {
@@ -40,6 +41,6 @@ object IdentitiesRoutes {
   def apply(
       identities: Identities,
       aclCheck: AclCheck
-  )(implicit baseUri: BaseUri, cr: RemoteContextResolution, ordering: JsonKeyOrdering): Route =
+  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
     new IdentitiesRoutes(identities, aclCheck).routes
 }

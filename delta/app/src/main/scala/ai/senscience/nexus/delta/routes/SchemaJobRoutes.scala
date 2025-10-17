@@ -21,6 +21,7 @@ import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 import java.nio.ByteBuffer
 
@@ -34,11 +35,8 @@ class SchemaJobRoutes(
     schemaValidationCoordinator: SchemaValidationCoordinator,
     projections: Projections,
     projectionsErrors: ProjectionErrors
-)(implicit
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck) {
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck) {
 
   private def projectionName(project: ProjectRef) = SchemaValidationCoordinator.projectionMetadata(project).name
 

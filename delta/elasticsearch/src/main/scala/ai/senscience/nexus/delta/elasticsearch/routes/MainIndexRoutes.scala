@@ -17,9 +17,11 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
+import cats.effect.IO
 import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.{Directive, Route}
+import org.typelevel.otel4s.trace.Tracer
 
 final class MainIndexRoutes(
     identities: Identities,
@@ -27,7 +29,7 @@ final class MainIndexRoutes(
     mainIndexQuery: MainIndexQuery,
     restartScheduler: MainRestartScheduler,
     projectionDirectives: ProjectionsDirectives
-)(implicit cr: RemoteContextResolution, ordering: JsonKeyOrdering)
+)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {

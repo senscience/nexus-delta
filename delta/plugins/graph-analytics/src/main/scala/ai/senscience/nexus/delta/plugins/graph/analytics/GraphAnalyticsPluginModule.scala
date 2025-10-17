@@ -74,7 +74,8 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
-        viewsQuery: GraphAnalyticsViewsQuery
+        viewsQuery: GraphAnalyticsViewsQuery,
+        tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
       new GraphAnalyticsRoutes(
         identities,
@@ -82,11 +83,7 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         graphAnalytics,
         projectionsDirectives,
         viewsQuery
-      )(
-        baseUri,
-        cr,
-        ordering
-      )
+      )(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: GraphAnalyticsRoutes) =>

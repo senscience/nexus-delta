@@ -22,6 +22,7 @@ import cats.syntax.all.*
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.collection.immutable.Iterable
 
@@ -38,6 +39,8 @@ class VersionRoutes(
     ordering: JsonKeyOrdering
 ) extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
+
+  given Tracer[IO] = Tracer.noop
 
   private def fullOrDegraded(implicit caller: Caller) = aclCheck.authorizeFor(AclAddress.Root, version.read).flatMap {
     case true  => dependencies.traverse(_.serviceDescription).map(VersionBundle(main, _, plugins, env))

@@ -20,6 +20,7 @@ import cats.effect.unsafe.implicits.*
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.*
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * The elasticsearch views indexing routes
@@ -31,10 +32,8 @@ final class ElasticSearchIndexingRoutes(
     elasticsearchRestartScheduler: ElasticsearchRestartScheduler,
     projectionDirectives: ProjectionsDirectives,
     fetchMapping: FetchMapping
-)(implicit
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
@@ -118,10 +117,7 @@ object ElasticSearchIndexingRoutes {
       elasticsearchRestartScheduler: ElasticsearchRestartScheduler,
       projectionDirectives: ProjectionsDirectives,
       client: ElasticSearchClient
-  )(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): ElasticSearchIndexingRoutes =
+  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ElasticSearchIndexingRoutes =
     new ElasticSearchIndexingRoutes(
       identities,
       aclCheck,

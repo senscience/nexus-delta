@@ -10,12 +10,14 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.syntax.*
+import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{DecodingFailure, Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.model.headers.*
 import org.apache.pekko.http.scaladsl.model.{ContentRange, EntityStreamSizeException, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
+import org.typelevel.otel4s.trace.Tracer
 
 // $COVERAGE-OFF$
 @SuppressWarnings(Array("UnsafeTraversableMethods"))
@@ -26,10 +28,7 @@ object RdfRejectionHandler {
     * returns RDF output (Json-LD compacted, Json-LD expanded, Dot or NTriples) depending on content negotiation (Accept
     * Header) and ''format'' query parameter
     */
-  def apply(implicit
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): RejectionHandler =
+  def apply(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): RejectionHandler =
     RejectionHandler
       .newBuilder()
       .handleAll[SchemeRejection] { rejections => discardEntityAndForceEmit(rejections) }
