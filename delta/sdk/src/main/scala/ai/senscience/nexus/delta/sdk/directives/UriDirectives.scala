@@ -21,7 +21,7 @@ import io.circe.Json
 import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.http.scaladsl.model.Uri.Path
-import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.{Directive1, *}
 import org.apache.pekko.http.scaladsl.server.Directives.*
 
 import java.util.UUID
@@ -196,6 +196,8 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   }
 
   val revParam: Directive1[Int] = parameter("rev".as[Int])
+
+  val revParamOpt: Directive1[Option[Int]] = parameter("rev".as[Int].?)
 
   /**
     * Creates optional [[UserTag]] from `tag` query param.
