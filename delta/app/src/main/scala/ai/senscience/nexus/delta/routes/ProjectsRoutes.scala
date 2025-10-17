@@ -114,11 +114,18 @@ final class ProjectsRoutes(
                       }
                     },
                     (get & pathEndOrSingleSlash) {
-                      (authorizeRead & parameter("rev".as[Int].?)) {
+                      (parameter("rev".as[Int].?)) {
                         case Some(rev) => // Fetch project at specific revision
-                          emit(projects.fetchAt(project, rev))
+                          authorizeRead {
+                            emit(projects.fetchAt(project, rev))
+                          }
                         case None      => // Fetch project
-                          emitOrFusionRedirect(project, emit(projects.fetch(project)))
+                          emitOrFusionRedirect(
+                            project,
+                            authorizeRead {
+                              emit(projects.fetch(project))
+                            }
+                          )
                       }
                     },
                     // Deprecate/delete project
