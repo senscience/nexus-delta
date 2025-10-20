@@ -16,10 +16,10 @@ jobs:
       fail-fast: true
     steps:
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           check-latest: true
       - name: Setup SBT
         uses: sbt/setup-sbt@v1
