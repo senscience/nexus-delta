@@ -2,6 +2,7 @@ name: Delta Static analysis
 on:
   pull_request:
     paths:
+      - 'benchmarks/**'
       - 'delta/**'
       - 'pekko/**'
       - 'build.sbt'
