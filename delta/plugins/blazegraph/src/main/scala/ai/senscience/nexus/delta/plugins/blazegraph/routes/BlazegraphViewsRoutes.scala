@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -56,67 +57,72 @@ class BlazegraphViewsRoutes(
     handleExceptions(BlazegraphExceptionHandler.apply) {
       concat(
         pathPrefix("views") {
-          extractCaller { implicit caller =>
+          extractCaller { case given Caller =>
             projectRef { implicit project =>
               val authorizeRead  = authorizeFor(project, Read)
               val authorizeWrite = authorizeFor(project, Write)
               // Create a view without id segment
               concat(
-                (pathEndOrSingleSlash & post & entity(as[Json]) & noParameter("rev")) { source =>
-                  authorizeWrite {
-                    emitMetadataOrReject(Created, views.create(project, source))
+                routeSpan("views/<str:org>/<str:project>") {
+                  (pathEndOrSingleSlash & post & entity(as[Json]) & noRev) { source =>
+                    authorizeWrite {
+                      emitMetadataOrReject(Created, views.create(project, source))
+                    }
                   }
                 },
                 idSegment { id =>
                   concat(
                     pathEndOrSingleSlash {
-                      concat(
-                        put {
-                          authorizeWrite {
-                            (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
-                              case (None, source)      =>
-                                // Create a view with id segment
-                                emitMetadataOrReject(
-                                  Created,
-                                  views.create(id, project, source)
-                                )
-                              case (Some(rev), source) =>
-                                // Update a view
-                                emitMetadataOrReject(
-                                  views.update(id, project, rev, source)
-                                )
+                      routeSpan("views/<str:org>/<str:project>") {
+                        concat(
+                          put {
+                            authorizeWrite {
+                              (revParamOpt & pathEndOrSingleSlash & entity(as[Json])) {
+                                case (None, source)      =>
+                                  // Create a view with id segment
+                                  emitMetadataOrReject(
+                                    Created,
+                                    views.create(id, project, source)
+                                  )
+                                case (Some(rev), source) =>
+                                  // Update a view
+                                  emitMetadataOrReject(
+                                    views.update(id, project, rev, source)
+                                  )
+                              }
                             }
-                          }
-                        },
-                        (delete & parameter("rev".as[Int])) { rev =>
-                          // Deprecate a view
-                          authorizeWrite {
-                            emitMetadataOrReject(
-                              views.deprecate(id, project, rev)
+                          },
+                          (delete & revParam) { rev =>
+                            // Deprecate a view
+                            authorizeWrite {
+                              emitMetadataOrReject(
+                                views.deprecate(id, project, rev)
+                              )
+                            }
+                          },
+                          // Fetch a view
+                          (get & idSegmentRef(id)) { id =>
+                            emitOrFusionRedirect(
+                              project,
+                              id,
+                              authorizeRead {
+                                emit(views.fetch(id, project))
+                              }
                             )
                           }
-                        },
-                        // Fetch a view
-                        (get & idSegmentRef(id)) { id =>
-                          emitOrFusionRedirect(
-                            project,
-                            id,
-                            authorizeRead {
-                              emit(views.fetch(id, project))
-                            }
-                          )
-                        }
-                      )
+                        )
+                      }
                     },
                     // Undeprecate a blazegraph view
-                    (pathPrefix("undeprecate") & put & parameter("rev".as[Int]) &
-                      authorizeWrite & pathEndOrSingleSlash) { rev =>
-                      emitMetadataOrReject(
-                        views.undeprecate(id, project, rev)
-                      )
+                    (pathPrefix("undeprecate") & put & revParam & pathEndOrSingleSlash) { rev =>
+                      (routeSpan("views/<str:org>/<str:project>/undeprecate") & authorizeWrite) {
+                        emitMetadataOrReject(
+                          views.undeprecate(id, project, rev)
+                        )
+                      }
                     },
                     // Query a blazegraph view
-                    (pathPrefix("sparql") & pathEndOrSingleSlash) {
+                    (pathPrefix("sparql") & pathEndOrSingleSlash & routeSpan("views/<str:org>/<str:project>/sparql")) {
                       concat(
                         // Query
                         ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
@@ -128,7 +134,7 @@ class BlazegraphViewsRoutes(
                     },
                     // Fetch a view original source
                     (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                      authorizeRead {
+                      (routeSpan("views/<str:org>/<str:project>/source") & authorizeRead) {
                         emitSource(views.fetch(id, project))
                       }
                     },
@@ -142,7 +148,7 @@ class BlazegraphViewsRoutes(
         },
         // Handle all other incoming and outgoing links
         pathPrefix(Segment) { segment =>
-          extractCaller { implicit caller =>
+          extractCaller { case given Caller =>
             projectRef { project =>
               // if we are on the path /resources/{org}/{proj}/ we need to consume the {schema} segment before consuming the {id}
               consumeIdSegmentIf(segment == "resources") {
@@ -161,23 +167,23 @@ class BlazegraphViewsRoutes(
     if condition then idSegment.flatMap(_ => pass)
     else pass
 
-  private def incomingOutgoing(id: IdSegment, project: ProjectRef)(implicit caller: Caller) = {
+  private def incomingOutgoing(id: IdSegment, project: ProjectRef)(using Caller) = {
     val authorizeQuery  = authorizeFor(project, Query)
     val metadataContext = ContextValue(Vocabulary.contexts.metadata)
     concat(
       (pathPrefix("incoming") & fromPaginated & pathEndOrSingleSlash & get & extractHttp4sUri) { (pagination, uri) =>
-        implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[SparqlLink]] =
+        given JsonLdEncoder[SearchResults[SparqlLink]] =
           searchResultsJsonLdEncoder(metadataContext, pagination, uri)
-        authorizeQuery {
+        (routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/incoming") & authorizeQuery) {
           emit(incomingOutgoingLinks.incoming(id, project, pagination))
         }
       },
       (pathPrefix("outgoing") & fromPaginated & pathEndOrSingleSlash & get & extractHttp4sUri & parameter(
         "includeExternalLinks".as[Boolean] ? true
       )) { (pagination, uri, includeExternal) =>
-        implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[SparqlLink]] =
+        given JsonLdEncoder[SearchResults[SparqlLink]] =
           searchResultsJsonLdEncoder(metadataContext, pagination, uri)
-        authorizeQuery {
+        (routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/incoming") & authorizeQuery) {
           emit(incomingOutgoingLinks.outgoing(id, project, pagination, includeExternal))
         }
       }
