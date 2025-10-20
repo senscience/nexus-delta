@@ -8,10 +8,12 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
@@ -24,7 +26,7 @@ import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
@@ -55,7 +57,7 @@ final class SchemasRoutes(
 
   import schemeDirectives.*
 
-  implicit private def resourceFAJsonLdEncoder[A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
+  private given [A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.schemasMetadata))
 
   private def exceptionHandler(enableRejects: Boolean) =
@@ -98,33 +100,34 @@ final class SchemasRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("schemas", shacl)) {
       pathPrefix("schemas") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
             concat(
               // List schemas
-              pathEndOrSingleSlash {
-                (get & authorizeRead) {
-                  implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[ResourceF[Unit]]] =
-                    searchResultsJsonLdEncoder(ContextValue.empty)
+              routeSpan("schemas/<str:org>/<str:project>") {
+                (pathEndOrSingleSlash & get & authorizeRead) {
+                  given JsonLdEncoder[SearchResults[ResourceF[Unit]]] = searchResultsJsonLdEncoder(ContextValue.empty)
                   emit(schemas.list(project).map(_.map(_.void)).widen[SearchResults[ResourceF[Unit]]])
                 }
               },
               // Create a schema without id segment
-              (pathEndOrSingleSlash & post & noParameter("rev") & entity(as[Json])) { source =>
-                authorizeWrite {
-                  emitMetadata(Created, schemas.create(project, source))
+              routeSpan("schemas/<str:org>/<str:project>") {
+                (pathEndOrSingleSlash & post & noRev & entity(as[Json])) { source =>
+                  authorizeWrite {
+                    emitMetadata(Created, schemas.create(project, source))
+                  }
                 }
               },
               idSegment { id =>
                 concat(
-                  pathEndOrSingleSlash {
+                  (routeSpan("schemas/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
                     concat(
                       // Create or update a schema
                       put {
                         authorizeWrite {
-                          (parameter("rev".as[Int].?) & entity(as[Json])) {
+                          (revParamOpt & entity(as[Json])) {
                             case (None, source)      =>
                               // Create a schema with id segment
                               emitMetadata(Created, schemas.create(id, project, source))
@@ -135,7 +138,7 @@ final class SchemasRoutes(
                         }
                       },
                       // Deprecate a schema
-                      (delete & parameter("rev".as[Int])) { rev =>
+                      (delete & revParam) { rev =>
                         authorizeWrite {
                           emitMetadataOrReject(schemas.deprecate(id, project, rev))
                         }
@@ -152,42 +155,50 @@ final class SchemasRoutes(
                       }
                     )
                   },
-                  (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & parameter("rev".as[Int])) { rev =>
-                    authorizeWrite {
-                      emitMetadataOrReject(schemas.undeprecate(id, project, rev))
+                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/undeprecate") {
+                    (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & revParam) { rev =>
+                      authorizeWrite {
+                        emitMetadataOrReject(schemas.undeprecate(id, project, rev))
+                      }
                     }
                   },
-                  (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
-                    authorizeWrite {
-                      emitMetadata(schemas.refresh(id, project))
+                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/refresh") {
+                    (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
+                      authorizeWrite {
+                        emitMetadata(schemas.refresh(id, project))
+                      }
                     }
                   },
                   // Fetch a schema original source
-                  (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id) & annotateSource) {
-                    (id, annotate) =>
-                      authorizeRead {
-                        emitSource(schemas.fetch(id, project), annotate)
-                      }
-                  },
-                  pathPrefix("tags") {
-                    concat(
-                      // Fetch a schema tags
-                      (get & idSegmentRef(id) & pathEndOrSingleSlash & authorizeRead) { id =>
-                        emitTags(schemas.fetch(id, project))
-                      },
-                      // Tag a schema
-                      (post & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-                        authorizeWrite {
-                          entity(as[Tag]) { case Tag(tagRev, tag) =>
-                            emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
-                          }
+                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/source") {
+                    (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id) & annotateSource) {
+                      (id, annotate) =>
+                        authorizeRead {
+                          emitSource(schemas.fetch(id, project), annotate)
                         }
-                      },
-                      // Delete a tag
-                      (tagLabel & delete & parameter("rev".as[Int]) & pathEndOrSingleSlash & authorizeWrite) {
-                        (tag, rev) => emitMetadataOrReject(schemas.deleteTag(id, project, tag, rev))
-                      }
-                    )
+                    }
+                  },
+                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/tags") {
+                    pathPrefix("tags") {
+                      concat(
+                        // Fetch a schema tags
+                        (get & idSegmentRef(id) & pathEndOrSingleSlash & authorizeRead) { id =>
+                          emitTags(schemas.fetch(id, project))
+                        },
+                        // Tag a schema
+                        (post & revParam & pathEndOrSingleSlash) { rev =>
+                          authorizeWrite {
+                            entity(as[Tag]) { case Tag(tagRev, tag) =>
+                              emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
+                            }
+                          }
+                        },
+                        // Delete a tag
+                        (tagLabel & delete & revParam & pathEndOrSingleSlash & authorizeWrite) { (tag, rev) =>
+                          emitMetadataOrReject(schemas.deleteTag(id, project, tag, rev))
+                        }
+                      )
+                    }
                   }
                 )
               }
