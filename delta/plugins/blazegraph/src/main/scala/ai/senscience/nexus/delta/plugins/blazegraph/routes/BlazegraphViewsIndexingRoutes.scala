@@ -7,7 +7,9 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -35,44 +37,51 @@ class BlazegraphViewsIndexingRoutes(
       onSuccess(fetch(idSegment, project).unsafeToFuture())
     }
 
-  def routes: Route = {
+  def routes: Route =
     handleExceptions(BlazegraphExceptionHandler.apply) {
       concat(views, jobs)
     }
-  }
 
   private def views =
     pathPrefix("views") {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         fetchActiveView { view =>
           val project        = view.ref.project
           val authorizeRead  = authorizeFor(project, Read)
           val authorizeWrite = authorizeFor(project, Write)
           concat(
             // Fetch a blazegraph view statistics
-            (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-              projectionDirectives.statistics(project, view.selectFilter, view.projection)
+            (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
+              (routeSpan("views/<str:org>/<str:project>/<str:id>/statistics") & authorizeRead) {
+                projectionDirectives.statistics(project, view.selectFilter, view.projection)
+              }
             },
             // Fetch blazegraph view indexing failures
-            (pathPrefix("failures") & get & authorizeWrite) {
-              projectionDirectives.indexingErrors(view.ref)
+            (pathPrefix("failures") & get) {
+              (routeSpan("views/<str:org>/<str:project>/<str:id>/failures") & authorizeWrite) {
+                projectionDirectives.indexingErrors(view.ref)
+              }
             },
             // Manage a blazegraph view offset
             (pathPrefix("offset") & pathEndOrSingleSlash) {
-              concat(
-                // Fetch a blazegraph view offset
-                (get & authorizeRead) {
-                  projectionDirectives.offset(view.projection)
-                },
-                // Remove a blazegraph view offset (restart the view)
-                (delete & authorizeWrite & offset("from")) { fromOffset =>
-                  projectionDirectives.scheduleRestart(view.projection, fromOffset)
-                }
-              )
+              routeSpan("views/<str:org>/<str:project>/<str:id>/offset") {
+                concat(
+                  // Fetch a blazegraph view offset
+                  (get & authorizeRead) {
+                    projectionDirectives.offset(view.projection)
+                  },
+                  // Remove a blazegraph view offset (restart the view)
+                  (delete & authorizeWrite & offset("from")) { fromOffset =>
+                    projectionDirectives.scheduleRestart(view.projection, fromOffset)
+                  }
+                )
+              }
             },
             // Getting indexing status for a resource in the given view
             (pathPrefix("status") & authorizeRead) {
-              projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
+              (routeSpan("views/<str:org>/<str:project>/<str:id>/status") & authorizeRead) {
+                projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
+              }
             }
           )
         }
@@ -81,7 +90,7 @@ class BlazegraphViewsIndexingRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("sparql") & pathPrefix("reindex")) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         val authorizeRootWrite = authorizeFor(Root, Write)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
