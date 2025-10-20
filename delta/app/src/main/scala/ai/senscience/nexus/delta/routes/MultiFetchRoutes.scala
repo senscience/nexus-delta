@@ -5,7 +5,9 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.{jsonCodecDropNull, jsonSourceCodec}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
@@ -34,10 +36,12 @@ class MultiFetchRoutes(
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("multi-fetch") {
         pathPrefix("resources") {
-          extractCaller { implicit caller =>
-            ((get | post) & entity(as[MultiFetchRequest])) { request =>
-              given JsonValueCodec[Json] = selectCodec(request)
-              emit(multiFetch(request).flatMap(_.asJson))
+          routeSpan("multi-fetch/resources/<str:org>/<str:project>") {
+            extractCaller { case given Caller =>
+              ((get | post) & entity(as[MultiFetchRequest])) { request =>
+                given JsonValueCodec[Json] = selectCodec(request)
+                emit(multiFetch(request).flatMap(_.asJson))
+              }
             }
           }
         }

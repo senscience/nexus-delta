@@ -19,7 +19,7 @@ import org.typelevel.otel4s.trace.Tracer
   */
 trait MultiFetch {
 
-  def apply(request: MultiFetchRequest)(implicit caller: Caller): IO[MultiFetchResponse]
+  def apply(request: MultiFetchRequest)(using Caller): IO[MultiFetchResponse]
 
 }
 
@@ -30,9 +30,7 @@ object MultiFetch {
       fetchResource: MultiFetchRequest.Input => IO[Option[JsonLdContent[?]]]
   )(using Tracer[IO]): MultiFetch =
     new MultiFetch {
-      override def apply(request: MultiFetchRequest)(implicit
-          caller: Caller
-      ): IO[MultiFetchResponse] =
+      override def apply(request: MultiFetchRequest)(using Caller): IO[MultiFetchResponse] =
         request.resources
           .parTraverse { input =>
             aclCheck.authorizeFor(input.project, resources.read).flatMap {
