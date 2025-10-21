@@ -6,8 +6,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
@@ -27,10 +29,12 @@ class IdResolutionRoutes(
     }
 
   private def resolutionRoute: Route =
-    pathPrefix("resolve") {
-      extractCaller { implicit caller =>
-        (get & iriSegment & pathEndOrSingleSlash) { iri =>
-          emit(idResolution.apply(iri))
+    routeSpan("views/<str:org>/<str:project>/documents/_search") {
+      pathPrefix("resolve") {
+        extractCaller { case given Caller =>
+          (get & iriSegment & pathEndOrSingleSlash) { iri =>
+            emit(idResolution.apply(iri))
+          }
         }
       }
     }

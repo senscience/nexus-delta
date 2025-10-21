@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.TypeOperator.{And, Or}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{LogParam, TypeOperator, TypeParams, VersionParams}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuerySuite.*
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
@@ -175,31 +176,43 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
     } yield ()
   }
 
-  private val all                                         = ResourcesSearchParams()
-  private val orgByType                                   = ResourcesSearchParams(types = List(IncludedType(orgType)))
-  private val datasetAndCellTypes: ResourcesSearchParams  =
-    ResourcesSearchParams(types = List(IncludedType(datasetType), IncludedType(cellType)), typeOperator = And)
-  private val datasetOrCellTypes: ResourcesSearchParams   =
-    ResourcesSearchParams(types = List(IncludedType(datasetType), IncludedType(cellType)))
-  private val notDatasetAndNotCell: ResourcesSearchParams =
-    ResourcesSearchParams(types = List(ExcludedType(datasetType), ExcludedType(cellType)), typeOperator = And)
-  private val notDatasetOrNotCell: ResourcesSearchParams  =
-    ResourcesSearchParams(types = List(ExcludedType(datasetType), ExcludedType(cellType)), typeOperator = Or)
-  private val orgBySchema                                 = ResourcesSearchParams(schema = Some(orgSchema))
-  private val excludeDatasetType                          = ResourcesSearchParams(types = List(ExcludedType(datasetType)))
-  private val byDeprecated                                = ResourcesSearchParams(deprecated = Some(true))
-  private val byCreated                                   = ResourcesSearchParams(createdBy = Some(alice))
-  private val between_8_and_16                            = TimeRange.Between.unsafe(epochPlus(8L), epochPlus(16))
-  private val byCreatedBetween_8_and_16                   = ResourcesSearchParams(createdAt = between_8_and_16)
-  private val byCreatedAfter_11                           = ResourcesSearchParams(createdAt = TimeRange.After(epochPlus(11L)))
-  private val byUpdated                                   = ResourcesSearchParams(updatedBy = Some(alice))
-  private val byUpdated_Before_12                         = ResourcesSearchParams(updatedAt = TimeRange.Before(epochPlus(12L)))
+  private def withTypes(
+      included: List[Iri] = List.empty,
+      excluded: List[Iri] = List.empty,
+      operator: TypeOperator = Or
+  ) = ResourcesSearchParams(
+    types = TypeParams(
+      types = included.map(IncludedType(_)) ++ excluded.map(ExcludedType(_)),
+      typeOperator = operator
+    )
+  )
+
+  private def withCreatedBy(subject: Subject)     = ResourcesSearchParams(log = LogParam(createdBy = Some(subject)))
+  private def withUpdatedBy(subject: Subject)     = ResourcesSearchParams(log = LogParam(updatedBy = Some(subject)))
+  private def withCreatedAt(timeRange: TimeRange) = ResourcesSearchParams(log = LogParam(createdAt = timeRange))
+  private def withUpdatedAt(timeRange: TimeRange) = ResourcesSearchParams(log = LogParam(updatedAt = timeRange))
+
+  private val all                       = ResourcesSearchParams()
+  private val orgByType                 = withTypes(included = List(orgType))
+  private val datasetAndCellTypes       = withTypes(included = List(datasetType, cellType), operator = And)
+  private val datasetOrCellTypes        = withTypes(included = List(datasetType, cellType), operator = Or)
+  private val notDatasetAndNotCell      = withTypes(excluded = List(datasetType, cellType), operator = And)
+  private val notDatasetOrNotCell       = withTypes(excluded = List(datasetType, cellType), operator = Or)
+  private val orgBySchema               = ResourcesSearchParams(schema = Some(orgSchema))
+  private val excludeDatasetType        = withTypes(excluded = List(datasetType))
+  private val byDeprecated              = ResourcesSearchParams(deprecated = Some(true))
+  private val byCreated                 = withCreatedBy(alice)
+  private val between_8_and_16          = TimeRange.Between.unsafe(epochPlus(8L), epochPlus(16))
+  private val byCreatedBetween_8_and_16 = withCreatedAt(between_8_and_16)
+  private val byCreatedAfter_11         = withCreatedAt(TimeRange.After(epochPlus(11L)))
+  private val byUpdated                 = withUpdatedBy(alice)
+  private val byUpdated_Before_12       = withUpdatedAt(TimeRange.Before(epochPlus(12L)))
 
   private val bbpResource    = bbp.asResourceF
   private val byId           = ResourcesSearchParams(id = Some(bbpResource.id))
   private val byLocatingId   = ResourcesSearchParams(locate = Some(bbpResource.id))
   private val byLocatingSelf = ResourcesSearchParams(locate = Some(bbpResource.self))
-  private val byTag          = ResourcesSearchParams(tag = myTag.some)
+  private val byTag          = ResourcesSearchParams(version = VersionParams(tag = myTag.some))
 
   // Action / params / matching resources
 

@@ -78,8 +78,8 @@ class BlazegraphViewsIndexingRoutes(
               }
             },
             // Getting indexing status for a resource in the given view
-            (pathPrefix("status") & authorizeRead) {
-              (routeSpan("views/<str:org>/<str:project>/<str:id>/status") & authorizeRead) {
+            routeSpan("views/<str:org>/<str:project>/<str:id>/status") {
+              (pathPrefix("status") & authorizeRead) {
                 projectionDirectives.indexingStatus(project, view.selectFilter, view.projection)
               }
             }

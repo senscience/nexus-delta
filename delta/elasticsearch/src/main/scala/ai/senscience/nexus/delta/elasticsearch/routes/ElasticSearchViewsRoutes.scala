@@ -9,8 +9,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.*
@@ -59,14 +61,14 @@ final class ElasticSearchViewsRoutes(
   def routes: Route = {
     handleExceptions(ElasticSearchExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
             concat(
-              pathEndOrSingleSlash {
+              (routeSpan("views/<str:org>/<str:project>") & pathEndOrSingleSlash) {
                 // Create an elasticsearch view without id segment
-                (post & pathEndOrSingleSlash & noParameter("rev") & entity(as[Json])) { source =>
+                (post & pathEndOrSingleSlash & noRev & entity(as[Json])) { source =>
                   authorizeWrite {
                     emitMetadataOrReject(Created, views.create(project, source))
                   }
@@ -74,12 +76,12 @@ final class ElasticSearchViewsRoutes(
               },
               idSegment { id =>
                 concat(
-                  pathEndOrSingleSlash {
+                  (routeSpan("views/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
                     concat(
                       // Create or update an elasticsearch view
                       put {
                         authorizeWrite {
-                          (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
+                          (revParamOpt & pathEndOrSingleSlash & entity(as[Json])) {
                             case (None, source)      =>
                               // Create an elasticsearch view with id segment
                               emitMetadataOrReject(
@@ -95,7 +97,7 @@ final class ElasticSearchViewsRoutes(
                         }
                       },
                       // Deprecate an elasticsearch view
-                      (delete & parameter("rev".as[Int])) { rev =>
+                      (delete & revParam) { rev =>
                         authorizeWrite {
                           emitMetadataOrReject(views.deprecate(id, project, rev))
                         }
@@ -113,8 +115,8 @@ final class ElasticSearchViewsRoutes(
                     )
                   },
                   // Undeprecate an elasticsearch view
-                  (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & parameter("rev".as[Int])) { rev =>
-                    authorizeWrite {
+                  (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & revParam) { rev =>
+                    (routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") & authorizeWrite) {
                       emitMetadataOrReject(
                         views.undeprecate(id, project, rev)
                       )
@@ -122,29 +124,37 @@ final class ElasticSearchViewsRoutes(
                   },
                   // Query an elasticsearch view
                   (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-                    (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                      emit(viewsQuery.query(id, project, query, qp))
+                    routeSpan("views/<str:org>/<str:project>/<str:id>/_search") {
+                      (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                        emit(viewsQuery.query(id, project, query, qp))
+                      }
                     }
                   },
                   // Create a point in time for the given view
                   (pathPrefix("_pit") & parameter("keep_alive".as[Long]) & post & pathEndOrSingleSlash) { keepAlive =>
-                    val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
-                    emitJson(
-                      viewsQuery
-                        .createPointInTime(id, project, keepAliveDuration)
-                    )
+                    routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
+                      val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
+                      emitJson(
+                        viewsQuery
+                          .createPointInTime(id, project, keepAliveDuration)
+                      )
+                    }
                   },
                   // Delete a point in time
                   (pathPrefix("_pit") & entity(as[PointInTime]) & delete & pathEndOrSingleSlash) { pit =>
-                    emit(
-                      StatusCodes.NoContent,
-                      viewsQuery.deletePointInTime(pit)
-                    )
+                    routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
+                      emit(
+                        StatusCodes.NoContent,
+                        viewsQuery.deletePointInTime(pit)
+                      )
+                    }
                   },
                   // Fetch an elasticsearch view original source
                   (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                    authorizeFor(project, Read).apply {
-                      emitSource(views.fetch(id, project))
+                    routeSpan("views/<str:org>/<str:project>/<str:id>/source") {
+                      authorizeFor(project, Read).apply {
+                        emitSource(views.fetch(id, project))
+                      }
                     }
                   }
                 )

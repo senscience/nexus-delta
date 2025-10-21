@@ -73,7 +73,7 @@ class BlazegraphViewsRoutes(
                 idSegment { id =>
                   concat(
                     pathEndOrSingleSlash {
-                      routeSpan("views/<str:org>/<str:project>") {
+                      routeSpan("views/<str:org>/<str:project>/<str:id>") {
                         concat(
                           put {
                             authorizeWrite {
@@ -115,14 +115,16 @@ class BlazegraphViewsRoutes(
                     },
                     // Undeprecate a blazegraph view
                     (pathPrefix("undeprecate") & put & revParam & pathEndOrSingleSlash) { rev =>
-                      (routeSpan("views/<str:org>/<str:project>/undeprecate") & authorizeWrite) {
+                      (routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") & authorizeWrite) {
                         emitMetadataOrReject(
                           views.undeprecate(id, project, rev)
                         )
                       }
                     },
                     // Query a blazegraph view
-                    (pathPrefix("sparql") & pathEndOrSingleSlash & routeSpan("views/<str:org>/<str:project>/sparql")) {
+                    (pathPrefix("sparql") & pathEndOrSingleSlash & routeSpan(
+                      "views/<str:org>/<str:project>/<str:id>/sparql"
+                    )) {
                       concat(
                         // Query
                         ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
@@ -134,7 +136,7 @@ class BlazegraphViewsRoutes(
                     },
                     // Fetch a view original source
                     (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                      (routeSpan("views/<str:org>/<str:project>/source") & authorizeRead) {
+                      (routeSpan("views/<str:org>/<str:project>/<str:id>/source") & authorizeRead) {
                         emitSource(views.fetch(id, project))
                       }
                     },

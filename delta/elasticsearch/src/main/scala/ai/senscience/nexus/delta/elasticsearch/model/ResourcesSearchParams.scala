@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
-import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{KeywordsParam, LogParam, TypeParams, VersionParams}
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{iriFromStringUnmarshaller, iriVocabFromStringUnmarshaller as iriUnmarshaller}
@@ -19,40 +19,27 @@ import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unm
   *   the optional id of the resource
   * @param deprecated
   *   the optional deprecation status of the resource
-  * @param rev
-  *   the optional revision of the resource
-  * @param createdBy
-  *   the optional subject who created the resource
-  * @param createdAt
-  *   the optional time range for resource creation
-  * @param updatedBy
-  *   the optional subject who last updated the resource
-  * @param updatedAt
-  *   the optional time range for the last update of the resource
+  * @param version
+  *   search resources by version or tag
+  * @param log
+  *   search resources by creation and last update fields
   * @param types
   *   the collection of types to consider, where empty implies all resource types are to be included
   * @param schema
   *   schema to consider, where empty implies any schema
   * @param q
   *   a full text search query parameter
-  * @param tag
-  *   an optional tag to filter resources on, returning the latest revision of matching resources.
   */
 final case class ResourcesSearchParams(
     locate: Option[Iri] = None,
     id: Option[Iri] = None,
     deprecated: Option[Boolean] = None,
-    rev: Option[Int] = None,
-    createdBy: Option[Subject] = None,
-    createdAt: TimeRange = TimeRange.Anytime,
-    updatedBy: Option[Subject] = None,
-    updatedAt: TimeRange = TimeRange.Anytime,
-    types: List[Type] = List.empty,
-    typeOperator: TypeOperator = TypeOperator.Or,
-    keywords: Map[Label, String] = Map.empty,
+    version: VersionParams = VersionParams(),
+    log: LogParam = LogParam(),
+    types: TypeParams = TypeParams(),
+    keywords: KeywordsParam = KeywordsParam(),
     schema: Option[ResourceRef] = None,
-    q: Option[String] = None,
-    tag: Option[UserTag] = None
+    q: Option[String] = None
 ) {
 
   /**
@@ -64,6 +51,19 @@ final case class ResourcesSearchParams(
 }
 
 object ResourcesSearchParams {
+
+  final case class LogParam(
+      createdBy: Option[Subject] = None,
+      createdAt: TimeRange = TimeRange.Anytime,
+      updatedBy: Option[Subject] = None,
+      updatedAt: TimeRange = TimeRange.Anytime
+  )
+
+  final case class VersionParams(rev: Option[Int] = None, tag: Option[UserTag] = None)
+
+  final case class TypeParams(types: List[Type] = List.empty, typeOperator: TypeOperator = TypeOperator.Or)
+
+  final case class KeywordsParam(value: Map[Label, String] = Map.empty) extends AnyVal
 
   sealed trait TypeOperator extends Product with Serializable {
 
@@ -78,7 +78,7 @@ object ResourcesSearchParams {
     case object And extends TypeOperator
     case object Or  extends TypeOperator
 
-    implicit val fromStringUnmarshaller: FromStringUnmarshaller[TypeOperator] =
+    given FromStringUnmarshaller[TypeOperator] =
       Unmarshaller.strict[String, TypeOperator] { str =>
         str.toLowerCase() match {
           case "and" => TypeOperator.And
@@ -112,23 +112,16 @@ object ResourcesSearchParams {
       override val include: Boolean = false
     }
 
-    implicit def typeFromStringUnmarshaller(implicit pc: ProjectContext): FromStringUnmarshaller[Type] =
+    def typeFromStringUnmarshaller(pc: Option[ProjectContext]): Unmarshaller[String, Type] = {
+      val unmarshaller = pc.fold(iriFromStringUnmarshaller)(pc => iriUnmarshaller(pc).map(_.value))
       Unmarshaller.withMaterializer[String, Type](implicit ec =>
         implicit mt => {
-          case str if str.startsWith("-") => iriUnmarshaller.apply(str.drop(1)).map(iri => ExcludedType(iri.value))
-          case str if str.startsWith("+") => iriUnmarshaller.apply(str.drop(1)).map(iri => IncludedType(iri.value))
-          case str                        => iriUnmarshaller.apply(str).map(iri => IncludedType(iri.value))
+          case str if str.startsWith("-") => unmarshaller.apply(str.drop(1)).map(ExcludedType(_))
+          case str if str.startsWith("+") => unmarshaller.apply(str.drop(1)).map(IncludedType(_))
+          case str                        => unmarshaller.apply(str).map(IncludedType(_))
         }
       )
-
-    def typeFromStringUnmarshallerNoExpansion: FromStringUnmarshaller[Type] =
-      Unmarshaller.withMaterializer[String, Type](implicit ec =>
-        implicit mt => {
-          case str if str.startsWith("-") => iriFromStringUnmarshaller.apply(str.drop(1)).map(ExcludedType(_))
-          case str if str.startsWith("+") => iriFromStringUnmarshaller.apply(str.drop(1)).map(IncludedType(_))
-          case str                        => iriFromStringUnmarshaller.apply(str).map(IncludedType(_))
-        }
-      )
+    }
   }
 
 }
