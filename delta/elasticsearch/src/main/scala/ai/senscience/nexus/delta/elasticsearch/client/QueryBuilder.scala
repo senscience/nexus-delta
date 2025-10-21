@@ -63,13 +63,13 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
           case TypeOperator.Or  => List(or(terms*))
         }
 
-    val (includeTypes, excludeTypes) = typeParams.types.partitionMap { tpe =>
+    val (includeTypes, excludeTypes) = typeParams.values.partitionMap { tpe =>
       val t = term(keywords.tpe, tpe.value)
       Either.cond(!tpe.include, t, t)
     }
 
-    applyOperator(includeTypes, typeParams.typeOperator) ->
-      applyOperator(excludeTypes, typeParams.typeOperator.negate)
+    applyOperator(includeTypes, typeParams.operator) ->
+      applyOperator(excludeTypes, typeParams.operator.negate)
   }
 
   private def logTerms(log: LogParam)(using BaseUri) = {

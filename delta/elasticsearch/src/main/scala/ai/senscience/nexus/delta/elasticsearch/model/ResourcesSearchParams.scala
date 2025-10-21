@@ -61,7 +61,7 @@ object ResourcesSearchParams {
 
   final case class VersionParams(rev: Option[Int] = None, tag: Option[UserTag] = None)
 
-  final case class TypeParams(types: List[Type] = List.empty, typeOperator: TypeOperator = TypeOperator.Or)
+  final case class TypeParams(values: List[Type] = List.empty, operator: TypeOperator = TypeOperator.Or)
 
   final case class KeywordsParam(value: Map[Label, String] = Map.empty) extends AnyVal
 

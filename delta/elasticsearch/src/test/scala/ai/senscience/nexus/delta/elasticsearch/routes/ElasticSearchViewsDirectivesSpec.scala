@@ -99,7 +99,7 @@ class ElasticSearchViewsDirectivesSpec extends CatsEffectSpec with RouteHelpers 
         updatedAt = updatedAt
       )
       val types         = TypeParams(
-        types = List(
+        values = List(
           IncludedType(iri"${vocab}A"),
           IncludedType(iri"${vocab}B"),
           ExcludedType(iri"${vocab}C")

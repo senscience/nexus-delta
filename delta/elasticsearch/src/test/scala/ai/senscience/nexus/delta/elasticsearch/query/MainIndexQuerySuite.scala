@@ -182,8 +182,8 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
       operator: TypeOperator = Or
   ) = ResourcesSearchParams(
     types = TypeParams(
-      types = included.map(IncludedType(_)) ++ excluded.map(ExcludedType(_)),
-      typeOperator = operator
+      values = included.map(IncludedType(_)) ++ excluded.map(ExcludedType(_)),
+      operator = operator
     )
   )
 
