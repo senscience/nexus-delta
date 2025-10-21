@@ -11,7 +11,6 @@ services:
     environment:
       DELTA_PLUGINS: "/opt/docker/plugins/"
       DELTA_EXTERNAL_CONF: "/config/delta.conf"
-      KAMON_ENABLED: "false"
     entrypoint:
       - '/bin/bash'
       - '-c'

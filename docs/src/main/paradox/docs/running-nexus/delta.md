@@ -14,20 +14,17 @@ Delta will use the available RAM in 2 ways, JVM heap and the file system cache
 so like Elasticsearch, the JVM garbage collection frequency and duration are also important to monitor.
 
 @@@ note
-JVM and host metrics (including those related to the heap) are collected by @link:[Kamon](https://kamon.io/)
+JVM and host metrics (including those related to the heap) are collected by @link:[OpenTelemetry](https://opentelemetry.io/)
 @@@
 
 **Storage:**
 The different types of storage (local, S3) need to be monitored for availability/performance/utilization
 
 **Metrics:**
-Nexus Delta relies on @link:[Kamon](https://kamon.io/) to also collect metrics about the execution of most operations
+Nexus Delta relies on @link:[OpenTelemetry](https://opentelemetry.io/) to also collect metrics about the execution of most operations
 (fetching a resource, query Blazegraph, etc...)
 
-To enable Kamon in Delta, the `KAMON_ENABLED` env variable must be set to true.
-
-To monitor Nexus write activity like resource and file creation/updates, a dashboard is available in the 
-@link:[Nexus repo](https://github.com/senscience/nexus-delta/blob/$git.branch$/kibana/event-metrics/general.ndjson).
+For more details, see the @ref:[monitoring section](configuration/index.md#monitoring-and-observability)
 
 **Logs:**
 Nexus Delta relies on @link:[Logback](https://logback.qos.ch/) for logs which one of the popular logging
