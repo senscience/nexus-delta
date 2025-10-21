@@ -304,32 +304,7 @@ To generate such a key in the correct format follow these steps:
 
 The archive plugin configuration can be found @link:[here](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/plugins/archive/src/main/resources/archive.conf){ open=new }.
 
-## Monitoring
-
-### Kamon
-
-For monitoring, Nexus Delta relies on @link:[Kamon](https://kamon.io/){ open=new }.
-
-Kamon can be disabled by passing the environment variable `KAMON_ENABLED` set to `false`.
-
-Delta configuration for Kamon is provided @link:[in the `monitoring` section](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/app/src/main/resources/app.conf#L391){ open=new }.
-For a more complete description on the different options available, please look at the Kamon website.
-
-#### Instrumentation
-
-Delta provides the Kamon instrumentation for:
-
-* @link:[Executors](https://kamon.io/docs/v1/instrumentation/executors/){ open=new }
-* @link:[Scala futures](https://kamon.io/docs/v1/instrumentation/futures/){ open=new }
-* @link:[Logback](https://kamon.io/docs/v1/instrumentation/logback/){ open=new }
-* @link:[System metrics](https://kamon.io/docs/v1/instrumentation/system-metrics/){ open=new }
-
-#### Reporters
-
-Kamon reporters are also available for:
-
-* @link:[Jaeger](https://kamon.io/docs/v1/reporters/jaeger/){ open=new }
-* @link:[Prometheus](https://kamon.io/docs/v1/reporters/prometheus/){ open=new }
+## Monitoring and observability
 
 ### OpenTelemetry
 

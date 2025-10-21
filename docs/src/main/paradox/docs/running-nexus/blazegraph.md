@@ -68,9 +68,10 @@ Query load and latency must be monitored to make sure that information in a time
 On the write side, indexing load and latency must also be watched especially
 if the data must be available for search as soon as possible.
 
-To help with this, Delta records long queries and stores them in the `blazegraph_queries` table and also leverage
-@link:[Kamon tracing](https://kamon.io/docs/latest/core/tracing/) with spans to measure these operations
+To help with this, Delta records http client metrics and traces to measure these operations
 and if any of them fail.
+
+Blazegraph queries can be saved as a span attribute by enabling the `plugins.blazegraph.otel.capture-queries` configuration.
 
 ## Tools and resources
 
