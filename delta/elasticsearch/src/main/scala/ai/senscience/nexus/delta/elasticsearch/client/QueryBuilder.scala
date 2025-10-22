@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
-import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{Type, TypeOperator}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.*
 import ai.senscience.nexus.delta.kernel.search.Pagination.{FromPagination, SearchAfterPagination}
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -21,8 +21,6 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
 
   private val trackTotalHits = "track_total_hits"
   private val searchAfter    = "search_after"
-
-  implicit private def subjectEncoder(implicit baseUri: BaseUri): Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
 
   implicit private val sortEncoder: Encoder[Sort] =
     Encoder.encodeJson.contramap(sort => Json.obj(sort.value -> sort.order.asJson))
@@ -52,45 +50,61 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     if sortList.isEmpty then this
     else copy(query.add("sort", sortList.values.asJson))
 
-  private def typesTerms(typeOperator: TypeOperator, types: List[Type]) = {
-    val terms = types.map(tpe => term(keywords.tpe, tpe.value))
+  private def versionTerms(version: VersionParams) =
+    version.rev.map(term(nxv.rev.prefix, _)) ++
+      version.tag.map(term(nxv.tags.prefix, _))
 
-    if types.isEmpty then {
-      Nil
-    } else {
-      typeOperator match {
-        case TypeOperator.And => List(and(terms*))
-        case TypeOperator.Or  => List(or(terms*))
-      }
+  private def typesTerms(typeParams: TypeParams) = {
+    def applyOperator(terms: List[JsonObject], typeOperator: TypeOperator) =
+      if terms.isEmpty then Nil
+      else
+        typeOperator match {
+          case TypeOperator.And => List(and(terms*))
+          case TypeOperator.Or  => List(or(terms*))
+        }
+
+    val (includeTypes, excludeTypes) = typeParams.values.partitionMap { tpe =>
+      val t = term(keywords.tpe, tpe.value)
+      Either.cond(!tpe.include, t, t)
     }
+
+    applyOperator(includeTypes, typeParams.operator) ->
+      applyOperator(excludeTypes, typeParams.operator.negate)
   }
+
+  private def logTerms(log: LogParam)(using BaseUri) = {
+    given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+    log.createdBy.map(term(nxv.createdBy.prefix, _)) ++
+      range(nxv.createdAt.prefix, log.createdAt) ++
+      log.updatedBy.map(term(nxv.updatedBy.prefix, _)) ++
+      range(nxv.updatedAt.prefix, log.updatedAt)
+  }
+
+  private def keywordTerms(keywords: KeywordsParam) =
+    keywords.value.map { case (key, value) =>
+      term(s"_keywords.$key", value)
+    }
 
   /**
     * Filters by the passed ''params''
     */
-  def withFilters(params: ResourcesSearchParams, projects: Set[ProjectRef])(implicit baseUri: BaseUri): QueryBuilder = {
-    val (includeTypes, excludeTypes) = params.types.partition(_.include)
+  def withFilters(params: ResourcesSearchParams, projects: Set[ProjectRef])(using BaseUri): QueryBuilder = {
+    val (includeTypes, excludeTypes) = typesTerms(params.types)
     val projectsTerm                 = or(projects.map { project => term("_project", project) }.toSeq*)
     QueryBuilder(
       query.deepMerge(
         queryPayload(
-          mustTerms = typesTerms(params.typeOperator, includeTypes) ++
+          mustTerms = includeTypes ++
+            logTerms(params.log) ++
+            versionTerms(params.version) ++
             params.locate.map { l => or(term(keywords.id, l), term(nxv.self.prefix, l)) } ++
             params.id.map(term(keywords.id, _)) ++
             params.q.map(multiMatch) ++
             params.schema.map(term(nxv.constrainedBy.prefix, _)) ++
             params.deprecated.map(term(nxv.deprecated.prefix, _)) ++
-            params.rev.map(term(nxv.rev.prefix, _)) ++
-            params.createdBy.map(term(nxv.createdBy.prefix, _)) ++
-            range(nxv.createdAt.prefix, params.createdAt) ++
-            params.updatedBy.map(term(nxv.updatedBy.prefix, _)) ++
-            range(nxv.updatedAt.prefix, params.updatedAt) ++
-            params.tag.map(term(nxv.tags.prefix, _)) ++
-            params.keywords.map { case (key, value) =>
-              term(s"_keywords.$key", value)
-            } ++
+            keywordTerms(params.keywords) ++
             List(projectsTerm),
-          mustNotTerms = typesTerms(params.typeOperator.negate, excludeTypes),
+          mustNotTerms = excludeTypes,
           withScore = params.q.isDefined
         )
       )

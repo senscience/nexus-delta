@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -16,6 +17,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJso
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
@@ -46,17 +48,17 @@ class ListingRoutes(
     pathPrefix("resources") {
       extractCaller { implicit caller =>
         concat(
-          (searchParametersAndSortList & paginated) { (params, sort, page) =>
+          (searchParametersAndSortList(None) & paginated) { (params, sort, page) =>
             val request = MainIndexRequest(params, page, sort)
             concat(
               // List/aggregate all resources
-              pathEndOrSingleSlash {
+              (routeSpan("resources") & pathEndOrSingleSlash) {
                 concat(
                   aggregate(request, Scope.Root),
                   list(request, Scope.Root)
                 )
               },
-              (label & pathEndOrSingleSlash) { org =>
+              (routeSpan("resources/<str:org>") & label & pathEndOrSingleSlash) { org =>
                 val scope = Scope.Org(org)
                 concat(
                   aggregate(request, scope),
@@ -65,9 +67,9 @@ class ListingRoutes(
               }
             )
           },
-          projectRef { project =>
-            projectContext(project) { implicit pc =>
-              (get & searchParametersInProject & paginated) { (params, sort, page) =>
+          (routeSpan("resources/<str:org>/<str:project>") & projectRef) { project =>
+            projectContext(project) { case pc @ given ProjectContext =>
+              (get & searchParametersAndSortList(Some(pc)) & paginated) { (params, sort, page) =>
                 val scope = Scope.Project(project)
                 concat(
                   // List/aggregate all resources inside a project
@@ -111,9 +113,9 @@ class ListingRoutes(
   private val resourcesListings: Route =
     concat(resourcesToSchemas.value.map { case (Label(resourceSegment), resourceSchema) =>
       pathPrefix(resourceSegment) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
-            (searchParametersAndSortList & paginated) { (params, sort, page) =>
+            (searchParametersAndSortList(None) & paginated) { (params, sort, page) =>
               val request = MainIndexRequest(params.withSchema(resourceSchema), page, sort)
               concat(
                 // List all resources of type resourceSegment
@@ -134,9 +136,9 @@ class ListingRoutes(
               )
             },
             projectRef { project =>
-              projectContext(project) { implicit pc =>
+              projectContext(project) { pc =>
                 // List all resources of type resourceSegment inside a project
-                (searchParametersInProject & paginated & pathEndOrSingleSlash) { (params, sort, page) =>
+                (searchParametersAndSortList(Some(pc)) & paginated & pathEndOrSingleSlash) { (params, sort, page) =>
                   val request = MainIndexRequest(params.withSchema(resourceSchema), page, sort)
                   val scope   = Scope.Project(project)
                   concat(
@@ -151,9 +153,9 @@ class ListingRoutes(
       }
     }.toSeq*)
 
-  private def list(request: MainIndexRequest, scope: Scope)(implicit caller: Caller): Route =
+  private def list(request: MainIndexRequest, scope: Scope)(using Caller): Route =
     (get & paginated & extractHttp4sUri) { (page, uri) =>
-      implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[JsonObject]] =
+      given JsonLdEncoder[SearchResults[JsonObject]] =
         searchResultsJsonLdEncoder(ContextValue(contexts.searchMetadata), page, uri)
       emit {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
@@ -162,15 +164,13 @@ class ListingRoutes(
       }
     }
 
-  private def aggregate(request: MainIndexRequest, scope: Scope)(implicit caller: Caller): Route =
+  private def aggregate(request: MainIndexRequest, scope: Scope)(using Caller): Route =
     (get & aggregated) {
-
       emitJson {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
           defaultIndexQuery.aggregate(request, projects)
         }
       }
-
     }
 
 }

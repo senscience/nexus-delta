@@ -6,8 +6,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emitJson, projectRef}
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.iriSegment
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsEncoder
@@ -26,17 +28,19 @@ class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fet
     Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
-  implicit private val searchEncoder: Encoder.AsObject[SearchResults[JsonObject]] = searchResultsEncoder(_ => None)
+  given Encoder.AsObject[SearchResults[JsonObject]] = searchResultsEncoder(_ => None)
 
   def routes: Route =
     handleExceptions(ElasticSearchExceptionHandler.apply) {
       pathPrefix("history") {
         pathPrefix("resources") {
-          extractCaller { implicit caller =>
-            projectRef.apply { project =>
-              authorizeFor(project, Read).apply {
-                (get & iriSegment & pathEndOrSingleSlash) { id =>
-                  emitJson(fetchHistory.history(project, id))
+          extractCaller { case given Caller =>
+            routeSpan("history/resources/<str:org>/<str:project>/<str:id>") {
+              projectRef.apply { project =>
+                authorizeFor(project, Read).apply {
+                  (get & iriSegment & pathEndOrSingleSlash) { id =>
+                    emitJson(fetchHistory.history(project, id))
+                  }
                 }
               }
             }

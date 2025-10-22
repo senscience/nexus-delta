@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
+import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{LogParam, TypeParams, VersionParams}
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -24,17 +25,17 @@ import java.time.Instant
 
 class ElasticSearchViewsDirectivesSpec extends CatsEffectSpec with RouteHelpers with ElasticSearchViewsDirectives {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  private val mappings                    = ApiMappings("alias" -> (nxv + "alias"), "nxv" -> nxv.base)
-  private val base                        = iri"http://localhost/base/"
-  private val vocab                       = iri"http://localhost/vocab/"
-  implicit private val pc: ProjectContext = ProjectContext.unsafe(mappings, base, vocab, enforceSchema = false)
+  private val mappings           = ApiMappings("alias" -> (nxv + "alias"), "nxv" -> nxv.base)
+  private val base               = iri"http://localhost/base/"
+  private val vocab              = iri"http://localhost/vocab/"
+  private val pc: ProjectContext = ProjectContext.unsafe(mappings, base, vocab, enforceSchema = false)
 
   private def makeRoute(
       expectedSortList: Option[SortList] = None,
       expectedSearch: Option[ResourcesSearchParams] = None
-  )(implicit position: Position): Route =
+  )(using position: Position): Route =
     get {
       concat(
         (pathPrefix("sort") & sortList & pathEndOrSingleSlash) { list =>
@@ -42,7 +43,7 @@ class ElasticSearchViewsDirectivesSpec extends CatsEffectSpec with RouteHelpers 
           complete("successSortList")
         },
         (pathPrefix("search") & projectRef & pathEndOrSingleSlash) { _ =>
-          searchParameters(baseUri, pc).apply { params =>
+          searchParameters(Some(pc)) { params =>
             params shouldEqual expectedSearch.value
             complete("successSearchParams")
           }
@@ -90,23 +91,30 @@ class ElasticSearchViewsDirectivesSpec extends CatsEffectSpec with RouteHelpers 
         "tag"        -> tag.value
       ).map { case (k, v) => s"$k=$v" }.mkString("&")
 
+      val versionParams = VersionParams(Some(2), Some(tag))
+      val logParams     = LogParam(
+        createdBy = Some(alicia),
+        createdAt = createdAt,
+        updatedBy = Some(bob),
+        updatedAt = updatedAt
+      )
+      val types         = TypeParams(
+        values = List(
+          IncludedType(iri"${vocab}A"),
+          IncludedType(iri"${vocab}B"),
+          ExcludedType(iri"${vocab}C")
+        )
+      )
+
       val expected = ResourcesSearchParams(
         locate = Some(iri"${base}self"),
         id = Some(iri"${base}myId"),
         deprecated = Some(false),
-        rev = Some(2),
-        createdBy = Some(alicia),
-        createdAt = createdAt,
-        updatedBy = Some(bob),
-        updatedAt = updatedAt,
-        types = List(
-          IncludedType(iri"${vocab}A"),
-          IncludedType(iri"${vocab}B"),
-          ExcludedType(iri"${vocab}C")
-        ),
+        version = versionParams,
+        log = logParams,
+        types = types,
         schema = Some(ResourceRef.Latest(iri"${base}mySchema")),
-        q = Some("something"),
-        tag = Some(tag)
+        q = Some("something")
       )
 
       val route = makeRoute(expectedSearch = Some(expected))

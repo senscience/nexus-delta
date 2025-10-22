@@ -10,8 +10,10 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
@@ -47,7 +49,7 @@ final class MainIndexRoutes(
     }
 
   private def views = pathPrefix("views") {
-    extractCaller { implicit caller =>
+    extractCaller { case given Caller =>
       projectRef { project =>
         val authorizeRead  = authorizeFor(project, Read)
         val authorizeWrite = authorizeFor(project, Write)
@@ -56,35 +58,45 @@ final class MainIndexRoutes(
         defaultViewSegment {
           concat(
             // Fetch statistics for the main indexing on this current project
-            (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-              projectionDirectives.statistics(project, SelectFilter.latest, projection)
+            routeSpan("views/<str:org>/<str:project>/documents/statistics") {
+              (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+                projectionDirectives.statistics(project, SelectFilter.latest, projection)
+              }
             },
             // Fetch main view indexing failures
-            (pathPrefix("failures") & get & authorizeWrite) {
-              projectionDirectives.indexingErrors(project, mainIndexingId)
+            routeSpan("views/<str:org>/<str:project>/documents/failures") {
+              (pathPrefix("failures") & get & authorizeWrite) {
+                projectionDirectives.indexingErrors(project, mainIndexingId)
+              }
             },
             // Manage a main indexing offset
-            (pathPrefix("offset") & pathEndOrSingleSlash) {
-              concat(
-                // Fetch an elasticsearch view offset
-                (get & authorizeRead) {
-                  projectionDirectives.offset(projection)
-                },
-                // Remove an main indexing offset (restart the view)
-                (delete & authorizeWrite & offset("from")) { fromOffset =>
-                  projectionDirectives.scheduleRestart(projection, fromOffset)
-                }
-              )
+            routeSpan("views/<str:org>/<str:project>/documents/offsets") {
+              (pathPrefix("offset") & pathEndOrSingleSlash) {
+                concat(
+                  // Fetch an elasticsearch view offset
+                  (get & authorizeRead) {
+                    projectionDirectives.offset(projection)
+                  },
+                  // Remove an main indexing offset (restart the view)
+                  (delete & authorizeWrite & offset("from")) { fromOffset =>
+                    projectionDirectives.scheduleRestart(projection, fromOffset)
+                  }
+                )
+              }
             },
             // Getting indexing status for a resource in the main view
-            (pathPrefix("status") & authorizeRead) {
-              projectionDirectives.indexingStatus(project, SelectFilter.latest, projection)
+            routeSpan("views/<str:org>/<str:project>/documents/status") {
+              (pathPrefix("status") & authorizeRead) {
+                projectionDirectives.indexingStatus(project, SelectFilter.latest, projection)
+              }
             },
             // Query default indexing for this given project
-            (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-              authorizeQuery {
-                (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                  emit(mainIndexQuery.search(project, query, qp))
+            routeSpan("views/<str:org>/<str:project>/documents/_search") {
+              (pathPrefix("_search") & post & pathEndOrSingleSlash) {
+                authorizeQuery {
+                  (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                    emit(mainIndexQuery.search(project, query, qp))
+                  }
                 }
               }
             }
@@ -96,7 +108,7 @@ final class MainIndexRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("main") & pathPrefix("reindex")) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         val authorizeRootWrite = authorizeFor(Root, Write)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
