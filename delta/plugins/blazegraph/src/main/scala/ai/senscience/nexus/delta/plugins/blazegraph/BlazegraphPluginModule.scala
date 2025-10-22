@@ -42,7 +42,7 @@ import org.typelevel.otel4s.trace.Tracer
   */
 class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[BlazegraphViewsConfig]("plugins.blazegraph")
 
@@ -53,28 +53,12 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   make[SparqlClient].named("sparql-indexing-client").fromResource {
     (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql-indexing")) =>
-      SparqlClient(
-        cfg.sparqlTarget,
-        cfg.base,
-        cfg.queryTimeout,
-        cfg.credentials,
-        metricsClient,
-        "sparql-indexing",
-        cfg.otel
-      )(using tracer)
+      SparqlClient(cfg.access, metricsClient, "sparql-indexing")(using tracer)
   }
 
   make[SparqlClient].named("sparql-query-client").fromResource {
     (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql")) =>
-      SparqlClient(
-        cfg.sparqlTarget,
-        cfg.base,
-        cfg.queryTimeout,
-        cfg.credentials,
-        metricsClient,
-        "sparql-query",
-        cfg.otel
-      )(using tracer)
+      SparqlClient(cfg.access, metricsClient, "sparql-query")(using tracer)
   }
 
   make[ValidateBlazegraphView].from {

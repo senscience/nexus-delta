@@ -1,29 +1,25 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.config
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
-import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
+import ai.senscience.nexus.delta.plugins.blazegraph.config.SparqlAccess
 import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.SinkConfig.SinkConfig
-import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{BlazegraphAccess, RemoteSourceClientConfig, SourcesConfig}
+import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.{RemoteSourceClientConfig, SourcesConfig}
 import ai.senscience.nexus.delta.sdk.auth
-import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import org.http4s.{BasicCredentials, Uri}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
-import pureconfig.module.http4s.*
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.FiniteDuration
 
 /**
   * The composite view configuration.
   *
   * @param sources
   *   the configuration of the composite views sources
-  * @param blazegraphAccess
+  * @param sparqlAccess
   *   the configuration of the Blazegraph instance used for composite views
   * @param prefix
   *   prefix for indices and namespaces
@@ -50,7 +46,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
   */
 final case class CompositeViewsConfig(
     sources: SourcesConfig,
-    blazegraphAccess: BlazegraphAccess,
+    sparqlAccess: SparqlAccess,
     prefix: String,
     maxProjections: Int,
     eventLog: EventLogConfig,
@@ -76,25 +72,6 @@ object CompositeViewsConfig {
     */
   final case class SourcesConfig(
       maxSources: Int
-  )
-
-  /**
-    * The configuration of the blazegraph instance used for composite views. By default it uses values from the
-    * blazegraph plugin.
-    *
-    * @param base
-    *   the base uri to the Blazegraph HTTP endpoint
-    * @param credentials
-    *   the Blazegraph HTTP endpoint credentials
-    * @param queryTimeout
-    *   the Blazegraph query timeout
-    */
-  final case class BlazegraphAccess(
-      base: Uri,
-      sparqlTarget: SparqlTarget,
-      credentials: Option[BasicCredentials],
-      queryTimeout: Duration,
-      otel: OpentelemetryConfig
   )
 
   /**

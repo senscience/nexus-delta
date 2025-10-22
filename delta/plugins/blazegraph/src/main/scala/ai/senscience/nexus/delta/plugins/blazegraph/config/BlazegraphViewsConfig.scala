@@ -1,29 +1,20 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.config
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
-import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.sdk.Defaults
-import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import org.http4s.{BasicCredentials, Uri}
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.*
-import pureconfig.module.http4s.*
 
 import scala.concurrent.duration.*
 
 /**
   * Configuration for the Blazegraph views module.
   *
-  * @param base
-  *   the base uri to the Blazegraph HTTP endpoint
-  * @param credentials
-  *   the Blazegraph HTTP endpoint credentials
-  * @param queryTimeout
-  *   the Blazegraph query timeout
+  * @param access
+  *   the configuration of the sparql instances
   * @param eventLog
   *   configuration of the event log
   * @param pagination
@@ -40,10 +31,7 @@ import scala.concurrent.duration.*
   *   if false, disables Blazegraph indexing
   */
 final case class BlazegraphViewsConfig(
-    base: Uri,
-    sparqlTarget: SparqlTarget,
-    credentials: Option[BasicCredentials],
-    queryTimeout: Duration,
+    access: SparqlAccess,
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
     batch: BatchConfig,
@@ -52,13 +40,13 @@ final case class BlazegraphViewsConfig(
     maxViewRefs: Int,
     syncIndexingTimeout: FiniteDuration,
     defaults: Defaults,
-    indexingEnabled: Boolean,
-    otel: OpentelemetryConfig
+    indexingEnabled: Boolean
 )
 
 object BlazegraphViewsConfig {
 
-  given ConfigReader[BlazegraphViewsConfig] = deriveReader[BlazegraphViewsConfig]
+  given ConfigReader[BlazegraphViewsConfig] =
+    deriveReader[BlazegraphViewsConfig]
 
   final case class OpentelemetryConfig(captureQueries: Boolean)
 

@@ -57,34 +57,12 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   make[SparqlClient].named("sparql-composite-indexing-client").fromResource {
     (cfg: CompositeViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("composite-indexing")) =>
-      val access = cfg.blazegraphAccess
-      SparqlClient(
-        access.sparqlTarget,
-        access.base,
-        access.queryTimeout,
-        cfg.blazegraphAccess.credentials,
-        metricsClient,
-        "composite-indexing",
-        access.otel
-      )(using
-        tracer
-      )
+      SparqlClient(cfg.sparqlAccess, metricsClient, "composite-indexing")(using tracer)
   }
 
   make[SparqlClient].named("sparql-composite-query-client").fromResource {
     (cfg: CompositeViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("composite")) =>
-      val access = cfg.blazegraphAccess
-      SparqlClient(
-        access.sparqlTarget,
-        access.base,
-        access.queryTimeout,
-        cfg.blazegraphAccess.credentials,
-        metricsClient,
-        "composite-query",
-        access.otel
-      )(using
-        tracer
-      )
+      SparqlClient(cfg.sparqlAccess, metricsClient, "composite-query")(using tracer)
   }
 
   make[ValidateCompositeView].from {
