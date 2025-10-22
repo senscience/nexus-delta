@@ -45,8 +45,9 @@ object DiskFileOperations {
       for {
         path   <- absoluteDiskPath(path)
         exists <- Stream.eval(Files[IO].exists(path))
-        data   <- if exists then Files[IO].readAll(path).chunks.map { c => ByteBuffer.wrap(c.toArray) }
-                  else Stream.raiseError[IO](FetchFileRejection.FileNotFound(path.toString))
+        data   <-
+          if exists then Files[IO].readAll(path).chunks.map { c => ByteBuffer.wrap(c.toArray) }
+          else Stream.raiseError[IO](FetchFileRejection.FileNotFound(path.toString))
       } yield data
 
     override def save(uploading: DiskUploadingFile): IO[FileStorageMetadata] = saveFile.apply(uploading)
