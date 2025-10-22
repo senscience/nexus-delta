@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlConnectError, SparqlTimeoutError, SparqlUnknownHost}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
-import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
+import ai.senscience.nexus.delta.plugins.blazegraph.config.SparqlAccess
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
@@ -20,12 +20,12 @@ import io.circe.syntax.*
 import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.Accept
-import org.http4s.{BasicCredentials, EntityDecoder, Header, MediaType, QValue, Uri}
+import org.http4s.{EntityDecoder, Header, MediaType, QValue, Uri}
 import org.typelevel.otel4s.trace.Tracer
 
 import java.net.{ConnectException, UnknownHostException}
 import scala.concurrent.TimeoutException
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.FiniteDuration
 import scala.reflect.ClassTag
 import scala.xml.{Elem, NodeSeq}
 
@@ -263,15 +263,9 @@ object SparqlClient {
       }
     }
 
-  def apply(
-      target: SparqlTarget,
-      endpoint: Uri,
-      queryTimeout: Duration,
-      credentials: Option[BasicCredentials],
-      otelMetricsClient: OtelMetricsClient,
-      traffic: String,
-      otel: OpentelemetryConfig
-  )(using Tracer[IO]): Resource[IO, SparqlClient] =
+  def apply(access: SparqlAccess, otelMetricsClient: OtelMetricsClient, traffic: String)(using
+      Tracer[IO]
+  ): Resource[IO, SparqlClient] =
     EmberClientBuilder
       .default[IO]
       .withLogger(logger)
@@ -280,16 +274,16 @@ object SparqlClient {
         val enrichedClient =
           errorHandler(
             otelMetricsClient.wrap(
-              BasicAuth(credentials)(client),
+              BasicAuth(access.credentials)(client),
               traffic
             )
           )
-        target match {
+        access.target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests
-            new BlazegraphClient(enrichedClient, endpoint, queryTimeout, otel)
+            new BlazegraphClient(enrichedClient, access.endpoints, access.queryTimeout, access.otel)
           case SparqlTarget.Rdf4j      =>
-            RDF4JClient.lmdb(enrichedClient, endpoint)
+            RDF4JClient.lmdb(enrichedClient, access.endpoints.head)
         }
       }
 }

@@ -77,7 +77,7 @@ class ResourceDeletionSpec extends BaseIntegrationSpec {
       } yield succeed
     }
 
-    "succeed when the user has not the right permission" in {
+    "succeed when the user has the right permission" in {
       for {
         _          <- aclDsl.addPermission("/", Bob, Permission.Resources.Delete)
         payload    <- SimpleResource.sourcePayload(42)

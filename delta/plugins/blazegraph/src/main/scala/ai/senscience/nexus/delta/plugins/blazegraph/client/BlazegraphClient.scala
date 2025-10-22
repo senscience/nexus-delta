@@ -9,8 +9,10 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.NamespaceProperties
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.otel.{OtelTracingClient, SpanDef}
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
+import cats.kernel.Semigroup
+import cats.syntax.all.*
 import fs2.Stream
 import org.http4s.Method.{DELETE, GET, POST}
 import org.http4s.client.Client
@@ -26,7 +28,12 @@ import scala.reflect.ClassTag
 /**
   * A client that exposes additional functions on top of [[SparqlClient]] that are specific to Blazegraph.
   */
-final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Duration, otel: OpentelemetryConfig)(using
+final class BlazegraphClient(
+    client: Client[IO],
+    endpoints: NonEmptyVector[Uri],
+    queryTimeout: Duration,
+    otel: OpentelemetryConfig
+)(using
     Tracer[IO]
 ) extends SparqlClient {
 
@@ -46,7 +53,10 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
   private val read      = Attribute(accessKey, "read")
   private val write     = Attribute(accessKey, "write")
 
-  private def queryEndpoint(namespace: String): Uri = endpoint / "namespace" / namespace / "sparql"
+  private def findEndpoint(namespace: String): Uri =
+    endpoints.getUnsafe(Math.abs(namespace.hashCode) % endpoints.length)
+
+  private def queryEndpoint(namespace: String): Uri = findEndpoint(namespace) / "namespace" / namespace / "sparql"
 
   private def updateEndpoint(namespace: String): Uri = queryEndpoint(namespace)
 
@@ -84,22 +94,26 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
     */
   override def serviceDescription: IO[ServiceDescription] =
     client
-      .expect[ServiceDescription](endpoint / "status")
+      .expect[ServiceDescription](endpoints.head / "status")
       .timeout(1.second)
       .recover(_ => ServiceDescription.unresolved(serviceName))
 
-  override def healthCheck(period: FiniteDuration): Stream[IO, Boolean] =
+  override def healthCheck(period: FiniteDuration): Stream[IO, Boolean] = {
+    given Semigroup[Boolean] = (x: Boolean, y: Boolean) => x && y
     Stream.awakeEvery[IO](period) >>
       Stream.eval(
-        client
-          .successful(GET(endpoint / "status"))
-          .timeout(1.second)
-          .recover(_ => false)
+        endpoints.parReduceMapA { endpoint =>
+          client
+            .successful(GET(endpoint / "status"))
+            .timeout(1.second)
+            .recover(_ => false)
+        }
       )
+  }
 
   override def existsNamespace(namespace: String): IO[Boolean] = {
     val spanDef = SpanDef("namespace/<string:namespace>", withNamespace(namespace), read)
-    OtelTracingClient(client, spanDef).statusFromUri(endpoint / "namespace" / namespace).flatMap {
+    OtelTracingClient(client, spanDef).statusFromUri(findEndpoint(namespace) / "namespace" / namespace).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(SparqlActionError(status, "exists"))
@@ -119,7 +133,7 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
   def createNamespace(namespace: String, properties: NamespaceProperties): IO[Boolean] = {
     val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
     val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
-    val request           = POST(endpoint / "namespace").withEntity(propWithNamespace.toString)
+    val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
     OtelTracingClient(client, spanDef).status(request).flatMap {
       case Status.Created  => IO.pure(true)
       case Status.Conflict => IO.pure(false)
@@ -133,7 +147,7 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
 
   override def deleteNamespace(namespace: String): IO[Boolean] = {
     val spanDef = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
-    val request = DELETE(endpoint / "namespace" / namespace)
+    val request = DELETE(findEndpoint(namespace) / "namespace" / namespace)
     OtelTracingClient(client, spanDef).status(request).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
@@ -157,21 +171,22 @@ final class BlazegraphClient(client: Client[IO], endpoint: Uri, queryTimeout: Du
   /**
     * List all namespaces in the blazegraph instance
     */
-  def listNamespaces: IO[Vector[String]] = {
-    val namespacePredicate = "http://www.bigdata.com/rdf#/features/KB/Namespace"
-    val describeEndpoint   = (endpoint / "namespace").withQueryParam("describe-each-named-graph", "false")
-    val spanDef            = SpanDef("namespace", read)
-    val request            = GET(describeEndpoint, accept(SparqlResultsJson.mediaTypes))
-    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
-    OtelTracingClient(client, spanDef).expect[SparqlResults](request).map { response =>
-      response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
-        val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)
-        val namespaceName = binding.get("object").map(_.value)
-        if isNamespace then acc ++ namespaceName
-        else acc
+  def listNamespaces: IO[Vector[String]] =
+    endpoints.parReduceMapA { endpoint =>
+      val namespacePredicate = "http://www.bigdata.com/rdf#/features/KB/Namespace"
+      val describeEndpoint   = (endpoint / "namespace").withQueryParam("describe-each-named-graph", "false")
+      val spanDef            = SpanDef("namespace", read)
+      val request            = GET(describeEndpoint, accept(SparqlResultsJson.mediaTypes))
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      OtelTracingClient(client, spanDef).expect[SparqlResults](request).map { response =>
+        response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
+          val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)
+          val namespaceName = binding.get("object").map(_.value)
+          if isNamespace then acc ++ namespaceName
+          else acc
+        }
       }
     }
-  }
 
   override def bulk(namespace: String, queries: Seq[SparqlWriteQuery]): IO[Unit] =
     IO.fromEither(SparqlBulkUpdate(namespace, queries)).flatMap { bulk =>
