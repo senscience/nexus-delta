@@ -1,4 +1,4 @@
-package ch.epfl.bluebrain.nexus.benchmarks.syntax
+package ai.senscience.nexus.benchmarks.syntax
 
 import io.circe.Json
 import io.gatling.core.Predef.*
