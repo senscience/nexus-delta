@@ -1,14 +1,14 @@
-package ch.epfl.bluebrain.nexus.benchmarks.simulation
+package ai.senscience.nexus.benchmarks.simulation
 
-import ch.epfl.bluebrain.nexus.benchmarks.{ConfigLoader, ResourceLoader}
-import ch.epfl.bluebrain.nexus.benchmarks.simulation.CreateProjects.BenchmarkConfig
-import ch.epfl.bluebrain.nexus.benchmarks.syntax.*
+import ai.senscience.nexus.benchmarks.simulation.CreateProjects.BenchmarkConfig
+import ai.senscience.nexus.benchmarks.syntax.*
+import ai.senscience.nexus.benchmarks.{ConfigLoader, ResourceLoader}
 import io.circe.Json
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
 import io.circe.literal.*
 import io.gatling.core.Predef.*
 import io.gatling.http.Predef.*
+import pureconfig.ConfigReader
+import pureconfig.generic.semiauto.deriveReader
 
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger

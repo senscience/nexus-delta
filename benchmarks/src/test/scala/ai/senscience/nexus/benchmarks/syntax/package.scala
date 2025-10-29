@@ -1,3 +1,3 @@
-package ch.epfl.bluebrain.nexus.benchmarks
+package ai.senscience.nexus.benchmarks
 
 package object syntax extends HttpRequestBuilderSyntax

@@ -1,4 +1,4 @@
-package ch.epfl.bluebrain.nexus.benchmarks.simulation
+package ai.senscience.nexus.benchmarks.simulation
 
 import io.gatling.core.Predef.*
 import io.gatling.core.structure.ScenarioBuilder

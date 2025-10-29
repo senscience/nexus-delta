@@ -1,4 +1,4 @@
-package ch.epfl.bluebrain.nexus.benchmarks
+package ai.senscience.nexus.benchmarks
 
 import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import cats.effect.IO
