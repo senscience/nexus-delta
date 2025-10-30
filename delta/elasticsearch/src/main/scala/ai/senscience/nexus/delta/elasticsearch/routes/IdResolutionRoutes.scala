@@ -29,8 +29,8 @@ class IdResolutionRoutes(
     }
 
   private def resolutionRoute: Route =
-    routeSpan("views/<str:org>/<str:project>/documents/_search") {
       pathPrefix("resolve") {
+        routeSpan("resolve") {
         extractCaller { case given Caller =>
           (get & iriSegment & pathEndOrSingleSlash) { iri =>
             emit(idResolution.apply(iri))
