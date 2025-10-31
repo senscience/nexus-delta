@@ -374,7 +374,7 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     for {
       compiled <- CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections)
       _        <- spaces.init(view)
-      _        <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit)(batchConfig)
+      _        <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit)(using batchConfig)
     } yield compiled
   }
 

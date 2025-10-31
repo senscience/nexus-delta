@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
@@ -23,10 +24,7 @@ object SupervisorSetup {
   def unapply(setup: SupervisorSetup): (Supervisor, Projections, ProjectionErrors) =
     (setup.supervisor, setup.projections, setup.projectionErrors)
 
-  def resource(
-      cluster: ClusterConfig,
-      clock: Clock[IO]
-  ): Resource[IO, SupervisorSetup] = {
+  def resource(cluster: ClusterConfig, clock: Clock[IO]): Resource[IO, SupervisorSetup] = {
     val config: ProjectionConfig = ProjectionConfig(
       cluster,
       BatchConfig(3, 50.millis),
@@ -41,14 +39,12 @@ object SupervisorSetup {
     resource(config, clock)
   }
 
-  def resource(
-      config: ProjectionConfig,
-      clock: Clock[IO]
-  ): Resource[IO, SupervisorSetup] =
+  def resource(config: ProjectionConfig, clock: Clock[IO]): Resource[IO, SupervisorSetup] =
     Doobie.resourceDefault.flatMap { xas =>
       val projections      = Projections(xas, None, config.query, clock)
       val projectionErrors = ProjectionErrors(xas, config.query, clock)
-      Supervisor(projections, projectionErrors, config).map(s => SupervisorSetup(s, projections, projectionErrors))
+      Supervisor(projections, projectionErrors, config, ProjectionMetrics.Disabled)
+        .map(s => SupervisorSetup(s, projections, projectionErrors))
     }
 
   trait Fixture { self: NexusSuite & FixedClock =>

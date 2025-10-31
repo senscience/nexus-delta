@@ -113,7 +113,7 @@ object CompositeProjections {
             progress,
             compositeProgressStore.save(view.indexingRef, branch, _),
             failedElemLogStore.save(view.metadata, _)
-          )(batch)
+          )(using batch)
         )
 
       override def deleteAll(view: IndexingViewRef): IO[Unit] = compositeProgressStore.deleteAll(view)
