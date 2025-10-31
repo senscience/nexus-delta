@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Projection.logger
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
+import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 
 import scala.concurrent.duration.FiniteDuration
@@ -85,7 +86,7 @@ object Projection {
       progress: ProjectionProgress,
       saveProgress: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit]
-  )(implicit batch: BatchConfig): ElemPipe[A, Unit] =
+  )(using batch: BatchConfig): ElemPipe[A, Unit] =
     _.mapAccumulate(progress) {
       case (acc, elem) if elem.offset.value > progress.offset.value => (acc + elem, elem)
       case (acc, elem)                                              => (acc, elem)
@@ -96,12 +97,10 @@ object Projection {
           case ((acc, _), (newProgress, _))                => (acc, Some(newProgress))
         }
 
-        last
-          .fold(IO.unit) { newProgress =>
-            saveProgress(newProgress) >>
-              IO.whenA(errors.nonEmpty)(saveFailedElems(errors))
-          }
-          .void
+        last.traverse { newProgress =>
+          saveProgress(newProgress) >>
+            IO.whenA(errors.nonEmpty)(saveFailedElems(errors))
+        }
       }
       .drain
 
@@ -110,7 +109,7 @@ object Projection {
       fetchProgress: IO[Option[ProjectionProgress]],
       saveProgress: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit]
-  )(implicit batch: BatchConfig): IO[Projection] =
+  )(using batch: BatchConfig): IO[Projection] =
     for {
       status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
       signal      <- SignallingRef[IO, Boolean](false)

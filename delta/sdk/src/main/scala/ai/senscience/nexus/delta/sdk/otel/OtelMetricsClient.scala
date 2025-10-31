@@ -18,7 +18,7 @@ trait OtelMetricsClient {
 
 object OtelMetricsClient {
 
-  private val trafficeKey = AttributeKey[String]("nexus.http.client.traffic")
+  private val trafficKey = AttributeKey[String]("nexus.http.client.traffic")
 
   private case object Disabled extends OtelMetricsClient {
     def wrap(client: Client[IO], category: String): Client[IO] = client
@@ -28,7 +28,7 @@ object OtelMetricsClient {
     import metrics.*
 
     def wrap(client: Client[IO], traffic: String): Client[IO] = Client[IO] { (request: Request[IO]) =>
-      val trafficAttribute = Attribute(trafficeKey, traffic)
+      val trafficAttribute = Attribute(trafficKey, traffic)
       val reqAttributes    = requestAttributes(request) + trafficAttribute
 
       for {

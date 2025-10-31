@@ -3,13 +3,14 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.Ignored
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
-import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
 import cats.effect.*
 import cats.effect.std.Semaphore
-import cats.implicits.*
+import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 
@@ -127,7 +128,8 @@ object Supervisor {
   def apply(
       projections: Projections,
       projectionErrors: ProjectionErrors,
-      cfg: ProjectionConfig
+      cfg: ProjectionConfig,
+      metrics: ProjectionMetrics
   ): Resource[IO, Supervisor] = {
     def init: IO[Supervisor] =
       for {
@@ -138,7 +140,7 @@ object Supervisor {
         supervision    <- supervisionTask(semaphore, mapRef, signal, cfg).start
         supervisionRef <- Ref.of[IO, Fiber[IO, Throwable, Unit]](supervision)
         supervisor      =
-          new Impl(projections, projectionErrors, cfg, semaphore, mapRef, signal, supervisionRef)
+          new Impl(projections, projectionErrors, cfg, semaphore, mapRef, signal, supervisionRef, metrics)
         _              <- WatchRestarts(supervisor, projections)
         _              <- log.info("Delta supervisor is up")
       } yield supervisor
@@ -229,8 +231,12 @@ object Supervisor {
       semaphore: Semaphore[IO],
       mapRef: Ref[IO, Map[String, Supervised]],
       signal: SignallingRef[IO, Boolean],
-      supervisionFiberRef: Ref[IO, Fiber[IO, Throwable, Unit]]
+      supervisionFiberRef: Ref[IO, Fiber[IO, Throwable, Unit]],
+      metrics: ProjectionMetrics
   ) extends Supervisor {
+
+    // To persist progress and errors
+    private given BatchConfig = cfg.batch
 
     override def run(projection: CompiledProjection, init: IO[Unit]): IO[ExecutionStatus] = {
       val metadata = projection.metadata
@@ -269,19 +275,26 @@ object Supervisor {
           }
     }
 
-    private def startProjection(projection: CompiledProjection): IO[Projection] = {
-      val (fetchProgress, saveProgress, saveErrors) = projection.executionStrategy match {
+    private def startProjection(projection: CompiledProjection): IO[Projection] =
+      projection.executionStrategy match {
         case PersistentSingleNode            =>
-          (
+          def saveProgressWithMetrics(progress: ProjectionProgress) =
+            projections.save(projection.metadata, progress) >>
+              metrics.recordProgress(projection.metadata, progress)
+          Projection(
+            projection,
             projections.progress(projection.metadata.name),
-            projections.save(projection.metadata, _),
+            saveProgressWithMetrics,
             projectionErrors.saveFailedElems(projection.metadata, _)
           )
         case TransientSingleNode | EveryNode =>
-          (IO.none, (_: ProjectionProgress) => IO.unit, projectionErrors.saveFailedElems(projection.metadata, _))
+          Projection(
+            projection,
+            IO.none,
+            metrics.recordProgress(projection.metadata, _),
+            projectionErrors.saveFailedElems(projection.metadata, _)
+          )
       }
-      Projection(projection, fetchProgress, saveProgress, saveErrors)(cfg.batch)
-    }
 
     override def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]] =
       semaphore.permit.use { _ =>
