@@ -59,7 +59,9 @@ object OpenTelemetry {
         logger.info("OpenTelemetry is enabled.")
       }
     }
-  }
+  }.flatTap(registerJVMMetrics)
+    .flatTap(registerCatsEffectMetrics(_, runtime))
+    .evalTap(registerLogback)
 
   private def registerJVMMetrics(otel: OtelJava[IO]) = {
     val openTelemetry = otel.underlying
