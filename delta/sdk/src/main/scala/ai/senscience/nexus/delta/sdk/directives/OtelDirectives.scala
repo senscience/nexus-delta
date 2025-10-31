@@ -68,7 +68,7 @@ object OtelDirectives {
               .startUnmanaged
           }
           .flatTap { span =>
-            logger.info(s"Created span span with context ${span.context.show} for uri ${request.uri} and route $route")
+            logger.debug(s"Created span span with context ${span.context.show} for uri ${request.uri} and route $route")
           }
       }
     }
