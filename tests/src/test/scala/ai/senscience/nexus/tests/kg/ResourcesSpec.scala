@@ -166,7 +166,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
   "Fetching a resource" should {
 
     "fail to fetch when the project does not exist" in {
-      deltaClient.get[Json](s"/resources/xxx/xxx/_/xxx", ServiceAccount) { (json, response) =>
+      deltaClient.get[Json]("/resources/xxx/xxx/_/xxx", ServiceAccount) { (json, response) =>
         response.status shouldEqual StatusCodes.NotFound
         json should have(`@type`("ProjectNotFound"))
       }
@@ -272,7 +272,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
         _ <- deltaClient.get[Json](s"/resources/$project2/_/42/source?annotate=true", Rick) { (json, response) =>
                response.status shouldEqual StatusCodes.OK
                response.headers should contain(varyHeader)
-               json should have(`@id`(s"42"))
+               json should have(`@id`("42"))
              }
       } yield succeed
     }

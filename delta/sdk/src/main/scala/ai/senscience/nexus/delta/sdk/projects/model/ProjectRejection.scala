@@ -81,7 +81,7 @@ object ProjectRejection {
   /**
     * Signals an attempt to delete a project when deletion is disabled.
     */
-  case object ProjectDeletionIsDisabled extends ProjectRejection(s"Project deletion is disabled.")
+  case object ProjectDeletionIsDisabled extends ProjectRejection("Project deletion is disabled.")
 
   object ProjectIsReferenced {
 
@@ -119,7 +119,7 @@ object ProjectRejection {
     *   the underlying failure
     */
   final case class ProjectInitializationFailed(failure: ScopeInitializationFailed)
-      extends ProjectRejection(s"The project has been successfully created but it could not be initialized correctly")
+      extends ProjectRejection("The project has been successfully created but it could not be initialized correctly")
 
   implicit val projectRejectionEncoder: Encoder.AsObject[ProjectRejection] =
     Encoder.AsObject.instance { r =>

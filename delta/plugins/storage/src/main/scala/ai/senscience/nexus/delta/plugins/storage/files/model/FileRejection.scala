@@ -127,9 +127,9 @@ object FileRejection {
     * contain a ''file'' fieldName
     */
   case object InvalidMultipartFieldName
-      extends FileRejection(s"Multipart/Form-Data payload does not contain a 'file' part.")
+      extends FileRejection("Multipart/Form-Data payload does not contain a 'file' part.")
 
-  case object EmptyCustomMetadata extends FileRejection(s"No metadata was provided")
+  case object EmptyCustomMetadata extends FileRejection("No metadata was provided")
 
   /**
     * Rejection returned when attempting to create/update a file with a Multipart/Form-Data payload that does not
@@ -178,7 +178,7 @@ object FileRejection {
     */
   case object InvalidFilePath
       extends FileRejection(
-        s"Linking a file cannot be performed without a 'filename' or a 'path' that does not end with a filename."
+        "Linking a file cannot be performed without a 'filename' or a 'path' that does not end with a filename."
       )
 
   implicit val fileRejectionEncoder: Encoder.AsObject[FileRejection] =

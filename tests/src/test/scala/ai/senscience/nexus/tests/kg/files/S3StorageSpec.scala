@@ -101,7 +101,7 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
     "fail creating an S3Storage with an invalid bucket" in {
       val payload = jsonContentOf(
         "kg/storages/s3.json",
-        "storageId" -> s"https://bluebrain.github.io/nexus/vocabulary/missing",
+        "storageId" -> "https://bluebrain.github.io/nexus/vocabulary/missing",
         "bucket"    -> "foobar"
       )
 
@@ -158,7 +158,7 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
       .accepted
   }
 
-  s"Linking an S3 file" should {
+  "Linking an S3 file" should {
 
     def createFileLinkNoId(storageId: String, payload: Json) =
       deltaClient.postAndReturn[Json](s"/link/files/$projectRef?storage=nxv:$storageId", payload, Coyote) {

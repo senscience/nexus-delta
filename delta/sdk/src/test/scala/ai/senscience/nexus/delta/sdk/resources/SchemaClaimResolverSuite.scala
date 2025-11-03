@@ -59,12 +59,12 @@ class SchemaClaimResolverSuite extends NexusSuite with RemoteContextResolutionFi
     SchemaEnforcementConfig(Set.empty, allowNoTypes = false)
   )
 
-  test(s"Succeed on a create claim with a defined schema with the strict resolver") {
+  test("Succeed on a create claim with a defined schema with the strict resolver") {
     val claim = SchemaClaim.onCreate(project, schemaRef, caller)
     strictSchemaClaimResolver(claim, Set.empty, enforceSchema = true).assertEquals(Some(schema))
   }
 
-  test(s"Succeed on a create claim without a schema and with no enforcement with the strict resolver") {
+  test("Succeed on a create claim without a schema and with no enforcement with the strict resolver") {
     val claim = SchemaClaim.onCreate(project, unconstrained, caller)
     strictSchemaClaimResolver(claim, Set.empty, enforceSchema = false).assertEquals(None)
   }
@@ -74,12 +74,12 @@ class SchemaClaimResolverSuite extends NexusSuite with RemoteContextResolutionFi
     strictSchemaClaimResolver(claim, Set.empty, enforceSchema = true).interceptEquals(SchemaIsMandatory(project))
   }
 
-  test(s"Succeed on an update claim with a defined schema with the strict resolver") {
+  test("Succeed on an update claim with a defined schema with the strict resolver") {
     val claim = SchemaClaim.onUpdate(project, None, schemaRef, caller)
     strictSchemaClaimResolver(claim, Set.empty, enforceSchema = true).assertEquals(Some(schema))
   }
 
-  test(s"Succeed on an update claim when staying without a schema with the strict resolver") {
+  test("Succeed on an update claim when staying without a schema with the strict resolver") {
     val claim = SchemaClaim.onUpdate(project, None, unconstrained, caller)
     strictSchemaClaimResolver(claim, Set.empty, enforceSchema = true).assertEquals(None)
   }
@@ -105,19 +105,19 @@ class SchemaClaimResolverSuite extends NexusSuite with RemoteContextResolutionFi
   )
 
   test(
-    s"Succeed on a create claim without a schema and with enforcement on a whitelisted type with a lenient resolver"
+    "Succeed on a create claim without a schema and with enforcement on a whitelisted type with a lenient resolver"
   ) {
     val claim = SchemaClaim.onCreate(project, unconstrained, caller)
     lenientSchemaClaimResolver(claim, Set(whitelistedType), enforceSchema = true).assertEquals(None)
   }
 
-  test(s"Succeed on a create claim without a schema and with enforcement for no type with a lenient resolver") {
+  test("Succeed on a create claim without a schema and with enforcement for no type with a lenient resolver") {
     val claim = SchemaClaim.onCreate(project, unconstrained, caller)
     lenientSchemaClaimResolver(claim, Set.empty, enforceSchema = true).assertEquals(None)
   }
 
   test(
-    s"Fail on a create claim without a schema and with enforcement on a non-whitelisted type with a lenient resolver"
+    "Fail on a create claim without a schema and with enforcement on a non-whitelisted type with a lenient resolver"
   ) {
     val claim = SchemaClaim.onCreate(project, unconstrained, caller)
     lenientSchemaClaimResolver(claim, Set(whitelistedType, nonWhitelistedType), enforceSchema = true).interceptEquals(

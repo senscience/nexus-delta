@@ -113,11 +113,11 @@ class RealmSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("realms/realm-state.json")
 
-  test(s"Correctly serialize an RealmState") {
+  test("Correctly serialize an RealmState") {
     assertOutput(RealmState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize an RealmState") {
+  test("Correctly deserialize an RealmState") {
     assertEquals(RealmState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 

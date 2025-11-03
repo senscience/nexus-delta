@@ -140,7 +140,7 @@ class GlobalEventLogSuite extends NexusSuite with Doobie.Fixture {
     eventLog.stateOr(nxv + "xxx", 1, NotFound, RevisionNotFound(_, _)).interceptEquals(NotFound)
   }
 
-  test(s"Raise an error when providing a nonexistent revision") {
+  test("Raise an error when providing a nonexistent revision") {
     eventLog.stateOr(id, 10, NotFound, RevisionNotFound(_, _)).interceptEquals(RevisionNotFound(10, 2))
   }
 

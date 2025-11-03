@@ -84,7 +84,7 @@ object ElasticSearchViewRejection {
     * Rejection returned when attempting to update/deprecate the default view.
     */
   case object ViewIsDefaultView
-      extends ElasticSearchViewRejection(s"Cannot perform write operations on the default ElasticSearch view.")
+      extends ElasticSearchViewRejection("Cannot perform write operations on the default ElasticSearch view.")
   type ViewIsDefaultView = ViewIsDefaultView.type
 
   /**
@@ -151,7 +151,7 @@ object ElasticSearchViewRejection {
     */
   final case class InvalidViewReferences(views: Set[ViewRef])
       extends ElasticSearchViewRejection(
-        s"At least one view reference does not exist or is deprecated."
+        "At least one view reference does not exist or is deprecated."
       )
 
   /**

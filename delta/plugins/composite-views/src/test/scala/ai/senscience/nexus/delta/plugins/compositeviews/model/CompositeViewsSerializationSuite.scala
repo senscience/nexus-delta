@@ -66,11 +66,11 @@ class CompositeViewsSerializationSuite extends SerializationSuite with Composite
 
   private val stateSerializer = CompositeViewState.serializer
 
-  test(s"Correctly serialize a CompositeViewState") {
+  test("Correctly serialize a CompositeViewState") {
     stateSerializer.codec(state).equalsIgnoreArrayOrder(jsonState)
   }
 
-  test(s"Correctly deserialize a CompositeViewState") {
+  test("Correctly deserialize a CompositeViewState") {
     assertEquals(stateSerializer.codec.decodeJson(jsonState), Right(state))
   }
 

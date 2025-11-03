@@ -48,7 +48,7 @@ object DatabasePartitioner {
       case Some(existing)                      =>
         logger.info(s"The partition strategy is set to '$existing'").as(true)
       case None                                =>
-        logger.info(s"The partition strategy has not been set yet, initializing...").as(false)
+        logger.info("The partition strategy has not been set yet, initializing...").as(false)
     }
 
   private def saveConfig(value: PartitionStrategy) =

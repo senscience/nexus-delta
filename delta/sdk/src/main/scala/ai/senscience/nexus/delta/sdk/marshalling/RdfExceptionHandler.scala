@@ -45,7 +45,7 @@ object RdfExceptionHandler {
       case err: RdfError                  => discardEntityAndForceEmit(err)
       case err: EntityStreamSizeException => discardEntityAndForceEmit(err)
       case err: Throwable                 =>
-        onComplete(logger.error(err)(s"An exception was thrown while evaluating a Route'").unsafeToFuture()) { _ =>
+        onComplete(logger.error(err)("An exception was thrown while evaluating a Route'").unsafeToFuture()) { _ =>
           discardEntityAndForceEmit(UnexpectedError)
         }
     }

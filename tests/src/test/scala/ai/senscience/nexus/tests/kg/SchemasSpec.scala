@@ -67,7 +67,7 @@ class SchemasSpec extends BaseIntegrationSpec {
 
     "have indexed the schema in the default sparql namespace" in eventually {
       val query =
-        s"""
+        """
            |prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
            |SELECT (COUNT(*) as ?count)
            |WHERE { ?s a nxv:Schema }

@@ -143,7 +143,7 @@ class ArchiveSpec extends BaseIntegrationSpec with ArchiveHelpers {
     }
 
     "fail on wrong path" in {
-      val wrong1    = jsonContentOf(s"kg/archives/archive-wrong-path1.json")
+      val wrong1    = jsonContentOf("kg/archives/archive-wrong-path1.json")
       val expected1 = jsonContentOf("kg/archives/archive-path-invalid1.json")
 
       for {
@@ -151,7 +151,7 @@ class ArchiveSpec extends BaseIntegrationSpec with ArchiveHelpers {
                       json shouldEqual expected1
                       response.status shouldEqual StatusCodes.BadRequest
                     }
-        wrong2    = jsonContentOf(s"kg/archives/archive-wrong-path2.json")
+        wrong2    = jsonContentOf("kg/archives/archive-wrong-path2.json")
         expected2 = jsonContentOf("kg/archives/archive-path-invalid2.json")
         _        <- deltaClient.put[Json](s"/archives/$fullId/archive2", wrong2, Tweety) { (json, response) =>
                       json shouldEqual expected2
@@ -161,8 +161,8 @@ class ArchiveSpec extends BaseIntegrationSpec with ArchiveHelpers {
     }
 
     "fail on path collisions" in {
-      val wrong    = jsonContentOf(s"kg/archives/archive-path-collision.json")
-      val expected = jsonContentOf(s"kg/archives/archive-path-dup.json")
+      val wrong    = jsonContentOf("kg/archives/archive-path-collision.json")
+      val expected = jsonContentOf("kg/archives/archive-path-dup.json")
 
       deltaClient.put[Json](s"/archives/$fullId/archive2", wrong, Tweety) { (json, response) =>
         json shouldEqual expected

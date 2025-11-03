@@ -68,7 +68,7 @@ object Doobie {
 
     def doobieInject[A](f: Transactors => IO[A]): IOFixture[(Transactors, A)] =
       ResourceSuiteLocalFixture(
-        s"doobie",
+        "doobie",
         resourceDefault.evalMap { xas =>
           f(xas).map(xas -> _)
         }
@@ -76,7 +76,7 @@ object Doobie {
 
     def doobieInject[A, B](f1: Transactors => IO[A], f2: Transactors => IO[B]): IOFixture[(Transactors, A, B)] =
       ResourceSuiteLocalFixture(
-        s"doobie",
+        "doobie",
         resourceDefault.evalMap { xas =>
           for {
             a <- f1(xas)

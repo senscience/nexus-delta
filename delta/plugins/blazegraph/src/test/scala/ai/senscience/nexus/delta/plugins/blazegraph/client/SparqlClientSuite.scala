@@ -225,10 +225,10 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
       result       <- triplesSparqlResults(namespace)
     } yield {
       val expected = Set(
-        (s"http://localhost/myid", "http://www.w3.org/2000/01/rdf-schema#label", "b"),
+        ("http://localhost/myid", "http://www.w3.org/2000/01/rdf-schema#label", "b"),
         ("http://localhost/myid", "http://localhost/nested/", "http://localhost/nested"),
-        (s"http://localhost/nested", "https://schema.org/name", "name"),
-        (s"http://localhost/nested", "https://schema.org/title", "title")
+        ("http://localhost/nested", "https://schema.org/name", "name"),
+        ("http://localhost/nested", "https://schema.org/title", "title")
       )
       assertEquals(result, expected)
     }
@@ -247,8 +247,8 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
     } yield {
       val expected = expectedResult("myid", "lb-b", "value") ++ Set(
         ("http://localhost/myid", "http://localhost/nested/", "http://localhost/nested"),
-        (s"http://localhost/nested", "https://schema.org/name", "name"),
-        (s"http://localhost/nested", "https://schema.org/title", "title")
+        ("http://localhost/nested", "https://schema.org/name", "name"),
+        ("http://localhost/nested", "https://schema.org/title", "title")
       )
       assertEquals(result, expected)
     }

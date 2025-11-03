@@ -39,7 +39,7 @@ object Main extends IOApp {
   private[delta] def start(loaderConfig: PluginLoaderConfig): Resource[IO, Locator] =
     for {
       _                        <- Resource.eval(logger.info(s"Starting Nexus Delta version '${BuildInfo.version}'."))
-      _                        <- Resource.eval(logger.info(s"Loading plugins and config..."))
+      _                        <- Resource.eval(logger.info("Loading plugins and config..."))
       (config, cl, pluginDefs) <- Resource.eval(loadPluginsAndConfig(loaderConfig))
       modules                   = DeltaModule(config, runtime, cl)
       (plugins, locator)       <- WiringInitializer(modules, pluginDefs)
@@ -72,7 +72,7 @@ object Main extends IOApp {
 
   private def logClusterConfig(locator: Locator) = Resource.eval {
     val config = locator.get[ProjectionConfig].cluster
-    if config.size == 1 then logger.info(s"Delta is running in standalone mode.")
+    if config.size == 1 then logger.info("Delta is running in standalone mode.")
     else
       logger.info(
         s"Delta is running in clustered mode. The current node is number ${config.nodeIndex} out of a total of ${config.size} nodes."

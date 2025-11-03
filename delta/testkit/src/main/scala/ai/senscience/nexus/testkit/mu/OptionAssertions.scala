@@ -15,7 +15,7 @@ trait OptionAssertions { self: Assertions =>
       )
 
     def assertSome(): Unit =
-      assert(option.isDefined, s"The option is empty.")
+      assert(option.isDefined, "The option is empty.")
   }
 
 }

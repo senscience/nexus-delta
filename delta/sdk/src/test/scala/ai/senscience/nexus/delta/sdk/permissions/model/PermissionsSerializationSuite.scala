@@ -46,11 +46,11 @@ class PermissionsSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("permissions/permissions-state.json")
 
-  test(s"Correctly serialize a PermissionsState") {
+  test("Correctly serialize a PermissionsState") {
     assertOutput(PermissionsState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize a PermissionsState") {
+  test("Correctly deserialize a PermissionsState") {
     assertEquals(PermissionsState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 

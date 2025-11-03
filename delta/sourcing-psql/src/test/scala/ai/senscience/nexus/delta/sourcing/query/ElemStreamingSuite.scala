@@ -237,7 +237,7 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
       .assertEquals(expected)
   }
 
-  test(s"Get no remaining for an unknown project") {
+  test("Get no remaining for an unknown project") {
     elemStreaming
       .remaining(Scope(ProjectRef.unsafe("xxx", "xxx")), SelectFilter.latest, Offset.at(6L))
       .assertEquals(None)

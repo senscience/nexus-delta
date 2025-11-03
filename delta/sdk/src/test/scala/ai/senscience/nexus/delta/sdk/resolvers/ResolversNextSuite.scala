@@ -160,7 +160,7 @@ class ResolversNextSuite extends NexusSuite with ResolverStateMachineFixture wit
     }
   }
 
-  test(s"Return None when attempting to tag a non-existing resolver") {
+  test("Return None when attempting to tag a non-existing resolver") {
     next(None, tagEvent).assertNone()
   }
 
@@ -178,7 +178,7 @@ class ResolversNextSuite extends NexusSuite with ResolverStateMachineFixture wit
     }
   }
 
-  test(s"Return None when attempting to deprecate a non-existing resolver") {
+  test("Return None when attempting to deprecate a non-existing resolver") {
     next(None, deprecatedEvent).assertNone()
   }
 

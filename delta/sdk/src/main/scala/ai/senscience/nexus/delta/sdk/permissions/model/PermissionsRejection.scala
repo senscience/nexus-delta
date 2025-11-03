@@ -100,7 +100,7 @@ object PermissionsRejection {
     */
   sealed abstract class UnexpectedState(reason: String) extends PermissionsRejection(reason)
   case object UnexpectedState
-      extends UnexpectedState(s"Unexpected state for permissions. Please try again later or contact the administrator.")
+      extends UnexpectedState("Unexpected state for permissions. Please try again later or contact the administrator.")
 
   implicit val permissionsRejectionEncoder: Encoder.AsObject[PermissionsRejection] =
     Encoder.AsObject.instance { r =>

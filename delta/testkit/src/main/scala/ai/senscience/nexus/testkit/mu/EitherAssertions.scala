@@ -15,7 +15,7 @@ trait EitherAssertions { self: Assertions =>
       }
 
     def assertLeft(): Unit = {
-      assert(either.isLeft, s"Right caught, expected a left")
+      assert(either.isLeft, "Right caught, expected a left")
     }
 
     def assertLeftOf[T](implicit T: ClassTag[T]): Unit = {
@@ -23,7 +23,7 @@ trait EitherAssertions { self: Assertions =>
         case Left(T(_)) => ()
         case Left(l)    =>
           fail(s"Wrong left type caught, expected : '${T.runtimeClass.getName}', actual: '${l.getClass.getName}'")
-        case Right(_)   => fail(s"Right caught, expected a left")
+        case Right(_)   => fail("Right caught, expected a left")
       }
     }
 

@@ -376,7 +376,7 @@ object Supervisor {
 
     override def stop(): IO[Unit] =
       for {
-        _     <- log.info(s"Stopping supervisor and all its running projections")
+        _     <- log.info("Stopping supervisor and all its running projections")
         _     <- signal.set(true)
         fiber <- supervisionFiberRef.get
         _     <- fiber.join

@@ -67,7 +67,7 @@ class IdResolutionSpec extends BaseIntegrationSpec {
     }
 
     "lead to an authorization failure when trying to resolve a resource that does not exist" in {
-      deltaClient.get[Json](s"/resolve/unknownId", Bob) { expectForbidden }
+      deltaClient.get[Json]("/resolve/unknownId", Bob) { expectForbidden }
     }
 
     "resolve a single resource" in {

@@ -178,14 +178,14 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       acls.append(userAcl(myOrg2), 0).accepted
       acls.append(groupAcl(myOrg2), 1).accepted
       acls.append(group2Acl(myOrg2), 2).accepted
-      Get(s"/v1/acls/*") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(2L, Seq((selfAcls(myOrg), 3), (selfAcls(myOrg2), 3)))
         status shouldEqual StatusCodes.OK
       }
     }
 
     "get ACL self = false with org path containing *" in {
-      Get(s"/v1/acls/*?self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*?self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(2L, Seq((allAcls(myOrg), 3), (allAcls(myOrg2), 3)))
         status shouldEqual StatusCodes.OK
       }
@@ -196,7 +196,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       acls.append(groupAcl(myOrgMyProj2), 1).accepted
       acls.append(group2Acl(myOrgMyProj2), 2).accepted
       acls.append(group2Acl(myOrg3), 0).accepted
-      Get(s"/v1/acls/myorg/*") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/*") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(2L, Seq((selfAcls(myOrgMyProj), 3), (selfAcls(myOrgMyProj2), 3)))
         status shouldEqual StatusCodes.OK
@@ -204,7 +204,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false with project path containing *" in {
-      Get(s"/v1/acls/myorg/*?self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/*?self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(2L, Seq((allAcls(myOrgMyProj), 3), (allAcls(myOrgMyProj2), 3)))
         status shouldEqual StatusCodes.OK
@@ -215,7 +215,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       acls.append(userAcl(myOrg2MyProj2), 0).accepted
       acls.append(groupAcl(myOrg2MyProj2), 1).accepted
       acls.append(group2Acl(myOrg2MyProj2), 2).accepted
-      Get(s"/v1/acls/*/*") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*/*") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(
             3L,
@@ -226,7 +226,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false with org and project path containing *" in {
-      Get(s"/v1/acls/*/*?self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*/*?self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(
             3L,
@@ -237,7 +237,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = true with project path containing * with ancestors" in {
-      Get(s"/v1/acls/myorg/*?ancestors=true") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/*?ancestors=true") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(
             4L,
@@ -248,7 +248,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false with project path containing * with ancestors" in {
-      Get(s"/v1/acls/myorg/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(
             4L,
@@ -259,7 +259,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = true with org path containing * with ancestors" in {
-      Get(s"/v1/acls/*?ancestors=true") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*?ancestors=true") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(
           3L,
           Seq((selfAcls(Root), 3), (selfAcls(myOrg), 3), (selfAcls(myOrg2), 3))
@@ -269,7 +269,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false with org path containing * with ancestors" in {
-      Get(s"/v1/acls/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(
           4L,
           Seq((allAcls(Root), 3), (allAcls(myOrg), 3), (allAcls(myOrg2), 3), (group2Acl(myOrg3), 1))
@@ -279,7 +279,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = true with org  and project path containing * with ancestors" in {
-      Get(s"/v1/acls/*/*?ancestors=true") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*/*?ancestors=true") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(
           6L,
           Seq(
@@ -296,7 +296,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false with org  and project path containing * with ancestors" in {
-      Get(s"/v1/acls/*/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/*/*?ancestors=true&self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(
           7L,
           Seq(
@@ -314,14 +314,14 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "get ACL self = false and rev = 2 when response is an empty ACL" in {
-      Get(s"/v1/acls/myorg/myproj1?rev=2&self=false") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/myproj1?rev=2&self=false") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual expectedResponse(0L, Seq.empty)
         status shouldEqual StatusCodes.OK
       }
     }
 
     "get ACL self = true and ancestors = true" in {
-      Get(s"/v1/acls/myorg/myproj?ancestors=true") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/myproj?ancestors=true") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual
           expectedResponse(3, Seq((selfAcls(Root), 3), (selfAcls(myOrg), 3), (selfAcls(myOrgMyProj), 3)))
         status shouldEqual StatusCodes.OK
@@ -349,14 +349,14 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
     }
 
     "return an error when getting ACL with rev and ancestors = true" in {
-      Get(s"/v1/acls/myorg/myproj?rev=2&ancestors=true") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/myorg/myproj?rev=2&ancestors=true") ~> as(user) ~> routes ~> check {
         response.asJson shouldEqual jsonContentOf("errors/acls-malformed-query-params.json")
         status shouldEqual StatusCodes.BadRequest
       }
     }
 
     "return an error in the case of the keyword 'events'" in {
-      Get(s"/v1/acls/events") ~> as(user) ~> routes ~> check {
+      Get("/v1/acls/events") ~> as(user) ~> routes ~> check {
         status shouldEqual StatusCodes.NotFound
       }
     }

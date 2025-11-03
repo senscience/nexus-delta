@@ -33,7 +33,7 @@ class ProjectDeletionConfigSpec extends CatsEffectSpec {
 
     "be parsed correctly from config" in {
       val configString =
-        s"""idle-interval = 10 minutes
+        """idle-interval = 10 minutes
            |idle-check-period = 5 seconds
            |delete-deprecated-projects = true
            |included-projects = ["some.+"]
@@ -53,7 +53,7 @@ class ProjectDeletionConfigSpec extends CatsEffectSpec {
 
     "fail to be parsed when idle interval is less than the check period" in {
       val configString =
-        s"""idle-interval = 5 seconds
+        """idle-interval = 5 seconds
            |idle-check-period = 10 minutes
            |delete-deprecated-projects = true
            |included-projects = ["some.+"]

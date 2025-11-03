@@ -16,7 +16,7 @@ object SparqlTarget {
     case "rdf4j"      => Right(Rdf4j)
     case _            =>
       val reason = new FailureReason {
-        override def description: String = s"Only 'blazegraph' and 'rdf4j' are valid sparql targets"
+        override def description: String = "Only 'blazegraph' and 'rdf4j' are valid sparql targets"
       }
       Left(reason)
   }

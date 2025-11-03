@@ -72,7 +72,7 @@ object ProjectionConfig {
           config.nodeIndex < config.size,
           config,
           new FailureReason {
-            override def description: String = s"'node-index' must be smaller than 'size'"
+            override def description: String = "'node-index' must be smaller than 'size'"
           }
         )
 

@@ -386,7 +386,7 @@ class CompositeViewsSpec extends BaseIntegrationSpec {
 object CompositeViewsSpec {
 
   private val bandQuery =
-    raw"""
+    """
          |PREFIX  nxv:  <https://bluebrain.github.io/nexus/vocabulary/>
          |PREFIX  music: <https://music.example.com/>
          |
@@ -424,7 +424,7 @@ object CompositeViewsSpec {
       .replaceAll("\\n", " ")
 
   private val albumQuery =
-    raw"""
+    """
          |PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
          |PREFIX  music: <https://music.example.com/>
          |PREFIX  nxv:  <https://bluebrain.github.io/nexus/vocabulary/>

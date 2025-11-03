@@ -51,11 +51,11 @@ class OrganizationSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("organizations/org-state.json")
 
-  test(s"Correctly serialize an OrganizationState") {
+  test("Correctly serialize an OrganizationState") {
     assertOutput(OrganizationState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize an OrganizationState") {
+  test("Correctly deserialize an OrganizationState") {
     assertEquals(OrganizationState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 

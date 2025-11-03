@@ -136,7 +136,7 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
     } yield ()
   }
 
-  test(s"Get a stream of all failures") {
+  test("Get a stream of all failures") {
     assertStream(metadata12, Offset.start, List(fail2, fail3, fail4))
   }
 
@@ -145,29 +145,29 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
     assertStream(unknownMetadata, Offset.start, List.empty)
   }
 
-  test(s"List all failures") {
+  test("List all failures") {
     countAndListFor(metadata12, Pagination.OnePage, Anytime)(3L, fail2, fail3, fail4)
   }
 
-  test(s"Paginate failures to get one result") {
+  test("Paginate failures to get one result") {
     countAndListFor(metadata12, FromPagination(1, 1), Anytime)(3L, fail3)
   }
 
-  test(s"Paginate failures to get the last results ") {
+  test("Paginate failures to get the last results ") {
     countAndListFor(metadata12, FromPagination(1, 2), Anytime)(3L, fail3, fail4)
   }
 
-  test(s"Count and list failures after a given time") {
+  test("Count and list failures after a given time") {
     val after = After(fail3.instant)
     countAndListFor(metadata12, Pagination.OnePage, after)(2L, fail3, fail4)
   }
 
-  test(s"Count and list  failures before a given time") {
+  test("Count and list  failures before a given time") {
     val before = Before(fail3.instant)
     countAndListFor(metadata12, Pagination.OnePage, before)(2L, fail2, fail3)
   }
 
-  test(s"Count and list  failures within the time window") {
+  test("Count and list  failures within the time window") {
     val between = Between.unsafe(fail2.instant.plusMillis(1L), fail3.instant.plusMillis(1L))
     countAndListFor(metadata12, Pagination.OnePage, between)(1L, fail3)
   }

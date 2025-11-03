@@ -41,8 +41,8 @@ class KeycloakDsl(implicit
   ): IO[StatusCode] = {
     val users = userCredentials.map { u =>
       Map(
-        s"username" -> u.name,
-        s"password" -> u.password
+        "username" -> u.name,
+        "password" -> u.password
       ).asJava
     }.asJava
 
