@@ -29,7 +29,7 @@ final class RealmProvisioning(realms: Realms, config: RealmsProvisioningConfig, 
              }
         _ <- logger.info(s"Provisioning ${config.realms.size} realms is completed")
       } yield Outcome.Success
-    } else logger.info(s"Realm provisioning is inactive.").as(Outcome.Disabled)
+    } else logger.info("Realm provisioning is inactive.").as(Outcome.Disabled)
 }
 
 object RealmProvisioning {

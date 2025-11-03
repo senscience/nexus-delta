@@ -82,7 +82,7 @@ class ListingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   }
 
   "list at org level" in {
-    Get(s"/v1/views/myorg?from=0&size=5&q=something") ~> routes ~> check {
+    Get("/v1/views/myorg?from=0&size=5&q=something") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
       response.asJson shouldEqual
         JsonObject("_total" -> 1.asJson)
@@ -93,7 +93,7 @@ class ListingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
           .asJson
     }
 
-    Get(s"/v1/resources/myorg?from=0&size=5&q=something") ~> routes ~> check {
+    Get("/v1/resources/myorg?from=0&size=5&q=something") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
       response.asJson shouldEqual
         JsonObject("_total" -> 1.asJson)
@@ -106,7 +106,7 @@ class ListingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   }
 
   "list at root level" in {
-    Get(s"/v1/views?from=0&size=5&q=something") ~> routes ~> check {
+    Get("/v1/views?from=0&size=5&q=something") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
       response.asJson shouldEqual
         JsonObject("_total" -> 1.asJson)
@@ -117,7 +117,7 @@ class ListingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
           .asJson
     }
 
-    Get(s"/v1/resources?from=0&size=5&q=something") ~> routes ~> check {
+    Get("/v1/resources?from=0&size=5&q=something") ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
       response.asJson shouldEqual
         JsonObject("_total" -> 1.asJson)

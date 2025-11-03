@@ -305,7 +305,7 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     }
 
     "fail to undeprecate an organisation if it does not exist" in {
-      Put(s"/v1/orgs/does-not-exist/undeprecate?rev=1") ~> as(writer) ~> routes ~> check {
+      Put("/v1/orgs/does-not-exist/undeprecate?rev=1") ~> as(writer) ~> routes ~> check {
         status shouldEqual StatusCodes.NotFound
       }
     }

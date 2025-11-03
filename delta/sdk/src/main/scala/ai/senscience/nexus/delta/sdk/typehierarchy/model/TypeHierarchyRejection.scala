@@ -50,7 +50,7 @@ object TypeHierarchyRejection {
   /**
     * Signals the type hierarchy already exists.
     */
-  case object TypeHierarchyAlreadyExists extends TypeHierarchyRejection(s"Type hierarchy already exists.")
+  case object TypeHierarchyAlreadyExists extends TypeHierarchyRejection("Type hierarchy already exists.")
 
   implicit val typeHierarchyRejectionEncoder: Encoder.AsObject[TypeHierarchyRejection] =
     Encoder.AsObject.instance(r => JsonObject.singleton("reason", r.reason.asJson))

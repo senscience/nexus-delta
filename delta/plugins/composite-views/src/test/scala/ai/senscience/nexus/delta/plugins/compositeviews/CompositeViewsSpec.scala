@@ -234,8 +234,8 @@ class CompositeViewsSpec
     def deprecated: BeMatcher[ViewResource] = BeMatcher { view =>
       MatchResult(
         view.deprecated,
-        s"view was not deprecated",
-        s"view was deprecated"
+        "view was not deprecated",
+        "view was deprecated"
       )
     }
   }

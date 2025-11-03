@@ -57,7 +57,7 @@ final class CreateProjects extends BaseSimulation {
     }
     .exec {
       http("createOrg")
-        .put(s"/orgs/benchmarks")
+        .put("/orgs/benchmarks")
         .jsonBody(Json.obj())
         .check(status.is(201))
     }
@@ -65,14 +65,14 @@ final class CreateProjects extends BaseSimulation {
   private val datamodelsProjectScn = scenario("Creating the datamodels project")
     .exec {
       http("createDatamodelsProject")
-        .put(s"/projects/benchmarks/datamodels")
+        .put("/projects/benchmarks/datamodels")
         .jsonBody(Json.obj())
         .check(status.is(201))
     }
     .exec(
       contextPayloads.map { c =>
         http("createContext")
-          .post(s"/resources/benchmarks/datamodels/_/")
+          .post("/resources/benchmarks/datamodels/_/")
           .jsonBody(c)
           .check(status.is(201))
       }

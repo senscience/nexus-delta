@@ -110,7 +110,7 @@ class AclsSpec extends BaseIntegrationSpec {
     }
 
     "list permissions on /*/* with ancestors" in {
-      aclDsl.fetch(s"/*/*", Marge, ancestors = true) { acls =>
+      aclDsl.fetch("/*/*", Marge, ancestors = true) { acls =>
         acls._results
           .find(_._path == "/")
           .value

@@ -35,7 +35,7 @@ object JsonLdRejection {
   /**
     * Rejection returned when the passed id is blank
     */
-  case object BlankId extends InvalidJsonLdRejection(s"Id was blank.")
+  case object BlankId extends InvalidJsonLdRejection("Id was blank.")
 
   /**
     * Rejection when converting the source Json to JsonLD fails

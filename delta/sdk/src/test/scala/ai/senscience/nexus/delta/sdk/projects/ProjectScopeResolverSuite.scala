@@ -63,7 +63,7 @@ class ProjectScopeResolverSuite extends NexusSuite with Doobie.Fixture {
     projectResolver(Scope.Org(org), permissions.read)(bob).assertEquals(Set(project1, project2))
   }
 
-  test(s"List all projects in 'root' for a user with full access") {
+  test("List all projects in 'root' for a user with full access") {
     projectResolver(Scope.Root, permissions.read)(bob).assertEquals(Set(project1, project2, project3))
   }
 
@@ -103,7 +103,7 @@ class ProjectScopeResolverSuite extends NexusSuite with Doobie.Fixture {
     projectResolver(Scope.Org(org), permissions.read)(anon).intercept[AuthorizationFailed]
   }
 
-  test(s"Raise an error for root for Anonymous") {
+  test("Raise an error for root for Anonymous") {
     projectResolver(Scope.Root, permissions.read)(anon).intercept[AuthorizationFailed]
   }
 

@@ -171,13 +171,13 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
     }
 
     "not return any resource from this project" in {
-      deltaClient.get[Json](s"/resources", Bojack) { (json, _) =>
+      deltaClient.get[Json]("/resources", Bojack) { (json, _) =>
         listing.eachResult._project.string.exist(_ == ref1)(json) shouldEqual false
       }
     }
 
     "not return any acl under the project path" in {
-      aclDsl.fetch(s"/*/*", Identity.ServiceAccount, ancestors = true) { acls =>
+      aclDsl.fetch("/*/*", Identity.ServiceAccount, ancestors = true) { acls =>
         acls._results.foreach { acl =>
           acl._path should not equal s"/$ref1"
         }
@@ -199,7 +199,7 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
     }
 
     "not return any acl sse event from the deleted project" in {
-      deltaClient.sseEvents(s"/acls/events", ServiceAccount, None) { events =>
+      deltaClient.sseEvents("/acls/events", ServiceAccount, None) { events =>
         events.foreach {
           case (_, Some(json)) =>
             root._path.string.exist(_ == s"/$ref1")(json) shouldEqual (false).withClue(events)
@@ -247,7 +247,7 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
     }
 
     "have stopped all the projections related to the project" in {
-      deltaClient.get[Json](s"/supervision/projections", ServiceAccount) { (json, response) =>
+      deltaClient.get[Json]("/supervision/projections", ServiceAccount) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         supervision.allProjects.string.getAll(json) should not contain ref1
         supervision.allProjects.string.getAll(json) should contain(ref2)

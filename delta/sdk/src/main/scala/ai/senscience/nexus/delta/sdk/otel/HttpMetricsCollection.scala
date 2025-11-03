@@ -22,7 +22,7 @@ object HttpMetricsCollection {
       meter
         .histogram[Double](s"http.$kind.request.duration")
         .withUnit("s")
-        .withDescription(s"Duration of HTTP server requests.")
+        .withDescription("Duration of HTTP server requests.")
         .withExplicitBucketBoundaries(bucketBoundaries)
         .create
 
@@ -30,14 +30,14 @@ object HttpMetricsCollection {
       meter
         .upDownCounter[Long](s"http.$kind.active_requests")
         .withUnit("{request}")
-        .withDescription(s"Number of active HTTP server requests.")
+        .withDescription("Number of active HTTP server requests.")
         .create
 
     val abnormalTerminations: IO[Histogram[IO, Double]] =
       meter
         .histogram[Double](s"http.$kind.abnormal_terminations")
         .withUnit("s")
-        .withDescription(s"Duration of HTTP server abnormal terminations.")
+        .withDescription("Duration of HTTP server abnormal terminations.")
         .withExplicitBucketBoundaries(bucketBoundaries)
         .create
     (requestDuration, activeRequests, abnormalTerminations).mapN(new HttpMetricsCollection(_, _, _))

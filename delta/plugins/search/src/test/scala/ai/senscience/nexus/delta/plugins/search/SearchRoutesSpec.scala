@@ -103,7 +103,7 @@ class SearchRoutesSpec extends BaseRouteSpec {
     }
 
     "fetch a suite with several projects" in {
-      Get(s"/v1/search/suites/multi") ~> routes ~> check {
+      Get("/v1/search/suites/multi") ~> routes ~> check {
         status shouldEqual StatusCodes.OK
         response.asJson should have(name("multi"))
         response.asJson should have(projects(multiProjects))
@@ -111,7 +111,7 @@ class SearchRoutesSpec extends BaseRouteSpec {
     }
 
     "fetch a suite with a single project" in {
-      Get(s"/v1/search/suites/single") ~> routes ~> check {
+      Get("/v1/search/suites/single") ~> routes ~> check {
         status shouldEqual StatusCodes.OK
         response.asJson should have(name("single"))
         response.asJson should have(projects(singleProjects))
@@ -119,7 +119,7 @@ class SearchRoutesSpec extends BaseRouteSpec {
     }
 
     "fetching a unknown suite" in {
-      Get(s"/v1/search/suites/unknown") ~> routes ~> check {
+      Get("/v1/search/suites/unknown") ~> routes ~> check {
         status shouldEqual StatusCodes.NotFound
         response.asJson shouldEqual
           json"""

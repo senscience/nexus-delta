@@ -167,7 +167,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     }
 
     "post instance without id" in {
-      val payload = jsonContentOf(s"kg/views/instances/instance9.json")
+      val payload = jsonContentOf("kg/views/instances/instance9.json")
       deltaClient.post[Json](
         s"/resources/$project2/resource?indexing=sync",
         payload,

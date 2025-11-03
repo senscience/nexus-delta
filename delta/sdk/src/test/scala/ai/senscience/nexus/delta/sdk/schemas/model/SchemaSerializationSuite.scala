@@ -135,11 +135,11 @@ class SchemaSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("schemas/schema-state.json")
 
-  test(s"Correctly serialize a SchemaState") {
+  test("Correctly serialize a SchemaState") {
     assertOutput(SchemaState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize a SchemaState") {
+  test("Correctly deserialize a SchemaState") {
     assertEquals(SchemaState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 }

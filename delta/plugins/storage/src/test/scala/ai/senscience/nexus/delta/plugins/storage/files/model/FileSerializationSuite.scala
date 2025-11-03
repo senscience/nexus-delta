@@ -225,19 +225,19 @@ class FileSerializationSuite extends SerializationSuite with StorageFixtures {
   private val fileState             = jsonContentOf("files/database/file-state.json")
   private val fileStateWithMetadata = jsonContentOf("files/database/file-state-with-metadata.json")
 
-  test(s"Correctly serialize a FileState") {
+  test("Correctly serialize a FileState") {
     assertEquals(FileState.serializer.codec(state), fileState)
   }
 
-  test(s"Correctly deserialize a FileState") {
+  test("Correctly deserialize a FileState") {
     assertEquals(FileState.serializer.codec.decodeJson(fileState), Right(state))
   }
 
-  test(s"Correctly serialize a FileState with metadata") {
+  test("Correctly serialize a FileState with metadata") {
     assertEquals(FileState.serializer.codec(stateWithMetadata), fileStateWithMetadata)
   }
 
-  test(s"Correctly deserialize a FileState with metadata") {
+  test("Correctly deserialize a FileState with metadata") {
     assertEquals(FileState.serializer.codec.decodeJson(fileStateWithMetadata), Right(stateWithMetadata))
   }
 

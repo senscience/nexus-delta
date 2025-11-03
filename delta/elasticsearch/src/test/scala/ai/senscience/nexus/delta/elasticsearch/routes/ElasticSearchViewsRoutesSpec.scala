@@ -127,7 +127,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
     }
 
     "fail to update a view without views/write permission" in {
-      Put(s"/v1/views/myorg/myproject/myid?rev=1", payload.toEntity) ~> as(reader) ~> routes ~> check {
+      Put("/v1/views/myorg/myproject/myid?rev=1", payload.toEntity) ~> as(reader) ~> routes ~> check {
         response.shouldBeForbidden
       }
     }

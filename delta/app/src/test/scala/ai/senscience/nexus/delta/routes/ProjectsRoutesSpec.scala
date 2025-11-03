@@ -382,7 +382,7 @@ class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with 
     }
 
     "fetch an unknown project" in {
-      Get(s"/v1/projects/org1/unknown") ~> as(reader) ~> routes ~> check {
+      Get("/v1/projects/org1/unknown") ~> as(reader) ~> routes ~> check {
         status shouldEqual StatusCodes.NotFound
         response.asJson shouldEqual jsonContentOf("projects/errors/project-not-found.json", "proj" -> "org1/unknown")
       }

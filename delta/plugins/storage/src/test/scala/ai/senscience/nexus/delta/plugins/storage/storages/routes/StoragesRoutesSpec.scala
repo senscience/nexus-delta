@@ -134,7 +134,7 @@ class StoragesRoutesSpec
     }
 
     "fail to update a storage without storages/write permission" in {
-      Put(s"/v1/storages/myorg/myproject/s3-storage?rev=1", s3FieldsJson.toEntity) ~> as(reader) ~> routes ~> check {
+      Put("/v1/storages/myorg/myproject/s3-storage?rev=1", s3FieldsJson.toEntity) ~> as(reader) ~> routes ~> check {
         response.shouldBeForbidden
       }
     }
@@ -198,7 +198,7 @@ class StoragesRoutesSpec
     }
 
     "reject the deprecation of a already deprecated storage" in {
-      Delete(s"/v1/storages/myorg/myproject/s3-storage?rev=4") ~> as(writer) ~> routes ~> check {
+      Delete("/v1/storages/myorg/myproject/s3-storage?rev=4") ~> as(writer) ~> routes ~> check {
         status shouldEqual StatusCodes.BadRequest
         response.asJson shouldEqual jsonContentOf("storages/errors/storage-deprecated.json", "id" -> s3Id)
       }
@@ -252,7 +252,7 @@ class StoragesRoutesSpec
     }
 
     "fail to fetch a storage and do listings without resources/read permission" in {
-      Get(s"/v1/storages/myorg/myproject/s3-storage") ~> routes ~> check {
+      Get("/v1/storages/myorg/myproject/s3-storage") ~> routes ~> check {
         response.shouldBeForbidden
       }
     }

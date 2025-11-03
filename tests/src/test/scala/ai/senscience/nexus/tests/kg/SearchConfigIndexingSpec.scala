@@ -1231,7 +1231,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
         case single :: Nil => assertion(single)
         case Nil           =>
           fail(
-            s"Expected exactly 1 source to match query, got 0.\n " +
+            "Expected exactly 1 source to match query, got 0.\n " +
               s"Query was ${query.spaces2}"
           )
         case many          =>

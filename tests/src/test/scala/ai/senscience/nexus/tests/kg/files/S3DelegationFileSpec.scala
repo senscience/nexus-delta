@@ -52,7 +52,7 @@ class S3DelegationFileSpec extends BaseIntegrationSpec with S3ClientFixtures {
     super.afterAll()
   }
 
-  s"Delegate S3 file upload" should {
+  "Delegate S3 file upload" should {
 
     val delegateUrl = s"/delegate/files/generate/$projectRef/?storage=${encodeUriPath(storageId)}"
 
@@ -102,7 +102,7 @@ class S3DelegationFileSpec extends BaseIntegrationSpec with S3ClientFixtures {
         _                = delegateResponse.targetLocation.bucket shouldEqual bucket
         _                = delegateResponse.project shouldEqual projectRef
         _               <- uploadLogoFileToS3(bucket, delegateResponse.targetLocation.path)
-        _               <- deltaClient.put[Json](s"/delegate/files/submit", jwsPayload, Coyote) { expectCreated }
+        _               <- deltaClient.put[Json]("/delegate/files/submit", jwsPayload, Coyote) { expectCreated }
         encodedId        = encodeUriPath(delegateResponse.id)
         filename         = delegateResponse.targetLocation.path.split("/").last
         expectedMetadata = Json.obj("name" := name, "description" := desc, "_keywords" := keywords)
@@ -128,7 +128,7 @@ class S3DelegationFileSpec extends BaseIntegrationSpec with S3ClientFixtures {
         jwsPayload      <- deltaClient.putAndReturn[Json](delegationUrl, delegationPayload, Coyote) { expectOk }
         delegateResponse = parseDelegationResponse(jwsPayload)
         _               <- uploadLogoFileToS3(bucket, delegateResponse.targetLocation.path)
-        _               <- deltaClient.put[Json](s"/delegate/files/submit", jwsPayload, Coyote) { expectCreated }
+        _               <- deltaClient.put[Json]("/delegate/files/submit", jwsPayload, Coyote) { expectCreated }
         _               <- deltaClient.get[Json](s"/files/$projectRef/${encodeUriPath(fileId)}", Coyote) { (json, response) =>
                              response.status shouldEqual StatusCodes.OK
                              Optics._rev.getOption(json).value shouldEqual 2

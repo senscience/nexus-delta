@@ -15,7 +15,8 @@ scalafmt: {
 }
  */
 
-val scalaCompilerVersion = "3.3.7"
+val scalaCompilerVersion     = "3.3.7"
+val typelevelScalafixVersion = "0.5.0"
 
 val awsSdkVersion              = "2.36.3"
 val caffeineVersion            = "3.2.3"
@@ -833,6 +834,11 @@ lazy val servicePackaging = {
   )
 }
 
+// Scalafix
+ThisBuild / semanticdbEnabled    := true
+ThisBuild / semanticdbVersion    := scalafixSemanticdb.revision
+ThisBuild / scalafixDependencies += "org.typelevel" %% "typelevel-scalafix" % typelevelScalafixVersion
+
 ThisBuild / homepage   := Some(url("https://senscience.github.io/nexus-delta/docs/"))
 ThisBuild / licenses   := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo    := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
@@ -845,59 +851,33 @@ Global / excludeLintKeys        += docs / paradoxRoots
 Global / excludeLintKeys        += docs / Paradox / paradoxNavigationDepth
 Global / concurrentRestrictions += Tags.limit(Tags.Test, 1)
 
-addCommandAlias(
-  "review",
-  s"""
-     |;clean
-     |;scalafmtCheck
-     |;test:scalafmtCheck
-     |;scalafmtSbtCheck
-     |;coverage
-     |;test
-     |;coverageReport
-     |;coverageAggregate
-     |""".stripMargin
-)
-addCommandAlias(
-  "deltaReview",
-  """
-     |;delta/clean
-     |;delta/scalafmtCheck
-     |;delta/test:scalafmtCheck
-     |;scalafmtSbtCheck;coverage
-     |;delta/test
-     |;delta/coverageReport
-     |;delta/coverageAggregate
-     |""".stripMargin
-)
+// Documentation
 addCommandAlias("build-docs", ";docs/clean;docs/makeSite")
 addCommandAlias("preview-docs", ";docs/clean;docs/previewSite")
 
-val coreModules = List("kernel", "pekkoMarshalling", "pekkoTestArchive", "rdf", "sdk", "sourcingPsql", "elasticsearch", "testkit")
-
-val staticAnalysis =
-  s"""
-    |scalafmtSbtCheck ;
-    |scalafmtCheck ;
-    |Test/scalafmtCheck ;
-    |doc
-    |""".stripMargin
-
+// Static analysis
+val staticAnalysis = List(
+  "scalafmtCheckAll",
+  "scalafixAll --check",
+  "doc"
+).mkString(";")
 addCommandAlias("static-analysis", staticAnalysis)
 
-def runTestsWithCoverageCommandsForModules(modules: List[String]) = {
-  ";coverage" +
-    modules.map(module => s";$module/test").mkString +
-    modules.map(module => s";$module/coverageReport").mkString
-}
-def runTestsCommandsForModules(modules: List[String])             = {
-  modules.map(module => s";$module/test").mkString
-}
+// Testing
+val coreModules = List("kernel", "pekkoMarshalling", "pekkoTestArchive", "rdf", "sdk", "sourcingPsql", "elasticsearch", "testkit")
 
-addCommandAlias("core-unit-tests", runTestsCommandsForModules(coreModules))
-addCommandAlias("core-unit-tests-with-coverage", runTestsWithCoverageCommandsForModules(coreModules))
-addCommandAlias("app-unit-tests", runTestsCommandsForModules(List("app")))
-addCommandAlias("app-unit-tests-with-coverage", runTestsWithCoverageCommandsForModules(List("app")))
-addCommandAlias("plugins-unit-tests", runTestsCommandsForModules(List("plugins")))
-addCommandAlias("plugins-unit-tests-with-coverage", runTestsWithCoverageCommandsForModules(List("plugins")))
-addCommandAlias("integration-tests", runTestsCommandsForModules(List("tests")))
+def runTests(modules: String*) =
+  modules.map(module => s"$module/test").mkString(";")
+
+def runTestsWithCoverage(modules: String*) =
+  "coverage;" +
+    runTests(modules *) +
+    modules.map(module => s"$module/coverageReport").mkString(";",";","")
+
+addCommandAlias("core-unit-tests", runTests(coreModules *))
+addCommandAlias("core-unit-tests-with-coverage", runTestsWithCoverage(coreModules *))
+addCommandAlias("app-unit-tests", runTests("app"))
+addCommandAlias("app-unit-tests-with-coverage", runTestsWithCoverage("app"))
+addCommandAlias("plugins-unit-tests", runTests("plugins"))
+addCommandAlias("plugins-unit-tests-with-coverage", runTestsWithCoverage("plugins"))
+addCommandAlias("integration-tests", runTests("tests"))

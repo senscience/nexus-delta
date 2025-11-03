@@ -8,7 +8,7 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes
 class IdentitiesSpec extends BaseIntegrationSpec {
 
   "The /identities endpoint" should {
-    s"return identities of the user" in {
+    "return identities of the user" in {
       deltaClient.get[Json]("/identities", Identity.ServiceAccount) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         json shouldEqual jsonContentOf(

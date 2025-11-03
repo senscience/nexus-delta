@@ -29,7 +29,7 @@ class LabelSuite extends FunSuite with EitherAssertions with Generators {
   }
 
   test("Fail to construct if there are no valid characters") {
-    val string = s"!@#%^&*()!@#%^&*()"
+    val string = "!@#%^&*()!@#%^&*()"
     Label(string).assertLeft()
   }
 

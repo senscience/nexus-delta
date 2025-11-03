@@ -11,7 +11,7 @@ class DataConstructQuerySuite extends NexusSuite with ElemFixtures {
 
   test("Produce a correct graph") {
     val query         =
-      s"""prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
+      """prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
          |prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
          |
          |CONSTRUCT {

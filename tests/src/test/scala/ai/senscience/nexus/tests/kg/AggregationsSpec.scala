@@ -92,7 +92,7 @@ final class AggregationsSpec extends BaseIntegrationSpec {
   "Aggregating resources within all accessible projects in the system" should {
 
     "get an error for anonymous" in {
-      deltaClient.get[Json](s"/resources?aggregations=true", Anonymous) { expectForbidden }
+      deltaClient.get[Json]("/resources?aggregations=true", Anonymous) { expectForbidden }
     }
 
     "aggregate correctly for a user that has permissions on at least one project" in eventually {
@@ -104,7 +104,7 @@ final class AggregationsSpec extends BaseIntegrationSpec {
         "proj12" -> proj12,
         "proj21" -> proj21
       )
-      deltaClient.get[Json](s"/resources?aggregations=true", Charlie) { (json, response) =>
+      deltaClient.get[Json]("/resources?aggregations=true", Charlie) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         json should equalIgnoreArrayOrder(expected)
       }

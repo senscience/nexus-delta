@@ -32,7 +32,7 @@ final class AclProvisioning(acls: Acls, config: AclProvisioningConfig, serviceAc
               logger.error(e)(s"Acl provisionning failed because of '${e.getMessage}'.").as(Outcome.Error)
             }
       }
-    } else logger.info(s"Acl provisioning is inactive.").as(Outcome.Disabled)
+    } else logger.info("Acl provisioning is inactive.").as(Outcome.Disabled)
 
   private def loadAcls(input: AclBatchReplace, acls: Acls, serviceAccount: ServiceAccount) = {
     logger.info(s"Provisioning ${input.acls.size} acl entries...") >>

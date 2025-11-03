@@ -61,7 +61,7 @@ class TimeRangeSuite extends FunSuite {
     assertRight(s"$december_2020_string..$april_2022_string", expected)
   }
 
-  test(s"Fail to parse as between as limits are equal") {
+  test("Fail to parse as between as limits are equal") {
     assertLeft(
       s"$december_2020_string..$december_2020_string",
       InvalidRange(december_2020_string, december_2020_string)

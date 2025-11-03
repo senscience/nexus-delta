@@ -77,7 +77,7 @@ object BlazegraphViewRejection {
     * Rejection returned when attempting to update/deprecate the default view.
     */
   case object ViewIsDefaultView
-      extends BlazegraphViewRejection(s"Cannot perform write operations on the default Blazegraph view.")
+      extends BlazegraphViewRejection("Cannot perform write operations on the default Blazegraph view.")
 
   type ViewIsDefaultView = ViewIsDefaultView.type
 
@@ -135,7 +135,7 @@ object BlazegraphViewRejection {
     */
   final case class InvalidViewReferences(views: Set[ViewRef])
       extends BlazegraphViewRejection(
-        s"At least one view reference does not exist or is deprecated."
+        "At least one view reference does not exist or is deprecated."
       )
 
   /**

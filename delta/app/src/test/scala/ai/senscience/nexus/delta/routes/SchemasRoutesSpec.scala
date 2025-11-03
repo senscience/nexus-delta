@@ -133,7 +133,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
 
     "fail to create a schema that does not validate against the SHACL schema" in {
       Put(
-        s"/v1/schemas/myorg/myproject/myidwrong",
+        "/v1/schemas/myorg/myproject/myidwrong",
         payload.removeKeys(keywords.id).replaceKeyWithValue("nodeKind", 42).toEntity
       ) ~> as(writer) ~> routes ~> check {
         response.status shouldEqual StatusCodes.BadRequest
@@ -142,7 +142,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
     }
 
     "fail to update a schema without schemas/write permission" in {
-      Put(s"/v1/schemas/myorg/myproject/myid?rev=1", payload.toEntity) ~> as(reader) ~> routes ~> check {
+      Put("/v1/schemas/myorg/myproject/myid?rev=1", payload.toEntity) ~> as(reader) ~> routes ~> check {
         response.shouldBeForbidden
       }
     }
@@ -178,7 +178,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
     }
 
     "fail to refresh a schema without schemas/write permission" in {
-      Put(s"/v1/schemas/myorg/myproject/myid/refresh", payload.toEntity) ~> as(reader) ~> routes ~> check {
+      Put("/v1/schemas/myorg/myproject/myid/refresh", payload.toEntity) ~> as(reader) ~> routes ~> check {
         response.shouldBeForbidden
       }
     }
@@ -226,7 +226,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with I
     }
 
     "reject the deprecation of a already deprecated schema" in {
-      Delete(s"/v1/schemas/myorg/myproject/myid?rev=6") ~> as(writer) ~> routes ~> check {
+      Delete("/v1/schemas/myorg/myproject/myid?rev=6") ~> as(writer) ~> routes ~> check {
         status shouldEqual StatusCodes.BadRequest
         response.asJson shouldEqual jsonContentOf("schemas/errors/schema-deprecated.json", "id" -> myId)
       }

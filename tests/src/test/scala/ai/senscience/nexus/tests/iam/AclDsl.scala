@@ -89,7 +89,7 @@ class AclDsl(cl: HttpClient) extends CirceUnmarshalling with OptionValues with M
   }
 
   def cleanAcls(target: Authenticated): IO[Assertion] =
-    fetch(s"/*/*", Identity.ServiceAccount, ancestors = true, self = false) { acls =>
+    fetch("/*/*", Identity.ServiceAccount, ancestors = true, self = false) { acls =>
       val permissions = acls._results
         .map { acls =>
           val userAcls = acls.acl.filter {
@@ -120,7 +120,7 @@ class AclDsl(cl: HttpClient) extends CirceUnmarshalling with OptionValues with M
     }
 
   def cleanAclsAnonymous: IO[Assertion] =
-    fetch(s"/*/*", Identity.ServiceAccount, ancestors = true, self = false) { acls =>
+    fetch("/*/*", Identity.ServiceAccount, ancestors = true, self = false) { acls =>
       val permissions = acls._results
         .map { acls =>
           val userAcls = acls.acl.filter {

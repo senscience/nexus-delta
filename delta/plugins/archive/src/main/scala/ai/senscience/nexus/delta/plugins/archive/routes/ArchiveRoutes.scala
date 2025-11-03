@@ -100,7 +100,7 @@ class ArchiveRoutes(
     }
 
   private def emitArchiveFile(source: IO[PekkoSource]) = {
-    val response = source.map { s => FileResponse.noCache(s"archive.zip", Zip.contentType, None, s) }
+    val response = source.map { s => FileResponse.noCache("archive.zip", Zip.contentType, None, s) }
     emit(response)
   }
 }

@@ -159,7 +159,7 @@ class ArchiveDownloadSpec
         .rejectedWith[AuthorizationFailed]
     }
 
-    s"provide a zip for both resources and files" in {
+    "provide a zip for both resources and files" in {
       val value    = ArchiveValue.unsafe(
         NonEmptySet.of(
           ResourceReference(Latest(id1), None, None, None),
@@ -174,7 +174,7 @@ class ArchiveDownloadSpec
       result shouldEqual expected
     }
 
-    s"provide a zip for file selfs" in {
+    "provide a zip for file selfs" in {
       val value    = ArchiveValue.unsafe(
         NonEmptySet.of(
           FileSelfReference(file1Self, None)
@@ -187,12 +187,12 @@ class ArchiveDownloadSpec
       result shouldEqual expected
     }
 
-    s"fail to provide a zip for file selfs which do not resolve" in {
+    "fail to provide a zip for file selfs which do not resolve" in {
       val value = ArchiveValue.unsafe(NonEmptySet.of(FileSelfReference(uri"http://wrong.file/self", None)))
       failToDownload[InvalidFileSelf](value, ignoreNotFound = false)
     }
 
-    s"provide a zip for both resources and files with different paths and formats" in {
+    "provide a zip for both resources and files with different paths and formats" in {
       val list = List(
         SourceJson      -> file1.value.asJson.sort.spaces2,
         CompactedJsonLd -> file1.toCompactedJsonLd.accepted.json.sort.spaces2,
@@ -235,7 +235,7 @@ class ArchiveDownloadSpec
       downloadAndExtract(value, ignoreNotFound = false) should contain key file2Path
     }
 
-    s"fail to provide a zip when a resource is not found" in {
+    "fail to provide a zip when a resource is not found" in {
       val value = ArchiveValue.unsafe(
         NonEmptySet.of(
           ResourceReference(Latest(iri"http://localhost/${genString()}"), None, None, None),
@@ -245,7 +245,7 @@ class ArchiveDownloadSpec
       failToDownload[ResourceNotFound](value, ignoreNotFound = false)
     }
 
-    s"fail to provide a zip when a file is not found" in {
+    "fail to provide a zip when a file is not found" in {
       val value = ArchiveValue.unsafe(
         NonEmptySet.of(
           ResourceReference(Latest(id1), None, None, None),
@@ -283,14 +283,14 @@ class ArchiveDownloadSpec
       result shouldEqual expected
     }
 
-    s"fail to provide a zip when access to a resource is not found" in {
+    "fail to provide a zip when access to a resource is not found" in {
       val value = ArchiveValue.unsafe(
         NonEmptySet.of(ResourceReference(Latest(id1), None, None, None))
       )
       rejectedAccess(value)
     }
 
-    s"fail to provide a zip when access to a file is not found" in {
+    "fail to provide a zip when access to a file is not found" in {
       val value = ArchiveValue.unsafe(
         NonEmptySet.of(FileReference(Latest(id1), None, None))
       )

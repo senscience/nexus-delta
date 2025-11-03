@@ -127,11 +127,11 @@ class ProjectSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("projects/project-state.json")
 
-  test(s"Correctly serialize a ProjectState") {
+  test("Correctly serialize a ProjectState") {
     assertOutput(ProjectState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize a ProjectState") {
+  test("Correctly deserialize a ProjectState") {
     assertEquals(ProjectState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 

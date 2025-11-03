@@ -55,11 +55,11 @@ class AclSerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("acls/acl-state.json")
 
-  test(s"Correctly serialize an AclState") {
+  test("Correctly serialize an AclState") {
     assertOutput(AclState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize an AclState") {
+  test("Correctly deserialize an AclState") {
     assertEquals(AclState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 

@@ -269,7 +269,7 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
         response.asString shouldEqual s"'false','2','$alicia','$bob'"
       }
 
-      Get(s"/base/search?deprecated=false&rev=2") ~> Accept(`*/*`) ~> route ~> check {
+      Get("/base/search?deprecated=false&rev=2") ~> Accept(`*/*`) ~> route ~> check {
         response.asString shouldEqual "'false','2','',''"
       }
     }

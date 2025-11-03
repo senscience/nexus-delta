@@ -50,11 +50,11 @@ class TypeHierarchySerializationSuite extends SerializationSuite {
 
   private val jsonState = jsonContentOf("type-hierarchy/type-hierarchy-state.json")
 
-  test(s"Correctly serialize an TypeHierarchyState") {
+  test("Correctly serialize an TypeHierarchyState") {
     assertOutput(TypeHierarchyState.serializer, state, jsonState)
   }
 
-  test(s"Correctly deserialize an TypeHierarchyState") {
+  test("Correctly deserialize an TypeHierarchyState") {
     assertEquals(TypeHierarchyState.serializer.codec.decodeJson(jsonState), Right(state))
   }
 
