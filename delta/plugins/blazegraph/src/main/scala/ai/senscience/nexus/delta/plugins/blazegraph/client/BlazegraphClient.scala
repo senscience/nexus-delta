@@ -111,14 +111,12 @@ final class BlazegraphClient(
       )
   }
 
-  override def existsNamespace(namespace: String): IO[Boolean] = {
-    val spanDef = SpanDef("namespace/<string:namespace>", withNamespace(namespace), read)
-    OtelTracingClient(client, spanDef).statusFromUri(findEndpoint(namespace) / "namespace" / namespace).flatMap {
+  override def existsNamespace(namespace: String): IO[Boolean] =
+    client.statusFromUri(findEndpoint(namespace) / "namespace" / namespace).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(SparqlActionError(status, "exists"))
     }
-  }
 
   /**
     * Attempts to create a namespace (if it doesn't exist) recovering gracefully when the namespace already exists.
@@ -130,17 +128,20 @@ final class BlazegraphClient(
     * @return
     *   ''true'' wrapped on an IO when namespace has been created and ''false'' wrapped on an IO when it already existed
     */
-  def createNamespace(namespace: String, properties: NamespaceProperties): IO[Boolean] = {
-    val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
-    val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
-    val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
-    OtelTracingClient(client, spanDef).status(request).flatMap {
-      case Status.Created  => IO.pure(true)
-      case Status.Conflict => IO.pure(false)
-      case Status.NotFound => IO.pure(false)
-      case status          => IO.raiseError(SparqlActionError(status, "create"))
+  def createNamespace(namespace: String, properties: NamespaceProperties): IO[Boolean] =
+    existsNamespace(namespace).flatMap {
+      case true  => IO.pure(false)
+      case false =>
+        val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
+        val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
+        val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
+        OtelTracingClient(client, spanDef).status(request).flatMap {
+          case Status.Created  => IO.pure(true)
+          case Status.Conflict => IO.pure(false)
+          case Status.NotFound => IO.pure(false)
+          case status          => IO.raiseError(SparqlActionError(status, "create"))
+        }
     }
-  }
 
   override def createNamespace(namespace: String): IO[Boolean] =
     createNamespace(namespace, NamespaceProperties.defaultValue)
