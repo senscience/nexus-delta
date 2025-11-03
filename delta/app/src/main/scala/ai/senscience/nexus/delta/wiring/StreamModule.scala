@@ -1,9 +1,11 @@
 package ai.senscience.nexus.delta.wiring
 
+import ai.senscience.nexus.delta.config.BuildInfo
 import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectLastUpdateStore, ProjectLastUpdateStream, ProjectionErrors, Projections, ProjectionsRestartScheduler}
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
+import ai.senscience.nexus.delta.sourcing.projections.*
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
@@ -13,6 +15,7 @@ import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{DeleteExpired, PurgeElemFailures, Transactors}
 import cats.effect.{Clock, IO, Sync}
 import izumi.distage.model.definition.ModuleDef
+import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
   * Indexing specific wiring.
@@ -43,9 +46,13 @@ object StreamModule extends ModuleDef {
     ProjectionErrors(xas, cfg.query, clock)
   }
 
+  make[ProjectionMetrics].fromEffect { (otel: OtelJava[IO]) =>
+    ProjectionMetrics(BuildInfo.version)(using otel.meterProvider)
+  }
+
   make[Supervisor].fromResource {
-    (projections: Projections, projectionErrors: ProjectionErrors, cfg: ProjectionConfig) =>
-      Supervisor(projections, projectionErrors, cfg)
+    (projections: Projections, projectionErrors: ProjectionErrors, cfg: ProjectionConfig, metrics: ProjectionMetrics) =>
+      Supervisor(projections, projectionErrors, cfg, metrics)
   }
 
   make[ProjectionsRestartScheduler].from { (projections: Projections) =>
