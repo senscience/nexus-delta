@@ -13,7 +13,7 @@ import scala.concurrent.duration.DurationInt
 
 class RefreshOrStopSuite extends NexusSuite {
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val org               = Label.unsafe("org")
   private val project           = ProjectRef.unsafe("org", "proj")
@@ -21,11 +21,8 @@ class RefreshOrStopSuite extends NexusSuite {
   private val delayConfig       = DelayConfig(20, 50.millis)
   private val passivationConfig = PassivationConfig(20, 50.millis)
 
-  private def activitySignals(signal: SignallingRef[IO, Boolean]) =
-    new ProjectActivitySignals {
-      override def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] = IO.some(signal)
-      override def activityMap: IO[Map[ProjectRef, Boolean]]                          = IO.pure(Map.empty)
-    }
+  private def activitySignals(signal: SignallingRef[IO, Boolean]): ProjectActivitySignals =
+    (_: ProjectRef) => IO.some(signal)
 
   test("A stop config returns a stop outcome for the different scopes") {
     val expected = RefreshOrStop.Outcome.Stopped

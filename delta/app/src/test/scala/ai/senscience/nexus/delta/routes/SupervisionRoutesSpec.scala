@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.{IO, Ref}
-import fs2.concurrent.SignallingRef
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 import org.scalatest.Assertion
@@ -65,19 +64,13 @@ class SupervisionRoutesSpec extends BaseRouteSpec {
     override def heal(project: ProjectRef): IO[Unit] = IO.unit
   }
 
-  private val activitySignals = new ProjectActivitySignals {
-    override def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] = IO.none
-    override def activityMap: IO[Map[ProjectRef, Boolean]]                          = IO.pure(Map(project -> true, project2 -> false))
-  }
-
   private def routesTemplate(unhealthyProjects: Set[ProjectRef], healer: ProjectHealer) = Route.seal(
     new SupervisionRoutes(
       identities,
       aclCheck,
       IO.pure { List(description1, description2) },
       projectsHealth(unhealthyProjects),
-      healer,
-      activitySignals
+      healer
     ).routes
   )
 
@@ -180,22 +173,4 @@ class SupervisionRoutesSpec extends BaseRouteSpec {
     }
 
   }
-
-  "The supervision project activity endpoint" should {
-
-    "be forbidden without supervision/read permission" in {
-      Get("/v1/supervision/activity/projects") ~> routes ~> check {
-        response.shouldBeForbidden
-      }
-    }
-
-    "be accessible with supervision/read permission and return expected payload" in {
-      Get("/v1/supervision/activity/projects") ~> as(supervisor) ~> routes ~> check {
-        response.status shouldEqual StatusCodes.OK
-        response.asJson shouldEqual json"""{ "$project": true, "$project2": false }"""
-      }
-    }
-
-  }
-
 }

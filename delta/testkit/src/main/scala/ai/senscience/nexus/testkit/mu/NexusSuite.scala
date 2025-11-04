@@ -6,6 +6,7 @@ import ai.senscience.nexus.testkit.scalatest.{ClasspathResources, MUnitExtractVa
 import ai.senscience.nexus.testkit.{CirceLiteral, Generators}
 import cats.effect.IO
 import munit.CatsEffectSuite
+import org.typelevel.otel4s.metrics.Meter
 import org.typelevel.otel4s.trace.Tracer
 
 abstract class NexusSuite
@@ -24,4 +25,5 @@ abstract class NexusSuite
     with FixedClock {
 
   given Tracer[IO] = Tracer.noop[IO]
+  given Meter[IO]  = Meter.noop[IO]
 }

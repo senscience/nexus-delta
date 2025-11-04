@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.testkit.clock.MutableClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
+import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
 import munit.{AnyFixture, Location}
@@ -18,11 +19,11 @@ class ProjectActivitySignalsSuite extends NexusSuite with MutableClock.Fixture {
   private lazy val mutableClock: MutableClock    = mutableClockFixture()
 
   private def assertActivitySignal(
-      lastUpdateReads: ProjectActivitySignals,
+      activitySignals: ProjectActivitySignals,
       project: ProjectRef,
       expected: Option[Boolean]
-  )(implicit loc: Location) =
-    lastUpdateReads.apply(project).flatMap(_.traverse(_.get)).assertEquals(expected)
+  )(using Location) =
+    activitySignals.apply(project).flatMap(_.traverse(_.get)).assertEquals(expected)
 
   test("Signals should be updated when the stream is processed") {
     val now              = Instant.now()
@@ -42,15 +43,15 @@ class ProjectActivitySignalsSuite extends NexusSuite with MutableClock.Fixture {
       )
 
     for {
-      signals        <- ProjectSignals[ProjectLastUpdate]
-      _              <- mutableClock.set(now)
-      lastUpdateReads = ProjectActivitySignals(signals)
-      signalPipe      = ProjectActivitySignals.signalPipe(signals, mutableClock, inactiveInterval)
-      _              <- stream.through(signalPipe).compile.drain
-      _              <- assertActivitySignal(lastUpdateReads, project1, Some(true))
-      _              <- assertActivitySignal(lastUpdateReads, project2, Some(false))
-      _              <- assertActivitySignal(lastUpdateReads, project3, Some(true))
-      _              <- assertActivitySignal(lastUpdateReads, project4, None)
+      signals       <- ProjectSignals(mutableClock, inactiveInterval)
+      _             <- mutableClock.set(now)
+      activitySignal = ProjectActivitySignals(signals)
+      signalPipe     = ProjectActivitySignals.signalPipe(signals)
+      _             <- stream.through(signalPipe).compile.drain
+      _             <- assertActivitySignal(activitySignal, project1, Some(true))
+      _             <- assertActivitySignal(activitySignal, project2, Some(false))
+      _             <- assertActivitySignal(activitySignal, project3, Some(true))
+      _             <- assertActivitySignal(activitySignal, project4, None)
     } yield ()
   }
 

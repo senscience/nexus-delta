@@ -7,12 +7,13 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.*
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, SupervisedDescription}
+import ai.senscience.nexus.delta.sourcing.stream.SupervisedDescription
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.generic.semiauto.deriveEncoder
@@ -27,8 +28,7 @@ class SupervisionRoutes(
     aclCheck: AclCheck,
     supervised: IO[List[SupervisedDescription]],
     projectsHealth: ProjectsHealth,
-    projectHealer: ProjectHealer,
-    activitySignals: ProjectActivitySignals
+    projectHealer: ProjectHealer
 )(using baseUri: BaseUri)(using JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
@@ -36,7 +36,7 @@ class SupervisionRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("supervision") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
             authorizeFor(AclAddress.Root, supervision.read).apply {
               concat(
@@ -48,9 +48,6 @@ class SupervisionRoutes(
                     if projects.isEmpty then complete(StatusCodes.OK, allProjectsAreHealthy)
                     else complete(StatusCodes.InternalServerError, unhealthyProjectsEncoder(projects))
                   }
-                },
-                (pathPrefix("activity") & pathPrefix("projects") & get & pathEndOrSingleSlash) {
-                  emitJson(activitySignals.activityMap)
                 }
               )
             },
@@ -74,8 +71,7 @@ object SupervisionRoutes {
 
   case class SupervisionBundle(projections: List[SupervisedDescription])
 
-  implicit final val runningProjectionsEncoder: Encoder[SupervisionBundle] =
-    deriveEncoder
+  given Encoder[SupervisionBundle] = deriveEncoder
 
   private val allProjectsAreHealthy =
     Json.obj("status" := "All projects are healthy.")
