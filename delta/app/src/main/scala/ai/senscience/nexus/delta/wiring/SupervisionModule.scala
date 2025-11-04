@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivitySignals, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.IO
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -33,7 +33,6 @@ object SupervisionModule extends NexusModuleDef {
         jo: JsonKeyOrdering,
         projectsHealth: ProjectsHealth,
         projectHealer: ProjectHealer,
-        projectActivitySignals: ProjectActivitySignals,
         tracer: Tracer[IO] @Id("supervision")
     ) =>
       new SupervisionRoutes(
@@ -41,8 +40,7 @@ object SupervisionModule extends NexusModuleDef {
         aclCheck,
         supervisor.getRunningProjections(),
         projectsHealth,
-        projectHealer,
-        projectActivitySignals
+        projectHealer
       )(using baseUri)(using jo, tracer)
   }
 

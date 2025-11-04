@@ -66,7 +66,7 @@ object ExecutionStatus {
     */
   final case class Failed(th: Throwable) extends ExecutionStatus
 
-  implicit final val executionStatusEncoder: Encoder[ExecutionStatus] =
+  given Encoder[ExecutionStatus] =
     Encoder.instance[ExecutionStatus] {
       case Ignored   => Json.fromString("Ignored")
       case Pending   => Json.fromString("Pending")

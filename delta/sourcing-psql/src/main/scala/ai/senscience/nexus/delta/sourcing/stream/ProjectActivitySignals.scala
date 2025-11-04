@@ -10,6 +10,7 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import cats.effect.{Clock, IO}
 import fs2.concurrent.SignallingRef
 import fs2.{Pipe, Stream}
+import org.typelevel.otel4s.metrics.Meter
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
@@ -23,55 +24,28 @@ trait ProjectActivitySignals {
     */
   def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]]
 
-  /**
-    * Returns a snapshot of the activity status of the different projects
-    */
-  def activityMap: IO[Map[ProjectRef, Boolean]]
-
 }
 
 object ProjectActivitySignals {
 
-  val noop: ProjectActivitySignals = new ProjectActivitySignals {
-    override def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] = IO.none
+  val noop: ProjectActivitySignals = (_: ProjectRef) => IO.none
 
-    override def activityMap: IO[Map[ProjectRef, Boolean]] = IO.pure(Map.empty)
-  }
-
-  private def refresh(
-      signals: ProjectSignals[ProjectLastUpdate],
-      clock: Clock[IO],
-      inactiveInterval: FiniteDuration,
-      updated: Map[ProjectRef, ProjectLastUpdate]
-  ) =
-    clock.realTimeInstant.flatMap { now =>
-      val inactivityThreshold = now.minusSeconds(inactiveInterval.toSeconds)
-      signals.refresh(updated, _.lastInstant.isAfter(inactivityThreshold))
-    }
-
-  private def refreshStream(
-      signals: ProjectSignals[ProjectLastUpdate],
-      clock: Clock[IO],
-      inactiveInterval: FiniteDuration
-  ) =
+  private def evictStream(signals: ProjectSignals) =
     Stream.awakeEvery[IO](1.second).evalTap { _ =>
-      refresh(signals, clock, inactiveInterval, Map.empty)
+      signals.evictInactiveProjects
     }
 
-  private[stream] def signalPipe(
-      signals: ProjectSignals[ProjectLastUpdate],
-      clock: Clock[IO],
-      inactiveInterval: FiniteDuration
-  ): Pipe[IO, ProjectLastUpdate, ProjectLastUpdate] =
-    _.groupWithin(10, 100.millis)
+  private[stream] def signalPipe(signals: ProjectSignals): Pipe[IO, ProjectLastUpdate, ProjectLastUpdate] =
+    _.groupWithin(100, 100.millis)
       .evalTap { chunk =>
-        val map = chunk.foldLeft(Map.empty[ProjectRef, ProjectLastUpdate]) { case (acc, update) =>
-          acc.updated(update.project, update)
-        }
-        refresh(signals, clock, inactiveInterval, map)
+        signals.newValues(
+          chunk.map { projectLastUpdate =>
+            projectLastUpdate.project -> projectLastUpdate.lastInstant
+          }.asSeq
+        )
       }
       .unchunks
-      .concurrently(refreshStream(signals, clock, inactiveInterval))
+      .concurrently(evictStream(signals))
 
   // $COVERAGE-OFF$
   private val projectionMetadata: ProjectionMetadata =
@@ -97,17 +71,17 @@ object ProjectActivitySignals {
       stream: ProjectLastUpdateStream,
       clock: Clock[IO],
       inactiveInterval: FiniteDuration
-  ): IO[ProjectActivitySignals] = {
+  )(using Meter[IO]): IO[ProjectActivitySignals] = {
 
     for {
-      signals <- ProjectSignals[ProjectLastUpdate]
+      signals <- ProjectSignals(clock, inactiveInterval)
       compiled =
         CompiledProjection.fromStream(
           projectionMetadata,
           ExecutionStrategy.EveryNode,
           (offset: Offset) =>
             stream(offset)
-              .through(signalPipe(signals, clock, inactiveInterval))
+              .through(signalPipe(signals))
               .map(successElem)
         )
       _       <- supervisor.run(compiled)
@@ -115,13 +89,6 @@ object ProjectActivitySignals {
   }
   // $COVERAGE-ON$
 
-  def apply(signals: ProjectSignals[ProjectLastUpdate]): ProjectActivitySignals =
-    new ProjectActivitySignals {
-      override def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] = signals.get(project)
-
-      /**
-        * Returns a snapshot of the activity status of the different projects
-        */
-      override def activityMap: IO[Map[ProjectRef, Boolean]] = signals.activityMap
-    }
+  def apply(signals: ProjectSignals): ProjectActivitySignals =
+    (project: ProjectRef) => signals.getSignal(project)
 }

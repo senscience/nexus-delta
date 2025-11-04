@@ -70,8 +70,20 @@ object StreamModule extends ModuleDef {
   }
 
   make[ProjectActivitySignals].fromEffect {
-    (supervisor: Supervisor, stream: ProjectLastUpdateStream, clock: Clock[IO], config: ProjectLastUpdateConfig) =>
-      ProjectActivitySignals(supervisor, stream, clock, config.inactiveInterval)
+    (
+        supervisor: Supervisor,
+        stream: ProjectLastUpdateStream,
+        clock: Clock[IO],
+        config: ProjectLastUpdateConfig,
+        otel: OtelJava[IO]
+    ) =>
+      otel.meterProvider
+        .meter("ai.senscience.nexus.delta.projects")
+        .withVersion(BuildInfo.version)
+        .get
+        .flatMap { meter =>
+          ProjectActivitySignals(supervisor, stream, clock, config.inactiveInterval)(using meter)
+        }
   }
 
   make[PurgeProjectionCoordinator.type].fromEffect {
