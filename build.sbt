@@ -703,8 +703,9 @@ lazy val benchmarks = project
   .settings(noPublish)
   .settings(shared, compilation)
   .settings(
-    libraryDependencies := gatling,
-    Test / fork         := true
+    libraryDependencies   := gatling,
+    Test / fork           := true,
+    Gatling / javaOptions := overrideDefaultJavaOptions("-Xms1024m", "-Xmx4096m")
   )
 
 lazy val root = project
@@ -872,7 +873,7 @@ def runTests(modules: String*) =
 def runTestsWithCoverage(modules: String*) =
   "coverage;" +
     runTests(modules *) +
-    modules.map(module => s"$module/coverageReport").mkString(";",";","")
+    modules.map(module => s"$module/coverageReport").mkString(";", ";", "")
 
 addCommandAlias("core-unit-tests", runTests(coreModules *))
 addCommandAlias("core-unit-tests-with-coverage", runTestsWithCoverage(coreModules *))
