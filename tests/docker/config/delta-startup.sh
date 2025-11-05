@@ -8,4 +8,4 @@ ln -sf /opt/docker/plugins/disabled/project-deletion.jar /opt/docker/plugins/pro
 /opt/docker/bin/delta-app -Xmx4G \
   -Dotel.service.name=nexus-delta \
   -Dotel.exporter.otlp.protocol=http/protobuf \
-  -Dotel.exporter.otlp.endpoint=http://otel-lgtm:4318/
+  -Dotel.exporter.otlp.endpoint=http://otel-collector-contrib:4318/

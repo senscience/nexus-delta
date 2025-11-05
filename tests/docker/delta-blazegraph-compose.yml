@@ -4,7 +4,10 @@ include:
   - elasticsearch.yml
   - blazegraph.yml
   - localstack.yml
+  # https://grafana.com/docs/opentelemetry/docker-lgtm/
   #- otel-lgtm.yml
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib
+  #- otel-collector-contrib.yml
 
 networks:
   default:
@@ -29,6 +32,7 @@ services:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
       - OTEL_SDK_DISABLED
+      - OTEL_TEST_ENDPOINT
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true
       - SPARQL_TARGET=blazegraph

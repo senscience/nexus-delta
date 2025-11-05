@@ -1,0 +1,9 @@
+services:
+  otel-collector-contrib:
+    image: otel/opentelemetry-collector-contrib:0.139.0
+    command: ["--config=/config/azure.yml"]
+    volumes:
+      - ./config/otel:/config
+    ports:
+      - "4317:4317"
+      - "4318:4318"
