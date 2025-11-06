@@ -75,14 +75,13 @@ object MainIndexingCoordinator {
     private def start(project: ProjectRef): IO[Unit] =
       for {
         compiled <- compile(project)
-        _        <- createAlias(project)
         status   <- supervisor.describe(compiled.metadata.name)
         _        <- status match {
                       case Some(value) if value.status == ExecutionStatus.Running =>
                         logger.info(s"Main indexing of '$project' is already running.")
                       case _                                                      =>
                         logger.info(s"Starting main indexing of '$project'...") >>
-                          supervisor.run(compiled)
+                          supervisor.run(compiled, createAlias(project))
                     }
       } yield ()
 

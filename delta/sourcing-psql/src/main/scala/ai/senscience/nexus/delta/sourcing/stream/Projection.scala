@@ -110,6 +110,15 @@ object Projection {
       saveProgress: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit]
   )(using batch: BatchConfig): IO[Projection] =
+    apply(projection, IO.unit, fetchProgress, saveProgress, saveFailedElems)
+
+  def apply(
+      projection: CompiledProjection,
+      init: IO[Unit],
+      fetchProgress: IO[Option[ProjectionProgress]],
+      saveProgress: ProjectionProgress => IO[Unit],
+      saveFailedElems: List[FailedElem] => IO[Unit]
+  )(using batch: BatchConfig): IO[Projection] =
     for {
       status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
       signal      <- SignallingRef[IO, Boolean](false)
@@ -135,7 +144,7 @@ object Projection {
           .compile
           .drain
       // update status to Running at the beginning and to Completed at the end if it's still running
-      task         = status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
+      task         = init >> status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
                        if s.isRunning then ExecutionStatus.Completed else s
                      )
       fiber       <- task.start
