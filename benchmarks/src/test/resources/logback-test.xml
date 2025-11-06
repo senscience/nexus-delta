@@ -9,6 +9,8 @@
         </layout>
     </appender>
 
+<!--    <logger name="io.gatling.http.engine.response" level="DEBUG" />-->
+
     <root level="${LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT" />
     </root>

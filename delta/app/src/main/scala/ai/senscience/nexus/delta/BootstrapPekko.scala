@@ -37,14 +37,16 @@ object BootstrapPekko {
           handleExceptions(locator.get[ExceptionHandler]) {
             handleRejections(locator.get[RejectionHandler]) {
               uriPrefix(locator.get[BaseUri].base) {
-                encodeResponse {
-                  val (strict, rest) = locator.get[Set[PriorityRoute]].partition(_.requiresStrictEntity)
-                  concat(
-                    concat(rest.toVector.sortBy(_.priority).map(_.route)*),
-                    locator.get[StrictEntity].apply() {
-                      concat(strict.toVector.sortBy(_.priority).map(_.route)*)
-                    }
-                  )
+                decodeRequest {
+                  encodeResponse {
+                    val (strict, rest) = locator.get[Set[PriorityRoute]].partition(_.requiresStrictEntity)
+                    concat(
+                      concat(rest.toVector.sortBy(_.priority).map(_.route)*),
+                      locator.get[StrictEntity].apply() {
+                        concat(strict.toVector.sortBy(_.priority).map(_.route)*)
+                      }
+                    )
+                  }
                 }
               }
             }
