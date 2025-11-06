@@ -2,6 +2,7 @@ package ai.senscience.nexus.tests
 
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.pekko.marshalling.{CirceUnmarshalling, RdfMediaTypes}
+import ai.senscience.nexus.tests.GzipCompression.*
 import ai.senscience.nexus.tests.HttpClient.{jsonHeaders, tokensMap}
 import ai.senscience.nexus.tests.Identity.Anonymous
 import ai.senscience.nexus.tests.kg.files.model.FileInput
@@ -279,16 +280,21 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       identity: Identity,
       f: (A, HttpResponse) => R,
       extraHeaders: Seq[HttpHeader]
-  )(implicit um: FromEntityUnmarshaller[A]): IO[R] =
+  )(implicit um: FromEntityUnmarshaller[A]): IO[R] = {
+    def createEntity(json: Json) =
+      if mustGzip(extraHeaders) then HttpEntity(ContentTypes.`application/json`, compress(json))
+      else HttpEntity(ContentTypes.`application/json`, json.noSpaces)
+
     request(
       method,
       url,
       body,
       identity,
-      (j: Json) => HttpEntity(ContentTypes.`application/json`, j.noSpaces),
+      (j: Json) => createEntity(j),
       f,
       extraHeaders
     )
+  }
 
   private def identityHeader(identity: Identity): Option[HttpHeader] = {
     identity match {
@@ -304,12 +310,13 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
     }
   }
 
+  private val empty: RequestEntity = HttpEntity.Empty
   def request[A, B, R](
       method: HttpMethod,
       url: String,
       body: Option[B],
       identity: Identity,
-      toEntity: B => HttpEntity.Strict,
+      toEntity: B => RequestEntity,
       f: (A, HttpResponse) => R,
       extraHeaders: Seq[HttpHeader]
   )(implicit um: FromEntityUnmarshaller[A]): IO[R] =
@@ -318,7 +325,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
         method = method,
         uri = s"$baseUrl$url",
         headers = extraHeaders ++ identityHeader(identity),
-        entity = body.fold(HttpEntity.Empty)(toEntity)
+        entity = body.fold(empty)(toEntity)
       )
     ).flatMap { res =>
       fromFuture { um(res.entity) }

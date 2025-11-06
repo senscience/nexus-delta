@@ -868,11 +868,20 @@ class ResourcesSpec extends BaseIntegrationSpec {
     }
   }
 
-  "Uploading a payload too large" should {
+  "Uploading a large payload" should {
+    val value   = randomString(270000)
+    val payload = json"""{ "value": "$value" }"""
 
-    "fail with the appropriate message" in {
-      val value   = randomString(270000)
-      val payload = json"""{ "value": "$value" }"""
+    "succeed compressing it with gzip" in {
+
+      val gzip = `Content-Encoding`(HttpEncodings.gzip)
+
+      deltaClient.post[Json](s"/resources/$project1/", payload, Rick, Seq(gzip)) {
+        expectCreated
+      }
+    }
+
+    "fail with the appropriate message when there is no compression" in {
       deltaClient.post[Json](s"/resources/$project1/", payload, Rick) { (json, response) =>
         response.status shouldEqual StatusCodes.ContentTooLarge
         Optics.`@type`.getOption(json) shouldEqual Some("PayloadTooLarge")
