@@ -67,16 +67,11 @@ object ElasticSearchCoordinator {
                       _ <- logger.info(s"Index ${active.index} already exists and will not be recreated.")
                     } yield ()
                   case (cached, active: ActiveViewDef)                                       =>
+                    val init = createIndex(active) >> cache.put(active.ref, active)
                     compile(active)
                       .flatMap { projection =>
                         cleanupCurrent(cached, active.ref) >>
-                          supervisor.run(
-                            projection,
-                            for {
-                              _ <- createIndex(active)
-                              _ <- cache.put(active.ref, active)
-                            } yield ()
-                          )
+                          supervisor.run(projection, init)
                       }
                   case (cached, deprecated: DeprecatedViewDef)                               =>
                     cleanupCurrent(cached, deprecated.ref)

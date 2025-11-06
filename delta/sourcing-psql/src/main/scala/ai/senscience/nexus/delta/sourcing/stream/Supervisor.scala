@@ -265,8 +265,7 @@ object Supervisor {
         log.debug(s"Ignoring '${metadata.module}/${metadata.name}' with strategy '$strategy'.").as(ignored)
       else
         log.info(s"Starting '${metadata.module}/${metadata.name}' with strategy '$strategy'.") >>
-          init >>
-          startProjection(projection).map { p =>
+          startProjection(init, projection).map { p =>
             Control(
               p.executionStatus,
               p.currentProgress,
@@ -275,7 +274,7 @@ object Supervisor {
           }
     }
 
-    private def startProjection(projection: CompiledProjection): IO[Projection] =
+    private def startProjection(init: IO[Unit], projection: CompiledProjection): IO[Projection] =
       projection.executionStrategy match {
         case PersistentSingleNode            =>
           def saveProgressWithMetrics(progress: ProjectionProgress) =
@@ -283,6 +282,7 @@ object Supervisor {
               metrics.recordProgress(projection.metadata, progress)
           Projection(
             projection,
+            init,
             projections.progress(projection.metadata.name),
             saveProgressWithMetrics,
             projectionErrors.saveFailedElems(projection.metadata, _)
@@ -290,6 +290,7 @@ object Supervisor {
         case TransientSingleNode | EveryNode =>
           Projection(
             projection,
+            init,
             IO.none,
             metrics.recordProgress(projection.metadata, _),
             projectionErrors.saveFailedElems(projection.metadata, _)
