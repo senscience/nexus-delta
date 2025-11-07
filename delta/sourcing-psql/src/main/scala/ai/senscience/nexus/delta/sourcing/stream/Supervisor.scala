@@ -101,7 +101,7 @@ trait Supervisor {
   /**
     * Stops all running projections without removing them from supervision.
     */
-  def stop(): IO[Unit]
+  def stop: IO[Unit]
 
 }
 
@@ -145,7 +145,7 @@ object Supervisor {
         _              <- log.info("Delta supervisor is up")
       } yield supervisor
 
-    Resource.make[IO, Supervisor](init)(_.stop())
+    Resource.make[IO, Supervisor](init)(_.stop)
   }
 
   private def createRetryStrategy(cfg: ProjectionConfig, metadata: ProjectionMetadata, action: String) =
@@ -375,20 +375,22 @@ object Supervisor {
         _.traverseFilter { _.description.map(descriptionFilter) }
       }
 
-    override def stop(): IO[Unit] =
-      for {
-        _     <- log.info("Stopping supervisor and all its running projections")
-        _     <- signal.set(true)
-        fiber <- supervisionFiberRef.get
-        _     <- fiber.join
-        _     <- semaphore.permit.use { _ =>
-                   for {
-                     supervised <- mapRef.get.map(_.values.toList)
-                     _          <- log.info(s"Stopping ${supervised.size} projection(s)...")
-                     _          <- supervised.traverse { s => stopProjection(s) }
-                   } yield ()
-                 }
-      } yield ()
+    private def stopSupervisionTask =
+      signal.set(true) >>
+        supervisionFiberRef.get.flatMap(_.join)
+
+    private def stopAllProjections =
+      semaphore.permit.use { _ =>
+        mapRef.get.map(_.values.toList).flatMap { supervised =>
+          log.info(s"Stopping ${supervised.size} projection(s)...") >>
+            supervised.parUnorderedTraverse { s => stopProjection(s) }
+        }
+      }.void
+
+    override def stop: IO[Unit] =
+      log.info("Stopping supervisor and all its running projections") >>
+        stopSupervisionTask >>
+        stopAllProjections
   }
 
 }
