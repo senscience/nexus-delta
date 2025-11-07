@@ -2,7 +2,6 @@ package ai.senscience.nexus.delta.elasticsearch.query
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
-import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingAlias
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.Type.{ExcludedType, IncludedType}
@@ -38,7 +37,7 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
 
   private lazy val client = esClient()
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private def epochPlus(plus: Long) = Instant.EPOCH.plusSeconds(plus)
   private val realm                 = Label.unsafe("myrealm")
@@ -122,7 +121,7 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
     /**
       * Extract ids from documents from an Elasticsearch search raw response
       */
-    def extractAll(json: Json)(implicit loc: Location): Seq[Iri] = {
+    def extractAll(json: Json)(using Location): Seq[Iri] = {
       for {
         hits    <- json.hcursor.downField("hits").get[Vector[Json]]("hits")
         sources <- hits.traverse(_.hcursor.get[Json]("_source"))
@@ -133,10 +132,10 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
     /**
       * Extract ids from documents from results from [[SearchResults]]
       */
-    def extractAll(results: SearchResults[JsonObject])(implicit loc: Location): Seq[Iri] =
+    def extractAll(results: SearchResults[JsonObject])(using Location): Seq[Iri] =
       extract(results.sources.map(_.asJson))
 
-    def extract(results: Seq[Json])(implicit loc: Location): Seq[Iri] =
+    def extract(results: Seq[Json])(using Location): Seq[Iri] =
       results.traverse(extract).rightValue
 
     def extract(json: Json): Decoder.Result[Iri] = json.hcursor.get[Iri]("@id")
@@ -163,8 +162,6 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
     for {
       mainIndexDef <- MainIndexDef(mainIndexConfig)
       _            <- client.createIndex(mainIndex, Some(mainIndexDef.mapping), Some(mainIndexDef.settings))
-      _            <- client.createAlias(mainIndexingAlias(mainIndex, project1))
-      _            <- client.createAlias(mainIndexingAlias(mainIndex, project2))
       bulk         <- allResources.traverse { r =>
                         r.asDocument.map { d =>
                           ElasticSearchAction.Index(mainIndex, genString(), Some(r.project.toString), d)
@@ -301,6 +298,22 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
       .assertEquals(List(trace.id, cell.id))
   }
 
+  test(s"Search in $project1 to get the trace id returns nothing") {
+    val query = jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }"""
+    mainIndexQuery
+      .search(project1, query, Query.empty)
+      .map(Ids.extractAll)
+      .assertEquals(List.empty)
+  }
+
+  test(s"Search in $project2 to get the trace id returns it") {
+    val query = jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }"""
+    mainIndexQuery
+      .search(project2, query, Query.empty)
+      .map(Ids.extractAll)
+      .assertEquals(List(trace.id))
+  }
+
 }
 
 object MainIndexQuerySuite {
@@ -321,7 +334,7 @@ object MainIndexQuerySuite {
 
     def id: Iri = nxv + suffix
 
-    def asResourceF(implicit rcr: RemoteContextResolution): DataResource = {
+    def asResourceF(using RemoteContextResolution): DataResource = {
       val resource = ResourceGen.resource(id, project, Json.obj())
       ResourceGen
         .resourceFor(resource, types = types, rev = rev, deprecated = deprecated)
@@ -334,7 +347,7 @@ object MainIndexQuerySuite {
         )
     }
 
-    def asDocument(implicit
+    def asDocument(using
         baseUri: BaseUri,
         rcr: RemoteContextResolution,
         jsonldApi: JsonLdApi

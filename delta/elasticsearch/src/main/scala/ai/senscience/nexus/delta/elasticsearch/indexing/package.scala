@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.client.{IndexAlias, IndexLabel}
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.rdf.IriOrBNode
@@ -10,28 +9,12 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.IO
-import io.circe.syntax.KeyOps
-import io.circe.{Json, JsonObject}
 
 package object indexing {
 
   type FetchIndexingView = (IdSegment, ProjectRef) => IO[ActiveViewDef]
 
   val defaultIndexingContext: ContextValue = ContextValue(contexts.elasticsearchIndexing, contexts.indexingMetadata)
-
-  def mainProjectTargetAlias(index: IndexLabel, project: ProjectRef): IndexLabel =
-    IndexLabel.unsafe(s"${index.value}_${ProjectRef.hash(project)}")
-
-  private def projectFilter(project: ProjectRef): JsonObject =
-    JsonObject("term" := Json.obj("_project" := project))
-
-  def mainIndexingAlias(index: IndexLabel, project: ProjectRef): IndexAlias =
-    IndexAlias(
-      index,
-      mainProjectTargetAlias(index, project),
-      Some(project.toString),
-      Some(projectFilter(project))
-    )
 
   val mainIndexingId: IriOrBNode.Iri = nxv + "main-indexing"
 

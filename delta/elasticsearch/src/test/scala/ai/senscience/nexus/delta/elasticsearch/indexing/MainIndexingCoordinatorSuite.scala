@@ -22,7 +22,6 @@ import io.circe.Json
 import munit.AnyFixture
 
 import java.time.Instant
-import scala.collection.mutable.Set as MutableSet
 import scala.concurrent.duration.*
 
 class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture with Fixtures {
@@ -69,7 +68,6 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
   }
 
   private val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 1, 1)
-  private val createdAliases   = MutableSet.empty[ProjectRef]
 
   test("Start the coordinator") {
     for {
@@ -77,8 +75,7 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
              _ => projectStream,
              graphResourceStream,
              sv,
-             new NoopSink[Json],
-             project => IO(createdAliases.add(project)).void
+             new NoopSink[Json]
            )
       _ <- sv.describe(MainIndexingCoordinator.metadata.name)
              .map(_.map(_.progress))
@@ -95,7 +92,6 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
              .assertEquals(Some(ExecutionStatus.Completed))
              .eventually
       _ <- projections.progress(projectionName).assertEquals(Some(expectedProgress))
-      _  = assert(createdAliases.contains(project1), s"The alias for $project1 should have been created.")
     } yield ()
   }
 
@@ -107,7 +103,6 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
              .assertEquals(Some(ExecutionStatus.Completed))
              .eventually
       _ <- projections.progress(projectionName).assertEquals(Some(expectedProgress))
-      _  = assert(createdAliases.contains(project2), s"The alias for $project2 should have been created.")
     } yield ()
   }
 

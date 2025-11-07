@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchActionError, ElasticsearchCreateIndexError}
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
@@ -14,7 +14,7 @@ import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.elasticsearch.ElasticSearchContainer
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
-import io.circe.syntax.{EncoderOps, KeyOps}
+import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 import munit.AnyFixture
 import org.http4s.Query
@@ -214,27 +214,6 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
       pit <- client.createPointInTime(index, 30.seconds)
       _   <- client.deletePointInTime(pit)
     } yield ()
-  }
-
-  test("Create an alias for an index and then delete it") {
-    val index      = generateIndexLabel
-    val alias      = generateIndexLabel
-    val indexAlias = IndexAlias(index, alias, Some("routing"), Some(JsonObject("match_all" := Json.obj())))
-    for {
-      _ <- client.createIndex(index)
-      _ <- client.createAlias(indexAlias)
-      _ <- client.existsIndex(alias).assertEquals(true)
-      _ <- client.removeAlias(index, alias)
-      _ <- client.existsIndex(alias).assertEquals(false)
-      _ <- client.existsIndex(index).assertEquals(true)
-    } yield ()
-  }
-
-  test("Create an alias for a non-existing index should fail") {
-    val index      = generateIndexLabel
-    val alias      = generateIndexLabel
-    val indexAlias = IndexAlias(index, alias, Some("routing"), Some(JsonObject("match_all" := Json.obj())))
-    client.createAlias(indexAlias).intercept[ElasticsearchActionError]
   }
 
 }
