@@ -30,7 +30,7 @@ import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAc
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
-import ai.senscience.nexus.delta.sdk.permissions.{Permissions, StoragePermissionProvider}
+import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
@@ -103,10 +103,6 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   make[FetchStorage].from { (storages: Storages, aclCheck: AclCheck) =>
     FetchStorage(storages, aclCheck)
-  }
-
-  make[StoragePermissionProvider].from { (storages: Storages) =>
-    new StoragePermissionProviderImpl(storages)
   }
 
   make[StoragesStatistics].from {

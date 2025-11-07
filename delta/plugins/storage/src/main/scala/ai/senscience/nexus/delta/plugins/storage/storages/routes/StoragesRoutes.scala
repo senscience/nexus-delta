@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.storages.routes
 import ai.senscience.nexus.delta.plugins.storage.storages.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
+import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes.AccessType
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -13,15 +14,18 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
-import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
+import cats.effect.unsafe.implicits.*
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import org.typelevel.otel4s.trace.Tracer
 
 /**
@@ -55,6 +59,9 @@ final class StoragesRoutes(
   private def emitMetadata(io: IO[StorageResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
+    concat(storageRoutes, storagePermissionRoutes)
+
+  private def storageRoutes =
     (baseUriPrefix(baseUri.prefix) & replaceUri("storages", schemas.storage)) {
       (handleStorageExceptions & pathPrefix("storages")) {
         extractCaller { implicit caller =>
@@ -140,9 +147,55 @@ final class StoragesRoutes(
         }
       }
     }
+
+  private def storagePermissionRoutes =
+    baseUriPrefix(baseUri.prefix) {
+      pathPrefix("user") {
+        pathPrefix("permissions") {
+          projectRef { project =>
+            extractCaller { implicit caller =>
+              head {
+                parameters("storage".as[IdSegment], "type".as[AccessType]) { (storageId, accessType) =>
+                  fetchStoragePermission(project, storageId, accessType) { permission =>
+                    authorizeFor(project, permission) {
+                      complete(StatusCodes.NoContent)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  private def fetchStoragePermission(project: ProjectRef, storageId: IdSegment, accessType: AccessType) = {
+    val io = storages.fetch(IdSegmentRef(storageId), project).map { storage =>
+      accessType match {
+        case AccessType.Read  => storage.value.storageValue.readPermission
+        case AccessType.Write => storage.value.storageValue.writePermission
+      }
+    }
+    onSuccess(io.unsafeToFuture())
+  }
 }
 
 object StoragesRoutes {
+
+  enum AccessType {
+    case Read
+    case Write
+  }
+
+  object AccessType {
+    given FromStringUnmarshaller[AccessType] =
+      Unmarshaller.strict[String, AccessType] {
+        case "read"  => AccessType.Read
+        case "write" => AccessType.Write
+        case string  =>
+          throw new IllegalArgumentException(s"Access type can be either 'read' or 'write', received [$string]")
+      }
+  }
 
   /**
     * @return

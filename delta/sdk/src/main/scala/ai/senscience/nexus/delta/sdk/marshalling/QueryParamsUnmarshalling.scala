@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{IriBase, IriVocab}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
-import ai.senscience.nexus.delta.sdk.permissions.StoragePermissionProvider.AccessType
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -106,14 +105,6 @@ trait QueryParamsUnmarshalling {
         case Right(value) => value
         case Left(err)    => throw new IllegalArgumentException(err.getMessage)
       }
-    }
-
-  implicit def accessTypeFromStringUnmarshaller: FromStringUnmarshaller[AccessType] =
-    Unmarshaller.strict[String, AccessType] {
-      case "read"  => AccessType.Read
-      case "write" => AccessType.Write
-      case string  =>
-        throw new IllegalArgumentException(s"Access type can be either 'read' or 'write', received [$string]")
     }
 
   /**
