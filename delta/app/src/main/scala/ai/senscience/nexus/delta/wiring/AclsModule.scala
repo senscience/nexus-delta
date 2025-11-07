@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
-import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, StoragePermissionProvider}
+import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig}
 import ai.senscience.nexus.delta.sdk.projects.OwnerPermissionsScopeInitialization
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -97,14 +97,8 @@ object AclsModule extends NexusModuleDef {
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/acls-metadata.json"))
 
-  make[UserPermissionsRoutes].from {
-    (
-        identities: Identities,
-        aclCheck: AclCheck,
-        baseUri: BaseUri,
-        storagePermissionProvider: StoragePermissionProvider
-    ) =>
-      new UserPermissionsRoutes(identities, aclCheck, storagePermissionProvider)(baseUri)
+  make[UserPermissionsRoutes].from { (identities: Identities, aclCheck: AclCheck, baseUri: BaseUri) =>
+    new UserPermissionsRoutes(identities, aclCheck)(using baseUri)
   }
 
   many[PriorityRoute].add { (alcs: AclsRoutes, userPermissions: UserPermissionsRoutes) =>
