@@ -47,8 +47,7 @@ object MainIndexingCoordinator {
       fetchProjects: Offset => ElemStream[ProjectDef],
       graphStream: GraphResourceStream,
       supervisor: Supervisor,
-      sink: Sink,
-      createAlias: ProjectRef => IO[Unit]
+      sink: Sink
   )(using RemoteContextResolution)
       extends MainIndexingCoordinator {
 
@@ -81,7 +80,7 @@ object MainIndexingCoordinator {
                         logger.info(s"Main indexing of '$project' is already running.")
                       case _                                                      =>
                         logger.info(s"Starting main indexing of '$project'...") >>
-                          supervisor.run(compiled, createAlias(project))
+                          supervisor.run(compiled)
                     }
       } yield ()
 
@@ -120,10 +119,8 @@ object MainIndexingCoordinator {
 
       def elasticsearchSink = ElasticSearchSink.mainIndexing(client, batch, targetIndex, Refresh.False)
 
-      def createAlias(project: ProjectRef) = client.createAlias(mainIndexingAlias(targetIndex, project))
-
       client.createIndex(targetIndex, Some(mainIndex.mapping), Some(mainIndex.settings)) >>
-        apply(fetchProjects, graphStream, supervisor, elasticsearchSink, createAlias)
+        apply(fetchProjects, graphStream, supervisor, elasticsearchSink)
     } else {
       Noop.log.as(Noop)
     }
@@ -132,10 +129,9 @@ object MainIndexingCoordinator {
       fetchProjects: Offset => ElemStream[ProjectDef],
       graphStream: GraphResourceStream,
       supervisor: Supervisor,
-      sink: Sink,
-      createAlias: ProjectRef => IO[Unit]
+      sink: Sink
   )(using RemoteContextResolution): IO[MainIndexingCoordinator] = {
-    val coordinator = new Active(fetchProjects, graphStream, supervisor, sink, createAlias)
+    val coordinator = new Active(fetchProjects, graphStream, supervisor, sink)
     val compiled    =
       CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => coordinator.run(offset))
     supervisor.run(compiled).as(coordinator)

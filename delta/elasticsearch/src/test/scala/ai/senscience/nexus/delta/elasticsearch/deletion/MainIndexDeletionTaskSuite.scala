@@ -2,7 +2,6 @@ package ai.senscience.nexus.delta.elasticsearch.deletion
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
-import ai.senscience.nexus.delta.elasticsearch.indexing.mainIndexingAlias
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
@@ -53,7 +52,6 @@ class MainIndexDeletionTaskSuite
       // Indexing and checking count
       mainIndexDef <- MainIndexDef(mainIndexConfig)
       _            <- client.createIndex(index, Some(mainIndexDef.mapping), Some(mainIndexDef.settings))
-      _            <- client.createAlias(mainIndexingAlias(index, projectToDelete))
       _            <- client.bulk(bulk)
       _            <- client.refresh(index)
       _            <- client.count(index.value).assertEquals(4L)

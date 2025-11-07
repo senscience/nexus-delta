@@ -28,8 +28,8 @@ import org.http4s.client.middleware.GZip
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.`Content-Type`
 import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Query, Status, Uri}
-import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 import org.typelevel.otel4s.trace.Tracer
+import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 
 import java.net.{ConnectException, UnknownHostException}
 import scala.concurrent.TimeoutException
@@ -46,7 +46,6 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   private val scriptPath             = "_scripts"
   private val docPath                = "_doc"
   private val allIndexPath           = "_all"
-  private val aliasPath              = "_aliases"
   private val bulkPath               = "_bulk"
   private val refreshPath            = "_refresh"
   private val indexTemplate          = "_index_template"
@@ -430,34 +429,6 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   def deletePointInTime(pointInTime: PointInTime): IO[Unit] = {
     val spanDef = SpanDef(s"<string:index>/$pit", read)
     OtelTracingClient(client, spanDef).successful(DELETE(pointInTime, endpoint / pit)).void
-  }
-
-  def createAlias(indexAlias: IndexAlias): IO[Unit] = {
-    val aliasPayload = Json.obj(
-      "index"   := indexAlias.index.value,
-      "alias"   := indexAlias.alias.value,
-      "routing" := indexAlias.routing,
-      "filter"  := indexAlias.filter
-    )
-    aliasAction(Json.obj("add" := aliasPayload))
-  }
-
-  def removeAlias(index: IndexLabel, alias: IndexLabel): IO[Unit] = {
-    val aliasPayload = Json.obj(
-      "index" := index.value,
-      "alias" := alias.value
-    )
-    aliasAction(Json.obj("remove" := aliasPayload))
-  }
-
-  private def aliasAction(aliasAction: Json) = {
-    val aliasWrap = Json.obj("actions" := Json.arr(aliasAction))
-    val spanDef   = SpanDef(aliasPath, write)
-    OtelTracingClient(client, spanDef)
-      .expectOr[Json](POST(aliasWrap, endpoint / aliasPath)) { r =>
-        IO.pure(ElasticsearchActionError(r.status, "createAlias"))
-      }
-      .void
   }
 
   private def indexPathAndQuery(indices: Set[String], query: QueryBuilder): (String, QueryBuilder) = {

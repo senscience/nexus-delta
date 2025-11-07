@@ -2,13 +2,12 @@ package ai.senscience.nexus.delta.elasticsearch.query
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Hits, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
-import ai.senscience.nexus.delta.elasticsearch.indexing.mainProjectTargetAlias
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
 import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import io.circe.syntax.EncoderOps
+import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Decoder, Json, JsonObject}
 import org.http4s.Query
 import org.typelevel.otel4s.trace.Tracer
@@ -44,14 +43,30 @@ object MainIndexQuery {
 
   private val excludeOriginalSource = "_source_excludes" -> "_original_source"
 
+  private def filterByProject(project: ProjectRef, query: JsonObject): JsonObject = {
+    val userQuery = query("query")
+    val must      = userQuery.map("must" -> _)
+    val filter    = "filter" -> Json.obj("term" -> Json.obj("_project" := project))
+    query.add(
+      "query",
+      Json.obj(
+        "bool" ->
+          JsonObject
+            .fromIterable(
+              must ++ Some(filter)
+            )
+            .asJson
+      )
+    )
+  }
+
   def apply(
       client: ElasticSearchClient,
       config: MainIndexConfig
   )(using BaseUri, Tracer[IO]): MainIndexQuery = new MainIndexQuery {
 
     override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] = {
-      val index = mainProjectTargetAlias(config.index, project)
-      client.search(query, Set(index.value), qp)(SortList.empty)
+      client.search(filterByProject(project, query), Set(config.index.value), qp)(SortList.empty)
     }.surround("mainUserQuery")
 
     override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] = {
