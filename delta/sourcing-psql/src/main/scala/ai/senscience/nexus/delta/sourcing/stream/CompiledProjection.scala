@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.data.NonEmptyChain
-import cats.effect.{IO, Ref}
+import cats.effect.IO
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 
@@ -18,7 +18,7 @@ import fs2.concurrent.SignallingRef
 final case class CompiledProjection private (
     metadata: ProjectionMetadata,
     executionStrategy: ExecutionStrategy,
-    streamF: Offset => Ref[IO, ExecutionStatus] => SignallingRef[IO, Boolean] => ElemStream[Unit]
+    streamF: Offset => SignallingRef[IO, ExecutionStatus] => ElemStream[Unit]
 )
 
 object CompiledProjection {
@@ -41,7 +41,7 @@ object CompiledProjection {
       executionStrategy: ExecutionStrategy,
       stream: Offset => ElemStream[Unit]
   ): CompiledProjection =
-    CompiledProjection(metadata, executionStrategy, offset => _ => _ => stream(offset))
+    CompiledProjection(metadata, executionStrategy, offset => _ => stream(offset))
 
   /**
     * Attempts to compile the projection with just a source and a sink.
@@ -53,7 +53,7 @@ object CompiledProjection {
       sink: Sink
   ): Either[ProjectionErr, CompiledProjection] =
     source.through(sink).map { p =>
-      CompiledProjection(metadata, executionStrategy, offset => _ => _ => p.apply(offset).map(_.void))
+      CompiledProjection(metadata, executionStrategy, offset => _ => p.apply(offset).map(_.void))
     }
 
   /**
@@ -69,6 +69,6 @@ object CompiledProjection {
     for {
       operations <- Operation.merge(chain ++ NonEmptyChain.one(sink))
       result     <- source.through(operations)
-    } yield CompiledProjection(metadata, executionStrategy, offset => _ => _ => result.apply(offset).map(_.void))
+    } yield CompiledProjection(metadata, executionStrategy, offset => _ => result.apply(offset).map(_.void))
 
 }
