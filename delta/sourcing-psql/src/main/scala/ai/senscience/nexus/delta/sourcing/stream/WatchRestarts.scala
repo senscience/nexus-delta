@@ -34,23 +34,26 @@ object WatchRestarts {
   private def dropped(offset: Offset, restart: ProjectionRestart): Elem.DroppedElem = success(offset, restart).dropped
 
   // FIXME: Execute watch restarts so that they don't require to be mapped as elems
-  def apply(supervisor: Supervisor, projections: Projections): IO[ExecutionStatus] = {
-    supervisor.run(
-      CompiledProjection.fromStream(
-        projectionMetadata,
-        ExecutionStrategy.EveryNode,
-        (offset: Offset) =>
-          projections
-            .restarts(offset)
-            .evalMap { case (offset, restart) =>
-              supervisor.restart(restart.name, restart.fromOffset).flatMap { status =>
-                if status.exists(_ != ExecutionStatus.Ignored) then
-                  projections.acknowledgeRestart(offset).as(success(offset, restart))
-                else IO.pure(dropped(offset, restart))
+  def apply(supervisor: Supervisor, projections: Projections): IO[Unit] = {
+    supervisor
+      .run(
+        CompiledProjection.fromStream(
+          projectionMetadata,
+          ExecutionStrategy.EveryNode,
+          (offset: Offset) =>
+            projections
+              .restarts(offset)
+              .evalMap { case (offset, restart) =>
+                supervisor.restart(restart.name, restart.fromOffset).flatMap {
+                  case Some(_) =>
+                    projections.acknowledgeRestart(offset).as(success(offset, restart))
+                  case None    =>
+                    IO.pure(dropped(offset, restart))
+                }
               }
-            }
+        )
       )
-    )
+      .void
   }
 
 }

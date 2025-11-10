@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.Ignored
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
 import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
@@ -40,7 +39,7 @@ trait Supervisor {
     * @see
     *   [[Supervisor]]
     */
-  def run(projection: CompiledProjection, init: IO[Unit]): IO[ExecutionStatus]
+  def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]]
 
   /**
     * Supervises the execution of the provided `projection`. A second call to this method with a projection with the
@@ -50,7 +49,7 @@ trait Supervisor {
     * @see
     *   [[Supervisor]]
     */
-  def run(projection: CompiledProjection): IO[ExecutionStatus] = run(projection, IO.unit)
+  def run(projection: CompiledProjection): IO[Option[ExecutionStatus]] = run(projection, IO.unit)
 
   /**
     * Restart the given projection from the given offset
@@ -88,16 +87,10 @@ trait Supervisor {
 
   /**
     * Returns the list of all running projections under this supervisor.
-    * @param descriptionFilter
-    *   function that indicates when a `SupervisedDescription` should be ignored. Defaults to filtering out
-    *   `SupervisedDescription`s with "Ignored" `ExecutionStatus`
     * @return
     *   a list of the currently running projections
     */
-  def getRunningProjections(
-      descriptionFilter: SupervisedDescription => Option[SupervisedDescription] = desc =>
-        Option.when(desc.status != Ignored)(desc)
-  ): IO[List[SupervisedDescription]]
+  def getRunningProjections: IO[List[SupervisedDescription]]
 
   /**
     * Stops all running projections without removing them from supervision.
@@ -109,12 +102,6 @@ trait Supervisor {
 object Supervisor {
 
   private val log = Logger[Supervisor]
-
-  private val ignored = Control(
-    status = IO.pure(ExecutionStatus.Ignored),
-    progress = IO.pure(ProjectionProgress.NoProgress),
-    stop = IO.unit
-  )
 
   /**
     * Constructs a new [[Supervisor]] instance using the provided `store` and `cfg`.
@@ -169,7 +156,6 @@ object Supervisor {
       .evalMap { supervised =>
         val metadata = supervised.metadata
         supervised.control.status.flatMap {
-          case ExecutionStatus.Ignored           => IO.unit
           case ExecutionStatus.Pending           => IO.unit
           case ExecutionStatus.Running           => IO.unit
           case ExecutionStatus.Completed         => IO.unit
@@ -210,7 +196,7 @@ object Supervisor {
     // To persist progress and errors
     private given BatchConfig = cfg.batch
 
-    override def run(projection: CompiledProjection, init: IO[Unit]): IO[ExecutionStatus] = {
+    override def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]] = {
       val metadata = projection.metadata
       semaphore.permit.use { _ =>
         for {
@@ -221,29 +207,32 @@ object Supervisor {
                           log.info(s"Stopping existing projection '${metadata.module}/${metadata.name}'") >>
                             supervisorStorage.delete(metadata.name) >> s.control.stop
                         }
-          task        = controlTask(projection, init)
-          control    <- task
-          supervised  = Supervised(metadata, projection.executionStrategy, 0, task, control)
-          _          <- supervisorStorage.add(metadata.name, supervised)
-          status     <- control.status
+          supervised <- startSupervised(projection, init)
+          status     <- supervised.traverse(_.control.status)
         } yield status
       }
     }
 
-    private def controlTask(projection: CompiledProjection, init: IO[Unit]): IO[Control] = {
+    private def startSupervised(projection: CompiledProjection, init: IO[Unit]): IO[Option[Supervised]] = {
       val metadata = projection.metadata
       val strategy = projection.executionStrategy
       if !strategy.shouldRun(metadata.name, cfg.cluster) then
-        log.debug(s"Ignoring '${metadata.module}/${metadata.name}' with strategy '$strategy'.").as(ignored)
-      else
-        log.info(s"Starting '${metadata.module}/${metadata.name}' with strategy '$strategy'.") >>
-          startProjection(init, projection).map { p =>
-            Control(
-              p.executionStatus,
-              p.currentProgress,
-              p.stop()
-            )
-          }
+        log.debug(s"Ignoring '${metadata.module}/${metadata.name}' with strategy '$strategy'.").as(None)
+      else {
+        for {
+          _         <- log.info(s"Starting '${metadata.module}/${metadata.name}' with strategy '$strategy'.")
+          controlIO  = startProjection(init, projection).map { p =>
+                         Control(
+                           p.executionStatus,
+                           p.currentProgress,
+                           p.stop()
+                         )
+                       }
+          control   <- controlIO
+          supervised = Supervised(metadata, projection.executionStrategy, 0, controlIO, control)
+          _         <- supervisorStorage.add(metadata.name, supervised)
+        } yield Some(supervised)
+      }
     }
 
     private def startProjection(init: IO[Unit], projection: CompiledProjection): IO[Projection] =
@@ -273,12 +262,12 @@ object Supervisor {
       semaphore.permit.use { _ =>
         for {
           supervised <- supervisorStorage.get(name)
-          status     <- supervised.traverse { s =>
+          status     <- supervised.flatTraverse { s =>
                           val metadata = s.metadata
                           if !s.executionStrategy.shouldRun(name, cfg.cluster) then
                             log
                               .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping restart...")
-                              .as(ExecutionStatus.Ignored)
+                              .as(None)
                           else {
                             for {
                               _      <-
@@ -289,7 +278,7 @@ object Supervisor {
                                         )
                               _      <- Supervisor.restartProjection(s, supervisorStorage)
                               status <- s.control.status
-                            } yield status
+                            } yield Some(status)
                           }
                         }
         } yield status
@@ -299,13 +288,13 @@ object Supervisor {
       semaphore.permit.use { _ =>
         for {
           supervised <- supervisorStorage.get(name)
-          status     <- supervised.traverse { s =>
+          status     <- supervised.flatTraverse { s =>
                           val metadata      = s.metadata
                           val retryStrategy = createRetryStrategy(cfg, metadata, "destroying")
                           if !s.executionStrategy.shouldRun(name, cfg.cluster) then
                             log
                               .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping...")
-                              .as(ExecutionStatus.Ignored)
+                              .as(None)
                           else {
                             for {
                               _      <- log.info(s"Destroying '${metadata.module}/${metadata.name}'...")
@@ -321,7 +310,7 @@ object Supervisor {
                                           .recover { case _: TimeoutException =>
                                             ExecutionStatus.Stopped
                                           }
-                            } yield status
+                            } yield Some(status)
                           }
                         }
           _          <- supervisorStorage.delete(name)
@@ -337,14 +326,8 @@ object Supervisor {
     override def describe(name: String): IO[Option[SupervisedDescription]] =
       supervisorStorage.get(name).flatMap { _.traverse(_.description) }
 
-    override def getRunningProjections(
-        descriptionFilter: SupervisedDescription => Option[SupervisedDescription] = desc =>
-          Option.when(desc.status != Ignored)(desc)
-    ): IO[List[SupervisedDescription]] =
-      supervisorStorage.values
-        .evalMapFilter(_.description.map(descriptionFilter))
-        .compile
-        .toList
+    override def getRunningProjections: IO[List[SupervisedDescription]] =
+      supervisorStorage.values.evalMap(_.description).compile.toList
 
     private def stopSupervisionTask =
       signal.set(true) >>

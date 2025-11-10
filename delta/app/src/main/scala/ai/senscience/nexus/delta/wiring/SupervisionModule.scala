@@ -38,7 +38,7 @@ object SupervisionModule extends NexusModuleDef {
       new SupervisionRoutes(
         identities,
         aclCheck,
-        supervisor.getRunningProjections(),
+        supervisor.getRunningProjections,
         projectsHealth,
         projectHealer
       )(using baseUri)(using jo, tracer)
