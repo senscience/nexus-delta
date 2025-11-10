@@ -31,11 +31,6 @@ sealed trait ExecutionStatus extends Product with Serializable {
 object ExecutionStatus {
 
   /**
-    * Status for projections that are ignored by the supervision.
-    */
-  case object Ignored extends ExecutionStatus
-
-  /**
     * Status for projections that are prepared for executions.
     */
   case object Pending extends ExecutionStatus
@@ -68,7 +63,6 @@ object ExecutionStatus {
 
   given Encoder[ExecutionStatus] =
     Encoder.instance[ExecutionStatus] {
-      case Ignored   => Json.fromString("Ignored")
       case Pending   => Json.fromString("Pending")
       case Running   => Json.fromString("Running")
       case Stopped   => Json.fromString("Stopped")

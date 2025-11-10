@@ -6,9 +6,8 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.{Completed, Ignored, Running, Stopped}
+import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.{Completed, Running, Stopped}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress.NoProgress
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSuite.UnstableDestroy
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -23,8 +22,8 @@ import scala.concurrent.duration.*
 
 class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobie.Assertions {
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(1.second, 50.millis)
-  implicit private val subject: Subject               = Anonymous
+  private given PatienceConfig = PatienceConfig(1.second, 50.millis)
+  private given Subject        = Anonymous
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor3_1)
 
@@ -49,7 +48,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   private val expectedProgress = ProjectionProgress(Offset.at(20L), Instant.EPOCH, 20, 0, 0)
 
-  private def startProjection(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(implicit loc: Location) =
+  private def startProjection(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(using Location) =
     for {
       started <- Ref.of[IO, Boolean](false)
       compiled = CompiledProjection.fromStream(metadata, strategy, evalStream(started.set(true)))
@@ -57,7 +56,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       _       <- started.get.assertEquals(true).eventually
     } yield ()
 
-  private def assertCrash(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(implicit loc: Location) = {
+  private def assertCrash(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(using Location) = {
     val expectedException = new IllegalStateException("The stream crashed unexpectedly.")
     for {
       started       <- Ref.of[IO, Boolean](false)
@@ -73,7 +72,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     } yield ()
   }
 
-  private def assertDestroy(metadata: ProjectionMetadata, onDestroy: IO[Unit])(implicit loc: Location) =
+  private def assertDestroy(metadata: ProjectionMetadata, onDestroy: IO[Unit])(using Location) =
     for {
       _ <- sv.destroy(metadata.name, onDestroy).assertEquals(Some(Stopped))
       _ <- sv.describe(metadata.name).assertEquals(None).eventually
@@ -86,14 +85,18 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       restarts: Int,
       status: ExecutionStatus,
       progress: ProjectionProgress
-  )(implicit loc: Location) =
+  )(using loc: Location) =
     sv.describe(metadata.name)
       .assertEquals(
         Some(SupervisedDescription(metadata, executionStrategy, restarts, status, progress))
       )
       .eventually
 
-  private def assertWatchRestarts(offset: Offset, processed: Long, discarded: Long)(implicit loc: Location) = {
+  private def assertIgnored(metadata: ProjectionMetadata)(using loc: Location) =
+    sv.describe(metadata.name)
+      .assertEquals(None)
+
+  private def assertWatchRestarts(offset: Offset, processed: Long, discarded: Long)(using Location) = {
     val progress = ProjectionProgress(offset, Instant.EPOCH, processed, discarded, 0)
     assertDescribe(WatchRestarts.projectionMetadata, EveryNode, 0, Running, progress)
   }
@@ -111,10 +114,10 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
           TransientSingleNode,
           evalStream(flag.set(true))
         )
-      _         <- sv.run(projection).assertEquals(Ignored)
+      _         <- sv.run(projection).assertEquals(None)
       _         <- IO.sleep(100.millis)
       // The projection should still be ignored and should not have made any progress
-      _         <- assertDescribe(ignoredByNode1, TransientSingleNode, 0, Ignored, NoProgress)
+      _         <- assertIgnored(ignoredByNode1)
       // No progress has been saved in database either
       _         <- projections.progress(ignoredByNode1.name).assertEquals(None)
       // This means the stream has never been started
@@ -126,30 +129,14 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     for {
       _ <- projections.scheduleRestart(ignoredByNode1.name, Offset.start)
       _ <- assertWatchRestarts(Offset.at(1L), 1, 1)
-      _ <- assertDescribe(ignoredByNode1, TransientSingleNode, 0, Ignored, NoProgress)
+      _ <- assertIgnored(ignoredByNode1)
       // The restart has not been acknowledged and can be read by another node
       _ <- projections.restarts(Offset.start).assertSize(1)
     } yield ()
   }
 
-  test("Cannot fetch ignored projection descriptions (by default)") {
-    val watchProgress = ProjectionProgress(Offset.at(1L), Instant.EPOCH, 1, 1, 0)
-    sv.getRunningProjections()
-      .assertEquals(
-        List(
-          SupervisedDescription(
-            metadata = WatchRestarts.projectionMetadata,
-            EveryNode,
-            0,
-            Running,
-            watchProgress
-          )
-        )
-      )
-  }
-
   test("Destroy an ignored projection") {
-    sv.destroy(ignoredByNode1.name).assertEquals(Some(Ignored))
+    sv.destroy(ignoredByNode1.name).assertEquals(None)
   }
 
   test("Do nothing when attempting to restart a projection when it is unknown") {
@@ -244,7 +231,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     val runnableProgress     = ProjectionProgress(Offset.at(20L), Instant.EPOCH, 20, 0, 0)
     for {
       _ <- startProjection(runnableByNode1, PersistentSingleNode)
-      _ <- sv.getRunningProjections()
+      _ <- sv.getRunningProjections
              .assertEquals(
                List(
                  SupervisedDescription(
