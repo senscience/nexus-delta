@@ -352,7 +352,7 @@ object Supervisor {
 
     private def stopAllProjections =
       semaphore.permit.use { _ =>
-        log.info(s"Stopping all projection(s)...") >>
+        log.info("Stopping all projection(s)...") >>
           supervisorStorage.values.parEvalMapUnbounded(stopProjection).compile.drain
       }.void
 
