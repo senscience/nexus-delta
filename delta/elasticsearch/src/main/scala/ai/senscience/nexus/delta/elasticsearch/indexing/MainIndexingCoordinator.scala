@@ -79,18 +79,18 @@ object MainIndexingCoordinator {
                       case Some(value) if value.status == ExecutionStatus.Running =>
                         logger.info(s"Main indexing of '$project' is already running.")
                       case _                                                      =>
-                        logger.info(s"Starting main indexing of '$project'...") >>
-                          supervisor.run(compiled)
+                        supervisor.run(compiled)
                     }
       } yield ()
 
     // Destroy the indexing process for the given project
-    private def destroy(project: ProjectRef): IO[Unit] = {
-      logger.info(s"Project '$project' has been marked as deleted, stopping the main indexing...") >>
-        supervisor
-          .destroy(mainIndexingProjection(project))
-          .void
-    }
+    private def destroy(project: ProjectRef): IO[Unit] =
+      supervisor
+        .destroy(
+          mainIndexingProjection(project),
+          logger.info(s"Project '$project' has been marked as deleted, stopping the main indexing...")
+        )
+        .void
   }
 
   def mainIndexingPipeline(implicit cr: RemoteContextResolution): NonEmptyChain[Operation] =

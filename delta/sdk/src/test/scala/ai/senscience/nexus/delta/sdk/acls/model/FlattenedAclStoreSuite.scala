@@ -48,29 +48,29 @@ class FlattenedAclStoreSuite extends NexusSuite with Doobie.Fixture {
 
   List(alice, bob).foreach { caller =>
     test(s"Grant access to ${caller.subject} to `proj11` with `resources/read`") {
-      aclStore.exists(addressProj11, resources.read, caller.identities).assertEquals(true)
+      aclStore.exists(addressProj11, resources.read, caller).assertEquals(true)
     }
   }
 
   test("Prevent Bob to access `proj12` with `resources/read`") {
-    aclStore.exists(addressProj12, resources.read, bob.identities).assertEquals(false)
+    aclStore.exists(addressProj12, resources.read, bob).assertEquals(false)
   }
 
   test("Prevent Bob to access `proj11` with `resources/write`") {
-    aclStore.exists(addressProj12, resources.write, bob.identities).assertEquals(false)
+    aclStore.exists(addressProj12, resources.write, bob).assertEquals(false)
   }
 
   test("Prevent anonymous to access `proj11` with `resources/read`") {
-    aclStore.exists(addressProj11, resources.read, anonymous.identities).assertEquals(false)
+    aclStore.exists(addressProj11, resources.read, anonymous).assertEquals(false)
   }
 
   addressProj11.ancestors.toList.foreach { address =>
     test(s"Grant access to ${anonymous.subject} to `$address` with `events/read`") {
-      aclStore.exists(addressProj11, events.read, anonymous.identities).assertEquals(true)
+      aclStore.exists(addressProj11, events.read, anonymous).assertEquals(true)
     }
 
     test(s"Grant access to alice to `$address` with `events/read`") {
-      aclStore.exists(addressProj11, events.read, alice.identities).assertEquals(true)
+      aclStore.exists(addressProj11, events.read, alice).assertEquals(true)
     }
   }
 
@@ -95,7 +95,7 @@ class FlattenedAclStoreSuite extends NexusSuite with Doobie.Fixture {
 
   test("Delete acl") {
     aclStore.delete(addressOrg1).transact(xas.write) >>
-      aclStore.exists(addressProj11, resources.read, alice.identities).assertEquals(false) >>
+      aclStore.exists(addressProj11, resources.read, alice).assertEquals(false) >>
       aclStore.fetchAddresses(AclAddress.Root, resources.read, alice.identities).assertEquals(Set(addressOrg2))
   }
 

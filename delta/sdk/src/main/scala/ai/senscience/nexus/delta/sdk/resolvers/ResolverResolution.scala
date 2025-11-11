@@ -11,12 +11,13 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.{DeprecationCheck, ResolverResolutionResult}
 import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.{ProvidedIdentities, UseCurrentCaller}
 import ai.senscience.nexus.delta.sdk.resolvers.model.Resolver.{CrossProjectResolver, InProjectResolver}
-import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverResolutionRejection.*
+import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverResolutionRejection.{ProjectAccessDenied, *}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.{ResolverFailedReport, ResolverReport, ResolverSuccessReport}
 import ai.senscience.nexus.delta.sdk.resolvers.model.{Resolver, ResolverRejection, ResolverResolutionRejection, ResourceResolutionReport}
-import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 
 import scala.collection.immutable.VectorMap
 
@@ -32,7 +33,7 @@ import scala.collection.immutable.VectorMap
   *   how we can get a resource from a [[ResourceRef]]
   */
 final class ResolverResolution[R](
-    checkAcls: (ProjectRef, Set[Identity]) => IO[Boolean],
+    checkAcls: (ProjectRef, Caller) => IO[Boolean],
     listResolvers: ProjectRef => IO[List[Resolver]],
     fetchResolver: (Iri, ProjectRef) => IO[Resolver],
     fetch: (ResourceRef, ProjectRef) => Fetch[R],
@@ -49,9 +50,7 @@ final class ResolverResolution[R](
     * @param projectRef
     *   the project reference
     */
-  def resolve(ref: ResourceRef, projectRef: ProjectRef)(implicit
-      caller: Caller
-  ): IO[Either[ResourceResolutionReport, R]] =
+  def resolve(ref: ResourceRef, projectRef: ProjectRef)(using Caller): IO[Either[ResourceResolutionReport, R]] =
     resolveReport(ref, projectRef).map { case (report, resource) =>
       resource.toRight(report)
     }
@@ -65,8 +64,8 @@ final class ResolverResolution[R](
     * @param project
     *   the project reference
     */
-  def resolveReport(resource: ResourceRef, project: ProjectRef)(implicit
-      caller: Caller
+  def resolveReport(resource: ResourceRef, project: ProjectRef)(using
+      Caller
   ): IO[(ResourceResolutionReport, Option[R])] = {
     val initial: (ResourceResolutionReport, Option[R]) =
       ResourceResolutionReport() -> None
@@ -98,7 +97,7 @@ final class ResolverResolution[R](
     * @param projectRef
     *   the project reference
     */
-  def resolve(ref: ResourceRef, projectRef: ProjectRef, resolverId: Iri)(implicit
+  def resolve(ref: ResourceRef, projectRef: ProjectRef, resolverId: Iri)(using
       caller: Caller
   ): IO[Either[ResolverReport, R]] =
     resolveReport(ref, projectRef, resolverId)
@@ -114,8 +113,8 @@ final class ResolverResolution[R](
     * @param resolverId
     *   the resolver identifier
     */
-  def resolveReport(ref: ResourceRef, projectRef: ProjectRef, resolverId: Iri)(implicit
-      caller: Caller
+  def resolveReport(ref: ResourceRef, projectRef: ProjectRef, resolverId: Iri)(using
+      Caller
   ): IO[(ResolverReport, Option[R])] =
     fetchResolver(resolverId, projectRef)
       .flatMap { r => resolveReport(ref, projectRef, r) }
@@ -127,7 +126,7 @@ final class ResolverResolution[R](
       ref: ResourceRef,
       projectRef: ProjectRef,
       resolver: Resolver
-  )(implicit caller: Caller): IO[ResolverResolutionResult[R]] =
+  )(using Caller): IO[ResolverResolutionResult[R]] =
     resolver match {
       case i: InProjectResolver    => inProjectResolve(ref, projectRef, i)
       case c: CrossProjectResolver => crossProjectResolve(ref, c)
@@ -156,7 +155,7 @@ final class ResolverResolution[R](
   private def crossProjectResolve(
       ref: ResourceRef,
       resolver: CrossProjectResolver
-  )(implicit caller: Caller): IO[ResolverResolutionResult[R]] = {
+  )(using caller: Caller): IO[ResolverResolutionResult[R]] = {
     import resolver.value.*
 
     def fetchInProject(p: ProjectRef) = fetch(ref, p).flatMap(
@@ -164,14 +163,13 @@ final class ResolverResolution[R](
     )
 
     def validateIdentities(p: ProjectRef): IO[Unit] = {
-      val identities = identityResolution match {
-        case UseCurrentCaller               => caller.identities
-        case ProvidedIdentities(identities) => identities
+      val resolutionCaller = identityResolution match {
+        case UseCurrentCaller               => caller
+        case ProvidedIdentities(identities) => Caller(Anonymous, identities)
       }
 
-      checkAcls(p, identities).flatMap {
-        case true  => IO.unit
-        case false => IO.raiseError(ProjectAccessDenied(p, identityResolution))
+      checkAcls(p, resolutionCaller).flatMap { granted =>
+        IO.raiseUnless(granted)(ProjectAccessDenied(p, identityResolution))
       }
     }
 
@@ -262,7 +260,7 @@ object ResolverResolution {
         r.results.mapFilter { r => Option.unless(r.source.deprecated)(r.source.value) }.toList
       }
     new ResolverResolution(
-      checkAcls = (p: ProjectRef, identities: Set[Identity]) => aclCheck.authorizeFor(p, readPermission, identities),
+      checkAcls = (p: ProjectRef, caller) => aclCheck.authorizeFor(p, readPermission)(using caller),
       listResolvers = fetchActiveResolvers,
       fetchResolver = (id: Iri, projectRef: ProjectRef) => resolvers.fetchActiveResolver(id, projectRef),
       fetch = fetch,

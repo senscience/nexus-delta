@@ -39,10 +39,10 @@ class AclCheckSuite extends NexusSuite {
   private val unauthorized = new IllegalArgumentException("The user has no access to this resource.")
 
   test("Return the acls provided at initialization") {
-    aclCheck.authorizeFor(Root, eventsRead, Set(Anonymous)).assertEquals(true) >>
-      aclCheck.authorizeFor(org1Address, read, Set(aliceUser)).assertEquals(true) >>
-      aclCheck.authorizeFor(org1Address, write, Set(aliceUser)).assertEquals(true) >>
-      aclCheck.authorizeFor(proj1Address, read, Set(bobUser)).assertEquals(true)
+    aclCheck.authorizeFor(Root, eventsRead)(using anonymous).assertEquals(true) >>
+      aclCheck.authorizeFor(org1Address, read)(using alice).assertEquals(true) >>
+      aclCheck.authorizeFor(org1Address, write)(using alice).assertEquals(true) >>
+      aclCheck.authorizeFor(proj1Address, read)(using bob).assertEquals(true)
   }
 
   List(alice, bob).foreach { caller =>

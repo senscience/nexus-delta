@@ -102,13 +102,13 @@ object SchemaImports {
     def resolveSchema(ref: ResourceRef, projectRef: ProjectRef, caller: Caller) =
       ResourceResolution
         .schemaResource(aclCheck, resolvers, fetchSchema, excludeDeprecated = true)
-        .resolve(ref, projectRef)(caller)
+        .resolve(ref, projectRef)(using caller)
         .map(_.map(_.value))
 
     def resolveResource(ref: ResourceRef, projectRef: ProjectRef, caller: Caller) =
       ResourceResolution
         .dataResource(aclCheck, resolvers, fetchResource, excludeDeprecated = true)
-        .resolve(ref, projectRef)(caller)
+        .resolve(ref, projectRef)(using caller)
         .map(_.map(_.value))
 
     new SchemaImports(resolveSchema, resolveResource)

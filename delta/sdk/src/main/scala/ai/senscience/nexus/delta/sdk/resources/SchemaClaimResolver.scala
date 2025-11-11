@@ -56,7 +56,7 @@ object SchemaClaimResolver {
 
     private def resolveSchema(project: ProjectRef, schema: ResourceRef, caller: Caller) = {
       resourceResolution
-        .resolve(schema, project)(caller)
+        .resolve(schema, project)(using caller)
         .flatMap { result =>
           val invalidSchema = result.leftMap(InvalidSchemaRejection(schema, project, _))
           IO.fromEither(invalidSchema)

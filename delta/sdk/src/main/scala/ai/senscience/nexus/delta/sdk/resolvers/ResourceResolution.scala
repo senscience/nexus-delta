@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sdk.resolvers
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.Fetch.FetchF
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
@@ -12,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
-import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 
 object ResourceResolution {
@@ -29,7 +30,7 @@ object ResourceResolution {
     *   how to fetch the resource
     */
   def apply[R](
-      checkAcls: (ProjectRef, Set[Identity]) => IO[Boolean],
+      checkAcls: (ProjectRef, Caller) => IO[Boolean],
       listResolvers: ProjectRef => IO[List[Resolver]],
       fetchResolver: (Iri, ProjectRef) => IO[Resolver],
       fetch: (ResourceRef, ProjectRef) => FetchF[R],

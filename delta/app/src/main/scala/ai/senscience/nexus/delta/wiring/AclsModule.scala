@@ -57,8 +57,9 @@ object AclsModule extends NexusModuleDef {
       )(using tracer)
   }
 
-  make[AclCheck].from { (flattenedAclStore: FlattenedAclStore, tracer: Tracer[IO] @Id("acls")) =>
-    AclCheck(flattenedAclStore)(using tracer)
+  make[AclCheck].fromEffect {
+    (aclsConfig: AclsConfig, flattenedAclStore: FlattenedAclStore, tracer: Tracer[IO] @Id("acls")) =>
+      AclCheck(flattenedAclStore, aclsConfig.cache)(using tracer)
   }
 
   make[AclsRoutes].from {
