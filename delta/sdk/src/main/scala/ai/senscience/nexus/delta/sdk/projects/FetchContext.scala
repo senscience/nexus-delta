@@ -1,12 +1,13 @@
 package ai.senscience.nexus.delta.sdk.projects
 
-import ai.senscience.nexus.delta.sdk.ProjectResource
+import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
+import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationIsDeprecated
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext, ProjectState}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateGet
 import cats.effect.IO
 import doobie.syntax.all.*
@@ -48,64 +49,74 @@ abstract class FetchContext { self =>
 
 object FetchContext {
 
-  def apply(dam: ApiMappings, xas: Transactors)(using Tracer[IO]): FetchContext = {
-    def fetchProject(ref: ProjectRef, onWrite: Boolean) = {
-      implicit val putId: Put[ProjectRef]      = ProjectState.serializer.putId
-      implicit val getValue: Get[ProjectState] = ProjectState.serializer.getValue
-      val xa                                   = if onWrite then xas.write else xas.read
-      ScopedStateGet
-        .latest[ProjectRef, ProjectState](Projects.entityType, ref, ref)
-        .transact(xa)
-        .map(_.map(_.toResource(dam)))
-    }
+  final case class ProjectStatus(
+      orgDeprecated: Boolean,
+      projectDeprecated: Boolean,
+      projectMarkedForDeletion: Boolean,
+      context: ProjectContext
+  )
 
-    val fetchActiveOrg: Label => IO[Unit] = FetchActiveOrganization(xas).apply(_).void
-    apply(fetchActiveOrg, dam, fetchProject)
-  }
+  def apply(dam: ApiMappings, cacheConfig: CacheConfig, xas: Transactors)(using Tracer[IO]): IO[FetchContext] =
+    LocalCache[ProjectRef, ProjectStatus](cacheConfig).map { cache =>
+      given Put[ProjectRef]   = ProjectState.serializer.putId
+      given Get[ProjectState] = ProjectState.serializer.getValue
+
+      val fetchActiveOrg = FetchActiveOrganization(xas)
+
+      def fetchProjectStatus(ref: ProjectRef): IO[Option[ProjectStatus]] =
+        for {
+          orgDeprecated <- fetchActiveOrg(ref.organization).redeem(_ => true, _ => false)
+          project       <- ScopedStateGet.latest[ProjectRef, ProjectState](Projects.entityType, ref, ref).transact(xas.write)
+        } yield project.map { p =>
+          ProjectStatus(
+            orgDeprecated = orgDeprecated,
+            projectDeprecated = p.deprecated,
+            projectMarkedForDeletion = p.markedForDeletion,
+            context = ProjectContext(dam + p.apiMappings, p.base, p.vocab, p.enforceSchema)
+          )
+        }
+
+      apply(
+        dam,
+        (project: ProjectRef) => cache.getOrElseAttemptUpdate(project, fetchProjectStatus(project))
+      )
+    }
 
   /**
     * Constructs a fetch context
-    * @param fetchActiveOrg
-    *   fetches the org and makes sure it exists and is not deprecated
     * @param dam
     *   the default api mappings defined by Nexus
-    * @param fetchProject
-    *   fetches the project in read / write context. The write context is more consistent as it points to the primary
-    *   node while the read one can point to replicas and can suffer from replication delays
+    * @param fetchProjectStatus
+    *   fetches the project status
     */
   def apply(
-      fetchActiveOrg: Label => IO[Unit],
       dam: ApiMappings,
-      fetchProject: (ProjectRef, Boolean) => IO[Option[ProjectResource]]
+      fetchProjectStatus: ProjectRef => IO[Option[ProjectStatus]]
   )(using Tracer[IO]): FetchContext =
     new FetchContext {
 
       override def defaultApiMappings: ApiMappings = dam
 
       override def onRead(ref: ProjectRef): IO[ProjectContext] =
-        fetchProject(ref, false)
+        fetchProjectStatus(ref)
           .flatMap {
-            case None                                             => IO.raiseError(ProjectNotFound(ref))
-            case Some(project) if project.value.markedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
-            case Some(project)                                    => IO.pure(project.value.context)
+            case None                                            => IO.raiseError(ProjectNotFound(ref))
+            case Some(status) if status.projectMarkedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
+            case Some(status)                                    => IO.pure(status.context)
           }
           .surround("fetchProjectContextRead")
 
-      private def onWrite(ref: ProjectRef) =
-        fetchProject(ref, true).flatMap {
-          case None                                             => IO.raiseError(ProjectNotFound(ref))
-          case Some(project) if project.value.markedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
-          case Some(project) if project.deprecated              => IO.raiseError(ProjectIsDeprecated(ref))
-          case Some(project)                                    => IO.pure(project.value.context)
-        }
+      override def onModify(ref: ProjectRef): IO[ProjectContext] =
+        fetchProjectStatus(ref)
+          .flatMap {
+            case None                                            => IO.raiseError(ProjectNotFound(ref))
+            case Some(status) if status.projectMarkedForDeletion => IO.raiseError(ProjectIsMarkedForDeletion(ref))
+            case Some(status) if status.orgDeprecated            => IO.raiseError(OrganizationIsDeprecated(ref.organization))
+            case Some(status) if status.projectDeprecated        => IO.raiseError(ProjectIsDeprecated(ref))
+            case Some(status)                                    => IO.pure(status.context)
+          }
+          .surround("fetchProjectContextWrite")
 
       override def onCreate(ref: ProjectRef): IO[ProjectContext] = onModify(ref)
-
-      override def onModify(ref: ProjectRef): IO[ProjectContext] = {
-        for {
-          _       <- fetchActiveOrg(ref.organization)
-          context <- onWrite(ref)
-        } yield context
-      }.surround("fetchProjectContextWrite")
     }
 }

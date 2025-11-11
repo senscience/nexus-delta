@@ -17,8 +17,8 @@ trait FetchActiveOrganization {
 
 object FetchActiveOrganization {
 
-  implicit val getId: Put[Label]                = OrganizationState.serializer.putId
-  implicit val getValue: Get[OrganizationState] = OrganizationState.serializer.getValue
+  private given Put[Label]             = OrganizationState.serializer.putId
+  private given Get[OrganizationState] = OrganizationState.serializer.getValue
 
   def apply(xas: Transactors): FetchActiveOrganization = (org: Label) =>
     GlobalStateGet[Label, OrganizationState](Organizations.entityType, org)

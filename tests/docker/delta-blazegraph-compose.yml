@@ -28,6 +28,8 @@ services:
     environment:
       - DELTA_PLUGINS
       - DELTA_EXTERNAL_CONF
+      - ENABLE_CACHES
+      - ENABLE_OPTIONAL_PLUGINS
       - OTEL_SDK_DISABLED
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true

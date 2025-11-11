@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.sdk.projects
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
+import ai.senscience.nexus.delta.kernel.cache.CacheConfig
 import ai.senscience.nexus.delta.kernel.utils.Handlebars
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig.PrefixIriTemplate
@@ -22,6 +23,8 @@ import scala.concurrent.duration.FiniteDuration
   *   configuration of the event log
   * @param pagination
   *   configuration for how pagination should behave in listing operations
+  * @param contextCache
+  *   the cache for project contexts
   * @param deletion
   *   the deletion configuration
   */
@@ -29,6 +32,7 @@ final case class ProjectsConfig(
     eventLog: EventLogConfig,
     prefix: PrefixConfig,
     pagination: PaginationConfig,
+    contextCache: CacheConfig,
     deletion: DeletionConfig
 )
 
@@ -58,7 +62,7 @@ object ProjectsConfig {
 
       def unsafe(value: String): PrefixIriTemplate = PrefixIriTemplate(value)
 
-      implicit final val prefixConfigTemplateReader: ConfigReader[PrefixIriTemplate] =
+      given ConfigReader[PrefixIriTemplate] =
         ConfigReader.fromString { s =>
           PrefixIri(Handlebars(s, args)).bimap(
             err => CannotConvert(s, PrefixIriTemplate.getClass.getSimpleName, err.getMessage),
@@ -67,7 +71,7 @@ object ProjectsConfig {
         }
     }
 
-    implicit final val prefixConfigReader: ConfigReader[PrefixConfig] = deriveReader[PrefixConfig]
+    given ConfigReader[PrefixConfig] = deriveReader[PrefixConfig]
   }
 
   /**
@@ -87,10 +91,8 @@ object ProjectsConfig {
   )
 
   object DeletionConfig {
-    implicit final val deletionConfigReader: ConfigReader[DeletionConfig] =
-      deriveReader[DeletionConfig]
+    given ConfigReader[DeletionConfig] = deriveReader[DeletionConfig]
   }
 
-  implicit final val projectConfigReader: ConfigReader[ProjectsConfig] =
-    deriveReader[ProjectsConfig]
+  given ConfigReader[ProjectsConfig] = deriveReader[ProjectsConfig]
 }

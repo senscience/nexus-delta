@@ -1,103 +1,94 @@
 package ai.senscience.nexus.delta.sdk.projects
 
-import ai.senscience.nexus.delta.sdk.generators.ProjectGen
-import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
-import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
-import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion}
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
+import ai.senscience.nexus.delta.sdk.implicits.iriStringContextSyntax
+import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationIsDeprecated
+import ai.senscience.nexus.delta.sdk.projects.FetchContext.ProjectStatus
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectNotFound}
+import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 
 class FetchContextSuite extends NexusSuite {
 
-  private val activeOrg     = Label.unsafe("org")
-  private val deprecatedOrg = Label.unsafe("deprecated")
-
-  private def fetchActiveOrganization(label: Label): IO[Unit] = label match {
-    case `activeOrg`     => IO.unit
-    case `deprecatedOrg` => IO.raiseError(OrganizationIsDeprecated(deprecatedOrg))
-    case _               => IO.raiseError(OrganizationNotFound(label))
-  }
-
+  private val deprecatedOrg     = ProjectRef.unsafe("deprecated-org", "proj")
   private val activeProject     = ProjectRef.unsafe("org", "proj")
   private val deletedProject    = ProjectRef.unsafe("org", "deleted")
   private val deprecatedProject = ProjectRef.unsafe("org", "deprecated")
+  private val unknownProject    = ProjectRef.unsafe("org", "xxx")
 
-  private val activeProjectValue     = ProjectGen.project(activeProject.organization.value, activeProject.project.value)
-  private val deprecatedProjectValue =
-    ProjectGen.project(deprecatedProject.organization.value, deprecatedProject.project.value)
+  private def projectContext(project: ProjectRef) =
+    ProjectContext.unsafe(ApiMappings.empty, iri"$project", iri"$project", enforceSchema = false)
 
-  private def fetchProject(ref: ProjectRef) = ref match {
-    case `activeProject`     => IO.some(ProjectGen.resourceFor(activeProjectValue))
-    case `deletedProject`    =>
-      IO.some(
-        ProjectGen.resourceFor(
-          ProjectGen.project(deletedProject.organization.value, deletedProject.project.value),
-          markedForDeletion = true
-        )
-      )
-    case `deprecatedProject` => IO.some(ProjectGen.resourceFor(deprecatedProjectValue, deprecated = true))
+  private val deprecatedOrgContext     = projectContext(deprecatedOrg)
+  private val activeProjectContext     = projectContext(activeProject)
+  private val deletedProjectContext    = projectContext(deletedProject)
+  private val deprecatedProjectContext = projectContext(deprecatedProject)
+
+  private def fetchProjectStatus(ref: ProjectRef): IO[Option[ProjectStatus]] = ref match {
+    case `deprecatedOrg`     => IO.some(ProjectStatus(true, false, false, deprecatedOrgContext))
+    case `activeProject`     => IO.some(ProjectStatus(false, false, false, activeProjectContext))
+    case `deletedProject`    => IO.some(ProjectStatus(false, false, true, deletedProjectContext))
+    case `deprecatedProject` => IO.some(ProjectStatus(false, true, false, deprecatedProjectContext))
     case _                   => IO.none
   }
 
   private def fetchContext = FetchContext(
-    fetchActiveOrganization,
     ApiMappings.empty,
-    (project: ProjectRef, _: Boolean) => fetchProject(project)
+    (project: ProjectRef) => fetchProjectStatus(project)
   )
 
-  test("Successfully get a context for an active project on read") {
-    fetchContext
-      .onRead(activeProject)
-      .assertEquals(activeProjectValue.context)
+  // Active project
+  test("Successfully get a context for an active project on read/create/modify") {
+    fetchContext.onRead(activeProject).assertEquals(activeProjectContext) >>
+      fetchContext.onCreate(activeProject).assertEquals(activeProjectContext) >>
+      fetchContext.onModify(activeProject).assertEquals(activeProjectContext)
   }
 
+  // Deleted project
+  test("Fail getting a context for a project marked as deleted on read/create/modify") {
+    val expectedError = ProjectIsMarkedForDeletion(deletedProject)
+
+    fetchContext.onRead(deletedProject).interceptEquals(expectedError) >>
+      fetchContext.onCreate(deletedProject).interceptEquals(expectedError) >>
+      fetchContext.onModify(deletedProject).interceptEquals(expectedError)
+  }
+
+  // Unknown project
+  test("Fail getting a context for a unknown project on read/create/modify") {
+    val expectedError = ProjectNotFound(unknownProject)
+
+    fetchContext.onRead(unknownProject).interceptEquals(expectedError) >>
+      fetchContext.onCreate(unknownProject).interceptEquals(expectedError) >>
+      fetchContext.onModify(unknownProject).interceptEquals(expectedError)
+  }
+
+  // Deprecated project
   test("Successfully get a context for a deprecated project on read") {
     fetchContext
       .onRead(deprecatedProject)
-      .assertEquals(deprecatedProjectValue.context)
+      .assertEquals(deprecatedProjectContext)
   }
 
-  test("Fail getting a context for a project marked as deleted on read") {
-    fetchContext
-      .onRead(deletedProject)
-      .interceptEquals(ProjectIsMarkedForDeletion(deletedProject))
+  test("Fail getting a context for a deprecated project on create/modify") {
+    val expectedError = ProjectIsDeprecated(deprecatedProject)
+
+    fetchContext.onCreate(deprecatedProject).interceptEquals(expectedError) >>
+      fetchContext.onModify(deprecatedProject).interceptEquals(expectedError)
   }
 
-  test("Successfully get a context for an active project on create") {
+  // Deprecated org
+  test("Successfully get a context for a deprecated org on read") {
     fetchContext
-      .onRead(activeProject)
-      .assertEquals(activeProjectValue.context)
+      .onRead(deprecatedOrg)
+      .assertEquals(deprecatedOrgContext)
   }
 
-  test("Fail getting a context for a deprecated project on create") {
-    fetchContext
-      .onCreate(deprecatedProject)
-      .interceptEquals(ProjectIsDeprecated(deprecatedProject))
-  }
+  test("Fail getting a context for a deprecated project on create/modify") {
+    val expectedError = OrganizationIsDeprecated(deprecatedOrg.organization)
 
-  test("Fail getting a context for a project marked as deleted on create") {
-    fetchContext
-      .onCreate(deletedProject)
-      .interceptEquals(ProjectIsMarkedForDeletion(deletedProject))
-  }
-
-  test("Successfully get a context for an active project on modify") {
-    fetchContext
-      .onModify(activeProject)
-      .assertEquals(activeProjectValue.context)
-  }
-
-  test("Fail getting a context for a deprecated project on modify") {
-    fetchContext
-      .onModify(deprecatedProject)
-      .interceptEquals(ProjectIsDeprecated(deprecatedProject))
-  }
-
-  test("Fail getting a context for a project marked as deleted on modify") {
-    fetchContext
-      .onModify(deletedProject)
-      .interceptEquals(ProjectIsMarkedForDeletion(deletedProject))
+    fetchContext.onCreate(deprecatedOrg).interceptEquals(expectedError) >>
+      fetchContext.onModify(deprecatedOrg).interceptEquals(expectedError)
   }
 
 }
