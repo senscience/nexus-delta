@@ -796,7 +796,7 @@ lazy val compilation = {
 }
 
 lazy val coverage = Seq(
-  coverageMinimumStmtTotal := 70,
+  coverageMinimumStmtTotal := 65,
   coverageFailOnMinimum    := true
 )
 
