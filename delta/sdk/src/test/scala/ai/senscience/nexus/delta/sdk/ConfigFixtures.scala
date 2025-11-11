@@ -13,7 +13,7 @@ import scala.concurrent.duration.*
 
 trait ConfigFixtures {
 
-  def cacheConfig: CacheConfig = CacheConfig(10, 5.minutes)
+  def cacheConfig: CacheConfig = CacheConfig(enabled = true, 10, 5.minutes)
 
   def queryConfig: QueryConfig = QueryConfig(5, RefreshStrategy.Stop)
 

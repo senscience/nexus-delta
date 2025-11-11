@@ -31,20 +31,22 @@ class ResolverResolutionSuite extends NexusSuite {
   private val alice = User("alice", realm)
   private val bob   = User("bob", realm)
 
-  implicit val aliceCaller: Caller = Caller(alice, Set(alice))
+  given Caller = Caller(alice, Set(alice))
 
   private val project1 = ProjectRef.unsafe("org", "project1")
   private val project2 = ProjectRef.unsafe("org", "project2")
   private val project3 = ProjectRef.unsafe("org", "project3")
 
-  private val checkAcls: (ProjectRef, Set[Identity]) => IO[Boolean] =
-    (p: ProjectRef, identities: Set[Identity]) =>
-      p match {
-        case `project1` if identities == Set(alice) || identities == Set(bob) => IO.pure(true)
-        case `project2` if identities == Set(bob)                             => IO.pure(true)
-        case `project3` if identities == Set(alice)                           => IO.pure(true)
-        case _                                                                => IO.pure(false)
+  private val checkAcls: (ProjectRef, Caller) => IO[Boolean] =
+    (project: ProjectRef, caller: Caller) => {
+      def callerIdentityCheck(user: User): Boolean = caller.identities.contains(user)
+      project match {
+        case `project1` if callerIdentityCheck(alice) || callerIdentityCheck(bob) => IO.pure(true)
+        case `project2` if callerIdentityCheck(bob)                               => IO.pure(true)
+        case `project3` if callerIdentityCheck(alice)                             => IO.pure(true)
+        case _                                                                    => IO.pure(false)
       }
+    }
 
   private val resource = ResourceF(
     id = nxv + "example1",

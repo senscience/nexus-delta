@@ -96,7 +96,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       xas,
       clock
     )
-  private lazy val routes = Route.seal(AclsRoutes(identities, acls, AclCheck(aclStore)).routes)
+  private lazy val routes = Route.seal(AclsRoutes(identities, acls, AclCheck(aclStore.exists)).routes)
 
   val paths = Seq(
     "/"             -> AclAddress.Root,

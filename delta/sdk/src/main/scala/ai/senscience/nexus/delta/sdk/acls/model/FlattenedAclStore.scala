@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.acls.model
 
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
@@ -15,7 +16,7 @@ import doobie.syntax.all.*
   */
 final class FlattenedAclStore(xas: Transactors) {
 
-  implicit private val identityPut: Put[Identity] = Put[String].contramap {
+  private given Put[Identity] = Put[String].contramap {
     case Anonymous                           => "/anonymous"
     case Authenticated(realm)                => s"/realms/${realm.value}/authenticated"
     case Group(group, realm)                 => s"/realms/${realm.value}/groups/$group"
@@ -34,11 +35,11 @@ final class FlattenedAclStore(xas: Transactors) {
   def delete(address: AclAddress): ConnectionIO[Unit] =
     sql"""DELETE FROM flattened_acls WHERE address = $address""".update.run.void
 
-  def exists(address: AclAddress, permission: Permission, identities: Set[Identity]): IO[Boolean] = {
+  def exists(address: AclAddress, permission: Permission, caller: Caller): IO[Boolean] = {
     val whereClause = Fragments.whereAnd(
       Fragments.in(fr"address", address.ancestors),
       fr"permission=${permission.value}",
-      Fragments.in(fr"identity", NonEmptyList.fromListUnsafe(identities.toList))
+      Fragments.in(fr"identity", NonEmptyList.fromListUnsafe(caller.identities.toList))
     )
     sql"""| SELECT 1 FROM flattened_acls
           | $whereClause

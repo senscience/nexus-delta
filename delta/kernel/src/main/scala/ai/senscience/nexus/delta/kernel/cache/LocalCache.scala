@@ -120,7 +120,8 @@ object LocalCache {
     *   the cache configuration
     */
   final def apply[K, V](config: CacheConfig): IO[LocalCache[K, V]] =
-    apply(config.maxSize.toLong, config.expireAfter)
+    if config.enabled then apply(config.maxSize.toLong, config.expireAfter)
+    else IO.pure(new NoCache[K, V])
 
   /**
     * Constructs a local key-value store
@@ -140,6 +141,16 @@ object LocalCache {
           .build[K, V]()
       new LocalCacheImpl(cache)
     }
+
+  private class NoCache[K, V] extends LocalCache[K, V] {
+    override def put(key: K, value: V): IO[Unit] = IO.unit
+
+    override def get(key: K): IO[Option[V]] = IO.none
+
+    override def remove(key: K): IO[Unit] = IO.unit
+
+    override def entries: IO[Map[K, V]] = IO.pure(Map.empty[K, V])
+  }
 
   private class LocalCacheImpl[K, V](cache: Cache[K, V]) extends LocalCache[K, V] {
 

@@ -8,12 +8,15 @@ import scala.concurrent.duration.FiniteDuration
 /**
   * The cache configuration.
   *
+  * @param enabled
+  *   if caching is enabled
   * @param maxSize
   *   max size for the cache
   * @param expireAfter
   *   duration after expiration of the cache should occur
   */
 final case class CacheConfig(
+    enabled: Boolean,
     maxSize: Int,
     expireAfter: FiniteDuration
 )

@@ -9,14 +9,14 @@ import concurrent.duration.DurationInt
 class LocalCacheSuite extends CatsEffectSuite {
 
   test("Test cache config parsing") {
-    val config   = "cache-config { max-size = 5 , expire-after = 30s }"
-    val expected = CacheConfig(5, 30.seconds)
+    val config   = "cache-config { enabled = true, max-size = 5 , expire-after = 30s }"
+    val expected = CacheConfig(true, 5, 30.seconds)
     val result   = Configs.load[CacheConfig](Configs.parseString(config), "cache-config")
     assertEquals(result, expected)
   }
 
   test("Test basic operations on cache") {
-    val config = CacheConfig(5, 1.hour)
+    val config = CacheConfig(true, 5, 1.hour)
     for {
       cache <- LocalCache[String, Int](config)
       // Populate cache

@@ -11,10 +11,12 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejec
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.{CrossProjectSource, ProjectSource, RemoteProjectSource}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{CompositeViewProjection, CompositeViewSource, CompositeViewValue}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.Projects
+import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import cats.effect.IO
 import cats.syntax.all.*
 
@@ -41,8 +43,10 @@ object ValidateCompositeView {
       maxSources: Int,
       maxProjections: Int
   )(implicit baseUri: BaseUri): ValidateCompositeView = (uuid: UUID, value: CompositeViewValue) => {
-    def validateAcls(cpSource: CrossProjectSource): IO[Unit] =
-      aclCheck.authorizeForOr(cpSource.project, events.read, cpSource.identities)(CrossProjectSourceForbidden(cpSource))
+    def validateAcls(cpSource: CrossProjectSource): IO[Unit] = {
+      given Caller = Caller(Anonymous, cpSource.identities)
+      aclCheck.authorizeForOr(cpSource.project, events.read)(CrossProjectSourceForbidden(cpSource))
+    }
 
     def validateProject(cpSource: CrossProjectSource) =
       projects.fetch(cpSource.project).orRaise(CrossProjectSourceProjectNotFound(cpSource)).void

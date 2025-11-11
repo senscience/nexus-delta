@@ -43,11 +43,11 @@ object AclSimpleCheck {
 
   private def emptyAclSimpleCheck: IO[AclSimpleCheck] = {
     Ref.of[IO, Map[AclAddress, Acl]](Map.empty).map { cache =>
-      val aclCheck = AclCheck((address, permission, identities) =>
+      val aclCheck = AclCheck((address, permission, caller) =>
         address.ancestors.foldM(false) {
           case (false, address) =>
             cache.get.map {
-              _.get(address).exists(_.hasPermission(identities, permission))
+              _.get(address).exists(_.hasPermission(caller.identities, permission))
 
             }
           case (true, _)        => IO.pure(true)
@@ -56,17 +56,16 @@ object AclSimpleCheck {
       new AclSimpleCheck(cache) {
         override def authorizeForOr[E <: Throwable](
             path: AclAddress,
-            permission: Permission,
-            identities: Set[Identity]
-        )(onError: => E): IO[Unit] =
-          aclCheck.authorizeForOr(path, permission, identities)(onError)
+            permission: Permission
+        )(onError: => E)(using caller: Caller): IO[Unit] =
+          aclCheck.authorizeForOr(path, permission)(onError)
 
-        override def authorizeFor(path: AclAddress, permission: Permission, identities: Set[Identity]): IO[Boolean] =
-          aclCheck.authorizeFor(path, permission, identities)
+        override def authorizeFor(path: AclAddress, permission: Permission)(using caller: Caller): IO[Boolean] =
+          aclCheck.authorizeFor(path, permission)
 
         override def authorizeForEveryOr[E <: Throwable](path: AclAddress, permissions: Set[Permission])(
             onError: => E
-        )(implicit caller: Caller): IO[Unit] =
+        )(using Caller): IO[Unit] =
           aclCheck.authorizeForEveryOr(path, permissions)(onError)
 
         override def mapFilterOrRaise[A, B](
@@ -74,7 +73,7 @@ object AclSimpleCheck {
             extractAddressPermission: A => (AclAddress, Permission),
             onAuthorized: A => B,
             onFailure: AclAddress => IO[Unit]
-        )(implicit caller: Caller): IO[Set[B]] =
+        )(using Caller): IO[Set[B]] =
           aclCheck.mapFilterOrRaise(values, extractAddressPermission, onAuthorized, onFailure)
 
         override def mapFilterAtAddressOrRaise[A, B](
@@ -83,7 +82,7 @@ object AclSimpleCheck {
             extractPermission: A => Permission,
             onAuthorized: A => B,
             onFailure: AclAddress => IO[Unit]
-        )(implicit caller: Caller): IO[Set[B]] =
+        )(using Caller): IO[Set[B]] =
           aclCheck.mapFilterAtAddressOrRaise(values, address, extractPermission, onAuthorized, onFailure)
       }
     }

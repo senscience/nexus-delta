@@ -107,7 +107,7 @@ object ResolverContextResolution {
     new ResolverContextResolution(
       rcr,
       (resourceRef: ResourceRef, projectRef: ProjectRef, caller: Caller) =>
-        resourceResolution.resolve(resourceRef, projectRef)(caller)
+        resourceResolution.resolve(resourceRef, projectRef)(using caller)
     )
 
   /**
