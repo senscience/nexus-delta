@@ -84,15 +84,16 @@ object ResourcesModule extends NexusModuleDef {
       )(using uuidF)(using tracer)
   }
 
-  make[ResolverContextResolution].from {
+  make[ResolverContextResolution].fromEffect {
     (
         aclCheck: AclCheck,
         resolvers: Resolvers,
         rcr: RemoteContextResolution @Id("aggregate"),
         fetchResource: FetchResource,
+        config: ResourcesConfig,
         tracer: Tracer[IO] @Id("resolvers")
     ) =>
-      ResolverContextResolution(aclCheck, resolvers, rcr, fetchResource)(using tracer)
+      ResolverContextResolution(aclCheck, resolvers, rcr, fetchResource, config.contextCache)(using tracer)
   }
 
   make[ResourcesRoutes].from {

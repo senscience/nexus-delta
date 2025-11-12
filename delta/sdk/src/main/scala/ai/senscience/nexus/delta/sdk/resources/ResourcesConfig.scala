@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.cache.CacheConfig
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.resources.ResourcesConfig.SchemaEnforcementConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
@@ -19,6 +20,7 @@ import pureconfig.generic.semiauto.deriveReader
 final case class ResourcesConfig(
     eventLog: EventLogConfig,
     schemaEnforcement: SchemaEnforcementConfig,
+    contextCache: CacheConfig,
     skipUpdateNoChange: Boolean
 )
 

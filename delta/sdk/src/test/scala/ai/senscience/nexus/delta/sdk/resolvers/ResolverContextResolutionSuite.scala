@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
+import ai.senscience.nexus.delta.kernel.cache.LocalCache
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -71,7 +72,7 @@ class ResolverContextResolutionSuite extends NexusSuite {
 
   private val resourceResolution = ResourceResolutionGen.singleInProject(project, fetchResource)
 
-  private val resolverContextResolution = ResolverContextResolution(rcr, resourceResolution)
+  private val resolverContextResolution = ResolverContextResolution(rcr, LocalCache.noop, resourceResolution)
 
   private def resolve(iri: Iri) = resolverContextResolution(project).resolve(iri)
 

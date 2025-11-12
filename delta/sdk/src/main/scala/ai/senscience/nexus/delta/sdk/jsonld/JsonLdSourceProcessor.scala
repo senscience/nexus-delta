@@ -90,7 +90,7 @@ object JsonLdSourceProcessor {
     )(using RemoteContextResolution): IO[JsonLdAssembly] = {
       for {
         _               <- checkIdNotBlank(source)
-        (ctx, result)   <- expandSource(context, source.addContext(contextIri*))
+        (ctx, result)   <- expandSource(context, source.addContext(contextIri*)).surround("expandJsonLd")
         originalExpanded = result.value
         iri             <- getOrGenerateId(originalExpanded.rootId.asIri, context)
         expanded         = originalExpanded.replaceId(iri)
@@ -116,7 +116,7 @@ object JsonLdSourceProcessor {
     )(using RemoteContextResolution): IO[JsonLdAssembly] = {
       for {
         _               <- checkIdNotBlank(source)
-        (ctx, result)   <- expandSource(context, source.addContext(contextIri*))
+        (ctx, result)   <- expandSource(context, source.addContext(contextIri*)).surround("expandJsonLd")
         originalExpanded = result.value
         expanded        <- checkAndSetSameId(iri, originalExpanded)
         assembly        <- JsonLdAssembly(iri, source, expanded, ctx, result.remoteContexts)

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.jsonld
 
+import ai.senscience.nexus.delta.kernel.syntax.surround
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError
 import ai.senscience.nexus.delta.rdf.graph.Graph
@@ -10,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.InvalidJsonLdFormat
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import cats.effect.IO
 import io.circe.Json
+import org.typelevel.otel4s.trace.Tracer
 
 /**
   * Result of the processing of the source from the [[JsonLdSourceProcessor]] which validates that the different
@@ -50,11 +52,18 @@ object JsonLdAssembly {
       expanded: ExpandedJsonLd,
       ctx: ContextValue,
       remoteContexts: Map[Iri, RemoteContext]
-  )(implicit api: JsonLdApi, rcr: RemoteContextResolution): IO[JsonLdAssembly] =
-    for {
-      compacted <- expanded.toCompacted(ctx).adaptError { case err: RdfError => InvalidJsonLdFormat(Some(iri), err) }
-      graph     <- expanded.toGraph.adaptError { case err: RdfError => InvalidJsonLdFormat(Some(iri), err) }
-    } yield JsonLdAssembly(iri, source, compacted, expanded, graph, RemoteContextRef(remoteContexts))
+  )(using JsonLdApi, RemoteContextResolution, Tracer[IO]): IO[JsonLdAssembly] = {
+    val compactedIO = expanded
+      .toCompacted(ctx)
+      .adaptError { case err: RdfError => InvalidJsonLdFormat(Some(iri), err) }
+      .surround("compactJsonLd")
+    val graphIO     = expanded.toGraph
+      .adaptError { case err: RdfError => InvalidJsonLdFormat(Some(iri), err) }
+      .surround("createGraph")
+    IO.both(compactedIO, graphIO).map { case (compacted, graph) =>
+      JsonLdAssembly(iri, source, compacted, expanded, graph, RemoteContextRef(remoteContexts))
+    }
+  }
 
   def empty(id: Iri): JsonLdAssembly =
     JsonLdAssembly(id, Json.obj(), CompactedJsonLd.empty, ExpandedJsonLd.empty, Graph.empty(id), Set.empty)
