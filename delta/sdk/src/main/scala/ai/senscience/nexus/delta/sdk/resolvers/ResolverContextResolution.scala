@@ -35,28 +35,34 @@ final class ResolverContextResolution(
     resolveResource: Resolve[DataResource]
 )(using Tracer[IO]) {
 
-  def apply(projectRef: ProjectRef)(using caller: Caller): RemoteContextResolution =
-    (iri: Iri) =>
-      {
-        val resolveContext = rcr
-          .resolve(iri)
-          .handleErrorWith(_ =>
-            resolveResource(ResourceRef(iri), projectRef, caller).flatMap {
-              case Left(report)    =>
-                IO.raiseError(
-                  RemoteContextNotAccessible(
-                    iri,
-                    s"Resolution via static resolution and via resolvers failed in '$projectRef'",
-                    Some(report.asJson)
-                  )
-                )
-              case Right(resource) => IO.pure(ProjectRemoteContext.fromResource(resource))
-            }
-          ) <*
-          logger.debug(s"Iri $iri has been resolved for project $projectRef and caller $caller.subject")
+  def apply(projectRef: ProjectRef)(using caller: Caller): RemoteContextResolution = {
+    new RemoteContextResolution {
+      override def resolve(iri: Iri): IO[RemoteContext] = {
+        // Attempts to resolve the context as a static one before falling back to
+        // the user-defined ones
+        cache.getOrElseUpdate(
+          (projectRef, caller.subject, iri),
+          staticContextResolution(iri)
+            .handleErrorWith(_ => resolverResolution(iri))
+        )
+      }.surround("resolveRemoteContext")
 
-        cache.getOrElseUpdate((projectRef, caller.subject, iri), resolveContext)
-      }.surround("resolveRemoteContexts")
+      private def staticContextResolution(iri: Iri) = rcr.resolve(iri)
+
+      private def resolverResolution(iri: Iri) =
+        resolveResource(ResourceRef(iri), projectRef, caller).flatMap {
+          case Left(report)    => IO.raiseError(remoteContextNotAccessible(iri, report))
+          case Right(resource) => IO.pure(ProjectRemoteContext.fromResource(resource))
+        } <* logger.info(s"Iri $iri has been resolved for project $projectRef and caller ${caller.subject}")
+
+      private def remoteContextNotAccessible(iri: Iri, report: ResourceResolutionReport) =
+        RemoteContextNotAccessible(
+          iri,
+          s"Resolution via static resolution and via resolvers failed in '$projectRef'",
+          Some(report.asJson)
+        )
+    }
+  }
 }
 
 object ResolverContextResolution {
