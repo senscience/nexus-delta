@@ -210,7 +210,7 @@ class IdentitiesImplSuite extends NexusSuite with IOFromMap {
       aud = Some(NonEmptySet.of("ca", "de")),
       groups = Some(Set("group1", "group2"))
     )
-    val expectedError = InvalidAccessToken("Robert", githubLabel2.value, "JWT audience rejected: [ca, de]")
+    val expectedError = InvalidAccessToken("Robert", githubLabel2.value, "JWT aud claim rejected")
     identities.exchange(token).interceptEquals(expectedError)
   }
 
