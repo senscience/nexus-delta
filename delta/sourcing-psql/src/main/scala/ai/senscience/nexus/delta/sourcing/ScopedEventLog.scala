@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTagFailure
 import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
@@ -20,6 +21,7 @@ import cats.syntax.all.*
 import doobie.*
 import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.otel4s.trace.Tracer
 
 import java.sql.SQLException
 import scala.concurrent.duration.FiniteDuration
@@ -74,7 +76,7 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
     *   the entity identifier
     * @return
     */
-  def delete[R <: Rejection](project: ProjectRef, id: Id, notFound: => R)(implicit subject: Subject): IO[Unit]
+  def delete[R <: Rejection](project: ProjectRef, id: Id, notFound: => R)(using Subject): IO[Unit]
 
 }
 
@@ -86,7 +88,7 @@ object ScopedEventLog {
       definition: ScopedEntityDefinition[Id, S, Command, E, Rejection],
       config: EventLogConfig,
       xas: Transactors
-  ): ScopedEventLog[Id, S, Command, E, Rejection] =
+  )(using Tracer[IO]): ScopedEventLog[Id, S, Command, E, Rejection] =
     apply(
       definition.tpe,
       ScopedEventStore(definition.tpe, definition.eventSerializer, config.queryConfig),
@@ -109,14 +111,17 @@ object ScopedEventLog {
       extractDependencies: S => Option[Set[DependsOn]],
       maxDuration: FiniteDuration,
       xas: Transactors
-  ): ScopedEventLog[Id, S, Command, E, Rejection] =
+  )(using Tracer[IO]): ScopedEventLog[Id, S, Command, E, Rejection] =
     new ScopedEventLog[Id, S, Command, E, Rejection] {
 
       private val eventTombstoneStore = new EventTombstoneStore(xas)
       private val stateTombstoneStore = new StateTombstoneStore(xas)
 
       override def stateOr[R <: Rejection](ref: ProjectRef, id: Id, notFound: => R): IO[S] =
-        stateStore.getRead(ref, id).adaptError(_ => notFound)
+        stateStore
+          .getRead(ref, id)
+          .adaptError(_ => notFound)
+          .surround("fetchLatestState")
 
       override def stateOr[R <: Rejection](
           ref: ProjectRef,
@@ -124,12 +129,14 @@ object ScopedEventLog {
           tag: Tag,
           notFound: => R,
           tagNotFound: => R
-      ): IO[S] = {
-        stateStore.getRead(ref, id, tag).adaptError {
-          case UnknownState => notFound
-          case TagNotFound  => tagNotFound
-        }
-      }
+      ): IO[S] =
+        stateStore
+          .getRead(ref, id, tag)
+          .adaptError {
+            case UnknownState => notFound
+            case TagNotFound  => tagNotFound
+          }
+          .surround("fetchTaggedState")
 
       override def stateOr[R <: Rejection](
           ref: ProjectRef,
@@ -138,11 +145,14 @@ object ScopedEventLog {
           notFound: => R,
           invalidRevision: (Int, Int) => R
       ): IO[S] =
-        stateMachine.computeState(eventStore.history(ref, id, rev).transact(xas.read)).flatMap {
-          case Some(s) if s.rev == rev => IO.pure(s)
-          case Some(s)                 => IO.raiseError(invalidRevision(rev, s.rev))
-          case None                    => IO.raiseError(notFound)
-        }
+        stateMachine
+          .computeState(eventStore.history(ref, id, rev).transact(xas.read))
+          .flatMap {
+            case Some(s) if s.rev == rev => IO.pure(s)
+            case Some(s)                 => IO.raiseError(invalidRevision(rev, s.rev))
+            case None                    => IO.raiseError(notFound)
+          }
+          .surround("fetchRevState")
 
       override def evaluate(project: ProjectRef, id: Id, command: Command): IO[(E, S)] = {
 
@@ -198,21 +208,27 @@ object ScopedEventLog {
             case other                                       =>
               IO.raiseError(other)
           }
-        }
+        }.surround("persist")
 
         for {
-          originalState <- stateStore.getWrite(project, id).redeem(_ => None, Some(_))
-          result        <- stateMachine.evaluate(originalState, command, maxDuration)
+          originalState <- fetchOriginal(project, id)
+          result        <- runCommand(originalState, command, maxDuration)
           _             <- persist(result._1, originalState, result._2)
         } yield result
-      }
+      }.surround("evaluate")
 
       override def dryRun(project: ProjectRef, id: Id, command: Command): IO[(E, S)] =
-        stateStore.getWrite(project, id).redeem(_ => None, Some(_)).flatMap { state =>
-          stateMachine.evaluate(state, command, maxDuration)
-        }
+        fetchOriginal(project, id)
+          .flatMap(runCommand(_, command, maxDuration))
+          .surround("dryRun")
 
-      override def delete[R <: Rejection](project: ProjectRef, id: Id, notFound: => R)(implicit
+      private def fetchOriginal(project: ProjectRef, id: Id) =
+        stateStore.getWrite(project, id).redeem(_ => None, Some(_)).surround("fetchOriginal")
+
+      private def runCommand(state: Option[S], command: Command, maxDuration: FiniteDuration) =
+        stateMachine.evaluate(state, command, maxDuration).surround("runCommand")
+
+      override def delete[R <: Rejection](project: ProjectRef, id: Id, notFound: => R)(using
           subject: Subject
       ): IO[Unit] = {
         val queries = for {
@@ -227,7 +243,7 @@ object ScopedEventLog {
         } yield ()
 
         queries.transact(xas.write)
-      }
+      }.surround("delete")
 
       override def currentStates(scope: Scope, offset: Offset): SuccessElemStream[S] =
         stateStore.currentStates(scope, offset)

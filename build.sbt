@@ -310,6 +310,9 @@ lazy val kernel = project
       handleBars,
       nimbusJoseJwt,
       log4cats,
+      otel4s,
+      otel4sSemconv,
+      otel4sStorage,
       munit           % Test,
       munitCatsEffect % Test
     ) ++ pureConfig ++ http4s
@@ -324,7 +327,6 @@ lazy val testkit = project
     coverageMinimumStmtTotal := 0,
     libraryDependencies     ++= Seq(
       logback,
-      otel4s,
       munit,
       munitCatsEffect,
       scalaTest,
@@ -346,7 +348,6 @@ lazy val sourcingPsql = project
     libraryDependencies  ++= Seq(
       classgraph,
       distageCore,
-      otel4s,
       otel4sDoobie,
       shapeless3Typeable
     ) ++ doobie,
@@ -388,9 +389,6 @@ lazy val sdk = project
       pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_3"),
       scalaXml,
       distageCore,
-      otel4s,
-      otel4sSemconv,
-      otel4sStorage,
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
       pekkoHttpTestKit % Test

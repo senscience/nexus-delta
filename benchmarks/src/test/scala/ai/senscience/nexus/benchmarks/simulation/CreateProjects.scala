@@ -30,7 +30,7 @@ final class CreateProjects extends BaseSimulation {
     json"""
           {
             "@type": "CrossProject",
-            "priority": 5,
+            "priority": 0,
             "projects": [
               "benchmarks/datamodels"
             ],

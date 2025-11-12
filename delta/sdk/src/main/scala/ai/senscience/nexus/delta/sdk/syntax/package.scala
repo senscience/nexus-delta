@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
-import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax}
+import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, IOSyntax, OtelSyntax}
 import ai.senscience.nexus.delta.rdf.syntax.{IriSyntax, IterableSyntax, JsonLdEncoderSyntax, JsonSyntax, PathSyntax, UriSyntax}
 
 /**

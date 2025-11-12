@@ -1,4 +1,4 @@
-package ai.senscience.nexus.delta.sdk.syntax
+package ai.senscience.nexus.delta.kernel.syntax
 
 import cats.effect.IO
 import org.typelevel.otel4s.Attribute
