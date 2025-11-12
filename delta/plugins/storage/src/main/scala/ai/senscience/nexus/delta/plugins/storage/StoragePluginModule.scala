@@ -3,20 +3,19 @@ package ai.senscience.nexus.delta.plugins.storage
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.metrics.MetricsIndexDef
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.plugins.storage.files.Files.FilesLog
 import ai.senscience.nexus.delta.plugins.storage.files.model.{File, FileEvent}
 import ai.senscience.nexus.delta.plugins.storage.files.routes.{DelegateFilesRoutes, FilesRoutes, LinkFilesRoutes}
 import ai.senscience.nexus.delta.plugins.storage.files.schemas.files as filesSchemaId
 import ai.senscience.nexus.delta.plugins.storage.files.{contexts as fileContext, Files, FormDataExtractor, MediaTypeDetector}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{ShowFileLocation, StorageTypeConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.access.{S3StorageAccess, StorageAccess}
-import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContext, *}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageEvent
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.disk.DiskFileOperations
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileOperations, S3LocationGenerator}
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
+import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContext, *}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
@@ -37,7 +36,7 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ai.senscience.nexus.delta.sourcing.{ScopedEventLog, Transactors}
+import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.apache.pekko.actor.ActorSystem
@@ -140,10 +139,6 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
           schemeDirectives
         )(using baseUri)(using cr, ordering, fusionConfig, tracer)
       }
-  }
-
-  make[FilesLog].from { (cfg: StoragePluginConfig, xas: Transactors, clock: Clock[IO]) =>
-    ScopedEventLog(Files.definition(clock), cfg.files.eventLog, xas)
   }
 
   make[DiskFileOperations].from { (uuidF: UUIDF) => DiskFileOperations.mk(uuidF) }

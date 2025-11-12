@@ -17,7 +17,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.{ResolverContextResolution, Resolvers}
 import ai.senscience.nexus.delta.sdk.resources.{FetchResource, Resources, ValidateResource}
 import ai.senscience.nexus.delta.sdk.schemas.*
-import ai.senscience.nexus.delta.sdk.schemas.Schemas.{SchemaDefinition, SchemaLog}
+import ai.senscience.nexus.delta.sdk.schemas.Schemas.SchemaLog
 import ai.senscience.nexus.delta.sdk.schemas.job.{SchemaValidationCoordinator, SchemaValidationStream}
 import ai.senscience.nexus.delta.sdk.schemas.model.{Schema, SchemaEvent}
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
@@ -51,12 +51,15 @@ object SchemasModule extends NexusModuleDef {
       ValidateSchema(validateShacl)(using tracer)
   }
 
-  make[SchemaDefinition].from { (validateSchema: ValidateSchema, clock: Clock[IO]) =>
-    Schemas.definition(validateSchema, clock)
-  }
-
-  make[SchemaLog].from { (scopedDefinition: SchemaDefinition, config: SchemasConfig, xas: Transactors) =>
-    ScopedEventLog(scopedDefinition, config.eventLog, xas)
+  make[SchemaLog].from {
+    (
+        validateSchema: ValidateSchema,
+        clock: Clock[IO],
+        config: SchemasConfig,
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("schemas")
+    ) =>
+      ScopedEventLog(Schemas.definition(validateSchema, clock), config.eventLog, xas)(using tracer)
   }
 
   make[FetchSchema].from { (schemaLog: SchemaLog) =>

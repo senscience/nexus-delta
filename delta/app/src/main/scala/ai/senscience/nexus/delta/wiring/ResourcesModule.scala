@@ -18,7 +18,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.{ResolverContextResolution, Resolvers, ResourceResolution}
 import ai.senscience.nexus.delta.sdk.resources.*
-import ai.senscience.nexus.delta.sdk.resources.Resources.{ResourceDefinition, ResourceLog}
+import ai.senscience.nexus.delta.sdk.resources.Resources.ResourceLog
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceEvent}
 import ai.senscience.nexus.delta.sdk.schemas.FetchSchema
 import ai.senscience.nexus.delta.sdk.schemas.model.Schema
@@ -53,14 +53,16 @@ object ResourcesModule extends NexusModuleDef {
       ValidateResource(schemaClaimResolver, validateShacl)
   }
 
-  make[DetectChange].from { (config: ResourcesConfig) => DetectChange(config.skipUpdateNoChange) }
-
-  make[ResourceDefinition].from { (validateResource: ValidateResource, detectChange: DetectChange, clock: Clock[IO]) =>
-    Resources.definition(validateResource, detectChange, clock)
-  }
-
-  make[ResourceLog].from { (scopedDefinition: ResourceDefinition, config: ResourcesConfig, xas: Transactors) =>
-    ScopedEventLog(scopedDefinition, config.eventLog, xas)
+  make[ResourceLog].from {
+    (
+        validateResource: ValidateResource,
+        clock: Clock[IO],
+        config: ResourcesConfig,
+        xas: Transactors,
+        tracer: Tracer[IO] @Id("resources")
+    ) =>
+      val detectChange = DetectChange(config.skipUpdateNoChange)
+      ScopedEventLog(Resources.definition(validateResource, detectChange, clock), config.eventLog, xas)(using tracer)
   }
 
   make[FetchResource].from { (scopedLog: ResourceLog) =>

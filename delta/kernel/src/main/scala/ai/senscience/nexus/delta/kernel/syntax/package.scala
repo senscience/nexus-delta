@@ -1,3 +1,8 @@
 package ai.senscience.nexus.delta.kernel
 
-package object syntax extends ClassTagSyntax with Http4sResponseSyntax with IOSyntax with NonEmptySetSyntax
+package object syntax
+    extends ClassTagSyntax
+    with Http4sResponseSyntax
+    with IOSyntax
+    with NonEmptySetSyntax
+    with OtelSyntax
