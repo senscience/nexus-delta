@@ -101,6 +101,8 @@ trait LocalCache[K, V] {
 
 object LocalCache {
 
+  def noop[K, V]: LocalCache[K, V] = new NoCache[K, V]
+
   /**
     * Constructs a local key-value store
     */
@@ -121,7 +123,7 @@ object LocalCache {
     */
   final def apply[K, V](config: CacheConfig): IO[LocalCache[K, V]] =
     if config.enabled then apply(config.maxSize.toLong, config.expireAfter)
-    else IO.pure(new NoCache[K, V])
+    else IO.pure(noop[K, V])
 
   /**
     * Constructs a local key-value store

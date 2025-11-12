@@ -1,24 +1,24 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotAccessible
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{logger, ProjectRemoteContext}
+import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.{logger, ProjectRemoteContext, RemoteContextCache}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverResolution.ResourceResolution
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sdk.resources.FetchResource
 import ai.senscience.nexus.delta.sdk.resources.model.Resource
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{DataResource, Resolve}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import io.circe.syntax.*
 import org.typelevel.otel4s.trace.Tracer
-
-import scala.collection.concurrent
 
 /**
   * Allows to resolve contexts first via a predefined context resolution and fallback on a second based on resource
@@ -29,46 +29,41 @@ import scala.collection.concurrent
   * @param resolveResource
   *   a function to resolve resources
   */
-final class ResolverContextResolution(val rcr: RemoteContextResolution, resolveResource: Resolve[DataResource])(using
-    Tracer[IO]
-) {
+final class ResolverContextResolution(
+    val rcr: RemoteContextResolution,
+    cache: RemoteContextCache,
+    resolveResource: Resolve[DataResource]
+)(using Tracer[IO]) {
 
   def apply(projectRef: ProjectRef)(using caller: Caller): RemoteContextResolution =
-    new RemoteContextResolution {
-      // The instance is living inside the scope of a request so we can cache the resolutions
-      private val cache: concurrent.Map[Iri, RemoteContext] = new concurrent.TrieMap
+    (iri: Iri) =>
+      {
+        val resolveContext = rcr
+          .resolve(iri)
+          .handleErrorWith(_ =>
+            resolveResource(ResourceRef(iri), projectRef, caller).flatMap {
+              case Left(report)    =>
+                IO.raiseError(
+                  RemoteContextNotAccessible(
+                    iri,
+                    s"Resolution via static resolution and via resolvers failed in '$projectRef'",
+                    Some(report.asJson)
+                  )
+                )
+              case Right(resource) => IO.pure(ProjectRemoteContext.fromResource(resource))
+            }
+          ) <*
+          logger.debug(s"Iri $iri has been resolved for project $projectRef and caller $caller.subject")
 
-      override def resolve(iri: Iri): IO[RemoteContext] = {
-        IO.pure(cache.get(iri)).flatMap {
-          case Some(s) => IO.pure(s)
-          case None    =>
-            rcr
-              .resolve(iri)
-              .handleErrorWith(_ =>
-                resolveResource(ResourceRef(iri), projectRef, caller).flatMap {
-                  case Left(report)    =>
-                    IO.raiseError(
-                      RemoteContextNotAccessible(
-                        iri,
-                        s"Resolution via static resolution and via resolvers failed in '$projectRef'",
-                        Some(report.asJson)
-                      )
-                    )
-                  case Right(resource) => IO.pure(ProjectRemoteContext.fromResource(resource))
-                }
-              )
-              .flatTap { context =>
-                IO.pure(cache.put(iri, context)) *>
-                  logger.debug(s"Iri $iri has been resolved for project $projectRef and caller $caller.subject")
-              }
-        }
+        cache.getOrElseUpdate((projectRef, caller.subject, iri), resolveContext)
       }.surround("resolveRemoteContexts")
-    }
 }
 
 object ResolverContextResolution {
 
   private val logger = Logger[ResolverContextResolution]
+
+  private type RemoteContextCache = LocalCache[(ProjectRef, Subject, Iri), RemoteContext]
 
   /**
     * A remote context defined in Nexus as a resource
@@ -92,7 +87,7 @@ object ResolverContextResolution {
     *   a previously defined 'RemoteContextResolution'
     */
   def apply(rcr: RemoteContextResolution)(using Tracer[IO]): ResolverContextResolution =
-    new ResolverContextResolution(rcr, (_, _, _) => IO.pure(Left(ResourceResolutionReport())))
+    new ResolverContextResolution(rcr, LocalCache.noop, (_, _, _) => IO.pure(Left(ResourceResolutionReport())))
 
   /**
     * Constructs a [[ResolverContextResolution]]
@@ -101,11 +96,12 @@ object ResolverContextResolution {
     * @param resourceResolution
     *   a resource resolution base on resolvers
     */
-  def apply(rcr: RemoteContextResolution, resourceResolution: ResourceResolution[Resource])(using
-      Tracer[IO]
+  def apply(rcr: RemoteContextResolution, cache: RemoteContextCache, resourceResolution: ResourceResolution[Resource])(
+      using Tracer[IO]
   ): ResolverContextResolution =
     new ResolverContextResolution(
       rcr,
+      cache,
       (resourceRef: ResourceRef, projectRef: ProjectRef, caller: Caller) =>
         resourceResolution.resolve(resourceRef, projectRef)(using caller)
     )
@@ -125,9 +121,12 @@ object ResolverContextResolution {
       aclCheck: AclCheck,
       resolvers: Resolvers,
       rcr: RemoteContextResolution,
-      fetchResource: FetchResource
-  )(using Tracer[IO]): ResolverContextResolution =
-    apply(rcr, ResourceResolution.dataResource(aclCheck, resolvers, fetchResource, excludeDeprecated = false))
+      fetchResource: FetchResource,
+      cacheConfig: CacheConfig
+  )(using Tracer[IO]): IO[ResolverContextResolution] =
+    LocalCache[(ProjectRef, Subject, Iri), RemoteContext](cacheConfig).map { cache =>
+      apply(rcr, cache, ResourceResolution.dataResource(aclCheck, resolvers, fetchResource, excludeDeprecated = false))
+    }
 
   /**
     * A [[ResolverContextResolution]] that never resolves

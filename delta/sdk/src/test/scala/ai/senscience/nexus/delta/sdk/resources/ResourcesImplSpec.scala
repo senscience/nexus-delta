@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.cache.LocalCache
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schema, schemas}
@@ -73,6 +74,7 @@ class ResourcesImplSpec
 
   private val resolverContextResolution: ResolverContextResolution = new ResolverContextResolution(
     rcr,
+    LocalCache.noop,
     (r, p, _) => resources.fetch(r, p).attempt.map(_.left.map(_ => ResourceResolutionReport()))
   )
 
