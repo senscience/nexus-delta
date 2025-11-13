@@ -54,7 +54,7 @@ object Configs {
 
   def loadEffect[A: ClassTag](config: Config, namespace: String)(using ConfigReader[A]): IO[A] =
     IO.delay(load(config, namespace)).onError { case e =>
-      logger.error(e)(s"Error when loading configuration at 'namespace'")
+      logger.error(e)(s"Error when loading configuration at '$namespace'")
     }
 
 }
