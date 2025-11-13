@@ -53,7 +53,7 @@ final class ResolverContextResolution(
         resolveResource(ResourceRef(iri), projectRef, caller).flatMap {
           case Left(report)    => IO.raiseError(remoteContextNotAccessible(iri, report))
           case Right(resource) => IO.pure(ProjectRemoteContext.fromResource(resource))
-        } <* logger.info(s"Iri $iri has been resolved for project $projectRef and caller ${caller.subject}")
+        } <* logger.debug(s"Iri $iri has been resolved for project $projectRef and caller ${caller.subject}")
 
       private def remoteContextNotAccessible(iri: Iri, report: ResourceResolutionReport) =
         RemoteContextNotAccessible(

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.kernel.config
 
+import ai.senscience.nexus.delta.kernel.Logger
 import cats.effect.IO
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigResolveOptions}
 import pureconfig.{ConfigReader, ConfigSource}
@@ -8,6 +9,8 @@ import java.io.{File, Reader}
 import scala.reflect.ClassTag
 
 object Configs {
+
+  private val logger = Logger[Configs.type]
 
   private val parseOptions = ConfigParseOptions.defaults().setAllowMissing(false)
 
@@ -46,7 +49,12 @@ object Configs {
       .resolve(resolverOptions)
   }
 
-  def load[A: ClassTag](config: Config, namespace: String)(implicit reader: ConfigReader[A]): A =
+  def load[A: ClassTag](config: Config, namespace: String)(using ConfigReader[A]): A =
     ConfigSource.fromConfig(config).at(namespace).loadOrThrow[A]
+
+  def loadEffect[A: ClassTag](config: Config, namespace: String)(using ConfigReader[A]): IO[A] =
+    IO.delay(load(config, namespace)).onError { case e =>
+      logger.error(e)(s"Error when loading configuration at '$namespace'")
+    }
 
 }
