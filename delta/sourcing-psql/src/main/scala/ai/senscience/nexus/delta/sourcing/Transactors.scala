@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
-import ai.senscience.nexus.delta.kernel.Secret
+import ai.senscience.nexus.delta.kernel.{Logger, Secret}
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.{DatabaseAccess, OpentelemetryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
@@ -24,6 +24,8 @@ final case class Transactors(
 )
 
 object Transactors {
+
+  private val logger = Logger[Transactors]
 
   def test(
       host: String,
@@ -91,8 +93,15 @@ object Transactors {
     val write     = transactor(config.write, readOnly = false, poolName = "WritePool")
     val streaming = transactor(config.streaming, readOnly = true, poolName = "StreamingPool")
 
-    (read, write, streaming).mapN(Transactors(_, _, _)).evalTap { xas =>
-      DDLLoader.setup(config.tablesAutocreate, config.partitionStrategy, xas)
-    }
+    (read, write, streaming)
+      .mapN(Transactors(_, _, _))
+      .evalTap { xas =>
+        DDLLoader.setup(config.tablesAutocreate, config.partitionStrategy, xas)
+      }
+      .onError { case e =>
+        Resource.eval(
+          logger.error(e)("Error while initilizing database connections.")
+        )
+      }
   }
 }

@@ -54,8 +54,9 @@ object EventMetricsProjection {
   ): IO[EventMetricsProjection] = if indexingEnabled then {
     val allEntityTypes = metricEncoders.map(_.entityType).toList
 
-    implicit val multiDecoder: MultiDecoder[ProjectScopedMetric] =
-      MultiDecoder(metricEncoders.map { encoder => encoder.entityType -> encoder.toMetric }.toMap)
+    given MultiDecoder[ProjectScopedMetric] = MultiDecoder(metricEncoders.map { encoder =>
+      encoder.entityType -> encoder.toMetric
+    }.toMap)
 
     // define how to get metrics from a given offset
     val metrics = (offset: Offset) => EventStreaming.fetchScoped(Scope.root, allEntityTypes, offset, queryConfig, xas)

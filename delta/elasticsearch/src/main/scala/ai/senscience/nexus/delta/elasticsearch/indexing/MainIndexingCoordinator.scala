@@ -93,7 +93,7 @@ object MainIndexingCoordinator {
         .void
   }
 
-  def mainIndexingPipeline(implicit cr: RemoteContextResolution): NonEmptyChain[Operation] =
+  def mainIndexingPipeline(using RemoteContextResolution): NonEmptyChain[Operation] =
     NonEmptyChain(
       DefaultLabelPredicates.withConfig(()),
       SourceAsText.withConfig(()),
@@ -117,10 +117,11 @@ object MainIndexingCoordinator {
       def fetchProjects(offset: Offset) =
         projects.states(offset).map(_.map { p => ProjectDef(p.project, p.markedForDeletion) })
 
-      def elasticsearchSink = ElasticSearchSink.mainIndexing(client, batch, targetIndex, Refresh.False)
+      val elasticsearchSink = ElasticSearchSink.mainIndexing(client, batch, targetIndex, Refresh.False)
 
-      client.createIndex(targetIndex, Some(mainIndex.mapping), Some(mainIndex.settings)) >>
-        apply(fetchProjects, graphStream, supervisor, elasticsearchSink)
+      val init = client.createIndex(targetIndex, Some(mainIndex.mapping), Some(mainIndex.settings)).void
+
+      apply(fetchProjects, graphStream, supervisor, init, elasticsearchSink)
     } else {
       Noop.log.as(Noop)
     }
@@ -129,11 +130,12 @@ object MainIndexingCoordinator {
       fetchProjects: Offset => ElemStream[ProjectDef],
       graphStream: GraphResourceStream,
       supervisor: Supervisor,
+      init: IO[Unit],
       sink: Sink
   )(using RemoteContextResolution): IO[MainIndexingCoordinator] = {
     val coordinator = new Active(fetchProjects, graphStream, supervisor, sink)
     val compiled    =
       CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => coordinator.run(offset))
-    supervisor.run(compiled).as(coordinator)
+    supervisor.run(compiled, init).as(coordinator)
   }
 }
