@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewState
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -83,19 +82,6 @@ object IndexingViewDef {
     compile(v, pipeChainCompiler, _ => elems, sink)
 
   def compile(
-      v: ActiveViewDef,
-      pipeChainCompiler: PipeChainCompiler,
-      graphStream: GraphResourceStream,
-      sink: Sink
-  ): IO[CompiledProjection] =
-    compile(
-      v,
-      pipeChainCompiler,
-      graphStream.continuous(v.ref.project, v.selectFilter, _),
-      sink
-    )
-
-  private def compile(
       v: ActiveViewDef,
       pipeChainCompiler: PipeChainCompiler,
       stream: Offset => ElemStream[GraphResource],

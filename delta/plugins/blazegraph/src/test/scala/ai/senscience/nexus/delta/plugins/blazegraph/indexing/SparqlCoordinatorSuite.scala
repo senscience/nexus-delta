@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.{Ac
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -124,14 +123,12 @@ class SparqlCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
   )
 
   private val projectionCycle = new SparqlProjectionLifeCycle {
-    override def failing: Stream[IO, Boolean] =
-      Stream.fixedDelay[IO](100.millis) >> Stream.eval(pausingRef.get)
 
     override def compile(view: ActiveViewDef): IO[CompiledProjection] =
       IndexingViewDef.compile(
         view,
         (_: PipeChain) => Left(CouldNotFindPipeErr(unknownPipe)),
-        GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project)),
+        PullRequestStream.generate(project),
         new NoopSink[NTriples]
       )
 

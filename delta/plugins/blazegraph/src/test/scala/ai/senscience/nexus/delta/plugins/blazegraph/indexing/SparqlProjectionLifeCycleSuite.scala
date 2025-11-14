@@ -13,6 +13,8 @@ import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, PullRequestStream}
 import ai.senscience.nexus.testkit.mu.NexusSuite
+import cats.effect.IO
+import fs2.concurrent.Signal
 import munit.AnyFixture
 
 class SparqlProjectionLifeCycleSuite extends NexusSuite with SparqlClientSetup.Fixture {
@@ -36,18 +38,21 @@ class SparqlProjectionLifeCycleSuite extends NexusSuite with SparqlClientSetup.F
     1
   )
 
+  private val healthCheck: SparqlHealthCheck = new SparqlHealthCheck {
+    override def healthy: Signal[IO, Boolean] = Signal.constant(true)
+
+    override def failing: Signal[IO, Boolean] = Signal.constant(false)
+  }
+
   private lazy val projectionLifeCycle =
     SparqlProjectionLifeCycle(
       GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project)),
       PipeChainCompiler.alwaysFail,
+      healthCheck,
       client,
       RetryStrategyConfig.AlwaysGiveUp,
       BatchConfig.individual
     )
-
-  test("Underlying Blazegraph instance should not fail") {
-    projectionLifeCycle.failing.assertAll(5L, _)
-  }
 
   test("Compile the indexing view") {
     projectionLifeCycle.compile(view).map { projection =>
