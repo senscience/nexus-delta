@@ -1,4 +1,6 @@
 name: Delta Integration Tests - RDF4J
+permissions:
+  contents: read
 on:
   pull_request:
     paths:
@@ -14,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PARTITION_STRATEGY: 'hash'
     steps:
       - name: Checkout
