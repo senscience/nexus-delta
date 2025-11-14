@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, Projection
 import ai.senscience.nexus.delta.sourcing.{EntityCheck, ProgressStatistics, Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
-import cats.implicits.catsSyntaxPartialOrder
+import cats.syntax.order.catsSyntaxPartialOrder
 import fs2.Stream
 
 import java.time.Instant
@@ -74,7 +74,7 @@ trait Projections {
   /**
     * Schedules a restart for the given projection at the given offset
     */
-  def scheduleRestart(projectionName: String, fromOffset: Offset)(implicit subject: Subject): IO[Unit]
+  def scheduleRestart(projectionName: String, fromOffset: Offset)(using subject: Subject): IO[Unit]
 
   /**
     * Get scheduled projection restarts from a given offset
@@ -151,10 +151,10 @@ object Projections {
 
       override def delete(name: String): IO[Unit] = projectionStore.delete(name)
 
-      override def scheduleRestart(projectionName: String, fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
+      override def scheduleRestart(projectionName: String, fromOffset: Offset)(using subject: Subject): IO[Unit] =
         offset(projectionName).flatMap {
           case currentOffset if currentOffset >= fromOffset =>
-            logger.info(s"'$projectionName' has a greater offset, scheduling a restart...") >>
+            logger.debug(s"'$projectionName' has a greater offset, scheduling a restart...") >>
               clock.realTimeInstant.flatMap { now =>
                 projectionRestartStore.save(ProjectionRestart(projectionName, fromOffset, now, subject))
               }

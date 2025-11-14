@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.{BlazegraphViewState, 
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -22,6 +21,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.data.NonEmptySet
 import cats.effect.IO
+import fs2.Stream
 import io.circe.Json
 
 import java.time.Instant
@@ -117,7 +117,7 @@ class IndexingViewDefSuite extends NexusSuite {
     val expectedError = CouldNotFindTypedPipeErr(PipeRef.unsafe("xxx"), "xxx")
 
     IndexingViewDef
-      .compile(v, PipeChainCompiler.alwaysFail, GraphResourceStream.empty, sink)
+      .compile(v, PipeChainCompiler.alwaysFail, Stream.empty, sink)
       .interceptEquals(expectedError)
 
     assert(
@@ -150,7 +150,7 @@ class IndexingViewDefSuite extends NexusSuite {
       compiled   <- IndexingViewDef.compile(
                       v,
                       _ => Operation.merge(FilterDeprecated.withConfig(()), FilterByType.withConfig(filterByTypeConfig)),
-                      GraphResourceStream.unsafeFromStream(PullRequestStream.generate(projectRef)),
+                      PullRequestStream.generate(projectRef),
                       sink
                     )
       _           = assertEquals(

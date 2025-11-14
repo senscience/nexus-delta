@@ -40,7 +40,6 @@ object SparqlCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] = {
       fetchViews(offset)
-        .pauseWhen(projectionLifeCycle.failing)
         .evalMap { elem =>
           elem
             .traverse { processView }
