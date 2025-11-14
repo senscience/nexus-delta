@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.ProjectDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -28,9 +27,7 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(10.seconds, 10.millis)
-
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given PatienceConfig = PatienceConfig(10.seconds, 10.millis)
 
   private lazy val (sv, projections, _) = unapply(supervisor())
 
@@ -75,6 +72,7 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
              _ => projectStream,
              graphResourceStream,
              sv,
+             IO.unit,
              new NoopSink[Json]
            )
       _ <- sv.describe(MainIndexingCoordinator.metadata.name)
