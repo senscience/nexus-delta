@@ -1,4 +1,6 @@
 name: Docs External Links Validation
+permissions:
+  contents: read
 on:
   schedule:
     - cron: 0 0 * * SUN
