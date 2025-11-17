@@ -11,7 +11,7 @@ class PostgresServiceDependencySuite extends NexusSuite with Doobie.Fixture {
 
   test("fetch its service name and version") {
     val xas = doobie()
-    new PostgresServiceDependency(xas).serviceDescription.assertEquals(ServiceDescription("postgres", "17.6"))
+    new PostgresServiceDependency(xas).serviceDescription.assertEquals(ServiceDescription("postgres", "17.7"))
   }
 
 }
