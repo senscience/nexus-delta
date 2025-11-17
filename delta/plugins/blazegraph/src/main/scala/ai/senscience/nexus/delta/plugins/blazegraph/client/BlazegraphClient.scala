@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.otel.{OtelTracingClient, SpanDef}
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
+import cats.effect.std.Mutex
 import cats.kernel.Semigroup
 import cats.syntax.all.*
 import fs2.Stream
@@ -19,8 +20,8 @@ import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
 import org.http4s.{EntityDecoder, Header, MediaType, Status, Uri, UrlForm}
 import org.typelevel.ci.CIString
-import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 import org.typelevel.otel4s.trace.Tracer
+import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 
 import scala.concurrent.duration.*
 import scala.reflect.ClassTag
@@ -31,6 +32,7 @@ import scala.reflect.ClassTag
 final class BlazegraphClient(
     client: Client[IO],
     endpoints: NonEmptyVector[Uri],
+    mutex: Mutex[IO],
     queryTimeout: Duration,
     otel: OpentelemetryConfig
 )(using
@@ -132,14 +134,16 @@ final class BlazegraphClient(
     existsNamespace(namespace).flatMap {
       case true  => IO.pure(false)
       case false =>
-        val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
-        val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
-        val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
-        OtelTracingClient(client, spanDef).status(request).flatMap {
-          case Status.Created  => IO.pure(true)
-          case Status.Conflict => IO.pure(false)
-          case Status.NotFound => IO.pure(false)
-          case status          => IO.raiseError(SparqlActionError(status, "create"))
+        mutex.lock.surround {
+          val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
+          val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
+          val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
+          OtelTracingClient(client, spanDef).status(request).flatMap {
+            case Status.Created  => IO.pure(true)
+            case Status.Conflict => IO.pure(false)
+            case Status.NotFound => IO.pure(false)
+            case status          => IO.raiseError(SparqlActionError(status, "create"))
+          }
         }
     }
 

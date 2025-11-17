@@ -166,7 +166,7 @@ object Supervisor {
               s"The projection '${metadata.name}' from module '${metadata.module}' failed and will be restarted."
             log.error(throwable)(errorMessage) >>
               semaphore.permit
-                .use(_ => restartProjection(supervised, supervisorStorage))
+                .surround(restartProjection(supervised, supervisorStorage))
                 .retry(retryStrategy)
         }
       }
@@ -198,7 +198,7 @@ object Supervisor {
 
     override def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]] = {
       val metadata = projection.metadata
-      semaphore.permit.use { _ =>
+      semaphore.permit.surround {
         for {
           supervised <- supervisorStorage.get(metadata.name)
           _          <- supervised.traverse { s =>
@@ -259,7 +259,7 @@ object Supervisor {
       }
 
     override def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]] =
-      semaphore.permit.use { _ =>
+      semaphore.permit.surround {
         for {
           supervised <- supervisorStorage.get(name)
           status     <- supervised.flatTraverse { s =>
@@ -285,7 +285,7 @@ object Supervisor {
       }
 
     override def destroy(name: String, onDestroy: IO[Unit]): IO[Option[ExecutionStatus]] = {
-      semaphore.permit.use { _ =>
+      semaphore.permit.surround {
         for {
           supervised <- supervisorStorage.get(name)
           status     <- supervised.flatTraverse { s =>
@@ -334,7 +334,7 @@ object Supervisor {
         supervisionFiberRef.get.flatMap(_.join)
 
     private def stopAllProjections =
-      semaphore.permit.use { _ =>
+      semaphore.permit.surround {
         log.info("Stopping all projection(s)...") >>
           supervisorStorage.values.parEvalMapUnbounded(stopProjection).compile.drain
       }.void

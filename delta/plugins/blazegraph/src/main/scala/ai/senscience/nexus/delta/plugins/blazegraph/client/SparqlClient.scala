@@ -12,6 +12,7 @@ import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import cats.data.NonEmptyList
+import cats.effect.std.Mutex
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.Stream
@@ -270,7 +271,7 @@ object SparqlClient {
       .default[IO]
       .withLogger(logger)
       .build
-      .map { client =>
+      .evalMap { client =>
         val enrichedClient =
           errorHandler(
             otelMetricsClient.wrap(
@@ -281,9 +282,11 @@ object SparqlClient {
         access.target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests
-            new BlazegraphClient(enrichedClient, access.endpoints, access.queryTimeout, access.otel)
+            Mutex[IO].map { mutex =>
+              new BlazegraphClient(enrichedClient, access.endpoints, mutex, access.queryTimeout, access.otel)
+            }
           case SparqlTarget.Rdf4j      =>
-            RDF4JClient.lmdb(enrichedClient, access.endpoints.head)
+            IO.pure(RDF4JClient.lmdb(enrichedClient, access.endpoints.head))
         }
       }
 }
