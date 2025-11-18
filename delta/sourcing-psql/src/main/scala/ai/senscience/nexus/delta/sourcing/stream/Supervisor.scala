@@ -12,7 +12,6 @@ import cats.effect.*
 import cats.effect.std.Semaphore
 import cats.syntax.all.*
 import fs2.Stream
-import fs2.concurrent.SignallingRef
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
@@ -93,6 +92,11 @@ trait Supervisor {
   def getRunningProjections: IO[List[SupervisedDescription]]
 
   /**
+    * Goes through the running projections, attempt to restart those in error and remove the completed ones
+    */
+  def check: Stream[IO, Unit]
+
+  /**
     * Stops all running projections without removing them from supervision.
     */
   def stop: IO[Unit]
@@ -124,11 +128,8 @@ object Supervisor {
         _                 <- log.info("Starting Delta supervisor")
         semaphore         <- Semaphore[IO](1L)
         supervisorStorage <- SupervisorStorage()
-        signal            <- SignallingRef[IO, Boolean](false)
-        supervision       <- supervisionTask(semaphore, supervisorStorage, signal, cfg).start
-        supervisionRef    <- Ref.of[IO, Fiber[IO, Throwable, Unit]](supervision)
         supervisor         =
-          new Impl(projections, projectionErrors, cfg, semaphore, supervisorStorage, signal, supervisionRef, metrics)
+          new Impl(projections, projectionErrors, cfg, semaphore, supervisorStorage, metrics)
         _                 <- WatchRestarts(supervisor, projections)
         _                 <- log.info("Delta supervisor is up")
       } yield supervisor
@@ -140,40 +141,8 @@ object Supervisor {
     RetryStrategy.retryOnNonFatal(
       cfg.retry,
       log,
-      s"$action projection '${metadata.name}' from module '${metadata.module}'"
+      s"$action projection '${metadata.fullName}''"
     )
-
-  private def supervisionTask(
-      semaphore: Semaphore[IO],
-      supervisorStorage: SupervisorStorage,
-      signal: SignallingRef[IO, Boolean],
-      cfg: ProjectionConfig
-  ): IO[Unit] = {
-    Stream
-      .awakeEvery[IO](cfg.supervisionCheckInterval)
-      .evalTap(_ => log.debug("Checking projection statuses"))
-      .flatMap(_ => supervisorStorage.values)
-      .evalMap { supervised =>
-        val metadata = supervised.metadata
-        supervised.control.status.flatMap {
-          case ExecutionStatus.Pending           => IO.unit
-          case ExecutionStatus.Running           => IO.unit
-          case ExecutionStatus.Completed         => IO.unit
-          case ExecutionStatus.Stopped           => IO.unit
-          case ExecutionStatus.Failed(throwable) =>
-            val retryStrategy = createRetryStrategy(cfg, metadata, "running")
-            val errorMessage  =
-              s"The projection '${metadata.name}' from module '${metadata.module}' failed and will be restarted."
-            log.error(throwable)(errorMessage) >>
-              semaphore.permit
-                .surround(restartProjection(supervised, supervisorStorage))
-                .retry(retryStrategy)
-        }
-      }
-      .interruptWhen(signal)
-      .compile
-      .drain
-  }
 
   private def restartProjection(supervised: Supervised, supervisorStorage: SupervisorStorage): IO[Unit] = {
     val metadata = supervised.metadata
@@ -188,8 +157,6 @@ object Supervisor {
       cfg: ProjectionConfig,
       semaphore: Semaphore[IO],
       supervisorStorage: SupervisorStorage,
-      signal: SignallingRef[IO, Boolean],
-      supervisionFiberRef: Ref[IO, Fiber[IO, Throwable, Unit]],
       metrics: ProjectionMetrics
   ) extends Supervisor {
 
@@ -204,7 +171,7 @@ object Supervisor {
           _          <- supervised.traverse { s =>
                           // if a projection with the same name already exists remove from the map and stop it, it will
                           // be re-created
-                          log.info(s"Stopping existing projection '${metadata.module}/${metadata.name}'") >>
+                          log.info(s"Stopping existing projection '${metadata.fullName}'") >>
                             supervisorStorage.delete(metadata.name) >> s.control.stop
                         }
           supervised <- startSupervised(projection, init)
@@ -217,10 +184,10 @@ object Supervisor {
       val metadata = projection.metadata
       val strategy = projection.executionStrategy
       if !strategy.shouldRun(metadata.name, cfg.cluster) then
-        log.debug(s"Ignoring '${metadata.module}/${metadata.name}' with strategy '$strategy'.").as(None)
+        log.debug(s"Ignoring '${metadata.fullName}' with strategy '$strategy'.").as(None)
       else {
         for {
-          _         <- log.info(s"Starting '${metadata.module}/${metadata.name}' with strategy '$strategy'.")
+          _         <- log.info(s"Starting '${metadata.fullName}' with strategy '$strategy'.")
           controlIO  = startProjection(init, projection).map { p =>
                          Control(
                            p.executionStatus,
@@ -265,13 +232,10 @@ object Supervisor {
           status     <- supervised.flatTraverse { s =>
                           val metadata = s.metadata
                           if !s.executionStrategy.shouldRun(name, cfg.cluster) then
-                            log
-                              .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping restart...")
-                              .as(None)
+                            log.info(s"'${metadata.fullName}' is ignored. Skipping restart...").as(None)
                           else {
                             for {
-                              _      <-
-                                log.info(s"Restarting '${metadata.module}/${metadata.name}' at offset ${offset.value}...")
+                              _      <- log.info(s"Restarting '${metadata.fullName}' at offset ${offset.value}...")
                               _      <- stopProjection(s)
                               _      <- IO.whenA(s.executionStrategy == PersistentSingleNode)(
                                           projections.reset(metadata.name, offset)
@@ -292,12 +256,10 @@ object Supervisor {
                           val metadata      = s.metadata
                           val retryStrategy = createRetryStrategy(cfg, metadata, "destroying")
                           if !s.executionStrategy.shouldRun(name, cfg.cluster) then
-                            log
-                              .info(s"'${metadata.module}/${metadata.name}' is ignored. Skipping...")
-                              .as(None)
+                            log.info(s"'${metadata.fullName}' is ignored. Skipping...").as(None)
                           else {
                             for {
-                              _      <- log.info(s"Destroying '${metadata.module}/${metadata.name}'...")
+                              _      <- log.info(s"Destroying '${metadata.fullName}'...")
                               _      <- stopProjection(s)
                               _      <- IO.whenA(s.executionStrategy == PersistentSingleNode)(projections.delete(name))
                               _      <- projectionErrors.deleteEntriesForProjection(name)
@@ -320,7 +282,7 @@ object Supervisor {
 
     private def stopProjection(s: Supervised) =
       s.control.stop.handleErrorWith { e =>
-        log.error(e)(s"'${s.metadata.module}/${s.metadata.name}' encountered an error during shutdown.")
+        log.error(e)(s"'${s.metadata.fullName}' encountered an error during shutdown.")
       }
 
     override def describe(name: String): IO[Option[SupervisedDescription]] =
@@ -329,9 +291,28 @@ object Supervisor {
     override def getRunningProjections: IO[List[SupervisedDescription]] =
       supervisorStorage.values.evalMap(_.description).compile.toList
 
-    private def stopSupervisionTask =
-      signal.set(true) >>
-        supervisionFiberRef.get.flatMap(_.join)
+    def check: Stream[IO, Unit] =
+      supervisorStorage.values.evalMap { supervised =>
+        val metadata = supervised.metadata
+        supervised.control.status.flatMap {
+          case ExecutionStatus.Pending           => IO.unit
+          case ExecutionStatus.Running           => IO.unit
+          case ExecutionStatus.Completed         =>
+            log.debug(s"Cleaning up projection '${metadata.fullName}' after completion.") >>
+              semaphore.permit
+                .surround(supervisorStorage.delete(metadata.name))
+          case ExecutionStatus.Stopped           =>
+            log.debug(s"Cleaning up projection '${metadata.fullName}' after being stopped.") >>
+              semaphore.permit
+                .surround(supervisorStorage.delete(metadata.name))
+          case ExecutionStatus.Failed(throwable) =>
+            val retryStrategy = createRetryStrategy(cfg, metadata, "running")
+            log.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
+              semaphore.permit
+                .surround(restartProjection(supervised, supervisorStorage))
+                .retry(retryStrategy)
+        }
+      }
 
     private def stopAllProjections =
       semaphore.permit.surround {
@@ -341,7 +322,6 @@ object Supervisor {
 
     override def stop: IO[Unit] =
       log.info("Stopping supervisor and all its running projections") >>
-        stopSupervisionTask >>
         stopAllProjections
   }
 
