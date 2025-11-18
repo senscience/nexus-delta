@@ -38,7 +38,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   private val rev = 1
 
-  private def evalStream(start: IO[Unit]) =
+  private def evalStream(start: IO[Unit]): Offset => ElemStream[Unit] =
     (_: Offset) =>
       Stream.eval(start) >> Stream
         .range(1, 21)
@@ -92,7 +92,13 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       )
       .eventually
 
-  private def assertIgnored(metadata: ProjectionMetadata)(using loc: Location) =
+  private def assertCompleted(metadata: ProjectionMetadata)(using loc: Location) =
+    sv.describe(metadata.name)
+      .map(_.map(_.status))
+      .assertEquals(Some(ExecutionStatus.Completed))
+      .eventually
+
+  private def assertAbsent(metadata: ProjectionMetadata)(using loc: Location) =
     sv.describe(metadata.name)
       .assertEquals(None)
 
@@ -100,6 +106,14 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     val progress = ProjectionProgress(offset, Instant.EPOCH, processed, discarded, 0)
     assertDescribe(WatchRestarts.projectionMetadata, EveryNode, 0, Running, progress)
   }
+
+  private def checkProjections = sv.check.compile.drain
+
+  private def assertNoSavedProgress(metadata: ProjectionMetadata)(using loc: Location) =
+    projections.progress(metadata.name).assertEquals(None)
+
+  private def assertSavedProgress(metadata: ProjectionMetadata, progress: ProjectionProgress)(using loc: Location) =
+    projections.progress(metadata.name).assertEquals(Some(progress))
 
   test("Watching restart projection restarts should be running") {
     assertWatchRestarts(Offset.Start, 0, 0)
@@ -117,9 +131,9 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       _         <- sv.run(projection).assertEquals(None)
       _         <- IO.sleep(100.millis)
       // The projection should still be ignored and should not have made any progress
-      _         <- assertIgnored(ignoredByNode1)
+      _         <- assertAbsent(ignoredByNode1)
       // No progress has been saved in database either
-      _         <- projections.progress(ignoredByNode1.name).assertEquals(None)
+      _         <- assertNoSavedProgress(ignoredByNode1)
       // This means the stream has never been started
       _         <- flag.get.assertEquals(false)
     } yield ()
@@ -129,7 +143,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     for {
       _ <- projections.scheduleRestart(ignoredByNode1.name, Offset.start)
       _ <- assertWatchRestarts(Offset.at(1L), 1, 1)
-      _ <- assertIgnored(ignoredByNode1)
+      _ <- assertAbsent(ignoredByNode1)
       // The restart has not been acknowledged and can be read by another node
       _ <- projections.restarts(Offset.start).assertSize(1)
     } yield ()
@@ -143,7 +157,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     for {
       _ <- projections.scheduleRestart("xxx", Offset.start)
       _ <- assertWatchRestarts(Offset.at(2L), 2, 2)
-      _ <- sv.describe(ignoredByNode1.name).assertEquals(None)
+      _ <- assertAbsent(ignoredByNode1)
       // The restart has not been acknowledged and can be read by another node
       _ <- projections.restarts(Offset.at(1L)).assertSize(1)
     } yield ()
@@ -159,7 +173,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       // The projection should have been running successfully and made progress
       _ <- assertDescribe(random, EveryNode, 0, Completed, expectedProgress)
       // As it runs on every node, it is implicitly transient so no progress has been saved to database
-      _ <- projections.progress(random.name).assertEquals(None)
+      _ <- assertNoSavedProgress(random)
     } yield ()
   }
 
@@ -173,7 +187,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       // The projection should have been running successfully and made progress
       _ <- assertDescribe(runnableByNode1, TransientSingleNode, 0, Completed, expectedProgress)
       // As it is transient, no progress has been saved to database
-      _ <- projections.progress(runnableByNode1.name).assertEquals(None)
+      _ <- assertNoSavedProgress(runnableByNode1)
     } yield ()
   }
 
@@ -187,7 +201,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       // The projection should have been running successfully and made progress
       _ <- assertDescribe(runnableByNode1, PersistentSingleNode, 0, Completed, expectedProgress)
       // As it is persistent, progress has also been saved to database
-      _ <- projections.progress(runnableByNode1.name).assertEquals(Some(expectedProgress))
+      _ <- assertSavedProgress(runnableByNode1, expectedProgress)
     } yield ()
   }
 
@@ -205,7 +219,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
              expectedProgress
            )
       // As it is persistent, progress has also been saved to database
-      _ <- projections.progress(runnableByNode1.name).assertEquals(Some(expectedProgress))
+      _ <- assertSavedProgress(runnableByNode1, expectedProgress)
       // The restart has been acknowledged and now longer comes up
       _ <- projections.restarts(Offset.at(2L)).assertEmpty
     } yield ()
@@ -218,7 +232,8 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   test("Should restart a failing projection") {
     for {
       _ <- assertCrash(runnableByNode1, TransientSingleNode)
-      _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
+      _ <- checkProjections
+      _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1))
     } yield ()
   }
 
@@ -251,6 +266,17 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
                )
              )
              .eventually
+    } yield ()
+  }
+
+  test("Run and clean a completed projection with an unstable destroy method") {
+    val projection = ProjectionMetadata("test", "successful", None, None)
+    for {
+      _ <- startProjection(projection, EveryNode)
+      // Destroy the projection with a destroy method that fails and eventually succeeds
+      _ <- assertCompleted(projection)
+      _ <- checkProjections
+      _ <- assertAbsent(projection)
     } yield ()
   }
 

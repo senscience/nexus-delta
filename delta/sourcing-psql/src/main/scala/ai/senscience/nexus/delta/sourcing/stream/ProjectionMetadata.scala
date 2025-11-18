@@ -16,7 +16,14 @@ import io.circe.generic.semiauto.deriveEncoder
   * @param resourceId
   *   the optional resource identifier linked to the projection (ex: a view)
   */
-final case class ProjectionMetadata(module: String, name: String, project: Option[ProjectRef], resourceId: Option[Iri])
+final case class ProjectionMetadata(
+    module: String,
+    name: String,
+    project: Option[ProjectRef],
+    resourceId: Option[Iri]
+) {
+  def fullName: String = s"$module/$name"
+}
 
 object ProjectionMetadata {
 
