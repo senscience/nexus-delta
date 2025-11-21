@@ -6,7 +6,10 @@ import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus.{Ongoing, Suspended}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState, QueryStatus}
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome.{Delayed, OutOfPassivation, Passivated}
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{entityTypeFilter, logQuery, stateFilter, typesSqlArray}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
@@ -32,7 +35,7 @@ final class ElemStreaming(
     xas: Transactors,
     entityTypes: Option[NonEmptyList[EntityType]],
     queryConfig: ElemQueryConfig,
-    activitySignals: ProjectActivitySignals
+    projectActivity: ProjectActivity
 ) {
 
   private val batchSize = queryConfig.batchSize
@@ -73,7 +76,7 @@ final class ElemStreaming(
       start: Offset,
       selectFilter: SelectFilter
   ): ElemStream[Unit] = {
-    val refresh: RefreshOrStop                    = RefreshOrStop(scope, queryConfig, activitySignals)
+    val refresh: RefreshOrStop                    = RefreshOrStop(scope, queryConfig, projectActivity)
     def query(offset: Offset): Query0[Elem[Unit]] = {
       sql"""((SELECT 'newState', type, id, org, project, instant, ordering, rev
            |FROM public.scoped_states
@@ -145,7 +148,7 @@ final class ElemStreaming(
       }
     }
 
-    val refresh: RefreshOrStop = RefreshOrStop(scope, queryConfig, activitySignals)
+    val refresh: RefreshOrStop = RefreshOrStop(scope, queryConfig, projectActivity)
     execute[Json](start, query, refresh)
       .evalMapChunk { e =>
         e.evalMap { value =>
@@ -175,16 +178,28 @@ final class ElemStreaming(
       query: Offset => Query0[Elem[A]],
       refresh: RefreshOrStop
   ): ElemStream[A] = {
-    def onRefresh(offset: Offset): IO[Option[(ElemChunk[A], Offset)]] = refresh.run.map { result =>
-      Option.when(result != RefreshOrStop.Outcome.Stopped)(Chunk.empty[Elem[A]] -> offset)
-    }
-    Stream
-      .unfoldChunkEval[IO, Offset, Elem[A]](start) { offset =>
-        query(offset).to[List].transact(xas.streaming).flatMap { elems =>
-          elems.lastOption.fold(onRefresh(offset)) { last =>
-            IO.pure(Some((dropDuplicates(elems), last.offset)))
-          }
+    def onRefresh(queryStatus: QueryStatus): IO[Option[(ElemChunk[A], QueryStatus)]] =
+      refresh.run(queryStatus.refreshOutcome).map {
+        case Outcome.Stopped         => None
+        case other: Outcome.Continue => Some(Chunk.empty[Elem[A]] -> Suspended(queryStatus.offset, other))
+      }
+
+    def execQuery(queryStatus: QueryStatus) =
+      query(queryStatus.offset).to[List].transact(xas.streaming).flatMap { elems =>
+        elems.lastOption.fold(onRefresh(queryStatus)) { last =>
+          IO.pure(Some((dropDuplicates(elems), Ongoing(last.offset))))
         }
+      }
+    Stream
+      .unfoldChunkEval[IO, QueryStatus, Elem[A]](Ongoing(start)) {
+        case ongoing: Ongoing                                    =>
+          execQuery(ongoing)
+        case status @ QueryStatus.Suspended(_, Delayed)          =>
+          execQuery(status)
+        case status @ QueryStatus.Suspended(_, OutOfPassivation) =>
+          execQuery(status)
+        case status @ QueryStatus.Suspended(_, Passivated)       =>
+          onRefresh(status)
       }
       .onFinalizeCase(logQuery(query(start)))
   }
@@ -226,13 +241,29 @@ object ElemStreaming {
 
   private val newState = "newState"
 
+  sealed trait QueryStatus {
+    def offset: Offset
+
+    def refreshOutcome: Option[Outcome.Continue]
+  }
+
+  object QueryStatus {
+    final case class Ongoing(offset: Offset) extends QueryStatus {
+      override def refreshOutcome: Option[Outcome.Continue] = None
+    }
+
+    final case class Suspended(offset: Offset, reason: Outcome.Continue) extends QueryStatus {
+      def refreshOutcome: Option[Outcome.Continue] = Some(reason)
+    }
+  }
+
   /**
     * Constructs an elem streaming with a stopping strategy
     */
   def stopping(xas: Transactors, entityTypes: Option[NonEmptyList[EntityType]], batchSize: Int): ElemStreaming = {
-    val eqc     = ElemQueryConfig.StopConfig(batchSize)
-    val signals = ProjectActivitySignals.noop
-    new ElemStreaming(xas, entityTypes, eqc, signals)
+    val eqc      = ElemQueryConfig.StopConfig(batchSize)
+    val activity = ProjectActivity.noop
+    new ElemStreaming(xas, entityTypes, eqc, activity)
   }
 
   /**
@@ -244,8 +275,8 @@ object ElemStreaming {
       batchSize: Int,
       delay: FiniteDuration
   ): ElemStreaming = {
-    val eqc     = ElemQueryConfig.DelayConfig(batchSize, delay)
-    val signals = ProjectActivitySignals.noop
-    new ElemStreaming(xas, entityTypes, eqc, signals)
+    val eqc      = ElemQueryConfig.DelayConfig(batchSize, delay)
+    val activity = ProjectActivity.noop
+    new ElemStreaming(xas, entityTypes, eqc, activity)
   }
 }

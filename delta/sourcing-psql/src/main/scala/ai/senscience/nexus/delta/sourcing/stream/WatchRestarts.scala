@@ -35,6 +35,7 @@ object WatchRestarts {
 
   // FIXME: Execute watch restarts so that they don't require to be mapped as elems
   def apply(supervisor: Supervisor, projections: Projections): IO[Unit] = {
+    given ProjectionBackpressure = ProjectionBackpressure.Noop
     supervisor
       .run(
         CompiledProjection.fromStream(

@@ -114,7 +114,8 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
 
   override def munitFixtures: Seq[AnyFixture[?]] = Seq(fixture)
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(10.seconds, 100.millis)
+  private given ProjectionBackpressure = ProjectionBackpressure.Noop
+  private given PatienceConfig         = PatienceConfig(10.seconds, 100.millis)
 
   private lazy val result = fixture()
   import result.*

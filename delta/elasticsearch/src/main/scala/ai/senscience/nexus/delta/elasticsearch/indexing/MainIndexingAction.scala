@@ -21,6 +21,8 @@ final class MainIndexingAction(sink: Sink, override val timeout: FiniteDuration)
     Tracer[IO]
 ) extends IndexingAction {
 
+  private given ProjectionBackpressure = ProjectionBackpressure.Noop
+
   private def compile(project: ProjectRef, elem: Elem[GraphResource]) =
     CompiledProjection.compile(
       mainIndexingProjectionMetadata(project),

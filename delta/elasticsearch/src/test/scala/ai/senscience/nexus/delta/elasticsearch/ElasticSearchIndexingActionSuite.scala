@@ -21,15 +21,12 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import io.circe.Json
 
 import java.time.Instant
 import scala.concurrent.duration.*
 
 class ElasticSearchIndexingActionSuite extends NexusSuite with CirceLiteral with Fixtures {
-
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val instant = Instant.EPOCH
 
@@ -90,7 +87,7 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with CirceLiteral with
         case `id3` => new NoopSink[Json]
         case id    => throw new IllegalArgumentException(s"$id should not intent to create a sink")
       },
-    patienceConfig.timeout
+    5.seconds
   )
 
   private val base = iri"http://localhost"

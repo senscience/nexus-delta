@@ -35,7 +35,7 @@ object SchemaValidationCoordinator {
             ExecutionStrategy.PersistentSingleNode,
             Source(schemaValidationStream(project, _)),
             new NoopSink[Unit]
-          )
+          )(using ProjectionBackpressure.Noop)
         )
 
       override def run(project: ProjectRef): IO[Unit] = {

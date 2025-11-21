@@ -35,7 +35,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionBackpressure, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -61,6 +61,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   make[MainIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
     MainIndexDef(cfg.mainIndex)
+  }
+
+  make[ProjectionBackpressure].named("elasticsearch-backpressure").fromEffect { (cfg: ElasticSearchViewsConfig) =>
+    ProjectionBackpressure(cfg.backpressure)
   }
 
   private def buildElasticsearchClient(
@@ -152,6 +156,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: ElasticSearchViewsConfig,
+        backpressure: ProjectionBackpressure @Id("elasticsearch-backpressure"),
         cr: RemoteContextResolution @Id("aggregate"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
@@ -162,7 +167,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         supervisor,
         client,
         config
-      )(using cr, tracer)
+      )(using cr, backpressure, tracer)
   }
 
   make[MainRestartScheduler].from { (projects: Projects, restartScheduler: ProjectionsRestartScheduler) =>
@@ -178,6 +183,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         mainIndex: MainIndexDef,
         config: ElasticSearchViewsConfig,
         cr: RemoteContextResolution @Id("aggregate"),
+        backpressure: ProjectionBackpressure @Id("elasticsearch-backpressure"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       MainIndexingCoordinator(
@@ -188,7 +194,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         mainIndex,
         config.batch,
         config.indexingEnabled
-      )(using cr, tracer)
+      )(using cr, backpressure, tracer)
   }
 
   make[EventMetricsProjection].fromEffect {

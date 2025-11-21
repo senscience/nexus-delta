@@ -14,15 +14,12 @@ import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, NoopSink}
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import io.circe.Json
 
 import java.time.Instant
 import scala.concurrent.duration.*
 
 class MainIndexingActionSuite extends NexusSuite with Fixtures {
-
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val instant = Instant.EPOCH
   private val project = ProjectRef.unsafe("org", "proj")
@@ -38,7 +35,7 @@ class MainIndexingActionSuite extends NexusSuite with Fixtures {
     updatedBy = Anonymous
   )
 
-  private val mainIndexingAction = new MainIndexingAction(new NoopSink[Json], patienceConfig.timeout)
+  private val mainIndexingAction = new MainIndexingAction(new NoopSink[Json], 5.seconds)
 
   private def index(elem: Elem[GraphResource]) =
     for {

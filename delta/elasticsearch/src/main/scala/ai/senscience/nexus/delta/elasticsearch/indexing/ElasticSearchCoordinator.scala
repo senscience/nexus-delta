@@ -50,7 +50,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(implicit cr: RemoteContextResolution)
+  )(using RemoteContextResolution, ProjectionBackpressure)
       extends ElasticSearchCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] = {
@@ -121,6 +121,13 @@ object ElasticSearchCoordinator {
   val metadata: ProjectionMetadata = ProjectionMetadata("system", "elasticsearch-coordinator", None, None)
   private val logger               = Logger[ElasticSearchCoordinator]
 
+  private def coordinatorProjection(coordinator: Active) =
+    CompiledProjection.fromStream(
+      metadata,
+      ExecutionStrategy.EveryNode,
+      offset => coordinator.run(offset)
+    )(using ProjectionBackpressure.Noop)
+
   def apply(
       views: ElasticSearchViews,
       graphStream: GraphResourceStream,
@@ -128,7 +135,7 @@ object ElasticSearchCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: ElasticSearchViewsConfig
-  )(using RemoteContextResolution, Tracer[IO]): IO[ElasticSearchCoordinator] = {
+  )(using RemoteContextResolution, ProjectionBackpressure, Tracer[IO]): IO[ElasticSearchCoordinator] = {
     if config.indexingEnabled then {
       apply(
         views.indexingViews,
@@ -158,7 +165,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(using RemoteContextResolution): IO[ElasticSearchCoordinator] =
+  )(using RemoteContextResolution, ProjectionBackpressure): IO[ElasticSearchCoordinator] =
     for {
       cache      <- LocalCache[ViewRef, ActiveViewDef]()
       coordinator = new Active(
@@ -171,12 +178,6 @@ object ElasticSearchCoordinator {
                       createIndex,
                       deleteIndex
                     )
-      _          <- supervisor.run(
-                      CompiledProjection.fromStream(
-                        metadata,
-                        ExecutionStrategy.EveryNode,
-                        offset => coordinator.run(offset)
-                      )
-                    )
+      _          <- supervisor.run(coordinatorProjection(coordinator))
     } yield coordinator
 }

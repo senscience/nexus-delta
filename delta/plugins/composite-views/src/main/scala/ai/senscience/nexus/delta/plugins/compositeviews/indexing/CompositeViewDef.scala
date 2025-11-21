@@ -183,7 +183,7 @@ object CompositeViewDef {
       pipeChainCompiler: PipeChainCompiler,
       graphStream: CompositeGraphStream,
       compositeProjections: CompositeProjections
-  ): IO[CompiledProjection] = {
+  )(using ProjectionBackpressure): IO[CompiledProjection] = {
     val metadata                             = view.metadata
     val fetchProgress: IO[CompositeProgress] = compositeProjections.progress(view.indexingRef)
 

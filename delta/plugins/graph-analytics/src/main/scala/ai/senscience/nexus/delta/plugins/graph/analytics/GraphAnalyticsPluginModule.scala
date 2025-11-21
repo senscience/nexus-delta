@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
-import ai.senscience.nexus.delta.sourcing.stream.Supervisor
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionBackpressure, Supervisor}
 import cats.effect.IO
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -33,6 +33,10 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
   makeTracer("graph-analytics")
 
   addRemoteContextResolution(contexts.definition)
+
+  make[ProjectionBackpressure].named("ga-backpressure").fromEffect { (cfg: GraphAnalyticsConfig) =>
+    ProjectionBackpressure(cfg.backpressure)
+  }
 
   make[GraphAnalytics]
     .from {
@@ -55,9 +59,10 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: GraphAnalyticsConfig,
+        backpressure: ProjectionBackpressure @Id("ga-backpressure"),
         tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
-      GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)(using tracer)
+      GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)(using backpressure, tracer)
   }
 
   make[GraphAnalyticsViewsQuery].from {
