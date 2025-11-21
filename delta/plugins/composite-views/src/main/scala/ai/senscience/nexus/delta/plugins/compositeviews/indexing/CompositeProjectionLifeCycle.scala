@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProje
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.CompositeProjections
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeGraphStream
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.TransientSingleNode
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler, ProjectionBackpressure}
 import cats.effect.IO
 
 /**
@@ -57,7 +57,7 @@ object CompositeProjectionLifeCycle {
       spaces: CompositeSpaces,
       sink: CompositeSinks,
       compositeProjections: CompositeProjections
-  ): CompositeProjectionLifeCycle = {
+  )(using ProjectionBackpressure): CompositeProjectionLifeCycle = {
     def init(view: ActiveViewDef): IO[Unit] = spaces.init(view)
 
     def index(view: ActiveViewDef): IO[CompiledProjection] =
@@ -84,7 +84,7 @@ object CompositeProjectionLifeCycle {
       index: ActiveViewDef => IO[CompiledProjection],
       destroyAll: ActiveViewDef => IO[Unit],
       destroyProjection: (ActiveViewDef, CompositeViewProjection) => IO[Unit]
-  ): CompositeProjectionLifeCycle = new CompositeProjectionLifeCycle {
+  )(using ProjectionBackpressure): CompositeProjectionLifeCycle = new CompositeProjectionLifeCycle {
 
     override def init(view: ActiveViewDef): IO[Unit] = onInit(view)
 

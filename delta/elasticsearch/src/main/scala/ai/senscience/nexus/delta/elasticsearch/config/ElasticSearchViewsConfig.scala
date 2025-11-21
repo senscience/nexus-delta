@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.O
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
-import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.{BackpressureConfig, BatchConfig}
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
@@ -48,6 +48,7 @@ final case class ElasticSearchViewsConfig(
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
     batch: BatchConfig,
+    backpressure: BackpressureConfig,
     prefix: String,
     mainIndex: MainIndexConfig,
     maxViewRefs: Int,

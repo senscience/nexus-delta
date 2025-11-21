@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.Act
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler, ProjectionBackpressure}
 import cats.effect.IO
 import org.typelevel.otel4s.trace.Tracer
 import fs2.Stream
@@ -32,7 +32,7 @@ object SparqlProjectionLifeCycle {
       client: SparqlClient,
       retryStrategy: RetryStrategyConfig,
       batchConfig: BatchConfig
-  )(using BaseUri, Tracer[IO]): SparqlProjectionLifeCycle = new SparqlProjectionLifeCycle {
+  )(using BaseUri, ProjectionBackpressure, Tracer[IO]): SparqlProjectionLifeCycle = new SparqlProjectionLifeCycle {
 
     override def compile(view: ActiveViewDef): IO[CompiledProjection] =
       IndexingViewDef.compile(
@@ -52,8 +52,7 @@ object SparqlProjectionLifeCycle {
 
     private def sink(view: ActiveViewDef) = SparqlSink(client, retryStrategy, batchConfig, view.namespace)
 
-    override def destroy(view: ActiveViewDef): IO[Unit] =
-      client.deleteNamespace(view.namespace).void
+    override def destroy(view: ActiveViewDef): IO[Unit] = client.deleteNamespace(view.namespace).void
   }
 
 }

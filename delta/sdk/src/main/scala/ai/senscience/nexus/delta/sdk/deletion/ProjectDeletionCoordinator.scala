@@ -145,7 +145,7 @@ object ProjectDeletionCoordinator {
               metadata,
               ExecutionStrategy.PersistentSingleNode,
               active.run
-            )
+            )(using ProjectionBackpressure.Noop)
           )
           .as(active)
     }

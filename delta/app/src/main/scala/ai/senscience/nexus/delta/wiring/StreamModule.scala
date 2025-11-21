@@ -24,8 +24,8 @@ object StreamModule extends ModuleDef {
   addImplicit[Sync[IO]]
 
   make[ElemStreaming].from {
-    (xas: Transactors, shifts: ResourceShifts, queryConfig: ElemQueryConfig, activitySignals: ProjectActivitySignals) =>
-      new ElemStreaming(xas, shifts.entityTypes, queryConfig, activitySignals)
+    (xas: Transactors, shifts: ResourceShifts, queryConfig: ElemQueryConfig, projectActivity: ProjectActivity) =>
+      new ElemStreaming(xas, shifts.entityTypes, queryConfig, projectActivity)
   }
 
   make[GraphResourceStream].from { (elemStreaming: ElemStreaming, shifts: ResourceShifts) =>
@@ -73,7 +73,7 @@ object StreamModule extends ModuleDef {
       ProjectLastUpdateWrites(supervisor, store, xas, config.batch)
   }
 
-  make[ProjectActivitySignals].fromEffect {
+  make[ProjectActivity].fromEffect {
     (
         supervisor: Supervisor,
         stream: ProjectLastUpdateStream,
@@ -86,7 +86,7 @@ object StreamModule extends ModuleDef {
         .withVersion(BuildInfo.version)
         .get
         .flatMap { meter =>
-          ProjectActivitySignals(supervisor, stream, clock, config.inactiveInterval)(using meter)
+          ProjectActivity(supervisor, stream, clock, config.inactiveInterval)(using meter)
         }
   }
 

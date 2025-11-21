@@ -48,7 +48,7 @@ object MainIndexingCoordinator {
       graphStream: GraphResourceStream,
       supervisor: Supervisor,
       sink: Sink
-  )(using RemoteContextResolution)
+  )(using RemoteContextResolution, ProjectionBackpressure)
       extends MainIndexingCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
@@ -102,6 +102,11 @@ object MainIndexingCoordinator {
 
   val metadata: ProjectionMetadata = ProjectionMetadata("system", "main-indexing-coordinator", None, None)
 
+  private def mainCoordinatorProjection(active: Active) = {
+    given ProjectionBackpressure = ProjectionBackpressure.Noop
+    CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => active.run(offset))
+  }
+
   def apply(
       projects: Projects,
       graphStream: GraphResourceStream,
@@ -110,7 +115,7 @@ object MainIndexingCoordinator {
       mainIndex: MainIndexDef,
       batch: BatchConfig,
       indexingEnabled: Boolean
-  )(using RemoteContextResolution, Tracer[IO]): IO[MainIndexingCoordinator] =
+  )(using RemoteContextResolution, ProjectionBackpressure, Tracer[IO]): IO[MainIndexingCoordinator] =
     if indexingEnabled then {
       val targetIndex = mainIndex.name
 
@@ -132,10 +137,9 @@ object MainIndexingCoordinator {
       supervisor: Supervisor,
       init: IO[Unit],
       sink: Sink
-  )(using RemoteContextResolution): IO[MainIndexingCoordinator] = {
+  )(using RemoteContextResolution, ProjectionBackpressure): IO[MainIndexingCoordinator] = {
     val coordinator = new Active(fetchProjects, graphStream, supervisor, sink)
-    val compiled    =
-      CompiledProjection.fromStream(metadata, ExecutionStrategy.EveryNode, offset => coordinator.run(offset))
+    val compiled    = mainCoordinatorProjection(coordinator)
     supervisor.run(compiled, init).as(coordinator)
   }
 }

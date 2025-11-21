@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchPara
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionBackpressure, ProjectionMetadata, Supervisor}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
 import fs2.Stream
@@ -87,7 +87,9 @@ object ProjectDeletionRunner {
       .drain
 
     val compiledProjection =
-      CompiledProjection.fromStream(projectionMetadata, ExecutionStrategy.TransientSingleNode, _ => continuousStream)
+      CompiledProjection.fromStream(projectionMetadata, ExecutionStrategy.TransientSingleNode, _ => continuousStream)(
+        using ProjectionBackpressure.Noop
+      )
 
     supervisor
       .run(compiledProjection)

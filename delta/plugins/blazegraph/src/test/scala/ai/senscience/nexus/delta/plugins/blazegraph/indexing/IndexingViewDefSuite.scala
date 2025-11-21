@@ -30,9 +30,9 @@ import scala.concurrent.duration.*
 
 class IndexingViewDefSuite extends NexusSuite {
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(500.millis, 10.millis)
-
-  implicit private val batch: BatchConfig = BatchConfig(2, 10.millis)
+  private given ProjectionBackpressure = ProjectionBackpressure.Noop
+  private given PatienceConfig         = PatienceConfig(500.millis, 10.millis)
+  private given BatchConfig            = BatchConfig(2, 10.millis)
 
   private val prefix = "prefix"
 

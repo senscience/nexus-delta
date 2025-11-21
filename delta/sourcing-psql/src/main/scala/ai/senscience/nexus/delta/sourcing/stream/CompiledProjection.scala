@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.data.NonEmptyChain
 import cats.effect.{IO, Ref}
-import fs2.Stream
+import fs2.{Pull, Stream}
 import fs2.concurrent.SignallingRef
 
 /**
@@ -30,7 +30,7 @@ object CompiledProjection {
       metadata: ProjectionMetadata,
       executionStrategy: ExecutionStrategy,
       task: IO[Unit]
-  ): CompiledProjection =
+  )(using backpressure: ProjectionBackpressure): CompiledProjection =
     fromStream(metadata, executionStrategy, _ => Stream.eval(task).drain)
 
   /**
@@ -40,8 +40,12 @@ object CompiledProjection {
       metadata: ProjectionMetadata,
       executionStrategy: ExecutionStrategy,
       stream: Offset => ElemStream[Unit]
-  ): CompiledProjection =
-    CompiledProjection(metadata, executionStrategy, offset => _ => _ => stream(offset))
+  )(using backpressure: ProjectionBackpressure): CompiledProjection =
+    CompiledProjection(
+      metadata,
+      executionStrategy,
+      offset => _ => _ => applyBackpressure(metadata, stream(offset))
+    )
 
   /**
     * Attempts to compile the projection with just a source and a sink.
@@ -51,9 +55,13 @@ object CompiledProjection {
       executionStrategy: ExecutionStrategy,
       source: Source,
       sink: Sink
-  ): Either[ProjectionErr, CompiledProjection] =
+  )(using backpressure: ProjectionBackpressure): Either[ProjectionErr, CompiledProjection] =
     source.through(sink).map { p =>
-      CompiledProjection(metadata, executionStrategy, offset => _ => _ => p.apply(offset).map(_.void))
+      CompiledProjection(
+        metadata,
+        executionStrategy,
+        offset => _ => _ => applyBackpressure(metadata, p.apply(offset).map(_.void))
+      )
     }
 
   /**
@@ -65,10 +73,31 @@ object CompiledProjection {
       source: Source,
       chain: NonEmptyChain[Operation],
       sink: Sink
-  ): Either[ProjectionErr, CompiledProjection] =
+  )(using backpressure: ProjectionBackpressure): Either[ProjectionErr, CompiledProjection] = {
     for {
       operations <- Operation.merge(chain ++ NonEmptyChain.one(sink))
       result     <- source.through(operations)
-    } yield CompiledProjection(metadata, executionStrategy, offset => _ => _ => result.apply(offset).map(_.void))
+    } yield CompiledProjection(
+      metadata,
+      executionStrategy,
+      offset => _ => _ => applyBackpressure(metadata, result.apply(offset).map(_.void))
+    )
+  }
 
+  private def applyBackpressure[A](metadata: ProjectionMetadata, stream: ElemStream[A])(using
+      backpressure: ProjectionBackpressure
+  ) = {
+    def go(s: ElemStream[A]): Pull[IO, Elem[A], Unit] = {
+      s.pull.uncons.flatMap {
+        case Some((head, tail)) =>
+          Pull.bracketCase(
+            Pull.eval(backpressure.acquire(metadata)),
+            _ => Pull.output(head),
+            (_, _) => Pull.eval(backpressure.release(metadata))
+          ) >> go(tail)
+        case None               => Pull.done
+      }
+    }
+    go(stream).stream
+  }
 }

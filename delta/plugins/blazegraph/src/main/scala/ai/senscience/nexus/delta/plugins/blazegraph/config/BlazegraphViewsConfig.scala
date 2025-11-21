@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sdk.Defaults
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
-import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
+import ai.senscience.nexus.delta.sourcing.stream.config.{BackpressureConfig, BatchConfig}
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.*
 
@@ -35,6 +35,7 @@ final case class BlazegraphViewsConfig(
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
     batch: BatchConfig,
+    backpressure: BackpressureConfig,
     retryStrategy: RetryStrategyConfig,
     prefix: String,
     maxViewRefs: Int,

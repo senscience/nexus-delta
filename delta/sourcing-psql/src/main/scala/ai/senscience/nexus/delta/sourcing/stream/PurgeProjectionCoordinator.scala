@@ -17,7 +17,8 @@ object PurgeProjectionCoordinator extends PurgeProjectionCoordinator {
       supervisor: Supervisor,
       clock: Clock[IO],
       purgeProjections: Set[PurgeProjection]
-  ): IO[PurgeProjectionCoordinator.type] =
+  ): IO[PurgeProjectionCoordinator.type] = {
+    given ProjectionBackpressure = ProjectionBackpressure.Noop
     purgeProjections.toList
       .traverse { projection =>
         val config             = projection.config
@@ -35,4 +36,5 @@ object PurgeProjectionCoordinator extends PurgeProjectionCoordinator {
         supervisor.run(compiledProjection)
       }
       .as(PurgeProjectionCoordinator)
+  }
 }

@@ -93,7 +93,7 @@ object EventMetricsProjection {
         ExecutionStrategy.PersistentSingleNode,
         source,
         sink
-      )
+      )(using ProjectionBackpressure.Noop)
 
     IO.fromEither(compiledProjection)
       .flatTap(supervisor.run(_, init))

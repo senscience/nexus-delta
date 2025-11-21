@@ -30,6 +30,8 @@ final class SparqlIndexingAction(
 )(using Tracer[IO])
     extends IndexingAction {
 
+  private given ProjectionBackpressure = ProjectionBackpressure.Noop
+
   private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
       // Synchronous indexing only applies to views that index the latest version

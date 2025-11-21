@@ -78,7 +78,7 @@ object IndexingViewDef {
       pipeChainCompiler: PipeChainCompiler,
       elems: ElemStream[GraphResource],
       sink: Sink
-  ): IO[CompiledProjection] =
+  )(using backpressure: ProjectionBackpressure): IO[CompiledProjection] =
     compile(v, pipeChainCompiler, _ => elems, sink)
 
   def compile(
@@ -86,7 +86,7 @@ object IndexingViewDef {
       pipeChainCompiler: PipeChainCompiler,
       stream: Offset => ElemStream[GraphResource],
       sink: Sink
-  ): IO[CompiledProjection] = {
+  )(using backpressure: ProjectionBackpressure): IO[CompiledProjection] = {
 
     val postPipes: Operation = GraphResourceToNTriples
 

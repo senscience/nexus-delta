@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionBackpressure, *}
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
@@ -47,7 +47,8 @@ object GraphAnalyticsCoordinator {
       sink: ProjectRef => Sink,
       createIndex: ProjectRef => IO[Unit],
       deleteIndex: ProjectRef => IO[Unit]
-  ) extends GraphAnalyticsCoordinator {
+  )(using ProjectionBackpressure)
+      extends GraphAnalyticsCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
       fetchProjects(offset).evalMap {
@@ -129,7 +130,7 @@ object GraphAnalyticsCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: GraphAnalyticsConfig
-  )(using Tracer[IO]): IO[GraphAnalyticsCoordinator] =
+  )(using ProjectionBackpressure, Tracer[IO]): IO[GraphAnalyticsCoordinator] =
     if config.indexingEnabled then {
       val coordinator = apply(
         projects.states(_).map(_.map { p => ProjectDef(p.project, p.markedForDeletion) }),
@@ -157,6 +158,13 @@ object GraphAnalyticsCoordinator {
       Noop.log.as(Noop)
     }
 
+  private def coordinatorProjection(active: Active) =
+    CompiledProjection.fromStream(
+      metadata,
+      ExecutionStrategy.EveryNode,
+      active.run
+    )(using ProjectionBackpressure.Noop)
+
   private[analytics] def apply(
       fetchProjects: Offset => ElemStream[ProjectDef],
       analyticsStream: GraphAnalyticsStream,
@@ -164,17 +172,11 @@ object GraphAnalyticsCoordinator {
       sink: ProjectRef => Sink,
       createIndex: ProjectRef => IO[Unit],
       deleteIndex: ProjectRef => IO[Unit]
-  ): IO[GraphAnalyticsCoordinator] = {
+  )(using ProjectionBackpressure): IO[GraphAnalyticsCoordinator] = {
     val coordinator =
       new Active(fetchProjects, analyticsStream, supervisor, sink, createIndex, deleteIndex)
     supervisor
-      .run(
-        CompiledProjection.fromStream(
-          metadata,
-          ExecutionStrategy.EveryNode,
-          coordinator.run
-        )
-      )
+      .run(coordinatorProjection(coordinator))
       .as(coordinator)
   }
 

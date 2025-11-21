@@ -111,7 +111,7 @@ object SparqlCoordinator {
             metadata,
             ExecutionStrategy.EveryNode,
             coordinator.run
-          )
+          )(using ProjectionBackpressure.Noop)
         )
         .as(coordinator)
     }

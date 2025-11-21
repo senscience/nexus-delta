@@ -50,9 +50,10 @@ object ProjectLastUpdateWrites {
       elemStream: Offset => ElemStream[Unit],
       batchConfig: BatchConfig
   ): IO[ProjectLastUpdateWrites] = {
-    val source             = Source { (offset: Offset) => elemStream(offset) }
-    val sink               = ProjectLastUpdatesSink(store, batchConfig)
-    val compiledProjection = CompiledProjection.compile(
+    given ProjectionBackpressure = ProjectionBackpressure.Noop
+    val source                   = Source { (offset: Offset) => elemStream(offset) }
+    val sink                     = ProjectLastUpdatesSink(store, batchConfig)
+    val compiledProjection       = CompiledProjection.compile(
       projectionMetadata,
       ExecutionStrategy.PersistentSingleNode,
       source,

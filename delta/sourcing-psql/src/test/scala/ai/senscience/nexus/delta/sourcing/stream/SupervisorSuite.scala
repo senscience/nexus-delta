@@ -22,8 +22,9 @@ import scala.concurrent.duration.*
 
 class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobie.Assertions {
 
-  private given PatienceConfig = PatienceConfig(1.second, 50.millis)
-  private given Subject        = Anonymous
+  private given ProjectionBackpressure = ProjectionBackpressure.Noop
+  private given PatienceConfig         = PatienceConfig(1.second, 50.millis)
+  private given Subject                = Anonymous
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor3_1)
 
