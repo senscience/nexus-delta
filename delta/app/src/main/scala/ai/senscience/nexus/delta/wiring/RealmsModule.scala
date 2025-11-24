@@ -41,8 +41,7 @@ object RealmsModule extends NexusModuleDef {
         xas: Transactors,
         tracer: Tracer[IO] @Id("realms")
     ) =>
-      val wellKnownResolver = WellKnownResolver(client)(_)
-      RealmsImpl(cfg, wellKnownResolver, xas, clock)(using tracer)
+      RealmsImpl(cfg, WellKnownResolver(client), xas, clock)(using tracer)
   }
 
   make[RealmProvisioning].from { (realms: Realms, cfg: RealmsConfig, serviceAccount: ServiceAccount) =>

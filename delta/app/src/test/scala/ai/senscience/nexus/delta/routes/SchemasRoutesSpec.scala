@@ -24,7 +24,6 @@ import ai.senscience.nexus.delta.sourcing.ScopedEventLog
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
@@ -35,7 +34,7 @@ import org.scalatest.Assertion
 
 import java.util.UUID
 
-class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IOFromMap with CatsIOValues {
+class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with CatsIOValues {
 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)

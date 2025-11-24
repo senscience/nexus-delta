@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sdk.utils
 
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.scalatest.TestMatchers
 import ai.senscience.nexus.testkit.scalatest.ce.{CatsEffectSpec, CatsIOValues}
 import ai.senscience.nexus.testkit.{CirceEq, CirceLiteral}
@@ -13,7 +12,6 @@ trait BaseRouteSpec
     with RouteHelpers
     with Matchers
     with CatsIOValues
-    with IOFromMap
     with CirceLiteral
     with CirceEq
     with OptionValues

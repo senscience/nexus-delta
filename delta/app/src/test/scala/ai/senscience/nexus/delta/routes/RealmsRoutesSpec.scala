@@ -10,18 +10,18 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.realms as realmsPermissions
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.UnsuccessfulOpenIdConfigResponse
-import ai.senscience.nexus.delta.sdk.realms.{RealmsConfig, RealmsImpl, RealmsProvisioningConfig}
+import ai.senscience.nexus.delta.sdk.realms.{RealmsConfig, RealmsImpl, RealmsProvisioningConfig, WellKnownResolver}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.testkit.ce.IOFromMap
+import cats.effect.IO
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 import org.http4s.Uri
 
-class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IOFromMap {
+class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   val (github, gitlab)         = (Label.unsafe("github"), Label.unsafe("gitlab"))
   val (githubName, gitlabName) = (Name.unsafe("github-name"), Name.unsafe("gitlab-name"))
@@ -34,15 +34,13 @@ class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with IO
   val (githubOpenId, githubWk) = WellKnownGen.create(github.value)
   val (gitlabOpenId, gitlabWk) = WellKnownGen.create(gitlab.value)
 
-  private lazy val realms = RealmsImpl(
-    config,
-    ioFromMap(
-      Map(githubOpenId -> githubWk, gitlabOpenId -> gitlabWk),
-      (uri: Uri) => UnsuccessfulOpenIdConfigResponse(uri)
-    ),
-    xas,
-    clock
-  )
+  private val wkResolver: WellKnownResolver = {
+    case `githubOpenId` => IO.pure(githubWk)
+    case `gitlabOpenId` => IO.pure(gitlabWk)
+    case other          => IO.raiseError(UnsuccessfulOpenIdConfigResponse(other))
+  }
+
+  private lazy val realms = RealmsImpl(config, wkResolver, xas, clock)
 
   private val identities = IdentitiesDummy.fromUsers(alice)
   private val aclCheck   = AclSimpleCheck().accepted

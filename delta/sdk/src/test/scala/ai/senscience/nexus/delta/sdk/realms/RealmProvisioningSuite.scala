@@ -10,13 +10,13 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{RealmNotFound,
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.mu.NexusSuite
+import cats.effect.IO
 import munit.AnyFixture
 import org.http4s.Uri
 import org.http4s.syntax.literals.uri
 
-class RealmProvisioningSuite extends NexusSuite with Doobie.Fixture with ConfigFixtures with IOFromMap {
+class RealmProvisioningSuite extends NexusSuite with Doobie.Fixture with ConfigFixtures {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
@@ -36,15 +36,13 @@ class RealmProvisioningSuite extends NexusSuite with Doobie.Fixture with ConfigF
   private val (githubOpenId, githubWk) = WellKnownGen.create(github.value)
   private val (gitlabOpenId, gitlabWk) = WellKnownGen.create(gitlab.value)
 
-  private lazy val realms = RealmsImpl(
-    config,
-    ioFromMap(
-      Map(githubOpenId -> githubWk, gitlabOpenId -> gitlabWk),
-      (uri: Uri) => UnsuccessfulOpenIdConfigResponse(uri)
-    ),
-    xas,
-    clock
-  )
+  private val wkResolver: WellKnownResolver = {
+    case `githubOpenId` => IO.pure(githubWk)
+    case `gitlabOpenId` => IO.pure(gitlabWk)
+    case other          => IO.raiseError(UnsuccessfulOpenIdConfigResponse(other))
+  }
+
+  private lazy val realms = RealmsImpl(config, wkResolver, xas, clock)
 
   private def runProvisioning(config: RealmsProvisioningConfig) =
     new RealmProvisioning(realms, config, serviceAccount).run

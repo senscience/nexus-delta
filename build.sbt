@@ -392,7 +392,7 @@ lazy val sdk = project
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
       pekkoHttpTestKit % Test
-    )
+    ) ++ http4s
   )
 
 lazy val elasticsearch = project

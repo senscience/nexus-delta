@@ -13,6 +13,12 @@ import org.http4s.client.Client
 
 import scala.util.Try
 
+trait WellKnownResolver {
+
+  def apply(configUri: Uri): IO[WellKnown]
+
+}
+
 object WellKnownResolver {
 
   final private case class Endpoints(
@@ -23,13 +29,12 @@ object WellKnownResolver {
       end_session_endpoint: Option[Uri]
   )
   private object Endpoints {
-    implicit val endpointsDecoder: Decoder[Endpoints] =
-      deriveDecoder[Endpoints]
+    given Decoder[Endpoints] = deriveDecoder[Endpoints]
   }
 
-  def apply(client: Client[IO])(configUri: Uri): IO[WellKnown] = {
+  def apply(client: Client[IO]): WellKnownResolver = {
     import ai.senscience.nexus.delta.kernel.http.circe.*
-    apply(uri => client.expect[Json](uri))(configUri)
+    (configUri: Uri) => apply(client.expect[Json](_))(configUri)
   }
 
   /**
@@ -61,10 +66,11 @@ object WellKnownResolver {
           Either.cond(uri.scheme.isDefined, uri, IllegalJwksUriFormat(configUri, ".jwks_uri"))
         }
 
-    def endpoints(json: Json): Either[RealmRejection, Endpoints] =
-      Endpoints
-        .endpointsDecoder(json.hcursor)
+    def endpoints(json: Json): Either[RealmRejection, Endpoints] = {
+      json
+        .as[Endpoints]
         .leftMap(df => IllegalEndpointFormat(configUri, CursorOp.opsToPath(df.history)))
+    }
 
     def fetchJwkKeys(jwkUri: Uri): IO[Set[Json]] =
       for {
