@@ -137,14 +137,14 @@ object Realms {
   }
 
   private[delta] def evaluate(
-      wellKnown: Uri => IO[WellKnown],
+      wellKnownResolver: WellKnownResolver,
       openIdExists: (Label, Uri) => IO[Unit],
       clock: Clock[IO]
   )(state: Option[RealmState], cmd: RealmCommand): IO[RealmEvent] = {
     // format: off
     def create(c: CreateRealm) =
       state.fold {
-        openIdExists(c.label, c.openIdConfig) >> (wellKnown(c.openIdConfig), clock.realTimeInstant).mapN {
+        openIdExists(c.label, c.openIdConfig) >> (wellKnownResolver(c.openIdConfig), clock.realTimeInstant).mapN {
           case (wk, instant) =>
             RealmCreated(c.label, c.name, c.openIdConfig, c.logo, c.acceptedAudiences, wk, instant, c.subject)
         }
@@ -153,7 +153,7 @@ object Realms {
     def update(c: UpdateRealm)       =
       IO.fromOption(state)(RealmNotFound(c.label)).flatMap {
         case s if s.rev != c.rev => IO.raiseError(IncorrectRev(c.rev, s.rev))
-        case s => openIdExists(c.label, c.openIdConfig) >> (wellKnown(c.openIdConfig), clock.realTimeInstant).mapN {
+        case s => openIdExists(c.label, c.openIdConfig) >> (wellKnownResolver(c.openIdConfig), clock.realTimeInstant).mapN {
           case (wk, instant) =>
             RealmUpdated(c.label, s.rev + 1, c.name, c.openIdConfig, c.logo, c.acceptedAudiences, wk, instant, c.subject)
         }
@@ -175,21 +175,16 @@ object Realms {
   }
 
   /**
-    * Entity definition for [[Permissions]]
-    *
-    * @param wellKnown
-    *   how to extract the well known configuration
-    * @param openIdExists
-    *   check if the openId configuration has already been registered in Nexus
+    * Entity definition for [[Realms]]
     */
   def definition(
-      wellKnown: Uri => IO[WellKnown],
+      wellKnownResolver: WellKnownResolver,
       openIdExists: (Label, Uri) => IO[Unit],
       clock: Clock[IO]
   ): GlobalEntityDefinition[Label, RealmState, RealmCommand, RealmEvent, RealmRejection] = {
     GlobalEntityDefinition(
       entityType,
-      StateMachine(None, evaluate(wellKnown, openIdExists, clock), next),
+      StateMachine(None, evaluate(wellKnownResolver, openIdExists, clock), next),
       RealmEvent.serializer,
       RealmState.serializer,
       onUniqueViolation = (id: Label, c: RealmCommand) =>

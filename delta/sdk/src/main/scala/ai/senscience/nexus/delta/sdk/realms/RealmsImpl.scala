@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.{Clock, IO}
-import org.http4s.Uri
 import org.typelevel.otel4s.trace.Tracer
 
 final class RealmsImpl private (log: RealmsLog)(using Tracer[IO]) extends Realms {
@@ -71,11 +70,11 @@ object RealmsImpl {
 
   final def apply(
       config: RealmsConfig,
-      resolveWellKnown: Uri => IO[WellKnown],
+      wellKnownResolver: WellKnownResolver,
       xas: Transactors,
       clock: Clock[IO]
   )(using Tracer[IO]): Realms = new RealmsImpl(
-    GlobalEventLog(Realms.definition(resolveWellKnown, OpenIdExists(xas), clock), config.eventLog, xas)
+    GlobalEventLog(Realms.definition(wellKnownResolver, OpenIdExists(xas), clock), config.eventLog, xas)
   )
 
 }

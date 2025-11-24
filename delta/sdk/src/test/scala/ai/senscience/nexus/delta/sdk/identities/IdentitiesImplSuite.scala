@@ -1,31 +1,27 @@
 package ai.senscience.nexus.delta.sdk.identities
 
-import ai.senscience.nexus.delta.kernel.cache.LocalCache
 import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.*
 import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.sdk.generators.{RealmGen, WellKnownGen}
-import ai.senscience.nexus.delta.sdk.identities.IdentitiesImpl.{GroupsCache, RealmCache}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.jwt.TokenGenerator
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptySet
-import cats.effect.{IO, Ref}
+import cats.effect.IO
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import com.nimbusds.jwt.{JWTClaimsSet, PlainJWT}
 import io.circe.{parser, Json}
-import org.http4s.client.UnexpectedStatus
-import org.http4s.{Credentials, Method, Status, Uri}
+import org.http4s.Uri
 
 import java.time.Instant
 import java.util.Date
 
-class IdentitiesImplSuite extends NexusSuite with IOFromMap {
+class IdentitiesImplSuite extends NexusSuite {
 
   /**
     * Generate RSA key
@@ -89,35 +85,21 @@ class IdentitiesImplSuite extends NexusSuite with IOFromMap {
       keys = Set(parser.parse(rsaKey.toPublicJWK.toJSONString).rightValue)
     )
 
-  type FindRealm = String => IO[Option[Realm]]
+  private val findRealmByIssuer: FetchRealmByIssuer = {
+    case githubLabel.value  => IO.some(github)
+    case githubLabel2.value => IO.some(github2)
+    case gitlabLabel.value  => IO.some(gitlab)
+    case _                  => IO.none
+  }
 
-  private val findActiveRealm: String => IO[Option[Realm]] = ioFromMap[String, Realm](
-    githubLabel.value  -> github,
-    githubLabel2.value -> github2,
-    gitlabLabel.value  -> gitlab
-  )
+  private val fetchRemoteGroups: FetchRemoteGroups =
+    (userEndpoint: Uri, token: ParsedToken) =>
+      userEndpoint match {
+        case github.userInfoEndpoint => IO.pure(Set("group3", "group4"))
+        case _                       => IO.raiseError(GetGroupsFromOidcError(token.subject, token.issuer))
+      }
 
-  private def userInfo(uri: Uri): IO[Json] =
-    ioFromMap(
-      Map(github.userInfoEndpoint -> json"""{ "groups": ["group3", "group4"] }"""),
-      (uri: Uri) => UnexpectedStatus(Status.InternalServerError, Method.GET, uri)
-    )(uri)
-
-  private val realmCache  = LocalCache[String, Realm]()
-  private val groupsCache = LocalCache[String, Set[Group]]()
-
-  private val identitiesFromCaches: (RealmCache, GroupsCache) => FindRealm => Identities =
-    (realmCache, groupsCache) =>
-      findRealm =>
-        new IdentitiesImpl(
-          realmCache,
-          findRealm,
-          (uri: Uri, _: Credentials.Token) => userInfo(uri),
-          groupsCache
-        )
-
-  private val identities =
-    identitiesFromCaches(realmCache.unsafeRunSync(), groupsCache.unsafeRunSync())(findActiveRealm)
+  private val identities = new IdentitiesImpl(findRealmByIssuer, fetchRemoteGroups)
 
   private val auth   = Authenticated(githubLabel)
   private val group1 = Group("group1", githubLabel)
@@ -313,55 +295,6 @@ class IdentitiesImplSuite extends NexusSuite with IOFromMap {
 
     val expectedError = GetGroupsFromOidcError("Robert", gitlabLabel.value)
     identities.exchange(token).interceptEquals(expectedError)
-  }
-
-  test("Cache realm and groups") {
-    val token = generateToken(
-      subject = "Bobby",
-      issuer = githubLabel,
-      rsaKey = rsaKey,
-      expires = nowPlus1h,
-      groups = None,
-      useCommas = true
-    )
-
-    for {
-      parsedToken <- IO.fromEither(ParsedToken.fromToken(token))
-      realm       <- realmCache
-      groups      <- groupsCache
-      _           <- realm.get(parsedToken.rawToken).assertEquals(None)
-      _           <- groups.get(parsedToken.rawToken).assertEquals(None)
-      _           <- identitiesFromCaches(realm, groups)(findActiveRealm).exchange(token)
-      _           <- realm.get(parsedToken.issuer).assertEquals(Some(github))
-      _           <- groups.get(parsedToken.rawToken).assertEquals(Some(Set(group3, group4)))
-    } yield ()
-  }
-
-  test("Find active realm function should not run once value is cached") {
-    val token = generateToken(
-      subject = "Robert",
-      issuer = githubLabel,
-      rsaKey = rsaKey,
-      expires = nowPlus1h,
-      groups = Some(Set("group1", "group2"))
-    )
-
-    def findRealmOnce: Ref[IO, Boolean] => String => IO[Option[Realm]] = ref =>
-      _ =>
-        for {
-          flag <- ref.get
-          _    <- IO.raiseWhen(!flag)(new RuntimeException("Function executed more than once!"))
-          _    <- ref.set(false)
-        } yield Some(github)
-
-    for {
-      sem       <- Ref.of[IO, Boolean](true)
-      realm     <- realmCache
-      groups    <- groupsCache
-      identities = identitiesFromCaches(realm, groups)(findRealmOnce(sem))
-      _         <- identities.exchange(token)
-      _         <- identities.exchange(token)
-    } yield ()
   }
 
 }

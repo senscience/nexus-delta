@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.realms.model.GrantType
 import ai.senscience.nexus.delta.sdk.realms.model.GrantType.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.{IllegalEndpointFormat, IllegalIssuerFormat, IllegalJwkFormat, IllegalJwksUriFormat, NoValidKeysFound, UnsuccessfulJwksResponse, UnsuccessfulOpenIdConfigResponse}
 import ai.senscience.nexus.testkit.CirceLiteral
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
@@ -16,7 +15,7 @@ import org.http4s.client.UnexpectedStatus
 import org.http4s.syntax.literals.uri
 import org.http4s.{Method, Status, Uri}
 
-class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral with CirceInstances with JsonSyntax {
+class WellKnownResolverSuite extends NexusSuite with CirceLiteral with CirceInstances with JsonSyntax {
 
   private val openIdUri = uri"https://localhost/auth/realms/master/.well-known/openid-configuration"
   private val jwksUri   = uri"https://localhost/auth/realms/master/protocol/openid-connect/certs"
@@ -42,14 +41,12 @@ class WellKnownResolverSuite extends NexusSuite with IOFromMap with CirceLiteral
   private val emitError = (uri: Uri) => UnexpectedStatus(Status.InternalServerError, Method.GET, uri)
 
   private def resolveWellKnown(openIdConfig: Json, jwks: Json) =
-    WellKnownResolver(
-      ioFromMap(
-        Map(
-          openIdUri -> openIdConfig,
-          jwksUri   -> jwks
-        ),
-        emitError
-      )
+    WellKnownResolver((uri: Uri) =>
+      uri match {
+        case `openIdUri` => IO.pure(openIdConfig)
+        case `jwksUri`   => IO.pure(jwks)
+        case other       => IO.raiseError(emitError(other))
+      }
     )(openIdUri)
 
   private val defaultConfig =

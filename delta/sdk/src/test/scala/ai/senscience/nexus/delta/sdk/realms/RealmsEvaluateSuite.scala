@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.*
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Label
-import ai.senscience.nexus.testkit.ce.IOFromMap
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import org.http4s.Uri
@@ -16,7 +15,7 @@ import org.http4s.syntax.literals.uri
 
 import java.time.Instant
 
-class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
+class RealmsEvaluateSuite extends NexusSuite {
 
   private val epoch: Instant       = Instant.EPOCH
   private val issuer: String       = "myrealm"
@@ -24,10 +23,12 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
   private val name: Name           = Name.unsafe(s"$issuer-name")
   private val (wellKnownUri, wk)   = WellKnownGen.create(issuer)
   private val (wellKnown2Uri, wk2) = WellKnownGen.create("myrealm2")
-  private val wkResolution         = ioFromMap(
-    Map(wellKnownUri -> wk, wellKnown2Uri -> wk2),
-    (uri: Uri) => UnsuccessfulOpenIdConfigResponse(uri)
-  )
+
+  private val wkResolver: WellKnownResolver = {
+    case `wellKnownUri`  => IO.pure(wk)
+    case `wellKnown2Uri` => IO.pure(wk2)
+    case other           => IO.raiseError(UnsuccessfulOpenIdConfigResponse(other))
+  }
 
   private val current = RealmGen.state(wellKnownUri, wk, 1)
   private val subject = User("myuser", label)
@@ -40,26 +41,26 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
   private val createCommand = CreateRealm(label, name, wellKnownUri, None, None, subject)
 
   test("Evaluating a create command returns the created event") {
-    evaluate(wkResolution, newOpenId, clock)(None, createCommand)
+    evaluate(wkResolver, newOpenId, clock)(None, createCommand)
       .assertEquals(
         RealmCreated(label, name, wellKnownUri, None, None, wk, epoch, subject)
       )
   }
 
   test("Evaluating a create command fails as openId is already used") {
-    evaluate(wkResolution, openIdAlreadyExists(wellKnownUri), clock)(None, createCommand)
+    evaluate(wkResolver, openIdAlreadyExists(wellKnownUri), clock)(None, createCommand)
       .interceptEquals(RealmOpenIdConfigAlreadyExists(label, wellKnownUri))
   }
 
   test("Evaluating a create command fails as the realm already exists") {
-    evaluate(wkResolution, newOpenId, clock)(Some(current), createCommand)
+    evaluate(wkResolver, newOpenId, clock)(Some(current), createCommand)
       .intercept[RealmAlreadyExists]
   }
 
   private val updateCommand = UpdateRealm(label, 1, name, wellKnown2Uri, None, None, subject)
 
   test("Evaluating an update command returns the updated event") {
-    evaluate(wkResolution, newOpenId, clock)(Some(current), updateCommand).assertEquals(
+    evaluate(wkResolver, newOpenId, clock)(Some(current), updateCommand).assertEquals(
       RealmUpdated(label, 2, name, wellKnown2Uri, None, None, wk2, epoch, subject)
     )
   }
@@ -67,13 +68,13 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
   test("Evaluating an update command modifies the realm name") {
     val newName     = Name.unsafe("updatedName")
     val updatedName = updateCommand.copy(name = newName)
-    evaluate(wkResolution, newOpenId, clock)(Some(current), updatedName).assertEquals(
+    evaluate(wkResolver, newOpenId, clock)(Some(current), updatedName).assertEquals(
       RealmUpdated(label, 2, newName, wellKnown2Uri, None, None, wk2, epoch, subject)
     )
   }
 
   test("Evaluating an update command fails as the given openId is already used") {
-    evaluate(wkResolution, openIdAlreadyExists(wellKnown2Uri), clock)(
+    evaluate(wkResolver, openIdAlreadyExists(wellKnown2Uri), clock)(
       Some(current),
       updateCommand
     ).interceptEquals(RealmOpenIdConfigAlreadyExists(label, wellKnown2Uri))
@@ -85,14 +86,14 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
   private val deprecateCommand = DeprecateRealm(label, 1, subject)
 
   test("Evaluating a deprecate command returns the deprecated event") {
-    evaluate(wkResolution, newOpenId, clock)(Some(current), deprecateCommand).assertEquals(
+    evaluate(wkResolver, newOpenId, clock)(Some(current), deprecateCommand).assertEquals(
       RealmDeprecated(label, 2, epoch, subject)
     )
   }
 
   test("Evaluating a deprecate command fails with RealmAlreadyDeprecated") {
     val deprecatedState = Some(current.copy(deprecated = true))
-    evaluate(wkResolution, newOpenId, clock)(deprecatedState, deprecateCommand).intercept[RealmAlreadyDeprecated]
+    evaluate(wkResolver, newOpenId, clock)(deprecatedState, deprecateCommand).intercept[RealmAlreadyDeprecated]
   }
 
   List(
@@ -100,7 +101,7 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
     None -> DeprecateRealm(label, 1, subject)
   ).foreach { case (state, cmd) =>
     test(s"Evaluating a ${cmd.getClass.getSimpleName} command fails when the state does not exist") {
-      evaluate(wkResolution, (_, _) => IO.unit, clock)(state, cmd).intercept[RealmNotFound]
+      evaluate(wkResolver, (_, _) => IO.unit, clock)(state, cmd).intercept[RealmNotFound]
     }
   }
 
@@ -109,7 +110,7 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
     current -> DeprecateRealm(label, 2, subject)
   ).foreach { case (state, cmd) =>
     test(s"Evaluating a ${cmd.getClass.getSimpleName} command fails with a wrong rev") {
-      evaluate(wkResolution, (_, _) => IO.unit, clock)(Some(state), cmd).intercept[IncorrectRev]
+      evaluate(wkResolver, (_, _) => IO.unit, clock)(Some(state), cmd).intercept[IncorrectRev]
     }
   }
 
@@ -119,7 +120,7 @@ class RealmsEvaluateSuite extends NexusSuite with IOFromMap {
     Some(current) -> UpdateRealm(label, 1, name, wellKnownWrongUri, None, None, subject)
   ).foreach { case (state, cmd) =>
     test(s"Evaluating a  ${cmd.getClass.getSimpleName} command fails with a invalid uri") {
-      evaluate(wkResolution, newOpenId, clock)(state, cmd).intercept[UnsuccessfulOpenIdConfigResponse]
+      evaluate(wkResolver, newOpenId, clock)(state, cmd).intercept[UnsuccessfulOpenIdConfigResponse]
     }
   }
 
