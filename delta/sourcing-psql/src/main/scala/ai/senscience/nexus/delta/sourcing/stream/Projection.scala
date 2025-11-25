@@ -79,8 +79,9 @@ final class Projection private[stream] (
 
 object Projection {
 
-  private val logger                                                      = Logger[Projection]
-  private val persistInit: (List[FailedElem], Option[ProjectionProgress]) = (List.empty[FailedElem], None)
+  private val logger = Logger[Projection]
+
+  private def testOffset(elem: Elem[?], progress: ProjectionProgress) = elem.offset.value > progress.offset.value
 
   def persist[A](
       progress: ProjectionProgress,
@@ -88,16 +89,17 @@ object Projection {
       saveFailedElems: List[FailedElem] => IO[Unit]
   )(using batch: BatchConfig): ElemPipe[A, Unit] =
     _.mapAccumulate(progress) {
-      case (acc, elem) if elem.offset.value > progress.offset.value => (acc + elem, elem)
-      case (acc, elem)                                              => (acc, elem)
+      case (acc, failed: FailedElem) if testOffset(failed, progress) => (acc + failed, Some(failed))
+      case (acc, failed: FailedElem)                                 => (acc, Some(failed))
+      case (acc, elem) if testOffset(elem, progress)                 => (acc + elem, None)
+      case (acc, _)                                                  => (acc, None)
     }.groupWithin(batch.maxElements, batch.maxInterval)
       .evalTap { chunk =>
-        val (errors, last) = chunk.foldLeft(persistInit) {
-          case ((acc, _), (newProgress, elem: FailedElem)) => (elem :: acc, Some(newProgress))
-          case ((acc, _), (newProgress, _))                => (acc, Some(newProgress))
+        val errors = chunk.foldLeft(List.empty[FailedElem]) { case (acc, (_, failed)) =>
+          acc ++ failed
         }
 
-        last.traverse { newProgress =>
+        chunk.last.traverse { case (newProgress, _) =>
           saveProgress(newProgress) >>
             IO.whenA(errors.nonEmpty)(saveFailedElems(errors))
         }
