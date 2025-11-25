@@ -69,9 +69,9 @@ final case class OrganizationState(
 object OrganizationState {
 
   val serializer: Serializer[Label, OrganizationState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration             = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[OrganizationState] = deriveConfiguredCodec[OrganizationState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                     = Serializer.circeConfiguration
+    given Codec.AsObject[OrganizationState] = deriveConfiguredCodec[OrganizationState]
     Serializer(Organizations.encodeId)
   }
 

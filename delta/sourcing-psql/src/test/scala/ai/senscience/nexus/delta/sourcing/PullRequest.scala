@@ -140,9 +140,9 @@ object PullRequest {
         extends PullRequestEvent
 
     val serializer: Serializer[Iri, PullRequestEvent] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration            = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[PullRequestEvent] = deriveConfiguredCodec[PullRequestEvent]
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration                    = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[PullRequestEvent] = deriveConfiguredCodec[PullRequestEvent]
       Serializer()
     }
   }
@@ -252,10 +252,10 @@ object PullRequest {
       override def deprecated: Boolean = true
     }
 
-    implicit val serializer: Serializer[Iri, PullRequestState] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration            = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[PullRequestState] = deriveConfiguredCodec[PullRequestState]
+    val serializer: Serializer[Iri, PullRequestState] = {
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration                    = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[PullRequestState] = deriveConfiguredCodec[PullRequestState]
       Serializer.dropNullsInjectType()
     }
 

@@ -63,6 +63,16 @@ object Identity {
   final case class Group(group: String, realm: Label) extends IdentityRealm
 
   /**
+    * A role identity. It asserts that the caller belongs to a role.
+    *
+    * @param role
+    *   the role name (asserted by one entry in the roles claim)
+    * @param realm
+    *   the associated realm that asserts this identity
+    */
+  final case class Role(role: String, realm: Label) extends IdentityRealm
+
+  /**
     * An authenticated identity is an arbitrary caller that has provided a valid AuthToken issued by a specific realm.
     *
     * @param realm
@@ -81,6 +91,11 @@ object Identity {
       User(subject, realm)
     }
 
+  private def decodeRole(hc: HCursor): Result[Identity] =
+    (hc.get[String]("role"), hc.get[Label]("realm")).mapN { case (group, realm) =>
+      Group(group, realm)
+    }
+
   private def decodeGroup(hc: HCursor): Result[Identity] =
     (hc.get[String]("group"), hc.get[Label]("realm")).mapN { case (group, realm) =>
       Group(group, realm)
@@ -90,10 +105,10 @@ object Identity {
     hc.get[Label]("realm").map(Authenticated(_))
 
   private val attempts        =
-    List[HCursor => Result[Identity]](decodeAnonymous, decodeUser, decodeGroup, decodeAuthenticated)
+    List[HCursor => Result[Identity]](decodeAnonymous, decodeUser, decodeRole, decodeGroup, decodeAuthenticated)
   private val attemptsSubject = List[HCursor => Result[Subject]](decodeAnonymous, decodeUser)
 
-  implicit val identityDecoder: Decoder[Identity] = {
+  given Decoder[Identity] = {
     Decoder.instance { hc =>
       attempts.foldLeft(Left(DecodingFailure("Unexpected", hc.history)): Result[Identity]) {
         case (acc @ Right(_), _) => acc
@@ -102,7 +117,7 @@ object Identity {
     }
   }
 
-  implicit val subjectDecoder: Decoder[Subject] = Decoder.instance { hc =>
+  given Decoder[Subject] = Decoder.instance { hc =>
     attemptsSubject.foldLeft(Left(DecodingFailure("Unexpected", hc.history)): Result[Subject]) {
       case (acc @ Right(_), _) => acc
       case (_, f)              => f(hc)
@@ -110,10 +125,9 @@ object Identity {
   }
 
   object Database {
-    implicit final private val configuration: Configuration =
-      Configuration.default.withDiscriminator(keywords.tpe)
+    private given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
-    implicit val subjectCodec: Codec.AsObject[Subject]   = deriveConfiguredCodec[Subject]
-    implicit val identityCodec: Codec.AsObject[Identity] = deriveConfiguredCodec[Identity]
+    given subjectCodec: Codec.AsObject[Subject]   = deriveConfiguredCodec[Subject]
+    given identityCodec: Codec.AsObject[Identity] = deriveConfiguredCodec[Identity]
   }
 }

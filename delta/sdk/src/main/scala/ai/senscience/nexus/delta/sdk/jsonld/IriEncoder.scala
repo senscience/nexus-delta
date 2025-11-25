@@ -13,7 +13,7 @@ trait IriEncoder[-A] {
   /**
     * Encode a value of type [[A]] into an [[Iri]]
     */
-  def apply(value: A)(implicit base: BaseUri): Iri
+  def apply(value: A)(using BaseUri): Iri
 }
 
 object IriEncoder {
@@ -21,7 +21,7 @@ object IriEncoder {
   /**
     * Create an circe encoder to encode [[A]] as an [[Iri]]
     */
-  def jsonEncoder[A](implicit base: BaseUri, iriEncoder: IriEncoder[A]): Encoder[A] =
+  def jsonEncoder[A](using base: BaseUri, iriEncoder: IriEncoder[A]): Encoder[A] =
     Encoder.encodeJson.contramap(iriEncoder(_).asJson)
 
   // It does not matter what the base is for ordering
@@ -30,6 +30,6 @@ object IriEncoder {
   /**
     * Create an ordering based on the Iri representation of an [[A]]
     */
-  def ordering[A](implicit iriEncoder: IriEncoder[A], ordering: Ordering[Iri]): Ordering[A] =
-    Ordering.by[A, Iri](iriEncoder(_)(dummyValue))
+  def ordering[A](using iriEncoder: IriEncoder[A], ordering: Ordering[Iri]): Ordering[A] =
+    Ordering.by[A, Iri](iriEncoder(_)(using dummyValue))
 }

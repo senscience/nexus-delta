@@ -54,9 +54,9 @@ final case class TypeHierarchyState(
 object TypeHierarchyState {
 
   val serializer: Serializer[Iri, TypeHierarchyState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration              = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[TypeHierarchyState] = deriveConfiguredCodec[TypeHierarchyState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                      = Serializer.circeConfiguration
+    given Codec.AsObject[TypeHierarchyState] = deriveConfiguredCodec[TypeHierarchyState]
     Serializer(identity)
   }
 

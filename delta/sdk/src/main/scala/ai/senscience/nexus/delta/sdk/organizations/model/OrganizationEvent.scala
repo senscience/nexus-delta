@@ -133,9 +133,9 @@ object OrganizationEvent {
   ) extends OrganizationEvent
 
   val serializer: Serializer[Label, OrganizationEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration             = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[OrganizationEvent] = deriveConfiguredCodec[OrganizationEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                     = Serializer.circeConfiguration
+    given Codec.AsObject[OrganizationEvent] = deriveConfiguredCodec[OrganizationEvent]
     Serializer(Organizations.encodeId)
   }
 }

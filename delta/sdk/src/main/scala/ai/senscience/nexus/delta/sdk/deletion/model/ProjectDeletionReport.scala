@@ -38,9 +38,9 @@ object ProjectDeletionReport {
   ): ProjectDeletionReport =
     ProjectDeletionReport(project, markedDeletedAt, deletedAt, deletedBy, Vector.empty)
 
-  implicit val projectDeletionReportCodec: Codec[ProjectDeletionReport] = {
-    implicit val config: Configuration = Configuration.default
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
+  given Codec[ProjectDeletionReport] = {
+    given Configuration = Configuration.default
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     deriveConfiguredCodec[ProjectDeletionReport]
   }
 

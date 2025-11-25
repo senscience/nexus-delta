@@ -115,10 +115,10 @@ final case class BlazegraphViewState(
 object BlazegraphViewState {
 
   implicit val serializer: Serializer[Iri, BlazegraphViewState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                    = Serializer.circeConfiguration
-    implicit val valueCodec: Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
-    implicit val codec: Codec.AsObject[BlazegraphViewState]      = deriveConfiguredCodec[BlazegraphViewState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                       = Serializer.circeConfiguration
+    given Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
+    given Codec.AsObject[BlazegraphViewState] = deriveConfiguredCodec[BlazegraphViewState]
     Serializer.dropNullsInjectType()
   }
 

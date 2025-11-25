@@ -100,9 +100,9 @@ object PermissionsEvent {
   ) extends PermissionsEvent
 
   val serializer: Serializer[Label, PermissionsEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration            = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[PermissionsEvent] = deriveConfiguredCodec[PermissionsEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                    = Serializer.circeConfiguration
+    given Codec.AsObject[PermissionsEvent] = deriveConfiguredCodec[PermissionsEvent]
     Serializer(_ => Permissions.id)
   }
 }

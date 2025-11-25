@@ -353,25 +353,20 @@ object FileEvent {
   ) extends FileEvent
 
   val serializer: Serializer[Iri, FileEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                        = Serializer.circeConfiguration
-    implicit val digestCodec: Codec.AsObject[Digest]                 =
-      deriveConfiguredCodec[Digest]
-    implicit val fileAttributesCodec: Codec.AsObject[FileAttributes] = createFileAttributesCodec()
-
-    implicit val enc: Encoder.AsObject[FileEvent] = deriveConfiguredEncoder[FileEvent].mapJsonObject(_.dropNulls)
-    implicit val codec: Codec.AsObject[FileEvent] = Codec.AsObject.from(deriveConfiguredDecoder, enc)
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                        = Serializer.circeConfiguration
+    given Codec.AsObject[Digest]               = deriveConfiguredCodec[Digest]
+    given Codec.AsObject[FileAttributes]       = createFileAttributesCodec()
+    given encoder: Encoder.AsObject[FileEvent] = deriveConfiguredEncoder[FileEvent].mapJsonObject(_.dropNulls)
+    given Codec.AsObject[FileEvent]            = Codec.AsObject.from(deriveConfiguredDecoder, encoder)
     Serializer()
   }
 
-  private def createFileAttributesCodec()(implicit
-      digestCodec: Codec.AsObject[Digest]
-  ): Codec.AsObject[FileAttributes] = {
-
-    implicit val configuration: Configuration          = Serializer.circeConfiguration.withDefaults
-    implicit val enc: Encoder.AsObject[FileAttributes] =
+  private def createFileAttributesCodec()(using Codec.AsObject[Digest]): Codec.AsObject[FileAttributes] = {
+    given Configuration                             = Serializer.circeConfiguration.withDefaults
+    given encoder: Encoder.AsObject[FileAttributes] =
       FileAttributes.createConfiguredEncoder(Serializer.circeConfiguration.withDefaults)
-    Codec.AsObject.from[FileAttributes](deriveConfiguredDecoder, enc)
+    Codec.AsObject.from[FileAttributes](deriveConfiguredDecoder, encoder)
   }
 
   val fileEventMetricEncoder: ScopedEventMetricEncoder[FileEvent] =

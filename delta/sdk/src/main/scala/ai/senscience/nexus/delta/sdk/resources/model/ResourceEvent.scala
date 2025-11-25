@@ -416,15 +416,14 @@ object ResourceEvent {
   val serializer: Serializer[Iri, ResourceEvent] = {
     import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
     import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.
-    implicit val configuration: Configuration = Serializer.circeConfiguration.withDefaults
+    given Configuration = Serializer.circeConfiguration.withDefaults
 
-    implicit val enc: Encoder.AsObject[ResourceEvent] =
-      deriveConfiguredEncoder[ResourceEvent].mapJsonObject(dropNullValues)
-    implicit val coder: Codec.AsObject[ResourceEvent] = Codec.AsObject.from(deriveConfiguredDecoder[ResourceEvent], enc)
+    val encoder                         = deriveConfiguredEncoder[ResourceEvent].mapJsonObject(dropNullValues)
+    given Codec.AsObject[ResourceEvent] = Codec.AsObject.from(deriveConfiguredDecoder[ResourceEvent], encoder)
     Serializer()
   }
 

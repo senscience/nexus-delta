@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.acls.model
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Role, User}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import cats.data.NonEmptyList
 import cats.effect.IO
@@ -19,6 +19,7 @@ final class FlattenedAclStore(xas: Transactors) {
   private given Put[Identity] = Put[String].contramap {
     case Anonymous                           => "/anonymous"
     case Authenticated(realm)                => s"/realms/${realm.value}/authenticated"
+    case Role(role, realm)                   => s"/realms/${realm.value}/roles/$role"
     case Group(group, realm)                 => s"/realms/${realm.value}/groups/$group"
     case User(subject: String, realm: Label) => s"/realms/${realm.value}/groups/$subject"
   }

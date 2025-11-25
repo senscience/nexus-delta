@@ -142,10 +142,10 @@ object Acl {
   object Database {
 
     implicit val aclCodec: Codec[Acl] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration            = Serializer.circeConfiguration
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration            = Serializer.circeConfiguration
       final case class AclEntry(identity: Identity, permissions: Set[Permission])
-      implicit val aclEntryCodec: Codec.AsObject[AclEntry] = deriveConfiguredCodec[AclEntry]
+      given Codec.AsObject[AclEntry] = deriveConfiguredCodec[AclEntry]
 
       val aclEncoder: Encoder[Acl] =
         Encoder.encodeList[AclEntry].contramap(acl => acl.value.toList.map { case (id, perms) => AclEntry(id, perms) })

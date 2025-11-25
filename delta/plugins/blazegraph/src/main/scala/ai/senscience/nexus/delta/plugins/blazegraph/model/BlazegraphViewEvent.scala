@@ -229,10 +229,10 @@ object BlazegraphViewEvent {
   ) extends BlazegraphViewEvent
 
   val serializer: Serializer[Iri, BlazegraphViewEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                    = Serializer.circeConfiguration
-    implicit val valueCodec: Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
-    implicit val codec: Codec.AsObject[BlazegraphViewEvent]      = deriveConfiguredCodec[BlazegraphViewEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                       = Serializer.circeConfiguration
+    given Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
+    given Codec.AsObject[BlazegraphViewEvent] = deriveConfiguredCodec[BlazegraphViewEvent]
     Serializer.dropNulls()
   }
 

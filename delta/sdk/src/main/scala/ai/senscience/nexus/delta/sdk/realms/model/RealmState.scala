@@ -143,9 +143,9 @@ object RealmState {
   val serializer: Serializer[Label, RealmState] = {
     import GrantType.Camel.*
     import ai.senscience.nexus.delta.sdk.instances.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration      = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[RealmState] = deriveConfiguredCodec[RealmState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration              = Serializer.circeConfiguration
+    given Codec.AsObject[RealmState] = deriveConfiguredCodec[RealmState]
     Serializer(Realms.encodeId)
   }
 }

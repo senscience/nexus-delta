@@ -22,6 +22,16 @@
     },
     {
       "identity": {
+        "@type": "Role",
+        "realm": "myrealm",
+        "role": "role"
+      },
+      "permissions": [
+        "my/perm"
+      ]
+    },
+    {
+      "identity": {
         "@type": "Group",
         "realm": "myrealm",
         "group": "group"

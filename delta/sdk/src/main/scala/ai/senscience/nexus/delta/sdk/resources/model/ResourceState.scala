@@ -106,12 +106,12 @@ object ResourceState {
   implicit val serializer: Serializer[Iri, ResourceState] = {
     import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
     import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.
-    implicit val configuration: Configuration         = Serializer.circeConfiguration.withDefaults
-    implicit val codec: Codec.AsObject[ResourceState] = deriveConfiguredCodec[ResourceState]
+    given Configuration                 = Serializer.circeConfiguration.withDefaults
+    given Codec.AsObject[ResourceState] = deriveConfiguredCodec[ResourceState]
     Serializer()
   }
 

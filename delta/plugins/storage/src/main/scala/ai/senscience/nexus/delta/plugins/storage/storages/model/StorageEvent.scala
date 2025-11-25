@@ -183,12 +183,12 @@ object StorageEvent {
       subject: Subject
   ) extends StorageEvent
 
-  def serializer: Serializer[Iri, StorageEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration = Serializer.circeConfiguration
+  val serializer: Serializer[Iri, StorageEvent] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration = Serializer.circeConfiguration
 
-    implicit val storageValueCodec: Codec.AsObject[StorageValue] = StorageValue.databaseCodec
-    implicit val coder: Codec.AsObject[StorageEvent]             = deriveConfiguredCodec[StorageEvent]
+    given Codec.AsObject[StorageValue] = StorageValue.databaseCodec
+    given Codec.AsObject[StorageEvent] = deriveConfiguredCodec[StorageEvent]
     Serializer.dropNulls()
   }
 

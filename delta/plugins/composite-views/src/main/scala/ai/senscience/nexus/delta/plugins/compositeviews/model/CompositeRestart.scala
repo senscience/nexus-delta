@@ -82,9 +82,9 @@ object CompositeRestart {
     def auto(viewRef: ViewRef, target: Iri): PartialRebuild = PartialRebuild(viewRef, target, Instant.EPOCH, Anonymous)
   }
 
-  implicit val compositeRestartCodec: Codec.AsObject[CompositeRestart] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration = Serializer.circeConfiguration
+  given Codec.AsObject[CompositeRestart] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration = Serializer.circeConfiguration
     deriveConfiguredCodec[CompositeRestart]
   }
 

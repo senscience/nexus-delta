@@ -23,6 +23,7 @@ final case class ParsedToken private (
     subject: String,
     issuer: String,
     expirationTime: Instant,
+    roles: Option[Set[String]],
     groups: Option[Set[String]],
     jwtToken: SignedJWT
 ) {
@@ -73,30 +74,39 @@ object ParsedToken {
     }
 
     def issuer(claimsSet: JWTClaimsSet): Either[TokenRejection, String] =
-      Either.fromOption(Option(claimsSet.getIssuer), AccessTokenDoesNotContainAnIssuer)
+      Option(claimsSet.getIssuer).toRight(AccessTokenDoesNotContainAnIssuer)
+
+    def roles(claimsSet: JWTClaimsSet): Option[Set[String]] =
+      Option.when(
+        claimsSet.getClaims.containsKey("roles")
+      )(getStringListClaim(claimsSet, "roles").getOrElse(Set.empty))
 
     def groups(claimsSet: JWTClaimsSet): Option[Set[String]] =
       Option.when(
         claimsSet.getClaims.containsKey("groups")
       ) {
-        import scala.jdk.CollectionConverters.*
-        Try(claimsSet.getStringListClaim("groups").asScala.toList)
-          .filter(_ != null)
-          .map(_.map(_.trim))
-          .map(_.filterNot(_.isEmpty))
-          .recoverWith { case _ => Try(claimsSet.getStringClaim("groups").split(",").map(_.trim).toList) }
-          .toOption
-          .map(_.toSet)
+        getStringListClaim(claimsSet, "groups")
+          .orElse(
+            Try(claimsSet.getStringClaim("groups").split(",").map(_.trim).toSet).toOption
+          )
           .getOrElse(Set.empty)
       }
 
+    def getStringListClaim(claimsSet: JWTClaimsSet, name: String) =
+      Try(claimsSet.getStringListClaim(name).asScala.toSet)
+        .filter(_ != null)
+        .map(_.map(_.trim))
+        .map(_.filterNot(_.isEmpty))
+        .toOption
+
     for {
-      jwt            <- parseJwt
-      claimsSet      <- claims(jwt)
-      subject        <- subject(claimsSet)
-      issuer         <- issuer(claimsSet)
-      expirationTime <- Either.right(claimsSet.getExpirationTime.toInstant)
-      groups         <- Either.right(groups(claimsSet))
-    } yield ParsedToken(token.value, subject, issuer, expirationTime, groups, jwt)
+      jwt           <- parseJwt
+      claimsSet     <- claims(jwt)
+      subject       <- subject(claimsSet)
+      issuer        <- issuer(claimsSet)
+      expirationTime = claimsSet.getExpirationTime.toInstant
+      roleSet        = roles(claimsSet)
+      groupSet       = groups(claimsSet)
+    } yield ParsedToken(token.value, subject, issuer, expirationTime, roleSet, groupSet, jwt)
   }
 }

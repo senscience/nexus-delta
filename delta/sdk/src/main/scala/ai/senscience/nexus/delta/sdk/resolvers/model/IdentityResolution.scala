@@ -37,9 +37,8 @@ object IdentityResolution {
   }
 
   object Database {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit private val configuration: Configuration                        = Serializer.circeConfiguration
-    implicit val identityResolutionCodec: Codec.AsObject[IdentityResolution] =
-      deriveConfiguredCodec[IdentityResolution]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    private given Configuration              = Serializer.circeConfiguration
+    given Codec.AsObject[IdentityResolution] = deriveConfiguredCodec[IdentityResolution]
   }
 }

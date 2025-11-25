@@ -238,17 +238,15 @@ object ProjectEvent {
   ) extends ProjectEvent
 
   val serializer: Serializer[ProjectRef, ProjectEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
     //  when deserializing an event that has none. Remove it after 1.10 migration.
-    implicit val configuration: Configuration = Serializer.circeConfiguration.withDefaults
+    given Configuration = Serializer.circeConfiguration.withDefaults
 
-    implicit val apiMappingsDecoder: Decoder[ApiMappings]          =
-      Decoder.decodeMap[String, Iri].map(ApiMappings(_))
-    implicit val apiMappingsEncoder: Encoder.AsObject[ApiMappings] =
-      Encoder.encodeMap[String, Iri].contramapObject(_.value)
+    given Decoder[ApiMappings]          = Decoder.decodeMap[String, Iri].map(ApiMappings(_))
+    given Encoder.AsObject[ApiMappings] = Encoder.encodeMap[String, Iri].contramapObject(_.value)
 
-    implicit val coder: Codec.AsObject[ProjectEvent] = deriveConfiguredCodec[ProjectEvent]
+    given Codec.AsObject[ProjectEvent] = deriveConfiguredCodec[ProjectEvent]
     Serializer(Projects.encodeId)
   }
 
