@@ -235,9 +235,9 @@ object RealmEvent {
   import ai.senscience.nexus.delta.sdk.instances.*
 
   val serializer: Serializer[Label, RealmEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration      = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[RealmEvent] = deriveConfiguredCodec[RealmEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration              = Serializer.circeConfiguration
+    given Codec.AsObject[RealmEvent] = deriveConfiguredCodec[RealmEvent]
     Serializer(Realms.encodeId)
   }
 }

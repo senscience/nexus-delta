@@ -97,11 +97,11 @@ final case class CompositeViewState(
 
 object CompositeViewState {
 
-  implicit val serializer: Serializer[Iri, CompositeViewState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                       = Serializer.circeConfiguration
-    implicit val compositeViewValueCodec: Codec[CompositeViewValue] = CompositeViewValue.databaseCodec()
-    implicit val codec: Codec.AsObject[CompositeViewState]          = deriveConfiguredCodec[CompositeViewState]
+  val serializer: Serializer[Iri, CompositeViewState] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                      = Serializer.circeConfiguration
+    given Codec[CompositeViewValue]          = CompositeViewValue.databaseCodec()
+    given Codec.AsObject[CompositeViewState] = deriveConfiguredCodec[CompositeViewState]
     Serializer.dropNullsInjectType()
   }
 }

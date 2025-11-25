@@ -94,12 +94,12 @@ final case class ResolverState(
 
 object ResolverState {
 
-  implicit val serializer: Serializer[Iri, ResolverState] = {
-    import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.Database.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                      = Serializer.circeConfiguration
-    implicit val resolverValueCodec: Codec.AsObject[ResolverValue] = deriveConfiguredCodec[ResolverValue]
-    implicit val codec: Codec.AsObject[ResolverState]              = deriveConfiguredCodec[ResolverState]
+  val serializer: Serializer[Iri, ResolverState] = {
+    import ai.senscience.nexus.delta.sdk.resolvers.model.IdentityResolution.Database.given
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                 = Serializer.circeConfiguration
+    given Codec.AsObject[ResolverValue] = deriveConfiguredCodec[ResolverValue]
+    given Codec.AsObject[ResolverState] = deriveConfiguredCodec[ResolverState]
     Serializer.dropNullsInjectType()
   }
 }

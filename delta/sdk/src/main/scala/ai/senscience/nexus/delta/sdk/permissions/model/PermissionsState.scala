@@ -76,9 +76,9 @@ object PermissionsState {
   )
 
   val serializer: Serializer[Label, PermissionsState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration            = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[PermissionsState] = deriveConfiguredCodec[PermissionsState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                    = Serializer.circeConfiguration
+    given Codec.AsObject[PermissionsState] = deriveConfiguredCodec[PermissionsState]
     Serializer(_ => Permissions.id)
   }
 

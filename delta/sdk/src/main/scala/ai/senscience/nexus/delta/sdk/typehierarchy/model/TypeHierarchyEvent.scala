@@ -65,9 +65,9 @@ object TypeHierarchyEvent {
   ) extends TypeHierarchyEvent
 
   val serializer: Serializer[Iri, TypeHierarchyEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration              = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[TypeHierarchyEvent] = deriveConfiguredCodec[TypeHierarchyEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                      = Serializer.circeConfiguration
+    given Codec.AsObject[TypeHierarchyEvent] = deriveConfiguredCodec[TypeHierarchyEvent]
     Serializer(identity)
   }
 

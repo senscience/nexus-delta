@@ -191,10 +191,10 @@ object CompositeViewEvent {
   ) extends CompositeViewEvent
 
   val serializer: Serializer[Iri, CompositeViewEvent] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                       = Serializer.circeConfiguration
-    implicit val compositeViewValueCodec: Codec[CompositeViewValue] = CompositeViewValue.databaseCodec()
-    implicit val codec: Codec.AsObject[CompositeViewEvent]          = deriveConfiguredCodec[CompositeViewEvent]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                      = Serializer.circeConfiguration
+    given Codec[CompositeViewValue]          = CompositeViewValue.databaseCodec()
+    given Codec.AsObject[CompositeViewEvent] = deriveConfiguredCodec[CompositeViewEvent]
     Serializer.dropNulls()
   }
 

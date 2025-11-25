@@ -40,15 +40,13 @@ abstract class SerializationSuite
   private def generateOutput[Id, Value](serializer: Serializer[Id, Value], obtained: Value) =
     read(write(serializer.codec(obtained))(serializer.jsonIterCodec))
 
-  def assertOutput[Id, Value](serializer: Serializer[Id, Value], obtained: Value, expected: Json)(implicit
-      loc: Location
-  ): Unit = {
+  def assertOutput[Id, Value](serializer: Serializer[Id, Value], obtained: Value, expected: Json)(using
+      Location
+  ): Unit =
     assertEquals(
       generateOutput(serializer, obtained),
       expected
     )
-
-  }
 
   def assertOutputIgnoreOrder[Id, Value](serializer: Serializer[Id, Value], obtained: Value, expected: Json): Unit =
     generateOutput(serializer, obtained)

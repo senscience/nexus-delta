@@ -13,7 +13,7 @@ trait IriDecoder[A] {
   /**
     * Decode the given [[Iri]]
     */
-  def apply(iri: Iri)(implicit base: BaseUri): Either[FormatError, A]
+  def apply(iri: Iri)(using BaseUri): Either[FormatError, A]
 }
 
 object IriDecoder {
@@ -21,7 +21,7 @@ object IriDecoder {
   /**
     * Create a circe decoder for [[A]] when it is encoded as an Iri
     */
-  def jsonDecoder[A](implicit base: BaseUri, iriDecoder: IriDecoder[A]): Decoder[A] =
+  def jsonDecoder[A](using base: BaseUri, iriDecoder: IriDecoder[A]): Decoder[A] =
     Decoder[Iri].emap(iri =>
       iriDecoder(iri) match {
         case Right(a)  => Right(a)

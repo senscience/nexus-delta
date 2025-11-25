@@ -92,17 +92,15 @@ final case class FileState(
 object FileState {
 
   implicit val serializer: Serializer[Iri, FileState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                        = Serializer.circeConfiguration.withDefaults
-    implicit val digestCodec: Codec.AsObject[Digest]                 =
-      deriveConfiguredCodec[Digest]
-    implicit val fileAttributesCodec: Codec.AsObject[FileAttributes] = {
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given configuration: Configuration   = Serializer.circeConfiguration.withDefaults
+    given Codec.AsObject[Digest]         = deriveConfiguredCodec[Digest]
+    given Codec.AsObject[FileAttributes] = {
       val enc = FileAttributes.createConfiguredEncoder(configuration)
-
       Codec.AsObject.from(deriveConfiguredDecoder[FileAttributes], enc)
     }
 
-    implicit val codec: Codec.AsObject[FileState] = deriveConfiguredCodec[FileState]
+    given Codec.AsObject[FileState] = deriveConfiguredCodec[FileState]
     Serializer.dropNullsInjectType()
   }
 }

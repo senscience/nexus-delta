@@ -88,9 +88,9 @@ object AclState {
 
   val serializer: Serializer[AclAddress, AclState] = {
     import Acl.Database.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration    = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[AclState] = Codec.AsObject.from(
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration            = Serializer.circeConfiguration
+    given Codec.AsObject[AclState] = Codec.AsObject.from(
       deriveConfiguredDecoder[AclState],
       Encoder.AsObject.instance { state =>
         deriveConfiguredEncoder[AclState].mapJsonObject(_.add("address", state.acl.address.asJson)).encodeObject(state)

@@ -51,9 +51,9 @@ object Message {
   object MessageState {
 
     val serializer: Serializer[Iri, MessageState] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration        = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[MessageState] = deriveConfiguredCodec[MessageState]
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration                = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[MessageState] = deriveConfiguredCodec[MessageState]
       Serializer()
     }
   }

@@ -24,7 +24,7 @@ final class ToIriOpts[A](private val value: A) extends AnyVal {
   /**
     * Encode the value of type [[A]] to an Iri
     */
-  def asIri(implicit base: BaseUri, iriEncoder: IriEncoder[A]): Iri = iriEncoder(value)
+  def asIri(using base: BaseUri, iriEncoder: IriEncoder[A]): Iri = iriEncoder(value)
 }
 
 /**
@@ -38,5 +38,5 @@ final class FromIriOpts(private val iri: Iri) extends AnyVal {
   /**
     * Attempts to decode the Iri into a value of type [[A]]
     */
-  def as[A](implicit base: BaseUri, iriDecoder: IriDecoder[A]): Either[FormatError, A] = iriDecoder(iri)
+  def as[A](using base: BaseUri, iriDecoder: IriDecoder[A]): Either[FormatError, A] = iriDecoder(iri)
 }

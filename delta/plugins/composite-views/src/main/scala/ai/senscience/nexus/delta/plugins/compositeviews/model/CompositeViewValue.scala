@@ -34,7 +34,7 @@ object CompositeViewValue {
 
   @SuppressWarnings(Array("TryGet"))
   def databaseCodec()(implicit configuration: Configuration): Codec[CompositeViewValue] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     implicit val finiteDurationEncoder: Encoder[FiniteDuration] = Encoder.encodeString.contramap(_.toString())
     implicit val finiteDurationDecoder: Decoder[FiniteDuration] = Decoder.decodeString.emap { s =>
       Duration(s) match {

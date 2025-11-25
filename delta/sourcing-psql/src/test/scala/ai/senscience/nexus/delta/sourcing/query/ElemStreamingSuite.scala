@@ -287,9 +287,9 @@ object ElemStreamingSuite {
     val entityType: EntityType = EntityType("release")
 
     val serializer: Serializer[Iri, Release] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration   = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[Release] = deriveConfiguredCodec[Release]
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration           = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[Release] = deriveConfiguredCodec[Release]
       Serializer()
     }
   }

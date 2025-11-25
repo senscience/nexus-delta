@@ -6,7 +6,8 @@ Access Control Lists are rooted in the `/v1/acls` collection.
 An ACL defines the applications' data access restriction using the following three parameters:
          
 - permission: the value used to limit a client (user, group) access to resources.
-- identity: a client identity reference, e.g. a certain user, a group, an anonymous user or someone who is authenticated to a certain realm.
+- identity: a client identity reference, e.g. a certain user, a role, a group, an anonymous user 
+  or someone who is authenticated to a certain realm.
 - path: the location where to apply the restrictions. Examples of paths are: `/`, `/myorg` or `/myorg/myproject`
 
 @@@ note { .tip title="Authorization notes" }	

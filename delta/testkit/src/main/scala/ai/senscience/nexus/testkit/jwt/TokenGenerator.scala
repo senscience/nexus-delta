@@ -22,6 +22,7 @@ object TokenGenerator {
       expires: Instant,
       notBefore: Instant,
       aud: Option[NonEmptySet[String]] = None,
+      roles: Option[Set[String]] = None,
       groups: Option[Set[String]] = None,
       useCommas: Boolean = false,
       preferredUsername: Option[String] = None
@@ -31,6 +32,10 @@ object TokenGenerator {
       .subject(subject)
       .expirationTime(Date.from(expires))
       .notBeforeTime(Date.from(notBefore))
+
+    roles.foreach { set =>
+      csb.claim("roles", set.toArray)
+    }
 
     groups.foreach { set =>
       if useCommas then csb.claim("groups", set.mkString(","))

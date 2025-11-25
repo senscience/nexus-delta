@@ -116,9 +116,9 @@ object AclEvent {
 
   val serializer: Serializer[AclAddress, AclEvent] = {
     import Acl.Database.*
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration    = Serializer.circeConfiguration
-    implicit val coder: Codec.AsObject[AclEvent] = Codec.AsObject.from(
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration            = Serializer.circeConfiguration
+    given Codec.AsObject[AclEvent] = Codec.AsObject.from(
       deriveConfiguredDecoder[AclEvent],
       Encoder.AsObject.instance { ev =>
         deriveConfiguredEncoder[AclEvent].mapJsonObject(_.add("address", ev.address.asJson)).encodeObject(ev)

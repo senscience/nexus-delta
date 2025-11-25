@@ -66,8 +66,8 @@ object EventTombstoneStore {
   )
 
   object EventTombstone {
-    implicit val tombstoneRead: Read[EventTombstone] = {
-      implicit val v: Get[Value] = pgDecoderGetT[Value]
+    given Read[EventTombstone] = {
+      given Get[Value] = pgDecoderGetT[Value]
       Read[(EntityType, Label, Label, Iri, Value, Instant)].map { case (tpe, org, project, id, cause, instant) =>
         EventTombstone(tpe, ProjectRef(org, project), id, cause, instant)
       }
@@ -77,9 +77,9 @@ object EventTombstoneStore {
   final case class Value(subject: Subject)
 
   object Value {
-    implicit val valueCodec: Codec[Value] = {
-      implicit val subjectCodec: Encoder[Subject] = Identity.Database.subjectCodec
-      implicit val configuration: Configuration   = Configuration.default
+    given Codec[Value] = {
+      given Encoder[Subject] = Identity.Database.subjectCodec
+      given Configuration    = Configuration.default
       deriveConfiguredCodec[Value]
     }
   }

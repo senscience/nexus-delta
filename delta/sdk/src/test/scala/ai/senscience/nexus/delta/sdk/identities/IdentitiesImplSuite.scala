@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.sdk.generators.{RealmGen, WellKnownGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Role, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.jwt.TokenGenerator
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -48,6 +48,7 @@ class IdentitiesImplSuite extends NexusSuite {
       expires: Instant = nowPlus1h,
       notBefore: Instant = nowMinus1h,
       aud: Option[NonEmptySet[String]] = None,
+      roles: Option[Set[String]] = None,
       groups: Option[Set[String]] = None,
       useCommas: Boolean = false,
       preferredUsername: Option[String] = None
@@ -58,6 +59,7 @@ class IdentitiesImplSuite extends NexusSuite {
     expires,
     notBefore,
     aud,
+    roles,
     groups,
     useCommas,
     preferredUsername
@@ -163,6 +165,23 @@ class IdentitiesImplSuite extends NexusSuite {
 
     val user     = User("Robert", githubLabel)
     val expected = Caller(user, Set(user, Anonymous, auth, group3, group4))
+    identities.exchange(token).assertEquals(expected)
+  }
+
+  test("Succeed when the token is valid and roles are defined") {
+    val token = generateToken(
+      subject = "Robert",
+      issuer = githubLabel,
+      rsaKey = rsaKey,
+      expires = nowPlus1h,
+      groups = Some(Set.empty),
+      roles = Some(Set("role1", "role2"))
+    )
+
+    val user     = User("Robert", githubLabel)
+    val role1    = Role("role1", githubLabel)
+    val role2    = Role("role2", githubLabel)
+    val expected = Caller(user, Set(user, Anonymous, auth, role1, role2))
     identities.exchange(token).assertEquals(expected)
   }
 

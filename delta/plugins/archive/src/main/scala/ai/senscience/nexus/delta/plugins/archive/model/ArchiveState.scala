@@ -61,12 +61,11 @@ final case class ArchiveState(
 object ArchiveState {
 
   implicit val serializer: Serializer[Iri, ArchiveState] = {
-    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-    implicit val configuration: Configuration                                          = Serializer.circeConfiguration
-    implicit val archiveResourceRepresentation: Codec.AsObject[ResourceRepresentation] =
-      deriveConfiguredCodec[ResourceRepresentation]
-    implicit val archiveReferenceCodec: Codec.AsObject[ArchiveReference]               = deriveConfiguredCodec[ArchiveReference]
-    implicit val codec: Codec.AsObject[ArchiveState]                                   = deriveConfiguredCodec[ArchiveState]
+    import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+    given Configuration                          = Serializer.circeConfiguration
+    given Codec.AsObject[ResourceRepresentation] = deriveConfiguredCodec[ResourceRepresentation]
+    given Codec.AsObject[ArchiveReference]       = deriveConfiguredCodec[ArchiveReference]
+    given Codec.AsObject[ArchiveState]           = deriveConfiguredCodec[ArchiveState]
     Serializer()
   }
 

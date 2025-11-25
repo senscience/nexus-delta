@@ -6,6 +6,7 @@ Calling it with token should return multiple identities. There are four differen
 
 - `Anonymous` - represents anonymous user
 - `Authenticated` - represents a realm via which the user is authenticated
+- `Role` - represents a role to which a user belongs in a realm
 - `Group` - represents a group to which a user belongs in a realm
 - `User` - represents the user.
 

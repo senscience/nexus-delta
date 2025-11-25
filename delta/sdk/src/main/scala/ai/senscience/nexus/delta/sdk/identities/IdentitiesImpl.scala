@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import cats.data.OptionT
 import cats.effect.IO
 import cats.syntax.all.*
@@ -43,9 +43,10 @@ class IdentitiesImpl private[identities] (fetchRealm: FetchRealmByIssuer, fetchR
       activeRealm <- OptionT(fetchRealm(parsedToken.issuer)).getOrRaise(UnknownAccessTokenIssuer)
       _           <- IO.fromEither(parsedToken.validate(activeRealm.acceptedAudiences, realmKeyset(activeRealm)))
       groups      <- fetchGroups(parsedToken, activeRealm)
+      roles        = parsedToken.roles.fold(Set.empty)(_.map { r => Role(r, activeRealm.label) })
     } yield {
       val user = User(parsedToken.subject, activeRealm.label)
-      Caller(user, groups ++ Set(Anonymous, user, Authenticated(activeRealm.label)))
+      Caller(user, roles ++ groups ++ Set(Anonymous, user, Authenticated(activeRealm.label)))
     }
     result.surround("exchangeToken")
   }.onError { case rejection =>

@@ -79,9 +79,9 @@ object Arithmetic {
     }
 
     val serializer: Serializer[Iri, ArithmeticEvent] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration           = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[ArithmeticEvent] = deriveConfiguredCodec[ArithmeticEvent]
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration                   = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[ArithmeticEvent] = deriveConfiguredCodec[ArithmeticEvent]
       Serializer()
     }
   }
@@ -116,9 +116,9 @@ object Arithmetic {
   object Total {
 
     val serializer: Serializer[Iri, Total] = {
-      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.*
-      implicit val configuration: Configuration = Configuration.default.withDiscriminator("@type")
-      implicit val coder: Codec.AsObject[Total] = deriveConfiguredCodec[Total]
+      import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
+      given Configuration         = Configuration.default.withDiscriminator("@type")
+      given Codec.AsObject[Total] = deriveConfiguredCodec[Total]
       Serializer()
     }
 
