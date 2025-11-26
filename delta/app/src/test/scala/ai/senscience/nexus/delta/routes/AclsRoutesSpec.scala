@@ -43,7 +43,8 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
   private def groupAcl(address: AclAddress)    = Acl(address, group -> manage)
   private def group2Acl(address: AclAddress)   = Acl(address, group2 -> manage)
   private def selfAcls(address: AclAddress)    = userAcl(address) ++ roleAcl(address) ++ groupAcl(address)
-  private def allAcls(address: AclAddress)     = userAcl(address) ++ roleAcl(address) ++ groupAcl(address) ++ group2Acl(address)
+  private def allAcls(address: AclAddress)     =
+    userAcl(address) ++ roleAcl(address) ++ groupAcl(address) ++ group2Acl(address)
 
   private given caller: Caller = Caller(user, Set(user, group, role))
 
@@ -222,7 +223,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
     "get ACL self = false with project path containing *" in {
       Get("/v1/acls/myorg/*?self=false") ~> as(user) ~> routes ~> check {
-        val expected =  expectedResponse(2L, Seq((allAcls(myOrgMyProj), 4), (allAcls(myOrgMyProj2), 4)))
+        val expected = expectedResponse(2L, Seq((allAcls(myOrgMyProj), 4), (allAcls(myOrgMyProj2), 4)))
         response.asJson should equalIgnoreArrayOrder(expected)
         status shouldEqual StatusCodes.OK
       }
@@ -234,7 +235,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       acls.append(groupAcl(myOrg2MyProj2), 2).accepted
       acls.append(group2Acl(myOrg2MyProj2), 3).accepted
       Get("/v1/acls/*/*") ~> as(user) ~> routes ~> check {
-        val expected =  expectedResponse(
+        val expected = expectedResponse(
           3L,
           Seq((selfAcls(myOrgMyProj), 4), (selfAcls(myOrgMyProj2), 4), (selfAcls(myOrg2MyProj2), 4))
         )
