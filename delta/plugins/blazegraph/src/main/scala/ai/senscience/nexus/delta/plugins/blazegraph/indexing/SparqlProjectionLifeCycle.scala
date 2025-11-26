@@ -38,9 +38,7 @@ object SparqlProjectionLifeCycle {
       IndexingViewDef.compile(
         view,
         pipeChainCompiler,
-        graphStream
-          .continuous(view.ref.project, view.selectFilter, _)
-          .pauseWhen(sparqlHealthCheck.failing),
+        graphStream.continuous(view.ref.project, view.selectFilter, _),
         sink(view)
       )
 

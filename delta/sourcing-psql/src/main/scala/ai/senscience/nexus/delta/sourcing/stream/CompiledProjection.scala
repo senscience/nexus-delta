@@ -7,6 +7,8 @@ import cats.effect.{IO, Ref}
 import fs2.{Pull, Stream}
 import fs2.concurrent.SignallingRef
 
+import scala.concurrent.duration.DurationInt
+
 /**
   * A projection that has been successfully compiled and is ready to be run.
   *
@@ -88,14 +90,19 @@ object CompiledProjection {
       backpressure: ProjectionBackpressure
   ) = {
     def go(s: ElemStream[A]): Pull[IO, Elem[A], Unit] = {
-      s.pull.uncons.flatMap {
-        case Some((head, tail)) =>
-          Pull.bracketCase(
-            Pull.eval(backpressure.acquire(metadata)),
-            _ => Pull.output(head),
-            (_, _) => Pull.eval(backpressure.release(metadata))
-          ) >> go(tail)
-        case None               => Pull.done
+      Pull.eval(backpressure.exhausted).flatMap {
+        case true =>
+          Pull.sleep(100.millis) >> go(s)
+        case false =>
+          s.pull.uncons.flatMap {
+            case Some((head, tail)) =>
+              Pull.bracketCase(
+                Pull.eval(backpressure.acquire(metadata, head.size)),
+                _ => Pull.output(head),
+                (_, _) => Pull.eval(backpressure.release(metadata, head.size))
+              ) >> go(tail)
+            case None => Pull.done
+          }
       }
     }
     go(stream).stream
