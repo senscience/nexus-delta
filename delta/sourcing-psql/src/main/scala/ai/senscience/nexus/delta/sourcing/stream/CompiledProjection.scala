@@ -91,7 +91,7 @@ object CompiledProjection {
   ) = {
     def go(s: ElemStream[A]): Pull[IO, Elem[A], Unit] = {
       Pull.eval(backpressure.exhausted).flatMap {
-        case true =>
+        case true  =>
           Pull.sleep(100.millis) >> go(s)
         case false =>
           s.pull.uncons.flatMap {
@@ -101,7 +101,7 @@ object CompiledProjection {
                 _ => Pull.output(head),
                 (_, _) => Pull.eval(backpressure.release(metadata, head.size))
               ) >> go(tail)
-            case None => Pull.done
+            case None               => Pull.done
           }
       }
     }

@@ -37,7 +37,7 @@ object ProjectionBackpressure {
           override def acquire(metadata: ProjectionMetadata, chunkSize: Int): IO[Unit] =
             logger.trace(s"Acquiring for '${metadata.fullName}'") >>
               elemCount.update(_ + chunkSize) >>
-                semaphore.acquire
+              semaphore.acquire
 
           override def release(metadata: ProjectionMetadata, chunkSize: Int): IO[Unit] =
             logger.trace(s"Releasing for '${metadata.fullName}'") >>
