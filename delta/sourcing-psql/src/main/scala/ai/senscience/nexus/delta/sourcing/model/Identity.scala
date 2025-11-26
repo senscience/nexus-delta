@@ -92,8 +92,8 @@ object Identity {
     }
 
   private def decodeRole(hc: HCursor): Result[Identity] =
-    (hc.get[String]("role"), hc.get[Label]("realm")).mapN { case (group, realm) =>
-      Group(group, realm)
+    (hc.get[String]("role"), hc.get[Label]("realm")).mapN { case (role, realm) =>
+      Role(role, realm)
     }
 
   private def decodeGroup(hc: HCursor): Result[Identity] =
