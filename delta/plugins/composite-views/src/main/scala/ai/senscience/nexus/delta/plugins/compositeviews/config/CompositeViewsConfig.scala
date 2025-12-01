@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsCon
 import ai.senscience.nexus.delta.sdk.auth
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
-import ai.senscience.nexus.delta.sourcing.stream.config.{BackpressureConfig, BatchConfig}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
@@ -55,7 +55,6 @@ final case class CompositeViewsConfig(
     minIntervalRebuild: FiniteDuration,
     blazegraphBatch: BatchConfig,
     elasticsearchBatch: BatchConfig,
-    backpressure: BackpressureConfig,
     retryStrategy: RetryStrategyConfig,
     restartCheckInterval: FiniteDuration,
     indexingEnabled: Boolean,

@@ -110,7 +110,7 @@ object CompositeViewsCoordinator {
                           metadata,
                           ExecutionStrategy.EveryNode,
                           coordinator.run
-                        )(using ProjectionBackpressure.Noop)
+                        )
                       )
       } yield coordinator
     } else {

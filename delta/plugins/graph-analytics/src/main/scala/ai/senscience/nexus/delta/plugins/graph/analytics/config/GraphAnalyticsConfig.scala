@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.config
 
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
-import ai.senscience.nexus.delta.sourcing.stream.config.{BackpressureConfig, BatchConfig}
+import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import pureconfig.ConfigReader
 import pureconfig.error.FailureReason
 import pureconfig.generic.semiauto.deriveReader
@@ -20,7 +20,6 @@ import pureconfig.generic.semiauto.deriveReader
   */
 final case class GraphAnalyticsConfig(
     batch: BatchConfig,
-    backpressure: BackpressureConfig,
     prefix: String,
     termAggregations: TermAggregationsConfig,
     indexingEnabled: Boolean

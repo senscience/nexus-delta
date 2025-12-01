@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionBackpressure, PullRequestStream}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, PullRequestStream}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import fs2.concurrent.Signal
@@ -21,8 +21,7 @@ class SparqlProjectionLifeCycleSuite extends NexusSuite with SparqlClientSetup.F
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(blazegraphClient)
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given BaseUri                = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private lazy val client: SparqlClient = blazegraphClient()
 

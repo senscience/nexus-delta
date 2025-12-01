@@ -50,7 +50,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(using RemoteContextResolution, ProjectionBackpressure)
+  )(using RemoteContextResolution)
       extends ElasticSearchCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] = {
@@ -126,7 +126,7 @@ object ElasticSearchCoordinator {
       metadata,
       ExecutionStrategy.EveryNode,
       offset => coordinator.run(offset)
-    )(using ProjectionBackpressure.Noop)
+    )
 
   def apply(
       views: ElasticSearchViews,
@@ -135,7 +135,7 @@ object ElasticSearchCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: ElasticSearchViewsConfig
-  )(using RemoteContextResolution, ProjectionBackpressure, Tracer[IO]): IO[ElasticSearchCoordinator] = {
+  )(using RemoteContextResolution, Tracer[IO]): IO[ElasticSearchCoordinator] = {
     if config.indexingEnabled then {
       apply(
         views.indexingViews,
@@ -165,7 +165,7 @@ object ElasticSearchCoordinator {
       sink: ActiveViewDef => Sink,
       createIndex: ActiveViewDef => IO[Unit],
       deleteIndex: ActiveViewDef => IO[Unit]
-  )(using RemoteContextResolution, ProjectionBackpressure): IO[ElasticSearchCoordinator] =
+  )(using RemoteContextResolution): IO[ElasticSearchCoordinator] =
     for {
       cache      <- LocalCache[ViewRef, ActiveViewDef]()
       coordinator = new Active(

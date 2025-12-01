@@ -4,8 +4,8 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig.{DelayConfig, PassivationConfig, StopConfig}
-import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome
-import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.Outcome.*
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.*
 import ai.senscience.nexus.delta.sourcing.stream.ProjectActivity
 import cats.effect.IO
 
@@ -13,16 +13,16 @@ import cats.effect.IO
   * Computes the outcome to apply when all elements are consumed by a projection
   */
 trait RefreshOrStop {
-  def run(previous: Option[Outcome]): IO[Outcome]
+  def run(previous: Option[RefreshOutcome]): IO[RefreshOutcome]
 }
 
 object RefreshOrStop {
 
-  sealed trait Outcome
+  sealed trait RefreshOutcome
 
-  object Outcome {
-    case object Stopped          extends Outcome
-    sealed trait Continue        extends Outcome
+  object RefreshOutcome {
+    case object Stopped          extends RefreshOutcome
+    sealed trait Continue        extends RefreshOutcome
     case object Delayed          extends Continue
     case object OutOfPassivation extends Continue
     case object Passivated       extends Continue
@@ -32,7 +32,7 @@ object RefreshOrStop {
 
   def apply(scope: Scope, config: ElemQueryConfig, projectActivity: ProjectActivity): RefreshOrStop =
     new RefreshOrStop {
-      override def run(previous: Option[Outcome]): IO[Outcome] = {
+      override def run(previous: Option[RefreshOutcome]): IO[RefreshOutcome] = {
         (config, scope) match {
           case (_: StopConfig, _)                             => IO.pure(Stopped)
           case (d: DelayConfig, _)                            => IO.sleep(d.delay).as(Delayed)

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectionBackpressure, *}
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.effect.IO
 import cats.syntax.all.*
@@ -47,8 +47,7 @@ object GraphAnalyticsCoordinator {
       sink: ProjectRef => Sink,
       createIndex: ProjectRef => IO[Unit],
       deleteIndex: ProjectRef => IO[Unit]
-  )(using ProjectionBackpressure)
-      extends GraphAnalyticsCoordinator {
+  ) extends GraphAnalyticsCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
       fetchProjects(offset).evalMap {
@@ -130,7 +129,7 @@ object GraphAnalyticsCoordinator {
       supervisor: Supervisor,
       client: ElasticSearchClient,
       config: GraphAnalyticsConfig
-  )(using ProjectionBackpressure, Tracer[IO]): IO[GraphAnalyticsCoordinator] =
+  )(using Tracer[IO]): IO[GraphAnalyticsCoordinator] =
     if config.indexingEnabled then {
       val coordinator = apply(
         projects.states(_).map(_.map { p => ProjectDef(p.project, p.markedForDeletion) }),
@@ -163,7 +162,7 @@ object GraphAnalyticsCoordinator {
       metadata,
       ExecutionStrategy.EveryNode,
       active.run
-    )(using ProjectionBackpressure.Noop)
+    )
 
   private[analytics] def apply(
       fetchProjects: Offset => ElemStream[ProjectDef],
@@ -172,7 +171,7 @@ object GraphAnalyticsCoordinator {
       sink: ProjectRef => Sink,
       createIndex: ProjectRef => IO[Unit],
       deleteIndex: ProjectRef => IO[Unit]
-  )(using ProjectionBackpressure): IO[GraphAnalyticsCoordinator] = {
+  ): IO[GraphAnalyticsCoordinator] = {
     val coordinator =
       new Active(fetchProjects, analyticsStream, supervisor, sink, createIndex, deleteIndex)
     supervisor

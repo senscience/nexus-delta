@@ -26,8 +26,7 @@ class GraphAnalyticsCoordinatorSuite extends NexusSuite with SupervisorSetup.Fix
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given PatienceConfig         = PatienceConfig(10.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(10.seconds, 10.millis)
 
   private lazy val (sv, projections, _) = unapply(supervisor())
   private val project1                  = ProjectRef.unsafe("org", "proj1")

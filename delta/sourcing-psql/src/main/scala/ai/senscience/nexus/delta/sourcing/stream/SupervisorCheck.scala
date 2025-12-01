@@ -1,9 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.Logger
-import cats.effect.{IO, Resource}
+import cats.effect.{Deferred, IO, Resource}
 import fs2.Stream
-import fs2.concurrent.SignallingRef
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -23,27 +22,27 @@ object SupervisorCheck {
     override def stop: IO[Unit] = IO.unit
   }
 
-  final private class Active(supervisor: Supervisor, checkInterval: FiniteDuration, signal: SignallingRef[IO, Boolean])
+  final private class Active(supervisor: Supervisor, checkInterval: FiniteDuration, halt: Deferred[IO, Unit])
       extends SupervisorCheck {
     override def run: IO[Unit] =
       Stream
         .awakeEvery[IO](checkInterval)
         .evalTap(_ => logger.debug("Checking projection statuses"))
         .flatMap(_ => supervisor.check)
-        .interruptWhen(signal)
+        .interruptWhen(halt.get.attempt)
         .compile
         .drain
 
-    override def stop: IO[Unit] = signal.set(true)
+    override def stop: IO[Unit] = halt.complete(()).void
   }
 
   def apply(supervisor: Supervisor, checkInterval: FiniteDuration): Resource[IO, SupervisorCheck] = {
     Resource
       .make(
         logger.info("Starting supervisor check task") >>
-          SignallingRef[IO, Boolean](false)
-            .map { signal =>
-              new Active(supervisor, checkInterval, signal)
+          Deferred[IO, Unit]
+            .map { halt =>
+              new Active(supervisor, checkInterval, halt)
             }
             .flatMap { s =>
               s.run.start.map(s -> _)

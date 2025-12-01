@@ -35,7 +35,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionBackpressure, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -50,10 +50,6 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   makeTracer("composite-indexing")
 
   addRemoteContextResolution(contexts.definition)
-
-  make[ProjectionBackpressure].named("composite-backpressure").fromEffect { (cfg: CompositeViewsConfig) =>
-    ProjectionBackpressure(cfg.backpressure)
-  }
 
   make[DeltaClient].fromResource { (cfg: CompositeViewsConfig, authTokenProvider: AuthTokenProvider) =>
     DeltaClient(authTokenProvider, cfg.remoteSourceCredentials, cfg.remoteSourceClient.retryDelay)
@@ -200,8 +196,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         graphStream: CompositeGraphStream,
         spaces: CompositeSpaces,
         sinks: CompositeSinks,
-        compositeProjections: CompositeProjections,
-        backpressure: ProjectionBackpressure @Id("composite-backpressure")
+        compositeProjections: CompositeProjections
     ) =>
       CompositeProjectionLifeCycle(
         hooks,
@@ -210,7 +205,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         spaces,
         sinks,
         compositeProjections
-      )(using backpressure)
+      )
   }
 
   make[CompositeViewsCoordinator].fromEffect {

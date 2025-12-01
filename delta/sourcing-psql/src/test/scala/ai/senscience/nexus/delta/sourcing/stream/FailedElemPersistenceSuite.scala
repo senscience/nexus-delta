@@ -16,9 +16,8 @@ import scala.concurrent.duration.DurationInt
 
 class FailedElemPersistenceSuite extends NexusSuite {
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given BatchConfig            = BatchConfig(2, 10.millis)
-  private given PatienceConfig         = PatienceConfig(500.millis, 10.millis)
+  private given BatchConfig    = BatchConfig(2, 10.millis)
+  private given PatienceConfig = PatienceConfig(500.millis, 10.millis)
 
   private val projection1 = ProjectionMetadata("test", "name1", None, None)
   private val project     = ProjectRef.unsafe("org", "proj")

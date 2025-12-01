@@ -95,7 +95,7 @@ object IndexingViewDef {
       pipeChainCompiler: PipeChainCompiler,
       elems: ElemStream[GraphResource],
       sink: Sink
-  )(using RemoteContextResolution, ProjectionBackpressure): IO[CompiledProjection] =
+  )(using RemoteContextResolution): IO[CompiledProjection] =
     compile(v, pipeChainCompiler, _ => elems, sink)
 
   def compile(
@@ -103,7 +103,7 @@ object IndexingViewDef {
       pipeChainCompiler: PipeChainCompiler,
       graphStream: GraphResourceStream,
       sink: Sink
-  )(using RemoteContextResolution, ProjectionBackpressure): IO[CompiledProjection] =
+  )(using RemoteContextResolution): IO[CompiledProjection] =
     compile(v, pipeChainCompiler, graphStream.continuous(v.ref.project, v.selectFilter, _), sink)
 
   private def compile(
@@ -111,7 +111,7 @@ object IndexingViewDef {
       pipeChainCompiler: PipeChainCompiler,
       stream: Offset => ElemStream[GraphResource],
       sink: Sink
-  )(using RemoteContextResolution, ProjectionBackpressure): IO[CompiledProjection] = {
+  )(using RemoteContextResolution): IO[CompiledProjection] = {
 
     val mergedContext        = v.context.fold(defaultIndexingContext) { defaultIndexingContext.merge(_) }
     val postPipes: Operation = new GraphResourceToDocument(mergedContext, false)
