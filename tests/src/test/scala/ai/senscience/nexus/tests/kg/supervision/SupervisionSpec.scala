@@ -8,11 +8,11 @@ import io.circe.*
 class SupervisionSpec extends BaseIntegrationSpec {
 
   "The supervision endpoint" should {
-    s"reject calls without 'supervision/read' permission" in {
+    "reject calls without 'supervision/read' permission" in {
       deltaClient.get[Json]("/supervision/projections", Anonymous) { expectForbidden }
     }
 
-    s"accept calls with 'supervision/read'" in {
+    "accept calls with 'supervision/read'" in {
       deltaClient.get[Json]("/supervision/projections", ServiceAccount) { expectOk }
     }
   }
