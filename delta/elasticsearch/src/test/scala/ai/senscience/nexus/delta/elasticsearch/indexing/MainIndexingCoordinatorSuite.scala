@@ -27,8 +27,7 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given PatienceConfig         = PatienceConfig(10.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(10.seconds, 10.millis)
 
   private lazy val (sv, projections, _) = unapply(supervisor())
 

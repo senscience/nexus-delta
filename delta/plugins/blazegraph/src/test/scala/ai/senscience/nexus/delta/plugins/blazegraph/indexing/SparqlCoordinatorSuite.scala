@@ -28,8 +28,7 @@ class SparqlCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given PatienceConfig         = PatienceConfig(5.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val indexingRev = 1
   private val rev         = 2

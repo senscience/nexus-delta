@@ -34,9 +34,8 @@ import scala.concurrent.duration.*
 
 class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given PatienceConfig         = PatienceConfig(500.millis, 10.millis)
-  private given BatchConfig            = BatchConfig(2, 10.millis)
+  private given PatienceConfig = PatienceConfig(500.millis, 10.millis)
+  private given BatchConfig    = BatchConfig(2, 10.millis)
 
   private val defaultIndexDef = DefaultIndexDef(jobj"""{"defaultEsMapping": {}}""", jobj"""{"defaultEsSettings": {}}""")
   private val prefix          = "prefix"

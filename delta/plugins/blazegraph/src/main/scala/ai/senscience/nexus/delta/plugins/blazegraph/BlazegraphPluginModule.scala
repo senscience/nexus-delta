@@ -32,7 +32,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionBackpressure, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -59,10 +59,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
   make[SparqlClient].named("sparql-query-client").fromResource {
     (cfg: BlazegraphViewsConfig, metricsClient: OtelMetricsClient, tracer: Tracer[IO] @Id("sparql")) =>
       SparqlClient(cfg.access, metricsClient, "sparql-query")(using tracer)
-  }
-
-  make[ProjectionBackpressure].named("sparql-backpressure").fromEffect { (cfg: BlazegraphViewsConfig) =>
-    ProjectionBackpressure(cfg.backpressure)
   }
 
   make[ValidateBlazegraphView].from {
@@ -123,7 +119,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri,
-        backpressure: ProjectionBackpressure @Id("sparql-backpressure"),
         tracer: Tracer[IO] @Id("sparql-indexing")
     ) =>
       SparqlProjectionLifeCycle(
@@ -133,11 +128,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         client,
         config.retryStrategy,
         config.batch
-      )(using
-        baseUri,
-        backpressure,
-        tracer
-      )
+      )(using baseUri, tracer)
   }
 
   make[SparqlCoordinator].fromEffect {

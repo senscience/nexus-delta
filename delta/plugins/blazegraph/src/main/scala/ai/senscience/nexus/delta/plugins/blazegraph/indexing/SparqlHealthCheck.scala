@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
-import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionBackpressure, ProjectionMetadata, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
@@ -71,7 +71,6 @@ object SparqlHealthCheck {
 
   def apply(client: SparqlClient, supervisor: Supervisor): IO[SparqlHealthCheck] =
     SignallingRef.of[IO, Boolean](true).flatMap { failingSignal =>
-      given ProjectionBackpressure       = ProjectionBackpressure.Noop
       val healthCheck: SparqlHealthCheck = new SparqlHealthCheck {
         override def failing: SignallingRef[IO, Boolean] = failingSignal
       }

@@ -3,17 +3,16 @@ package ai.senscience.nexus.tests.kg.supervision
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.{Anonymous, ServiceAccount}
 import ai.senscience.nexus.tests.Optics.{filterKeys, projections}
-import ai.senscience.nexus.tests.iam.types.Permission.Supervision
 import io.circe.*
 
 class SupervisionSpec extends BaseIntegrationSpec {
 
   "The supervision endpoint" should {
-    s"reject calls without ${Supervision.Read.value} permission" in {
+    "reject calls without 'supervision/read' permission" in {
       deltaClient.get[Json]("/supervision/projections", Anonymous) { expectForbidden }
     }
 
-    s"accept calls with ${Supervision.Read.value}" in {
+    "accept calls with 'supervision/read'" in {
       deltaClient.get[Json]("/supervision/projections", ServiceAccount) { expectOk }
     }
   }

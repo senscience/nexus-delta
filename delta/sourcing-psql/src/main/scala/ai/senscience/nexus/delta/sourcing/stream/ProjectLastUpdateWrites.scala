@@ -1,8 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQuerySet, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.effect.IO
@@ -37,10 +39,11 @@ object ProjectLastUpdateWrites {
       store: ProjectLastUpdateStore,
       xas: Transactors,
       batchConfig: BatchConfig
-  ): IO[ProjectLastUpdateWrites] = {
+  )(using UUIDF): IO[ProjectLastUpdateWrites] = {
     // We build an elem streaming based on a delay
-    val es         = ElemStreaming.delay(xas, None, batchConfig.maxElements, batchConfig.maxInterval)
-    val elemStream = (offset: Offset) => es(Scope.root, offset, SelectFilter.latest)
+    val queryConfig = ElemQueryConfig.DelayConfig(0, batchConfig.maxElements, batchConfig.maxInterval)
+    val es          = new ElemStreaming(xas, OngoingQuerySet.Noop, None, queryConfig, ProjectActivity.noop)
+    val elemStream  = (offset: Offset) => es(Scope.root, offset, SelectFilter.latest)
     apply(supervisor, store, elemStream, batchConfig)
   }
 
@@ -50,10 +53,9 @@ object ProjectLastUpdateWrites {
       elemStream: Offset => ElemStream[Unit],
       batchConfig: BatchConfig
   ): IO[ProjectLastUpdateWrites] = {
-    given ProjectionBackpressure = ProjectionBackpressure.Noop
-    val source                   = Source { (offset: Offset) => elemStream(offset) }
-    val sink                     = ProjectLastUpdatesSink(store, batchConfig)
-    val compiledProjection       = CompiledProjection.compile(
+    val source             = Source { (offset: Offset) => elemStream(offset) }
+    val sink               = ProjectLastUpdatesSink(store, batchConfig)
+    val compiledProjection = CompiledProjection.compile(
       projectionMetadata,
       ExecutionStrategy.PersistentSingleNode,
       source,

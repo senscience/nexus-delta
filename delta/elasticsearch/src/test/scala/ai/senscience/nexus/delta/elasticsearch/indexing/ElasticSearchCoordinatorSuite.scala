@@ -31,8 +31,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  private given ProjectionBackpressure = ProjectionBackpressure.Noop
-  private given PatienceConfig         = PatienceConfig(5.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val indexingRev = IndexingRev.init
   private val rev         = 2

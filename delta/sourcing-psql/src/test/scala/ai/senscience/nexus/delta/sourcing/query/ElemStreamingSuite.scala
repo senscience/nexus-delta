@@ -1,10 +1,12 @@
 package ai.senscience.nexus.delta.sourcing.query
 
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
+import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig.StopConfig
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
@@ -29,16 +31,19 @@ import io.circe.{Codec, DecodingFailure, Json}
 import munit.AnyFixture
 
 import java.time.Instant
+import scala.concurrent.duration.DurationInt
 
 class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
-  private val qc = QueryConfig(2, RefreshStrategy.Stop)
+  private given UUIDF = UUIDF.random
+  private val qc      = QueryConfig(2, RefreshStrategy.Stop)
 
   private lazy val xas            = doobie()
   private val entityTypes         = Some(NonEmptyList.of(PullRequest.entityType, Release.entityType))
-  private lazy val elemStreaming  = ElemStreaming.stopping(xas, entityTypes, 2)
+  private val stopConfig          = StopConfig(20, 2, 50.millis)
+  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQuerySet.Noop, entityTypes, stopConfig)
   private lazy val tombstoneStore = new StateTombstoneStore(xas)
 
   private lazy val prStore = ScopedStateStore[Iri, PullRequestState](
@@ -175,7 +180,7 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
     )
 
     iri.compile.toList.assertEquals(expected)
-    void.compile.toList.assertEquals(expected.map(_.void))
+    void.compile.toList.flatTap(IO.println(_)).assertEquals(expected.map(_.void))
   }
 
   test(s"Running a stream on states with tag '${customTag.value}' on project 1 from offset 11") {

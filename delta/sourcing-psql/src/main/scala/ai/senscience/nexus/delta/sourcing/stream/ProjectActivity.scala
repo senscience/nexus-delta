@@ -49,8 +49,7 @@ object ProjectActivity {
       stream: ProjectLastUpdateStream,
       clock: Clock[IO],
       inactiveInterval: FiniteDuration
-  )(using Meter[IO]): IO[ProjectActivity] = {
-    given ProjectionBackpressure = ProjectionBackpressure.Noop
+  )(using Meter[IO]): IO[ProjectActivity] =
     for {
       activityMap <- ProjectActivityMap(clock, inactiveInterval)
       compiled     =
@@ -64,7 +63,6 @@ object ProjectActivity {
         )
       _           <- supervisor.run(compiled)
     } yield apply(activityMap)
-  }
 
   def apply(activityMap: ProjectActivityMap): ProjectActivity =
     (project: ProjectRef) => activityMap.contains(project)

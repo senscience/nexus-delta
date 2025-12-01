@@ -18,8 +18,8 @@ import scala.concurrent.duration.FiniteDuration
   *   the name of the projection
   * @param status
   *   the projection execution status
-  * @param signal
-  *   a signal to stop the projection
+  * @param halt
+  *   a deferred to stop the projection
   * @param fiber
   *   the projection fiber
   */
@@ -27,7 +27,7 @@ final class Projection private[stream] (
     val name: String,
     status: SignallingRef[IO, ExecutionStatus],
     progress: Ref[IO, ProjectionProgress],
-    signal: SignallingRef[IO, Boolean],
+    halt: Deferred[IO, Unit],
     fiber: Ref[IO, Fiber[IO, Throwable, Unit]]
 ) {
 
@@ -71,8 +71,8 @@ final class Projection private[stream] (
   def stop(): IO[Unit] =
     for {
       f <- fiber.get
-      _ <- status.update(_ => ExecutionStatus.Stopped)
-      _ <- signal.set(true)
+      _ <- status.set(ExecutionStatus.Stopped)
+      _ <- halt.complete(())
       _ <- f.join
     } yield ()
 }
@@ -123,12 +123,12 @@ object Projection {
   )(using batch: BatchConfig): IO[Projection] =
     for {
       status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
-      signal      <- SignallingRef[IO, Boolean](false)
+      halt        <- Deferred[IO, Unit]
       progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
       progressRef <- Ref[IO].of(progress)
       stream       = projection.streamF
-                       .apply(progress.offset)(status)(signal)
-                       .interruptWhen(signal)
+                       .apply(progress.offset)
+                       .interruptWhen(halt.get.attempt)
                        .onFinalizeCaseWeak {
                          case ExitCase.Errored(th) => status.update(_.failed(th))
                          case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
@@ -151,6 +151,6 @@ object Projection {
                      )
       fiber       <- task.start
       fiberRef    <- Ref[IO].of(fiber)
-    } yield new Projection(projection.metadata.name, status, progressRef, signal, fiberRef)
+    } yield new Projection(projection.metadata.name, status, progressRef, halt, fiberRef)
 
 }

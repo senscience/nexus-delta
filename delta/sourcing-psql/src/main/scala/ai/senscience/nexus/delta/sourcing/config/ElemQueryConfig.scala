@@ -13,12 +13,15 @@ import scala.concurrent.duration.FiniteDuration
   */
 sealed trait ElemQueryConfig {
 
+  def maxOngoing: Int
+
   /**
     * @return
     *   the maximum number of elements to fetch with one query
     */
   def batchSize: Int
 
+  def delay: FiniteDuration
 }
 
 object ElemQueryConfig {
@@ -26,23 +29,23 @@ object ElemQueryConfig {
   /**
     * Will successfully stop the stream when all elems have been consumed
     */
-  final case class StopConfig(batchSize: Int) extends ElemQueryConfig
+  final case class StopConfig(maxOngoing: Int, batchSize: Int, delay: FiniteDuration) extends ElemQueryConfig
 
   /**
     * Will pause the stream for a fixed delay before executing the query again
     * @param delay
     *   the amount of time to wait for
     */
-  final case class DelayConfig(batchSize: Int, delay: FiniteDuration) extends ElemQueryConfig
+  final case class DelayConfig(maxOngoing: Int, batchSize: Int, delay: FiniteDuration) extends ElemQueryConfig
 
   /**
     * Will pause the stream until a resource gets created / updated in the project the stream is running against
     * @param delay
     *   the amount of time to wait for active projects
     */
-  final case class PassivationConfig(batchSize: Int, delay: FiniteDuration) extends ElemQueryConfig
+  final case class PassivationConfig(maxOngoing: Int, batchSize: Int, delay: FiniteDuration) extends ElemQueryConfig
 
-  implicit final val queryConfig: ConfigReader[ElemQueryConfig] = {
+  given ConfigReader[ElemQueryConfig] = {
     val stopConfigReader: ConfigReader[StopConfig]                  = deriveReader[StopConfig]
     val delayConfigReader: ConfigReader[DelayConfig]                = deriveReader[DelayConfig]
     val waitForProjectUpdateReader: ConfigReader[PassivationConfig] = deriveReader[PassivationConfig]

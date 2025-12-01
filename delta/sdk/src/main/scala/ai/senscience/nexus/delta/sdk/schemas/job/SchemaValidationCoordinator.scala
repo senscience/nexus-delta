@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import cats.effect.IO
 
 /**
-  * Allows to run a revalidation of the different data resouces in the given project
-  *   - Those projections are triggered directy by a a dedicated endpoint
+  * Allows to run a revalidation of the different data resources in the given project
+  *   - Those projections are triggered directly by a dedicated endpoint
   *   - It saves its progress and errors the same way as other projections
   *   - Unlike projections related to indexing, those tasks won't be resumed if Delta gets restarted
   *   - Running again the validation on aa project will overwrite the previous progress and the related errors
@@ -35,7 +35,7 @@ object SchemaValidationCoordinator {
             ExecutionStrategy.PersistentSingleNode,
             Source(schemaValidationStream(project, _)),
             new NoopSink[Unit]
-          )(using ProjectionBackpressure.Noop)
+          )
         )
 
       override def run(project: ProjectRef): IO[Unit] = {

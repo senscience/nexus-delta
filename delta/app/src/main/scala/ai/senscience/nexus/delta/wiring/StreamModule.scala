@@ -1,12 +1,13 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.config.BuildInfo
+import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.*
-import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQuerySet}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
@@ -23,9 +24,24 @@ import org.typelevel.otel4s.oteljava.OtelJava
 object StreamModule extends ModuleDef {
   addImplicit[Sync[IO]]
 
-  make[ElemStreaming].from {
-    (xas: Transactors, shifts: ResourceShifts, queryConfig: ElemQueryConfig, projectActivity: ProjectActivity) =>
-      new ElemStreaming(xas, shifts.entityTypes, queryConfig, projectActivity)
+  make[ElemStreaming].fromEffect {
+    (
+        xas: Transactors,
+        shifts: ResourceShifts,
+        queryConfig: ElemQueryConfig,
+        projectActivity: ProjectActivity,
+        uuidF: UUIDF,
+        otel: OtelJava[IO]
+    ) =>
+      otel.meterProvider
+        .meter("ai.senscience.nexus.delta.indexing")
+        .withVersion(BuildInfo.version)
+        .get
+        .flatMap { meter =>
+          OngoingQuerySet(queryConfig.maxOngoing)(using meter).map { ongoingQuery =>
+            new ElemStreaming(xas, ongoingQuery, shifts.entityTypes, queryConfig, projectActivity)(using uuidF)
+          }
+        }
   }
 
   make[GraphResourceStream].from { (elemStreaming: ElemStreaming, shifts: ResourceShifts) =>
@@ -69,8 +85,14 @@ object StreamModule extends ModuleDef {
   }
 
   make[ProjectLastUpdateWrites].fromEffect {
-    (supervisor: Supervisor, store: ProjectLastUpdateStore, xas: Transactors, config: ProjectLastUpdateConfig) =>
-      ProjectLastUpdateWrites(supervisor, store, xas, config.batch)
+    (
+        supervisor: Supervisor,
+        store: ProjectLastUpdateStore,
+        xas: Transactors,
+        config: ProjectLastUpdateConfig,
+        uuidf: UUIDF
+    ) =>
+      ProjectLastUpdateWrites(supervisor, store, xas, config.batch)(using uuidf)
   }
 
   make[ProjectActivity].fromEffect {
@@ -90,7 +112,7 @@ object StreamModule extends ModuleDef {
         }
   }
 
-  make[PurgeProjectionCoordinator.type].fromEffect {
+  make[PurgeProjectionCoordinator].fromEffect {
     (supervisor: Supervisor, clock: Clock[IO], projections: Set[PurgeProjection]) =>
       PurgeProjectionCoordinator(supervisor, clock, projections)
   }
