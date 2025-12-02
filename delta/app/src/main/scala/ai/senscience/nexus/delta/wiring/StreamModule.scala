@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.*
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQuerySet}
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQueries}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
@@ -38,8 +38,8 @@ object StreamModule extends ModuleDef {
         .withVersion(BuildInfo.version)
         .get
         .flatMap { meter =>
-          OngoingQuerySet(queryConfig.maxOngoing)(using meter).map { ongoingQuery =>
-            new ElemStreaming(xas, ongoingQuery, shifts.entityTypes, queryConfig, projectActivity)(using uuidF)
+          OngoingQueries(queryConfig.maxOngoing)(using meter).map { ongoingQueries =>
+            new ElemStreaming(xas, ongoingQueries, shifts.entityTypes, queryConfig, projectActivity)(using uuidF)
           }
         }
   }

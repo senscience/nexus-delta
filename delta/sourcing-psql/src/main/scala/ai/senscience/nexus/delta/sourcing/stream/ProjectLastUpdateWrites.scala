@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQuerySet, SelectFilter}
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQueries, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.effect.IO
@@ -42,7 +42,7 @@ object ProjectLastUpdateWrites {
   )(using UUIDF): IO[ProjectLastUpdateWrites] = {
     // We build an elem streaming based on a delay
     val queryConfig = ElemQueryConfig.DelayConfig(0, batchConfig.maxElements, batchConfig.maxInterval)
-    val es          = new ElemStreaming(xas, OngoingQuerySet.Noop, None, queryConfig, ProjectActivity.noop)
+    val es          = new ElemStreaming(xas, OngoingQueries.Noop, None, queryConfig, ProjectActivity.noop)
     val elemStream  = (offset: Offset) => es(Scope.root, offset, SelectFilter.latest)
     apply(supervisor, store, elemStream, batchConfig)
   }
