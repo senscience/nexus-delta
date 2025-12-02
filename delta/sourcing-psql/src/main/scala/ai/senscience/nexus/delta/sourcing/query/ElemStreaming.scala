@@ -17,7 +17,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
-import cats.effect.kernel.Outcome
 import doobie.Fragments
 import doobie.postgres.implicits.*
 import doobie.syntax.all.*
@@ -35,7 +34,7 @@ import scala.collection.mutable.ListBuffer
   */
 final class ElemStreaming(
     xas: Transactors,
-    ongoingSet: OngoingQuerySet,
+    ongoingQueries: OngoingQueries,
     entityTypes: Option[NonEmptyList[EntityType]],
     queryConfig: ElemQueryConfig,
     projectActivity: ProjectActivity
@@ -46,7 +45,7 @@ final class ElemStreaming(
   /**
     * The stopping alternative for this elem streaming
     */
-  def stopping: ElemStreaming = ElemStreaming.stopping(xas, ongoingSet, entityTypes, queryConfig)
+  def stopping: ElemStreaming = ElemStreaming.stopping(xas, ongoingQueries, entityTypes, queryConfig)
 
   /**
     * Get information about the remaining elements to stream
@@ -189,9 +188,9 @@ final class ElemStreaming(
           Some(Chunk.empty[Elem[A]] -> Suspended(queryStatus.uuid, queryStatus.offset, other))
       }
 
-    def execQuery(queryStatus: QueryStatus) = {
-      ongoingSet.runnable(queryStatus).flatMap {
-        case true  =>
+    def execQuery(queryStatus: QueryStatus) =
+      ongoingQueries.tryRun(queryStatus)(
+        (queryStatus: QueryStatus) =>
           query(queryStatus.offset)
             .to[List]
             .transact(xas.streaming)
@@ -199,20 +198,11 @@ final class ElemStreaming(
               elems.lastOption.fold(onRefresh(queryStatus)) { last =>
                 IO.pure(Some((dropDuplicates(elems), Ongoing(queryStatus.uuid, last.offset))))
               }
-            }
-        case false =>
+            },
+        (queryStatus: QueryStatus) =>
           IO.sleep(queryConfig.delay) >>
             IO.some(Chunk.empty[Elem[A]] -> queryStatus)
-      }
-    }.guaranteeCase {
-      case Outcome.Succeeded(fa) =>
-        fa.flatMap {
-          case Some((_, status)) => ongoingSet.update(status)
-          case None              => ongoingSet.delete(queryStatus)
-        }
-      case Outcome.Errored(e)    => ongoingSet.delete(queryStatus)
-      case Outcome.Canceled()    => ongoingSet.delete(queryStatus)
-    }
+      )
 
     Stream.eval(uuidF()).flatMap { uuid =>
       Stream
@@ -267,6 +257,9 @@ object ElemStreaming {
 
   private val newState = "newState"
 
+  /**
+    * Query status of a streaming query
+    */
   sealed trait QueryStatus {
 
     def uuid: UUID
@@ -277,10 +270,19 @@ object ElemStreaming {
   }
 
   object QueryStatus {
+
+    /**
+      * Streaming query currently running because there is still data to index and the ongoing set allowed it to run
+      */
     final case class Ongoing(uuid: UUID, offset: Offset) extends QueryStatus {
       override def refreshOutcome: Option[RefreshOutcome.Continue] = None
+
+      def suspended(reason: RefreshOutcome.Continue) = Suspended(uuid, offset, reason)
     }
 
+    /**
+      * Streaming query currently suspended, waiting for more data and or an available slot in the ongoing set
+      */
     final case class Suspended(uuid: UUID, offset: Offset, reason: RefreshOutcome.Continue) extends QueryStatus {
       def refreshOutcome: Option[RefreshOutcome.Continue] = Some(reason)
     }
@@ -291,7 +293,7 @@ object ElemStreaming {
     */
   def stopping(
       xas: Transactors,
-      ongoingSet: OngoingQuerySet,
+      ongoingSet: OngoingQueries,
       entityTypes: Option[NonEmptyList[EntityType]],
       config: ElemQueryConfig
   )(using UUIDF): ElemStreaming = {

@@ -43,7 +43,7 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
   private lazy val xas            = doobie()
   private val entityTypes         = Some(NonEmptyList.of(PullRequest.entityType, Release.entityType))
   private val stopConfig          = StopConfig(20, 2, 50.millis)
-  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQuerySet.Noop, entityTypes, stopConfig)
+  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQueries.Noop, entityTypes, stopConfig)
   private lazy val tombstoneStore = new StateTombstoneStore(xas)
 
   private lazy val prStore = ScopedStateStore[Iri, PullRequestState](
