@@ -51,6 +51,8 @@ object MainIndexingCoordinator {
   )(using RemoteContextResolution)
       extends MainIndexingCoordinator {
 
+    private val mainPipeline = mainIndexingPipeline
+
     def run(offset: Offset): ElemStream[Unit] =
       fetchProjects(offset).evalMap {
         _.traverse {
@@ -65,7 +67,7 @@ object MainIndexingCoordinator {
           mainIndexingProjectionMetadata(project),
           ExecutionStrategy.PersistentSingleNode,
           Source(graphStream.continuous(project, SelectFilter.latest, _)),
-          mainIndexingPipeline,
+          mainPipeline,
           sink
         )
       )
