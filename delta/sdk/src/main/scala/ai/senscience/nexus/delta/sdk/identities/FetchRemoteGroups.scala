@@ -65,9 +65,10 @@ object FetchRemoteGroups {
 
   def apply(enabled: Boolean, client: Client[IO], cacheConfig: CacheConfig): IO[FetchRemoteGroups] =
     if enabled then
-      LocalCache[String, UserInfo](cacheConfig).map { cache =>
-        new Active(cache, client)
-      }
-    else IO.pure(Noop)
+      logger.info("Fetching remote groups for user is enabled") >>
+        LocalCache[String, UserInfo](cacheConfig).map { cache =>
+          new Active(cache, client)
+        }
+    else logger.info("Fetching remote groups for user is disabled").as(Noop)
 
 }
