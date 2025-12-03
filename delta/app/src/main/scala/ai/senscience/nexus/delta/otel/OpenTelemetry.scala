@@ -49,19 +49,19 @@ object OpenTelemetry {
         .evalTap { _ =>
           logger.info("OpenTelemetry is disabled.")
         }
-        .flatTap(registerJVMMetrics)
-        .flatTap(registerCatsEffectMetrics(_, runtime))
-        .evalTap(registerLogback)
     } else {
       given LocalProvider[IO, Context] = IOLocalContextStorage.localProvider[IO]
       sys.props.getOrElseUpdate("otel.service.name", description.name.value)
-      OtelJava.autoConfigured[IO]().evalTap { _ =>
-        logger.info("OpenTelemetry is enabled.")
-      }
+      OtelJava
+        .autoConfigured[IO]()
+        .evalTap { _ =>
+          logger.info("OpenTelemetry is enabled.")
+        }
+        .flatTap(registerJVMMetrics)
+        .flatTap(registerCatsEffectMetrics(_, runtime))
+        .evalTap(registerLogback)
     }
-  }.flatTap(registerJVMMetrics)
-    .flatTap(registerCatsEffectMetrics(_, runtime))
-    .evalTap(registerLogback)
+  }
 
   private def registerJVMMetrics(otel: OtelJava[IO]) = {
     val openTelemetry = otel.underlying
