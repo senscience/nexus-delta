@@ -38,7 +38,9 @@ object Main extends IOApp {
 
   private[delta] def start(loaderConfig: PluginLoaderConfig): Resource[IO, Locator] =
     for {
-      _                        <- Resource.eval(logger.info(s"Starting Nexus Delta version '${BuildInfo.version}'."))
+      _                        <- Resource.eval(
+                                    logger.info(s"Starting Nexus Delta version '${BuildInfo.version}' built at '${BuildInfo.builtAt}'.")
+                                  )
       _                        <- Resource.eval(logger.info("Loading plugins and config..."))
       (config, cl, pluginDefs) <- Resource.eval(loadPluginsAndConfig(loaderConfig))
       modules                   = DeltaModule(config, runtime, cl)

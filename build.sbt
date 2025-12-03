@@ -1,3 +1,4 @@
+import java.time.Instant
 import scala.io.Source
 
 // explicit import to avoid clash with gatling plugin
@@ -424,7 +425,10 @@ lazy val app = project
       logback
     ),
     run / fork            := true,
-    buildInfoKeys         := Seq[BuildInfoKey](version),
+    buildInfoKeys         := Seq[BuildInfoKey](
+      version,
+      BuildInfoKey.action("builtAt") { Instant.now }
+    ),
     buildInfoPackage      := "ai.senscience.nexus.delta.config",
     Docker / packageName  := "nexus-delta",
     copyPlugins           := {
