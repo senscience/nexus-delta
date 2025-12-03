@@ -13,10 +13,7 @@ trait ProjectionMetrics {
 
 object ProjectionMetrics {
 
-  private val orgKey                = AttributeKey[String]("nexus.org")
-  private val projectKey            = AttributeKey[String]("nexus.project")
   private val moduleKey             = AttributeKey[String]("nexus.module")
-  private val projectionNameKey     = AttributeKey[String]("nexus.projections.name")
   private val projectionResourceKey = AttributeKey[String]("nexus.projections.resource")
 
   case object Disabled extends ProjectionMetrics {
@@ -38,10 +35,6 @@ object ProjectionMetrics {
     private def makeAttributes(metadata: ProjectionMetadata) = {
       val attributes = Attributes.newBuilder
       attributes += Attribute(moduleKey, metadata.module)
-      attributes += Attribute(projectionNameKey, metadata.name)
-      attributes ++= metadata.project.fold(List.empty) { project =>
-        List(Attribute(orgKey, project.organization.value), Attribute(projectKey, project.organization.value))
-      }
       attributes ++= metadata.resourceId.map { id =>
         Attribute(projectionResourceKey, id.toString)
       }
