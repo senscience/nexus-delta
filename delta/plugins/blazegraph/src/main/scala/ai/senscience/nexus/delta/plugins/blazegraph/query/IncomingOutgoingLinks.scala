@@ -92,7 +92,7 @@ object IncomingOutgoingLinks {
 
     private val expandIri: ExpandIri[BlazegraphViewRejection] = new ExpandIri(InvalidResourceId.apply)
 
-    private val includeExternalLinksKey = AttributeKey[Boolean]("includeExternalLinks")
+    private val includeExternalLinksKey = AttributeKey[Boolean]("include-external-links")
 
     private def includeExternal(includeExternalLinks: Boolean) =
       Attribute(includeExternalLinksKey, includeExternalLinks)

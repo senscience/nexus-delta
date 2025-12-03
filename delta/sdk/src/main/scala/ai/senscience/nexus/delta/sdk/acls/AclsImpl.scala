@@ -30,7 +30,7 @@ final class AclsImpl private (
 )(using Tracer[IO])
     extends Acls {
 
-  private val withAncestorsKey = AttributeKey[Boolean]("withAncestors")
+  private val withAncestorsKey = AttributeKey[Boolean]("with-ancestors")
 
   private def withAncestors(filter: AclAddressFilter) =
     Attribute(withAncestorsKey, filter.withAncestors)
