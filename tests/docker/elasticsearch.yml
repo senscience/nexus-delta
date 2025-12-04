@@ -9,9 +9,27 @@ services:
       ingest.geoip.downloader.enabled: "false"
       ELASTIC_PASSWORD: "password"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://elastic:password@localhost:9200/" ]
+      test: [ "CMD", "curl", "-f", "http://elastic:password@localhost:9200/_index_template/test_template" ]
       interval: 1s
       timeout: 2s
       retries: 60
+    post_start:
+      - command:
+          - /bin/bash
+          - -c
+          - |
+            set -xe
+            # Wait for Elasticsearch to be up and running
+            until curl -s -f http://elastic:password@localhost:9200/; do
+              echo "Waiting for Elasticsearch to be ready..."
+              sleep 2
+            done
+            
+            # Create index template to have a quicker refresh and no replica
+            curl -f --silent -H "Content-Type: application/json" \
+              "http://elastic:password@elasticsearch:9200/_index_template/test_template" \
+              --upload-file /config/elasticsearch/template.json
     ports:
       - 9200:9200
+    volumes:
+      - ./config:/config

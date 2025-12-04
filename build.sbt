@@ -772,7 +772,7 @@ lazy val compilation = {
       options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Wnonunit-statement")) ++
         Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all")
     },
-    javaSpecificationVersion               := "21",
+    javaSpecificationVersion               := "25",
     javacOptions                          ++= Seq(
       "-source",
       javaSpecificationVersion.value,
@@ -827,7 +827,7 @@ lazy val servicePackaging = {
       else version.value
     },
     Docker / daemonUser   := "nexus",
-    dockerBaseImage       := "eclipse-temurin:21-jre",
+    dockerBaseImage       := "eclipse-temurin:25-jre",
     dockerBuildxPlatforms := Seq("linux/arm64/v8", "linux/amd64"),
     dockerExposedPorts    := Seq(8080),
     dockerRepository      := Some("ghcr.io"),

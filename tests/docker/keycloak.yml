@@ -16,12 +16,18 @@ services:
           - -c
           - |
             set -xe
-            sleep 60
-            /opt/keycloak/bin/kcadm.sh config credentials \
+            kcadm_login() {
+              /opt/keycloak/bin/kcadm.sh config credentials \
               --server http://keycloak:8080 \
               --realm master \
               --user admin \
               --password admin
+            }
+            until kcadm_login; do
+              echo "Waiting for Keycloak to be ready..."
+              sleep 2
+            done
+            
             /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
     ports:
       - 9090:8080

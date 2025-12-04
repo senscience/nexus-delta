@@ -7,3 +7,6 @@
 -XX:+UseG1GC
 -XX:MaxMetaspaceSize=2G
 -XX:-UseGCOverheadLimit
+-XX:+UseCompactObjectHeaders
+--sun-misc-unsafe-memory-access=allow
+--enable-native-access=ALL-UNNAMED
