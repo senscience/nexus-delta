@@ -3,7 +3,7 @@
   "delta": "1.11.0",
   "dependencies": {
     "blazegraph": "2.1.6-RC-21-jre",
-    "postgresql": "17.7",
+    "postgresql": "18.1",
     "elasticsearch": "9.2.1"
   },
   "plugins": {
