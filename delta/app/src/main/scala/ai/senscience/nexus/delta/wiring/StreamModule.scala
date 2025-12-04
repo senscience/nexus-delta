@@ -89,10 +89,9 @@ object StreamModule extends ModuleDef {
         supervisor: Supervisor,
         store: ProjectLastUpdateStore,
         xas: Transactors,
-        config: ProjectLastUpdateConfig,
-        uuidf: UUIDF
+        config: ProjectLastUpdateConfig
     ) =>
-      ProjectLastUpdateWrites(supervisor, store, xas, config.batch)(using uuidf)
+      ProjectLastUpdateWrites(supervisor, store, xas, config.batch)
   }
 
   make[ProjectActivity].fromEffect {
