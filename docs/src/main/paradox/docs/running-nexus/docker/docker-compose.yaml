@@ -43,7 +43,7 @@ services:
           memory: 512M
 
   postgres:
-    image: library/postgres:17.7
+    image: library/postgres:18.1
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"

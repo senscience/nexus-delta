@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: library/postgres:17.7
+    image: library/postgres:18.1
     ports:
       - 5432:5432
     environment:
