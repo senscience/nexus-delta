@@ -295,11 +295,12 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
   override def toString: String =
     s"rootNode = '$rootNode', triples = '$triples'"
 
-  private def collapseGraphs = {
-    val newGraph = GraphFactory.createDefaultGraph()
-    value.find().asScala.foreach(quad => newGraph.add(quad.asTriple()))
-    newGraph
-  }
+  private def collapseGraphs =
+    if value.listGraphNodes().hasNext then {
+      val newGraph = GraphFactory.createDefaultGraph()
+      value.find().asScala.foreach(quad => newGraph.add(quad.asTriple()))
+      newGraph
+    } else value.getDefaultGraph
 
   private def writeTx(f: DatasetGraph => Unit): Graph = {
     value.begin(TxnType.WRITE)

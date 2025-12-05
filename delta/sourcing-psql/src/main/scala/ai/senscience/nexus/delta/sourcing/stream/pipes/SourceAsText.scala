@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream.pipes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
@@ -25,7 +26,8 @@ class SourceAsText extends Pipe {
   override def outType: Typeable[GraphResource] = Typeable[GraphResource]
 
   override def apply(element: SuccessElem[GraphResource]): IO[Elem[GraphResource]] = {
-    val graph = element.value.metadataGraph.add(nxv.originalSource.iri, element.value.source.noSpaces)
+    val graph = element.value.metadataGraph
+      .add(nxv.originalSource.iri, element.value.source.removeAllKeys(keywords.context).noSpaces)
     IO.pure(element.map(state => state.copy(metadataGraph = graph, source = empty)))
   }
 
