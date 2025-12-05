@@ -24,6 +24,7 @@ import org.apache.jena.query.{DatasetFactory, QueryExecutionFactory, TxnType}
 import org.apache.jena.riot.{Lang, RDFParser, RDFWriter}
 import org.apache.jena.sparql.core.DatasetGraph
 import org.apache.jena.sparql.graph.GraphFactory
+import org.apache.jena.sparql.util.Context
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -197,7 +198,7 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     */
   def toNTriples: IO[NTriples] =
     tryExpensiveIO(
-      RDFWriter.create().lang(Lang.NTRIPLES).source(collapseGraphs).asString(),
+      RDFWriter.create().lang(Lang.NTRIPLES).source(collapseGraphs).context(Context.create()).asString(),
       Lang.NTRIPLES.getName
     ).map(NTriples(_, rootNode))
 
@@ -295,11 +296,12 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
   override def toString: String =
     s"rootNode = '$rootNode', triples = '$triples'"
 
-  private def collapseGraphs = {
-    val newGraph = GraphFactory.createDefaultGraph()
-    value.find().asScala.foreach(quad => newGraph.add(quad.asTriple()))
-    newGraph
-  }
+  private def collapseGraphs =
+    if value.listGraphNodes().hasNext then {
+      val newGraph = GraphFactory.createDefaultGraph()
+      value.find().asScala.foreach(quad => newGraph.add(quad.asTriple()))
+      newGraph
+    } else value.getDefaultGraph
 
   private def writeTx(f: DatasetGraph => Unit): Graph = {
     value.begin(TxnType.WRITE)
