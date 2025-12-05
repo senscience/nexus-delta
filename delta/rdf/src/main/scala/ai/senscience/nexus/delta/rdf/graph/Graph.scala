@@ -24,7 +24,6 @@ import org.apache.jena.query.{DatasetFactory, QueryExecutionFactory, TxnType}
 import org.apache.jena.riot.{Lang, RDFParser, RDFWriter}
 import org.apache.jena.sparql.core.DatasetGraph
 import org.apache.jena.sparql.graph.GraphFactory
-import org.apache.jena.sparql.util.Context
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -198,7 +197,7 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     */
   def toNTriples: IO[NTriples] =
     tryExpensiveIO(
-      RDFWriter.create().lang(Lang.NTRIPLES).source(collapseGraphs).context(Context.create()).asString(),
+      RDFWriter.create().lang(Lang.NTRIPLES).source(collapseGraphs).asString(),
       Lang.NTRIPLES.getName
     ).map(NTriples(_, rootNode))
 
