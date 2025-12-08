@@ -4,10 +4,8 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Triple.{obj, predicate, subject, Triple}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
-import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
@@ -96,24 +94,22 @@ abstract class ResourceShift[State <: ScopedState, A](
   ): IO[GraphResource] = {
     val content = resourceToContent(resource)
     val id      = resource.resolvedId
-    for {
-      rootGraph         <- valueJsonLdEncoder.graph(resource.value)
-      resourceMetaGraph <- resourceFJsonLdEncoder.graph(resource.void)
-      rootMetaGraph      = resourceMetaGraph.add(encodeTags(id, content.tags))
-      typesGraph         = rootMetaGraph.rootTypesNodes
-      finalRootGraph     = (rootGraph -- rootMetaGraph).add(typesGraph)
-    } yield GraphResource(
-      tpe = entityType,
-      project = project,
-      id = id,
-      rev = resource.rev,
-      deprecated = resource.deprecated,
-      schema = resource.schema,
-      types = resource.types,
-      graph = finalRootGraph,
-      metadataGraph = rootMetaGraph,
-      source = content.source.removeAllKeys(keywords.context)
-    )
+    IO.both(valueJsonLdEncoder.graph(resource.value), resourceFJsonLdEncoder.graph(resource.void))
+      .map { case (rootGraph, resourceMetaGraph) =>
+        val rootMetaGraph = resourceMetaGraph.add(encodeTags(id, content.tags))
+        GraphResource(
+          tpe = entityType,
+          project = project,
+          id = id,
+          rev = resource.rev,
+          deprecated = resource.deprecated,
+          schema = resource.schema,
+          types = resource.types,
+          graph = rootGraph,
+          metadataGraph = rootMetaGraph,
+          source = content.source
+        )
+      }
   }
 
   private def encodeTags(id: Iri, tags: Tags): Set[Triple] =
