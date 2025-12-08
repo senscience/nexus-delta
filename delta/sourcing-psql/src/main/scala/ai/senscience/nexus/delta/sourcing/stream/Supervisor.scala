@@ -298,11 +298,11 @@ object Supervisor {
           case ExecutionStatus.Pending           => IO.unit
           case ExecutionStatus.Running           => IO.unit
           case ExecutionStatus.Completed         =>
-            log.debug(s"Cleaning up projection '${metadata.fullName}' after completion.") >>
+            log.info(s"Cleaning up projection '${metadata.fullName}' after completion.") >>
               semaphore.permit
                 .surround(supervisorStorage.delete(metadata.name))
           case ExecutionStatus.Stopped           =>
-            log.debug(s"Cleaning up projection '${metadata.fullName}' after being stopped.") >>
+            log.info(s"Cleaning up projection '${metadata.fullName}' after being stopped.") >>
               semaphore.permit
                 .surround(supervisorStorage.delete(metadata.name))
           case ExecutionStatus.Failed(throwable) =>
