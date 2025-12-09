@@ -221,8 +221,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
       val spanDef      = SpanDef(bulkPath, write)
       OtelTracingClient(client, spanDef).expectOr[BulkResponse](request)(ElasticsearchWriteError(_)).flatTap {
         case BulkResponse.Success          => logger.debug("All operations in the bulk succeeded.")
-        case BulkResponse.MixedOutcomes(o) =>
-          logger.error(o.mkString) >>
+        case BulkResponse.MixedOutcomes(_) =>
             logger.error(
               "Some operations in the bulk failed, please check the indexing failures to find the reason(s)."
             )
