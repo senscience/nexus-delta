@@ -92,12 +92,6 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       )
       .eventually
 
-  private def assertCompleted(metadata: ProjectionMetadata)(using loc: Location) =
-    sv.describe(metadata.name)
-      .map(_.map(_.status))
-      .assertEquals(Some(ExecutionStatus.Completed))
-      .eventually
-
   private def assertAbsent(metadata: ProjectionMetadata)(using loc: Location) =
     sv.describe(metadata.name)
       .assertEquals(None)
@@ -266,17 +260,6 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
                )
              )
              .eventually
-    } yield ()
-  }
-
-  test("Run and clean a completed projection with an unstable destroy method") {
-    val projection = ProjectionMetadata("test", "successful", None, None)
-    for {
-      _ <- startProjection(projection, EveryNode)
-      // Destroy the projection with a destroy method that fails and eventually succeeds
-      _ <- assertCompleted(projection)
-      _ <- checkProjections
-      _ <- assertAbsent(projection)
     } yield ()
   }
 

@@ -297,14 +297,8 @@ object Supervisor {
         supervised.control.status.flatMap {
           case ExecutionStatus.Pending           => IO.unit
           case ExecutionStatus.Running           => IO.unit
-          case ExecutionStatus.Completed         =>
-            log.info(s"Cleaning up projection '${metadata.fullName}' after completion.") >>
-              semaphore.permit
-                .surround(supervisorStorage.delete(metadata.name))
-          case ExecutionStatus.Stopped           =>
-            log.info(s"Cleaning up projection '${metadata.fullName}' after being stopped.") >>
-              semaphore.permit
-                .surround(supervisorStorage.delete(metadata.name))
+          case ExecutionStatus.Completed         => IO.unit
+          case ExecutionStatus.Stopped           => IO.unit
           case ExecutionStatus.Failed(throwable) =>
             val retryStrategy = createRetryStrategy(cfg, metadata, "running")
             log.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
