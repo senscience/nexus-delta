@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -19,8 +19,13 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.server.*
 import org.typelevel.otel4s.trace.Tracer
 
-class LinkFilesRoutes(identities: Identities, aclCheck: AclCheck, files: Files, index: IndexingAction.Execute[File])(
-    using baseUri: BaseUri
+class LinkFilesRoutes(
+    identities: Identities,
+    aclCheck: AclCheck,
+    files: Files,
+    index: SyncIndexingAction.Execute[File]
+)(using
+    baseUri: BaseUri
 )(using RemoteContextResolution, JsonKeyOrdering, ShowFileLocation, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {

@@ -3,17 +3,15 @@ package ai.senscience.nexus.delta.sdk.indexing
 /**
   * Enumeration of all possible indexing modes
   */
-sealed trait IndexingMode extends Product with Serializable
-
-object IndexingMode {
+enum IndexingMode {
 
   /**
     * Asynchronously indexing resources
     */
-  case object Async extends IndexingMode
+  case Async
 
   /**
     * Synchronously indexing resources
     */
-  case object Sync extends IndexingMode
+  case Sync
 }

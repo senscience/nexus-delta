@@ -79,14 +79,14 @@ object GraphResourceStream {
           selectFilter: SelectFilter,
           start: Offset
       ): ElemStream[GraphResource] =
-        elemStreaming(Scope(project), start, selectFilter, shifts.decodeGraphResource(_, _))
+        elemStreaming(Scope(project), start, selectFilter, shifts.decodeGraphResource(_)(_))
 
       override def currents(
           project: ProjectRef,
           selectFilter: SelectFilter,
           start: Offset
       ): ElemStream[GraphResource] =
-        stopping(Scope(project), start, selectFilter, shifts.decodeGraphResource(_, _))
+        stopping(Scope(project), start, selectFilter, shifts.decodeGraphResource(_)(_))
 
       override def remaining(
           project: ProjectRef,

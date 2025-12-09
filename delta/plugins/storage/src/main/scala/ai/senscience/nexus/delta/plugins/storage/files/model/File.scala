@@ -7,12 +7,14 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.ResourceShift
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocument, MainDocumentEncoder}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
-import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
+import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.syntax.*
-import io.circe.{Encoder, Json}
+import io.circe.{Decoder, Encoder, Json}
 
 /**
   * A representation of a file information
@@ -70,5 +72,26 @@ object File {
       state => state.toResource,
       value => JsonLdContent(value, value.value.asJson, value.value.tags)
     )
+
+  def mainDocumentEncoder(using BaseUri, ShowFileLocation): MainDocumentEncoder[FileState, File] =
+    new MainDocumentEncoder[FileState, File] {
+      override def entityType: EntityType = Files.entityType
+
+      override def databaseDecoder: Decoder[FileState] = FileState.serializer.codec
+
+      protected def toResourceF(state: FileState): ResourceF[File] = state.toResource
+
+      override def fromResource(value: ResourceF[File]): MainDocument =
+        MainDocument(
+          name = value.value.attributes.name,
+          label = None,
+          prefLabel = None,
+          description = value.value.attributes.description,
+          metadata = value.void,
+          tags = value.value.tags,
+          originalSource = value.value.asJson,
+          additionalFields = fileEncoder.encodeObject(value.value)
+        )
+    }
 
 }

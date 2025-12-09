@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.indexing.MainDocumentEncoder
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -170,9 +171,11 @@ object SchemasModule extends NexusModuleDef {
     PriorityRoute(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)
   }
 
-  make[Schema.Shift].from { (schemas: Schemas, base: BaseUri) =>
+  many[ResourceShift[?, ?]].add { (schemas: Schemas, base: BaseUri) =>
     Schema.shift(schemas)(base)
   }
 
-  many[ResourceShift[?, ?]].ref[Schema.Shift]
+  many[MainDocumentEncoder[?, ?]].add { (baseUri: BaseUri) =>
+    Schema.mainDocumentEncoder(using baseUri)
+  }
 }

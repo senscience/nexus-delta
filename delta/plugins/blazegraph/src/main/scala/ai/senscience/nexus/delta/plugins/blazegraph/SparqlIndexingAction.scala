@@ -5,9 +5,12 @@ import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingAction.logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, IndexingViewDef, SparqlSink}
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
-import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
+import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
@@ -23,12 +26,24 @@ import scala.concurrent.duration.FiniteDuration
   * To synchronously index a resource in the different SPARQL views of a project
   */
 final class SparqlIndexingAction(
+    shifts: ResourceShifts,
     currentViews: CurrentActiveViews,
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
-    override val timeout: FiniteDuration
+    timeout: FiniteDuration
 )(using Tracer[IO])
-    extends IndexingAction {
+    extends SyncIndexingAction {
+
+  override def apply[A](entityType: EntityType)(project: ProjectRef, res: ResourceF[A]): IO[SyncIndexingOutcome] =
+    SyncIndexingAction
+      .evalMapToElem(entityType)(project, res, shifts.toGraphResource(entityType)(project, _))
+      .flatMap { elem =>
+        SyncIndexingRunner(
+          projections(project, elem),
+          timeout
+        )
+      }
+      .surround("sparql-sync-index")
 
   private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
@@ -41,10 +56,8 @@ final class SparqlIndexingAction(
         )
     }
 
-  override def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
+  private def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
     currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
-
-  override def tracer: Tracer[IO] = Tracer[IO]
 }
 
 object SparqlIndexingAction {
@@ -52,6 +65,7 @@ object SparqlIndexingAction {
   private val logger = Logger[SparqlIndexingAction]
 
   def apply(
+      shifts: ResourceShifts,
       currentViews: CurrentActiveViews,
       pipeChainCompiler: PipeChainCompiler,
       client: SparqlClient,
@@ -60,6 +74,7 @@ object SparqlIndexingAction {
     val batchConfig   = BatchConfig.individual
     val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
     new SparqlIndexingAction(
+      shifts,
       currentViews,
       pipeChainCompiler,
       (v: ActiveViewDef) => SparqlSink(client, retryStrategy, batchConfig, v.namespace),

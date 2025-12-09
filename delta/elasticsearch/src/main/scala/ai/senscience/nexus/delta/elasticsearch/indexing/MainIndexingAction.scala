@@ -3,10 +3,12 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.mainIndexingPipeline
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
-import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.delta.sourcing.state.GraphResource
+import ai.senscience.nexus.delta.sdk.indexing.MainDocument
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, SyncIndexingAction}
+import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
+import ai.senscience.nexus.delta.sdk.model.ResourceF
+import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
@@ -16,12 +18,19 @@ import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
 
-final class MainIndexingAction(sink: Sink, override val timeout: FiniteDuration)(using
-    RemoteContextResolution,
+final class MainIndexingAction(encoder: MainDocumentEncoder.Aggregate, sink: Sink, timeout: FiniteDuration)(using
     Tracer[IO]
-) extends IndexingAction {
+) extends SyncIndexingAction {
 
-  private def compile(project: ProjectRef, elem: Elem[GraphResource]) =
+  def apply[A](entityType: EntityType)(project: ProjectRef, res: ResourceF[A]): IO[SyncIndexingOutcome] =
+    SyncIndexingAction
+      .evalMapToElem(entityType)(project, res, encoder.fromResource(entityType)(_))
+      .flatMap { elem =>
+        SyncIndexingRunner(Stream.fromEither[IO](compile(project, elem)), timeout)
+      }
+      .surround("main-sync-index")
+
+  private def compile(project: ProjectRef, elem: Elem[MainDocument]) =
     CompiledProjection.compile(
       mainIndexingProjectionMetadata(project),
       ExecutionStrategy.TransientSingleNode,
@@ -29,22 +38,19 @@ final class MainIndexingAction(sink: Sink, override val timeout: FiniteDuration)
       mainIndexingPipeline,
       sink
     )
-
-  override def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
-    Stream.fromEither[IO](compile(project, elem))
-
-  override def tracer: Tracer[IO] = Tracer[IO]
 }
 
 object MainIndexingAction {
   def apply(
+      encoder: MainDocumentEncoder.Aggregate,
       client: ElasticSearchClient,
       config: MainIndexConfig,
       timeout: FiniteDuration,
       syncIndexingRefresh: Refresh
-  )(using RemoteContextResolution, Tracer[IO]): MainIndexingAction = {
+  )(using Tracer[IO]): MainIndexingAction = {
     val batchConfig = BatchConfig.individual
     new MainIndexingAction(
+      encoder,
       ElasticSearchSink.mainIndexing(client, batchConfig, config.index, syncIndexingRefresh),
       timeout
     )

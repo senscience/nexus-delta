@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, Projecti
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
@@ -282,8 +282,9 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
     new SparqlServiceDependency(client)
   }
 
-  many[IndexingAction].add {
+  many[SyncIndexingAction].add {
     (
+        shifts: ResourceShifts,
         currentActiveViews: CurrentActiveViews,
         pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
@@ -291,7 +292,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         tracer: Tracer[IO] @Id("sparql-indexing")
     ) =>
-      SparqlIndexingAction(currentActiveViews, pipeChainCompiler, client, config.syncIndexingTimeout)(using
+      SparqlIndexingAction(shifts, currentActiveViews, pipeChainCompiler, client, config.syncIndexingTimeout)(using
         baseUri,
         tracer
       )

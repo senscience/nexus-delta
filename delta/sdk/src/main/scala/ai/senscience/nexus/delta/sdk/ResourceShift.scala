@@ -10,11 +10,8 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
-import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
-import ai.senscience.nexus.delta.sourcing.stream.Elem
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
@@ -73,23 +70,7 @@ abstract class ResourceShift[State <: ScopedState, A](
       graph   <- toGraphResource(state.project, resource)
     } yield graph
 
-  def toGraphResourceElem(project: ProjectRef, resource: ResourceF[A])(implicit
-      cr: RemoteContextResolution
-  ): IO[Elem[GraphResource]] = toGraphResource(project, resource).redeem(
-    err =>
-      FailedElem(
-        entityType,
-        resource.id,
-        project,
-        resource.updatedAt,
-        Offset.Start,
-        err,
-        resource.rev
-      ),
-    graph => SuccessElem(entityType, resource.id, project, resource.updatedAt, Offset.Start, graph, resource.rev)
-  )
-
-  private def toGraphResource(project: ProjectRef, resource: ResourceF[A])(implicit
+  def toGraphResource(project: ProjectRef, resource: ResourceF[A])(implicit
       cr: RemoteContextResolution
   ): IO[GraphResource] = {
     val content = resourceToContent(resource)

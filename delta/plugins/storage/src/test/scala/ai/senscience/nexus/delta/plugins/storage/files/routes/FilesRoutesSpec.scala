@@ -17,7 +17,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesDummy}
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -106,7 +106,7 @@ class FilesRoutesSpec
   private lazy val routes       = routesWithIdentities(identities)
 
   private def routesWithIdentities(identities: Identities) =
-    Route.seal(FilesRoutes(identities, aclCheck, files, groupDirectives, IndexingAction.noop))
+    Route.seal(FilesRoutes(identities, aclCheck, files, groupDirectives, SyncIndexingAction.noop))
 
   private val diskIdRev = ResourceRef.Revision(dId, 1)
   private val s3IdRev   = ResourceRef.Revision(s3Id, 2)

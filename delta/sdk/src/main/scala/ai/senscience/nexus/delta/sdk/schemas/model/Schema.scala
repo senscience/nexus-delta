@@ -11,14 +11,15 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.ResourceShift
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocument, MainDocumentEncoder}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
-import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tags}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.Json
+import io.circe.{Decoder, Json, JsonObject}
 
 /**
   * A schema representation
@@ -102,4 +103,31 @@ object Schema {
       state => state.toResource,
       value => JsonLdContent(value, value.value.source, value.value.tags)
     )
+
+  def mainDocumentEncoder(using BaseUri): MainDocumentEncoder[SchemaState, Schema] =
+    new MainDocumentEncoder[SchemaState, Schema] {
+      import ai.senscience.nexus.delta.rdf.jsonld.CommonFields.*
+
+      override def entityType: EntityType = Schemas.entityType
+
+      override def databaseDecoder: Decoder[SchemaState] = SchemaState.serializer.codec
+
+      protected def toResourceF(state: SchemaState): ResourceF[Schema] =
+        state.toResource
+
+      override def fromResource(value: ResourceF[Schema]): MainDocument = {
+        val cursor = value.value.expanded.head.cursor
+
+        MainDocument(
+          name = schema.name(cursor),
+          label = rdfs.label(cursor),
+          prefLabel = skos.prefLabel(cursor),
+          description = schema.description(cursor),
+          metadata = value.void,
+          tags = value.value.tags,
+          originalSource = value.value.source,
+          additionalFields = JsonObject.empty
+        )
+      }
+    }
 }
