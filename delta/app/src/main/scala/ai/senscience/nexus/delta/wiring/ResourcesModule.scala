@@ -7,10 +7,11 @@ import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesRoutes
 import ai.senscience.nexus.delta.sdk.*
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.indexing.MainDocumentEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
@@ -102,7 +103,6 @@ object ResourcesModule extends NexusModuleDef {
         aclCheck: AclCheck,
         resources: Resources,
         indexingAction: AggregateIndexingAction,
-        shift: Resource.Shift,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
@@ -113,7 +113,7 @@ object ResourcesModule extends NexusModuleDef {
         identities,
         aclCheck,
         resources,
-        indexingAction(_, _, _)(shift)
+        indexingAction(Resources.entityType)(_, _, _)
       )(using baseUri)(using cr, ordering, fusionConfig, tracer)
   }
 
@@ -127,10 +127,12 @@ object ResourcesModule extends NexusModuleDef {
     PriorityRoute(pluginsMinPriority - 2, route.routes, requiresStrictEntity = true)
   }
 
-  make[Resource.Shift].from { (resources: Resources, base: BaseUri) =>
+  many[ResourceShift[?, ?]].add { (resources: Resources, base: BaseUri) =>
     Resource.shift(resources)(base)
   }
 
-  many[ResourceShift[?, ?]].ref[Resource.Shift]
+  many[MainDocumentEncoder[?, ?]].add { (baseUri: BaseUri) =>
+    Resource.mainDocumentEncoder(using baseUri)
+  }
 
 }

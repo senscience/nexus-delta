@@ -3,16 +3,13 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.projects.Projects
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.stream.MainDocumentStream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.pipes.{DefaultLabelPredicates, SourceAsText}
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
@@ -38,20 +35,17 @@ object MainIndexingCoordinator {
     *
     * @param fetchProjects
     *   stream of projects
-    * @param graphStream
+    * @param mainDocumentStream
     *   to provide the data feeding the projections
     * @param supervisor
     *   the general supervisor
     */
   final private class Active(
       fetchProjects: Offset => ElemStream[ProjectDef],
-      graphStream: GraphResourceStream,
+      mainDocumentStream: MainDocumentStream,
       supervisor: Supervisor,
       sink: Sink
-  )(using RemoteContextResolution)
-      extends MainIndexingCoordinator {
-
-    private val mainPipeline = mainIndexingPipeline
+  ) extends MainIndexingCoordinator {
 
     def run(offset: Offset): ElemStream[Unit] =
       fetchProjects(offset).evalMap {
@@ -66,8 +60,8 @@ object MainIndexingCoordinator {
         CompiledProjection.compile(
           mainIndexingProjectionMetadata(project),
           ExecutionStrategy.PersistentSingleNode,
-          Source(graphStream.continuous(project, SelectFilter.latest, _)),
-          mainPipeline,
+          Source(mainDocumentStream.continuous(project, _)),
+          mainIndexingPipeline,
           sink
         )
       )
@@ -95,12 +89,7 @@ object MainIndexingCoordinator {
         .void
   }
 
-  def mainIndexingPipeline(using RemoteContextResolution): NonEmptyChain[Operation] =
-    NonEmptyChain(
-      DefaultLabelPredicates.withConfig(()),
-      SourceAsText.withConfig(()),
-      new GraphResourceToDocument(defaultIndexingContext, false)
-    )
+  val mainIndexingPipeline: NonEmptyChain[Operation] = NonEmptyChain(new MainDocumentToJson)
 
   val metadata: ProjectionMetadata = ProjectionMetadata("system", "main-indexing-coordinator", None, None)
 
@@ -109,13 +98,13 @@ object MainIndexingCoordinator {
 
   def apply(
       projects: Projects,
-      graphStream: GraphResourceStream,
+      mainDocumentStream: MainDocumentStream,
       supervisor: Supervisor,
       client: ElasticSearchClient,
       mainIndex: MainIndexDef,
       batch: BatchConfig,
       indexingEnabled: Boolean
-  )(using RemoteContextResolution, Tracer[IO]): IO[MainIndexingCoordinator] =
+  )(using Tracer[IO]): IO[MainIndexingCoordinator] =
     if indexingEnabled then {
       val targetIndex = mainIndex.name
 
@@ -126,19 +115,19 @@ object MainIndexingCoordinator {
 
       val init = client.createIndex(targetIndex, Some(mainIndex.mapping), Some(mainIndex.settings)).void
 
-      apply(fetchProjects, graphStream, supervisor, init, elasticsearchSink)
+      apply(fetchProjects, mainDocumentStream, supervisor, init, elasticsearchSink)
     } else {
       Noop.log.as(Noop)
     }
 
   def apply(
       fetchProjects: Offset => ElemStream[ProjectDef],
-      graphStream: GraphResourceStream,
+      mainDocumentStream: MainDocumentStream,
       supervisor: Supervisor,
       init: IO[Unit],
       sink: Sink
-  )(using RemoteContextResolution): IO[MainIndexingCoordinator] = {
-    val coordinator = new Active(fetchProjects, graphStream, supervisor, sink)
+  ): IO[MainIndexingCoordinator] = {
+    val coordinator = new Active(fetchProjects, mainDocumentStream, supervisor, sink)
     val compiled    = mainCoordinatorProjection(coordinator)
     supervisor.run(compiled, init).as(coordinator)
   }

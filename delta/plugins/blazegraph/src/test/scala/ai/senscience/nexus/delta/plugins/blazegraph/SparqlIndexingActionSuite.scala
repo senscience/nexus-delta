@@ -2,25 +2,25 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.CurrentActiveViews
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.graph.{Graph, NTriples}
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.IndexingActionContext
-import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.indexing.sync.SyncIndexingOutcome
+import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.ViewRef
-import ai.senscience.nexus.delta.sourcing.PullRequest
-import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
-import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
-import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{FailedElem, SuccessElem}
-import ai.senscience.nexus.delta.sourcing.stream.ProjectionErr.CouldNotFindPipeErr
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.testkit.mu.NexusSuite
+import cats.data.NonEmptyList
+import cats.effect.IO
+import io.circe.Json
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -54,9 +54,8 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
     currentRev
   )
 
-  private val id3         = nxv + "view3"
-  private val unknownPipe = PipeRef.unsafe("xxx")
-  private val view3       = ActiveViewDef(
+  private val id3   = nxv + "view3"
+  private val view3 = ActiveViewDef(
     ViewRef(project, id3),
     projection = id3.toString,
     SelectFilter.latest,
@@ -68,9 +67,57 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
 
   private val currentViews = CurrentActiveViews(view1, view2, view3)
 
+  private val entityType = EntityType("test")
+
+  private val id  = nxv + "id1"
+  private val res = ResourceF[Unit](
+    id = id,
+    access = ResourceAccess.resource(project, id),
+    rev = 1,
+    types = Set(nxv + "Test"),
+    deprecated = false,
+    createdAt = instant,
+    createdBy = Anonymous,
+    updatedAt = instant,
+    updatedBy = Anonymous,
+    schema = ResourceRef(Vocabulary.schemas.resources),
+    value = ()
+  )
+
+  private val exception = new IllegalStateException("Boom")
+
+  private val shifts = new ResourceShifts {
+    override def entityTypes: Option[NonEmptyList[EntityType]] = None
+
+    override def fetch(reference: ResourceRef, project: ProjectRef): IO[Option[JsonLdContent[?]]] = IO.none
+
+    override def decodeGraphResource(entityType: EntityType)(json: Json): IO[GraphResource] = IO.stub
+
+    override def toGraphResource[A](tpe: EntityType)(project: ProjectRef, resource: ResourceF[A]): IO[GraphResource] =
+      tpe match {
+        case `entityType` =>
+          IO.pure(
+            GraphResource(
+              entityType,
+              project,
+              id,
+              1,
+              false,
+              ResourceRef(Vocabulary.schemas.resources),
+              Set(nxv + "Test"),
+              Graph.empty,
+              Graph.empty,
+              Json.obj()
+            )
+          )
+        case _            => IO.raiseError(exception)
+      }
+  }
+
   private val indexingAction = new SparqlIndexingAction(
+    shifts,
     currentViews,
-    (_: PipeChain) => Left(CouldNotFindPipeErr(unknownPipe)),
+    PipeChainCompiler.alwaysFail,
     (a: ActiveViewDef) =>
       a.ref.viewId match {
         case `id1` => new NoopSink[NTriples]
@@ -80,57 +127,14 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
     5.seconds
   )
 
-  private val base = iri"http://localhost"
-  private val pr   = PullRequestActive(
-    id = nxv + "id1",
-    project = project,
-    rev = 1,
-    createdAt = instant,
-    createdBy = Anonymous,
-    updatedAt = instant,
-    updatedBy = Anonymous
-  )
-
-  private val elem = SuccessElem(
-    tpe = PullRequest.entityType,
-    id = pr.id,
-    project = project,
-    instant = pr.updatedAt,
-    offset = Offset.at(1L),
-    value = PullRequestState.toGraphResource(pr, base),
-    rev = 1
-  )
-
-  private def index(elem: Elem[GraphResource]) =
-    for {
-      context <- IndexingActionContext()
-      _       <- indexingAction(project, elem, context)
-      errors  <- context.get
-    } yield errors
-
-  test("Collect only the adequate views") {
-    indexingAction
-      .projections(project, elem)
-      .map(_.metadata.resourceId)
-      .assert(Some(id1))
-  }
-
   test("A valid elem should be indexed") {
-    index(elem).assertEquals(List.empty)
+    indexingAction(entityType)(project, res)
+      .assertEquals(SyncIndexingOutcome.Success)
   }
 
   test("A failed elem should be returned") {
-    val failed = FailedElem(
-      tpe = PullRequest.entityType,
-      id = pr.id,
-      project = project,
-      instant = pr.updatedAt,
-      offset = Offset.at(1L),
-      new IllegalStateException("Boom"),
-      rev = 1
-    )
-
-    index(failed).assertEquals(List(failed.throwable))
+    indexingAction(EntityType("xxx"))(project, res)
+      .assertEquals(SyncIndexingOutcome.Failed(List(exception)))
   }
 
 }

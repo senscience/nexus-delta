@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ResponseToJsonLd}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -31,7 +31,7 @@ final class DelegateFilesRoutes(
     aclCheck: AclCheck,
     files: Files,
     jwsPayloadHelper: JWSPayloadHelper,
-    index: IndexingAction.Execute[File]
+    index: SyncIndexingAction.Execute[File]
 )(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, ShowFileLocation, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling

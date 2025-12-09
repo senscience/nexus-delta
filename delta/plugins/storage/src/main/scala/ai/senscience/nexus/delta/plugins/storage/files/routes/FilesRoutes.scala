@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -51,7 +51,7 @@ final class FilesRoutes(
     aclCheck: AclCheck,
     files: Files,
     schemeDirectives: DeltaSchemeDirectives,
-    index: IndexingAction.Execute[File]
+    index: SyncIndexingAction.Execute[File]
 )(using baseUri: BaseUri)(using ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling { self =>
@@ -184,7 +184,7 @@ object FilesRoutes {
       aclCheck: AclCheck,
       files: Files,
       schemeDirectives: DeltaSchemeDirectives,
-      index: IndexingAction.Execute[File]
+      index: SyncIndexingAction.Execute[File]
   )(using BaseUri, ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
     new FilesRoutes(identities, aclCheck, files, schemeDirectives, index).routes
 

@@ -3,14 +3,14 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.ProjectDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.sdk.indexing.MainDocument
 import ai.senscience.nexus.delta.sdk.projects.Projects
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
-import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sdk.stream.MainDocumentStream
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
-import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
+import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
@@ -39,29 +39,38 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
 
   private val resumeSignal = SignallingRef[IO, Boolean](false).unsafeRunSync()
 
-  private def success[A](project: ProjectRef, id: Iri, value: A, offset: Long): Elem[A] =
-    SuccessElem(tpe = Projects.entityType, id, project, Instant.EPOCH, Offset.at(offset), value, 1)
+  private val entityType = EntityType("test")
+
+  private def success[A](entityType: EntityType, project: ProjectRef, id: Iri, value: A, offset: Long): Elem[A] =
+    SuccessElem(tpe = entityType, id, project, Instant.EPOCH, Offset.at(offset), value, 1)
 
   // Stream 2 elements until signal is set to true and then 2 more
   private def projectStream: ElemStream[ProjectDef] =
     Stream(
-      success(project1, project1Id, ProjectDef(project1, markedForDeletion = false), 1L),
-      success(project2, project2Id, ProjectDef(project2, markedForDeletion = false), 2L)
+      success(Projects.entityType, project1, project1Id, ProjectDef(project1, markedForDeletion = false), 1L),
+      success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = false), 2L)
     ) ++ Stream.never[IO].interruptWhen(resumeSignal) ++
       Stream(
-        success(project1, project1Id, ProjectDef(project1, markedForDeletion = false), 3L),
-        success(project2, project2Id, ProjectDef(project2, markedForDeletion = true), 4L)
+        success(Projects.entityType, project1, project1Id, ProjectDef(project1, markedForDeletion = false), 3L),
+        success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = true), 4L)
       )
 
-  private val graphResourceStream = new GraphResourceStream {
-    override def continuous(project: ProjectRef, selectFilter: SelectFilter, start: Offset): ElemStream[GraphResource] =
-      PullRequestStream.generate(project)
-
-    override def currents(project: ProjectRef, selectFilter: SelectFilter, start: Offset): ElemStream[GraphResource] =
-      PullRequestStream.generate(project)
-
-    override def remaining(project: ProjectRef, selectFilter: SelectFilter, start: Offset): IO[Option[RemainingElems]] =
-      IO.none
+  private val mainDocumentStream = new MainDocumentStream {
+    override def continuous(project: ProjectRef, start: Offset): ElemStream[MainDocument] =
+      Stream.range(1, 3).map { i =>
+        success(entityType, project, nxv + i.toString, MainDocument.unsafe(json"""{ "value": "$i"}"""), i)
+      } ++ Stream(
+        DroppedElem(entityType, nxv + "3", project, Instant.EPOCH, Offset.at(3L), 1),
+        FailedElem(
+          entityType,
+          nxv + "4",
+          project,
+          Instant.EPOCH,
+          Offset.at(4L),
+          new IllegalStateException("This is an error message"),
+          1
+        )
+      )
   }
 
   private val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 1, 1)
@@ -70,7 +79,7 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
     for {
       _ <- MainIndexingCoordinator(
              _ => projectStream,
-             graphResourceStream,
+             mainDocumentStream,
              sv,
              IO.unit,
              new NoopSink[Json]

@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.{IndexingAction, IndexingMode}
+import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
@@ -46,7 +46,7 @@ final class ResourcesRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     resources: Resources,
-    index: IndexingAction.Execute[Resource]
+    index: SyncIndexingAction.Execute[Resource]
 )(using baseUri: BaseUri)(using
     RemoteContextResolution,
     JsonKeyOrdering,
@@ -279,7 +279,7 @@ object ResourcesRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       resources: Resources,
-      index: IndexingAction.Execute[Resource]
+      index: SyncIndexingAction.Execute[Resource]
   )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
     new ResourcesRoutes(identities, aclCheck, resources, index).routes
 

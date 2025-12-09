@@ -6,8 +6,12 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveVi
 import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchSink, IndexingViewDef}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
-import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
+import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
+import ai.senscience.nexus.delta.sdk.model.ResourceF
+import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
@@ -23,12 +27,24 @@ import scala.concurrent.duration.FiniteDuration
   * To synchronously index a resource in the different Elasticsearch views of a project
   */
 final class ElasticSearchIndexingAction(
+    shifts: ResourceShifts,
     currentViews: CurrentActiveViews,
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
-    override val timeout: FiniteDuration
+    timeout: FiniteDuration
 )(using RemoteContextResolution, Tracer[IO])
-    extends IndexingAction {
+    extends SyncIndexingAction {
+
+  def apply[A](entityType: EntityType)(project: ProjectRef, res: ResourceF[A]): IO[SyncIndexingOutcome] =
+    SyncIndexingAction
+      .evalMapToElem(entityType)(project, res, shifts.toGraphResource(entityType)(project, _))
+      .flatMap { elem =>
+        SyncIndexingRunner(
+          projections(project, elem),
+          timeout
+        )
+      }
+      .surround("elasticsearch-sync-index")
 
   private def compile(view: ActiveViewDef, elem: Elem[GraphResource]): IO[Option[CompiledProjection]] =
     Option.when(view.selectFilter.tag == Tag.latest)(view).flatTraverse { v =>
@@ -41,16 +57,15 @@ final class ElasticSearchIndexingAction(
         )
     }
 
-  def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
+  private def projections(project: ProjectRef, elem: Elem[GraphResource]): Stream[IO, CompiledProjection] =
     currentViews.stream(project).evalMapFilter { view => compile(view, elem) }
-
-  override def tracer: Tracer[IO] = Tracer[IO]
 }
 object ElasticSearchIndexingAction {
 
   private val logger = Logger[ElasticSearchIndexingAction]
 
   def apply(
+      shifts: ResourceShifts,
       currentViews: CurrentActiveViews,
       pipeChainCompiler: PipeChainCompiler,
       client: ElasticSearchClient,
@@ -59,6 +74,7 @@ object ElasticSearchIndexingAction {
   )(using RemoteContextResolution, Tracer[IO]): ElasticSearchIndexingAction = {
     val batchConfig = BatchConfig.individual
     new ElasticSearchIndexingAction(
+      shifts,
       currentViews,
       pipeChainCompiler,
       (v: ActiveViewDef) => ElasticSearchSink.states(client, batchConfig, v.index, syncIndexingRefresh),

@@ -25,7 +25,8 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction.AggregateIndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.MainDocumentEncoder
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
@@ -194,15 +195,15 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         files: Files,
         schemeDirectives: DeltaSchemeDirectives,
         indexingAction: AggregateIndexingAction,
-        shift: File.Shift,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         fusionConfig: FusionConfig,
         tracer: Tracer[IO] @Id("files")
     ) =>
-      new FilesRoutes(identities, aclCheck, files, schemeDirectives, indexingAction(_, _, _)(shift))(using baseUri)(
-        using
+      new FilesRoutes(identities, aclCheck, files, schemeDirectives, indexingAction(Files.entityType)(_, _, _))(using
+        baseUri
+      )(using
         showLocation,
         cr,
         ordering,
@@ -218,13 +219,17 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         files: Files,
         indexingAction: AggregateIndexingAction,
-        shift: File.Shift,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         tracer: Tracer[IO] @Id("files")
     ) =>
-      new LinkFilesRoutes(identities, aclCheck, files, indexingAction(_, _, _)(shift))(using baseUri)(using
+      new LinkFilesRoutes(
+        identities,
+        aclCheck,
+        files,
+        indexingAction(Files.entityType)(_, _, _)
+      )(using baseUri)(using
         cr,
         ordering,
         showLocation,
@@ -239,7 +244,6 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         files: Files,
         indexingAction: AggregateIndexingAction,
-        shift: File.Shift,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
@@ -251,15 +255,17 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck,
         files,
         jwsPayloadHelper,
-        indexingAction(_, _, _)(shift)
+        indexingAction(Files.entityType)(_, _, _)
       )(using baseUri)(using cr, ordering, showLocation, tracer)
   }
 
-  make[File.Shift].from { (files: Files, base: BaseUri, showLocation: ShowFileLocation) =>
+  many[ResourceShift[?, ?]].add { (files: Files, base: BaseUri, showLocation: ShowFileLocation) =>
     File.shift(files)(base, showLocation)
   }
 
-  many[ResourceShift[?, ?]].ref[File.Shift]
+  many[MainDocumentEncoder[?, ?]].add { (base: BaseUri, showLocation: ShowFileLocation) =>
+    File.mainDocumentEncoder(using base, showLocation)
+  }
 
   many[ScopeInitialization].addSet {
     (

@@ -1,18 +1,21 @@
 package ai.senscience.nexus.delta.sdk.resources.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.CommonFields.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
 import ai.senscience.nexus.delta.sdk.ResourceShift
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocument, MainDocumentEncoder}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.resources.Resources
-import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef, Tags}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
+import cats.syntax.all.*
 import cats.effect.IO
-import io.circe.Json
+import io.circe.{Decoder, Json, JsonObject}
 
 /**
   * A resource representation
@@ -73,4 +76,28 @@ object Resource {
       state => state.toResource,
       toJsonLdContent
     )
+
+  def mainDocumentEncoder(using BaseUri): MainDocumentEncoder[ResourceState, Resource] =
+    new MainDocumentEncoder[ResourceState, Resource] {
+      override def entityType: EntityType = Resources.entityType
+
+      override def databaseDecoder: Decoder[ResourceState] = ResourceState.serializer.codec
+
+      protected def toResourceF(state: ResourceState): ResourceF[Resource] =
+        state.toResource
+
+      override def fromResource(value: ResourceF[Resource]): MainDocument = {
+        val cursor = value.value.expanded.cursor
+        MainDocument(
+          name = schema.name(cursor),
+          label = rdfs.label(cursor),
+          prefLabel = skos.prefLabel(cursor),
+          description = schema.description(cursor),
+          metadata = value.void,
+          tags = value.value.tags,
+          originalSource = value.value.source,
+          additionalFields = JsonObject.empty
+        )
+      }
+    }
 }

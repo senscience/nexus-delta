@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.sdk
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
@@ -27,8 +28,9 @@ trait ResourceShifts {
   /**
     * Return a function to decode a json to a [[GraphResource]] according to its [[EntityType]]
     */
-  def decodeGraphResource: (EntityType, Json) => IO[GraphResource]
+  def decodeGraphResource(entityType: EntityType)(json: Json): IO[GraphResource]
 
+  def toGraphResource[A](entityType: EntityType)(project: ProjectRef, resource: ResourceF[A]): IO[GraphResource]
 }
 
 object ResourceShifts {
@@ -46,9 +48,7 @@ object ResourceShifts {
     override def entityTypes: Option[NonEmptyList[EntityType]] = NonEmptyList.fromList(shiftsMap.keys.toList)
 
     private def findShift(entityType: EntityType): IO[ResourceShift[?, ?]] = IO
-      .fromOption(shiftsMap.get(entityType))(
-        NoShiftAvailable(entityType)
-      )
+      .fromOption(shiftsMap.get(entityType))(NoShiftAvailable(entityType))
 
     override def fetch(reference: ResourceRef, project: ProjectRef): IO[Option[JsonLdContent[?]]] =
       for {
@@ -57,16 +57,16 @@ object ResourceShifts {
         resource   <- shift.flatTraverse(_.fetch(reference, project))
       } yield resource
 
-    override def decodeGraphResource: (EntityType, Json) => IO[GraphResource] = {
-      (entityType: EntityType, json: Json) =>
-        {
-          for {
-            shift  <- findShift(entityType)
-            result <- shift.toGraphResource(json)
-          } yield result
-        }.onError { case err =>
+    override def decodeGraphResource(entityType: EntityType)(json: Json): IO[GraphResource] =
+      findShift(entityType)
+        .flatMap(_.toGraphResource(json))
+        .onError { case err =>
           logger.error(err)(s"Entity of type '$entityType' could not be decoded as a graph resource")
         }
-    }
+
+    override def toGraphResource[A](
+        entityType: EntityType
+    )(project: ProjectRef, resource: ResourceF[A]): IO[GraphResource] =
+      findShift(entityType).flatMap(_.asInstanceOf[ResourceShift[?, A]].toGraphResource(project, resource))
   }
 }

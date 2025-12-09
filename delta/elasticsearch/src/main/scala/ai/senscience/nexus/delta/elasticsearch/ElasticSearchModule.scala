@@ -21,7 +21,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
@@ -30,11 +30,12 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, ProjectScopeResolver, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.stream.{GraphResourceStream, MainDocumentStream}
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
@@ -169,26 +170,33 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainRestartScheduler(projects, restartScheduler)
   }
 
+  make[MainDocumentEncoder.Aggregate].from { (mainDocumentEncoders: Set[MainDocumentEncoder[?, ?]]) =>
+    MainDocumentEncoder.Aggregate(mainDocumentEncoders)
+  }
+
+  make[MainDocumentStream].from { (elemStreaming: ElemStreaming, mainDocumentEncoder: MainDocumentEncoder.Aggregate) =>
+    MainDocumentStream(elemStreaming, mainDocumentEncoder)
+  }
+
   make[MainIndexingCoordinator].fromEffect {
     (
         projects: Projects,
-        graphStream: GraphResourceStream,
+        mainDocumentStream: MainDocumentStream,
         supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         mainIndex: MainIndexDef,
         config: ElasticSearchViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       MainIndexingCoordinator(
         projects,
-        graphStream,
+        mainDocumentStream,
         supervisor,
         client,
         mainIndex,
         config.batch,
         config.indexingEnabled
-      )(using cr, tracer)
+      )(using tracer)
   }
 
   make[EventMetricsProjection].fromEffect {
@@ -452,8 +460,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     new ElasticSearchServiceDependency(client)
   }
 
-  many[IndexingAction].addSet {
+  many[SyncIndexingAction].addSet {
     (
+        resourceShifts: ResourceShifts,
+        mainDocumentEncoder: MainDocumentEncoder.Aggregate,
         currentViews: CurrentActiveViews,
         pipeChainCompiler: PipeChainCompiler,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
@@ -463,6 +473,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ) =>
       Set(
         ElasticSearchIndexingAction(
+          resourceShifts,
           currentViews,
           pipeChainCompiler,
           client,
@@ -470,11 +481,12 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
           config.syncIndexingRefresh
         )(using cr, tracer),
         MainIndexingAction(
+          mainDocumentEncoder,
           client,
           config.mainIndex,
           config.syncIndexingTimeout,
           config.syncIndexingRefresh
-        )(using cr, tracer)
+        )(using tracer)
       )
 
   }

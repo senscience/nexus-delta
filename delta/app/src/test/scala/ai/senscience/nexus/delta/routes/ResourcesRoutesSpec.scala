@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.IndexingAction
+import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.model.{IdSegmentRef, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete, read, write}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -102,7 +102,7 @@ class ResourcesRoutesSpec
       IdentitiesDummy.fromUsers(reader, writer, deleter),
       aclCheck,
       resources,
-      IndexingAction.noop
+      SyncIndexingAction.noop
     )
   )
 
