@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.{EntityCheck, Transactors}
-import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
@@ -17,8 +16,6 @@ import io.circe.Json
   * Aggregates the different [[ResourceShift]] to perform operations on resources independently of their types
   */
 trait ResourceShifts {
-
-  def entityTypes: Option[NonEmptyList[EntityType]]
 
   /**
     * Fetch a resource as a [[JsonLdContent]]
@@ -44,8 +41,6 @@ object ResourceShifts {
       cr: RemoteContextResolution
   ): ResourceShifts = new ResourceShifts {
     private val shiftsMap = shifts.map { encoder => encoder.entityType -> encoder }.toMap
-
-    override def entityTypes: Option[NonEmptyList[EntityType]] = NonEmptyList.fromList(shiftsMap.keys.toList)
 
     private def findShift(entityType: EntityType): IO[ResourceShift[?, ?]] = IO
       .fromOption(shiftsMap.get(entityType))(NoShiftAvailable(entityType))

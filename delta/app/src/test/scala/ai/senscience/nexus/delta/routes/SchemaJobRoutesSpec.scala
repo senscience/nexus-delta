@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.query.EntityTypeFilter
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionProgress}
 import cats.effect.{IO, Ref}
@@ -35,7 +36,7 @@ class SchemaJobRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   private val aclCheck = AclSimpleCheck((alice, Root, Set(Permissions.schemas.run))).accepted
 
-  private lazy val projections      = Projections(xas, None, queryConfig, clock)
+  private lazy val projections      = Projections(xas, EntityTypeFilter.All, queryConfig, clock)
   private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
 
   private val progress = ProjectionProgress(Offset.at(15L), Instant.EPOCH, 9000L, 400L, 30L)

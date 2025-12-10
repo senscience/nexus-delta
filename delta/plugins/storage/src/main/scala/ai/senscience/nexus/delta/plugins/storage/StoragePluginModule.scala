@@ -259,6 +259,8 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
       )(using baseUri)(using cr, ordering, showLocation, tracer)
   }
 
+  addIndexingType(Files.entityType)
+
   many[ResourceShift[?, ?]].add { (files: Files, base: BaseUri, showLocation: ShowFileLocation) =>
     File.shift(files)(base, showLocation)
   }

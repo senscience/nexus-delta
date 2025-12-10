@@ -22,7 +22,6 @@ import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Scope, Serializer}
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import cats.data.NonEmptyList
 import cats.effect.IO
 import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
@@ -41,9 +40,9 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
   private val qc      = QueryConfig(2, RefreshStrategy.Stop)
 
   private lazy val xas            = doobie()
-  private val entityTypes         = Some(NonEmptyList.of(PullRequest.entityType, Release.entityType))
+  private val entityTypeFilter    = EntityTypeFilter.include(PullRequest.entityType, Release.entityType)
   private val stopConfig          = StopConfig(20, 2, 50.millis)
-  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQueries.Noop, entityTypes, stopConfig)
+  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQueries.Noop, entityTypeFilter, stopConfig)
   private lazy val tombstoneStore = new StateTombstoneStore(xas)
 
   private lazy val prStore = ScopedStateStore[Iri, PullRequestState](
@@ -249,24 +248,26 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
   }
 
   test(s"Find offset for the latest of $id1 in $project1") {
-    StreamingQuery.offset(Scope(project1), entityTypes, SelectFilter.latest, id1, xas).assertEquals(Some(Offset.at(1L)))
+    StreamingQuery
+      .offset(Scope(project1), entityTypeFilter, SelectFilter.latest, id1, xas)
+      .assertEquals(Some(Offset.at(1L)))
   }
 
   test(s"Find offset for the tag $customTag of $id1 in $project1") {
     StreamingQuery
-      .offset(Scope(project1), entityTypes, SelectFilter.tag(customTag), id1, xas)
+      .offset(Scope(project1), entityTypeFilter, SelectFilter.tag(customTag), id1, xas)
       .assertEquals(Some(Offset.at(6L)))
   }
 
   test(s"Find no offset for an unkwon tag of $id1 in $project1") {
     StreamingQuery
-      .offset(Scope(project1), entityTypes, SelectFilter.tag(UserTag.unsafe("xxx")), id1, xas)
+      .offset(Scope(project1), entityTypeFilter, SelectFilter.tag(UserTag.unsafe("xxx")), id1, xas)
       .assertEquals(None)
   }
 
   test(s"Find no offset for unknown resource in $project1") {
     StreamingQuery
-      .offset(Scope(project1), entityTypes, SelectFilter.tag(customTag), nxv + "xxx", xas)
+      .offset(Scope(project1), entityTypeFilter, SelectFilter.tag(customTag), nxv + "xxx", xas)
       .assertEquals(None)
   }
 }

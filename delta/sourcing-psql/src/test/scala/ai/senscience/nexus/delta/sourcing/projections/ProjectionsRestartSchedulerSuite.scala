@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart
-import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.query.{EntityTypeFilter, RefreshStrategy}
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
@@ -19,7 +19,7 @@ final class ProjectionsRestartSchedulerSuite extends NexusSuite with Doobie.Fixt
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
   private lazy val xas              = doobie()
-  private lazy val projections      = Projections(xas, None, QueryConfig(10, RefreshStrategy.Stop), clock)
+  private lazy val projections      = Projections(xas, EntityTypeFilter.All, QueryConfig(10, RefreshStrategy.Stop), clock)
   private lazy val restartScheduler = ProjectionsRestartScheduler(projections)
 
   test("Restart the given projections if their progress is greater than the provided offset") {

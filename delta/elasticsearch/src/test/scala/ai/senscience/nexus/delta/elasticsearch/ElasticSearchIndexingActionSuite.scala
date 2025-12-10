@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import cats.data.NonEmptyList
 import cats.effect.IO
 import io.circe.Json
 
@@ -98,8 +97,6 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
   private val exception = new IllegalStateException("Boom")
 
   private val shifts = new ResourceShifts {
-    override def entityTypes: Option[NonEmptyList[EntityType]] = None
-
     override def fetch(reference: ResourceRef, project: ProjectRef): IO[Option[JsonLdContent[?]]] = IO.none
 
     override def decodeGraphResource(entityType: EntityType)(json: Json): IO[GraphResource] = IO.stub

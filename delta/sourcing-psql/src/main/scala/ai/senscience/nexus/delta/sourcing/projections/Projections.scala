@@ -5,14 +5,13 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.{PurgeConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.implicits.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.model.{IndexingStatus, ProjectionRestart}
-import ai.senscience.nexus.delta.sourcing.query.{SelectFilter, StreamingQuery}
+import ai.senscience.nexus.delta.sourcing.query.{EntityTypeFilter, SelectFilter, StreamingQuery}
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress, ProjectionStore}
 import ai.senscience.nexus.delta.sourcing.{EntityCheck, ProgressStatistics, Scope, Transactors}
-import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
 import cats.syntax.order.catsSyntaxPartialOrder
 import fs2.Stream
@@ -115,7 +114,7 @@ object Projections {
 
   def apply(
       xas: Transactors,
-      entityTypes: Option[NonEmptyList[EntityType]],
+      entityTypeFilter: EntityTypeFilter,
       config: QueryConfig,
       clock: Clock[IO]
   ): Projections =
@@ -136,7 +135,7 @@ object Projections {
       )(notFound: => Throwable): IO[IndexingStatus] =
         for {
           projectionOffset <- offset(projection)
-          resourceOffset   <- StreamingQuery.offset(Scope(project), entityTypes, selectFilter, resourceId, xas)
+          resourceOffset   <- StreamingQuery.offset(Scope(project), entityTypeFilter, selectFilter, resourceId, xas)
           status           <- resourceOffset match {
                                 case Some(o) => IO.pure(IndexingStatus.fromOffsets(projectionOffset, o))
                                 case None    =>
@@ -179,7 +178,7 @@ object Projections {
           remaining <-
             StreamingQuery.remaining(
               scope,
-              entityTypes,
+              entityTypeFilter,
               selectFilter,
               current.fold(Offset.start)(_.offset),
               xas

@@ -11,11 +11,10 @@ import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus.{Ongoi
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState, QueryStatus}
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.{Delayed, OutOfPassivation, Passivated}
-import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{entityTypeFilter, logQuery, stateFilter, typesSqlArray}
+import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{logQuery, stateFilter, typesSqlArray}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
-import cats.data.NonEmptyList
 import cats.effect.IO
 import doobie.Fragments
 import doobie.postgres.implicits.*
@@ -35,7 +34,7 @@ import scala.collection.mutable.ListBuffer
 final class ElemStreaming(
     xas: Transactors,
     ongoingQueries: OngoingQueries,
-    entityTypes: Option[NonEmptyList[EntityType]],
+    entityTypeFilter: EntityTypeFilter,
     queryConfig: ElemQueryConfig,
     projectActivity: ProjectActivity
 )(using uuidF: UUIDF) {
@@ -45,7 +44,7 @@ final class ElemStreaming(
   /**
     * The stopping alternative for this elem streaming
     */
-  def stopping: ElemStreaming = ElemStreaming.stopping(xas, ongoingQueries, entityTypes, queryConfig)
+  def stopping: ElemStreaming = ElemStreaming.stopping(xas, ongoingQueries, entityTypeFilter, queryConfig)
 
   /**
     * Get information about the remaining elements to stream
@@ -57,7 +56,7 @@ final class ElemStreaming(
     *   the offset to start from
     */
   def remaining(scope: Scope, selectFilter: SelectFilter, start: Offset): IO[Option[RemainingElems]] =
-    StreamingQuery.remaining(scope, entityTypes, selectFilter, start, xas)
+    StreamingQuery.remaining(scope, entityTypeFilter, selectFilter, start, xas)
 
   /**
     * Streams states and tombstones as [[Elem]] s without fetching the state value.
@@ -233,7 +232,7 @@ final class ElemStreaming(
 
   private def stateEntityFilter(scope: Scope, offset: Offset, selectFilter: SelectFilter) =
     Fragments.whereAndOpt(
-      entityTypeFilter(entityTypes),
+      entityTypeFilter.asFragment,
       stateFilter(scope, offset, selectFilter)
     )
 
@@ -242,7 +241,7 @@ final class ElemStreaming(
       selectFilter.types.asRestrictedTo.map(includedTypes => fr"cause -> 'types' ??| ${typesSqlArray(includedTypes)}")
     val causeFragment = Fragments.orOpt(Some(fr"cause->>'deleted' = 'true'"), typeFragment)
     Fragments.whereAndOpt(
-      entityTypeFilter(entityTypes),
+      entityTypeFilter.asFragment,
       scope.asFragment,
       offset.asFragment,
       selectFilter.tag.asFragment,
@@ -294,11 +293,11 @@ object ElemStreaming {
   def stopping(
       xas: Transactors,
       ongoingSet: OngoingQueries,
-      entityTypes: Option[NonEmptyList[EntityType]],
+      entityTypeFilter: EntityTypeFilter,
       config: ElemQueryConfig
   )(using UUIDF): ElemStreaming = {
     val eqc      = ElemQueryConfig.StopConfig(config.maxOngoing, config.batchSize, config.delay)
     val activity = ProjectActivity.noop
-    new ElemStreaming(xas, ongoingSet, entityTypes, eqc, activity)
+    new ElemStreaming(xas, ongoingSet, entityTypeFilter, eqc, activity)
   }
 }

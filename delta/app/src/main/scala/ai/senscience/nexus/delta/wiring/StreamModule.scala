@@ -7,7 +7,8 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.*
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, OngoingQueries}
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, EntityTypeFilter, OngoingQueries}
+import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.{ProjectLastUpdateConfig, ProjectionConfig}
@@ -15,7 +16,7 @@ import ai.senscience.nexus.delta.sourcing.stream.pipes.defaultPipes
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{DeleteExpired, PurgeElemFailures, Transactors}
 import cats.effect.{Clock, IO, Sync}
-import izumi.distage.model.definition.ModuleDef
+import izumi.distage.model.definition.{Id, ModuleDef}
 import org.typelevel.otel4s.oteljava.OtelJava
 
 /**
@@ -24,10 +25,14 @@ import org.typelevel.otel4s.oteljava.OtelJava
 object StreamModule extends ModuleDef {
   addImplicit[Sync[IO]]
 
+  make[EntityTypeFilter].from { (entityTypes: Set[EntityType] @Id("indexing-types")) =>
+    EntityTypeFilter.include(entityTypes)
+  }
+
   make[ElemStreaming].fromEffect {
     (
         xas: Transactors,
-        shifts: ResourceShifts,
+        entityTypeFilter: EntityTypeFilter,
         queryConfig: ElemQueryConfig,
         projectActivity: ProjectActivity,
         uuidF: UUIDF,
@@ -39,7 +44,7 @@ object StreamModule extends ModuleDef {
         .get
         .flatMap { meter =>
           OngoingQueries(queryConfig.maxOngoing)(using meter).map { ongoingQueries =>
-            new ElemStreaming(xas, ongoingQueries, shifts.entityTypes, queryConfig, projectActivity)(using uuidF)
+            new ElemStreaming(xas, ongoingQueries, entityTypeFilter, queryConfig, projectActivity)(using uuidF)
           }
         }
   }
@@ -54,8 +59,9 @@ object StreamModule extends ModuleDef {
     PipeChainCompiler(pipes)
   }
 
-  make[Projections].from { (xas: Transactors, shifts: ResourceShifts, cfg: ProjectionConfig, clock: Clock[IO]) =>
-    Projections(xas, shifts.entityTypes, cfg.query, clock)
+  make[Projections].from {
+    (xas: Transactors, entityTypeFilter: EntityTypeFilter, cfg: ProjectionConfig, clock: Clock[IO]) =>
+      Projections(xas, entityTypeFilter, cfg.query, clock)
   }
 
   make[ProjectionErrors].from { (xas: Transactors, clock: Clock[IO], cfg: ProjectionConfig) =>
