@@ -183,6 +183,10 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     triple.foreach { case (s, p, o) => ds.getDefaultGraph.add(s, p, o) }
   }
 
+  def deleteAny(subject: IriOrBNode, predicate: Iri): Graph = writeTx { ds =>
+    ds.deleteAny(Node.ANY, Triple.subject(subject), Triple.predicate(predicate), Node.ANY)
+  }
+
   /**
     * Deletes a set of triples from the existing graph.
     */

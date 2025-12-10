@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.kernel.config.Configs
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.sourcing.model.EntityType
 import cats.effect.IO
 import com.typesafe.config.Config
 import distage.{ModuleDef, Tag}
@@ -33,5 +34,8 @@ trait NexusModuleDef extends ModuleDef {
     many[RemoteContextResolution].addEffect(
       RemoteContextResolution.loadResources(contexts)
     )
+
+  final def addIndexingType(entityType: EntityType): ModuleDefDSL.SetElementDSL[EntityType] =
+    many[EntityType].named("indexing-types").add(entityType)
 
 }

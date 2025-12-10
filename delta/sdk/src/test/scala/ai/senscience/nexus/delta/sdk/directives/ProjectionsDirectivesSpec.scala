@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
-import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.query.{EntityTypeFilter, SelectFilter}
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionMetadata, ProjectionProgress}
 import org.apache.pekko.http.scaladsl.model.*
@@ -18,7 +18,7 @@ import java.time.Instant
 
 class ProjectionsDirectivesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
-  private lazy val projections      = Projections(xas, None, queryConfig, clock)
+  private lazy val projections      = Projections(xas, EntityTypeFilter.All, queryConfig, clock)
   private lazy val projectionErrors = ProjectionErrors(xas, queryConfig, clock)
 
   private lazy val projectionDirectives = ProjectionsDirectives(projections, projectionErrors)

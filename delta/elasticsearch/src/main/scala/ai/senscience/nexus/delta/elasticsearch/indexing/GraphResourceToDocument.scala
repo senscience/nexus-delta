@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
+import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -43,7 +44,7 @@ final class GraphResourceToDocument(context: ContextValue, includeContext: Boole
       else {
         val id = getSourceId(element.source).getOrElse(element.id.toString)
         graph
-          .delete(graph.rootTypesNodes)
+          .deleteAny(graph.rootNode, Vocabulary.rdf.tpe)
           .toCompactedJsonLd(context)
           .map(ld => injectContext(mergeJsonLd(element.source, ld.json)))
           .map(json => injectId(json, id))

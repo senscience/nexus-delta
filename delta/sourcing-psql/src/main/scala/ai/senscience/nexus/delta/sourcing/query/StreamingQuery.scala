@@ -3,11 +3,10 @@ package ai.senscience.nexus.delta.sourcing.query
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.implicits.*
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, IriFilter}
+import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
-import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import doobie.Fragments
@@ -38,13 +37,13 @@ object StreamingQuery {
     */
   def remaining(
       scope: Scope,
-      entityTypes: Option[NonEmptyList[EntityType]],
+      entityTypeFiter: EntityTypeFilter,
       selectFilter: SelectFilter,
       start: Offset,
       xas: Transactors
   ): IO[Option[RemainingElems]] = {
     val whereClause = Fragments.whereAndOpt(
-      entityTypeFilter(entityTypes),
+      entityTypeFiter.asFragment,
       stateFilter(scope, start, selectFilter)
     )
     sql"""SELECT count(ordering), max(instant)
@@ -64,13 +63,13 @@ object StreamingQuery {
     */
   def offset(
       scope: Scope,
-      entityTypes: Option[NonEmptyList[EntityType]],
+      entityTypeFiter: EntityTypeFilter,
       selectFilter: SelectFilter,
       id: Iri,
       xas: Transactors
   ): IO[Option[Offset]] = {
     val whereClause = Fragments.whereAndOpt(
-      entityTypeFilter(entityTypes),
+      entityTypeFiter.asFragment,
       stateFilter(scope, Offset.start, selectFilter),
       Some(fr"id = $id")
     )
@@ -144,10 +143,6 @@ object StreamingQuery {
       selectFilter.tag.asFragment,
       typeFragment
     )
-  }
-
-  def entityTypeFilter(entityTypes: Option[NonEmptyList[EntityType]]): Option[doobie.Fragment] = entityTypes.map { e =>
-    Fragments.in(fr"type", e)
   }
 
   def typesSqlArray(includedTypes: IriFilter.Include): Fragment =

@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
-import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.query.{EntityTypeFilter, RefreshStrategy}
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
 import ai.senscience.nexus.testkit.clock.FixedClock
@@ -41,7 +41,7 @@ object SupervisorSetup {
 
   def resource(config: ProjectionConfig, clock: Clock[IO]): Resource[IO, SupervisorSetup] =
     Doobie.resourceDefault.flatMap { xas =>
-      val projections      = Projections(xas, None, config.query, clock)
+      val projections      = Projections(xas, EntityTypeFilter.All, config.query, clock)
       val projectionErrors = ProjectionErrors(xas, config.query, clock)
       Supervisor(projections, projectionErrors, config, ProjectionMetrics.Disabled)
         .map(s => SupervisorSetup(s, projections, projectionErrors))

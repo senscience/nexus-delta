@@ -171,6 +171,8 @@ object SchemasModule extends NexusModuleDef {
     PriorityRoute(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)
   }
 
+  addIndexingType(Schemas.entityType)
+
   many[ResourceShift[?, ?]].add { (schemas: Schemas, base: BaseUri) =>
     Schema.shift(schemas)(base)
   }

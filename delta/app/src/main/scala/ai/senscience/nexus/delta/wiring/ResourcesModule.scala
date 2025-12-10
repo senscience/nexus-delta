@@ -127,6 +127,8 @@ object ResourcesModule extends NexusModuleDef {
     PriorityRoute(pluginsMinPriority - 2, route.routes, requiresStrictEntity = true)
   }
 
+  addIndexingType(Resources.entityType)
+
   many[ResourceShift[?, ?]].add { (resources: Resources, base: BaseUri) =>
     Resource.shift(resources)(base)
   }
