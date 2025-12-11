@@ -39,7 +39,13 @@ object SyncIndexingRunner {
   }
 
   private def runProjection(compiled: CompiledProjection, errors: IndexingActionContext, timeout: FiniteDuration) =
-    Projection(compiled, IO.none, _ => IO.unit, errors.addErrors)
+    Projection(
+      compiled,
+      IO.none,
+      _ => IO.unit,
+      errors.addErrors,
+      _ => IO.unit
+    )
       .flatMap { projection =>
         // We wait the projection if it has not complete yet
         projection.waitForCompletion(timeout) >> projection.stop()

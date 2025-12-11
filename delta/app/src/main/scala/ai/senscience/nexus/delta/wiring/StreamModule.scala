@@ -77,10 +77,6 @@ object StreamModule extends ModuleDef {
       Supervisor(projections, projectionErrors, cfg, metrics)
   }
 
-  make[SupervisorCheck].fromResource { (supervisor: Supervisor, cfg: ProjectionConfig) =>
-    SupervisorCheck(supervisor, cfg.supervisionCheckInterval)
-  }
-
   make[ProjectionsRestartScheduler].from { (projections: Projections) =>
     ProjectionsRestartScheduler(projections)
   }

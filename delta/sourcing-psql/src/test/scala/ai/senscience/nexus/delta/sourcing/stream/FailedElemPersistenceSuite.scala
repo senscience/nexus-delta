@@ -9,9 +9,9 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
 import fs2.Stream
+import munit.Location
 
 import java.time.Instant
-import scala.collection.mutable.Set as MutableSet
 import scala.concurrent.duration.DurationInt
 
 class FailedElemPersistenceSuite extends NexusSuite {
@@ -48,9 +48,6 @@ class FailedElemPersistenceSuite extends NexusSuite {
           SuccessElem(EntityType("entity"), id, project, Instant.EPOCH, Offset.at(value.toLong), (), rev)
         }
 
-  private val saveFailedElems: MutableSet[FailedElem] => List[FailedElem] => IO[Unit] =
-    failedElemStore => failedElems => IO.delay { failedElems.foreach(failedElemStore.add) }
-
   private val cpPersistentNodeFailures  =
     CompiledProjection.fromStream(projection1, ExecutionStrategy.PersistentSingleNode, failureStream)
   private val cpEveryNodeFailures       =
@@ -58,31 +55,27 @@ class FailedElemPersistenceSuite extends NexusSuite {
   private val cpPersistentNodeSuccesses =
     CompiledProjection.fromStream(projection1, ExecutionStrategy.PersistentSingleNode, successStream)
 
-  test("FailedElems are saved (persistent single node)") {
-    val failedElems = MutableSet.empty[FailedElem]
+  private def runProjectionAndSaveErrors(compiled: CompiledProjection, expectedErrors: Int)(using location: Location) =
     for {
-      projection <- Projection.apply(cpPersistentNodeFailures, IO.none, _ => IO.unit, saveFailedElems(failedElems))
-      _          <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
-      _           = assertEquals(failedElems.size, 10)
+      failedElems <- IO.ref(List.empty[FailedElem])
+      projection  <- {
+        def saveErrors(errors: List[FailedElem]) = failedElems.update(_ ++ errors)
+        Projection.apply(compiled, IO.none, _ => IO.unit, saveErrors, _ => IO.unit)
+      }
+      _           <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
+      _           <- failedElems.get.map(_.size).assertEquals(expectedErrors)
     } yield ()
+
+  test("FailedElems are saved (persistent single node)") {
+    runProjectionAndSaveErrors(cpPersistentNodeFailures, 10)
   }
 
   test("FailedElems are saved (every node)") {
-    val failedElems = MutableSet.empty[FailedElem]
-    for {
-      projection <- Projection.apply(cpEveryNodeFailures, IO.none, _ => IO.unit, saveFailedElems(failedElems))
-      _          <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
-      _           = assertEquals(failedElems.size, 10)
-    } yield ()
+    runProjectionAndSaveErrors(cpEveryNodeFailures, 10)
   }
 
   test("Success stream saves no FailedElems") {
-    val failedElems = MutableSet.empty[FailedElem]
-    for {
-      projection <- Projection.apply(cpPersistentNodeSuccesses, IO.none, _ => IO.unit, saveFailedElems(failedElems))
-      _          <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
-      _           = failedElems.assertEmpty()
-    } yield ()
+    runProjectionAndSaveErrors(cpPersistentNodeSuccesses, 0)
   }
 
 }

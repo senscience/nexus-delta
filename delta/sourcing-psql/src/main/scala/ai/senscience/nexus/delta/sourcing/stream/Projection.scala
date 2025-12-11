@@ -110,16 +110,18 @@ object Projection {
       projection: CompiledProjection,
       fetchProgress: IO[Option[ProjectionProgress]],
       saveProgress: ProjectionProgress => IO[Unit],
-      saveFailedElems: List[FailedElem] => IO[Unit]
+      saveFailedElems: List[FailedElem] => IO[Unit],
+      registerFailing: String => IO[Unit]
   )(using batch: BatchConfig): IO[Projection] =
-    apply(projection, IO.unit, fetchProgress, saveProgress, saveFailedElems)
+    apply(projection, IO.unit, fetchProgress, saveProgress, saveFailedElems, registerFailing)
 
   def apply(
       projection: CompiledProjection,
       init: IO[Unit],
       fetchProgress: IO[Option[ProjectionProgress]],
       saveProgress: ProjectionProgress => IO[Unit],
-      saveFailedElems: List[FailedElem] => IO[Unit]
+      saveFailedElems: List[FailedElem] => IO[Unit],
+      registerFailing: String => IO[Unit]
   )(using batch: BatchConfig): IO[Projection] =
     for {
       status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
@@ -130,7 +132,7 @@ object Projection {
                        .apply(progress.offset)
                        .interruptWhen(halt.get.attempt)
                        .onFinalizeCaseWeak {
-                         case ExitCase.Errored(th) => status.update(_.failed(th))
+                         case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
                          case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
                          case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
                        }

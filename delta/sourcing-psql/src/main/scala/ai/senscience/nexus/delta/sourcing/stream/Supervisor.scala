@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
 import cats.effect.*
 import cats.syntax.all.*
-import fs2.Stream
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
@@ -91,11 +90,6 @@ trait Supervisor {
   def getRunningProjections: IO[List[SupervisedDescription]]
 
   /**
-    * Goes through the running projections, attempt to restart those in error and remove the completed ones
-    */
-  def check: Stream[IO, Unit]
-
-  /**
     * Stops all running projections without removing them from supervision.
     */
   def stop: IO[Unit]
@@ -121,26 +115,26 @@ object Supervisor {
       projectionErrors: ProjectionErrors,
       cfg: ProjectionConfig,
       metrics: ProjectionMetrics
-  ): Resource[IO, Supervisor] =
-    Resource.make {
-      for {
-        _                 <- log.info("Starting Delta supervisor")
-        supervisorStorage <- SupervisorStorage()
-        supervisor         =
-          new Impl(projections, projectionErrors, cfg, supervisorStorage, metrics)
-        _                 <- WatchRestarts(supervisor, projections)
-        _                 <- log.info("Delta supervisor is up")
-      } yield supervisor
-    }(_.stop)
+  ): Resource[IO, Supervisor] = {
+    for {
+      _                 <- Resource.eval(log.info("Starting Delta supervisor"))
+      supervisorStorage <- Resource.eval(SupervisorStorage())
+      _                 <- SupervisorCheck(supervisorStorage, cfg)
+      supervisor        <-
+        Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, metrics)))(_.stop)
+      _                 <- Resource.eval(WatchRestarts(supervisor, projections))
+      _                 <- Resource.eval(log.info("Delta supervisor is up"))
+    } yield supervisor
+  }
 
-  private def createRetryStrategy(cfg: ProjectionConfig, metadata: ProjectionMetadata, action: String) =
+  private[stream] def createRetryStrategy(cfg: ProjectionConfig, metadata: ProjectionMetadata, action: String) =
     RetryStrategy.retryOnNonFatal(
       cfg.retry,
       log,
       s"$action projection '${metadata.fullName}''"
     )
 
-  private def restartProjection(supervised: Supervised): IO[Supervised] =
+  private[stream] def restartProjection(supervised: Supervised): IO[Supervised] =
     supervised.task.map { control =>
       supervised.copy(restarts = supervised.restarts + 1, control = control)
     }
@@ -202,7 +196,8 @@ object Supervisor {
             init,
             projections.progress(projection.metadata.name),
             saveProgressWithMetrics,
-            projectionErrors.saveFailedElems(projection.metadata, _)
+            projectionErrors.saveFailedElems(projection.metadata, _),
+            supervisorStorage.sendFailing
           )
         case TransientSingleNode | EveryNode =>
           Projection(
@@ -210,7 +205,8 @@ object Supervisor {
             init,
             IO.none,
             metrics.recordProgress(projection.metadata, _),
-            projectionErrors.saveFailedElems(projection.metadata, _)
+            projectionErrors.saveFailedElems(projection.metadata, _),
+            supervisorStorage.sendFailing
           )
       }
 
@@ -258,26 +254,6 @@ object Supervisor {
 
     override def getRunningProjections: IO[List[SupervisedDescription]] =
       supervisorStorage.values.evalMap(_.description).compile.toList
-
-    def check: Stream[IO, Unit] =
-      supervisorStorage.values.evalMap { supervised =>
-        val metadata = supervised.metadata
-        supervised.control.status.flatMap {
-          case ExecutionStatus.Pending           => IO.unit
-          case ExecutionStatus.Running           => IO.unit
-          case ExecutionStatus.Completed         => IO.unit
-          case ExecutionStatus.Stopped           => IO.unit
-          case ExecutionStatus.Failed(throwable) =>
-            val retryStrategy = createRetryStrategy(cfg, metadata, "running")
-            log.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
-              supervisorStorage
-                .update(metadata.name) { supervised =>
-                  restartProjection(supervised)
-                }
-                .retry(retryStrategy)
-                .void
-        }
-      }
 
     private def stopAllProjections =
       log.info("Stopping all projection(s)...") >>
