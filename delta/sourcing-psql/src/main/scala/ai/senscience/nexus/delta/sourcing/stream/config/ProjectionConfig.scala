@@ -18,8 +18,6 @@ import scala.concurrent.duration.FiniteDuration
   *   a configuration definition how often we must persist the progress and errors of projections
   * @param retry
   *   a configuration defining the retry policy to apply when a projection fails
-  * @param supervisionCheckInterval
-  *   the interval at which projections are checked
   * @param deleteExpiredEvery
   *   the interval at which we delete expired ephemeral states, projection restarts and errors
   * @param failedElemTtl
@@ -35,7 +33,6 @@ final case class ProjectionConfig(
     cluster: ClusterConfig,
     batch: BatchConfig,
     retry: RetryStrategyConfig,
-    supervisionCheckInterval: FiniteDuration,
     deleteExpiredEvery: FiniteDuration,
     failedElemTtl: FiniteDuration,
     restartTtl: FiniteDuration,
@@ -50,8 +47,7 @@ final case class ProjectionConfig(
 }
 
 object ProjectionConfig {
-  implicit final val projectionConfigReader: ConfigReader[ProjectionConfig] =
-    deriveReader[ProjectionConfig]
+  given ConfigReader[ProjectionConfig] = deriveReader[ProjectionConfig]
 
   /**
     * The cluster configuration.
@@ -66,7 +62,7 @@ object ProjectionConfig {
   final case class ClusterConfig(size: Int, nodeIndex: Int)
 
   object ClusterConfig {
-    implicit final val clusterConfigReader: ConfigReader[ClusterConfig] =
+    given ConfigReader[ClusterConfig] =
       deriveReader[ClusterConfig].emap { config =>
         Either.cond(
           config.nodeIndex < config.size,

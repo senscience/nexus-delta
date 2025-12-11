@@ -101,8 +101,6 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     assertDescribe(WatchRestarts.projectionMetadata, EveryNode, 0, Running, progress)
   }
 
-  private def checkProjections = sv.check.compile.drain
-
   private def assertNoSavedProgress(metadata: ProjectionMetadata)(using loc: Location) =
     projections.progress(metadata.name).assertEquals(None)
 
@@ -226,8 +224,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   test("Should restart a failing projection") {
     for {
       _ <- assertCrash(runnableByNode1, TransientSingleNode)
-      _ <- checkProjections
-      _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1))
+      _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
     } yield ()
   }
 

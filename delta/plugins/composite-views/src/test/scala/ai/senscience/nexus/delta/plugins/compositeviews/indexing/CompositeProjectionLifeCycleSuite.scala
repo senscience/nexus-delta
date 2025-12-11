@@ -58,7 +58,7 @@ class CompositeProjectionLifeCycleSuite extends NexusSuite with CompositeViewsFi
                           (_, _) => IO.unit
                         )
       compiled       <- lifecycle.build(view)
-      projection     <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit)
+      projection     <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit, _ => IO.unit)
       _              <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
       // Asserting hooks
       _              <- triggeredHooks.get.assertEquals(hooks).eventually

@@ -1,48 +1,51 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.syntax.*
+import ai.senscience.nexus.delta.sourcing.stream.Supervisor.{createRetryStrategy, restartProjection}
+import ai.senscience.nexus.delta.sourcing.stream.SupervisorCheck.logger
+import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import cats.effect.{Deferred, IO, Resource}
-import fs2.Stream
 
-import scala.concurrent.duration.FiniteDuration
+final class SupervisorCheck(supervisorStorage: SupervisorStorage, cfg: ProjectionConfig, halt: Deferred[IO, Unit]) {
+  def run: IO[Unit] =
+    supervisorStorage.failingStream
+      .evalMap { projectionName =>
+        supervisorStorage.update(projectionName)(heal).void
+      }
+      .interruptWhen(halt.get.attempt)
+      .compile
+      .drain
 
-trait SupervisorCheck {
-  def run: IO[Unit]
+  private def heal(supervised: Supervised) = {
+    val metadata = supervised.metadata
+    supervised.control.status.flatMap {
+      case ExecutionStatus.Failed(throwable) =>
+        val retryStrategy = createRetryStrategy(cfg, metadata, "running")
+        logger.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
+          restartProjection(supervised)
+            .retry(retryStrategy)
+      case status                            =>
+        logger
+          .warn(s"The projection '${metadata.fullName}' was flagged as failed but it was $status")
+          .as(supervised)
+    }
+  }
 
-  def stop: IO[Unit]
+  def stop: IO[Unit] = halt.complete(()).void
 }
 
 object SupervisorCheck {
 
   private val logger = Logger[SupervisorCheck]
 
-  object Disabled extends SupervisorCheck {
-    override def run: IO[Unit] = IO.unit
-
-    override def stop: IO[Unit] = IO.unit
-  }
-
-  final private class Active(supervisor: Supervisor, checkInterval: FiniteDuration, halt: Deferred[IO, Unit])
-      extends SupervisorCheck {
-    override def run: IO[Unit] =
-      Stream
-        .awakeEvery[IO](checkInterval)
-        .evalTap(_ => logger.debug("Checking projection statuses"))
-        .flatMap(_ => supervisor.check)
-        .interruptWhen(halt.get.attempt)
-        .compile
-        .drain
-
-    override def stop: IO[Unit] = halt.complete(()).void
-  }
-
-  def apply(supervisor: Supervisor, checkInterval: FiniteDuration): Resource[IO, SupervisorCheck] = {
+  def apply(supervisorStorage: SupervisorStorage, cfg: ProjectionConfig): Resource[IO, SupervisorCheck] = {
     Resource
       .make(
         logger.info("Starting supervisor check task") >>
           Deferred[IO, Unit]
             .map { halt =>
-              new Active(supervisor, checkInterval, halt)
+              new SupervisorCheck(supervisorStorage, cfg, halt)
             }
             .flatMap { s =>
               s.run.start.map(s -> _)

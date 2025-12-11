@@ -30,7 +30,6 @@ object SupervisorSetup {
       BatchConfig(3, 50.millis),
       RetryStrategyConfig.ConstantStrategyConfig(50.millis, 5),
       10.millis,
-      10.millis,
       14.days,
       1.second,
       14.days,
