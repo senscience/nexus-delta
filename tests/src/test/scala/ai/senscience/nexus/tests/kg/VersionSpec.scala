@@ -40,7 +40,7 @@ object VersionSpec {
       `composite-views`: String,
       storage: String
   )
-  object PluginsBundle      {
+  object PluginsBundle {
     implicit val pluginsBundleDecoder: Decoder[PluginsBundle] = deriveDecoder[PluginsBundle]
   }
 
@@ -50,7 +50,7 @@ object VersionSpec {
       dependencies: DependenciesBundle,
       plugins: PluginsBundle
   )
-  object VersionBundle      {
+  object VersionBundle {
     implicit val versionBundleDecoder: Decoder[VersionBundle] = deriveDecoder[VersionBundle]
   }
 

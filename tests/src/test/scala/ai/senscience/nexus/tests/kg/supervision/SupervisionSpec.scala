@@ -243,7 +243,7 @@ class SupervisionSpec extends BaseIntegrationSpec {
       viewId: String,
       revision: Int,
       restarts: Int
-  )         =
+  ) =
     jsonContentOf(
       "kg/supervision/scoped-projection-metadata.json",
       "module"         -> module,
