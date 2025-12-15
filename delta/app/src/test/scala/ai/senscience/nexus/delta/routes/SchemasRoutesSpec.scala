@@ -478,7 +478,7 @@ class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with C
       deprecated: Boolean = false,
       createdBy: Subject = writer,
       updatedBy: Subject = writer
-  ): Json    =
+  ): Json =
     jsonContentOf(
       "schemas/schema-route-metadata-response.json",
       "project"    -> project,

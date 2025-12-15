@@ -393,7 +393,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
       deprecated: Boolean = false,
       createdBy: Subject = writer,
       updatedBy: Subject = writer
-  ): Json    =
+  ): Json =
     jsonContentOf(
       "routes/elasticsearch-view-write-response.json",
       "project"    -> projectRef,

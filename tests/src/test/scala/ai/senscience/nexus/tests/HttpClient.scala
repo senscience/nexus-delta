@@ -197,7 +197,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
   }
   def delete[A](url: String, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion]                                                    =
     requestAssert(DELETE, url, None, identity, extraHeaders)(assertResponse)
 
   def requestAssertAndReturn[A](
@@ -310,7 +310,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
     }
   }
 
-  private val empty: RequestEntity = HttpEntity.Empty
+  private val empty: RequestEntity                 = HttpEntity.Empty
   def request[A, B, R](
       method: HttpMethod,
       url: String,

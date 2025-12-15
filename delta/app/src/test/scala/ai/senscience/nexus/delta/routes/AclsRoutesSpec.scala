@@ -392,7 +392,7 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       deprecated: Boolean = false,
       createdBy: Subject = Anonymous,
       updatedBy: Subject = Anonymous
-  ): Json        =
+  ): Json =
     jsonContentOf(
       "acls/acl-route-metadata-response.json",
       "rev"        -> rev,

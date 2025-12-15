@@ -166,7 +166,7 @@ class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with S
       createdBy: Subject = readAll,
       updatedBy: Subject = readAll,
       expiresInSeconds: Long = 18000L
-  ): Json          =
+  ): Json =
     jsonContentOf(
       "responses/archive-metadata-response.json",
       "project"          -> project,

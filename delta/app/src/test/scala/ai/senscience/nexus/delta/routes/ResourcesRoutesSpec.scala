@@ -747,7 +747,7 @@ class ResourcesRoutesSpec
       deprecated: Boolean,
       createdBy: Subject,
       updatedBy: Subject
-  ): Json    =
+  ): Json =
     jsonContentOf(
       "resources/resource-route-metadata-response.json",
       "project"    -> project,

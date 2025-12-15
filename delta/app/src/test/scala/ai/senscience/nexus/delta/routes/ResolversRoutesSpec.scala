@@ -730,7 +730,7 @@ class ResolversRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       deprecated: Boolean = false,
       createdBy: Subject = Anonymous,
       updatedBy: Subject = Anonymous
-  ): Json    =
+  ): Json =
     jsonContentOf(
       "resolvers/resolver-route-metadata-response.json",
       "project"    -> projectRef,

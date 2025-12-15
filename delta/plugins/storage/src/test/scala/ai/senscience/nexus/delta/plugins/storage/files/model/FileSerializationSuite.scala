@@ -83,7 +83,7 @@ class FileSerializationSuite extends SerializationSuite with StorageFixtures {
       mediaType: Option[MediaType],
       extension: Option[String],
       origin: Option[FileAttributesOrigin]
-  )        =
+  ) =
     JsonObject(
       "storage"        := event.storage.iri,
       "storageType"    := event.storageType,
