@@ -217,7 +217,7 @@ class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       deprecated: Boolean = false,
       createdBy: Subject = Anonymous,
       updatedBy: Subject = Anonymous
-  ): Json        =
+  ): Json =
     jsonContentOf(
       "permissions/permissions-route-metadata-response.json",
       "rev"        -> rev,

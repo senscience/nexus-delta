@@ -91,7 +91,7 @@ object ContextValue {
     override def visit(
         iri: PartialFunction[ContextRemoteIri, ContextRemoteIri],
         obj: PartialFunction[ContextObject, ContextObject]
-    ): ContextValue =
+    ): ContextValue                                      =
       this
   }
 
@@ -136,7 +136,7 @@ object ContextValue {
     override def visit(
         iri: PartialFunction[ContextRemoteIri, ContextRemoteIri],
         obj: PartialFunction[ContextObject, ContextObject]
-    ): ContextValue =
+    ): ContextValue                                      =
       iri.applyOrElse(self, (_: ContextRemoteIri) => ContextEmpty)
   }
 
@@ -158,7 +158,7 @@ object ContextValue {
     override def visit(
         iri: PartialFunction[ContextRemoteIri, ContextRemoteIri],
         obj: PartialFunction[ContextObject, ContextObject]
-    ): ContextValue =
+    ): ContextValue                                      =
       obj.applyOrElse(self, (_: ContextObject) => ContextEmpty)
   }
 

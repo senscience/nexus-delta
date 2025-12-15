@@ -395,7 +395,7 @@ class StoragesRoutesSpec
       deprecated: Boolean = false,
       createdBy: Subject = writer,
       updatedBy: Subject = writer
-  ): Json    =
+  ): Json =
     jsonContentOf(
       "storages/storage-route-metadata-response.json",
       "project"    -> ref,

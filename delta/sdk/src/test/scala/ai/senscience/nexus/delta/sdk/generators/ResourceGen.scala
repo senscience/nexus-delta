@@ -33,7 +33,7 @@ object ResourceGen {
       rev: Int = 1,
       deprecated: Boolean = false,
       subject: Subject = Anonymous
-  ) =
+  )                                                         =
     ResourceState(
       jsonld.id,
       project,

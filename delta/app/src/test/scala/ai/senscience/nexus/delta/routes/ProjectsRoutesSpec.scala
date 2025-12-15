@@ -571,7 +571,7 @@ class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with 
       markedForDeletion: Boolean = false,
       createdBy: Subject = Anonymous,
       updatedBy: Subject = Anonymous
-  ): Json           =
+  ): Json =
     jsonContentOf(
       "projects/project-route-metadata-response.json",
       "project"           -> ref,

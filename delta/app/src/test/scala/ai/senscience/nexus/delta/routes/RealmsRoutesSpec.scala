@@ -229,7 +229,7 @@ class RealmsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
       deprecated: Boolean = false,
       createdBy: Subject = Anonymous,
       updatedBy: Subject = Anonymous
-  ): Json        =
+  ): Json =
     jsonContentOf(
       "realms/realm-route-metadata-response.json",
       "rev"        -> rev,
