@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.Metadata
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
@@ -113,8 +114,8 @@ object ElasticSearchView {
       uuid: UUID,
       resourceTag: Option[UserTag],
       pipeline: List[PipeStep],
-      mapping: JsonObject,
-      settings: JsonObject,
+      mapping: ElasticsearchMappings,
+      settings: Option[ElasticsearchSettings],
       context: Option[ContextObject],
       permission: Permission,
       tags: Tags,

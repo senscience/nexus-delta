@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.*
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
@@ -64,14 +65,15 @@ class CompositeViewFactorySuite extends NexusSuite {
     includeDeprecated
   )
 
+  private val esIndexingDef      = ElasticsearchIndexDef.empty
   private val esProjectionId     = iri"http://localhost/es-projection"
   private val esProjectionFields = ElasticSearchProjectionFields(
     Some(esProjectionId),
     SparqlConstructQuery.unsafe("CONSTRUCT..."),
     None,
-    JsonObject("mapping" -> Json.obj()),
+    esIndexingDef.mappings,
     ContextObject(JsonObject("context" -> Json.obj())),
-    Some(JsonObject("settings" -> Json.obj())),
+    esIndexingDef.settings,
     schemas,
     types,
     includeDeprecated,

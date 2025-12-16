@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -39,14 +40,15 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
   private lazy val (sv, projections, projectionErrors) = unapply(supervisor())
   private val project                                  = ProjectRef.unsafe("org", "proj")
   private val id1                                      = nxv + "view1"
-  private val view1                                    = ActiveViewDef(
+  private val indexDef                                 = ElasticsearchIndexDef.empty
+
+  private val view1 = ActiveViewDef(
     ViewRef(project, id1),
     projection = id1.toString,
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view1"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    indexDef,
     None,
     indexingRev,
     rev
@@ -59,8 +61,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view2"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    indexDef,
     None,
     indexingRev,
     rev
@@ -74,8 +75,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
     Some(PipeChain(unknownPipe -> ExpandedJsonLd.empty)),
     SelectFilter.latest,
     index = IndexLabel.unsafe("view3"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    indexDef,
     None,
     indexingRev,
     rev
@@ -90,8 +90,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view2_2"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    indexDef,
     None,
     indexingRev,
     rev

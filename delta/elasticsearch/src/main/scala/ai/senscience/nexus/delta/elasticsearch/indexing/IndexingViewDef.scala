@@ -2,8 +2,9 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
-import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewState
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticsearchIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef.fallbackUnless
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -17,7 +18,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.JsonObject
 
 /**
   * Definition of a view to build a projection
@@ -43,8 +43,7 @@ object IndexingViewDef {
       pipeChain: Option[PipeChain],
       selectFilter: SelectFilter,
       index: IndexLabel,
-      mapping: JsonObject,
-      settings: JsonObject,
+      indexDef: ElasticsearchIndexDef,
       context: Option[ContextObject],
       indexingRev: IndexingRev,
       rev: Int
@@ -66,7 +65,7 @@ object IndexingViewDef {
 
   def apply(
       state: ElasticSearchViewState,
-      defaultDefinition: DefaultIndexDef,
+      defaultDef: DefaultIndexDef,
       prefix: String
   ): Option[IndexingViewDef] =
     state.value.asIndexingValue.map { indexing =>
@@ -81,8 +80,7 @@ object IndexingViewDef {
           indexing.pipeChain,
           indexing.selectFilter,
           ElasticSearchViews.index(state.uuid, state.indexingRev, prefix),
-          indexing.mapping.getOrElse(defaultDefinition.mapping),
-          indexing.settings.getOrElse(defaultDefinition.settings),
+          defaultDef.fallbackUnless(indexing.mapping, indexing.settings),
           indexing.context,
           state.indexingRev,
           state.rev

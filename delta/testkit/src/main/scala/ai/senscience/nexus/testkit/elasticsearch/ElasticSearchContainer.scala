@@ -20,7 +20,7 @@ class ElasticSearchContainer(password: String)
   addEnv("ingest.geoip.downloader.enabled", "false")
   addEnv("ELASTIC_PASSWORD", password)
   addExposedPort(9200)
-  setWaitStrategy(Wait.forLogMessage(".*(\"message\":\\s?\"started[\\s?|\"].*|] started\n$)", 1))
+  setWaitStrategy(Wait.forHttp("/").forPort(9200).withBasicCredentials("elastic", password))
 }
 
 object ElasticSearchContainer {

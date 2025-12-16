@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue.nextIndexingRev
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
@@ -29,9 +30,9 @@ class ElasticSearchViewValueSuite extends FunSuite {
     val viewValues = List(
       viewValue.copy(resourceTag = Some(UserTag.unsafe("tag"))),
       viewValue.copy(pipeline = List(PipeStep(FilterDeprecated.ref.label, None, None))),
-      viewValue.copy(mapping = Some(JsonObject.empty)),
-      viewValue.copy(settings = Some(JsonObject.empty)),
-      viewValue.copy(context = Some(ContextObject.apply(JsonObject.empty)))
+      viewValue.copy(mapping = Some(ElasticsearchMappings(JsonObject.empty))),
+      viewValue.copy(settings = Some(ElasticsearchSettings(JsonObject.empty))),
+      viewValue.copy(context = Some(ContextObject.empty))
     )
     val expected   = IndexingRev(2)
     viewValues.foreach(v => assertEquals(nextIndexingRev(v, viewValue, IndexingRev.init, 2), expected))

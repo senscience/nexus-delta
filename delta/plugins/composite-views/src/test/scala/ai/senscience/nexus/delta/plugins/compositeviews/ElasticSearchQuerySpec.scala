@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
@@ -63,6 +64,8 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
   private val id    = iri"http://localhost/${genString()}"
   private val uuid  = UUID.randomUUID()
 
+  private val indexDef = ElasticsearchIndexDef.empty
+
   private def esProjection(id: Iri, permission: Permission) =
     ElasticSearchProjection(
       id,
@@ -76,9 +79,9 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
       false,
       permission,
       None,
-      JsonObject.empty,
-      None,
-      ContextObject(JsonObject.empty)
+      indexDef.mappings,
+      indexDef.settings,
+      ContextObject.empty
     )
 
   private val esProjection1 = esProjection(nxv + "es1", permissions.query)

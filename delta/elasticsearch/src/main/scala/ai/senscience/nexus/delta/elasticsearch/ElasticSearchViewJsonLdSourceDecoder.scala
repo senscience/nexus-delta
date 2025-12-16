@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewJsonLdSourceDecoder.{toValue, ElasticSearchViewFields}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, permissions, ElasticSearchViewType, ElasticSearchViewValue}
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
@@ -26,7 +27,7 @@ import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.syntax.*
-import io.circe.{Json, JsonObject}
+import io.circe.Json
 
 /**
   * Decoder for [[ElasticSearchViewValue]] which maps some fields to string, before decoding to get around lack of
@@ -80,8 +81,8 @@ object ElasticSearchViewJsonLdSourceDecoder {
         sourceAsText: Boolean = false,
         includeMetadata: Boolean = false,
         includeDeprecated: Boolean = false,
-        mapping: JsonObject,
-        settings: Option[JsonObject] = None,
+        mapping: ElasticsearchMappings,
+        settings: Option[ElasticsearchSettings] = None,
         permission: Permission = permissions.query
     ) extends ElasticSearchViewFields {
       override val tpe: ElasticSearchViewType = ElasticSearchViewType.ElasticSearch
@@ -92,8 +93,8 @@ object ElasticSearchViewJsonLdSourceDecoder {
         description: Option[String] = None,
         resourceTag: Option[UserTag] = None,
         pipeline: Option[List[PipeStep]] = None,
-        mapping: JsonObject,
-        settings: Option[JsonObject] = None,
+        mapping: ElasticsearchMappings,
+        settings: Option[ElasticsearchSettings] = None,
         context: Option[ContextObject] = None,
         permission: Permission = permissions.query
     ) extends ElasticSearchViewFields {

@@ -45,7 +45,7 @@ object CompositeSpaces {
       val result       = view.value.projections.foldLeft[IO[Unit]](createCommon) {
         case (acc, e: ElasticSearchProjection) =>
           val index = projectionIndex(e, view.uuid, prefix)
-          acc >> esClient.createIndex(index, Some(e.mapping), e.settings).void
+          acc >> esClient.createIndex(index, e.indexDef).void
         case (acc, s: SparqlProjection)        =>
           val namespace = projectionNamespace(s, view.uuid, prefix)
           acc >> sparqlClient.createNamespace(namespace).void

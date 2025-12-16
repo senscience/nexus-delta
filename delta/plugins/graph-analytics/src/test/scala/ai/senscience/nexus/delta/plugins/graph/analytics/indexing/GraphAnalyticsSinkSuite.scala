@@ -86,10 +86,10 @@ class GraphAnalyticsSinkSuite
 
   test("Create the update script and the index") {
     for {
-      script  <- scriptContent
-      _       <- client.createScript(updateRelationshipsScriptId, script)
-      mapping <- graphAnalyticsMappings
-      _       <- client.createIndex(index, Some(mapping), None).assertEquals(true)
+      script   <- scriptContent
+      _        <- client.createScript(updateRelationshipsScriptId, script)
+      indexDef <- graphAnalyticsIndexDef
+      _        <- client.createIndex(index, indexDef).assertEquals(true)
     } yield ()
   }
 

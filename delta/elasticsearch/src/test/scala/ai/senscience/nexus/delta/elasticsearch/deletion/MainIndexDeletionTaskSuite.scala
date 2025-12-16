@@ -51,7 +51,7 @@ class MainIndexDeletionTaskSuite
     for {
       // Indexing and checking count
       mainIndexDef <- MainIndexDef(mainIndexConfig)
-      _            <- client.createIndex(index, Some(mainIndexDef.mapping), Some(mainIndexDef.settings))
+      _            <- client.createIndex(index, mainIndexDef.indexDef)
       _            <- client.bulk(bulk)
       _            <- client.refresh(index)
       _            <- client.count(index.value).assertEquals(4L)

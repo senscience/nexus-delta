@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.{IndexLabel, QueryBuilder, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -28,6 +29,8 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
   private val membersEntity = EntityType("members")
   private val index         = IndexLabel.unsafe("test_members")
 
+  private val indexDef = ElasticsearchIndexDef.empty
+
   private lazy val client = esClient()
   private lazy val sink   = createSink(index)
 
@@ -51,7 +54,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
     DroppedElem(membersEntity, id, project, Instant.EPOCH, offset, rev)
 
   test("Create the index") {
-    client.createIndex(index, None, None).assertEquals(true)
+    client.createIndex(index, indexDef).assertEquals(true)
   }
 
   test("Index a chunk of documents and retrieve them") {
@@ -136,7 +139,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
     val sink  = ElasticSearchSink.states(client, BatchConfig(2, 50.millis), index, Refresh.True)
 
     for {
-      _ <- client.createIndex(index, None, None).assertEquals(true)
+      _ <- client.createIndex(index, indexDef).assertEquals(true)
       _ <- sink.apply(chunk).assertEquals(chunk.map(_.void))
       _ <- client.getSource[Json](index, charlie_2._1.toString).assertEquals(Some(charlie_2._2))
     } yield ()
@@ -155,7 +158,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
     val sink = ElasticSearchSink.states(client, BatchConfig(2, 50.millis), index, Refresh.True)
 
     for {
-      _ <- client.createIndex(index, None, None).assertEquals(true)
+      _ <- client.createIndex(index, indexDef).assertEquals(true)
       _ <- sink.apply(chunk).assertEquals(chunk.map(_.void))
       _ <- client.getSource[Json](index, charlie._1.toString).assertEquals(None)
     } yield ()

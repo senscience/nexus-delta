@@ -35,8 +35,7 @@ object EventMetrics {
 
     private val index = metricIndex.name
 
-    override def init: IO[Unit] =
-      client.createIndex(index, Some(metricIndex.mapping), Some(metricIndex.settings)).void
+    override def init: IO[Unit] = client.createIndex(index, metricIndex.indexDef).void
 
     override def destroy: IO[Unit] = client.deleteIndex(index).void
 

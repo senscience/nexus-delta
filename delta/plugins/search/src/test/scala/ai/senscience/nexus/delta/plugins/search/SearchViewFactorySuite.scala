@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjectionFields.{ElasticSearchProjectionFields, SparqlProjectionFields}
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
@@ -18,8 +19,10 @@ class SearchViewFactorySuite extends FunSuite {
   private val defaults = Defaults("name", "description")
   private val config   = IndexingConfig(
     resourceTypes = IriFilter.restrictedTo(nxv + "Test"),
-    mapping = JsonObject("mapping" -> Json.obj()),
-    settings = Some(JsonObject("settings" -> Json.obj())),
+    indexDef = ElasticsearchIndexDef.fromJson(
+      JsonObject("mapping" -> Json.obj()),
+      Some(JsonObject("settings" -> Json.obj()))
+    ),
     query = SparqlConstructQuery.unsafe("query"),
     context = ContextObject(JsonObject("context" -> Json.obj())),
     rebuildStrategy = Some(CompositeView.Interval(30.seconds))
@@ -33,8 +36,8 @@ class SearchViewFactorySuite extends FunSuite {
       case _: SparqlProjectionFields         => fail("Expecting an Elasticsearch projection")
       case es: ElasticSearchProjectionFields =>
         assertEquals(es.query, config.query)
-        assertEquals(es.mapping, config.mapping)
-        assertEquals(es.settings, config.settings)
+        assertEquals(es.mapping, config.indexDef.mappings)
+        assertEquals(es.settings, config.indexDef.settings)
         assertEquals(es.context, config.context)
     }
     assertEquals(result.rebuildStrategy, config.rebuildStrategy)

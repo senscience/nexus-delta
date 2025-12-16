@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewRejection.ViewNotFound
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViews, CompositeViewsFixture, Fixtures}
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.IndexingConfig
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
-import io.circe.JsonObject
 import org.http4s.syntax.literals.uri
 
 import scala.concurrent.duration.*
@@ -47,10 +47,9 @@ class SearchScopeInitializationSpec
   private val indexingConfig =
     IndexingConfig(
       IriFilter.None,
-      JsonObject.empty,
-      None,
+      ElasticsearchIndexDef.empty,
       SparqlConstructQuery.unsafe(""),
-      ContextObject(JsonObject.empty),
+      ContextObject.empty,
       None
     )
 

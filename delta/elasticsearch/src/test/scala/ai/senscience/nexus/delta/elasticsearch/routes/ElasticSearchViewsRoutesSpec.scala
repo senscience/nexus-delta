@@ -50,7 +50,7 @@ class ElasticSearchViewsRoutesSpec extends ElasticSearchViewsRoutesFixtures with
 
   private val groupDirectives = DeltaSchemeDirectives(fetchContext)
 
-  private val defaultIndexDef = DefaultIndexDef(JsonObject(), JsonObject())
+  private val defaultIndexDef = DefaultIndexDef.fromJson(JsonObject(), JsonObject())
 
   private lazy val views: ElasticSearchViews = ElasticSearchViews(
     fetchContext,

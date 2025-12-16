@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.deletion
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.elasticsearch.indexing.CurrentActiveViews
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
@@ -29,8 +30,7 @@ class ElasticSearchDeletionTaskSuite extends NexusSuite with CirceLiteral {
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view1"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    indexDef = ElasticsearchIndexDef.empty,
     None,
     indexingRev,
     rev

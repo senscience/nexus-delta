@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
@@ -34,8 +35,8 @@ class ElasticSearchViewSpec extends CatsEffectSpec with CirceLiteral with CirceE
       uuid,
       Some(UserTag.unsafe("mytag")),
       pipeline,
-      jobj"""{"properties": {"@type": {"type": "keyword"}, "@id": {"type": "keyword"} } }""",
-      jobj"""{"analysis": {"analyzer": {"nexus": {} } } }""",
+      ElasticsearchMappings(jobj"""{"properties": {"@type": {"type": "keyword"}, "@id": {"type": "keyword"} } }"""),
+      Some(ElasticsearchSettings(jobj"""{"analysis": {"analyzer": {"nexus": {} } } }""")),
       context = Some(ContextObject(jobj"""{"@vocab": "https://schema.org/"}""")),
       perm,
       tagsMap,

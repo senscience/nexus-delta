@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings, IndexLabel}
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
-import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue}
+import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, ElasticSearchViewValue, ElasticsearchIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef.value
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -37,7 +38,8 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
   private given PatienceConfig = PatienceConfig(500.millis, 10.millis)
   private given BatchConfig    = BatchConfig(2, 10.millis)
 
-  private val defaultIndexDef = DefaultIndexDef(jobj"""{"defaultEsMapping": {}}""", jobj"""{"defaultEsSettings": {}}""")
+  private val defaultIndexDef =
+    DefaultIndexDef.fromJson(jobj"""{"defaultEsMapping": {}}""", jobj"""{"defaultEsSettings": {}}""")
   private val prefix          = "prefix"
 
   private val uuid             = UUID.fromString("f8468909-a797-4b10-8b5f-000cba337bfa")
@@ -48,8 +50,8 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
   private val subject: Subject = Anonymous
   private val tag              = UserTag.unsafe("mytag")
 
-  private val customMapping      = jobj"""{"properties": {}}"""
-  private val customSettings     = jobj"""{"analysis": {}}"""
+  private val customMapping      = ElasticsearchMappings(jobj"""{"properties": {}}""")
+  private val customSettings     = ElasticsearchSettings(jobj"""{"analysis": {}}""")
   private val filterByTypeConfig = FilterByTypeConfig(IriFilter.restrictedTo(nxv + "PullRequest"))
   private val indexingCustom     = IndexingElasticSearchViewValue(
     Some("viewName"),
@@ -106,8 +108,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
           indexingCustom.pipeChain,
           indexingCustom.selectFilter,
           IndexLabel.fromView("prefix", uuid, indexingRev),
-          customMapping,
-          customSettings,
+          ElasticsearchIndexDef(customMapping, Some(customSettings)),
           indexingCustom.context,
           indexingRev,
           rev
@@ -126,8 +127,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
           indexingDefault.pipeChain,
           indexingDefault.selectFilter,
           IndexLabel.fromView("prefix", uuid, indexingRev),
-          defaultIndexDef.mapping,
-          defaultIndexDef.settings,
+          defaultIndexDef.value,
           indexingDefault.context,
           indexingRev,
           rev
@@ -161,8 +161,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
       Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
       indexingDefault.selectFilter,
       IndexLabel.fromView("prefix", uuid, indexingRev),
-      defaultIndexDef.mapping,
-      defaultIndexDef.settings,
+      defaultIndexDef.value,
       indexingDefault.context,
       indexingRev,
       rev
@@ -193,8 +192,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
       Some(PipeChain(FilterDeprecated())),
       indexingDefault.selectFilter,
       IndexLabel.fromView("prefix", uuid, indexingRev),
-      defaultIndexDef.mapping,
-      defaultIndexDef.settings,
+      defaultIndexDef.value,
       indexingDefault.context,
       indexingRev,
       rev

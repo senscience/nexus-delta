@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.IndexingElasticSearchViewValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
@@ -20,7 +21,7 @@ import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.*
-import io.circe.{Codec, Encoder, Json, JsonObject}
+import io.circe.{Codec, Encoder, Json}
 
 /**
   * Enumeration of ElasticSearch values.
@@ -80,8 +81,8 @@ object ElasticSearchViewValue {
       description: Option[String],
       resourceTag: Option[UserTag] = None,
       pipeline: List[PipeStep] = defaultPipeline,
-      mapping: Option[JsonObject] = None,
-      settings: Option[JsonObject] = None,
+      mapping: Option[ElasticsearchMappings] = None,
+      settings: Option[ElasticsearchSettings] = None,
       context: Option[ContextObject] = None,
       permission: Permission = permissions.query
   ) extends ElasticSearchViewValue {
@@ -142,8 +143,8 @@ object ElasticSearchViewValue {
     def apply(
         resourceTag: Option[UserTag],
         pipeline: List[PipeStep],
-        mapping: Option[JsonObject],
-        settings: Option[JsonObject],
+        mapping: Option[ElasticsearchMappings],
+        settings: Option[ElasticsearchSettings],
         context: Option[ContextObject],
         permission: Permission
     ): IndexingElasticSearchViewValue =

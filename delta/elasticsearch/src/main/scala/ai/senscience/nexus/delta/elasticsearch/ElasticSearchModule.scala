@@ -58,7 +58,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MetricsIndexDef(cfg.prefix)
   }
 
-  make[DefaultIndexDef].fromEffect { DefaultIndexDef() }
+  make[DefaultIndexDef].fromEffect { DefaultIndexDef.load() }
 
   make[MainIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
     MainIndexDef(cfg.mainIndex)

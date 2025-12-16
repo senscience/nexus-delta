@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
+import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.graphAnalyticsIndexDef
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.AnalyticsGraph.{Edge, EdgePath, Node}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.PropertiesStatistics.Metadata
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.{AnalyticsGraph, PropertiesStatistics}
@@ -37,13 +38,12 @@ class GraphAnalyticsSuite extends NexusElasticsearchSuite with ElasticSearchClie
     val sam                             = iri"http://localhost/Sam"
     val fred                            = iri"http://localhost/fred"
     val anna                            = iri"http://localhost/Anna"
-    def fetchMapping                    = loader.jsonObjectContentOf("elasticsearch/mappings.json")
     def source(self: Iri, brother: Iri) =
       loader.jsonContentOf("document-source.json", "id" -> self, "brother" -> brother)
 
     for {
-      mapping    <- fetchMapping
-      _          <- client.createIndex(index, Some(mapping), None)
+      indexDef   <- graphAnalyticsIndexDef
+      _          <- client.createIndex(index, indexDef)
       operations <- List((sam, sam), (anna, robert), (sam, fred)).traverse { case (self, brother) =>
                       source(self, brother).map { document =>
                         ElasticSearchAction.Index(index, genString(), None, document)
