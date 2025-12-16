@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView
 import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViewFactory, CompositeViewsFixture}
@@ -24,11 +26,14 @@ class SearchConfigHookSuite extends NexusSuite with CompositeViewsFixture {
   implicit private val projectBase: ProjectBase = ProjectBase(nxv.base)
 
   private val defaults      = Defaults("viewName", "viewDescription")
+  private val esIndexDef    = ElasticsearchIndexDef.fromJson(
+    JsonObject("mapping" -> Json.obj()),
+    Some(JsonObject("settings" -> Json.obj()))
+  )
   private val currentConfig =
     IndexingConfig(
       resourceTypes = IriFilter.restrictedTo(nxv + "Test"),
-      mapping = JsonObject("mapping" -> Json.obj()),
-      settings = Some(JsonObject("settings" -> Json.obj())),
+      indexDef = esIndexDef,
       query = SparqlConstructQuery.unsafe("query"),
       context = ContextObject(JsonObject("context" -> Json.obj())),
       rebuildStrategy = Some(CompositeView.Interval(30.seconds))
@@ -86,12 +91,14 @@ class SearchConfigHookSuite extends NexusSuite with CompositeViewsFixture {
   }
 
   test("A search view should be updated when Elasticsearch mappings are updated") {
-    val previousConfig = currentConfig.copy(mapping = JsonObject("old-mappings" -> Json.obj()))
+    val newIndexDef    = esIndexDef.copy(mappings = ElasticsearchMappings(JsonObject("old-mappings" -> Json.obj())))
+    val previousConfig = currentConfig.copy(indexDef = newIndexDef)
     assertViewUpdated(searchView(defaults, previousConfig))
   }
 
   test("A search view should be updated when Elasticsearch settings are updated") {
-    val previousConfig = currentConfig.copy(settings = Some(JsonObject("old-settings" -> Json.obj())))
+    val newIndexDef    = esIndexDef.copy(settings = Some(ElasticsearchSettings(JsonObject("old-settings" -> Json.obj()))))
+    val previousConfig = currentConfig.copy(indexDef = newIndexDef)
     assertViewUpdated(searchView(defaults, previousConfig))
   }
 

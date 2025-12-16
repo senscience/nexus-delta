@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.kernel.utils.FileUtils.loadJsonAs
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
@@ -69,8 +70,7 @@ object SearchConfig {
     } yield SearchConfig(
       IndexingConfig(
         resourceTypes,
-        mapping,
-        settings = settings,
+        ElasticsearchIndexDef.fromJson(mapping, settings),
         query = query,
         context = ContextObject(context.getOrElse(JsonObject.empty)),
         rebuildStrategy = rebuild
@@ -117,8 +117,7 @@ object SearchConfig {
 
   final case class IndexingConfig(
       resourceTypes: IriFilter,
-      mapping: JsonObject,
-      settings: Option[JsonObject],
+      indexDef: ElasticsearchIndexDef,
       query: SparqlConstructQuery,
       context: ContextObject,
       rebuildStrategy: Option[RebuildStrategy]

@@ -145,7 +145,7 @@ object ElasticSearchCoordinator {
         (v: ActiveViewDef) => ElasticSearchSink.states(client, config.batch, v.index, Refresh.False),
         (v: ActiveViewDef) =>
           client
-            .createIndex(v.index, Some(v.mapping), Some(v.settings))
+            .createIndex(v.index, v.indexDef)
             .onError { case e =>
               logger.error(e)(s"Index for view '${v.ref.project}/${v.ref.viewId}' could not be created.")
             }

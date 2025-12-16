@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticsearchRestartScheduler, FetchIndexingView}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidResourceId, ViewNotFound}
-import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
+import ai.senscience.nexus.delta.elasticsearch.model.{permissions as esPermissions, ElasticsearchIndexDef}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import cats.effect.{IO, Ref}
-import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
@@ -27,8 +26,7 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     None,
     SelectFilter.latest,
     IndexLabel.unsafe("index"),
-    JsonObject.empty,
-    JsonObject.empty,
+    ElasticsearchIndexDef.empty,
     None,
     IndexingRev.init,
     1

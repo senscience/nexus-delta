@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
@@ -13,7 +14,7 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
-import io.circe.{Encoder, JsonObject}
+import io.circe.Encoder
 
 import java.util.UUID
 
@@ -86,9 +87,9 @@ object CompositeViewProjectionFields {
       id: Option[Iri] = None,
       query: SparqlConstructQuery,
       indexGroup: Option[IndexGroup],
-      mapping: JsonObject,
+      mapping: ElasticsearchMappings,
       context: ContextObject,
-      settings: Option[JsonObject] = None,
+      settings: Option[ElasticsearchSettings] = None,
       resourceSchemas: IriFilter = IriFilter.None,
       resourceTypes: IriFilter = IriFilter.None,
       includeDeprecated: Boolean = false,

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticsearchMappings
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewDecodingSpec.{source, sourceNoIds}
@@ -39,22 +40,22 @@ class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fi
     enforceSchema = false
   )
 
-  val uuid                          = UUID.randomUUID()
+  private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
   val resolverContext: ResolverContextResolution = ResolverContextResolution(rcr)
   private val decoder                            = CompositeViewFieldsJsonLdSourceDecoder(uuidF, resolverContext, 1.minute)
 
-  val query1 =
+  private val query1 =
     TemplateSparqlConstructQuery(
       "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre ; music:album      ?albumId . ?albumId        music:released   ?albumReleaseDate ; music:song       ?songId . ?songId         music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } WHERE {{resource_id}   music:name       ?bandName ; music:genre      ?bandGenre . OPTIONAL {{resource_id} ^music:by        ?albumId . ?albumId        music:released   ?albumReleaseDate . OPTIONAL {?albumId         ^music:on        ?songId . ?songId          music:title      ?songTitle ; music:number     ?songNumber ; music:length     ?songLength } } } ORDER BY(?songNumber)"
     ).rightValue
-  val query2 =
+  private val query2 =
     TemplateSparqlConstructQuery(
       "prefix music: <http://music.com/> prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/> CONSTRUCT {{resource_id}             music:name               ?albumTitle ; music:length             ?albumLength ; music:numberOfSongs      ?numberOfSongs } WHERE {SELECT ?albumReleaseDate ?albumTitle (sum(?songLength) as ?albumLength) (count(?albumReleaseDate) as ?numberOfSongs) WHERE {OPTIONAL { {resource_id}           ^music:on / music:length   ?songLength } {resource_id} music:released             ?albumReleaseDate ; music:title                ?albumTitle . } GROUP BY ?albumReleaseDate ?albumTitle }"
     ).rightValue
 
-  val mapping =
+  private val mapping = ElasticsearchMappings(
     jobj"""{
         "properties": {
           "@type": {
@@ -80,6 +81,8 @@ class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fi
         "dynamic": false
       }
       """
+  )
+
   val context =
     ContextObject(json"""
       {

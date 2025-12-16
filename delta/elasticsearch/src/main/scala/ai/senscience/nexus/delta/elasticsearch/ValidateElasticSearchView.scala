@@ -1,11 +1,12 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
+import ai.senscience.nexus.delta.elasticsearch.client.{CreateIndex, ElasticSearchClient, IndexLabel}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{InvalidElasticSearchIndexPayload, InvalidPipeline, InvalidViewReferences, PermissionIsNotDefined, TooManyViewReferences}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef.fallbackUnless
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ValidateAggregate}
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.stream.PipeChainCompiler
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.JsonObject
 
 import java.util.UUID
 
@@ -37,21 +37,22 @@ object ValidateElasticSearchView {
       maxViewRefs: Int,
       xas: Transactors,
       defaultViewDef: DefaultIndexDef
-  ): ValidateElasticSearchView =
+  ): ValidateElasticSearchView = {
     apply(
       pipeChainCompiler,
       permissions.fetchPermissionSet,
-      client.createIndex(_, _, _).void,
+      client.createIndex(_, _).void,
       prefix,
       maxViewRefs,
       xas,
       defaultViewDef
     )
+  }
 
   def apply(
       pipeChainCompiler: PipeChainCompiler,
       fetchPermissionSet: IO[Set[Permission]],
-      createIndex: (IndexLabel, Option[JsonObject], Option[JsonObject]) => IO[Unit],
+      createIndex: CreateIndex,
       prefix: String,
       maxViewRefs: Int,
       xas: Transactors,
@@ -74,8 +75,7 @@ object ValidateElasticSearchView {
         _ <- IO.fromEither(value.pipeChain.traverse(pipeChainCompiler(_)).leftMap(InvalidPipeline(_)))
         _ <- createIndex(
                IndexLabel.fromView(prefix, uuid, indexingRev),
-               value.mapping.orElse(Some(defaultViewDef.mapping)),
-               value.settings.orElse(Some(defaultViewDef.settings))
+               defaultViewDef.fallbackUnless(value.mapping, value.settings)
              ).adaptError { case err: ElasticsearchCreateIndexError =>
                InvalidElasticSearchIndexPayload(err.body)
              }

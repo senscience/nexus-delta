@@ -1,7 +1,9 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.model
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.elasticsearch.indexing.GraphResourceToDocument
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTriples
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
@@ -14,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.stream.{Operation, PipeChain}
-import io.circe.{Encoder, JsonObject}
+import io.circe.Encoder
 
 import java.util.UUID
 
@@ -130,8 +132,8 @@ object CompositeViewProjection {
       includeContext: Boolean,
       permission: Permission,
       indexGroup: Option[IndexGroup],
-      mapping: JsonObject,
-      settings: Option[JsonObject] = None,
+      mapping: ElasticsearchMappings,
+      settings: Option[ElasticsearchSettings] = None,
       context: ContextObject
   ) extends CompositeViewProjection {
 
@@ -141,6 +143,8 @@ object CompositeViewProjection {
 
     override def transformationPipe(implicit rcr: RemoteContextResolution) =
       new GraphResourceToDocument(context, includeContext)
+
+    def indexDef: ElasticsearchIndexDef = ElasticsearchIndexDef(mapping, settings)
   }
 
   /**

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.model
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewEvent.*
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewType.ElasticSearch as ElasticSearchType
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
@@ -39,8 +40,8 @@ class ElasticSearchViewSerializationSuite extends SerializationSuite {
       PipeStep(FilterByType(IriFilter.restrictedTo(nxv + "SomeType"))),
       PipeStep.noConfig(SourceAsText.ref)
     ),
-    Some(jobj"""{"properties": {}}"""),
-    Some(jobj"""{"analysis": {}}"""),
+    Some(ElasticsearchMappings(jobj"""{"properties": {}}""")),
+    Some(ElasticsearchSettings(jobj"""{"analysis": {}}""")),
     context = Some(ContextObject(jobj"""{"@vocab": "https://schema.org/"}""")),
     Permission.unsafe("my/permission")
   )

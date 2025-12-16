@@ -168,6 +168,8 @@ object ContextValue {
 
     implicit val contextObjectJsonLdDecoder: JsonLdDecoder[ContextObject] =
       JsonLdDecoder.jsonObjectJsonLdDecoder.map(ContextObject.apply)
+
+    def empty = ContextObject(JsonObject.empty)
   }
 
   /**

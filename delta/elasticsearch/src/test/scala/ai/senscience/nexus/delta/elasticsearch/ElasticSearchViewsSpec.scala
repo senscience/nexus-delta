@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{Agg
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.query as queryPermissions
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.rdf.Fixtures.circeLiteralSyntax
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
@@ -30,6 +31,7 @@ import cats.data.NonEmptySet
 import cats.effect.IO
 import io.circe.literal.*
 import io.circe.{Json, JsonObject}
+import munit.Clue.generate
 import org.scalatest.Assertion
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 
@@ -44,8 +46,7 @@ class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
 
-  private val defaultIndexDef = DefaultIndexDef(JsonObject.empty, JsonObject.empty)
-
+  private val defaultIndexDef = DefaultIndexDef.fromJson(JsonObject.empty, JsonObject.empty)
   "An ElasticSearchViews" should {
 
     val org         = Label.unsafe("org")
@@ -58,8 +59,12 @@ class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture 
     val deprecatedProjectRef = ProjectRef.unsafe("org", "proj-deprecated")
     val unknownProjectRef    = ProjectRef(org, Label.unsafe("xxx"))
 
-    val mapping  = json"""{ "dynamic": false }""".asObject.value
-    val settings = json"""{ "analysis": { } }""".asObject.value
+    val indexDef = ElasticsearchIndexDef.fromJson(
+      jobj"""{ "dynamic": false }""",
+      Some(jobj"""{ "analysis": { } }""")
+    )
+    val mapping  = indexDef.mappings.value
+    val settings = indexDef.settings.value
 
     def currentStateFor(
         id: Iri,
@@ -139,7 +144,7 @@ class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture 
       ValidateElasticSearchView(
         pipeChainCompiler,
         IO.pure(Set(queryPermissions)),
-        (_, _, _) => IO.unit,
+        (_, _) => IO.unit,
         "prefix",
         2,
         xas,

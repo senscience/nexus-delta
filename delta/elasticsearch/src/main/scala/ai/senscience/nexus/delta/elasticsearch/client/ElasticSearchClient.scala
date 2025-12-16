@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.*
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
@@ -15,7 +16,6 @@ import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
 import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
 import ai.senscience.nexus.delta.sdk.otel.{OtelMetricsClient, OtelTracingClient, SpanDef}
-import ai.senscience.nexus.delta.sdk.syntax.*
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.circe.*
@@ -115,37 +115,15 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
 
   /**
     * Attempts to create an index recovering gracefully when the index already exists.
-    *
-    * @param index
-    *   the index
-    * @param payload
-    *   the payload to attach to the index when it does not exist
-    * @return
-    *   ''true'' when the index has been created and ''false'' when it already existed, wrapped in an IO
     */
-  def createIndex(index: IndexLabel, payload: JsonObject = JsonObject.empty): IO[Boolean] =
+  def createIndex(index: IndexLabel, definition: ElasticsearchIndexDef): IO[Boolean] =
     existsIndex(index).flatMap {
       case false =>
         val spanDef = SpanDef("<string:index>", withIndex(index), write)
-        val request = PUT(payload, endpoint / index.value)
+        val request = PUT(definition, endpoint / index.value)
         OtelTracingClient(client, spanDef).expectOr[Json](request)(ElasticsearchCreateIndexError(_)).as(true)
       case true  => IO.pure(false)
     }
-
-  /**
-    * Attempts to create an index recovering gracefully when the index already exists.
-    *
-    * @param index
-    *   the index
-    * @param mappings
-    *   the optional mappings section of the index payload
-    * @param settings
-    *   the optional settings section of the index payload
-    * @return
-    *   ''true'' when the index has been created and ''false'' when it already existed, wrapped in an IO
-    */
-  def createIndex(index: IndexLabel, mappings: Option[JsonObject], settings: Option[JsonObject]): IO[Boolean] =
-    createIndex(index, JsonObject.empty.addIfExists("mappings", mappings).addIfExists("settings", settings))
 
   /**
     * Attempts to create an index template
@@ -396,6 +374,15 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   def refresh(index: IndexLabel): IO[Boolean] = {
     val spanDef = SpanDef(s"<string:index>/$refreshPath", withIndex(index), write)
     OtelTracingClient(client, spanDef).successful(POST(endpoint / index.value / refreshPath))
+  }
+
+  /**
+    * Update the mapping for the given index
+    */
+  def updateMapping(index: IndexLabel, newMapping: ElasticsearchMappings): IO[Unit] = {
+    val spanDef = SpanDef(s"<string:index>/$newMapping", withIndex(index), write)
+    val request = POST(newMapping, endpoint / index.value / mapping)
+    OtelTracingClient(client, spanDef).expectOr[Json](request)(ElasticsearchUpdateMappingError(_)).void
   }
 
   /**

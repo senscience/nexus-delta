@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchClientSetup
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.plugins.blazegraph.SparqlClientSetup
@@ -279,6 +280,28 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     Uri.unsafeFromString("https://bbp.epfl.ch/nexus")
   )
 
+  private val indexingDef = ElasticsearchIndexDef.fromJson(
+    jobj"""
+              {
+      "properties": {
+        "@type": { "type": "keyword"},
+        "@id": { "type": "keyword"},
+        "name": { "type": "keyword"},
+        "genre": { "type": "keyword"},
+        "start": {"type": "integer"},
+        "album": {
+          "type": "nested",
+          "properties": {
+            "title": {"type": "text"}
+          }
+        }
+      },
+      "dynamic": false
+    }
+        """,
+    None
+  )
+
   private val contextJson             = jsonContentOf("indexing/music-context.json")
   private val elasticSearchProjection = ElasticSearchProjection(
     projection1Id,
@@ -292,8 +315,8 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     includeContext = false,
     permissions.query,
     None,
-    jsonObjectContentOf("indexing/mapping.json"),
-    None,
+    indexingDef.mappings,
+    indexingDef.settings,
     contextJson.topContextValueOrEmpty.asInstanceOf[ContextObject]
   )
 

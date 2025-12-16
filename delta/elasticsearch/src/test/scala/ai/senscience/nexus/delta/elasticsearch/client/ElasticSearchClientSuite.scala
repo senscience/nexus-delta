@@ -2,7 +2,8 @@ package ai.senscience.nexus.delta.elasticsearch.client
 
 import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchCreateIndexError
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchCreateIndexError, ElasticsearchUpdateMappingError}
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
@@ -23,7 +24,7 @@ import scala.concurrent.duration.*
 
 class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearchClientSetup.Fixture with CirceLiteral {
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private val page = FromPagination(0, 100)
 
@@ -47,26 +48,63 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
     val index = generateIndexLabel
     for {
       _ <- client.existsIndex(index).assertEquals(false)
-      _ <- client.createIndex(index).assertEquals(true)
+      _ <- client.createIndex(index, ElasticsearchIndexDef.empty).assertEquals(true)
       _ <- client.existsIndex(index).assertEquals(true)
-      _ <- client.createIndex(index, JsonObject.empty).assertEquals(false)
+      _ <- client.createIndex(index, ElasticsearchIndexDef.empty).assertEquals(false)
     } yield ()
   }
 
   test("Fail to create an index with wrong payload") {
-    val index = generateIndexLabel
-    client.createIndex(index, jobj"""{"key": "value"}""").intercept[ElasticsearchCreateIndexError]
+    val index    = generateIndexLabel
+    val wrongDef = ElasticsearchIndexDef.fromJson(jobj"""{"key": "value"}""", None)
+    client.createIndex(index, wrongDef).intercept[ElasticsearchCreateIndexError]
   }
 
   test("Delete an index") {
     val index = generateIndexLabel
     for {
-      settings <- loader.jsonObjectContentOf("defaults/default-settings.json", "number_of_shards" -> 1)
-      mapping  <- loader.jsonObjectContentOf("defaults/default-mapping.json")
-      _        <- client.createIndex(index, Some(mapping), Some(settings)).assertEquals(true)
-      _        <- client.deleteIndex(index).assertEquals(true)
-      _        <- client.deleteIndex(index).assertEquals(false)
+      indexingDef <- ElasticsearchIndexDef.load(
+                       "defaults/default-mapping.json",
+                       Some("defaults/default-settings.json"),
+                       "number_of_shards" -> 1
+                     )
+      _           <- client.createIndex(index, indexingDef).assertEquals(true)
+      _           <- client.deleteIndex(index).assertEquals(true)
+      _           <- client.deleteIndex(index).assertEquals(false)
     } yield ()
+  }
+
+  test("Create an index and updates its mapping") {
+    val index = generateIndexLabel
+
+    val originalMapping = jobj"""{ "properties": { "city": { "type": "text" } } }"""
+    val indexingViewDef = ElasticsearchIndexDef.fromJson(originalMapping, None)
+    val updatedMapping  = ElasticsearchMappings(
+      jobj"""{ "properties": { "street": { "type": "text" },  "city": { "type": "text" }} }"""
+    )
+
+    val expected =
+      jobj"""{ "mappings": { "properties": { "street": { "type": "text" },  "city": { "type": "text" }} } }"""
+
+    def downToMapping(json: Json) = json.hcursor.downField(index.value).focus
+
+    client.createIndex(index, indexingViewDef).assertEquals(true) >>
+      client.updateMapping(index, updatedMapping) >>
+      client
+        .mapping(index)
+        .map(downToMapping)
+        .assertEquals(Some(expected.asJson))
+  }
+
+  test("Fail to update mapping when it introduces a incompatible change") {
+    val index = generateIndexLabel
+
+    val originalMapping = jobj"""{ "properties": { "city": { "type": "text" } } }"""
+    val indexingViewDef = ElasticsearchIndexDef.fromJson(originalMapping, None)
+    val updatedMapping  = ElasticsearchMappings(jobj"""{ "properties": { "city": { "type": "integer" }} }""")
+
+    client.createIndex(index, indexingViewDef).assertEquals(true) >>
+      client.updateMapping(index, updatedMapping).intercept[ElasticsearchUpdateMappingError]
   }
 
   test("Attempt to delete a non-existing index") {
@@ -78,7 +116,7 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
     val document        = jobj"""{"key": "value"}"""
     val documentUpdated = jobj"""{"key": "value2"}"""
     for {
-      _ <- client.createIndex(index)
+      _ <- client.createIndex(index, ElasticsearchIndexDef.empty)
       _ <- replaceAndRefresh(index, "1", document)
       _ <- searchAllIn(index).assertEquals(Vector(document))
       _ <- replaceAndRefresh(index, "1", documentUpdated)
@@ -210,7 +248,7 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
   test("Create a point in time for the given index") {
     val index = generateIndexLabel
     for {
-      _   <- client.createIndex(index)
+      _   <- client.createIndex(index, ElasticsearchIndexDef.empty)
       pit <- client.createPointInTime(index, 30.seconds)
       _   <- client.deletePointInTime(pit)
     } yield ()

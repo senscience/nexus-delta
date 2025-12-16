@@ -1,27 +1,23 @@
 package ai.senscience.nexus.delta.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.IO
-import io.circe.JsonObject
 
 /**
   * Configuration for the index for event metrics
-  * @param name
-  *   name of the index
-  * @param mapping
-  *   mapping to apply
-  * @param settings
-  *   settings to apply
   */
-final case class MetricsIndexDef(name: IndexLabel, mapping: JsonObject, settings: JsonObject)
+final case class MetricsIndexDef(name: IndexLabel, indexDef: ElasticsearchIndexDef)
 
 object MetricsIndexDef {
 
   def apply(prefix: String)(using loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
-    for {
-      mm <- loader.jsonObjectContentOf("metrics/metrics-mapping.json")
-      ms <- loader.jsonObjectContentOf("metrics/metrics-settings.json")
-    } yield MetricsIndexDef(IndexLabel.unsafe(s"${prefix}_project_metrics"), mm, ms)
+    ElasticsearchIndexDef
+      .load(
+        "metrics/metrics-mapping.json",
+        Some("metrics/metrics-settings.json")
+      )
+      .map { d => MetricsIndexDef(IndexLabel.unsafe(s"${prefix}_project_metrics"), d) }
 
 }

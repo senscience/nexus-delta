@@ -25,10 +25,10 @@ object SearchViewFactory {
         ElasticSearchProjectionFields(
           id = Some(defaultProjectionId),
           query = config.query,
-          mapping = config.mapping,
+          mapping = config.indexDef.mappings,
           indexGroup = searchGroup,
           context = config.context,
-          settings = config.settings,
+          settings = config.indexDef.settings,
           resourceTypes = config.resourceTypes
         )
       ),
@@ -49,8 +49,8 @@ object SearchViewFactory {
         throw new IllegalStateException("Search views do not include any SparqlProjection")
       case e: ElasticSearchProjection =>
         e.query == config.query &&
-        e.mapping == config.mapping &&
-        e.settings == config.settings &&
+        e.mapping == config.indexDef.mappings &&
+        e.settings == config.indexDef.settings &&
         e.context == config.context &&
         e.resourceTypes == config.resourceTypes
     } && current.rebuildStrategy == config.rebuildStrategy

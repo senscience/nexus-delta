@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.search
 
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
-import ai.senscience.nexus.delta.elasticsearch.model.permissions
+import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticsearchIndexDef}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
@@ -24,8 +24,8 @@ import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptyList
 import cats.effect.IO
+import io.circe.Json
 import io.circe.syntax.EncoderOps
-import io.circe.{Json, JsonObject}
 import org.http4s.Query
 
 import java.time.Instant
@@ -46,7 +46,7 @@ class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures wi
     (bob.subject, AclAddress.Root, Set(queryPermission))
   ).accepted
 
-  private val mappings = jsonObjectContentOf("test-mapping.json")
+  private val esIndexDef = ElasticsearchIndexDef.empty
 
   private val prefix = "prefix"
 
@@ -62,9 +62,9 @@ class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures wi
     false,
     permissions.query,
     Some(IndexGroup.unsafe("search")),
-    mappings,
-    None,
-    ContextObject(JsonObject())
+    esIndexDef.mappings,
+    esIndexDef.settings,
+    ContextObject.empty
   )
 
   private val compViewProj1   = CompositeView(

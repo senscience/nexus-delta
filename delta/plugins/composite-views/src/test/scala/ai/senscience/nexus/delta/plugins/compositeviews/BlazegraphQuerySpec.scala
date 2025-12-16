@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticsearchMappings
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.SparqlNTriples
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
@@ -87,9 +88,9 @@ class BlazegraphQuerySpec extends CatsEffectSpec with CancelAfterFailure {
       false,
       permissions.query,
       None,
-      JsonObject.empty,
+      ElasticsearchMappings(JsonObject.empty),
       None,
-      ContextObject(JsonObject.empty)
+      ContextObject.empty
     )
 
   private val projectSource =

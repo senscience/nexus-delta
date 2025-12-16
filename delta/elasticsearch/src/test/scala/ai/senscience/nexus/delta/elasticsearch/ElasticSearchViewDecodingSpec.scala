@@ -1,8 +1,10 @@
 package ai.senscience.nexus.delta.elasticsearch
 
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
+import ai.senscience.nexus.delta.rdf.Fixtures.circeLiteralSyntax
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
@@ -43,8 +45,8 @@ class ElasticSearchViewDecodingSpec extends CatsEffectSpec with Fixtures {
     ElasticSearchViewJsonLdSourceDecoder(uuidF, resolverContext).unsafeRunSync()
 
   "An IndexingElasticSearchViewValue" should {
-    val mapping  = json"""{ "dynamic": false }""".asObject.value
-    val settings = json"""{ "analysis": { } }""".asObject.value
+    val mapping  = ElasticsearchMappings(jobj"""{ "dynamic": false }""")
+    val settings = ElasticsearchSettings(jobj"""{ "analysis": { } }""")
 
     val indexingView = IndexingElasticSearchViewValue(
       resourceTag = None,

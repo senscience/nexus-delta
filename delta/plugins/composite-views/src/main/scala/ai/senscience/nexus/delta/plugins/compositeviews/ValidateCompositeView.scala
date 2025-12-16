@@ -58,11 +58,11 @@ object ValidateCompositeView {
 
     def validateIndex(es: ElasticSearchProjection, index: IndexLabel) =
       client
-        .createIndex(index, Some(es.mapping), es.settings)
+        .createIndex(index, es.indexDef)
         .adaptError { case err: ElasticsearchCreateIndexError => InvalidElasticSearchProjectionPayload(err.body) }
         .void
 
-    val checkRemoteEvent: RemoteProjectSource => IO[Unit] = deltaClient.checkElems(_)
+    val checkRemoteEvent: RemoteProjectSource => IO[Unit] = deltaClient.checkElems
 
     val validateSource: CompositeViewSource => IO[Unit] = {
       case _: ProjectSource             => IO.unit

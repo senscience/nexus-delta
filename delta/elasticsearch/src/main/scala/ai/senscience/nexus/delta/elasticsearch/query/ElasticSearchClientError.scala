@@ -47,9 +47,7 @@ object ElasticSearchClientError {
 
   object ElasticsearchCreateIndexError {
     def apply(response: Response[IO]): IO[ElasticsearchCreateIndexError] =
-      decodeBodyAsJson(response).map { body =>
-        ElasticsearchCreateIndexError(response.status, Some(body))
-      }
+      fromResponse(response)(ElasticsearchCreateIndexError(_, _))
   }
 
   final case class ElasticsearchQueryError(status: Status, override val body: Option[Json])
@@ -60,9 +58,7 @@ object ElasticSearchClientError {
 
   object ElasticsearchQueryError {
     def apply(response: Response[IO]): IO[ElasticsearchQueryError] =
-      decodeBodyAsJson(response).map { body =>
-        ElasticsearchQueryError(response.status, Some(body))
-      }
+      fromResponse(response)(ElasticsearchQueryError(_, _))
   }
 
   final case class ElasticsearchWriteError(status: Status, override val body: Option[Json])
@@ -73,9 +69,18 @@ object ElasticSearchClientError {
 
   object ElasticsearchWriteError {
     def apply(response: Response[IO]): IO[ElasticsearchWriteError] =
-      decodeBodyAsJson(response).map { body =>
-        ElasticsearchWriteError(response.status, Some(body))
-      }
+      fromResponse(response)(ElasticsearchWriteError(_, _))
+  }
+
+  final case class ElasticsearchUpdateMappingError(status: Status, override val body: Option[Json])
+      extends ElasticSearchClientError(
+        s"The elasticsearch endpoint responded with a status: $status",
+        body
+      )
+
+  object ElasticsearchUpdateMappingError {
+    def apply(response: Response[IO]): IO[ElasticsearchUpdateMappingError] =
+      fromResponse(response)(ElasticsearchUpdateMappingError(_, _))
   }
 
   final case class ScriptCreationDismissed(status: Status, override val body: Option[Json])
@@ -86,10 +91,11 @@ object ElasticSearchClientError {
 
   object ScriptCreationDismissed {
     def apply(response: Response[IO]): IO[ScriptCreationDismissed] =
-      decodeBodyAsJson(response).map { body =>
-        ScriptCreationDismissed(response.status, Some(body))
-      }
+      fromResponse(response)(ScriptCreationDismissed(_, _))
   }
+
+  private def fromResponse[E](response: Response[IO])(f: (s: Status, json: Option[Json]) => E) =
+    decodeBodyAsJson(response).map { body => f(response.status, Some(body)) }
 
   /**
     * Rejection returned when attempting to interact with a resource providing an id that cannot be resolved to an Iri.
@@ -100,16 +106,16 @@ object ElasticSearchClientError {
   final case class InvalidResourceId(id: String)
       extends ElasticSearchClientError(s"Resource identifier '$id' cannot be expanded to an Iri.", None)
 
-  implicit val elasticSearchClientErrorEncoder: Encoder.AsObject[ElasticSearchClientError] =
+  given Encoder.AsObject[ElasticSearchClientError] =
     Encoder.AsObject.instance { r =>
       val obj = JsonObject(keywords.tpe := ClassUtils.simpleName(r), "reason" := r.reason)
       r.body.flatMap(_.asObject).getOrElse(obj)
     }
 
-  implicit final val elasticSearchClientErrorJsonLdEncoder: JsonLdEncoder[ElasticSearchClientError] =
+  given JsonLdEncoder[ElasticSearchClientError] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val elasticSearchClientErrorHttpResponseFields: HttpResponseFields[ElasticSearchClientError] =
+  given HttpResponseFields[ElasticSearchClientError] =
     HttpResponseFields {
       case ElasticsearchActionError(status, _)      => PekkoStatusCode.int2StatusCode(status.code)
       case ElasticsearchCreateIndexError(status, _) => PekkoStatusCode.int2StatusCode(status.code)

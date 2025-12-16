@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.elasticsearch.indexing.CurrentActiveViews
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.Graph
@@ -40,8 +41,7 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view1"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    ElasticsearchIndexDef.empty,
     None,
     indexingRev,
     rev
@@ -54,8 +54,7 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
     None,
     SelectFilter.tag(UserTag.unsafe("tag")),
     index = IndexLabel.unsafe("view2"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    ElasticsearchIndexDef.empty,
     None,
     indexingRev,
     rev
@@ -68,8 +67,7 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
     Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
     SelectFilter.latest,
     index = IndexLabel.unsafe("view3"),
-    mapping = jobj"""{"properties": { }}""",
-    settings = jobj"""{"analysis": { }}""",
+    ElasticsearchIndexDef.empty,
     None,
     indexingRev,
     rev

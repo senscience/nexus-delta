@@ -113,7 +113,7 @@ object MainIndexingCoordinator {
 
       val elasticsearchSink = ElasticSearchSink.mainIndexing(client, batch, targetIndex, Refresh.False)
 
-      val init = client.createIndex(targetIndex, Some(mainIndex.mapping), Some(mainIndex.settings)).void
+      val init = client.createIndex(targetIndex, mainIndex.indexDef).void
 
       apply(fetchProjects, mainDocumentStream, supervisor, init, elasticsearchSink)
     } else {

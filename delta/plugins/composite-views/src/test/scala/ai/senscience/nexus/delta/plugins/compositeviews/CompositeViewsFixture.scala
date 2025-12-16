@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.Interval
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
@@ -66,13 +67,15 @@ trait CompositeViewsFixture extends ConfigFixtures {
     Uri.unsafeFromString("http://example.com/remote-endpoint")
   )
 
+  val esIndexDef = ElasticsearchIndexDef.empty
+
   val esProjectionFields         = ElasticSearchProjectionFields(
     Some(iri"http://example.com/es-projection"),
     query,
     None,
-    JsonObject(),
+    esIndexDef.mappings,
     ContextObject(JsonObject.empty),
-    Some(JsonObject())
+    esIndexDef.settings
   )
   val blazegraphProjectionFields = SparqlProjectionFields(
     Some(iri"http://example.com/blazegraph-projection"),
@@ -132,9 +135,9 @@ trait CompositeViewsFixture extends ConfigFixtures {
     false,
     permissions.query,
     None,
-    JsonObject(),
-    Some(JsonObject()),
-    ContextObject(JsonObject.empty)
+    esIndexDef.mappings,
+    esIndexDef.settings,
+    ContextObject.empty
   )
   val blazegraphProjection = SparqlProjection(
     iri"http://example.com/blazegraph-projection",

@@ -74,13 +74,13 @@ class ElasticSearchViewsQuerySuite
     (charlie.subject, AclAddress.Project(project2.ref), Set(queryPermission, permissions.read))
   ).accepted
 
-  private val defaultIndexDef = DefaultIndexDef().unsafeRunSync()
+  private val defaultIndexDef = DefaultIndexDef.load().unsafeRunSync()
 
   private val indexingValue: IndexingElasticSearchViewValue =
     IndexingElasticSearchViewValue(
       resourceTag = None,
       pipeline = List(PipeStep.noConfig(FilterDeprecated.ref), PipeStep.noConfig(DiscardMetadata.ref)),
-      mapping = Some(defaultIndexDef.mapping),
+      mapping = Some(defaultIndexDef.value.mappings),
       settings = None,
       permission = queryPermission,
       context = None
@@ -244,7 +244,7 @@ class ElasticSearchViewsQuerySuite
     val populateIndexingViews: IO[Unit] = allIndexingViews.traverse { ref =>
       for {
         view <- views.fetchIndexingView(ref.viewId, ref.project)
-        _    <- client.createIndex(view.index, Some(defaultIndexDef.mapping), Some(defaultIndexDef.settings))
+        _    <- client.createIndex(view.index, defaultIndexDef.value)
         bulk <- allResources.traverse { r =>
                   r.asDocument(ref).map { d =>
                     // We create a unique id across all indices

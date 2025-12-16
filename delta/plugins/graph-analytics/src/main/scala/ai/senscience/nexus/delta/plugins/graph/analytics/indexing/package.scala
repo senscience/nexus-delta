@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
+import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
@@ -8,8 +9,9 @@ import io.circe.JsonObject
 
 package object indexing {
 
-  private val logger = Logger[GraphAnalytics]
-  private val loader = ClasspathResourceLoader.withContext(classOf[GraphAnalyticsPluginModule])
+  private val logger                            = Logger[GraphAnalytics]
+  private given loader: ClasspathResourceLoader =
+    ClasspathResourceLoader.withContext(classOf[GraphAnalyticsPluginModule])
 
   val updateRelationshipsScriptId = "updateRelationships"
 
@@ -20,9 +22,12 @@ package object indexing {
         logger.warn(e)("ElasticSearch script 'update_relationships_script.painless' template not found")
       }
 
-  val graphAnalyticsMappings: IO[JsonObject] =
-    loader
-      .jsonObjectContentOf("elasticsearch/mappings.json")
+  val graphAnalyticsIndexDef: IO[ElasticsearchIndexDef] =
+    ElasticsearchIndexDef
+      .load(
+        "elasticsearch/mappings.json",
+        None
+      )
       .onError { case e => logger.warn(e)("ElasticSearch mapping 'mappings.json' template not found") }
 
   def propertiesAggQuery(config: TermAggregationsConfig): IO[JsonObject] = loader

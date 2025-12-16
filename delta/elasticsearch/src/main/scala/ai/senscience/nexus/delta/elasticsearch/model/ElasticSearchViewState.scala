@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.model
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
+import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef.fallbackUnless
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
@@ -83,6 +84,7 @@ final case class ElasticSearchViewState(
             context,
             permission
           ) =>
+        val indexDef = defaultDef.fallbackUnless(mapping, settings)
         IndexingElasticSearchView(
           id = id,
           name = name,
@@ -91,8 +93,8 @@ final case class ElasticSearchViewState(
           uuid = uuid,
           resourceTag = resourceTag,
           pipeline = pipeline,
-          mapping = mapping.getOrElse(defaultDef.mapping),
-          settings = settings.getOrElse(defaultDef.settings),
+          mapping = indexDef.mappings,
+          settings = indexDef.settings,
           context = context,
           permission = permission,
           tags = tags,
