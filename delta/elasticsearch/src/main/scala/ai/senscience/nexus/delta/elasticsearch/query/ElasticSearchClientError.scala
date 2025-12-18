@@ -83,6 +83,17 @@ object ElasticSearchClientError {
       fromResponse(response)(ElasticsearchUpdateMappingError(_, _))
   }
 
+  final case class ElasticsearchUpdateSettingsError(status: Status, override val body: Option[Json])
+      extends ElasticSearchClientError(
+        s"The elasticsearch endpoint responded with a status: $status",
+        body
+      )
+
+  object ElasticsearchUpdateSettingsError {
+    def apply(response: Response[IO]): IO[ElasticsearchUpdateSettingsError] =
+      fromResponse(response)(ElasticsearchUpdateSettingsError(_, _))
+  }
+
   final case class ScriptCreationDismissed(status: Status, override val body: Option[Json])
       extends ElasticSearchClientError(
         s"The script creation failed with a status: $status",

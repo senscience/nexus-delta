@@ -107,6 +107,26 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
       client.updateMapping(index, updatedMapping).intercept[ElasticsearchUpdateMappingError]
   }
 
+  test("Create an index and updates its settings") {
+    val index = generateIndexLabel
+
+    val originalMapping = jobj"""{ "properties": { "city": { "type": "text" } } }"""
+    val indexingViewDef = ElasticsearchIndexDef.fromJson(originalMapping, None)
+    val newSettings     = ElasticsearchSettings(
+      jobj"""{ "index": { "refresh_interval" : "-1" } }"""
+    )
+
+    def downToRefreshInterval(json: Json) =
+      json.hcursor.downField(index.value).downField("settings").downField("index").get[Int]("refresh_interval").toOption
+
+    client.createIndex(index, indexingViewDef).assertEquals(true) >>
+      client.updateSettings(index, newSettings) >>
+      client
+        .settings(index)
+        .map(downToRefreshInterval)
+        .assertEquals(Some(-1))
+  }
+
   test("Attempt to delete a non-existing index") {
     client.deleteIndex(generateIndexLabel).assertEquals(false)
   }
