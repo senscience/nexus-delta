@@ -60,6 +60,7 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   private val searchPath             = "_search"
   private val source                 = "_source"
   private val mapping                = "_mapping"
+  private val settings               = "_settings"
   private val pit                    = "_pit"
   private val newLine                = System.lineSeparator()
   private val `application/x-ndjson` =
@@ -391,6 +392,23 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
   def mapping(index: IndexLabel): IO[Json] = {
     val spanDef = SpanDef(s"<string:index>/$mapping", withIndex(index), read)
     OtelTracingClient(client, spanDef).expect[Json](GET(endpoint / index.value / mapping))
+  }
+
+  /**
+    * Update the mapping for the given index
+    */
+  def updateSettings(index: IndexLabel, newSettings: ElasticsearchSettings): IO[Unit] = {
+    val spanDef = SpanDef(s"<string:index>/$settings", withIndex(index), write)
+    val request = PUT(newSettings, endpoint / index.value / settings)
+    OtelTracingClient(client, spanDef).expectOr[Json](request)(ElasticsearchUpdateSettingsError(_)).void
+  }
+
+  /**
+    * Obtain the mapping of the given index
+    */
+  def settings(index: IndexLabel): IO[Json] = {
+    val spanDef = SpanDef(s"<string:index>/$settings", withIndex(index), read)
+    OtelTracingClient(client, spanDef).expect[Json](GET(endpoint / index.value / settings))
   }
 
   /**
