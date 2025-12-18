@@ -19,10 +19,10 @@ import shapeless3.typeable.Typeable
   *   the batch configuration for the sink
   * @param index
   *   the index to push into
-  * @param documentId
-  *   a function that maps an elem to a documentId
-  * @param routing
-  *   a function that maps an elem to a routing value
+  * @param idScheme
+  *   how to get the document id from the incoming elem
+  * @param routingScheme
+  *   how to route the document to a given shard
   * @see
   *   https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-routing-field.html
   * @param refresh
@@ -32,8 +32,8 @@ final class ElasticSearchSink private (
     client: ElasticSearchClient,
     override val batchConfig: BatchConfig,
     index: IndexLabel,
-    documentId: Elem[Json] => String,
-    routing: Elem[Json] => Option[String],
+    idScheme: ElemDocumentIdScheme,
+    routingScheme: ElemRoutingScheme,
     refresh: Refresh
 )(using Tracer[IO])
     extends Sink {
@@ -43,19 +43,19 @@ final class ElasticSearchSink private (
 
   override def apply(elements: ElemChunk[Json]): IO[ElemChunk[Unit]] = {
     val actions = elements.foldLeft(Vector.empty[ElasticSearchAction]) {
-      case (actions, successElem @ Elem.SuccessElem(_, _, _, _, _, json, _)) =>
+      case (acc, successElem @ Elem.SuccessElem(_, _, _, _, _, json, _)) =>
         if json.isEmpty() then {
-          actions :+ Delete(index, documentId(successElem), routing(successElem))
-        } else actions :+ Index(index, documentId(successElem), routing(successElem), json)
-      case (actions, droppedElem: Elem.DroppedElem)                          =>
-        actions :+ Delete(index, documentId(droppedElem), routing(droppedElem))
-      case (actions, _: Elem.FailedElem)                                     => actions
+          acc :+ Delete(index, idScheme(successElem), routingScheme(successElem))
+        } else acc :+ Index(index, idScheme(successElem), routingScheme(successElem), json)
+      case (acc, droppedElem: Elem.DroppedElem)                          =>
+        acc :+ Delete(index, idScheme(droppedElem), routingScheme(droppedElem))
+      case (acc, _: Elem.FailedElem)                                     => acc
     }
 
     if actions.nonEmpty then {
       client
         .bulk(actions, refresh)
-        .map(MarkElems(_, elements, documentId))
+        .map(MarkElems(_, elements, idScheme))
         .surround("elasticSearchSink")
     } else {
       IO.pure(elements.map(_.void))
@@ -87,8 +87,8 @@ object ElasticSearchSink {
       client,
       batchConfig,
       index,
-      elem => elem.id.toString,
-      _ => None,
+      ElemDocumentIdScheme.ById,
+      ElemRoutingScheme.Never,
       refresh
     )
 
@@ -112,8 +112,8 @@ object ElasticSearchSink {
       client,
       batchConfig,
       index,
-      elem => s"${elem.project}_${elem.id}",
-      elem => Some(elem.project.toString),
+      ElemDocumentIdScheme.ByProject,
+      ElemRoutingScheme.ByProject,
       refresh
     )
 }

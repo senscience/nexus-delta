@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.metrics
 
+import ai.senscience.nexus.delta.elasticsearch.indexing.ElemDocumentIdScheme.ByEvent
 import ai.senscience.nexus.delta.elasticsearch.indexing.MarkElems
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsSink.empty
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -15,8 +16,6 @@ import shapeless3.typeable.Typeable
 
 final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfig: BatchConfig) extends Sink {
 
-  private def documentId(elem: Elem[ProjectScopedMetric]) = s"${elem.project}/${elem.id}:${elem.rev}"
-
   override def apply(elements: ElemChunk[ProjectScopedMetric]): IO[ElemChunk[Unit]] = {
     val result = elements.foldLeft(empty) {
       case (acc, success: SuccessElem[ProjectScopedMetric]) =>
@@ -26,7 +25,7 @@ final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfi
       case (acc, _: FailedElem)                             => acc
     }
 
-    eventMetrics.index(result.bulk).map(MarkElems(_, elements, documentId)) <*
+    eventMetrics.index(result.bulk).map(MarkElems(_, elements, ByEvent)) <*
       result.deletes.traverse { case (project, id) =>
         eventMetrics.deleteByResource(project, id)
       }

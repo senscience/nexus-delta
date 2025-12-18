@@ -16,17 +16,17 @@ object MarkElems {
     *   the elasticsearch bulk response
     * @param elements
     *   the chunk of elements
-    * @param documentId
+    * @param idScheme
     *   how to extract the document id from an element
     */
-  def apply[A](response: BulkResponse, elements: ElemChunk[A], documentId: Elem[A] => String): ElemChunk[Unit] =
+  def apply[A](response: BulkResponse, elements: ElemChunk[A], idScheme: ElemDocumentIdScheme): ElemChunk[Unit] =
     response match {
       case Success              => elements.map(_.void)
       case MixedOutcomes(items) =>
         elements.map {
           case element: FailedElem => element
           case element             =>
-            items.get(documentId(element)) match {
+            items.get(idScheme(element)) match {
               case None                                       => element.failed(onMissingInResponse(element.id))
               case Some(MixedOutcomes.Outcome.Success(_))     => element.void
               case Some(MixedOutcomes.Outcome.Error(_, json)) => element.failed(onIndexingFailure(json))

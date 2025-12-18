@@ -1,20 +1,20 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
-import ai.senscience.nexus.delta.elasticsearch.indexing.MarkElems
+import ai.senscience.nexus.delta.elasticsearch.indexing.{ElemDocumentIdScheme, MarkElems}
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.{Index, Noop, UpdateByQuery}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.ElemChunk
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import io.circe.JsonObject
 import io.circe.literal.*
 import io.circe.syntax.EncoderOps
-import shapeless3.typeable.Typeable
 import org.typelevel.otel4s.trace.Tracer
+import shapeless3.typeable.Typeable
 
 /**
   * Sink that pushes the [[GraphAnalyticsResult]] to the given index
@@ -60,8 +60,6 @@ final class GraphAnalyticsSink(
     """.asObject.get
   }
 
-  private def documentId[A](elem: Elem[A]) = elem.id.toString
-
   override def apply(elements: ElemChunk[GraphAnalyticsResult]): IO[ElemChunk[Unit]] = {
     val result = elements.foldLeft(GraphAnalyticsSink.empty) {
       case (acc, success: SuccessElem[GraphAnalyticsResult]) =>
@@ -69,7 +67,7 @@ final class GraphAnalyticsSink(
           case Noop                     => acc
           case UpdateByQuery(id, types) => acc.update(id, types)
           case g: Index                 =>
-            val bulkAction = ElasticSearchAction.Index(index, documentId(success), None, g.asJson)
+            val bulkAction = ElasticSearchAction.Index(index, ElemDocumentIdScheme.ById(success), None, g.asJson)
             acc.add(bulkAction).update(g.id, g.types)
         }
       // TODO: handle correctly the deletion of individual resources when the feature is implemented
@@ -77,7 +75,7 @@ final class GraphAnalyticsSink(
       case (acc, _: FailedElem)                              => acc
     }
 
-    client.bulk(result.bulk, Refresh.True).map(MarkElems(_, elements, documentId)) <*
+    client.bulk(result.bulk, Refresh.True).map(MarkElems(_, elements, ElemDocumentIdScheme.ById)) <*
       client.updateByQuery(relationshipsQuery(result.updates), Set(index.value))
   }.surround("graphAnalyticsSink")
 }
