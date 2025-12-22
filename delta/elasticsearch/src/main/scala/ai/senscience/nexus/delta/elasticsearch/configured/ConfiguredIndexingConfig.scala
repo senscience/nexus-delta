@@ -26,7 +26,7 @@ object ConfiguredIndexingConfig {
     }
 
     final case class InvalidType(input: String, error: String) extends SDKError {
-      override def getMessage: String = s"At least one index must be defined"
+      override def getMessage: String = s"$input is not a valid IRI"
     }
   }
 
