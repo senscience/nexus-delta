@@ -87,7 +87,7 @@ class ConfiguredIndexingConfigSuite extends NexusSuite with TempDirectory.Fixtur
 
   test("Fail to load the config and if the index files do not exist") {
     val config = ConfigFactory.parseString(
-      s"""
+      """
          |app.elasticsearch.configured-indexing {
          | enabled = true
          | prefix = test
