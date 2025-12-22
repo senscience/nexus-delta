@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
-import ai.senscience.nexus.delta.sdk.marshalling.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.*
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchResponse.Result.itemEncoder

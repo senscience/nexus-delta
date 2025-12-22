@@ -19,19 +19,19 @@ import shapeless3.typeable.Typeable
   * @param context
   *   a context to compute the compacted JSON-LD for of the [[GraphResource]]
   */
-final class GraphResourceToDocument(context: ContextValue, includeContext: Boolean)(implicit
-    cr: RemoteContextResolution,
-    jsonLdOptions: JsonLdOptions
+final class GraphResourceToDocument(context: ContextValue, includeContext: Boolean)(using
+    RemoteContextResolution,
+    JsonLdOptions
 ) extends Pipe {
   override type In  = GraphResource
   override type Out = Json
-  override def ref: PipeRef                    = GraphResourceToDocument.ref
-  override def inType: Typeable[GraphResource] = Typeable[GraphResource]
-  override def outType: Typeable[Json]         = Typeable[Json]
+  override def ref: PipeRef           = GraphResourceToDocument.ref
+  override def inType: Typeable[In]   = Typeable[GraphResource]
+  override def outType: Typeable[Out] = Typeable[Json]
 
   private val contextAsJson = context.contextObj.asJson
 
-  implicit private val api: JsonLdApi = TitaniumJsonLdApi.lenient
+  private given JsonLdApi = TitaniumJsonLdApi.lenient
 
   /** Given a [[GraphResource]] returns a JSON-LD created from the merged graph and metadata graph */
   def graphToDocument(element: GraphResource): IO[Option[Json]] = {

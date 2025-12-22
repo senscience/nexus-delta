@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.sdk.marshalling
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextRemoteIri
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef

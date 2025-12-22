@@ -3,14 +3,14 @@ package ai.senscience.nexus.benchmarks.simulation
 import ai.senscience.nexus.benchmarks.simulation.CreateProjects.BenchmarkConfig
 import ai.senscience.nexus.benchmarks.syntax.*
 import ai.senscience.nexus.benchmarks.{ConfigLoader, ResourceLoader}
+import ai.senscience.nexus.delta.kernel.instances.given 
+import fs2.io.file.Path
 import io.circe.Json
 import io.circe.literal.*
 import io.gatling.core.Predef.*
 import io.gatling.http.Predef.*
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
-
-import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 
 /**

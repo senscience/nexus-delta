@@ -5,11 +5,11 @@ import ai.senscience.nexus.delta.plugins.blazegraph.SparqlIndexingAction.logger
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, IndexingViewDef, SparqlSink}
-import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.syntax.*
+import ai.senscience.nexus.delta.sdk.{GraphResourceEncoder, ResourceShifts}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
@@ -26,7 +26,7 @@ import scala.concurrent.duration.FiniteDuration
   * To synchronously index a resource in the different SPARQL views of a project
   */
 final class SparqlIndexingAction(
-    shifts: ResourceShifts,
+    graphResourceEncoder: GraphResourceEncoder,
     currentViews: CurrentActiveViews,
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
@@ -36,7 +36,7 @@ final class SparqlIndexingAction(
 
   override def apply[A](entityType: EntityType)(project: ProjectRef, res: ResourceF[A]): IO[SyncIndexingOutcome] =
     SyncIndexingAction
-      .evalMapToElem(entityType)(project, res, shifts.toGraphResource(entityType)(project, _))
+      .evalMapToElem(entityType)(project, res, graphResourceEncoder.encodeResource(entityType)(project, _))
       .flatMap { elem =>
         SyncIndexingRunner(
           projections(project, elem),

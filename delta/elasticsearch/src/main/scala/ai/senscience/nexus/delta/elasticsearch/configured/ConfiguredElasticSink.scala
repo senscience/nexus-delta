@@ -62,3 +62,18 @@ class ConfiguredElasticSink(
   }
 
 }
+
+object ConfiguredElasticSink {
+
+  def apply(
+      client: ElasticSearchClient,
+      config: ConfiguredIndexingConfig.Enabled,
+      batchConfig: BatchConfig,
+      refresh: Refresh
+  )(using Tracer[IO]): ConfiguredElasticSink = {
+    val indexMap = config.indices.foldLeft(Map.empty[Iri, IndexLabel]) { case (acc, configuredIndex) =>
+      acc ++ configuredIndex.types.map(_ -> configuredIndex.prefixedIndex(config.prefix))
+    }
+    new ConfiguredElasticSink(client, batchConfig, indexMap, refresh)
+  }
+}

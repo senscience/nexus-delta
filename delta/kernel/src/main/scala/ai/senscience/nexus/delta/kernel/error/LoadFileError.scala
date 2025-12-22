@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.kernel.error
 
-import java.nio.file.Path
+import fs2.io.file.Path
 
 /**
   * Top level error type that represents error loading external files.

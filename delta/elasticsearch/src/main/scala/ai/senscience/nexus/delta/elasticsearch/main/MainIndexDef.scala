@@ -15,7 +15,7 @@ object MainIndexDef {
 
   def apply(config: MainIndexConfig)(using loader: ClasspathResourceLoader): IO[MainIndexDef] =
     ElasticsearchIndexDef
-      .load(
+      .fromClasspath(
         "defaults/default-mapping.json",
         Some("defaults/default-settings.json"),
         "number_of_shards" -> config.shards

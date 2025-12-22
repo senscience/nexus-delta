@@ -8,9 +8,8 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
-import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.GraphResourceEncoder
 import ai.senscience.nexus.delta.sdk.indexing.sync.SyncIndexingOutcome
-import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
@@ -34,43 +33,29 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
   private val rev         = 2
 
   private val project = ProjectRef.unsafe("org", "proj")
-  private val id1     = nxv + "view1"
-  private val view1   = ActiveViewDef(
-    ViewRef(project, id1),
-    projection = id1.toString,
-    None,
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view1"),
-    ElasticsearchIndexDef.empty,
-    None,
-    indexingRev,
-    rev
-  )
 
-  private val id2   = nxv + "view2"
-  private val view2 = ActiveViewDef(
-    ViewRef(project, id2),
-    projection = id2.toString,
-    None,
-    SelectFilter.tag(UserTag.unsafe("tag")),
-    index = IndexLabel.unsafe("view2"),
-    ElasticsearchIndexDef.empty,
-    None,
-    indexingRev,
-    rev
-  )
+  private def createView(suffix: String, pipeChain: Option[PipeChain], withTag: Boolean) = {
+    val id           = nxv + suffix
+    val selectFilter = if withTag then SelectFilter.tag(UserTag.unsafe("tag")) else SelectFilter.latest
+    ActiveViewDef(
+      ViewRef(project, id),
+      projection = id.toString,
+      pipeChain,
+      selectFilter,
+      index = IndexLabel.unsafe(suffix),
+      ElasticsearchIndexDef.empty,
+      None,
+      indexingRev,
+      rev
+    )
+  }
 
-  private val id3   = nxv + "view3"
-  private val view3 = ActiveViewDef(
-    ViewRef(project, id3),
-    projection = id3.toString,
+  private val view1 = createView("view1", None, withTag = false)
+  private val view2 = createView("view2", None, withTag = true)
+  private val view3 = createView(
+    "view3",
     Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view3"),
-    ElasticsearchIndexDef.empty,
-    None,
-    indexingRev,
-    rev
+    withTag = false
   )
 
   private val currentViews = CurrentActiveViews(view1, view2, view3)
@@ -94,42 +79,34 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
 
   private val exception = new IllegalStateException("Boom")
 
-  private val shifts = new ResourceShifts {
-    override def fetch(reference: ResourceRef, project: ProjectRef): IO[Option[JsonLdContent[?]]] = IO.none
-
-    override def decodeGraphResource(entityType: EntityType)(json: Json): IO[GraphResource] = IO.stub
-
-    override def toGraphResource[A](tpe: EntityType)(project: ProjectRef, resource: ResourceF[A]): IO[GraphResource] =
-      tpe match {
-        case `entityType` =>
-          IO.pure(
-            GraphResource(
-              entityType,
-              project,
-              id,
-              1,
-              false,
-              ResourceRef(Vocabulary.schemas.resources),
-              Set(nxv + "Test"),
-              Graph.empty,
-              Graph.empty,
-              Json.obj()
-            )
+  private val graphResourceEncoder: GraphResourceEncoder = new GraphResourceEncoder {
+    override def encodeResource[A](tpe: EntityType)(project: ProjectRef, resource: ResourceF[A]): IO[GraphResource] = {
+      if tpe == `entityType` then
+        IO.pure(
+          GraphResource(
+            entityType,
+            project,
+            resource.id,
+            resource.rev,
+            resource.deprecated,
+            resource.schema,
+            resource.types,
+            Graph.empty,
+            Graph.empty,
+            Json.obj()
           )
-        case _            => IO.raiseError(exception)
-      }
+        )
+      else IO.raiseError(exception)
+    }
   }
 
   private val indexingAction = new ElasticSearchIndexingAction(
-    shifts,
+    graphResourceEncoder,
     currentViews,
     PipeChainCompiler.alwaysFail,
     (a: ActiveViewDef) =>
-      a.ref.viewId match {
-        case `id1` => new NoopSink[Json]
-        case `id3` => new NoopSink[Json]
-        case id    => throw new IllegalArgumentException(s"$id should not intent to create a sink")
-      },
+      if a.ref == view1.ref || a.ref == view3.ref then new NoopSink[Json]
+      else throw new IllegalArgumentException(s"$id should not intent to create a sink"),
     5.seconds
   )
 

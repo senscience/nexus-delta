@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
+import ai.senscience.nexus.delta.sdk.indexing.{ProjectDefCoordinator, ProjectProjectionFactory}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.*
@@ -73,6 +74,11 @@ object ProjectsModule extends NexusModuleDef {
           clock
         )(using uuidF, tracer)
       )
+  }
+
+  make[ProjectDefCoordinator].fromEffect {
+    (supervisor: Supervisor, projects: Projects, projectionFactories: Set[ProjectProjectionFactory]) =>
+      ProjectDefCoordinator(supervisor, projects, projectionFactories)
   }
 
   make[ProjectScopeResolver].from { (projects: Projects, flattenedAclStore: FlattenedAclStore) =>

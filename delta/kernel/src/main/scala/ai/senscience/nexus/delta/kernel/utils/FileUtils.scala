@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.kernel.utils
 import ai.senscience.nexus.delta.kernel.error.LoadFileError.{InvalidJson, UnaccessibleFile}
 import cats.effect.IO
 import cats.syntax.all.*
+import fs2.io.file.{Files, Path}
+import fs2.text
 import io.circe.parser.{decode, parse}
 import io.circe.{Decoder, Json}
-
-import java.nio.file.{Files, Path}
 
 object FileUtils {
 
@@ -31,7 +31,11 @@ object FileUtils {
     * Load the content of the given file as a string
     */
   def loadAsString(filePath: Path): IO[String] =
-    IO.blocking(Files.readString(filePath))
+    Files[IO]
+      .readAll(filePath)
+      .through(text.utf8.decode)
+      .compile
+      .foldMonoid
       .adaptError { case th => UnaccessibleFile(filePath, th) }
 
   def loadAsJson(filePath: Path): IO[Json] =

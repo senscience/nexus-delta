@@ -14,7 +14,7 @@ object MetricsIndexDef {
 
   def apply(prefix: String)(using loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
     ElasticsearchIndexDef
-      .load(
+      .fromClasspath(
         "metrics/metrics-mapping.json",
         Some("metrics/metrics-settings.json")
       )

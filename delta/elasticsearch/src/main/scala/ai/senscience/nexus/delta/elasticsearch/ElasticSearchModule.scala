@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
+import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
 import ai.senscience.nexus.delta.elasticsearch.indexing.*
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
@@ -21,7 +22,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, SyncIndexingAction}
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionFactory, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
@@ -30,7 +31,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, ProjectScopeResolver, Projects}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
-import ai.senscience.nexus.delta.sdk.stream.{GraphResourceStream, MainDocumentStream}
+import ai.senscience.nexus.delta.sdk.stream.{AnnotatedSourceStream, GraphResourceStream, MainDocumentStream}
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -38,6 +39,7 @@ import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsR
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
 import cats.effect.{Clock, IO}
+import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
 
@@ -178,25 +180,38 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainDocumentStream(elemStreaming, mainDocumentEncoder)
   }
 
-  make[MainIndexingCoordinator].fromEffect {
+  many[ProjectProjectionFactory].addSet {
     (
-        projects: Projects,
         mainDocumentStream: MainDocumentStream,
-        supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         mainIndex: MainIndexDef,
         config: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      MainIndexingCoordinator(
-        projects,
-        mainDocumentStream,
-        supervisor,
+      MainIndexingProjectionFactory(mainDocumentStream, client, mainIndex, config.batch, config.indexingEnabled)(using
+        tracer
+      ).toSet
+  }
+
+  make[ConfiguredIndexingConfig].fromEffect { (config: Config) =>
+    ConfiguredIndexingConfig.load(config)
+  }
+
+  many[ProjectProjectionFactory].addSet {
+    (
+        annotatedSourceStream: AnnotatedSourceStream,
+        client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
+        configuredConfig: ConfiguredIndexingConfig,
+        config: ElasticSearchViewsConfig,
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
+    ) =>
+      ConfiguredIndexingProjectionFactory(
+        annotatedSourceStream,
         client,
-        mainIndex,
+        configuredConfig,
         config.batch,
         config.indexingEnabled
-      )(using tracer)
+      )(using tracer).toSet
   }
 
   make[EventMetricsProjection].fromEffect {

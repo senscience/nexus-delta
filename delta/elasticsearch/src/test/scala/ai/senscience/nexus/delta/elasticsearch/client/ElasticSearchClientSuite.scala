@@ -63,7 +63,7 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
   test("Delete an index") {
     val index = generateIndexLabel
     for {
-      indexingDef <- ElasticsearchIndexDef.load(
+      indexingDef <- ElasticsearchIndexDef.fromClasspath(
                        "defaults/default-mapping.json",
                        Some("defaults/default-settings.json"),
                        "number_of_shards" -> 1

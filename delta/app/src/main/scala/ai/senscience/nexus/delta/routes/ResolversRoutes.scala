@@ -14,9 +14,10 @@ import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, OriginalSource, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resolvers.{read as Read, write as Write}
