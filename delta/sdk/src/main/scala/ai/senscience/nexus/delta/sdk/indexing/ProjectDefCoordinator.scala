@@ -72,7 +72,7 @@ object ProjectDefCoordinator {
                       case Some(value) if value.status == ExecutionStatus.Running =>
                         logger.info(s"'${projectionFactory.name(project)}' of '$project' is already running.")
                       case _                                                      =>
-                        supervisor.run(compiled)
+                        supervisor.run(compiled, projectionFactory.onInit(project))
                     }
       } yield ()
   }

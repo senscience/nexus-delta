@@ -9,14 +9,15 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
 import ai.senscience.nexus.delta.sdk.model.*
-import ai.senscience.nexus.delta.sdk.projects.{FetchContext, Projects}
+import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
-import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.IO
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -48,16 +49,19 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
     GraphAnalyticsStream(elemStreaming, xas)
   }
 
-  make[GraphAnalyticsCoordinator].fromEffect {
+  many[ProjectProjectionFactory].addSet {
     (
-        projects: Projects,
         analyticsStream: GraphAnalyticsStream,
-        supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: GraphAnalyticsConfig,
         tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
-      GraphAnalyticsCoordinator(projects, analyticsStream, supervisor, client, config)(using tracer)
+      GraphAnalyticsIndexFactory(analyticsStream, client, config)(using tracer).toSet
+  }
+
+  many[ProjectDeletionTask].add {
+    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), config: GraphAnalyticsConfig) =>
+      new GraphAnalyticsDeletionTask(client, config)
   }
 
   make[GraphAnalyticsViewsQuery].from {
