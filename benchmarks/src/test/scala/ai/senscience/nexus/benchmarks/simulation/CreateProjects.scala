@@ -3,7 +3,7 @@ package ai.senscience.nexus.benchmarks.simulation
 import ai.senscience.nexus.benchmarks.simulation.CreateProjects.BenchmarkConfig
 import ai.senscience.nexus.benchmarks.syntax.*
 import ai.senscience.nexus.benchmarks.{ConfigLoader, ResourceLoader}
-import ai.senscience.nexus.delta.kernel.instances.given 
+import ai.senscience.nexus.delta.kernel.instances.given
 import fs2.io.file.Path
 import io.circe.Json
 import io.circe.literal.*
