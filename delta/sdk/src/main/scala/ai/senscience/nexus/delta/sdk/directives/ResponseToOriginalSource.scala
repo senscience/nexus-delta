@@ -5,7 +5,8 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCach
 import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.{childSpan, extractParentSpanContext}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.jsonSourceCodec
-import ai.senscience.nexus.delta.sdk.marshalling.{OriginalSource, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec

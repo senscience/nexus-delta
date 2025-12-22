@@ -26,4 +26,15 @@ package object indexing {
     Some(project),
     Some(mainIndexingId)
   )
+
+  val configuredIndexingId: IriOrBNode.Iri = nxv + "configured-indexing"
+
+  def configuredIndexingProjection(ref: ProjectRef): String = s"configured-indexing-$ref"
+
+  def configuredIndexingProjectionMetadata(project: ProjectRef): ProjectionMetadata = ProjectionMetadata(
+    "configured-indexing",
+    configuredIndexingProjection(project),
+    Some(project),
+    Some(configuredIndexingId)
+  )
 }

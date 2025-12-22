@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.wiring
 import ai.senscience.nexus.delta.config.BuildInfo
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.ResourceShifts
-import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
+import ai.senscience.nexus.delta.sdk.stream.{AnnotatedSourceStream, GraphResourceStream}
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.*
@@ -51,6 +51,10 @@ object StreamModule extends ModuleDef {
 
   make[GraphResourceStream].from { (elemStreaming: ElemStreaming, shifts: ResourceShifts) =>
     GraphResourceStream(elemStreaming, shifts)
+  }
+
+  make[AnnotatedSourceStream].from { (elemStreaming: ElemStreaming, shifts: ResourceShifts) =>
+    AnnotatedSourceStream(elemStreaming, shifts)
   }
 
   many[PipeDef].addSet(defaultPipes)

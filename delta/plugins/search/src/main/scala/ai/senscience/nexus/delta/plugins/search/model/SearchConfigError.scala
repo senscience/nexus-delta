@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
 import ai.senscience.nexus.delta.sdk.error.SDKError
+import fs2.io.file.Path
 import pureconfig.error.ConfigReaderFailures
 
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 abstract class SearchConfigError(val reason: String) extends SDKError

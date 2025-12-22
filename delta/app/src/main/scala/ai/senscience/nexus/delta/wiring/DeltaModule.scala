@@ -107,7 +107,7 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
 
   make[ResourceShifts].from {
     (shifts: Set[ResourceShift[?, ?]], xas: Transactors, rcr: RemoteContextResolution @Id("aggregate")) =>
-      ResourceShifts(shifts, xas)(rcr)
+      ResourceShifts(shifts, xas)(using rcr)
   }
 
   include(new PekkoModule())

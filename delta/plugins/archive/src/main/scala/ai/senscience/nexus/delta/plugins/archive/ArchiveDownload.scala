@@ -22,8 +22,8 @@ import ai.senscience.nexus.delta.sdk.error.SDKError
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
-import ai.senscience.nexus.delta.sdk.marshalling.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation.*
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceRepresentation}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.{JsonLdValue, ResourceShifts}

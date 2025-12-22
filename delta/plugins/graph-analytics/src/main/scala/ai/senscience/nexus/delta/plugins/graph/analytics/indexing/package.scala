@@ -24,7 +24,7 @@ package object indexing {
 
   val graphAnalyticsIndexDef: IO[ElasticsearchIndexDef] =
     ElasticsearchIndexDef
-      .load(
+      .fromClasspath(
         "elasticsearch/mappings.json",
         None
       )

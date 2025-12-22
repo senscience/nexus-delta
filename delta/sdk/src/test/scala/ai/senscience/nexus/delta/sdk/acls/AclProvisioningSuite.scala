@@ -14,13 +14,11 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import munit.AnyFixture
 
-import java.nio.file.Files
-
 class AclProvisioningSuite extends NexusSuite with Doobie.Fixture with TempDirectory.Fixture with ConfigFixtures {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(tempDirectory, doobieTruncateAfterTest)
 
-  private lazy val tempDir = tempDirectory().toNioPath
+  private lazy val tempDir = tempDirectory()
   private lazy val xas     = doobieTruncateAfterTest()
 
   private val realm: Label = Label.unsafe("realm")
@@ -41,8 +39,10 @@ class AclProvisioningSuite extends NexusSuite with Doobie.Fixture with TempDirec
     clock
   )
 
-  private def generateAclFile = {
-    val acls =
+  private def generateAclFile =
+    TempDirectory.writeJson(
+      tempDir,
+      genString(),
       json"""
       {
         "/" : [
@@ -70,11 +70,10 @@ class AclProvisioningSuite extends NexusSuite with Doobie.Fixture with TempDirec
           }
         ]
       }"""
-    IO.blocking { Files.writeString(tempDir.resolve(genString()), acls.noSpaces) }
-  }
+    )
 
   private def generateInvalidFile =
-    IO.blocking { Files.writeString(tempDir.resolve(genString()), "{ FAIL }") }
+    TempDirectory.writeString(tempDir, genString(), "{ FAIL }")
 
   private def runProvisioning(config: AclProvisioningConfig) =
     new AclProvisioning(acls, config, serviceAccount).run
@@ -93,7 +92,7 @@ class AclProvisioningSuite extends NexusSuite with Doobie.Fixture with TempDirec
   }
 
   test("Return an error outcome if enabled and an invalid path is provided") {
-    val invalidFileConfig = AclProvisioningConfig(enabled = true, Some(tempDir.resolve(genString())))
+    val invalidFileConfig = AclProvisioningConfig(enabled = true, Some(tempDir / genString()))
     runProvisioning(invalidFileConfig).assertEquals(Outcome.Error) >> assertNoAclsDefined
   }
 

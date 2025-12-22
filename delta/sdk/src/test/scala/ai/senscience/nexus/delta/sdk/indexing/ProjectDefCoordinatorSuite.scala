@@ -1,29 +1,25 @@
-package ai.senscience.nexus.delta.elasticsearch.indexing
+package ai.senscience.nexus.delta.sdk.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.Fixtures
-import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingCoordinator.ProjectDef
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sdk.indexing.MainDocument
+import ai.senscience.nexus.delta.sdk.indexing.ProjectDefCoordinator.ProjectDef
 import ai.senscience.nexus.delta.sdk.projects.Projects
-import ai.senscience.nexus.delta.sdk.stream.MainDocumentStream
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
+import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import io.circe.Json
-import munit.AnyFixture
+import munit.{AnyFixture, Location}
 
 import java.time.Instant
 import scala.concurrent.duration.*
 
-class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture with Fixtures {
+class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
@@ -41,11 +37,10 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
 
   private val entityType = EntityType("test")
 
-  private def success[A](entityType: EntityType, project: ProjectRef, id: Iri, value: A, offset: Long): Elem[A] =
+  private def success[A](entityType: EntityType, project: ProjectRef, id: Iri, value: A, offset: Long): SuccessElem[A] =
     SuccessElem(tpe = entityType, id, project, Instant.EPOCH, Offset.at(offset), value, 1)
 
-  // Stream 2 elements until signal is set to true and then 2 more
-  private def projectStream: ElemStream[ProjectDef] =
+  private def projectStream: SuccessElemStream[ProjectDef] =
     Stream(
       success(Projects.entityType, project1, project1Id, ProjectDef(project1, markedForDeletion = false), 1L),
       success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = false), 2L)
@@ -55,10 +50,12 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
         success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = true), 4L)
       )
 
-  private val mainDocumentStream = new MainDocumentStream {
-    override def continuous(project: ProjectRef, start: Offset): ElemStream[MainDocument] =
+  private def projectionName(project: ProjectRef): String = s"project-$project"
+
+  private def projectionStream(project: ProjectRef) =
+    (_: Offset) =>
       Stream.range(1, 3).map { i =>
-        success(entityType, project, nxv + i.toString, MainDocument.unsafe(json"""{ "value": "$i"}"""), i)
+        success(entityType, project, nxv + i.toString, (), i)
       } ++ Stream(
         DroppedElem(entityType, nxv + "3", project, Instant.EPOCH, Offset.at(3L), 1),
         FailedElem(
@@ -71,71 +68,78 @@ class MainIndexingCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixtu
           1
         )
       )
+
+  private val projectProjectionFactory = new ProjectProjectionFactory {
+    override def bootstrap: IO[Unit] = IO.unit
+
+    override def name(project: ProjectRef): String = projectionName(project)
+
+    override def onInit(project: ProjectRef): IO[Unit] = IO.unit
+
+    override def compile(project: ProjectRef): IO[CompiledProjection] = IO.pure(
+      CompiledProjection.fromStream(
+        ProjectionMetadata(
+          "main-indexing",
+          projectionName(project),
+          Some(project),
+          Some(nxv + "projection")
+        ),
+        ExecutionStrategy.PersistentSingleNode,
+        projectionStream(project)
+      )
+    )
   }
 
   private val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 1, 1)
 
+  private def assertCompleted(project: ProjectRef)(using Location) = {
+    val name = projectionName(project)
+    sv.describe(name)
+      .map(_.map(_.status))
+      .assertEquals(Some(ExecutionStatus.Completed))
+      .eventually
+  }
+
+  private def assertCoordinatorProgress(expected: ProjectionProgress)(using Location) =
+    sv.describe(ProjectDefCoordinator.metadata.name)
+      .map(_.map(_.progress))
+      .assertEquals(Some(expected))
+      .eventually
+
   test("Start the coordinator") {
-    for {
-      _ <- MainIndexingCoordinator(
-             _ => projectStream,
-             mainDocumentStream,
-             sv,
-             IO.unit,
-             new NoopSink[Json]
-           )
-      _ <- sv.describe(MainIndexingCoordinator.metadata.name)
-             .map(_.map(_.progress))
-             .assertEquals(Some(ProjectionProgress(Offset.at(2L), Instant.EPOCH, 2, 0, 0)))
-             .eventually
-    } yield ()
+    ProjectDefCoordinator(sv, _ => projectStream, Set(projectProjectionFactory)) >>
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(2L), Instant.EPOCH, 2, 0, 0))
   }
 
   test(s"Projection for '$project1' processed all items and completed") {
-    val projectionName = s"main-indexing-$project1"
-    for {
-      _ <- sv.describe(projectionName)
-             .map(_.map(_.status))
-             .assertEquals(Some(ExecutionStatus.Completed))
-             .eventually
-      _ <- projections.progress(projectionName).assertEquals(Some(expectedProgress))
-    } yield ()
+    assertCompleted(project1) >>
+      projections.progress(projectionName(project1)).assertEquals(Some(expectedProgress))
   }
 
   test(s"Projection for '$project2' processed all items and completed too") {
-    val projectionName = s"main-indexing-$project2"
-    for {
-      _ <- sv.describe(projectionName)
-             .map(_.map(_.status))
-             .assertEquals(Some(ExecutionStatus.Completed))
-             .eventually
-      _ <- projections.progress(projectionName).assertEquals(Some(expectedProgress))
-    } yield ()
+    assertCompleted(project2) >>
+      projections.progress(projectionName(project2)).assertEquals(Some(expectedProgress))
   }
 
   test("Resume the stream of projects") {
-    for {
-      _ <- resumeSignal.set(true)
-      _ <- sv.describe(MainIndexingCoordinator.metadata.name)
-             .map(_.map(_.progress))
-             .assertEquals(Some(ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 0, 0)))
-             .eventually
-    } yield ()
+    resumeSignal.set(true) >>
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 0, 0))
   }
 
   test(s"Projection for '$project1' should not be restarted by the new project state.") {
-    val projectionName = s"main-indexing-$project1"
+    val name = projectionName(project1)
     for {
-      _ <- sv.describe(projectionName).map(_.map(_.restarts)).assertEquals(Some(0)).eventually
-      _ <- projections.progress(projectionName).assertEquals(Some(expectedProgress))
+      _ <- sv.describe(name).map(_.map(_.restarts)).assertEquals(Some(0)).eventually
+      _ <- projections.progress(name).assertEquals(Some(expectedProgress))
     } yield ()
   }
 
   test(s"'$project2' is marked for deletion, the associated projection should be destroyed.") {
-    val projectionName = s"main-indexing-$project2"
+    val name = projectionName(project2)
     for {
-      _ <- sv.describe(projectionName).assertEquals(None).eventually
-      _ <- projections.progress(projectionName).assertEquals(None)
+      _ <- sv.describe(name).assertEquals(None).eventually
+      _ <- projections.progress(name).assertEquals(None)
     } yield ()
   }
+
 }

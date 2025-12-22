@@ -12,7 +12,7 @@ package object views {
 
   object DefaultIndexDef {
     def load()(using loader: ClasspathResourceLoader): IO[DefaultIndexDef] =
-      ElasticsearchIndexDef.load(
+      ElasticsearchIndexDef.fromClasspath(
         "defaults/default-mapping.json",
         Some("defaults/default-settings.json"),
         "number_of_shards" -> 1

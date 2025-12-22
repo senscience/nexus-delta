@@ -5,8 +5,7 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
 import io.circe.Json
-
-import java.nio.file.Path
+import fs2.io.file.Path
 
 object ResourceLoader {
 

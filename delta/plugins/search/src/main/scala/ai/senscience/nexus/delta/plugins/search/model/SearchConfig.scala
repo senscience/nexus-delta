@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search.model
 
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
+import ai.senscience.nexus.delta.kernel.config.*
 import ai.senscience.nexus.delta.kernel.utils.FileUtils
 import ai.senscience.nexus.delta.kernel.utils.FileUtils.loadJsonAs
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Interval, RebuildStrategy}
@@ -18,11 +19,11 @@ import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import cats.effect.IO
 import cats.syntax.all.*
 import com.typesafe.config.Config
+import fs2.io.file.Path
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, JsonObject}
 import pureconfig.{ConfigReader, ConfigSource}
 
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
@@ -39,38 +40,38 @@ object SearchConfig {
   type Suites = Map[Label, Suite]
 
   case class NamedSuite(name: Label, suite: Suite)
-  implicit private val suitesMapReader: ConfigReader[Suites] = Label.labelMapReader[Suite]
+  private given ConfigReader[Suites] = Label.labelMapReader[Suite]
 
-  implicit val suiteEncoder: Encoder[NamedSuite]         =
-    Encoder[JsonObject].contramap(s => JsonObject("projects" := s.suite, "name" := s.name))
-  implicit val suiteLdEncoder: JsonLdEncoder[NamedSuite] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.suites))
+  given Encoder[NamedSuite]       = Encoder[JsonObject].contramap(s => JsonObject("projects" := s.suite, "name" := s.name))
+  given JsonLdEncoder[NamedSuite] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.suites))
 
-  implicit val namedSuiteHttpResponseFields: HttpResponseFields[NamedSuite] = HttpResponseFields.defaultOk
+  given HttpResponseFields[NamedSuite] = HttpResponseFields.defaultOk
 
   /**
     * Converts a [[Config]] into an [[SearchConfig]]
     */
   def load(config: Config): IO[SearchConfig] = {
-    val pluginConfig                    = config.getConfig("plugins.search")
-    def getFilePath(configPath: String) = Path.of(pluginConfig.getString(configPath))
-    def loadSuites                      = {
+    val pluginConfig = config.getConfig("plugins.search")
+    def loadSuites   = {
       val suiteSource = ConfigSource.fromConfig(pluginConfig).at("suites")
       IO.fromEither(suiteSource.load[Suites].leftMap(InvalidSuites(_)))
     }
     for {
-      fields        <- loadOption(pluginConfig, "fields", loadJsonAs[JsonObject])
-      resourceTypes <- loadJsonAs[IriFilter](getFilePath("indexing.resource-types"))
-      mapping       <- loadJsonAs[JsonObject](getFilePath("indexing.mapping"))
-      settings      <- loadOption(pluginConfig, "indexing.settings", loadJsonAs[JsonObject])
-      query         <- loadSparqlQuery(getFilePath("indexing.query"))
-      context       <- loadOption(pluginConfig, "indexing.context", loadJsonAs[JsonObject])
+      fields        <- pluginConfig.getOptionalFilePath("fields").traverse(loadJsonAs[JsonObject])
+      resourceTypes <- loadJsonAs[IriFilter](pluginConfig.getFilePath("indexing.resource-types"))
+      indexDef      <- ElasticsearchIndexDef.fromExternalFiles(
+                         pluginConfig.getFilePath("indexing.mapping"),
+                         pluginConfig.getOptionalFilePath("indexing.settings")
+                       )
+      query         <- loadSparqlQuery(pluginConfig.getFilePath("indexing.query"))
+      context       <- pluginConfig.getOptionalFilePath("indexing.context").traverse(loadJsonAs[JsonObject])
       rebuild       <- loadRebuildStrategy(pluginConfig)
       defaults      <- loadDefaults(pluginConfig)
       suites        <- loadSuites
     } yield SearchConfig(
       IndexingConfig(
         resourceTypes,
-        ElasticsearchIndexDef.fromJson(mapping, settings),
+        indexDef,
         query = query,
         context = ContextObject(context.getOrElse(JsonObject.empty)),
         rebuildStrategy = rebuild
@@ -80,10 +81,6 @@ object SearchConfig {
       suites
     )
   }
-
-  private def loadOption[A](config: Config, path: String, io: Path => IO[A]) =
-    if config.hasPath(path) then io(Path.of(config.getString(path))).map(Some(_))
-    else IO.none
 
   private def loadSparqlQuery(filePath: Path): IO[SparqlConstructQuery] =
     for {

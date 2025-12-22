@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
+import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
@@ -39,11 +40,11 @@ abstract class ResourceShift[State <: ScopedState, A](
     val entityType: EntityType,
     fetchResource: (ResourceRef, ProjectRef) => IO[Option[ResourceF[A]]],
     valueEncoder: JsonLdEncoder[A]
-)(implicit serializer: Serializer[?, State], baseUri: BaseUri) {
+)(using serializer: Serializer[?, State], baseUri: BaseUri) {
 
-  implicit private val api: JsonLdApi                                         = TitaniumJsonLdApi.lenient
-  implicit private val valueJsonLdEncoder: JsonLdEncoder[A]                   = valueEncoder
-  implicit private val resourceFJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] = ResourceF.defaultResourceFAJsonLdEncoder
+  private given JsonLdApi                                              = TitaniumJsonLdApi.lenient
+  private given valueJsonLdEncoder: JsonLdEncoder[A]                   = valueEncoder
+  private given resourceFJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] = ResourceF.defaultResourceFAJsonLdEncoder
 
   protected def toResourceF(state: State): ResourceF[A]
 
@@ -61,18 +62,23 @@ abstract class ResourceShift[State <: ScopedState, A](
   /**
     * Retrieves a [[GraphResource]] from the json payload stored in database.
     */
-  def toGraphResource(json: Json)(implicit
-      cr: RemoteContextResolution
-  ): IO[GraphResource] =
-    for {
-      state   <- IO.fromEither(serializer.codec.decodeJson(json))
-      resource = toResourceF(state)
-      graph   <- toGraphResource(state.project, resource)
-    } yield graph
+  def toGraphResource(json: Json)(using RemoteContextResolution): IO[GraphResource] =
+    IO.fromEither(serializer.codec.decodeJson(json)).flatMap { state =>
+      val resource = toResourceF(state)
+      toGraphResource(state.project, resource)
+    }
 
-  def toGraphResource(project: ProjectRef, resource: ResourceF[A])(implicit
-      cr: RemoteContextResolution
-  ): IO[GraphResource] = {
+  /**
+    * Retrieves a [[GraphResource]] from the json payload stored in database.
+    */
+  def toAnnotatedSource(json: Json): IO[OriginalSource.Annotated] =
+    IO.fromEither(serializer.codec.decodeJson(json)).map { state =>
+      val resource = toResourceF(state)
+      val content  = resourceToContent(resource)
+      OriginalSource.Annotated(resource.void, content.source)
+    }
+
+  def toGraphResource(project: ProjectRef, resource: ResourceF[A])(using RemoteContextResolution): IO[GraphResource] = {
     val content = resourceToContent(resource)
     val id      = resource.resolvedId
     IO.both(valueJsonLdEncoder.graph(resource.value), resourceFJsonLdEncoder.graph(resource.void))
@@ -122,7 +128,7 @@ object ResourceShift {
       fetchResource: (ResourceRef, ProjectRef) => IO[ResourceF[A]],
       stateToResource: State => ResourceF[A],
       asContent: ResourceF[A] => JsonLdContent[A]
-  )(implicit
+  )(using
       serializer: Serializer[?, State],
       valueEncoder: JsonLdEncoder[A],
       baseUri: BaseUri

@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveVi
 import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchSink, IndexingViewDef}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.sdk.ResourceShifts
+import ai.senscience.nexus.delta.sdk.{GraphResourceEncoder, ResourceShifts}
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -27,7 +27,7 @@ import scala.concurrent.duration.FiniteDuration
   * To synchronously index a resource in the different Elasticsearch views of a project
   */
 final class ElasticSearchIndexingAction(
-    shifts: ResourceShifts,
+    graphResourceEncoder: GraphResourceEncoder,
     currentViews: CurrentActiveViews,
     pipeChainCompiler: PipeChainCompiler,
     sink: ActiveViewDef => Sink,
@@ -37,7 +37,7 @@ final class ElasticSearchIndexingAction(
 
   def apply[A](entityType: EntityType)(project: ProjectRef, res: ResourceF[A]): IO[SyncIndexingOutcome] =
     SyncIndexingAction
-      .evalMapToElem(entityType)(project, res, shifts.toGraphResource(entityType)(project, _))
+      .evalMapToElem(entityType)(project, res, graphResourceEncoder.encodeResource(entityType)(project, _))
       .flatMap { elem =>
         SyncIndexingRunner(
           projections(project, elem),
