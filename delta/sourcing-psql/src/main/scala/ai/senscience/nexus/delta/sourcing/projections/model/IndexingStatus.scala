@@ -5,17 +5,31 @@ import cats.syntax.all.*
 import io.circe.syntax.KeyOps
 import io.circe.{Encoder, Json}
 
-sealed trait IndexingStatus extends Product with Serializable
+/**
+  * The indexing status of a given resource
+  */
+enum IndexingStatus {
+
+  /**
+    * The resource still needs to be indexed (or reindexed for an update)
+    */
+  case Pending
+
+  /**
+    * The resource has been processed but has been discarded
+    */
+  case Discarded
+
+  /**
+    * The resource has been processed and is indexed
+    */
+  case Completed
+
+}
 
 object IndexingStatus {
 
-  case object Pending extends IndexingStatus
-
-  case object Discarded extends IndexingStatus
-
-  case object Completed extends IndexingStatus
-
-  implicit val indexingStatusEncoder: Encoder[IndexingStatus] = Encoder.instance {
+  given Encoder[IndexingStatus] = Encoder.instance {
     case Pending   => Json.obj("status" := "Pending")
     case Discarded => Json.obj("status" := "Discarded")
     case Completed => Json.obj("status" := "Completed")

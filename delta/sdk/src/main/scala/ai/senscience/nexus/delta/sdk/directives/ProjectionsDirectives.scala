@@ -20,6 +20,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, ProjectId}
+import ai.senscience.nexus.delta.sourcing.projections.model.IndexingStatus
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import cats.effect.IO
@@ -39,7 +40,9 @@ trait ProjectionsDirectives {
 
   def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route
 
-  def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using Tracer[IO]): Route
+  def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String, onCompleted: IO[Unit])(
+      using Tracer[IO]
+  ): Route
 
   def indexingErrors(view: ViewRef)(using Tracer[IO]): Route =
     indexingErrors(view.project, view.viewId)
@@ -72,7 +75,12 @@ object ProjectionsDirectives extends RdfMarshalling {
       override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
         emit(projections.scheduleRestart(projectionName, offset).as(offset))
 
-      override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using
+      override def indexingStatus(
+          project: ProjectRef,
+          selectFilter: SelectFilter,
+          projectionName: String,
+          onCompleted: IO[Unit]
+      )(using
           Tracer[IO]
       ): Route =
         (iriSegment & pathEndOrSingleSlash) { resourceId =>
@@ -81,6 +89,9 @@ object ProjectionsDirectives extends RdfMarshalling {
               .indexingStatus(project, selectFilter, projectionName, resourceId)(
                 ResourceNotFound(resourceId, project)
               )
+              .flatTap { status =>
+                IO.whenA(status == IndexingStatus.Completed)(onCompleted)
+              }
           )
         }
 
@@ -119,7 +130,12 @@ object ProjectionsDirectives extends RdfMarshalling {
     override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
       complete("schedule-restart")
 
-    override def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String)(using
+    override def indexingStatus(
+        project: ProjectRef,
+        selectFilter: SelectFilter,
+        projectionName: String,
+        onCompleted: IO[Unit]
+    )(using
         Tracer[IO]
     ): Route =
       complete("indexing-status")

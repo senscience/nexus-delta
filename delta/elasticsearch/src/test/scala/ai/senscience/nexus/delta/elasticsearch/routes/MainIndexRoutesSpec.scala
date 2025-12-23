@@ -60,7 +60,7 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     setup.accepted
   }
 
-  "Default index route" should {
+  "Main index route" should {
     s"fail to get statistics if the user has no access to $project2" in {
       Get(s"/views/$project2/documents/statistics") ~> as(reader) ~> routes ~> check {
         status shouldEqual StatusCodes.Forbidden
