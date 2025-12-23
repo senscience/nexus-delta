@@ -70,7 +70,7 @@ final class MainIndexRoutes(
               }
             },
             // Manage a main indexing offset
-            routeSpan("views/<str:org>/<str:project>/documents/offsets") {
+            routeSpan("views/<str:org>/<str:project>/documents/offset") {
               (pathPrefix("offset") & pathEndOrSingleSlash) {
                 concat(
                   // Fetch an elasticsearch view offset
@@ -87,7 +87,7 @@ final class MainIndexRoutes(
             // Getting indexing status for a resource in the main view
             routeSpan("views/<str:org>/<str:project>/documents/status") {
               (pathPrefix("status") & authorizeRead) {
-                projectionDirectives.indexingStatus(project, SelectFilter.latest, projection)
+                projectionDirectives.indexingStatus(project, SelectFilter.latest, projection, IO.unit)
               }
             },
             // Query default indexing for this given project

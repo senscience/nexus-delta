@@ -6,12 +6,15 @@ import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.config.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.error.SDKError
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import com.typesafe.config.Config
 
+import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.*
+import scala.jdk.DurationConverters.*
 
 sealed trait ConfiguredIndexingConfig
 
@@ -32,19 +35,23 @@ object ConfiguredIndexingConfig {
 
   case object Disabled extends ConfiguredIndexingConfig
 
-  final case class ConfiguredIndex(index: IndexLabel, indexDef: ElasticsearchIndexDef, types: Set[Iri]) {
-    def prefixedIndex(prefix: String): IndexLabel =
-      index.copy(s"${prefix}_$index")
+  final case class ConfiguredIndex(index: Label, indexDef: ElasticsearchIndexDef, types: Set[Iri]) {
+    def prefixedIndex(prefix: String): IndexLabel = IndexLabel.unsafe(s"${prefix}_$index")
   }
 
-  final case class Enabled(prefix: String, indices: NonEmptyList[ConfiguredIndex]) extends ConfiguredIndexingConfig
+  final case class Enabled(prefix: String, maxRefreshPeriod: FiniteDuration, indices: NonEmptyList[ConfiguredIndex])
+      extends ConfiguredIndexingConfig
 
   private def loadConfiguredIndex(indexConfig: Config): IO[ConfiguredIndex] = {
 
     for {
-      index    <- IO.fromEither(IndexLabel(indexConfig.getString("index")))
+      index    <- IO.fromEither(Label(indexConfig.getString("index")))
       types    <- IO.fromEither(
-                    indexConfig.getStringList("types").asScala.toList.traverse(s => Iri(s).leftMap(InvalidType(s, _)))
+                    indexConfig
+                      .getStringList("types")
+                      .asScala
+                      .toList
+                      .traverse(s => Iri(s).leftMap(InvalidType(s, _)))
                   )
       indexDef <- ElasticsearchIndexDef.fromExternalFiles(
                     indexConfig.getFilePath("mapping"),
@@ -56,7 +63,8 @@ object ConfiguredIndexingConfig {
   def load(config: Config): IO[ConfiguredIndexingConfig] = {
     val subConfig = config.getConfig("app.elasticsearch.configured-indexing")
     if subConfig.getBoolean("enabled") then {
-      val prefix = subConfig.getString("prefix")
+      val prefix           = subConfig.getString("prefix")
+      val maxRefreshPeriod = subConfig.getDuration("max-refresh-period").toScala
       subConfig
         .getConfigList("values")
         .asScala
@@ -65,7 +73,8 @@ object ConfiguredIndexingConfig {
           loadConfiguredIndex(indexConfig)
         }
         .flatMap { indices =>
-          IO.fromOption(NonEmptyList.fromList(indices))(NoIndexDefined).map(Enabled(prefix, _))
+          IO.fromOption(NonEmptyList.fromList(indices))(NoIndexDefined)
+            .map(Enabled(prefix, maxRefreshPeriod, _))
         }
     } else IO.pure(Disabled)
 

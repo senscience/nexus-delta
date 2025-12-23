@@ -1,16 +1,18 @@
 package ai.senscience.nexus.delta.elasticsearch.configured
 
-import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig.ConfiguredIndex
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.kernel.error.LoadFileError.UnaccessibleFile
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.file.TempDirectory
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import com.typesafe.config.ConfigFactory
 import fs2.io.file.Path
 import munit.AnyFixture
+
+import scala.concurrent.duration.DurationInt
 
 class ConfiguredIndexingConfigSuite extends NexusSuite with TempDirectory.Fixture {
 
@@ -44,6 +46,7 @@ class ConfiguredIndexingConfigSuite extends NexusSuite with TempDirectory.Fixtur
           |app.elasticsearch.configured-indexing {
           | enabled = true
           | prefix = test
+          | max-refresh-period = 1s
           | values = [
           |   {
           |     index = "index1"
@@ -68,14 +71,15 @@ class ConfiguredIndexingConfigSuite extends NexusSuite with TempDirectory.Fixtur
       config         = parseConfig(firstMapping, firstSettings, secondMapping)
       expected       = ConfiguredIndexingConfig.Enabled(
                          "test",
+                         1.second,
                          NonEmptyList.of(
                            ConfiguredIndex(
-                             IndexLabel.unsafe("index1"),
+                             Label.unsafe("index1"),
                              ElasticsearchIndexDef.fromJson(firstMappingContent, Some(firstSettingsContent)),
                              Set(firstType)
                            ),
                            ConfiguredIndex(
-                             IndexLabel.unsafe("index2"),
+                             Label.unsafe("index2"),
                              ElasticsearchIndexDef.fromJson(secondMappingContent, None),
                              Set(secondType)
                            )
@@ -91,6 +95,7 @@ class ConfiguredIndexingConfigSuite extends NexusSuite with TempDirectory.Fixtur
          |app.elasticsearch.configured-indexing {
          | enabled = true
          | prefix = test
+         | max-refresh-period = 1s
          | values = [
          |   {
          |     index = "index1"

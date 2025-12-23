@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.*
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, ElasticSearchViewEvent}
-import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
+import ai.senscience.nexus.delta.elasticsearch.query.{ConfiguredIndexQuery, MainIndexQuery}
 import ai.senscience.nexus.delta.elasticsearch.routes.*
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
@@ -262,6 +262,16 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ) => MainIndexQuery(client, config.mainIndex)(using baseUri, tracer)
   }
 
+  make[ConfiguredIndexQuery].fromEffect {
+    (
+        client: ElasticSearchClient @Id("elasticsearch-query-client"),
+        config: ConfiguredIndexingConfig,
+        clock: Clock[IO],
+        tracer: Tracer[IO] @Id("elasticsearch")
+    ) =>
+      ConfiguredIndexQuery(client, config, clock)(using tracer)
+  }
+
   make[ElasticSearchViewsRoutes].from {
     (
         identities: Identities,
@@ -304,6 +314,19 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         ordering,
         tracer
       )
+  }
+
+  make[ConfiguredIndexRoutes].from {
+    (
+        identities: Identities,
+        aclCheck: AclCheck,
+        configuredQuery: ConfiguredIndexQuery,
+        projectionDirectives: ProjectionsDirectives,
+        cr: RemoteContextResolution @Id("aggregate"),
+        ordering: JsonKeyOrdering,
+        tracer: Tracer[IO] @Id("elasticsearch")
+    ) =>
+      new ConfiguredIndexRoutes(identities, aclCheck, configuredQuery, projectionDirectives)(using cr, ordering, tracer)
   }
 
   make[ListingRoutes].from {
