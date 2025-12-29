@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.elasticsearch.deletion
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
-import ai.senscience.nexus.delta.elasticsearch.query.SearchByProject
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -44,7 +43,7 @@ class MainIndexDeletionTaskSuite
     )
 
     def countInIndex(project: ProjectRef) = {
-      val searchByProject = SearchByProject(project)
+      val searchByProject = ElasticDeleteDocs.searchByProject(project)
       client
         .search(QueryBuilder.unsafe(searchByProject), Set(index.value), Query.empty)
         .map(_.total)
