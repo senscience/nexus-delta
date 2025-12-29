@@ -12,7 +12,7 @@ import cats.effect.IO
   */
 final class EventMetricsDeletionTask(eventMetrics: EventMetrics) extends ProjectDeletionTask {
 
-  override def apply(project: ProjectRef)(implicit subject: Identity.Subject): IO[ProjectDeletionReport.Stage] =
+  override def apply(project: ProjectRef)(using Identity.Subject): IO[ProjectDeletionReport.Stage] =
     eventMetrics.deleteByProject(project).as(report)
 
 }

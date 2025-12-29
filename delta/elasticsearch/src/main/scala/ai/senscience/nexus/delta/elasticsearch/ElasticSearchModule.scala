@@ -1,9 +1,9 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig
+import ai.senscience.nexus.delta.elasticsearch.config.{ElasticSearchViewsConfig, MainIndexConfig}
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig
-import ai.senscience.nexus.delta.elasticsearch.deletion.{ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
+import ai.senscience.nexus.delta.elasticsearch.deletion.{ConfiguredIndexDeletionTask, ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
 import ai.senscience.nexus.delta.elasticsearch.indexing.*
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
@@ -60,11 +60,11 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MetricsIndexDef(cfg.prefix)
   }
 
+  make[MainIndexConfig].from { (cfg: ElasticSearchViewsConfig) => cfg.mainIndex }
+
   make[DefaultIndexDef].fromEffect { DefaultIndexDef.load() }
 
-  make[MainIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
-    MainIndexDef(cfg.mainIndex)
-  }
+  make[MainIndexDef].fromEffect { (cfg: MainIndexConfig) => MainIndexDef(cfg) }
 
   private def buildElasticsearchClient(
       cfg: ElasticSearchViewsConfig,
@@ -257,9 +257,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     (
         client: ElasticSearchClient @Id("elasticsearch-query-client"),
         baseUri: BaseUri,
-        config: ElasticSearchViewsConfig,
+        config: MainIndexConfig,
         tracer: Tracer[IO] @Id("elasticsearch")
-    ) => MainIndexQuery(client, config.mainIndex)(using baseUri, tracer)
+    ) => MainIndexQuery(client, config)(using baseUri, tracer)
   }
 
   make[ConfiguredIndexQuery].fromEffect {
@@ -427,8 +427,13 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   many[ProjectDeletionTask].add { (eventMetrics: EventMetrics) => new EventMetricsDeletionTask(eventMetrics) }
 
   many[ProjectDeletionTask].add {
-    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), config: ElasticSearchViewsConfig) =>
-      new MainIndexDeletionTask(client, config.mainIndex.index)
+    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), config: MainIndexConfig) =>
+      new MainIndexDeletionTask(client, config.index)
+  }
+
+  many[ProjectDeletionTask].addSet {
+    (client: ElasticSearchClient @Id("elasticsearch-indexing-client"), config: ConfiguredIndexingConfig) =>
+      ConfiguredIndexDeletionTask(client, config).toSet
   }
 
   many[ViewsList].add { (views: ElasticSearchViews) =>

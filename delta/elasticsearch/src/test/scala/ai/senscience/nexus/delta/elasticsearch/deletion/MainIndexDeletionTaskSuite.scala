@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.deletion
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
+import ai.senscience.nexus.delta.elasticsearch.query.SearchByProject
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, Fixtures, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -16,7 +17,7 @@ class MainIndexDeletionTaskSuite
     with CirceLiteral
     with Fixtures {
 
-  implicit private val subject: Subject = Anonymous
+  private given Subject = Anonymous
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(esClient)
 
@@ -42,11 +43,12 @@ class MainIndexDeletionTaskSuite
       indexAction(4, anotherProject)
     )
 
-    def countInIndex(project: ProjectRef) =
-      for {
-        query  <- task.searchByProject(project)
-        result <- client.search(QueryBuilder.unsafe(query), Set(index.value), Query.empty)
-      } yield result.total
+    def countInIndex(project: ProjectRef) = {
+      val searchByProject = SearchByProject(project)
+      client
+        .search(QueryBuilder.unsafe(searchByProject), Set(index.value), Query.empty)
+        .map(_.total)
+    }
 
     for {
       // Indexing and checking count
