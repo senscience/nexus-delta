@@ -180,7 +180,7 @@ where...
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the 
   @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticsearch settings_`: Json object - Defines the indexing configuration, as stated at the 
-  @link:[ElasticSearch settings documentation](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){ open=new }.
+  @link:[ElasticSearch settings documentation](https://www.elastic.co/docs/reference/elasticsearch/index-settings){ open=new }.
 - `_context_`: Json - the JSON-LD context value applied to the query results.
 - `{query}`: @link:[Sparql Construct Query](https://www.w3.org/TR/rdf-sparql-query/#construct){ open=new } - Defines the Sparql query to execute against the
   intermediate Sparql space for each target resource.
