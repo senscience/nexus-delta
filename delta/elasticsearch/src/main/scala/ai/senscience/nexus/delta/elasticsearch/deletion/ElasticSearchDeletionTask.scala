@@ -20,11 +20,11 @@ final class ElasticSearchDeletionTask(
     deprecate: (ActiveViewDef, Subject) => IO[Unit]
 ) extends ProjectDeletionTask {
 
-  override def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage] =
+  override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] =
     logger.info(s"Starting deprecation of Elasticsearch views for '$project'") >>
       run(project)
 
-  private def run(project: ProjectRef)(implicit subject: Subject) =
+  private def run(project: ProjectRef)(using subject: Subject) =
     currentViews
       .stream(project)
       .evalScan(init) { case (acc, view) =>

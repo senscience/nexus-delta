@@ -16,7 +16,7 @@ class MainIndexDeletionTaskSuite
     with CirceLiteral
     with Fixtures {
 
-  implicit private val subject: Subject = Anonymous
+  private given Subject = Anonymous
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(esClient)
 
@@ -42,11 +42,12 @@ class MainIndexDeletionTaskSuite
       indexAction(4, anotherProject)
     )
 
-    def countInIndex(project: ProjectRef) =
-      for {
-        query  <- task.searchByProject(project)
-        result <- client.search(QueryBuilder.unsafe(query), Set(index.value), Query.empty)
-      } yield result.total
+    def countInIndex(project: ProjectRef) = {
+      val searchByProject = ElasticDeleteDocs.searchByProject(project)
+      client
+        .search(QueryBuilder.unsafe(searchByProject), Set(index.value), Query.empty)
+        .map(_.total)
+    }
 
     for {
       // Indexing and checking count
