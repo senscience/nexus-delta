@@ -85,7 +85,7 @@ where...
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the
   @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticssearch settings_`: Json object - defines Elasticsearch
-  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){ open=new } 
+  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings){ open=new } 
   for the underlying Elasticsearch index. Default settings are applied, if not specified.
 - `{someid}`: Iri - The @id value for this view.
 - `{permission}`: String - permission required to query this view. Defaults to `views/query`.
@@ -122,7 +122,7 @@ where...
 - `_elasticsearch mapping_`: Json object - Defines the value types for the Json keys, as stated at the
   @link:[ElasticSearch mapping documentation](https://www.elastic.co/docs/manage-data/data-store/mapping){ open=new }.
 - `_elasticssearch settings_`: Json object - defines Elasticsearch
-  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings/){
+  @link:[index settings](https://www.elastic.co/docs/reference/elasticsearch/index-settings){
   open=new } for the underlying Elasticsearch index. Default settings are applied, if not specified.
 - `{sourceAsText}`: Boolean - If true, the resource's payload will be stored in the ElasticSearch document as a single
   escaped string value under the key `_original_source`. If false, the resource's payload will be stored normally in the
