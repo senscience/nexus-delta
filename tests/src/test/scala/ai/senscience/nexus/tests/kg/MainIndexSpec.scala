@@ -41,7 +41,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
 
   private val defaultViewsId = encodeUriPath("https://bluebrain.github.io/nexus/vocabulary/defaultElasticSearchIndex")
 
-  "Getting default indexing statistics" should {
+  "Getting main indexing statistics" should {
 
     "get an error if the user has no access" in {
       deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/statistics", Alice) { expectForbidden }
@@ -50,12 +50,12 @@ class MainIndexSpec extends BaseIntegrationSpec {
     "get the statistics if the user has access" in eventually {
       deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/statistics", Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        expectStats(json)(2, 2, 2, 0, 0)
+        expectStats(json)(2, 2, 2, 0, 0, 0)
       }
     }
   }
 
-  "Getting default offset" should {
+  "Getting main offset" should {
 
     "get an error if the user has no access" in {
       deltaClient.get[Json](s"/views/$ref11/$defaultViewsId/offset", Alice) { expectForbidden }
@@ -80,7 +80,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
     }
   }
 
-  "Deleting default offset" should {
+  "Deleting main offset" should {
 
     "get an error if the user has no access" in {
       deltaClient.delete[Json](s"/views/$ref11/$defaultViewsId/offset", Alice) { expectForbidden }
@@ -96,7 +96,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
     }
   }
 
-  "Searching on the default" should {
+  "Searching on the main index" should {
 
     val matchAll = json"""{"query": { "match_all": {} } }"""
 
@@ -107,6 +107,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
     s"get a response with only resources from project '$ref11'" in eventually {
       deltaClient.post[Json](s"/views/$ref11/$defaultViewsId/_search", matchAll, Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
+        println(json)
         hitProjects.getAll(json) should contain only ref11
       }
     }

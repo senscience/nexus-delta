@@ -19,8 +19,14 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 trait ConfiguredIndexQuery {
 
+  /**
+    * Search on the configured indices the given query
+    */
   def search(project: ProjectRef, target: Target, query: JsonObject, qp: Query): IO[Json]
 
+  /**
+    * Refresh the configured indices Note that the refresh is only possible at the rate defined in the configuration
+    */
   def refresh: IO[Unit]
 
 }

@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "@type": { "type": "keyword" },
+    "@id": { "type": "keyword" },
+    "about": { "type": "keyword" },
+    "datePublished" : { "type": "date" },
+    "_project" : { "type": "keyword" }
+  }
+}

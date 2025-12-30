@@ -12,8 +12,8 @@ object StatisticsAssertions extends Matchers with CatsIOValues {
 
   private val loader = ClasspathResourceLoader()
 
-  def expectStats(json: Json)(total: Int, processed: Int, evaluated: Int, discarded: Int, remaining: Int)(implicit
-      position: Position
+  def expectStats(json: Json)(total: Int, processed: Int, evaluated: Int, discarded: Int, failed: Int, remaining: Int)(
+      using Position
   ): Assertion = {
     val expected = loader
       .jsonContentOf(
@@ -22,6 +22,7 @@ object StatisticsAssertions extends Matchers with CatsIOValues {
         "processed"  -> processed,
         "evaluated"  -> evaluated,
         "discarded"  -> discarded,
+        "failed"     -> failed,
         "remaining"  -> remaining,
         "has_events" -> (total != 0)
       )
@@ -29,7 +30,7 @@ object StatisticsAssertions extends Matchers with CatsIOValues {
     filterNestedKeys("lastEventDateTime", "lastProcessedEventDateTime")(json) shouldEqual expected
   }
 
-  def expectEmptyStats(json: Json)(implicit position: Position): Assertion =
-    expectStats(json)(0, 0, 0, 0, 0)
+  def expectEmptyStats(json: Json)(using Position): Assertion =
+    expectStats(json)(0, 0, 0, 0, 0, 0)
 
 }

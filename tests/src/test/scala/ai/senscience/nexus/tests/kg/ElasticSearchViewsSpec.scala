@@ -294,7 +294,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     "fetch statistics for cell-view" in eventually {
       deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        expectStats(json)(5, 5, 5, 0, 0)
+        expectStats(json)(5, 5, 5, 0, 0, 0)
       }
     }
 
@@ -332,7 +332,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
       deltaClient.get[Json](s"/views/$project1/test-resource:cell-view-tagged/statistics", ScoobyDoo) {
         (json, response) =>
           response.status shouldEqual StatusCodes.OK
-          expectStats(json)(5, 5, 5, 0, 0)
+          expectStats(json)(5, 5, 5, 0, 0, 0)
       }
     }
 
