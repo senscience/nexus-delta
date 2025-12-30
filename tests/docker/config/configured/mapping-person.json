@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "@type": { "type": "keyword" },
+    "@id": { "type": "keyword" },
+    "name": { "type": "keyword" },
+    "age" : { "type": "integer" },
+    "_project" : { "type": "keyword" }
+  }
+}

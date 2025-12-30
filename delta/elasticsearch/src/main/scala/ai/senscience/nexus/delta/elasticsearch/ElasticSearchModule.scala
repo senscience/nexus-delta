@@ -477,8 +477,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     (
         es: ElasticSearchViewsRoutes,
         query: ListingRoutes,
-        defaultIndex: MainIndexRoutes,
         indexing: ElasticSearchIndexingRoutes,
+        defaultIndex: MainIndexRoutes,
+        configuredIndex: ConfiguredIndexRoutes,
         idResolutionRoute: IdResolutionRoutes,
         historyRoutes: ElasticSearchHistoryRoutes,
         schemeDirectives: DeltaSchemeDirectives,
@@ -490,8 +491,9 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
           schemeDirectives,
           es.routes,
           query.routes,
-          defaultIndex.routes,
           indexing.routes,
+          defaultIndex.routes,
+          configuredIndex.routes,
           idResolutionRoute.routes,
           historyRoutes.routes
         )(baseUri),

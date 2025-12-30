@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "@type": { "type": "keyword" },
+    "@id": { "type": "keyword" },
+    "roleName": { "type": "keyword" },
+    "startDate" : { "type": "date" },
+    "_project" : { "type": "keyword" }
+  }
+}

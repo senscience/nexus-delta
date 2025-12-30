@@ -195,7 +195,7 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "fetch statistics for defaultSparqlIndex" in eventually {
       deltaClient.get[Json](s"/views/$project1/nxv:defaultSparqlIndex/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        expectStats(json)(6, 6, 6, 0, 0)
+        expectStats(json)(6, 6, 6, 0, 0, 0)
       }
     }
 
@@ -223,7 +223,7 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "fetch updated statistics for cell-view" in eventually {
       deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/statistics", ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        expectStats(json)(5, 5, 5, 0, 0)
+        expectStats(json)(5, 5, 5, 0, 0, 0)
       }
     }
 

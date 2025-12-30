@@ -61,7 +61,7 @@ final class ConfiguredIndexRoutes(
                     }
                   },
                   // Fetch configured indexing failures
-                  routeSpan("views/<str:org>/<str:project>/documents/failures") {
+                  routeSpan("index/configured/<str:org>/<str:project>/_/failures") {
                     (pathPrefix("failures") & get & authorizeWrite) {
                       projectionDirectives.indexingErrors(project, configuredIndexingId)
                     }
