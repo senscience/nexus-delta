@@ -210,7 +210,7 @@ class ResourcesImplSpec
           source.addContext(contexts.metadata).addContext(myId).addContext(myId2).deepMerge(json"""{"@id": "$myId8"}""")
         val schemaRev    = Revision(resourceSchema.iri, 1)
         val expectedData =
-          ResourceGen.resource(myId8, projectRef, sourceMyId8, schemaRev)(
+          ResourceGen.resource(myId8, projectRef, sourceMyId8, schemaRev)(using
             resolverContextResolution(projectRef)
           )
         val resource     = resources.create(projectRef, resourceSchema, sourceMyId8, None).accepted
@@ -221,7 +221,7 @@ class ResourcesImplSpec
         val sourceMyId9  = source.addContext(contexts.metadata).addContext(myId8).deepMerge(json"""{"@id": "$myId9"}""")
         val schemaRev    = Revision(resourceSchema.iri, 1)
         val expectedData =
-          ResourceGen.resource(myId9, projectRef, sourceMyId9, schemaRev)(
+          ResourceGen.resource(myId9, projectRef, sourceMyId9, schemaRev)(using
             resolverContextResolution(projectRef)
           )
         val resource     = resources.create(projectRef, resourceSchema, sourceMyId9, None).accepted

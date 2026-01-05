@@ -2,17 +2,16 @@ package ai.senscience.nexus.delta.plugins.blazegraph
 
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.CurrentActiveViews
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.{Graph, NTriples}
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sdk.GraphResourceEncoder
+import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.indexing.sync.SyncIndexingOutcome
-import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.views.ViewRef
-import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.*
@@ -20,12 +19,10 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import io.circe.Json
 
-import java.time.Instant
 import scala.concurrent.duration.*
 
 class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
 
-  private val instant     = Instant.EPOCH
   private val indexingRev = 1
   private val currentRev  = 1
 
@@ -58,19 +55,7 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
   private val entityType = EntityType("test")
 
   private val id  = nxv + "id1"
-  private val res = ResourceF[Unit](
-    id = id,
-    access = ResourceAccess.resource(project, id),
-    rev = 1,
-    types = Set(nxv + "Test"),
-    deprecated = false,
-    createdAt = instant,
-    createdBy = Anonymous,
-    updatedAt = instant,
-    updatedBy = Anonymous,
-    schema = ResourceRef(Vocabulary.schemas.resources),
-    value = ()
-  )
+  private val res = ResourceGen.resourceFUnit(id, project, Set(nxv + "Test"))
 
   private val exception = new IllegalStateException("Boom")
 

@@ -203,6 +203,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         configuredConfig: ConfiguredIndexingConfig,
         config: ElasticSearchViewsConfig,
+        baseUri: BaseUri,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       ConfiguredIndexingProjectionFactory(
@@ -211,7 +212,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         configuredConfig,
         config.batch,
         config.indexingEnabled
-      )(using tracer).toSet
+      )(using baseUri, tracer).toSet
   }
 
   make[EventMetricsProjection].fromEffect {

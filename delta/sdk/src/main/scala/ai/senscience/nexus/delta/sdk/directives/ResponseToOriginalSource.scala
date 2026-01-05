@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.{childSpan, extra
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.jsonSourceCodec
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
@@ -29,13 +30,13 @@ object ResponseToOriginalSource extends RdfMarshalling {
 
   private given JsonValueCodec[Json] = jsonSourceCodec
 
-  implicit private def originalSourceMarshaller(using JsonKeyOrdering): ToEntityMarshaller[OriginalSource] = {
+  implicit private def originalSourceMarshaller(using BaseUri, JsonKeyOrdering): ToEntityMarshaller[OriginalSource] = {
     jsonMarshaller.compose(_.asJson)
   }
 
   private[directives] def apply(
       io: IO[Complete[OriginalSource]]
-  )(using JsonKeyOrdering, Tracer[IO]): ResponseToOriginalSource =
+  )(using BaseUri, JsonKeyOrdering, Tracer[IO]): ResponseToOriginalSource =
     () => {
       def ioRoute(spanContext: Option[SpanContext]) =
         childSpan(spanContext, "emitOriginalSource") {
@@ -55,6 +56,6 @@ object ResponseToOriginalSource extends RdfMarshalling {
 
   implicit def ioResponseOriginalPayloadValue(
       io: IO[OriginalSource]
-  )(using JsonKeyOrdering, Tracer[IO]): ResponseToOriginalSource =
+  )(using BaseUri, JsonKeyOrdering, Tracer[IO]): ResponseToOriginalSource =
     ResponseToOriginalSource(io.map(Complete(_)))
 }

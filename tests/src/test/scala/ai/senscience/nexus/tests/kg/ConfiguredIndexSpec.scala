@@ -80,7 +80,7 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
       List(ref11, ref12).traverse { ref =>
         deltaClient.get[Json](s"/index/configured/$ref/_/statistics", Bob) { (json, response) =>
           response.status shouldEqual StatusCodes.OK
-          expectStats(json)(4, 4, 3, 0, 1, 0)
+          expectStats(json)(4, 4, 2, 1, 1, 0)
         }
       }
     }
