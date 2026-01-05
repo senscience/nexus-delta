@@ -174,6 +174,53 @@ The most important flags are:
 
 Please refer to the @link[Elasticsearch configuration](https://www.elastic.co/docs/deploy-manage/security) which describes the different steps to achieve this.
 
+## Configured indexing
+
+While main indexing provides a generic way to index all resources, it focuses on the common denominator which is Nexus metadata
+and full-text search in order to power the listing endpoints (and those are then used by tools like Fusion).
+
+Custom elasticsearch views can be a solution but they need to be created for every project and if there are many of them,
+they will consume a lot of shards in Elasticsearch which can only provided a limited amount.
+
+When there is a large amount of projects with common resource types, configured indexing is a better solution:
+* The indexing is configured by resource type we want to be indexed
+* Custom fields can be indexed via Elasticsearch mappings/settings provided at runtime
+* The consumption of shards is low as they depend on the number of resource types to index and not on the number of projects.
+
+An example of configuration can be:
+
+```hocon
+app {
+   elasticsearch {
+     configured-indexing {
+       # Disabled by default
+       enabled = true
+       values = [
+         {
+           # Indexing person type
+           index = "person"
+           mapping = /config/configured/mapping-person.json
+           # Settings is optional
+           settings = /config/configured/settings-person.json
+           types = ["https://schema.org/Person"]
+         },
+         {
+           # Indexing creative work type
+           index = "creative-work"
+           mapping = /config/configured/mapping-creative-work.json
+           types = ["https://schema.org/CreativeWork"]
+         },
+         {
+           # Indexing role type
+           index = "role"
+           mapping = /config/configured/mapping-role.json
+           types = ["https://schema.org/Role"]
+         }
+       ]
+     }
+   }  
+}
+```
 
 ## Fusion configuration
 
