@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.sdk.generators
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
@@ -8,6 +9,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.jsonld.{JsonLdAssembly, JsonLdContent}
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
+import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceState}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
@@ -22,8 +24,7 @@ import scala.concurrent.duration.DurationInt
 
 object ResourceGen {
 
-  // We put a lenient api for schemas otherwise the api checks data types before the actual schema validation process
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  private given JsonLdApi = TitaniumJsonLdApi.strict
 
   def currentState(
       project: ProjectRef,
@@ -33,7 +34,7 @@ object ResourceGen {
       rev: Int = 1,
       deprecated: Boolean = false,
       subject: Subject = Anonymous
-  )                                                         =
+  )                                          =
     ResourceState(
       jsonld.id,
       project,
@@ -58,7 +59,7 @@ object ResourceGen {
       source: Json,
       schema: ResourceRef = Latest(schemas.resources),
       tags: Tags = Tags.empty
-  )(implicit resolution: RemoteContextResolution): Resource = {
+  )(using RemoteContextResolution): Resource = {
     val expanded  = ExpandedJsonLd(source).accepted.replaceId(id)
     val compacted = expanded.toCompacted(source.topContextValueOrEmpty).accepted
     Resource(id, project, tags, schema, source, compacted, expanded)
@@ -73,7 +74,7 @@ object ResourceGen {
       rev: Int = 1,
       subject: Subject = Anonymous,
       deprecated: Boolean = false
-  )(implicit resolution: RemoteContextResolution): DataResource = {
+  )(using RemoteContextResolution): DataResource = {
     val result         = ExpandedJsonLd.explain(source).accepted
     val expanded       = result.value.replaceId(id)
     val compacted      = expanded.toCompacted(source.topContextValueOrEmpty).accepted
@@ -125,9 +126,24 @@ object ResourceGen {
       subject
     ).toResource
 
-  def jsonLdContent(id: Iri, project: ProjectRef, source: Json)(implicit
-      resolution: RemoteContextResolution
-  ) = {
+  def resourceFUnit(id: Iri, project: ProjectRef, types: Set[Iri]): ResourceF[Unit] =
+    ResourceF[Unit](
+      id = id,
+      access = ResourceAccess.resource(project, id),
+      rev = 1,
+      types = types,
+      deprecated = false,
+      createdAt = Instant.EPOCH,
+      createdBy = Anonymous,
+      updatedAt = Instant.EPOCH,
+      updatedBy = Anonymous,
+      schema = ResourceRef(Vocabulary.schemas.resources),
+      value = ()
+    )
+
+  def jsonLdContent(id: Iri, project: ProjectRef, source: Json)(using
+      RemoteContextResolution
+  ): JsonLdContent[Resource] = {
     val resourceF = sourceToResourceF(id, project, source)
     JsonLdContent(resourceF, resourceF.value.source, Tags.empty)
   }

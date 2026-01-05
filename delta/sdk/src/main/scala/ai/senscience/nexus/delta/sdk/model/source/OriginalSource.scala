@@ -39,29 +39,27 @@ object OriginalSource {
     * Annotated original source
     *   - Injects alongside the original source, the metadata context (ex: audit values, @id, ...)
     */
-  final case class Annotated(resourceF: ResourceF[Unit], source: Json)(using val baseUri: BaseUri)
-      extends OriginalSource
+  final case class Annotated(resourceF: ResourceF[Unit], source: Json) extends OriginalSource
 
   object Annotated {
-    given Encoder[Annotated] =
+    given (using BaseUri): Encoder[Annotated] =
       Encoder.instance { value =>
-        given BaseUri             = value.baseUri
         val sourceWithoutMetadata = value.source.removeMetadataKeys()
         val metadataJson          = value.resourceF.asJson
         metadataJson.deepMerge(sourceWithoutMetadata).addContext(contexts.metadata)
       }
   }
 
-  def apply[A](resourceF: ResourceF[A], source: Json, annotated: Boolean)(using BaseUri): OriginalSource =
+  def apply[A](resourceF: ResourceF[A], source: Json, annotated: Boolean): OriginalSource =
     if annotated then Annotated(resourceF.void, source)
     else apply(resourceF, source)
 
   def apply[A](resourceF: ResourceF[A], source: Json): OriginalSource = Standard(resourceF.void, source)
 
-  def annotated[A](resourceF: ResourceF[A], source: Json)(using BaseUri): OriginalSource =
+  def annotated[A](resourceF: ResourceF[A], source: Json): OriginalSource =
     apply(resourceF, source, annotated = true)
 
-  given Encoder[OriginalSource] =
+  given (using BaseUri): Encoder[OriginalSource] =
     Encoder.instance {
       case standard: Standard =>
         standard.source
