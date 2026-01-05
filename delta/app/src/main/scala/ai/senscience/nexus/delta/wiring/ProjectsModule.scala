@@ -167,8 +167,6 @@ object ProjectsModule extends NexusModuleDef {
 
   many[SseEncoder[?]].add { (base: BaseUri) => ProjectEvent.sseEncoder(base) }
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/projects-metadata.json"))
-
   many[PriorityRoute].add { (route: ProjectsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 7, route.routes, requiresStrictEntity = true)
   }

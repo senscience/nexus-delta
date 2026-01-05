@@ -252,8 +252,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   many[ViewsList].add { (views: BlazegraphViews) => ViewsList(views.list) }
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/sparql-metadata.json"))
-
   many[SseEncoder[?]].add { (base: BaseUri) => BlazegraphViewEvent.sseEncoder(base) }
 
   many[ApiMappings].add(BlazegraphViews.mappings)

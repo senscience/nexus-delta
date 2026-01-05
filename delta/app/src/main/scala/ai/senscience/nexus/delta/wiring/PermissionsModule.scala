@@ -8,9 +8,8 @@ import ai.senscience.nexus.delta.routes.PermissionsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
-import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, PermissionsImpl}
-import ai.senscience.nexus.delta.sdk.permissions.contexts
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, PermissionsImpl, contexts}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}
@@ -47,8 +46,6 @@ object PermissionsModule extends NexusModuleDef {
         tracer: Tracer[IO] @Id("permissions")
     ) => new PermissionsRoutes(identities, permissions, aclCheck)(using baseUri)(using cr, ordering, tracer)
   }
-
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/permissions-metadata.json"))
 
   many[PriorityRoute].add { (route: PermissionsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 3, route.routes, requiresStrictEntity = true)

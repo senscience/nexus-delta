@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -79,8 +79,6 @@ object ArchivePluginModule extends NexusModuleDef {
   many[PriorityRoute].add { (cfg: ArchivePluginConfig, routes: ArchiveRoutes) =>
     PriorityRoute(cfg.priority, routes.routes, requiresStrictEntity = true)
   }
-
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/archives-metadata.json"))
 
   many[ApiMappings].add(Archives.mappings)
 

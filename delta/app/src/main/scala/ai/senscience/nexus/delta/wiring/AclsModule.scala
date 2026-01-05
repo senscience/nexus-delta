@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.FlattenedAclStore
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig}
 import ai.senscience.nexus.delta.sdk.projects.OwnerPermissionsScopeInitialization
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -34,7 +34,7 @@ object AclsModule extends NexusModuleDef {
   makeTracer("acls")
 
   addRemoteContextResolution(contexts.definition)
-
+  
   make[FlattenedAclStore].from { (xas: Transactors) => new FlattenedAclStore(xas) }
 
   make[Acls].fromEffect {
@@ -95,9 +95,7 @@ object AclsModule extends NexusModuleDef {
   }
 
   many[ProjectDeletionTask].add { (acls: Acls) => Acls.projectDeletionTask(acls) }
-
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/acls-metadata.json"))
-
+  
   make[UserPermissionsRoutes].from { (identities: Identities, aclCheck: AclCheck, baseUri: BaseUri) =>
     new UserPermissionsRoutes(identities, aclCheck)(using baseUri)
   }
