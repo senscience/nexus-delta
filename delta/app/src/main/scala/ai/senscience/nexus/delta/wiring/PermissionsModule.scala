@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.permissions.{Permissions, PermissionsConfig, PermissionsImpl, contexts}
+import ai.senscience.nexus.delta.sdk.permissions.{contexts, Permissions, PermissionsConfig, PermissionsImpl}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.{Clock, IO}

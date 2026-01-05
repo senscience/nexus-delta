@@ -34,7 +34,7 @@ object AclsModule extends NexusModuleDef {
   makeTracer("acls")
 
   addRemoteContextResolution(contexts.definition)
-  
+
   make[FlattenedAclStore].from { (xas: Transactors) => new FlattenedAclStore(xas) }
 
   make[Acls].fromEffect {
@@ -95,7 +95,7 @@ object AclsModule extends NexusModuleDef {
   }
 
   many[ProjectDeletionTask].add { (acls: Acls) => Acls.projectDeletionTask(acls) }
-  
+
   make[UserPermissionsRoutes].from { (identities: Identities, aclCheck: AclCheck, baseUri: BaseUri) =>
     new UserPermissionsRoutes(identities, aclCheck)(using baseUri)
   }
