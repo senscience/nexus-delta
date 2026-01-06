@@ -2,6 +2,8 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexDocument
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
@@ -24,9 +26,10 @@ final class AnnotatedSourceToConfiguredDocument(configuredTypes: Set[Iri])(using
   override def apply(element: SuccessElem[OriginalSource.Annotated]): IO[Elem[ConfiguredIndexDocument]] =
     element.evalMapFilter { annotated =>
       IO.pure(
-        Option.when(annotated.resourceF.types.exists(configuredTypes.contains))(
-          ConfiguredIndexDocument(annotated.resourceF.types, annotated.asJson)
-        )
+        Option.when(annotated.resourceF.types.exists(configuredTypes.contains)) {
+          val json = annotated.asJson.removeAllKeys(keywords.context)
+          ConfiguredIndexDocument(annotated.resourceF.types, json)
+        }
       )
     }
 }

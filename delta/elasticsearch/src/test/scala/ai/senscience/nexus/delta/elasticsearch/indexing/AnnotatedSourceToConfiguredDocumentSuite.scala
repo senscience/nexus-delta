@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
+import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexDocument
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -35,17 +36,30 @@ class AnnotatedSourceToConfiguredDocumentSuite extends NexusSuite {
       Offset.start,
       OriginalSource.Annotated(
         ResourceGen.resourceFUnit(id, project, types),
-        json"""{ "source": "xxx" }"""
+        json"""{ "@context" : "https://senscience.ai/nexus/contexts/metadata.json", "source": "xxx" }"""
       ),
       rev
     )
 
   test("Transform the annotated source in the expected document") {
-    val input = originalAnnotated(Set(roleType))
-    annotatedSourceToConfiguredDocument(input).assert(
-      _.toOption.isDefined,
-      "A document should be created"
-    )
+    val input    = originalAnnotated(Set(roleType))
+    val json     =
+      json"""{
+            "source": "xxx",
+            "@id": "https://senscience.ai/test/id",
+            "@type": "https://schema.org/Role",
+            "_project": "senscience/my-project",
+            "_rev": 1,
+            "_deprecated": false,
+            "_createdAt": "1970-01-01T00:00:00Z",
+            "_createdBy": "http://localhost/v1/anonymous",
+            "_updatedAt": "1970-01-01T00:00:00Z",
+            "_updatedBy": "http://localhost/v1/anonymous",
+            "_self": "http://localhost/v1/resources/senscience/my-project/_/https:%2F%2Fsenscience.ai%2Ftest%2Fid",
+            "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/unconstrained.json"
+      }"""
+    val expected = ConfiguredIndexDocument(Set(roleType), json)
+    annotatedSourceToConfiguredDocument(input).map(_.toOption).assertEquals(Some(expected))
   }
 
   test("Filter out non-configured types") {
