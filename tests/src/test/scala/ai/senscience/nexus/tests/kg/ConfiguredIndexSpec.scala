@@ -108,7 +108,7 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
       }
     }
 
-    "get no failure" in eventually {
+    "get a failure" in eventually {
       deltaClient.get[Json](s"/index/configured/$ref11/_/failures", Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         _total.getOption(json).value shouldEqual 1L
