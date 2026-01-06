@@ -116,8 +116,6 @@ object ResolversModule extends NexusModuleDef {
 
   many[ApiMappings].add(Resolvers.mappings)
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/resolvers-metadata.json"))
-
   many[PriorityRoute].add { (route: ResolversRoutes) =>
     PriorityRoute(pluginsMaxPriority + 9, route.routes, requiresStrictEntity = true)
   }

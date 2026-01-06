@@ -8,9 +8,8 @@ import ai.senscience.nexus.delta.routes.OrganizationsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
-import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations, OrganizationsConfig, OrganizationsImpl}
-import ai.senscience.nexus.delta.sdk.organizations.contexts
+import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.organizations.*
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -74,8 +73,6 @@ object OrganizationsModule extends NexusModuleDef {
         tracer
       )
   }
-
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/organizations-metadata.json"))
 
   many[PriorityRoute].add { (route: OrganizationsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 6, route.routes, requiresStrictEntity = true)

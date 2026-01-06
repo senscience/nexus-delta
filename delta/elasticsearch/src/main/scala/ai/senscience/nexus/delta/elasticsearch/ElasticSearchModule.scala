@@ -441,8 +441,6 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ViewsList(views.list)
   }
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/elasticsearch-metadata.json"))
-
   make[MetadataContextValue]
     .named("search-metadata")
     .from((agg: Set[MetadataContextValue]) => agg.foldLeft(MetadataContextValue.empty)(_.merge(_)))

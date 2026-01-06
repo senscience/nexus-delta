@@ -227,8 +227,6 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   many[ViewsList].add { (views: CompositeViews) => ViewsList(views.list) }
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/composite-views-metadata.json"))
-
   make[BlazegraphQuery].from {
     (
         aclCheck: AclCheck,

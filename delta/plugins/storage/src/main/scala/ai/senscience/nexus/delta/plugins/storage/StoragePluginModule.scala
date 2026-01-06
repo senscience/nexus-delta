@@ -285,8 +285,6 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   many[ProjectDeletionTask].add { (storages: Storages) => StorageDeletionTask(storages) }
 
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/storages-metadata.json"))
-
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/files.json"))
 
   many[ResourceToSchemaMappings].add(

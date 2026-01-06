@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, MetadataContextValue}
+import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.realms.*
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -63,8 +63,6 @@ object RealmsModule extends NexusModuleDef {
   }
 
   make[Client[IO]].named("realm").fromResource(EmberClientBuilder.default[IO].build)
-
-  many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/realms-metadata.json"))
 
   many[PriorityRoute].add { (route: RealmsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 4, route.routes, requiresStrictEntity = true)
