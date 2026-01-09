@@ -75,7 +75,7 @@ sealed trait ContextValue {
     */
   def visit(
       iri: PartialFunction[ContextRemoteIri, ContextRemoteIri] = iri => iri,
-      obj: PartialFunction[ContextObject, ContextObject] = iri => iri
+      obj: PartialFunction[ContextObject, ContextObject] = obj => obj
   ): ContextValue
 }
 

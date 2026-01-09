@@ -78,17 +78,8 @@ object CompositeViewsConfig {
     * Remote source client configuration
     * @param retryDelay
     *   SSE client retry delay
-    * @param maxBatchSize
-    *   the maximum batching size, corresponding to the maximum number of documents uploaded on a bulk request. In this
-    *   window, duplicated persistence ids are discarded
-    * @param maxTimeWindow
-    *   the maximum batching duration. In this window, duplicated persistence ids are discarded
     */
-  final case class RemoteSourceClientConfig(
-      retryDelay: FiniteDuration,
-      maxBatchSize: Int,
-      maxTimeWindow: FiniteDuration
-  )
+  final case class RemoteSourceClientConfig(retryDelay: FiniteDuration)
 
   object SinkConfig {
 

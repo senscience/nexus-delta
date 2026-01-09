@@ -29,6 +29,6 @@ object MetadataContextValue {
   /**
     * Loads a [[MetadataContextValue]] form the passed ''resourcePath''
     */
-  final def fromFile(resourcePath: String)(implicit loader: ClasspathResourceLoader): IO[MetadataContextValue] =
+  final def fromFile(resourcePath: String)(using ClasspathResourceLoader): IO[MetadataContextValue] =
     ContextValue.fromFile(resourcePath).map(MetadataContextValue.apply)
 }

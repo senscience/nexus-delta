@@ -14,12 +14,11 @@ import org.apache.jena.rdf.model.Resource
 
 class ValidationReportSpec extends CatsEffectSpec {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given JsonLdApi = TitaniumJsonLdApi.strict
 
   private val shaclResolvedCtx = jsonContentOf("contexts/shacl.json").topContextValueOrEmpty
 
-  implicit private val rcr: RemoteContextResolution =
-    RemoteContextResolution.fixed(contexts.shacl -> shaclResolvedCtx)
+  private given RemoteContextResolution = RemoteContextResolution.fixed(contexts.shacl -> shaclResolvedCtx)
 
   private def resource(json: Json): Resource = {
     val g = Graph(ExpandedJsonLd(json).accepted).accepted.value
