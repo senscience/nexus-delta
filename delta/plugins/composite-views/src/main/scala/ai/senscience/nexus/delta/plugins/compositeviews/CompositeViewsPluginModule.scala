@@ -12,9 +12,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIn
 import ai.senscience.nexus.delta.plugins.compositeviews.routes.{CompositeSupervisionRoutes, CompositeViewsIndexingRoutes, CompositeViewsRoutes, CompositeViewsRoutesHandler}
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphStream, RemoteGraphStream}
-import ai.senscience.nexus.delta.rdf.Triple
-import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
-import ai.senscience.nexus.delta.rdf.jsonld.context.{JsonLdContext, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -164,27 +162,13 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
       )(using baseUri, cr, tracer)
   }
 
-  make[MetadataPredicates].fromEffect {
-    (
-        listingsMetadataCtx: MetadataContextValue @Id("search-metadata"),
-        cr: RemoteContextResolution @Id("aggregate")
-    ) =>
-      JsonLdContext(listingsMetadataCtx.value)(cr, JsonLdOptions.defaults)
-        .map(_.aliasesInv.keySet.map(Triple.predicate))
-        .map(MetadataPredicates(_))
+  make[MetadataPredicates].fromEffect { (searchMetadata: MetadataContextValue @Id("search-metadata")) =>
+    MetadataPredicates(searchMetadata)
   }
 
-  make[RemoteGraphStream].from {
-    (
-        deltaClient: DeltaClient,
-        config: CompositeViewsConfig,
-        metadataPredicates: MetadataPredicates
-    ) =>
-      new RemoteGraphStream(deltaClient, config.remoteSourceClient, metadataPredicates)
-  }
-
-  make[CompositeGraphStream].from { (local: GraphResourceStream, remote: RemoteGraphStream) =>
-    CompositeGraphStream(local, remote)
+  make[CompositeGraphStream].from {
+    (local: GraphResourceStream, deltaClient: DeltaClient, metadataPredicates: MetadataPredicates) =>
+      CompositeGraphStream(local, new RemoteGraphStream(deltaClient, metadataPredicates))
   }
 
   many[CompositeProjectionLifeCycle.Hook].addValue(CompositeProjectionLifeCycle.NoopHook)

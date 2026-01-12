@@ -21,7 +21,7 @@ import scala.concurrent.duration.*
 
 class JsonLdDecoderSpec extends CatsEffectSpec with Fixtures {
 
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.fixed()
+  private given RemoteContextResolution = RemoteContextResolution.never
 
   "A JsonLdDecoder" should {
 

@@ -218,9 +218,7 @@ object JsonLdContext {
   /**
     * Construct a [[JsonLdContext]] from the passed ''context'' value using the JsonLd api
     */
-  def apply(
-      contextValue: ContextValue
-  )(implicit resolution: RemoteContextResolution, opts: JsonLdOptions): IO[JsonLdContext] =
+  def apply(contextValue: ContextValue)(using RemoteContextResolution, JsonLdOptions): IO[JsonLdContext] =
     TitaniumJsonLdApi.strict.context(contextValue)
 
   /**

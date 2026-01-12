@@ -14,13 +14,7 @@ trait Fixtures extends RemoteContextResolutionFixtures {
 
   private val listingsMetadataCtx =
     List(
-      "contexts/acls-metadata.json",
-      "contexts/realms-metadata.json",
-      "contexts/organizations-metadata.json",
-      "contexts/projects-metadata.json",
-      "contexts/resolvers-metadata.json",
       "contexts/schemas-metadata.json",
-      "contexts/elasticsearch-metadata.json",
       "contexts/metadata.json"
     ).foldLeftM(ContextValue.empty) { case (acc, file) =>
       ContextValue.fromFile(file).map(acc.merge)

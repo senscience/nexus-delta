@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient
-import ai.senscience.nexus.delta.plugins.compositeviews.config.CompositeViewsConfig.RemoteSourceClientConfig
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.MetadataPredicates
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.RemoteGraphStream.fromNQuads
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.RdfError.MissingPredicate
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.{Graph, NQuads}
@@ -15,14 +15,9 @@ import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream, RemainingElems, Source}
 import cats.effect.IO
 import cats.syntax.all.*
-import fs2.Stream
 import io.circe.Json
 
-final class RemoteGraphStream(
-    deltaClient: DeltaClient,
-    config: RemoteSourceClientConfig,
-    metadataPredicates: MetadataPredicates
-) {
+final class RemoteGraphStream(deltaClient: DeltaClient, metadataPredicates: MetadataPredicates) {
 
   /**
     * Get a continuous stream of element as a [[Source]] for the main branch
@@ -43,13 +38,7 @@ final class RemoteGraphStream(
   private def stream(remote: RemoteProjectSource, run: CompositeBranch.Run): Offset => ElemStream[GraphResource] =
     deltaClient
       .elems(remote, run, _)
-      .groupWithin(config.maxBatchSize, config.maxTimeWindow)
-      .evalMap { chunk =>
-        chunk.traverse { elem =>
-          populateElem(remote, elem)
-        }
-      }
-      .flatMap(Stream.chunk)
+      .evalMap(populateElem(remote, _))
 
   private def populateElem(remote: RemoteProjectSource, elem: Elem[Unit]): IO[Elem[GraphResource]] =
     elem.evalMapFilter { _ =>
@@ -70,6 +59,9 @@ final class RemoteGraphStream(
 
 object RemoteGraphStream {
 
+  private def findObject(metaGraph: Graph, subject: Iri, predicate: Iri) =
+    Either.fromOption(metaGraph.find(subject, predicate), MissingPredicate(predicate))
+
   /**
     * Injects the elem value from the n-quads
     */
@@ -83,15 +75,10 @@ object RemoteGraphStream {
       graph                  <- Graph(nQuads)
       (metaGraph, valueGraph) = graph.partition { case (_, p, _) => metadataPredicates.values.contains(p) }
       types                   = graph.rootTypes
-      schema                 <- metaGraph
-                                  .find(elem.id, nxv.constrainedBy.iri)
+      schema                 <- findObject(metaGraph, elem.id, nxv.constrainedBy.iri)
                                   .map(triple => ResourceRef(iri"${triple.getURI}"))
-                                  .toRight(MissingPredicate(nxv.constrainedBy.iri))
-      deprecated             <- metaGraph
-                                  .find(elem.id, nxv.deprecated.iri)
+      deprecated             <- findObject(metaGraph, elem.id, nxv.deprecated.iri)
                                   .map(_.getLiteralLexicalForm.toBoolean)
-                                  .toRight(MissingPredicate(nxv.deprecated.iri))
-
     } yield GraphResource(
       elem.tpe,
       project,
