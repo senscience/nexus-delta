@@ -67,4 +67,5 @@ The development of this software was supported by funding to the Blue Brain Proj
 Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
 
 Copyright © 2015-2024 Blue Brain Project/EPFL
-Copyright © 2025 Senscience
+
+Copyright © 2025-2026 Senscience
