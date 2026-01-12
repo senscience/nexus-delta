@@ -14,13 +14,13 @@
       "sh:resultPath": {
         "@id": "sh:nodeKind"
       },
-      "resultMessage": "Not a value from the sh:in enumeration",
+      "resultMessage": "InConstraint[http://www.w3.org/ns/shacl#BlankNode, http://www.w3.org/ns/shacl#IRI, http://www.w3.org/ns/shacl#Literal, http://www.w3.org/ns/shacl#BlankNodeOrIRI, http://www.w3.org/ns/shacl#BlankNodeOrLiteral, http://www.w3.org/ns/shacl#IRIOrLiteral] : RDF term 42 not in expected values",
       "resultSeverity": "sh:Violation",
       "sourceConstraintComponent": "sh:InConstraintComponent",
       "sourceShape": {
       },
       "sh:value": 42
     },
-    "targetedNodes": 412
+    "targetedNodes": 7
   }
 }

@@ -23,12 +23,12 @@ object ValidateSchema {
 
   def apply(validateShacl: ValidateShacl)(using Tracer[IO]): ValidateSchema =
     new ValidateSchema {
-      implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+      private given JsonLdApi = TitaniumJsonLdApi.strict
 
       override def apply(id: Iri, expanded: NonEmptyList[ExpandedJsonLd]): IO[ValidationReport] = {
         for {
           graph  <- toGraph(id, expanded)
-          report <- validateShacl(graph, reportDetails = true)
+          report <- validateShacl(graph)
         } yield report
       }.surround("validateShacl")
 

@@ -7,7 +7,7 @@
     "focusNode" : {
 
     },
-    "resultMessage" : "Value must be a valid literal of type integer",
+    "resultMessage" : "DatatypeConstraint[xsd:integer]: Expected xsd:integer : Actual xsd:string : Node \"Other\"",
     "sh:resultPath" : {
       "@id" : "nxv:number"
     },
@@ -18,5 +18,5 @@
     },
     "sh:value" : "Other"
   },
-  "targetedNodes" : 10
+  "targetedNodes" : 1
 }

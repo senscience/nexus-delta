@@ -83,7 +83,7 @@ object ValidateResource {
         for {
           ontologies <- schema.value.ontologies
           shapes     <- schema.value.shapes
-          report     <- validateShacl(jsonld.graph ++ ontologies, shapes, reportDetails = true)
+          report     <- validateShacl(jsonld.graph ++ ontologies, shapes)
         } yield report
       }.adaptError { e =>
         ResourceShaclEngineRejection(jsonld.id, schemaRef, e)

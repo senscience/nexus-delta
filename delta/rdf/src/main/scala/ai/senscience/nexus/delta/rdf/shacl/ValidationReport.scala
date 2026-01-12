@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.rdf.shacl
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.Triple.predicate
-import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, sh}
+import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxsh, sh}
 import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -10,17 +10,11 @@ import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import cats.effect.IO
 import io.circe.{Encoder, Json}
 import org.apache.jena.query.DatasetFactory
-import org.apache.jena.rdf.model.Resource
+import org.apache.jena.rdf.model.ResourceFactory
+import org.apache.jena.shacl.engine.ValidationContext
 
 /**
   * Data type that represents the outcome of validating data against a shacl schema.
-  *
-  * @param conforms
-  *   true if the validation was successful and false otherwise
-  * @param targetedNodes
-  *   the number of target nodes that were touched per shape
-  * @param json
-  *   the detailed message of the validator
   */
 final case class ValidationReport private (conforms: Boolean, targetedNodes: Int, json: Json) {
 
@@ -33,10 +27,14 @@ object ValidationReport {
 
   private val shaclCtx: ContextValue = ContextValue(contexts.shacl)
 
-  final def apply(report: Resource)(implicit rcr: RemoteContextResolution): IO[ValidationReport] = {
-    implicit val api: JsonLdApi = TitaniumJsonLdApi.lenient
-    val tmpGraph                = Graph.unsafe(DatasetFactory.create(report.getModel).asDatasetGraph())
+  private val targetNodeProperty = ResourceFactory.createProperty(nxsh.targetedNodes.toString)
+
+  final def apply(targetedNodes: Int, vCtx: ValidationContext)(using RemoteContextResolution): IO[ValidationReport] = {
+    given JsonLdApi = TitaniumJsonLdApi.lenient
     for {
+      report        <- IO.delay { vCtx.generateReport() }
+      reportResource = report.getResource.addLiteral(targetNodeProperty, targetedNodes)
+      tmpGraph      <- IO.delay(Graph.unsafe(DatasetFactory.create(reportResource.getModel).asDatasetGraph()))
       rootNode      <-
         IO.fromEither(
           tmpGraph
@@ -46,14 +44,11 @@ object ValidationReport {
         )
       graph          = tmpGraph.replaceRootNode(rootNode)
       compacted     <- graph.toCompactedJsonLd(shaclCtx)
-      json           = compacted.json
-      conforms      <- IO.fromEither(json.hcursor.get[Boolean]("conforms"))
-      targetedNodes <- IO.fromEither(json.hcursor.get[Int]("targetedNodes"))
-    } yield ValidationReport(conforms, targetedNodes, json)
+    } yield ValidationReport(report.conforms(), targetedNodes, compacted.json)
   }
 
   def unsafe(conforms: Boolean, targetedNodes: Int, json: Json): ValidationReport =
     ValidationReport(conforms, targetedNodes, json)
 
-  implicit val reportEncoder: Encoder[ValidationReport] = Encoder.instance(_.json)
+  given Encoder[ValidationReport] = Encoder.instance(_.json)
 }
