@@ -55,7 +55,7 @@ final case class Schema(
   def ontologies: IO[Graph] = graph(types => types.contains(owl.Ontology) && !types.contains(nxv.Schema))
 
   private def graph(filteredTypes: Set[Iri] => Boolean): IO[Graph] = {
-    given JsonLdApi                         = TitaniumJsonLdApi.lenient
+    given JsonLdApi                                     = TitaniumJsonLdApi.lenient
     val init: (Set[IriOrBNode], Vector[ExpandedJsonLd]) = (Set.empty[IriOrBNode], Vector.empty[ExpandedJsonLd])
     val (_, filtered)                                   = expanded.foldLeft(init) {
       case ((seen, acc), expanded)

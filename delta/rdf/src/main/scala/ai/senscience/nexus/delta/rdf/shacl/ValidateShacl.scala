@@ -39,25 +39,27 @@ final class ValidateShacl(shaclShapes: Shapes)(using RemoteContextResolution) {
   }
 
   private def validate(
-      graph: Graph, shapes: Shapes
-  ): IO[ValidationReport] = IO.delay {
-    val data = graph.value.getDefaultGraph
-    val vCtx = ValidationContext.create(shapes, data)
-    val targetShapes = shapes.getTargetShapes.asScala
-    val targetedNodes = targetShapes.foldLeft(0) { case (acc, shape) =>
-      acc + validateShape(vCtx, data, shape)
-    }
-    (targetedNodes, vCtx)
-  }.flatMap { case (targetedNodes, vCtx) => ValidationReport(targetedNodes, vCtx) }
-
-  private def validateShape(vCtx: ValidationContext, data: JenaGraph, shape: Shape): Int =
-    {
-      val focusNodes = VLib.focusNodes(data, shape).asScala
-      focusNodes.foreach { focusNode =>
-        VLib.validateShape(vCtx, data, shape, focusNode)
+      graph: Graph,
+      shapes: Shapes
+  ): IO[ValidationReport] = IO
+    .delay {
+      val data          = graph.value.getDefaultGraph
+      val vCtx          = ValidationContext.create(shapes, data)
+      val targetShapes  = shapes.getTargetShapes.asScala
+      val targetedNodes = targetShapes.foldLeft(0) { case (acc, shape) =>
+        acc + validateShape(vCtx, data, shape)
       }
-      focusNodes.size
+      (targetedNodes, vCtx)
     }
+    .flatMap { case (targetedNodes, vCtx) => ValidationReport(targetedNodes, vCtx) }
+
+  private def validateShape(vCtx: ValidationContext, data: JenaGraph, shape: Shape): Int = {
+    val focusNodes = VLib.focusNodes(data, shape).asScala
+    focusNodes.foreach { focusNode =>
+      VLib.validateShape(vCtx, data, shape, focusNode)
+    }
+    focusNodes.size
+  }
 }
 
 object ValidateShacl {

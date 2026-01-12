@@ -18,14 +18,14 @@ class ValidateShaclSuite extends NexusSuite {
   private val schema           = jsonContentOf("shacl/schema.json")
   private val data             = jsonContentOf("shacl/resource.json")
   private val shaclResolvedCtx = jsonContentOf("contexts/shacl.json").topContextValueOrEmpty
-  
+
   private given rcr: RemoteContextResolution = RemoteContextResolution.fixed(contexts.shacl -> shaclResolvedCtx)
 
   private val shaclValidation = ValidateShacl(rcr).accepted
 
-  private val schemaGraph = toGraph(schema).accepted
-  private val schemaShapes = Shapes.parse(schemaGraph.value.getDefaultGraph )
-  private val dataGraph   = toGraph(data).accepted
+  private val schemaGraph  = toGraph(schema).accepted
+  private val schemaShapes = Shapes.parse(schemaGraph.value.getDefaultGraph)
+  private val dataGraph    = toGraph(data).accepted
 
   private def toGraph(json: Json) = ExpandedJsonLd(json).flatMap(_.toGraph)
 
@@ -45,10 +45,10 @@ class ValidateShaclSuite extends NexusSuite {
 
   test("Fail validating data if wrong field type") {
     val dataInvalidNumber = data.replace("number" -> 24, "Other")
-    val expectedJson    = jsonContentOf("shacl/failed_number.json")
+    val expectedJson      = jsonContentOf("shacl/failed_number.json")
     for {
       wrongGraph <- toGraph(dataInvalidNumber)
-      report          <- shaclValidation(wrongGraph, schemaShapes)
+      report     <- shaclValidation(wrongGraph, schemaShapes)
     } yield {
       assert(!report.conformsWithTargetedNodes, "Validation should have failed")
       assertEquals(report.asJson, expectedJson)

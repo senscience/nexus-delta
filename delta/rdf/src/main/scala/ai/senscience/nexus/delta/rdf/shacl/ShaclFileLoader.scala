@@ -20,7 +20,7 @@ object ShaclFileLoader {
           Shapes.parse(graph)
         }
       }
-  
+
   def readShaclShapes: IO[Shapes] = readFromTurtleFile("shacl-shacl.ttl")
 
   def readShaclVocabulary: IO[Shapes] = readFromTurtleFile("rdf/shacl.ttl")
