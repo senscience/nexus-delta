@@ -120,7 +120,8 @@ lazy val http4s = Seq(
   "org.http4s" %% "http4s-scala-xml"    % http4sXMLVersion
 ) ++ http4sServerTest
 
-lazy val jenaArq = "org.apache.jena" % "jena-arq" % jenaVersion
+lazy val jenaArq   = "org.apache.jena" % "jena-arq" % jenaVersion
+lazy val jenaShacl = "org.apache.jena" % "jena-shacl" % jenaVersion
 
 lazy val jsoniterCirce = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-circe" % jsonIterVersion
 
@@ -174,7 +175,6 @@ lazy val scalaTest                     = "org.scalatest"          %% "scalatest"
 lazy val scalaXml                      = "org.scala-lang.modules" %% "scala-xml"                          % scalaXmlVersion
 lazy val shapeless3Typeable            = "org.typelevel"          %% "shapeless3-typeable"                % shapeless3Version
 lazy val titaniumJsonLd                = "com.apicatalog"          % "titanium-json-ld"                   % titaniumJsonLdVersion
-lazy val topBraidShacl                 = "org.topbraid"            % "shacl"                              % topBraidVersion
 lazy val testContainers                = "org.testcontainers"      % "testcontainers"                     % testContainersVersion
 lazy val testContainersScala           = "com.dimafeng"           %% "testcontainers-scala-munit"         % testContainersScalaVersion
 lazy val testContainersScalaLocalStack = "com.dimafeng"           %% "testcontainers-scala-localstack-v2" % testContainersScalaVersion
@@ -369,9 +369,9 @@ lazy val rdf = project
       catsCore,
       glassFishJakarta,
       jenaArq,
+      jenaShacl,
       magnolia,
-      titaniumJsonLd,
-      topBraidShacl
+      titaniumJsonLd
     ),
     Test / fork          := true
   )

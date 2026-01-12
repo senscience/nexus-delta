@@ -20,6 +20,7 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.{Decoder, Json, JsonObject}
+import org.apache.jena.shacl.Shapes
 
 /**
   * A schema representation
@@ -49,12 +50,12 @@ final case class Schema(
   /**
     * the shacl shapes of the schema
     */
-  def shapes: IO[Graph] = graph(_.contains(nxv.Schema))
+  def shapes: IO[Shapes] = graph(_.contains(nxv.Schema)).map { graph => Shapes.parse(graph.value.getDefaultGraph) }
 
   def ontologies: IO[Graph] = graph(types => types.contains(owl.Ontology) && !types.contains(nxv.Schema))
 
   private def graph(filteredTypes: Set[Iri] => Boolean): IO[Graph] = {
-    implicit val api: JsonLdApi                         = TitaniumJsonLdApi.lenient
+    given JsonLdApi                         = TitaniumJsonLdApi.lenient
     val init: (Set[IriOrBNode], Vector[ExpandedJsonLd]) = (Set.empty[IriOrBNode], Vector.empty[ExpandedJsonLd])
     val (_, filtered)                                   = expanded.foldLeft(init) {
       case ((seen, acc), expanded)

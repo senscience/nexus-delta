@@ -2,27 +2,26 @@ package ai.senscience.nexus.delta.rdf.shacl
 
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import cats.effect.IO
-import org.apache.jena.graph.GraphMemFactory.createDefaultGraph
-import org.apache.jena.rdf.model.{Model, ModelFactory}
-import org.apache.jena.util.FileUtils
-import org.topbraid.shacl.vocabulary.SH
+import org.apache.jena.riot.{Lang, RDFDataMgr}
+import org.apache.jena.shacl.Shapes
+import org.apache.jena.sparql.graph.GraphFactory
 
 object ShaclFileLoader {
 
   private val loader = ClasspathResourceLoader()
 
-  private def readFromTurtleFile(base: String, resourcePath: String) =
+  private def readFromTurtleFile(resourcePath: String): IO[Shapes] =
     loader
       .streamOf(resourcePath)
       .use { is =>
         IO.blocking {
-          ModelFactory
-            .createModelForGraph(createDefaultGraph())
-            .read(is, base, FileUtils.langTurtle)
+          val graph = GraphFactory.createDefaultGraph()
+          RDFDataMgr.read(graph, is, Lang.TURTLE)
+          Shapes.parse(graph)
         }
       }
+  
+  def readShaclShapes: IO[Shapes] = readFromTurtleFile("shacl-shacl.ttl")
 
-  def readShaclShapes: IO[Model] = readFromTurtleFile("http://www.w3.org/ns/shacl-shacl#", "shacl-shacl.ttl")
-
-  def readShaclVocabulary: IO[Model] = readFromTurtleFile(SH.BASE_URI, "rdf/shacl.ttl")
+  def readShaclVocabulary: IO[Shapes] = readFromTurtleFile("rdf/shacl.ttl")
 }
