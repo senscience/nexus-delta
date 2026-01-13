@@ -812,24 +812,21 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
 
     "have the correct synaptic pathways when they are different" in {
       assertOneSource(queryDocument(synapseTwoPathwaysId)) { json =>
-        json should have(
-          field(
-            "preSynapticPathway",
-            json"""[
-              {
-                "@id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/mtypes/TNJ_NwHgTKe1iv_XLR_0Yg",
-                "about": "https://bbp.epfl.ch/neurosciencegraph/data/BrainCellType",
-                "label": "SO_BS"
-              },
-              {
-                "@id": "http://api.brain-map.org/api/v2/data/Structure/453",
-                "about": "https://bbp.epfl.ch/neurosciencegraph/data/BrainRegion",
-                "label": "Somatosensory areas",
-                "notation": "SS"
-              }
-            ]"""
-          )
-        )
+        val preSynapticPathway = json.hcursor.downField("preSynapticPathway").as[Json].rightValue
+        val expected           = json"""[
+            {
+              "@id": "http://bbp.epfl.ch/neurosciencegraph/ontologies/mtypes/TNJ_NwHgTKe1iv_XLR_0Yg",
+              "about": "https://bbp.epfl.ch/neurosciencegraph/data/BrainCellType",
+              "label": "SO_BS"
+            },
+            {
+              "@id": "http://api.brain-map.org/api/v2/data/Structure/453",
+              "about": "https://bbp.epfl.ch/neurosciencegraph/data/BrainRegion",
+              "label": "Somatosensory areas",
+              "notation": "SS"
+            }
+          ]"""
+        preSynapticPathway should equalIgnoreArrayOrder(expected)
         json should have(
           field(
             "postSynapticPathway",
@@ -1267,9 +1264,6 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
     }
   }
 
-  private def featureSeriesArrayOf(json: Json): Json = json.hcursor.downField("featureSeries").as[Json] match {
-    case Left(failure) => throw new Exception(failure)
-    case Right(json)   => json
-  }
+  private def featureSeriesArrayOf(json: Json): Json = json.hcursor.downField("featureSeries").as[Json].rightValue
 
 }
