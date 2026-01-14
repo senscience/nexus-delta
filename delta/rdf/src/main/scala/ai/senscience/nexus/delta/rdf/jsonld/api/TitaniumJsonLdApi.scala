@@ -11,19 +11,20 @@ import cats.effect.IO
 import cats.syntax.all.*
 import com.apicatalog.jsonld.JsonLdOptions.RdfDirection
 import com.apicatalog.jsonld.context.ActiveContext
-import com.apicatalog.jsonld.document.{JsonDocument, RdfDocument}
+import com.apicatalog.jsonld.document.JsonDocument
 import com.apicatalog.jsonld.loader.DocumentLoader
-import com.apicatalog.jsonld.processor.{ProcessingRuntime, ToRdfProcessor}
+import com.apicatalog.jsonld.processor.ProcessingRuntime
 import com.apicatalog.jsonld.uri.UriValidationPolicy
-import com.apicatalog.jsonld.{JsonLd, JsonLdError, JsonLdErrorCode, JsonLdOptions as TitaniumJsonLdOptions}
-import com.apicatalog.rdf.RdfDatasetSupplier
+import com.apicatalog.jsonld.{JsonLd, JsonLdError, JsonLdErrorCode, JsonLdOptions as TitaniumJsonLdOptions, JsonLdVersion}
 import io.circe.jakartajson.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
-import jakarta.json.{JsonArray, JsonStructure}
+import jakarta.json.JsonStructure
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.jena.irix.IRIxResolver
+import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.RIOT
+import org.apache.jena.riot.lang.TitaniumConverter
 import org.apache.jena.riot.system.*
 import org.apache.jena.sparql.core.DatasetGraph
 
@@ -78,7 +79,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
   override private[rdf] def frame(
       input: Json,
       frame: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject] =
+  )(using opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject] =
     for {
       obj     <- tryExpensiveIO(circeToDocument(input), "building input")
       ff      <- tryExpensiveIO(circeToDocument(frame), "building frame")
@@ -86,27 +87,19 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
       framed  <- tryExpensiveIO(jakartaJsonToCirceObject(JsonLd.frame(obj, ff).options(options).get), "framing")
     } yield framed
 
-  override private[rdf] def toRdf(input: Json)(implicit opts: JsonLdOptions): IO[DatasetGraph] = {
+  override private[rdf] def toRdf(input: Json)(using opts: JsonLdOptions): IO[DatasetGraph] = {
     def toRdf: DatasetGraph = {
-      val consumer     = new RdfDatasetSupplier
-      ToRdfProcessor.toRdf(
-        consumer,
-        circeToJakarta(input).asInstanceOf[JsonArray],
-        toOpts(TitaniumDocumentLoader.empty)
-      )
-      val rdfDataset   = consumer.get()
+      val iriResolver  = IRIxResolver.create
+        .base(opts.base.map(_.toString).orNull)
+        .resolve(!config.strict)
+        .allowRelative(!config.strict)
+        .build()
       val errorHandler = config.errorHandling match {
         case ErrorHandling.Default   => ErrorHandlerFactory.getDefaultErrorHandler
         case ErrorHandling.Strict    => ErrorHandlerFactory.errorHandlerStrictNoLogging
         case ErrorHandling.NoWarning => ErrorHandlerFactory.errorHandlerNoWarnings
       }
-
-      val iriResolver = IRIxResolver.create
-        .base(opts.base.map(_.toString).orNull)
-        .resolve(!config.strict)
-        .allowRelative(!config.strict)
-        .build()
-      val profile     = new CDTAwareParserProfile(
+      val profile      = new CDTAwareParserProfile(
         RiotLib.factoryRDF,
         errorHandler,
         iriResolver,
@@ -115,7 +108,15 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
         config.extraChecks,
         config.strict
       )
-      JenaTitanium.convert(rdfDataset, profile)
+      val dataset      = DatasetFactory.create().asDatasetGraph()
+      val output       = StreamRDFLib.dataset(dataset)
+      val consumer     = TitaniumConverter(output, profile)
+      JsonLd
+        .toRdf(circeToDocument(input))
+        .options(toOpts(TitaniumDocumentLoader.empty))
+        .provide(consumer)
+
+      dataset
     }
 
     tryExpensiveIO(toRdf, "toRdf")
@@ -123,12 +124,14 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
 
   override private[rdf] def fromRdf(
       input: DatasetGraph
-  )(implicit opts: JsonLdOptions): IO[Seq[JsonObject]] = {
+  )(using opts: JsonLdOptions): IO[Seq[JsonObject]] = {
     def fromRdf = {
-      val rdfDataset = JenaTitanium.convert(input)
-      val jsonArray  = jakartaJsonToCirce(
-        JsonLd.fromRdf(RdfDocument.of(rdfDataset)).options(toOpts(TitaniumDocumentLoader.empty)).get()
-      )
+      val consumer  = JsonLd
+        .fromRdf()
+        .options(toOpts(TitaniumDocumentLoader.empty))
+        .mode(JsonLdVersion.V1_1)
+      TitaniumConverter.transform(input, consumer)
+      val jsonArray = jakartaJsonToCirce(consumer.toJsonLd)
       toSeqJsonObjectOrErr(jsonArray)
     }
 

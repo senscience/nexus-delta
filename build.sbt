@@ -38,7 +38,7 @@ val handleBarsVersion          = "4.5.0"
 val hikariVersion              = "7.0.2"
 val http4sVersion              = "0.23.33"
 val http4sXMLVersion           = "0.24.0"
-val jenaVersion                = "5.2.0"
+val jenaVersion                = "5.6.0"
 val jsonIterVersion            = "2.38.7"
 val log4catsVersion            = "2.7.1"
 val logbackVersion             = "1.5.23"
@@ -58,8 +58,7 @@ val pureconfigVersion          = "0.17.9"
 val scalaTestVersion           = "3.2.19"
 val scalaXmlVersion            = "2.4.0"
 val shapeless3Version          = "3.5.0"
-val titaniumJsonLdVersion      = "1.6.0"
-val topBraidVersion            = "1.4.4"
+val titaniumJsonLdVersion      = "1.7.0"
 val testContainersVersion      = "2.0.3"
 val testContainersScalaVersion = "0.44.1"
 
@@ -120,7 +119,7 @@ lazy val http4s = Seq(
   "org.http4s" %% "http4s-scala-xml"    % http4sXMLVersion
 ) ++ http4sServerTest
 
-lazy val jenaArq   = "org.apache.jena" % "jena-arq" % jenaVersion
+lazy val jenaArq   = "org.apache.jena" % "jena-arq"   % jenaVersion
 lazy val jenaShacl = "org.apache.jena" % "jena-shacl" % jenaVersion
 
 lazy val jsoniterCirce = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-circe" % jsonIterVersion
