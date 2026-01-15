@@ -9,7 +9,7 @@ import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 
 /**
-  * Ø A Json-LD context with its relevant fields.
+  * A Json-LD context with its relevant fields.
   *
   * @param value
   *   the value of the @context key
