@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.Triple.{obj, predicate, subject, Triple}
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.graph.Graph.rdfType
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdOptions, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextEmpty, ContextObject}
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.rdf.{GraphHelpers, RdfLoader}
@@ -300,7 +300,7 @@ class GraphSuite
   test("Not raise an error with a lenient parser when an iri is invalid") {
     expandedFromJson("expanded-invalid-iri.json")
       .flatMap { expanded =>
-        Graph(expanded)(TitaniumJsonLdApi.lenient, JsonLdOptions.defaults)
+        Graph(expanded)(using TitaniumJsonLdApi.lenient)
       }
       .void
       .assert

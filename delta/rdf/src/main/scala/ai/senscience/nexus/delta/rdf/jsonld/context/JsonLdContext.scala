@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.rdf.jsonld.context
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdOptions, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.syntax.{iterableOpsSyntax, jsonOpsSyntax}
 import cats.effect.IO
@@ -9,7 +9,7 @@ import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
 
 /**
-  * A Json-LD context with its relevant fields.
+  * Ø A Json-LD context with its relevant fields.
   *
   * @param value
   *   the value of the @context key
@@ -218,7 +218,7 @@ object JsonLdContext {
   /**
     * Construct a [[JsonLdContext]] from the passed ''context'' value using the JsonLd api
     */
-  def apply(contextValue: ContextValue)(using RemoteContextResolution, JsonLdOptions): IO[JsonLdContext] =
+  def apply(contextValue: ContextValue)(using RemoteContextResolution): IO[JsonLdContext] =
     TitaniumJsonLdApi.strict.context(contextValue)
 
   /**

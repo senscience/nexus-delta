@@ -199,7 +199,7 @@ object CompositeSink {
       sinkConfig: SinkConfig,
       retryStrategyConfig: RetryStrategyConfig
   )(using RemoteContextResolution, Tracer[IO]): ElasticSearchProjection => CompositeSink = { target =>
-    given JsonLdOptions = JsonLdOptions.AlwaysEmbed
+    given JsonLdApi = TitaniumJsonLdApi.lenient(JsonLdOptions.AlwaysEmbed)
 
     val esSink = ElasticSearchSink.states(esClient, batchConfig, index, Refresh.False)
 

@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.model
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.{Metadata, RebuildStrategy}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -145,14 +145,10 @@ object CompositeView {
 
       override def context(value: CompositeView): ContextValue = underlying.context(value)
 
-      override def expand(
-          value: CompositeView
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+      override def expand(value: CompositeView)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
         underlying.expand(value)
 
-      override def compact(
-          value: CompositeView
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: CompositeView)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         underlying.compact(value).map { c =>
           CompactedJsonLd.unsafe(c.rootId, c.ctx, stringToJson(c.obj))
         }

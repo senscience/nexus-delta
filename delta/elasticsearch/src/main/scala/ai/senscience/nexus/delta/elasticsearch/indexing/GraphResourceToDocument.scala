@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.rdf.Vocabulary
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -20,8 +20,8 @@ import shapeless3.typeable.Typeable
   *   a context to compute the compacted JSON-LD for of the [[GraphResource]]
   */
 final class GraphResourceToDocument(context: ContextValue, includeContext: Boolean)(using
-    RemoteContextResolution,
-    JsonLdOptions
+    JsonLdApi,
+    RemoteContextResolution
 ) extends Pipe {
   override type In  = GraphResource
   override type Out = Json
@@ -30,8 +30,6 @@ final class GraphResourceToDocument(context: ContextValue, includeContext: Boole
   override def outType: Typeable[Out] = Typeable[Json]
 
   private val contextAsJson = context.contextObj.asJson
-
-  private given JsonLdApi = TitaniumJsonLdApi.lenient
 
   /** Given a [[GraphResource]] returns a JSON-LD created from the merged graph and metadata graph */
   def graphToDocument(element: GraphResource): IO[Option[Json]] = {

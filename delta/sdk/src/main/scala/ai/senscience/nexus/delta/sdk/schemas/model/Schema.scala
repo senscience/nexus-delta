@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Triple.Triple
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, owl}
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
@@ -78,17 +78,13 @@ object Schema {
   def toJsonLdContent(schema: ResourceF[Schema]): JsonLdContent[Schema] =
     JsonLdContent(schema, schema.value.source, schema.value.tags)
 
-  implicit val schemaJsonLdEncoder: JsonLdEncoder[Schema] =
+  given JsonLdEncoder[Schema] =
     new JsonLdEncoder[Schema] {
 
-      override def compact(
-          value: Schema
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: Schema)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         IO.pure(value.compacted)
 
-      override def expand(
-          value: Schema
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+      override def expand(value: Schema)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
         IO.pure(ExpandedJsonLd.unsafe(value.expanded.head.rootId, value.expanded.head.obj))
 
       override def context(value: Schema): ContextValue =
@@ -97,7 +93,7 @@ object Schema {
 
   type Shift = ResourceShift[SchemaState, Schema]
 
-  def shift(schemas: Schemas)(implicit baseUri: BaseUri): Shift =
+  def shift(schemas: Schemas)(using BaseUri): Shift =
     ResourceShift[SchemaState, Schema](
       Schemas.entityType,
       (ref, project) => schemas.fetch(IdSegmentRef(ref), project),

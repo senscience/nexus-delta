@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.resources.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.CommonFields.*
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
@@ -13,8 +13,8 @@ import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, ResourceRef, Tags}
-import cats.syntax.all.*
 import cats.effect.IO
+import cats.syntax.all.*
 import io.circe.{Decoder, Json, JsonObject}
 
 /**
@@ -47,17 +47,13 @@ final case class Resource(
 
 object Resource {
 
-  implicit val resourceJsonLdEncoder: JsonLdEncoder[Resource] =
+  given JsonLdEncoder[Resource] =
     new JsonLdEncoder[Resource] {
 
-      override def compact(
-          value: Resource
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: Resource)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         IO.pure(value.compacted)
 
-      override def expand(
-          value: Resource
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+      override def expand(value: Resource)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
         IO.pure(value.expanded)
 
       override def context(value: Resource): ContextValue =
@@ -69,7 +65,7 @@ object Resource {
 
   type Shift = ResourceShift[ResourceState, Resource]
 
-  def shift(resources: Resources)(implicit baseUri: BaseUri): Shift =
+  def shift(resources: Resources)(using BaseUri): Shift =
     ResourceShift[ResourceState, Resource](
       Resources.entityType,
       (ref, project) => resources.fetch(IdSegmentRef(ref), project, None),

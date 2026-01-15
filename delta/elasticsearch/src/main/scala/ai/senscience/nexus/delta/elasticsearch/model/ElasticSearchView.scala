@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.model
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.Metadata
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
@@ -163,7 +163,7 @@ object ElasticSearchView {
 
   val context: ContextValue = ContextValue(contexts.elasticsearch)
 
-  implicit val elasticSearchViewEncoder: Encoder.AsObject[ElasticSearchView] = {
+  given Encoder.AsObject[ElasticSearchView] = {
     implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
     // To keep retro-compatibility, we compute legacy fields from the view pipeline
@@ -223,7 +223,7 @@ object ElasticSearchView {
 
   // TODO: Since we are lacking support for `@type: json` (coming in Json-LD 1.1) we have to hack our way into
   // formatting the mapping and settings fields as pure json. This doesn't make sense from the Json-LD 1.0 perspective, though
-  implicit val elasticSearchViewJsonLdEncoder: JsonLdEncoder[ElasticSearchView] = {
+  given JsonLdEncoder[ElasticSearchView] = {
     val underlying: JsonLdEncoder[ElasticSearchView] = JsonLdEncoder.computeFromCirce(_.id, context)
 
     new JsonLdEncoder[ElasticSearchView] {
@@ -238,14 +238,10 @@ object ElasticSearchView {
 
       override def context(value: ElasticSearchView): ContextValue = underlying.context(value)
 
-      override def expand(
-          value: ElasticSearchView
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+      override def expand(value: ElasticSearchView)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
         underlying.expand(value)
 
-      override def compact(
-          value: ElasticSearchView
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: ElasticSearchView)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         underlying.compact(value).map { c =>
           CompactedJsonLd.unsafe(c.rootId, c.ctx, stringToJson(c.obj))
         }

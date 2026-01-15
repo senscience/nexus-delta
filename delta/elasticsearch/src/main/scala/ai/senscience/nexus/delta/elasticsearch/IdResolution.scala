@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexR
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
@@ -70,17 +70,13 @@ object IdResolution {
           case MultipleResults(searchResults) => searchJsonLdEncoder.context(searchResults)
         }
 
-        override def expand(
-            value: ResolutionResult
-        )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+        override def expand(value: ResolutionResult)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
           value match {
             case SingleResult(_, _, content)    => encoder(content).expand(content.resource)
             case MultipleResults(searchResults) => searchJsonLdEncoder.expand(searchResults)
           }
 
-        override def compact(
-            value: ResolutionResult
-        )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+        override def compact(value: ResolutionResult)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
           value match {
             case SingleResult(_, _, content)    => encoder(content).compact(content.resource)
             case MultipleResults(searchResults) => searchJsonLdEncoder.compact(searchResults)

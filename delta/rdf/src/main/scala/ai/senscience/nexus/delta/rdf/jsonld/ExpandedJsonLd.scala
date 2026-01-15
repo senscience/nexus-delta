@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.RdfError.{InvalidIri, UnexpectedJsonLd}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.DecodingFailure
@@ -37,22 +37,18 @@ final case class ExpandedJsonLd private (rootId: IriOrBNode, obj: JsonObject) ex
   /**
     * Converts the current document to a [[CompactedJsonLd]]
     */
-  def toCompacted(contextValue: ContextValue)(implicit
-      opts: JsonLdOptions,
-      api: JsonLdApi,
-      resolution: RemoteContextResolution
-  ): IO[CompactedJsonLd] =
+  def toCompacted(contextValue: ContextValue)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
     CompactedJsonLd(rootId, contextValue, json)
 
   /**
     * Converts the current document to a [[Graph]]
     */
-  def toGraph(implicit opts: JsonLdOptions, api: JsonLdApi): IO[Graph] = Graph(self)
+  def toGraph(using JsonLdApi): IO[Graph] = Graph(self)
 
   /**
     * Converts the current document to an ''A''
     */
-  def to[A](implicit dec: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
+  def to[A](using dec: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
     dec(self)
 
   /**
@@ -177,18 +173,10 @@ object ExpandedJsonLd {
     * @param input
     *   the input Json document
     */
-  final def apply(input: Json)(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
-  ): IO[ExpandedJsonLd] =
+  final def apply(input: Json)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
     explain(input).map(_.value)
 
-  def explain(input: Json)(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
-  ): IO[ExplainResult[ExpandedJsonLd]] =
+  def explain(input: Json)(using api: JsonLdApi, rcr: RemoteContextResolution): IO[ExplainResult[ExpandedJsonLd]] =
     api
       .explainExpand(input)
       .flatMap {
@@ -228,11 +216,9 @@ object ExpandedJsonLd {
       result      <- expanded(expandedSeq)
     } yield result
 
-  private def expandedWithGraphSupport(expandedSeq: Seq[JsonObject])(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
-  ) =
+  private def expandedWithGraphSupport(
+      expandedSeq: Seq[JsonObject]
+  )(using api: JsonLdApi, rcr: RemoteContextResolution) =
     for {
       (expandedSeqFinal, isGraph) <-
         if expandedSeq.size > 1 then

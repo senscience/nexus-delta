@@ -17,30 +17,30 @@ trait JsonLdApi {
   private[rdf] def compact(
       input: Json,
       ctx: ContextValue
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject]
+  )(using RemoteContextResolution): IO[JsonObject]
 
   private[rdf] def expand(
       input: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[Seq[JsonObject]]
+  )(using RemoteContextResolution): IO[Seq[JsonObject]]
 
   /**
     * Performs the expand operation and provides details on its execution
     */
   private[rdf] def explainExpand(
       input: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[ExplainResult[Seq[JsonObject]]]
+  )(using rcr: RemoteContextResolution): IO[ExplainResult[Seq[JsonObject]]]
 
   private[rdf] def frame(
       input: Json,
       frame: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject]
+  )(using RemoteContextResolution): IO[JsonObject]
 
-  private[rdf] def toRdf(input: Json)(implicit opts: JsonLdOptions): IO[DatasetGraph]
+  private[rdf] def toRdf(input: Json): IO[DatasetGraph]
 
-  private[rdf] def fromRdf(input: DatasetGraph)(implicit opts: JsonLdOptions): IO[Seq[JsonObject]]
+  private[rdf] def fromRdf(input: DatasetGraph): IO[Seq[JsonObject]]
 
   private[rdf] def context(
       value: ContextValue
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonLdContext]
+  )(using RemoteContextResolution): IO[JsonLdContext]
 
 }
