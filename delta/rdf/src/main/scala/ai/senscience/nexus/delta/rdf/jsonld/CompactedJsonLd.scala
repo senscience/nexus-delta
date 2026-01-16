@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
@@ -24,21 +24,13 @@ final case class CompactedJsonLd private (rootId: IriOrBNode, ctx: ContextValue,
   /**
     * Converts the current document to an [[ExpandedJsonLd]]
     */
-  def toExpanded(implicit
-      opts: JsonLdOptions,
-      api: JsonLdApi,
-      resolution: RemoteContextResolution
-  ): IO[ExpandedJsonLd] =
+  def toExpanded(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
     ExpandedJsonLd(json).map(_.replaceId(rootId))
 
   /**
     * Converts the current document to a [[Graph]]
     */
-  def toGraph(implicit
-      opts: JsonLdOptions,
-      api: JsonLdApi,
-      resolution: RemoteContextResolution
-  ): IO[Graph] = toExpanded.flatMap(_.toGraph)
+  def toGraph(using JsonLdApi, RemoteContextResolution): IO[Graph] = toExpanded.flatMap(_.toGraph)
 
   /**
     * Merges the current document with the passed one, overriding the fields on the current with the passed.
@@ -93,7 +85,7 @@ object CompactedJsonLd {
       rootId: IriOrBNode,
       contextValue: ContextValue,
       input: Json
-  )(implicit api: JsonLdApi, rcr: RemoteContextResolution, opts: JsonLdOptions): IO[CompactedJsonLd] =
+  )(using api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
     api
       .compact(input, contextValue)
       .map { compacted =>
@@ -114,7 +106,7 @@ object CompactedJsonLd {
       rootId: IriOrBNode,
       contextValue: ContextValue,
       input: Json
-  )(implicit api: JsonLdApi, rcr: RemoteContextResolution, opts: JsonLdOptions): IO[CompactedJsonLd] =
+  )(using api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
     rootId.asIri.map(iri => contextValue.contextObj.deepMerge(JsonObject(keywords.id -> iri.asJson))) match {
       case Some(frame) =>
         api

@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.elasticsearch.model.{ElasticSearchViewState, El
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef.fallbackUnless
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
@@ -112,6 +113,7 @@ object IndexingViewDef {
   )(using RemoteContextResolution): IO[CompiledProjection] = {
 
     val mergedContext        = v.context.fold(defaultIndexingContext) { defaultIndexingContext.merge(_) }
+    given JsonLdApi          = TitaniumJsonLdApi.lenient
     val postPipes: Operation = new GraphResourceToDocument(mergedContext, false)
 
     val compiled = for {

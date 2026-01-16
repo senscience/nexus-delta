@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
@@ -78,19 +78,19 @@ final case class ResourceF[A](
     * @return
     *   the [[Iri]] resulting from resolving the current ''id'' against the ''base''
     */
-  def resolvedId(implicit base: BaseUri): Iri =
+  def resolvedId(using base: BaseUri): Iri =
     id.resolvedAgainst(base.endpoint.toIri)
 
   /**
     * @return
     *   the [[Iri]] resulting from resolving the self against the ''base''
     */
-  def self(implicit base: BaseUri): Iri = access.uri.toIri
+  def self(using base: BaseUri): Iri = access.uri.toIri
 }
 
 object ResourceF {
 
-  implicit val resourceFunctor: Functor[ResourceF] =
+  given Functor[ResourceF] =
     new Functor[ResourceF] {
       override def map[A, B](fa: ResourceF[A])(f: A => B): ResourceF[B] = fa.map(f)
     }
@@ -103,7 +103,7 @@ object ResourceF {
   /**
     * Creates an ordering of ''ResourceF'' by the passed field name
     */
-  final def sortBy[A](field: String)(implicit orderingValueFields: OrderingFields[A]): Option[Ordering[ResourceF[A]]] =
+  final def sortBy[A](field: String)(using orderingValueFields: OrderingFields[A]): Option[Ordering[ResourceF[A]]] =
     field match {
       case "@id"            => Some(Ordering[Iri] on (_.id))
       case "_rev"           => Some(Ordering[Int] on (_.rev))
@@ -212,10 +212,7 @@ object ResourceF {
     */
   private def resourceFAJsonLdEncoder[A](
       overriddenContext: (JsonLdEncoder[A], ResourceF[A]) => ContextValue
-  )(implicit
-      encoder: JsonLdEncoder[A],
-      base: BaseUri
-  ): JsonLdEncoder[ResourceF[A]] =
+  )(using encoder: JsonLdEncoder[A], base: BaseUri): JsonLdEncoder[ResourceF[A]] =
     new JsonLdEncoder[ResourceF[A]] {
 
       // This context is used to compute the compacted/expanded form if the id and types json
@@ -223,10 +220,8 @@ object ResourceF {
         // Remote context exclusion must be done to enforce immutability, since remote contexts can be updated.
         overriddenContext(encoder, value).excludeRemoteContexts
 
-      override def compact(
-          value: ResourceF[A]
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] = {
-        implicit val idAndTypesEnc: JsonLdEncoder[ResourceIdAndTypes] = idAndTypesJsonLdEncoder(context(value))
+      override def compact(value: ResourceF[A])(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] = {
+        given JsonLdEncoder[ResourceIdAndTypes] = idAndTypesJsonLdEncoder(context(value))
         for {
           idAndTypes <- ResourceIdAndTypes(value.resolvedId, value.types).toCompactedJsonLd
           a          <- value.value.toCompactedJsonLd
@@ -235,10 +230,8 @@ object ResourceF {
         } yield idAndTypes.merge(rootId, a).merge(rootId, metadata)
       }
 
-      override def expand(
-          value: ResourceF[A]
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] = {
-        implicit val idAndTypesEnc: JsonLdEncoder[ResourceIdAndTypes] = idAndTypesJsonLdEncoder(context(value))
+      override def expand(value: ResourceF[A])(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] = {
+        given JsonLdEncoder[ResourceIdAndTypes] = idAndTypesJsonLdEncoder(context(value))
 
         for {
           idAndTypes <- ResourceIdAndTypes(value.resolvedId, value.types).toExpandedJsonLd

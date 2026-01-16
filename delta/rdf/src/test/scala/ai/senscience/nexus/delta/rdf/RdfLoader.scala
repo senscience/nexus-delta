@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.rdf
 
 import ai.senscience.nexus.delta.rdf.graph.{Graph, NQuads}
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -10,10 +10,9 @@ import cats.effect.IO
 
 trait RdfLoader { self: NexusSuite =>
 
-  def expandedFromJson(resourcePath: String, attributes: (String, Any)*)(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
+  def expandedFromJson(resourcePath: String, attributes: (String, Any)*)(using
+      JsonLdApi,
+      RemoteContextResolution
   ): IO[ExpandedJsonLd] =
     loader.jsonContentOf(resourcePath, attributes*).flatMap { json =>
       ExpandedJsonLd(json)
@@ -24,10 +23,9 @@ trait RdfLoader { self: NexusSuite =>
       IO.fromEither(ExpandedJsonLd.expanded(json))
     }
 
-  def graphFromJson(resourcePath: String, attributes: (String, Any)*)(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
+  def graphFromJson(resourcePath: String, attributes: (String, Any)*)(using
+      JsonLdApi,
+      RemoteContextResolution
   ): IO[Graph] =
     expandedFromJson(resourcePath, attributes*).flatMap(_.toGraph)
 
@@ -36,7 +34,7 @@ trait RdfLoader { self: NexusSuite =>
       context: ContextValue,
       resourcePath: String,
       attributes: (String, Any)*
-  )(implicit api: JsonLdApi, resolution: RemoteContextResolution, opts: JsonLdOptions): IO[CompactedJsonLd] =
+  )(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
     loader
       .jsonContentOf(resourcePath, attributes*)
       .flatMap(CompactedJsonLd(rootId, context, _))

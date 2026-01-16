@@ -29,8 +29,9 @@ object ValidationReport {
 
   private val targetNodeProperty = ResourceFactory.createProperty(nxsh.targetedNodes.toString)
 
+  private given JsonLdApi = TitaniumJsonLdApi.lenient
+
   final def apply(targetedNodes: Int, vCtx: ValidationContext)(using RemoteContextResolution): IO[ValidationReport] = {
-    given JsonLdApi = TitaniumJsonLdApi.lenient
     for {
       report        <- IO.delay { vCtx.generateReport() }
       reportResource = report.getResource.addLiteral(targetNodeProperty, targetedNodes)

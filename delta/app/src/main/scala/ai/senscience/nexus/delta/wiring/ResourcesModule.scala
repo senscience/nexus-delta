@@ -130,7 +130,7 @@ object ResourcesModule extends NexusModuleDef {
   addIndexingType(Resources.entityType)
 
   many[ResourceShift[?, ?]].add { (resources: Resources, base: BaseUri) =>
-    Resource.shift(resources)(base)
+    Resource.shift(resources)(using base)
   }
 
   many[MainDocumentEncoder[?, ?]].add { (baseUri: BaseUri) =>

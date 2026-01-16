@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld.encoder
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.graph.{Dot, Graph, NQuads, NTriples}
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
@@ -24,18 +24,14 @@ trait JsonLdEncoder[A] {
     * @param value
     *   the value to be converted into a JSON-LD expanded document
     */
-  def expand(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd]
+  def expand(value: A)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd]
 
   /**
     * Converts a value to [[CompactedJsonLd]]
     * @param value
     *   the value to be converted into a JSON-LD compacted document
     */
-  def compact(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd]
+  def compact(value: A)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd]
 
   /**
     * Converts a value of type ''A'' to [[Dot]] format.
@@ -43,13 +39,8 @@ trait JsonLdEncoder[A] {
     * @param value
     *   the value to be converted to Dot format
     */
-  def dot(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[Dot] =
-    for {
-      graph <- graph(value)
-      dot   <- graph.toDot(context(value))
-    } yield dot
+  def dot(value: A)(using JsonLdApi, RemoteContextResolution): IO[Dot] =
+    graph(value).flatMap(_.toDot(context(value)))
 
   /**
     * Converts a value of type ''A'' to [[NTriples]] format.
@@ -57,9 +48,7 @@ trait JsonLdEncoder[A] {
     * @param value
     *   the value to be converted to n-triples format
     */
-  def ntriples(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[NTriples] =
+  def ntriples(value: A)(using JsonLdApi, RemoteContextResolution): IO[NTriples] =
     graph(value).flatMap(_.toNTriples)
 
   /**
@@ -68,9 +57,7 @@ trait JsonLdEncoder[A] {
     * @param value
     *   the value to be converted to n-quads format
     */
-  def nquads(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[NQuads] =
+  def nquads(value: A)(using JsonLdApi, RemoteContextResolution): IO[NQuads] =
     graph(value).flatMap(_.toNQuads)
 
   /**
@@ -79,9 +66,7 @@ trait JsonLdEncoder[A] {
     * @param value
     *   the value to be converted to Graph
     */
-  def graph(
-      value: A
-  )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[Graph] =
+  def graph(value: A)(using JsonLdApi, RemoteContextResolution): IO[Graph] =
     expand(value).flatMap(_.toGraph)
 
 }
@@ -124,22 +109,16 @@ object JsonLdEncoder {
   def computeFromCirce[A: Encoder](fId: A => IriOrBNode, ctx: ContextValue): JsonLdEncoder[A] =
     new JsonLdEncoder[A] {
 
-      override def compact(
-          value: A
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: A)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         for {
           (expanded, context) <- expandAndExtractContext(value)
           compacted           <- expanded.toCompacted(context)
         } yield compacted
 
-      override def expand(
-          value: A
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+      override def expand(value: A)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
         expandAndExtractContext(value).map(_._1)
 
-      private def expandAndExtractContext(
-          value: A
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution) = {
+      private def expandAndExtractContext(value: A)(using JsonLdApi, RemoteContextResolution) = {
         val json    = value.asJson
         val context = contextFromJson(json)
         ExpandedJsonLd(json.replaceContext(context.contextObj))
@@ -155,15 +134,11 @@ object JsonLdEncoder {
       private def contextFromJson(json: Json): ContextValue = json.topContextValueOrEmpty.merge(ctx)
     }
 
-  implicit val jsonLdEncoderUnit: JsonLdEncoder[Unit] = new JsonLdEncoder[Unit] {
-    override def compact(
-        value: Unit
-    )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+  given JsonLdEncoder[Unit] = new JsonLdEncoder[Unit] {
+    override def compact(value: Unit)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
       IO.pure(CompactedJsonLd.empty)
 
-    override def expand(
-        value: Unit
-    )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd] =
+    override def expand(value: Unit)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd] =
       IO.pure(ExpandedJsonLd.empty)
 
     override def context(value: Unit): ContextValue = ContextValue.empty

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk
 
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
@@ -29,16 +29,13 @@ object JsonLdValue {
       override val encoder: JsonLdEncoder[A] = implicitly[JsonLdEncoder[A]]
     }
 
-  implicit val jsonLdEncoder: JsonLdEncoder[JsonLdValue] = {
+  given JsonLdEncoder[JsonLdValue] = {
     new JsonLdEncoder[JsonLdValue] {
-      override def context(value: JsonLdValue): ContextValue                                             = value.encoder.context(value.value)
-      override def expand(
-          value: JsonLdValue
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[ExpandedJsonLd]  =
+      override def context(value: JsonLdValue): ContextValue = value.encoder.context(value.value)
+
+      override def expand(value: JsonLdValue)(using JsonLdApi, RemoteContextResolution): IO[ExpandedJsonLd]   =
         value.encoder.expand(value.value)
-      override def compact(
-          value: JsonLdValue
-      )(implicit opts: JsonLdOptions, api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] =
+      override def compact(value: JsonLdValue)(using JsonLdApi, RemoteContextResolution): IO[CompactedJsonLd] =
         value.encoder.compact(value.value)
     }
   }

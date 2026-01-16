@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.RdfError.ConversionError
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.graph.GraphAssertions
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdOptions
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.{Fixtures, GraphHelpers, RdfLoader}
@@ -14,7 +14,9 @@ import io.circe.syntax.EncoderOps
 
 class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with GraphHelpers with GraphAssertions {
 
-  implicit val opts: JsonLdOptions = JsonLdOptions(base = Some(iri"http://senscience.ai/"))
+  given JsonLdApi = TitaniumJsonLdApi.strict(
+    JsonLdOptions(base = Some(iri"http://senscience.ai/"))
+  )
 
   private val prefix = "http://senscience.ai"
 

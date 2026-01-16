@@ -8,6 +8,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.indexing.GraphResourceToNTri
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -141,8 +142,10 @@ object CompositeViewProjection {
     override def asSparql: Option[SparqlProjection]               = None
     override def asElasticSearch: Option[ElasticSearchProjection] = Some(this)
 
-    override def transformationPipe(implicit rcr: RemoteContextResolution) =
+    override def transformationPipe(using RemoteContextResolution): Operation.Pipe = {
+      given JsonLdApi = TitaniumJsonLdApi.lenient
       new GraphResourceToDocument(context, includeContext)
+    }
 
     def indexDef: ElasticsearchIndexDef = ElasticsearchIndexDef(mapping, settings)
   }

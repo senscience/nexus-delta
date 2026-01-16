@@ -26,8 +26,6 @@ import org.typelevel.otel4s.trace.Tracer
   */
 sealed abstract class JsonLdSourceProcessor {
 
-  given JsonLdApi = TitaniumJsonLdApi.strict
-
   def uuidF: UUIDF
 
   protected def getOrGenerateId(iri: Option[Iri], context: ProjectContext): IO[Iri] =
@@ -41,8 +39,8 @@ sealed abstract class JsonLdSourceProcessor {
   protected def expandSource(projectContext: ProjectContext, source: Json)(using
       RemoteContextResolution
   ): IO[(ContextValue, ExplainResult[ExpandedJsonLd])] = {
-    given JsonLdOptions = JsonLdOptions(base = Some(projectContext.base.iri))
-    val sourceContext   = source.topContextValueOrEmpty
+    given JsonLdApi   = TitaniumJsonLdApi.strict(opts = JsonLdOptions(base = Some(projectContext.base.iri)))
+    val sourceContext = source.topContextValueOrEmpty
     if sourceContext.isEmpty then {
       val defaultContext = defaultCtx(projectContext)
       ExpandedJsonLd.explain(source.addContext(defaultContext.contextObj)).map(defaultContext -> _)
@@ -88,6 +86,7 @@ object JsonLdSourceProcessor {
         context: ProjectContext,
         source: Json
     )(using RemoteContextResolution): IO[JsonLdAssembly] = {
+      given JsonLdApi = TitaniumJsonLdApi.strict
       for {
         _               <- checkIdNotBlank(source)
         (ctx, result)   <- expandSource(context, source.addContext(contextIri*)).surround("expandJsonLd")
@@ -114,6 +113,7 @@ object JsonLdSourceProcessor {
         iri: Iri,
         source: Json
     )(using RemoteContextResolution): IO[JsonLdAssembly] = {
+      given JsonLdApi = TitaniumJsonLdApi.strict
       for {
         _               <- checkIdNotBlank(source)
         (ctx, result)   <- expandSource(context, source.addContext(contextIri*)).surround("expandJsonLd")

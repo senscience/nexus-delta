@@ -35,7 +35,7 @@ import scala.util.Try
 /**
   * Json-LD high level API implementation by Json-LD Java library
   */
-final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
+final class TitaniumJsonLdApi(config: JsonLdApiConfig, opts: JsonLdOptions) extends JsonLdApi {
 
   private def circeToDocument(json: Json) =
     circeToJakarta(json) match {
@@ -50,7 +50,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
   override private[rdf] def compact(
       input: Json,
       ctx: ContextValue
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject] = {
+  )(using RemoteContextResolution): IO[JsonObject] = {
     for {
       document  <- tryExpensiveIO(circeToDocument(input), "building input")
       context   <- tryExpensiveIO(ctx.titaniumDocument, "building context")
@@ -62,12 +62,12 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
 
   override private[rdf] def expand(
       input: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[Seq[JsonObject]] =
+  )(using RemoteContextResolution): IO[Seq[JsonObject]] =
     explainExpand(input).map(_.value)
 
   override private[rdf] def explainExpand(
       input: Json
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[ExplainResult[Seq[JsonObject]]] =
+  )(using rcr: RemoteContextResolution): IO[ExplainResult[Seq[JsonObject]]] =
     for {
       document       <- tryExpensiveIO(circeToDocument(input), "building input")
       remoteContexts <- remoteContexts(input)
@@ -79,7 +79,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
   override private[rdf] def frame(
       input: Json,
       frame: Json
-  )(using opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonObject] =
+  )(using RemoteContextResolution): IO[JsonObject] =
     for {
       obj     <- tryExpensiveIO(circeToDocument(input), "building input")
       ff      <- tryExpensiveIO(circeToDocument(frame), "building frame")
@@ -87,7 +87,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
       framed  <- tryExpensiveIO(jakartaJsonToCirceObject(JsonLd.frame(obj, ff).options(options).get), "framing")
     } yield framed
 
-  override private[rdf] def toRdf(input: Json)(using opts: JsonLdOptions): IO[DatasetGraph] = {
+  override private[rdf] def toRdf(input: Json): IO[DatasetGraph] = {
     def toRdf: DatasetGraph = {
       val iriResolver  = IRIxResolver.create
         .base(opts.base.map(_.toString).orNull)
@@ -124,7 +124,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
 
   override private[rdf] def fromRdf(
       input: DatasetGraph
-  )(using opts: JsonLdOptions): IO[Seq[JsonObject]] = {
+  ): IO[Seq[JsonObject]] = {
     def fromRdf = {
       val consumer  = JsonLd
         .fromRdf()
@@ -140,7 +140,7 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
 
   override private[rdf] def context(
       value: ContextValue
-  )(implicit opts: JsonLdOptions, rcr: RemoteContextResolution): IO[JsonLdContext] =
+  )(using rcr: RemoteContextResolution): IO[JsonLdContext] =
     for {
       dl                       <- documentLoader(value.contextObj.asJson)
       opts                      = toOpts(dl)
@@ -163,33 +163,33 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig) extends JsonLdApi {
 
   private def remoteContexts(
       jsons: Json*
-  )(implicit rcr: RemoteContextResolution): IO[Map[Iri, RemoteContext]] =
+  )(using rcr: RemoteContextResolution): IO[Map[Iri, RemoteContext]] =
     jsons
       .parTraverse(rcr(_))
       .adaptError { case r: RemoteContextResolutionError => RemoteContextError(r) }
       .map(_.foldLeft(Map.empty[Iri, RemoteContext])(_ ++ _))
 
-  private def documentLoader(jsons: Json*)(implicit rcr: RemoteContextResolution): IO[DocumentLoader] =
+  private def documentLoader(jsons: Json*)(using RemoteContextResolution): IO[DocumentLoader] =
     remoteContexts(jsons*).map(TitaniumDocumentLoader(_))
 
-  private def toOpts(dl: DocumentLoader)(implicit options: JsonLdOptions): TitaniumJsonLdOptions = {
-    val opts = new TitaniumJsonLdOptions(dl)
-    options.base.foreach(b => opts.setBase(new URI(b.toString)))
-    opts.setCompactArrays(options.compactArrays)
-    opts.setCompactToRelative(options.compactToRelative)
-    opts.setOrdered(options.ordered)
-    opts.setProcessingMode(options.processingMode)
-    opts.setProduceGeneralizedRdf(options.produceGeneralizedRdf)
-    options.rdfDirection.foreach { dir => opts.setRdfDirection(RdfDirection.valueOf(dir)) }
-    opts.setUseNativeTypes(options.useNativeTypes)
-    opts.setUseRdfType(options.useRdfType)
-    opts.setEmbed(options.embed)
-    opts.setExplicit(options.explicit)
-    opts.setOmitDefault(options.omitDefault)
-    opts.setOmitGraph(options.omitGraph)
+  private def toOpts(dl: DocumentLoader): TitaniumJsonLdOptions = {
+    val titaniumOpts = new TitaniumJsonLdOptions(dl)
+    opts.base.foreach(b => titaniumOpts.setBase(new URI(b.toString)))
+    titaniumOpts.setCompactArrays(opts.compactArrays)
+    titaniumOpts.setCompactToRelative(opts.compactToRelative)
+    titaniumOpts.setOrdered(opts.ordered)
+    titaniumOpts.setProcessingMode(opts.processingMode)
+    titaniumOpts.setProduceGeneralizedRdf(opts.produceGeneralizedRdf)
+    opts.rdfDirection.foreach { dir => titaniumOpts.setRdfDirection(RdfDirection.valueOf(dir)) }
+    titaniumOpts.setUseNativeTypes(opts.useNativeTypes)
+    titaniumOpts.setUseRdfType(opts.useRdfType)
+    titaniumOpts.setEmbed(opts.embed)
+    titaniumOpts.setExplicit(opts.explicit)
+    titaniumOpts.setOmitDefault(opts.omitDefault)
+    titaniumOpts.setOmitGraph(opts.omitGraph)
     // Disabling uri validation, Jena handles it better at a later stage
-    opts.setUriValidation(UriValidationPolicy.None)
-    opts
+    titaniumOpts.setUriValidation(UriValidationPolicy.None)
+    titaniumOpts
   }
 
   private def toSeqJsonObjectOrErr(json: Json): Either[RdfError, Seq[JsonObject]] =
@@ -203,18 +203,23 @@ object TitaniumJsonLdApi {
   /**
     * Creates an API with a config with strict values
     */
-  def strict: JsonLdApi =
+  val strict: JsonLdApi = strict(JsonLdOptions.Defaults)
+
+  def strict(opts: JsonLdOptions): JsonLdApi =
     new TitaniumJsonLdApi(
-      JsonLdApiConfig(strict = true, extraChecks = true, errorHandling = ErrorHandling.Strict)
+      JsonLdApiConfig(strict = true, extraChecks = true, errorHandling = ErrorHandling.Strict),
+      opts
     )
 
   /**
     * Creates an API with a config with lenient values
     */
-  def lenient: JsonLdApi =
-    new TitaniumJsonLdApi(
-      JsonLdApiConfig(strict = false, extraChecks = false, errorHandling = ErrorHandling.NoWarning)
-    )
+  val lenient: JsonLdApi = lenient(JsonLdOptions.Defaults)
+
+  def lenient(opts: JsonLdOptions) = new TitaniumJsonLdApi(
+    JsonLdApiConfig(strict = false, extraChecks = false, errorHandling = ErrorHandling.NoWarning),
+    opts
+  )
 
   private[rdf] def tryExpensiveIO[A](value: => A, stage: String): IO[A] =
     IO.cede *> IO.fromEither(tryOrRdfError(value, stage)).guarantee(IO.cede)

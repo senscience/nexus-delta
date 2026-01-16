@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.rdf.graph.Graph.fakeId
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jena.writer.DotWriter.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi.*
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions}
+import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.*
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
@@ -235,7 +235,7 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     */
   def toDot(
       contextValue: ContextValue = ContextValue.empty
-  )(implicit resolution: RemoteContextResolution, opts: JsonLdOptions): IO[Dot] =
+  )(using RemoteContextResolution): IO[Dot] =
     for {
       resolvedCtx <- JsonLdContext(contextValue)
       ctx          = dotContext(rootResource, resolvedCtx)
@@ -249,12 +249,9 @@ final case class Graph private (rootNode: IriOrBNode, value: DatasetGraph) { sel
     *
     * Note: This is done in two steps, first transforming the graph to JSON-LD expanded format and then compacting it.
     */
-  def toCompactedJsonLd(contextValue: ContextValue)(implicit
-      api: JsonLdApi,
-      resolution: RemoteContextResolution,
-      opts: JsonLdOptions
-  ): IO[CompactedJsonLd] = {
-
+  def toCompactedJsonLd(
+      contextValue: ContextValue
+  )(using api: JsonLdApi, rcr: RemoteContextResolution): IO[CompactedJsonLd] = {
     def computeCompacted(id: IriOrBNode, input: Json): IO[CompactedJsonLd] = {
       if isEmpty then IO.delay(CompactedJsonLd.unsafe(id, contextValue, JsonObject.empty))
       else if value.listGraphNodes().hasNext then {
@@ -346,7 +343,7 @@ object Graph {
     */
   final def apply(
       expanded: ExpandedJsonLd
-  )(implicit api: JsonLdApi, options: JsonLdOptions): IO[Graph] =
+  )(using api: JsonLdApi): IO[Graph] =
     (expanded.obj(keywords.graph), expanded.rootId) match {
       case (Some(_), _: BNode) =>
         IO.raiseError(UnexpectedJsonLd("Expected named graph, but root @id not found"))

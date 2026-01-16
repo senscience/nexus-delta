@@ -174,7 +174,7 @@ object SchemasModule extends NexusModuleDef {
   addIndexingType(Schemas.entityType)
 
   many[ResourceShift[?, ?]].add { (schemas: Schemas, base: BaseUri) =>
-    Schema.shift(schemas)(base)
+    Schema.shift(schemas)(using base)
   }
 
   many[MainDocumentEncoder[?, ?]].add { (baseUri: BaseUri) =>
