@@ -10,34 +10,6 @@ import io.circe.syntax.*
 trait JsonSyntax {
   implicit final def jsonOpsSyntax(json: Json): JsonOps                  = new JsonOps(json)
   implicit final def jsonObjectOpsSyntax(obj: JsonObject): JsonObjectOps = new JsonObjectOps(obj)
-  implicit final def aCursorOpsSyntax(cursor: ACursor): ACursorOps       = new ACursorOps(cursor)
-}
-
-final class ACursorOps(private val cursor: ACursor) extends AnyVal {
-
-  /**
-    * Extracts the value of the passed key and attempts to convert it to ''A''.
-    *
-    * The conversion will first attempt to convert the Json to an A and secondarily it will attempt to convert a Json
-    * Array that contains a single entry to an A If the key does not exist, the passed ''defaultValue'' will be
-    * returned.
-    */
-  def getIgnoreSingleArrayOr[A: Decoder](key: String)(defaultValue: => A): Decoder.Result[A] =
-    JsonUtils.getIgnoreSingleArrayOr(cursor, key)(defaultValue)
-
-  /**
-    * Extracts the value of the passed key and attempts to convert it to ''A''.
-    *
-    * The conversion will first attempt to convert the Json to an A and secondarily it will attempt to convert a Json
-    * Array that contains a single entry to an A
-    *
-    * @param key
-    *   the key of the target value
-    * @tparam A
-    *   the target generic type
-    */
-  def getIgnoreSingleArray[A: Decoder](key: String): Decoder.Result[A] =
-    JsonUtils.getIgnoreSingleArray(cursor, key)
 }
 
 @SuppressWarnings(Array("OptionGet"))
@@ -80,12 +52,6 @@ final class JsonObjectOps(private val obj: JsonObject) extends AnyVal {
     * Removes the metadata keys from the current json.
     */
   def removeMetadataKeys(): JsonObject = JsonUtils.removeMetadataKeys(obj.asJson).asObject.get
-
-  /**
-    * Removes the provided key value pairs from everywhere on the json object.
-    */
-  def removeAll[A: Encoder](keyValues: (String, A)*): JsonObject =
-    JsonUtils.removeAll(obj.asJson, keyValues*).asObject.get
 
   /**
     * Removes the provided values from everywhere on the current json object.
@@ -254,11 +220,6 @@ final class JsonOps(private val json: Json) extends AnyVal {
   def removeMetadataKeys(): Json = JsonUtils.removeMetadataKeys(json)
 
   /**
-    * Removes the provided key value pairs from everywhere on the json.
-    */
-  def removeAll[A: Encoder](keyValues: (String, A)*): Json = JsonUtils.removeAll(json, keyValues*)
-
-  /**
     * Removes the provided values from everywhere on the current json.
     */
   def removeAllValues[A: Encoder](values: A*): Json = JsonUtils.removeAllValues(json, values*)
@@ -305,24 +266,6 @@ final class JsonOps(private val json: Json) extends AnyVal {
     *   the sorting strategy
     */
   def sort(implicit ordering: JsonKeyOrdering): Json = JsonUtils.sort(json)
-
-  /**
-    * Extracts the value of the passed key and attempts to convert it to ''A''.
-    *
-    * The conversion will first attempt to convert the Json to an A and secondarily it will attempt to convert a Json
-    * Array that contains a single entry to an A.
-    */
-  def getIgnoreSingleArray[A: Decoder](key: String): Decoder.Result[A] = JsonUtils.getIgnoreSingleArray(json, key)
-
-  /**
-    * Extracts the value of the passed key and attempts to convert it to ''A''.
-    *
-    * The conversion will first attempt to convert the Json to an A and secondarily it will attempt to convert a Json
-    * Array that contains a single entry to an A. If the key does not exist, the passed ''defaultValue'' will be
-    * returned.
-    */
-  def getIgnoreSingleArrayOr[A: Decoder](key: String)(defaultValue: => A): Decoder.Result[A] =
-    JsonUtils.getIgnoreSingleArrayOr(json, key)(defaultValue)
 
   /**
     * Adds to the current json the passed ''key'' and ''valueOpt'' when the value is a Some
