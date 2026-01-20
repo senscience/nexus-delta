@@ -163,20 +163,6 @@ object IriOrBNode {
       toString.endsWith("/") || toString.endsWith("#")
 
     /**
-      * @return
-      *   true if the Iri is empty, false otherwise
-      */
-    def isEmpty: Boolean =
-      toString.isEmpty
-
-    /**
-      * @return
-      *   true if the Iri is not empty, false otherwise
-      */
-    def nonEmpty: Boolean =
-      toString.nonEmpty
-
-    /**
       * Adds a segment to the end of the Iri
       */
     def /(segment: String): Iri = {

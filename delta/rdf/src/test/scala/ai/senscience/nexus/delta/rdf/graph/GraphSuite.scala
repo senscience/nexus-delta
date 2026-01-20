@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.rdf.graph.Graph.rdfType
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextEmpty, ContextObject}
+import ai.senscience.nexus.delta.rdf.jsonld.context.Contexts
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.rdf.{GraphHelpers, RdfLoader}
 import ai.senscience.nexus.testkit.mu.{JsonAssertions, NexusSuite, StringAssertions}
@@ -31,9 +32,9 @@ class GraphSuite
 
   private def loadNamedGraphFromExpanded = graphFromJson("graph/expanded-multiple-roots-namedgraph.json")
 
-  private def loadContext = context("context.json")
-
   private def loadNquads = nquads(iri, "nquads.nq")
+
+  private val context = Contexts.value
 
   private val iriSubject = subject(iri)
   private val name       = predicate(schema.name)
@@ -180,7 +181,6 @@ class GraphSuite
       bnode              = addressBNode(graph)
       expandedDot       <- graph.toDot()
       expectedExpanded  <- loadExpandedDot(bnode, iri.toString)
-      context           <- loadContext
       compactedDot      <- graph.toDot(context)
       expectedCompacted <- loadCompactedDot(bnode, "john-doé")
     } yield {
@@ -195,7 +195,6 @@ class GraphSuite
       bnode              = addressBNode(graph)
       expandedDot       <- graph.toDot()
       expectedExpanded  <- loadExpandedDot(bnode, graph.rootNode.rdfFormat)
-      context           <- loadContext
       compactedDot      <- graph.toDot(context)
       expectedCompacted <- loadCompactedDot(bnode, graph.rootNode.rdfFormat)
     } yield {
@@ -232,7 +231,6 @@ class GraphSuite
   test("be converted to compacted JSON-LD") {
     for {
       graph     <- loadGraphFromExpanded()
-      context   <- loadContext
       compacted <- graph.toCompactedJsonLd(context)
       expected  <- loader.jsonContentOf("graph/compacted.json")
     } yield {
@@ -245,9 +243,8 @@ class GraphSuite
   test("be converted to compacted JSON-LD with a root blank node") {
     for {
       graph     <- loadGraphFromExpanded(removeId = true)
-      context   <- loadContext
       compacted <- graph.toCompactedJsonLd(context)
-      expected  <- loader.jsonContentOf("graph/compacted.json").map(_.removeAll("id" -> "john-doé"))
+      expected  <- loader.jsonContentOf("graph/compacted.json").map(_.removeKeys("id"))
     } yield {
       assertEquals(compacted.json, expected)
     }

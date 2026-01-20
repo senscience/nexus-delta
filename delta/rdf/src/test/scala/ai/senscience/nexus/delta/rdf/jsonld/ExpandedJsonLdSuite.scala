@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.graph.GraphAssertions
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, JsonLdOptions, TitaniumJsonLdApi}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, Contexts, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.{Fixtures, GraphHelpers, RdfLoader}
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -19,6 +19,8 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   )
 
   private val prefix = "http://senscience.ai"
+
+  private val ctx: ContextValue = Contexts.value
 
   test("Construct an expanded JSON-LD") {
     expandedFromJson("compacted.json").flatMap { result =>
@@ -40,11 +42,8 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   test("Construct without @id") {
     val name             = vocab + "name"
     val expectedExpanded = json"""[{"@type": ["${schema.Person}"], "$name": [{"@value": "Me"} ] } ]"""
-    for {
-      ctx      <- context("context.json")
-      compacted = json"""{"@type": "Person", "name": "Me"}""".addContext(ctx.contextObj.asJson)
-      expanded <- ExpandedJsonLd(compacted)
-    } yield {
+    val compacted        = json"""{"@type": "Person", "name": "Me"}""".addContext(ctx.contextObj.asJson)
+    ExpandedJsonLd(compacted).map { expanded =>
       assertEquals(expanded.json, expectedExpanded)
       assert(expanded.rootId.isInstanceOf[BNode])
     }
@@ -89,8 +88,7 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
 
   test("Convert to compacted form") {
     for {
-      context  <- context("context.json")
-      result   <- expandedFromJson("compacted.json").flatMap(_.toCompacted(context))
+      result   <- expandedFromJson("compacted.json").flatMap(_.toCompacted(ctx))
       expected <- loader.jsonContentOf("compacted.json")
     } yield {
       assertEquals(result.json, expected)
@@ -98,9 +96,8 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   }
 
   test("Convert to compacted form without id") {
+    val json = json"""{"@type": "Person", "name": "Me"}""".addContext(ctx.contextObj.asJson)
     for {
-      ctx       <- context("context.json")
-      json       = json"""{"@type": "Person", "name": "Me"}""".addContext(ctx.contextObj.asJson)
       expanded  <- ExpandedJsonLd(json)
       compacted <- expanded.toCompacted(ctx)
     } yield {
