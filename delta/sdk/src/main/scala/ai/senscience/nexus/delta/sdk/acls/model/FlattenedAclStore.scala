@@ -21,7 +21,7 @@ final class FlattenedAclStore(xas: Transactors) {
     case Authenticated(realm)                => s"/realms/${realm.value}/authenticated"
     case Role(role, realm)                   => s"/realms/${realm.value}/roles/$role"
     case Group(group, realm)                 => s"/realms/${realm.value}/groups/$group"
-    case User(subject: String, realm: Label) => s"/realms/${realm.value}/groups/$subject"
+    case User(subject: String, realm: Label) => s"/realms/${realm.value}/users/$subject"
   }
 
   def insert(address: AclAddress, acls: Map[Identity, Set[Permission]]): ConnectionIO[Unit] =
