@@ -306,7 +306,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
           cv.routes,
           indexing.routes,
           supervision.routes
-        )(baseUri),
+        )(using baseUri),
         requiresStrictEntity = true
       )
   }

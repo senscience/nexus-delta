@@ -19,16 +19,13 @@ case class TypeHierarchy(mapping: TypeHierarchyMapping)
 object TypeHierarchy {
   type TypeHierarchyMapping = Map[Iri, Set[Iri]]
 
-  implicit private val config: Configuration = Configuration.default
+  private given Configuration = Configuration.default
 
-  implicit val typeHierarchyMappingDecoder: Decoder[TypeHierarchy] =
-    deriveConfiguredDecoder[TypeHierarchy]
+  given Decoder[TypeHierarchy] = deriveConfiguredDecoder[TypeHierarchy]
 
-  implicit val typeHierarchyEncoder: Encoder.AsObject[TypeHierarchy] =
-    deriveConfiguredEncoder[TypeHierarchy]
+  given Encoder.AsObject[TypeHierarchy] = deriveConfiguredEncoder[TypeHierarchy]
 
-  val context: ContextValue = ContextValue(contexts.typeHierarchy)
+  private val context: ContextValue = ContextValue(contexts.typeHierarchy)
 
-  implicit val typeHierarchyJsonLdEncoder: JsonLdEncoder[TypeHierarchy] =
-    JsonLdEncoder.computeFromCirce(context)
+  given JsonLdEncoder[TypeHierarchy] = JsonLdEncoder.computeFromCirce(context)
 }

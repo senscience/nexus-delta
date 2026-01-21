@@ -27,8 +27,8 @@ import java.util.UUID
 
 class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
-  private val fixedUuid             = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(fixedUuid)
+  private val fixedUuid = UUID.randomUUID()
+  private given UUIDF   = UUIDF.fixed(fixedUuid)
 
   private val org1 = OrganizationGen.organization("org1", fixedUuid, Some("My description"))
   private val org2 = OrganizationGen.organization("org2", fixedUuid)
@@ -56,7 +56,7 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
 
   private lazy val routes = Route.seal(
     handleExceptions(exceptionHandler) {
-      OrganizationsRoutes(identities, orgs, orgDeleter, aclCheck)
+      OrganizationsRoutes(identities, aclCheck, orgs, orgDeleter)
     }
   )
 
@@ -320,13 +320,13 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     org
   }
 
-  private def thereIsADeprecatedOrganization(implicit pos: Position) = {
+  private def thereIsADeprecatedOrganization(using Position) = {
     val org = thereIsAnOrganization
     deprecateOrganization(org, 1)
     org
   }
 
-  private def deprecateOrganization(org: String, rev: Int)(implicit pos: Position): Unit = {
+  private def deprecateOrganization(org: String, rev: Int)(using Position): Unit = {
     Delete(s"/v1/orgs/$org?rev=$rev") ~> as(writer) ~> routes ~> check {
       status shouldEqual StatusCodes.OK
       response.asJson should be(deprecated)
@@ -334,7 +334,7 @@ class OrganizationsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture 
     ()
   }
 
-  private def latestRevisionOfOrganization(org: String)(implicit pos: Position): Json = {
+  private def latestRevisionOfOrganization(org: String)(using Position): Json = {
     Get(s"/v1/orgs/$org") ~> as(reader) ~> routes ~> check {
       status shouldEqual StatusCodes.OK
       response.asJson

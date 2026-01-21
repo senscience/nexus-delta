@@ -12,6 +12,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
@@ -22,7 +23,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
-import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
@@ -59,31 +59,28 @@ final class StoragesRoutes(
 
   private def emitMetadata(io: IO[StorageResource]): Route = emitMetadata(StatusCodes.OK, io)
 
+  private given JsonLdEncoder[SearchResults[StorageResource]] =
+    searchResultsJsonLdEncoder(ContextValue(contexts.storages))
+
   def routes: Route =
     concat(storageRoutes, storagePermissionRoutes)
 
   private def storageRoutes =
     (baseUriPrefix(baseUri.prefix) & replaceUri("storages", schemas.storage)) {
       (handleStorageExceptions & pathPrefix("storages")) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
             concat(
               // List storages
-              pathEndOrSingleSlash {
-                (get & authorizeRead) {
-                  implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[StorageResource]] =
-                    searchResultsJsonLdEncoder(ContextValue(contexts.storages))
-                  emit(storages.list(project))
-                }
+              (pathEndOrSingleSlash & get & authorizeRead) {
+                emit(storages.list(project))
               },
               pathEndOrSingleSlash {
                 // Create a storage without id segment
-                (post & noParameter("rev") & entity(as[Json])) { source =>
-                  authorizeWrite {
-                    emitMetadata(Created, storages.create(project, source))
-                  }
+                (post & noRev & authorizeWrite & jsonEntity) { source =>
+                  emitMetadata(Created, storages.create(project, source))
                 }
               },
               idSegment { id =>
@@ -91,41 +88,28 @@ final class StoragesRoutes(
                   pathEndOrSingleSlash {
                     concat(
                       // Create or update a storage
-                      put {
-                        authorizeWrite {
-                          (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
-                            case (None, source)      =>
-                              // Create a storage with id segment
-                              emitMetadata(Created, storages.create(id, project, source))
-                            case (Some(rev), source) =>
-                              // Update a storage
-                              emitMetadata(storages.update(id, project, rev, source))
-                          }
-                        }
+                      (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
+                        case (None, source)      =>
+                          // Create a storage with id segment
+                          emitMetadata(Created, storages.create(id, project, source))
+                        case (Some(rev), source) =>
+                          // Update a storage
+                          emitMetadata(storages.update(id, project, rev, source))
                       },
                       // Deprecate a storage
-                      (delete & parameter("rev".as[Int])) { rev =>
-                        authorizeWrite {
-                          emitMetadata(storages.deprecate(id, project, rev))
-                        }
+                      (delete & revParam & authorizeWrite) { rev =>
+                        emitMetadata(storages.deprecate(id, project, rev))
                       },
                       // Fetch a storage
                       (get & idSegmentRef(id)) { id =>
-                        emitOrFusionRedirect(
-                          project,
-                          id,
-                          authorizeRead {
-                            emit(storages.fetch(id, project))
-                          }
-                        )
+                        val fetchRoute = authorizeRead { emit(storages.fetch(id, project)) }
+                        emitOrFusionRedirect(project, id, fetchRoute)
                       }
                     )
                   },
                   // Undeprecate a storage
-                  (pathPrefix("undeprecate") & pathEndOrSingleSlash & put & parameter("rev".as[Int])) { rev =>
-                    authorizeWrite {
-                      emitMetadata(storages.undeprecate(id, project, rev))
-                    }
+                  (pathPrefix("undeprecate") & authorizeWrite & pathEndOrSingleSlash & put & revParam) { rev =>
+                    emitMetadata(storages.undeprecate(id, project, rev))
                   },
                   // Fetch a storage original source
                   (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
@@ -136,10 +120,8 @@ final class StoragesRoutes(
                       emit(sourceIO)
                     }
                   },
-                  (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                    authorizeRead {
-                      emit(storagesStatistics.get(id, project))
-                    }
+                  (pathPrefix("statistics") & get & authorizeRead & pathEndOrSingleSlash) {
+                    emit(storagesStatistics.get(id, project))
                   }
                 )
               }
@@ -154,7 +136,7 @@ final class StoragesRoutes(
       pathPrefix("user") {
         pathPrefix("permissions") {
           projectRef { project =>
-            extractCaller { implicit caller =>
+            extractCaller { case given Caller =>
               head {
                 parameters("storage".as[IdSegment], "type".as[AccessType]) { (storageId, accessType) =>
                   fetchStoragePermission(project, storageId, accessType) { permission =>

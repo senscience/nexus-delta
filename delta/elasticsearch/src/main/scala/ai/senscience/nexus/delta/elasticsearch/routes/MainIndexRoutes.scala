@@ -20,7 +20,6 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.{Directive, Route}
 import org.typelevel.otel4s.trace.Tracer
@@ -94,7 +93,7 @@ final class MainIndexRoutes(
             routeSpan("views/<str:org>/<str:project>/documents/_search") {
               (pathPrefix("_search") & post & pathEndOrSingleSlash) {
                 authorizeQuery {
-                  (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                  (extractQueryParams & jsonObjectEntity) { (qp, query) =>
                     emit(mainIndexQuery.search(project, query, qp))
                   }
                 }

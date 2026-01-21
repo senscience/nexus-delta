@@ -6,18 +6,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.ViewResource
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews, ElasticSearchQuery}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCode
 import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, OK}
 import org.apache.pekko.http.scaladsl.server.Route
@@ -36,7 +34,6 @@ class CompositeViewsRoutes(
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with CirceUnmarshalling
-    with RdfMarshalling
     with ElasticSearchViewsDirectives
     with BlazegraphViewsDirectives {
 
@@ -50,102 +47,80 @@ class CompositeViewsRoutes(
   def routes: Route = {
     handleExceptions(CompositeViewExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { implicit caller =>
-          projectRef { implicit project =>
+        extractCaller { case given Caller =>
+          projectRef { project =>
+            val authorizeRead  = authorizeFor(project, Read)
+            val authorizeWrite = authorizeFor(project, Write)
             concat(
               // Create a view without id segment
-              (pathEndOrSingleSlash & post & entity(as[Json]) & noParameter("rev")) { source =>
-                authorizeFor(project, Write).apply {
-                  emitMetadata(Created, views.create(project, source))
-                }
+              (pathEndOrSingleSlash & post & authorizeWrite & jsonEntity & noRev) { source =>
+                emitMetadata(Created, views.create(project, source))
               },
               idSegment { viewId =>
+                def viewIdRef = idSegmentRef(viewId)
                 concat(
                   pathEndOrSingleSlash {
                     concat(
-                      put {
-                        authorizeFor(project, Write).apply {
-                          (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
-                            case (None, source)      =>
-                              // Create a view with id segment
-                              emitMetadata(Created, views.create(viewId, project, source))
-                            case (Some(rev), source) =>
-                              // Update a view
-                              emitMetadata(views.update(viewId, project, rev, source))
-                          }
-                        }
+                      (put & authorizeWrite & revParamOpt & jsonEntity & pathEndOrSingleSlash) {
+                        case (None, source)      =>
+                          // Create a view with id segment
+                          emitMetadata(Created, views.create(viewId, project, source))
+                        case (Some(rev), source) =>
+                          // Update a view
+                          emitMetadata(views.update(viewId, project, rev, source))
                       },
                       // Deprecate a view
-                      (delete & parameter("rev".as[Int])) { rev =>
-                        authorizeFor(project, Write).apply {
-                          emitMetadata(views.deprecate(viewId, project, rev))
-                        }
+                      (delete & revParam & authorizeWrite) { rev =>
+                        emitMetadata(views.deprecate(viewId, project, rev))
                       },
                       // Fetch a view
-                      (get & idSegmentRef(viewId)) { id =>
-                        emitOrFusionRedirect(
-                          project,
-                          id,
-                          authorizeFor(project, Read).apply {
-                            emit(views.fetch(id, project))
-                          }
-                        )
+                      (get & viewIdRef) { id =>
+                        val fetchRoute = authorizeRead { emit(views.fetch(id, project)) }
+                        emitOrFusionRedirect(project, id, fetchRoute)
                       }
                     )
                   },
                   // Undeprecate a view
-                  (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & parameter("rev".as[Int])) { rev =>
-                    authorizeFor(project, Write).apply {
-                      emitMetadata(views.undeprecate(viewId, project, rev))
-                    }
+                  (pathPrefix("undeprecate") & put & authorizeWrite & pathEndOrSingleSlash & revParam) { rev =>
+                    emitMetadata(views.undeprecate(viewId, project, rev))
                   },
                   // Fetch a view original source
-                  (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(viewId)) { id =>
-                    authorizeFor(project, Read).apply {
-                      emitSource(views.fetch(id, project))
-                    }
+                  (pathPrefix("source") & get & authorizeRead & pathEndOrSingleSlash & viewIdRef) { id =>
+                    emitSource(views.fetch(id, project))
                   },
-                  pathPrefix("projections") {
+                  (pathPrefix("projections") & idSegment) { projection =>
+                    val projectionOpt = underscoreToOption(projection)
                     concat(
-                      // Query all composite views' sparql projections namespaces
-                      (pathPrefix("_") & pathPrefix("sparql") & pathEndOrSingleSlash) {
-                        ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
-                          queryResponseType.apply { responseType =>
-                            emit(blazegraphQuery.queryProjections(viewId, project, query, responseType))
+                      (pathPrefix("sparql") & sparqlQueryResponseType & pathEndOrSingleSlash) {
+                        case (query, responseType) =>
+                          projectionOpt match {
+                            case Some(projectionId) =>
+                              // Query a composite views' sparql projection namespace
+                              emit(blazegraphQuery.query(viewId, projectionId, project, query, responseType))
+                            case None               =>
+                              // Query all composite views' sparql projections namespaces
+                              emit(blazegraphQuery.queryProjections(viewId, project, query, responseType))
                           }
-                        }
-                      },
-                      // Query a composite views' sparql projection namespace
-                      (idSegment & pathPrefix("sparql") & pathEndOrSingleSlash) { projectionId =>
-                        ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
-                          queryResponseType.apply { responseType =>
-                            emit(blazegraphQuery.query(viewId, projectionId, project, query, responseType))
-                          }
-                        }
                       },
                       // Query all composite views' elasticsearch projections indices
-                      (pathPrefix("_") & pathPrefix("_search") & pathEndOrSingleSlash & post) {
-                        (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                          emit(elasticSearchQuery.queryProjections(viewId, project, query, qp))
-                        }
-                      },
-                      // Query a composite views' elasticsearch projection index
-                      (idSegment & pathPrefix("_search") & pathEndOrSingleSlash & post) { projectionId =>
-                        (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                          emit(elasticSearchQuery.query(viewId, projectionId, project, query, qp))
+                      (pathPrefix("_search") & pathEndOrSingleSlash & post) {
+                        (extractQueryParams & jsonObjectEntity) { (qp, query) =>
+                          projectionOpt match {
+                            case Some(projectionId) =>
+                              // Query a composite views' elasticsearch projection index
+                              emit(elasticSearchQuery.query(viewId, projectionId, project, query, qp))
+                            case None               =>
+                              // Query all composite views' elasticsearch projections indices
+                              emit(elasticSearchQuery.queryProjections(viewId, project, query, qp))
+                          }
                         }
                       }
                     )
                   },
                   // Query the common blazegraph namespace for the composite view
-                  (pathPrefix("sparql") & pathEndOrSingleSlash) {
-                    concat(
-                      ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
-                        queryResponseType.apply { responseType =>
-                          emit(blazegraphQuery.query(viewId, project, query, responseType))
-                        }
-                      }
-                    )
+                  (pathPrefix("sparql") & sparqlQueryResponseType & pathEndOrSingleSlash) {
+                    case (query, responseType) =>
+                      emit(blazegraphQuery.query(viewId, project, query, responseType))
                   }
                 )
               }

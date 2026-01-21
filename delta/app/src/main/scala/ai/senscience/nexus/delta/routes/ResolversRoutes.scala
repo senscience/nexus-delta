@@ -28,7 +28,6 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
@@ -69,8 +68,9 @@ final class ResolversRoutes(
       }
     )
 
-  implicit private val resourceFUnitJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] =
+  private given JsonLdEncoder[ResourceF[Unit]]                 =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.resolversMetadata))
+  private given JsonLdEncoder[SearchResults[ResolverResource]] = searchResultsJsonLdEncoder(Resolver.context)
 
   private def emitFetch(io: IO[ResolverResource]): Route =
     exceptionHandler(enableRejects = true) { emit(io) }
@@ -95,7 +95,7 @@ final class ResolversRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
       pathPrefix("resolvers") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
@@ -103,40 +103,30 @@ final class ResolversRoutes(
               // List resolvers
               pathEndOrSingleSlash {
                 (get & authorizeRead) {
-                  implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[ResolverResource]] =
-                    searchResultsJsonLdEncoder(Resolver.context)
                   emit(resolvers.list(project).widen[SearchResults[ResolverResource]])
                 }
               },
               pathEndOrSingleSlash {
                 // Create a resolver without an id segment
-                (post & noParameter("rev") & entity(as[Json])) { payload =>
-                  authorizeWrite {
-                    emitMetadata(Created, resolvers.create(project, payload))
-                  }
+                (post & noRev & authorizeWrite & jsonEntity) { payload =>
+                  emitMetadata(Created, resolvers.create(project, payload))
                 }
               },
               idSegment { resolver =>
                 concat(
                   pathEndOrSingleSlash {
                     concat(
-                      put {
-                        authorizeWrite {
-                          (parameter("rev".as[Int].?) & pathEndOrSingleSlash & entity(as[Json])) {
-                            case (None, payload)      =>
-                              // Create a resolver with an id segment
-                              emitMetadata(Created, resolvers.create(resolver, project, payload))
-                            case (Some(rev), payload) =>
-                              // Update a resolver
-                              emitMetadata(resolvers.update(resolver, project, rev, payload))
-                          }
-                        }
+                      (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
+                        case (None, payload)      =>
+                          // Create a resolver with an id segment
+                          emitMetadata(Created, resolvers.create(resolver, project, payload))
+                        case (Some(rev), payload) =>
+                          // Update a resolver
+                          emitMetadata(resolvers.update(resolver, project, rev, payload))
                       },
-                      (delete & parameter("rev".as[Int])) { rev =>
-                        authorizeWrite {
-                          // Deprecate a resolver
-                          emitMetadataOrReject(resolvers.deprecate(resolver, project, rev))
-                        }
+                      (delete & authorizeWrite & revParam) { rev =>
+                        // Deprecate a resolver
+                        emitMetadataOrReject(resolvers.deprecate(resolver, project, rev))
                       },
                       // Fetches a resolver
                       (get & idSegmentRef(resolver)) { resolverRef =>
@@ -188,7 +178,7 @@ final class ResolversRoutes(
       project: ProjectRef,
       resolutionType: ResolutionType,
       output: ResolvedResourceOutputType
-  )(implicit baseUri: BaseUri, caller: Caller): Route =
+  )(using BaseUri, Caller): Route =
     authorizeFor(project, Permissions.resources.read).apply {
       exceptionHandler(enableRejects = false) {
         def emitResult[R: JsonLdEncoder: HttpResponseFields](io: IO[MultiResolutionResult[R]]) = {

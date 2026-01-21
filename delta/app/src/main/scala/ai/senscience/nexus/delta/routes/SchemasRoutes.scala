@@ -28,7 +28,6 @@ import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFoun
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
@@ -115,10 +114,8 @@ final class SchemasRoutes(
               },
               // Create a schema without id segment
               routeSpan("schemas/<str:org>/<str:project>") {
-                (pathEndOrSingleSlash & post & noRev & entity(as[Json])) { source =>
-                  authorizeWrite {
-                    emitMetadata(Created, schemas.create(project, source))
-                  }
+                (pathEndOrSingleSlash & post & authorizeWrite & noRev & jsonEntity) { source =>
+                  emitMetadata(Created, schemas.create(project, source))
                 }
               },
               idSegment { id =>
@@ -126,57 +123,41 @@ final class SchemasRoutes(
                   (routeSpan("schemas/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
                     concat(
                       // Create or update a schema
-                      put {
-                        authorizeWrite {
-                          (revParamOpt & entity(as[Json])) {
-                            case (None, source)      =>
-                              // Create a schema with id segment
-                              emitMetadata(Created, schemas.create(id, project, source))
-                            case (Some(rev), source) =>
-                              // Update a schema
-                              emitMetadata(schemas.update(id, project, rev, source))
-                          }
-                        }
+                      (put & authorizeWrite & revParamOpt & jsonEntity) {
+                        case (None, source)      =>
+                          // Create a schema with id segment
+                          emitMetadata(Created, schemas.create(id, project, source))
+                        case (Some(rev), source) =>
+                          // Update a schema
+                          emitMetadata(schemas.update(id, project, rev, source))
                       },
                       // Deprecate a schema
-                      (delete & revParam) { rev =>
-                        authorizeWrite {
-                          emitMetadataOrReject(schemas.deprecate(id, project, rev))
-                        }
+                      (delete & revParam & authorizeWrite) { rev =>
+                        emitMetadataOrReject(schemas.deprecate(id, project, rev))
                       },
                       // Fetch a schema
                       (get & idSegmentRef(id)) { id =>
-                        emitOrFusionRedirect(
-                          project,
-                          id,
-                          authorizeRead {
-                            emitFetch(schemas.fetch(id, project))
-                          }
-                        )
+                        val fetchRoute = authorizeRead { emitFetch(schemas.fetch(id, project)) }
+                        emitOrFusionRedirect(project, id, fetchRoute)
                       }
                     )
                   },
                   routeSpan("schemas/<str:org>/<str:project>/<str:id>/undeprecate") {
-                    (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & revParam) { rev =>
-                      authorizeWrite {
-                        emitMetadataOrReject(schemas.undeprecate(id, project, rev))
-                      }
+                    (pathPrefix("undeprecate") & authorizeWrite & put & pathEndOrSingleSlash & revParam) { rev =>
+                      emitMetadataOrReject(schemas.undeprecate(id, project, rev))
                     }
                   },
                   routeSpan("schemas/<str:org>/<str:project>/<str:id>/refresh") {
-                    (pathPrefix("refresh") & put & pathEndOrSingleSlash) {
-                      authorizeWrite {
-                        emitMetadata(schemas.refresh(id, project))
-                      }
+                    (pathPrefix("refresh") & authorizeWrite & put & pathEndOrSingleSlash) {
+                      emitMetadata(schemas.refresh(id, project))
                     }
                   },
                   // Fetch a schema original source
                   routeSpan("schemas/<str:org>/<str:project>/<str:id>/source") {
-                    (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id) & annotateSource) {
-                      (id, annotate) =>
-                        authorizeRead {
-                          emitSource(schemas.fetch(id, project), annotate)
-                        }
+                    (pathPrefix("source") & authorizeRead & get & pathEndOrSingleSlash & idSegmentRef(
+                      id
+                    ) & annotateSource) { (id, annotate) =>
+                      emitSource(schemas.fetch(id, project), annotate)
                     }
                   },
                   routeSpan("schemas/<str:org>/<str:project>/<str:id>/tags") {
@@ -187,11 +168,9 @@ final class SchemasRoutes(
                           emitTags(schemas.fetch(id, project))
                         },
                         // Tag a schema
-                        (post & revParam & pathEndOrSingleSlash) { rev =>
-                          authorizeWrite {
-                            entity(as[Tag]) { case Tag(tagRev, tag) =>
-                              emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
-                            }
+                        (post & authorizeWrite & revParam & pathEndOrSingleSlash) { rev =>
+                          entity(as[Tag]) { case Tag(tagRev, tag) =>
+                            emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
                           }
                         },
                         // Delete a tag

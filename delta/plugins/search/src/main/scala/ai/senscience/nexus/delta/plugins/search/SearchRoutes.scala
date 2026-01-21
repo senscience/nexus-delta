@@ -10,12 +10,13 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
+import io.circe.Json
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 import org.typelevel.otel4s.trace.Tracer
 
@@ -43,11 +44,11 @@ class SearchRoutes(
     baseUriPrefix(baseUri.prefix) {
       handleExceptions(searchExceptionHandler) {
         pathPrefix("search") {
-          extractCaller { implicit caller =>
+          extractCaller { case given Caller =>
             concat(
               // Query the underlying aggregate elasticsearch view for global search
               (pathPrefix("query") & post) {
-                (extractQueryParams & entity(as[JsonObject])) { (qp, payload) =>
+                (extractQueryParams & jsonObjectEntity) { (qp, payload) =>
                   concat(
                     pathEndOrSingleSlash {
                       emit(search.query(payload, qp))

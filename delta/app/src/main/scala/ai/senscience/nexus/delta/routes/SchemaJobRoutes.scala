@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, FileResponse}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.failedElemDataEncoder
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -54,7 +55,7 @@ class SchemaJobRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("jobs") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           pathPrefix("schemas") {
             (pathPrefix("validation") & projectRef) { project =>
               authorizeFor(project, Permissions.schemas.run).apply {

@@ -21,12 +21,11 @@ import io.circe.Json
 import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.http.scaladsl.model.Uri.Path
-import org.apache.pekko.http.scaladsl.server.{Directive1, *}
 import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.*
 
-import java.util.UUID
 import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 trait UriDirectives extends QueryParamsUnmarshalling {
 
@@ -45,7 +44,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
       base: BaseUri
   ): Directive[(Option[Boolean], Option[Int], Option[Subject], Option[Subject])] =
     parameter("deprecated".as[Boolean].?) &
-      parameter("rev".as[Int].?) &
+      revParamOpt &
       parameter("createdBy".as[Subject].?) &
       parameter("updatedBy".as[Subject].?)
 
@@ -90,17 +89,6 @@ trait UriDirectives extends QueryParamsUnmarshalling {
     * Consumes a Path segment parsing them into a [[Label]]
     */
   def label: Directive1[Label] = pathPrefix(Segment).flatMap(label)
-
-  /**
-    * Consumes a path Segment parsing it in a UUID
-    */
-  def uuid: Directive1[UUID] =
-    pathPrefix(Segment).flatMap { str =>
-      Try(UUID.fromString(str)) match {
-        case Failure(_)    => reject()
-        case Success(uuid) => provide(uuid)
-      }
-    }
 
   /**
     * Consumes two consecutive Path segments parsing them into two [[Label]]
@@ -224,7 +212,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
     * Consumes the rev/tag query parameter and generates an [[IdSegmentRef]]
     */
   def idSegmentRef(id: IdSegment): Directive1[IdSegmentRef] =
-    (parameter("rev".as[Int].?) & parameter("tag".as[UserTag].?)).tflatMap {
+    (revParamOpt & tagParam).tflatMap {
       case (Some(_), Some(_)) => reject(simultaneousTagAndRevRejection)
       case (Some(rev), _)     => provide(IdSegmentRef(id, rev))
       case (_, Some(tag))     => provide(IdSegmentRef(id, tag))

@@ -11,13 +11,13 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 import org.typelevel.otel4s.trace.Tracer
 
@@ -43,43 +43,35 @@ class GraphAnalyticsRoutes(
     baseUriPrefix(baseUri.prefix) {
       handleExceptions(graphAnalyticsExceptionHandler) {
         pathPrefix("graph-analytics") {
-          extractCaller { implicit caller =>
+          extractCaller { case given Caller =>
             projectRef { project =>
+              val authorizeRead  = authorizeFor(project, Read)
+              val authorizeQuery = authorizeFor(project, query)
               concat(
                 get {
                   concat(
                     // Fetch relationships
-                    (pathPrefix("relationships") & pathEndOrSingleSlash) {
-                      authorizeFor(project, Read).apply {
-                        emit(graphAnalytics.relationships(project))
-                      }
+                    (pathPrefix("relationships") & authorizeRead & pathEndOrSingleSlash) {
+                      emit(graphAnalytics.relationships(project))
                     },
                     // Fetch properties for a type
-                    (pathPrefix("properties") & idSegment & pathEndOrSingleSlash) { tpe =>
-                      authorizeFor(project, Read).apply {
-                        emit(graphAnalytics.properties(project, tpe))
-                      }
+                    (pathPrefix("properties") & idSegment & authorizeRead & pathEndOrSingleSlash) { tpe =>
+                      emit(graphAnalytics.properties(project, tpe))
                     },
                     // Fetch the statistics
-                    (pathPrefix("statistics") & pathEndOrSingleSlash) {
-                      authorizeFor(project, Read).apply {
-                        projectionsDirectives.statistics(
-                          project,
-                          SelectFilter.latest,
-                          GraphAnalytics.projectionName(project)
-                        )
-                      }
+                    (pathPrefix("statistics") & authorizeRead & pathEndOrSingleSlash) {
+                      projectionsDirectives.statistics(
+                        project,
+                        SelectFilter.latest,
+                        GraphAnalytics.projectionName(project)
+                      )
                     }
                   )
                 },
-                post {
-                  // Search a graph analytics view
-                  (pathPrefix("_search") & pathEndOrSingleSlash) {
-                    authorizeFor(project, query).apply {
-                      (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
-                        emit(viewsQuery.query(project, query, qp))
-                      }
-                    }
+                // Search a graph analytics view
+                (post & pathPrefix("_search") & authorizeQuery & pathEndOrSingleSlash) {
+                  (extractQueryParams & jsonObjectEntity) { (qp, query) =>
+                    emit(viewsQuery.query(project, query, qp))
                   }
                 }
               )

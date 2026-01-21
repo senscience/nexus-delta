@@ -12,7 +12,7 @@ import org.apache.pekko.http.scaladsl.server.Route
   */
 object BlazegraphViewsRoutesHandler {
 
-  def apply(schemeDirectives: DeltaSchemeDirectives, routes: Route*)(implicit baseUri: BaseUri): Route =
+  def apply(schemeDirectives: DeltaSchemeDirectives, routes: Route*)(using baseUri: BaseUri): Route =
     (baseUriPrefix(baseUri.prefix) & schemeDirectives.replaceUri("views", schema.iri)) {
       concat(routes*)
     }

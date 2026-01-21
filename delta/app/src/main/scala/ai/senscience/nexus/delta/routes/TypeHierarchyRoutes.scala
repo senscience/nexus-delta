@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
@@ -30,13 +31,16 @@ final class TypeHierarchyRoutes(
     discardEntityAndForceEmit(err)
   }
 
+  private val typeHierarchyMapping = entity(as[TypeHierarchy]).map(_.mapping)
+
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
+        val authorizeWrite = authorizeFor(AclAddress.Root, typehierarchy.write)
         pathPrefix("type-hierarchy") {
           concat(
             // Fetch using the revision
-            (get & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
+            (get & revParam & pathEndOrSingleSlash) { rev =>
               emit(typeHierarchy.fetch(rev))
             },
             // Fetch the type hierarchy
@@ -44,20 +48,12 @@ final class TypeHierarchyRoutes(
               emit(typeHierarchy.fetch)
             },
             // Create the type hierarchy
-            (post & pathEndOrSingleSlash) {
-              entity(as[TypeHierarchy]) { payload =>
-                authorizeFor(AclAddress.Root, typehierarchy.write).apply {
-                  emit(StatusCodes.Created, typeHierarchy.create(payload.mapping))
-                }
-              }
+            (post & pathEndOrSingleSlash & authorizeWrite & typeHierarchyMapping) { mapping =>
+              emit(StatusCodes.Created, typeHierarchy.create(mapping))
             },
             // Update the type hierarchy
-            (put & parameter("rev".as[Int]) & pathEndOrSingleSlash) { rev =>
-              entity(as[TypeHierarchy]) { payload =>
-                authorizeFor(AclAddress.Root, typehierarchy.write).apply {
-                  emit(typeHierarchy.update(payload.mapping, rev))
-                }
-              }
+            (put & pathEndOrSingleSlash & authorizeWrite & typeHierarchyMapping & revParam) { case (mapping, rev) =>
+              emit(typeHierarchy.update(mapping, rev))
             }
           )
         }

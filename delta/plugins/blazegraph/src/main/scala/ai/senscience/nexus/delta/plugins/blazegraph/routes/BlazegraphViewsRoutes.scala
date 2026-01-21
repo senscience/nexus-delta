@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.plugins.blazegraph.{BlazegraphViews, Blazegraph
 import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
@@ -24,7 +23,6 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive0, Route}
@@ -59,16 +57,14 @@ class BlazegraphViewsRoutes(
       concat(
         pathPrefix("views") {
           extractCaller { case given Caller =>
-            projectRef { implicit project =>
+            projectRef { project =>
               val authorizeRead  = authorizeFor(project, Read)
               val authorizeWrite = authorizeFor(project, Write)
               // Create a view without id segment
               concat(
                 routeSpan("views/<str:org>/<str:project>") {
-                  (pathEndOrSingleSlash & post & entity(as[Json]) & noRev) { source =>
-                    authorizeWrite {
-                      emitMetadataOrReject(Created, views.create(project, source))
-                    }
+                  (pathEndOrSingleSlash & post & authorizeWrite & jsonEntity & noRev) { source =>
+                    emitMetadataOrReject(Created, views.create(project, source))
                   }
                 },
                 idSegment { id =>
@@ -76,50 +72,35 @@ class BlazegraphViewsRoutes(
                     pathEndOrSingleSlash {
                       routeSpan("views/<str:org>/<str:project>/<str:id>") {
                         concat(
-                          put {
-                            authorizeWrite {
-                              (revParamOpt & pathEndOrSingleSlash & entity(as[Json])) {
-                                case (None, source)      =>
-                                  // Create a view with id segment
-                                  emitMetadataOrReject(
-                                    Created,
-                                    views.create(id, project, source)
-                                  )
-                                case (Some(rev), source) =>
-                                  // Update a view
-                                  emitMetadataOrReject(
-                                    views.update(id, project, rev, source)
-                                  )
-                              }
-                            }
-                          },
-                          (delete & revParam) { rev =>
-                            // Deprecate a view
-                            authorizeWrite {
+                          (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
+                            case (None, source)      =>
+                              // Create a view with id segment
                               emitMetadataOrReject(
-                                views.deprecate(id, project, rev)
+                                Created,
+                                views.create(id, project, source)
                               )
-                            }
+                            case (Some(rev), source) =>
+                              // Update a view
+                              emitMetadataOrReject(
+                                views.update(id, project, rev, source)
+                              )
+                          },
+                          (delete & authorizeWrite & revParam) { rev =>
+                            // Deprecate a view
+                            emitMetadataOrReject(views.deprecate(id, project, rev))
                           },
                           // Fetch a view
                           (get & idSegmentRef(id)) { id =>
-                            emitOrFusionRedirect(
-                              project,
-                              id,
-                              authorizeRead {
-                                emit(views.fetch(id, project))
-                              }
-                            )
+                            val fetchRoute = authorizeRead { emit(views.fetch(id, project)) }
+                            emitOrFusionRedirect(project, id, fetchRoute)
                           }
                         )
                       }
                     },
                     // Undeprecate a blazegraph view
-                    (pathPrefix("undeprecate") & put & revParam & pathEndOrSingleSlash) { rev =>
-                      (routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") & authorizeWrite) {
-                        emitMetadataOrReject(
-                          views.undeprecate(id, project, rev)
-                        )
+                    (pathPrefix("undeprecate") & put & authorizeWrite & revParam & pathEndOrSingleSlash) { rev =>
+                      routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") {
+                        emitMetadataOrReject(views.undeprecate(id, project, rev))
                       }
                     },
                     // Query a blazegraph view
@@ -128,10 +109,8 @@ class BlazegraphViewsRoutes(
                     )) {
                       concat(
                         // Query
-                        ((get & parameter("query".as[SparqlQuery])) | (post & entity(as[SparqlQuery]))) { query =>
-                          queryResponseType.apply { responseType =>
-                            emit(viewsQuery.query(id, project, query, responseType))
-                          }
+                        sparqlQueryResponseType { case (query, responseType) =>
+                          emit(viewsQuery.query(id, project, query, responseType))
                         }
                       )
                     },
@@ -155,9 +134,7 @@ class BlazegraphViewsRoutes(
             projectRef { project =>
               // if we are on the path /resources/{org}/{proj}/ we need to consume the {schema} segment before consuming the {id}
               consumeIdSegmentIf(segment == "resources") {
-                idSegment { id =>
-                  incomingOutgoing(id, project)
-                }
+                idSegment { id => incomingOutgoing(id, project) }
               }
             }
           }

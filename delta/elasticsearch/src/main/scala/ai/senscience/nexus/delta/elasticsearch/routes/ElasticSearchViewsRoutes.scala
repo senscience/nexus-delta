@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
@@ -67,12 +66,10 @@ final class ElasticSearchViewsRoutes(
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
             concat(
-              (routeSpan("views/<str:org>/<str:project>") & pathEndOrSingleSlash) {
+              routeSpan("views/<str:org>/<str:project>") {
                 // Create an elasticsearch view without id segment
-                (post & pathEndOrSingleSlash & noRev & entity(as[Json])) { source =>
-                  authorizeWrite {
-                    emitMetadataOrReject(Created, views.create(project, source))
-                  }
+                (post & pathEndOrSingleSlash & noRev & authorizeWrite & jsonEntity) { source =>
+                  emitMetadataOrReject(Created, views.create(project, source))
                 }
               },
               idSegment { id =>
@@ -80,44 +77,28 @@ final class ElasticSearchViewsRoutes(
                   (routeSpan("views/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
                     concat(
                       // Create or update an elasticsearch view
-                      put {
-                        authorizeWrite {
-                          (revParamOpt & pathEndOrSingleSlash & entity(as[Json])) {
-                            case (None, source)      =>
-                              // Create an elasticsearch view with id segment
-                              emitMetadataOrReject(
-                                Created,
-                                views.create(id, project, source)
-                              )
-                            case (Some(rev), source) =>
-                              // Update a view
-                              emitMetadataOrReject(
-                                views.update(id, project, rev, source)
-                              )
-                          }
-                        }
+                      (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
+                        case (None, source)      =>
+                          // Create an elasticsearch view with id segment
+                          emitMetadataOrReject(Created, views.create(id, project, source))
+                        case (Some(rev), source) =>
+                          // Update a view
+                          emitMetadataOrReject(views.update(id, project, rev, source))
                       },
                       // Deprecate an elasticsearch view
-                      (delete & revParam) { rev =>
-                        authorizeWrite {
-                          emitMetadataOrReject(views.deprecate(id, project, rev))
-                        }
+                      (delete & authorizeWrite & revParam) { rev =>
+                        emitMetadataOrReject(views.deprecate(id, project, rev))
                       },
                       // Fetch an elasticsearch view
                       (get & idSegmentRef(id)) { id =>
-                        emitOrFusionRedirect(
-                          project,
-                          id,
-                          authorizeRead {
-                            emit(views.fetch(id, project))
-                          }
-                        )
+                        val fetchRoute = authorizeRead { emit(views.fetch(id, project)) }
+                        emitOrFusionRedirect(project, id, fetchRoute)
                       }
                     )
                   },
                   // Undeprecate an elasticsearch view
-                  (pathPrefix("undeprecate") & put & pathEndOrSingleSlash & revParam) { rev =>
-                    (routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") & authorizeWrite) {
+                  (pathPrefix("undeprecate") & put & authorizeWrite & pathEndOrSingleSlash & revParam) { rev =>
+                    routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") {
                       emitMetadataOrReject(
                         views.undeprecate(id, project, rev)
                       )
@@ -126,7 +107,7 @@ final class ElasticSearchViewsRoutes(
                   // Query an elasticsearch view
                   (pathPrefix("_search") & post & pathEndOrSingleSlash) {
                     routeSpan("views/<str:org>/<str:project>/<str:id>/_search") {
-                      (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                      (extractQueryParams & jsonObjectEntity) { (qp, query) =>
                         emit(viewsQuery.query(id, project, query, qp))
                       }
                     }
@@ -135,27 +116,19 @@ final class ElasticSearchViewsRoutes(
                   (pathPrefix("_pit") & parameter("keep_alive".as[Long]) & post & pathEndOrSingleSlash) { keepAlive =>
                     routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
                       val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
-                      emitJson(
-                        viewsQuery
-                          .createPointInTime(id, project, keepAliveDuration)
-                      )
+                      emitJson(viewsQuery.createPointInTime(id, project, keepAliveDuration))
                     }
                   },
                   // Delete a point in time
                   (pathPrefix("_pit") & entity(as[PointInTime]) & delete & pathEndOrSingleSlash) { pit =>
                     routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
-                      emit(
-                        StatusCodes.NoContent,
-                        viewsQuery.deletePointInTime(pit)
-                      )
+                      emit(StatusCodes.NoContent, viewsQuery.deletePointInTime(pit))
                     }
                   },
                   // Fetch an elasticsearch view original source
-                  (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
+                  (pathPrefix("source") & get & authorizeRead & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
                     routeSpan("views/<str:org>/<str:project>/<str:id>/source") {
-                      authorizeFor(project, Read).apply {
-                        emitSource(views.fetch(id, project))
-                      }
+                      emitSource(views.fetch(id, project))
                     }
                   }
                 )

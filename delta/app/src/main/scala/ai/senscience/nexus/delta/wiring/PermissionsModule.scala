@@ -38,13 +38,13 @@ object PermissionsModule extends NexusModuleDef {
   make[PermissionsRoutes].from {
     (
         identities: Identities,
-        permissions: Permissions,
         aclCheck: AclCheck,
+        permissions: Permissions,
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         tracer: Tracer[IO] @Id("permissions")
-    ) => new PermissionsRoutes(identities, permissions, aclCheck)(using baseUri)(using cr, ordering, tracer)
+    ) => new PermissionsRoutes(identities, aclCheck, permissions)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: PermissionsRoutes) =>

@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
@@ -19,7 +20,7 @@ import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.{Realm, RealmFields, RealmRejection}
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, Route}
 import org.typelevel.otel4s.trace.Tracer
@@ -50,55 +51,40 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(u
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
       pathPrefix("realms") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
             // List realms
             (get & extractHttp4sUri & fromPaginated & realmsSearchParams & sort[Realm] & pathEndOrSingleSlash) {
               (uri, pagination, params, order) =>
                 authorizeFor(AclAddress.Root, realmsPermissions.read).apply {
-                  implicit val encoder: JsonLdEncoder[SearchResults[RealmResource]] =
+                  given JsonLdEncoder[SearchResults[RealmResource]] =
                     searchResultsJsonLdEncoder(Realm.context, pagination, uri)
-                  val result                                                        = realms
-                    .list(pagination, params, order)
-                    .widen[SearchResults[RealmResource]]
-                  emit(result)
+                  emit(realms.list(pagination, params, order).widen[SearchResults[RealmResource]])
                 }
             },
             (label & pathEndOrSingleSlash) { id =>
+              val authorizeRead  = authorizeFor(AclAddress.Root, realmsPermissions.read)
+              val authorizeWrite = authorizeFor(AclAddress.Root, realmsPermissions.write)
               concat(
                 // Create or update a realm
-                put {
-                  authorizeFor(AclAddress.Root, realmsPermissions.write).apply {
-                    parameter("rev".as[Int].?) {
-                      case Some(rev) =>
-                        // Update a realm
-                        entity(as[RealmFields]) { fields => emitMetadata(realms.update(id, rev, fields)) }
-                      case None      =>
-                        // Create a realm
-                        entity(as[RealmFields]) { fields =>
-                          emitMetadata(StatusCodes.Created, realms.create(id, fields))
-                        }
-                    }
-                  }
+                (put & authorizeWrite & entity(as[RealmFields]) & revParamOpt) {
+                  case (fields, Some(rev)) =>
+                    // Update a realm
+                    emitMetadata(realms.update(id, rev, fields))
+                  case (fields, None)      =>
+                    // Create a realm
+                    emitMetadata(StatusCodes.Created, realms.create(id, fields))
                 },
                 // Fetch a realm
-                get {
-                  authorizeFor(AclAddress.Root, realmsPermissions.read).apply {
-                    parameter("rev".as[Int].?) {
-                      case Some(rev) => // Fetch realm at specific revision
-                        emit(realms.fetchAt(id, rev))
-                      case None      => // Fetch realm
-                        emit(realms.fetch(id))
-                    }
-                  }
+                (get & authorizeRead & revParamOpt) {
+                  case Some(rev) => // Fetch realm at specific revision
+                    emit(realms.fetchAt(id, rev))
+                  case None      => // Fetch realm
+                    emit(realms.fetch(id))
                 },
                 // Deprecate realm
-                delete {
-                  authorizeFor(AclAddress.Root, realmsPermissions.write).apply {
-                    parameter("rev".as[Int]) { rev =>
-                      emitMetadata(realms.deprecate(id, rev))
-                    }
-                  }
+                (delete & authorizeWrite & revParam) { rev =>
+                  emitMetadata(realms.deprecate(id, rev))
                 }
               )
             }

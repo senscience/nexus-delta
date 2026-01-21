@@ -17,7 +17,6 @@ import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCode
 import org.apache.pekko.http.scaladsl.model.StatusCodes.{Created, SeeOther}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
@@ -50,28 +49,24 @@ class ArchiveRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & handleStorageExceptions & archivesExceptionHandler) {
       pathPrefix("archives") {
-        extractCaller { implicit caller =>
-          projectRef { implicit project =>
+        extractCaller { case given Caller =>
+          projectRef { project =>
+            val authorizeRead  = authorizeFor(project, permissions.read)
+            val authorizeWrite = authorizeFor(project, permissions.write)
             concat(
               // create an archive without an id
-              (post & entity(as[Json]) & pathEndOrSingleSlash) { json =>
-                authorizeFor(project, permissions.write).apply {
-                  emitCreatedArchive(archives.create(project, json))
-                }
+              (post & jsonEntity & pathEndOrSingleSlash & authorizeWrite) { json =>
+                emitCreatedArchive(archives.create(project, json))
               },
               (idSegment & pathEndOrSingleSlash) { id =>
                 concat(
                   // create an archive with an id
-                  (put & entity(as[Json]) & pathEndOrSingleSlash) { json =>
-                    authorizeFor(project, permissions.write).apply {
-                      emitCreatedArchive(archives.create(id, project, json))
-                    }
+                  (put & jsonEntity & pathEndOrSingleSlash & authorizeWrite) { json =>
+                    emitCreatedArchive(archives.create(id, project, json))
                   },
                   // fetch or download an archive
-                  (get & pathEndOrSingleSlash) {
-                    authorizeFor(project, permissions.read).apply {
-                      emitArchiveDownload(id, project)
-                    }
+                  (get & pathEndOrSingleSlash & authorizeRead) {
+                    emitArchiveDownload(id, project)
                   }
                 )
               }
@@ -90,7 +85,7 @@ class ArchiveRoutes(
       case false => emitMetadata(Created, io)
     }
 
-  private def emitArchiveDownload(id: IdSegment, project: ProjectRef)(implicit caller: Caller): Route =
+  private def emitArchiveDownload(id: IdSegment, project: ProjectRef)(using Caller): Route =
     Zip.checkHeader {
       case true  =>
         parameter("ignoreNotFound".as[Boolean] ? false) { ignoreNotFound =>

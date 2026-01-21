@@ -30,7 +30,7 @@ import scala.concurrent.duration.*
 
 class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
 
-  implicit private val f: FusionConfig = fusionConfig
+  private given FusionConfig = fusionConfig
 
   private val viewId  = nxv + uuid.toString
   private val esId    = iri"http://example.com/es-projection"

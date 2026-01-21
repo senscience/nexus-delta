@@ -20,7 +20,7 @@ import org.apache.pekko.http.scaladsl.server.Route
 
 class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
-  implicit private val caller: Subject = Identity.Anonymous
+  private given Subject = Identity.Anonymous
 
   private val minimum    =
     Set(Permissions.acls.read, Permissions.acls.write, permissionsPerms.read, permissionsPerms.write, events.read)
@@ -34,7 +34,7 @@ class PermissionsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
   private val aclCheck         = AclSimpleCheck().accepted
   private lazy val permissions = PermissionsImpl(config, xas, clock)
-  private lazy val route       = Route.seal(PermissionsRoutes(identities, permissions, aclCheck))
+  private lazy val route       = Route.seal(PermissionsRoutes(identities, aclCheck, permissions))
 
   "The permissions routes" should {
 

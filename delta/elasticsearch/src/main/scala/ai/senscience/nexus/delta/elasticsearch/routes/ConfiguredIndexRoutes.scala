@@ -18,7 +18,6 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.*
 import org.typelevel.otel4s.trace.Tracer
 
@@ -97,7 +96,7 @@ final class ConfiguredIndexRoutes(
               routeSpan("index/configured/<str:org>/<str:project>/<str:target>/_search") {
                 (indexTarget & pathPrefix("_search") & post & pathEndOrSingleSlash) { target =>
                   authorizeQuery {
-                    (extractQueryParams & entity(as[JsonObject])) { (qp, query) =>
+                    (extractQueryParams & jsonObjectEntity) { (qp, query) =>
                       emit(configuredQuery.search(project, target, query, qp))
                     }
                   }

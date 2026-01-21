@@ -61,10 +61,10 @@ final class FilesRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("files", schemas.files)) {
       (handleStorageExceptions & pathPrefix("files")) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
-            implicit class IndexOps(io: IO[FileResource]) {
-              def index(m: IndexingMode): IO[FileResource] = io.flatTap(self.index(project, _, m))
+            extension (io: IO[FileResource]) {
+              private def index(m: IndexingMode): IO[FileResource] = io.flatTap(self.index(project, _, m))
             }
             concat(
               (pathEndOrSingleSlash & post & noRev & storageParam & indexingMode & tagParam) { (storage, mode, tag) =>

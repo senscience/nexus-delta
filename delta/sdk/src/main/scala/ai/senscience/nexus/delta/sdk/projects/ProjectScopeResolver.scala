@@ -18,12 +18,12 @@ trait ProjectScopeResolver {
   /**
     * Get the available projects where the current user has the given permission for the given scope
     */
-  def apply(scope: Scope, permission: Permission)(implicit caller: Caller): IO[Set[ProjectRef]]
+  def apply(scope: Scope, permission: Permission)(using Caller): IO[Set[ProjectRef]]
 
   /**
     * Gives the list of addresses where the current user has the given permission for the given scope
     */
-  def access(scope: Scope, permission: Permission)(implicit caller: Caller): IO[PermissionAccess]
+  def access(scope: Scope, permission: Permission)(using Caller): IO[PermissionAccess]
 }
 
 object ProjectScopeResolver {
@@ -42,7 +42,7 @@ object ProjectScopeResolver {
       flattenedAclStore: FlattenedAclStore
   ): ProjectScopeResolver =
     new ProjectScopeResolver {
-      override def apply(scope: Scope, permission: Permission)(implicit caller: Caller): IO[Set[ProjectRef]] = {
+      override def apply(scope: Scope, permission: Permission)(using Caller): IO[Set[ProjectRef]] = {
         access(scope, permission).flatMap { permissionAccess =>
           fetchProjects(scope).filter(permissionAccess.grant).compile.to(Set).flatTap { authorizedProjects =>
             IO.raiseWhen(authorizedProjects.isEmpty)(AuthorizationFailed("No projects are accessible."))
@@ -50,7 +50,7 @@ object ProjectScopeResolver {
         }
       }
 
-      override def access(scope: Scope, permission: Permission)(implicit caller: Caller): IO[PermissionAccess] = {
+      override def access(scope: Scope, permission: Permission)(using caller: Caller): IO[PermissionAccess] = {
         val address = AclAddress.fromScope(scope)
         flattenedAclStore.fetchAddresses(address, permission, caller.identities).map(PermissionAccess(permission, _))
       }

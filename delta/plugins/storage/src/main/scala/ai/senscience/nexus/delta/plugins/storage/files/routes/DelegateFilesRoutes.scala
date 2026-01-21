@@ -40,7 +40,7 @@ final class DelegateFilesRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       (pathPrefix("delegate" / "files") & handleStorageExceptions) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
             (pathPrefix("generate") & projectRef) { project =>
               concat(
@@ -65,12 +65,8 @@ final class DelegateFilesRoutes(
                 }
               )
             },
-            (pathPrefix("submit") & put & pathEndOrSingleSlash & entity(as[Json]) & indexingMode) {
-              (jwsPayload, mode) =>
-                emit(
-                  Created,
-                  linkDelegatedFile(jwsPayload, mode): ResponseToJsonLd
-                )
+            (pathPrefix("submit") & put & pathEndOrSingleSlash & jsonEntity & indexingMode) { (jwsPayload, mode) =>
+              emit(Created, linkDelegatedFile(jwsPayload, mode): ResponseToJsonLd)
             }
           )
         }
