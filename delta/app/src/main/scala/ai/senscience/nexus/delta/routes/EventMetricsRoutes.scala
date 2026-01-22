@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -29,7 +30,7 @@ final class EventMetricsRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("event-metrics") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           authorizeFor(AclAddress.Root, supervision.read).apply {
             concat(
               pathPrefix("statistics") {

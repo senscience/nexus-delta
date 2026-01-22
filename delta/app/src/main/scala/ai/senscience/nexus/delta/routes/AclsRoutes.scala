@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.{malformedQueryParamEncoder, malformedQueryParamResponseFields}
 import ai.senscience.nexus.delta.sdk.marshalling.{QueryParamsUnmarshalling, RdfRejectionHandler}
@@ -36,7 +37,7 @@ import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
 import org.typelevel.otel4s.trace.Tracer
 
-class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using baseUri: BaseUri)(using
+class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using baseUri: BaseUri)(using
     RemoteContextResolution,
     JsonKeyOrdering,
     Tracer[IO]
@@ -49,11 +50,9 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using b
   private val simultaneousRevAndAncestorsRejection =
     MalformedQueryParamRejection("rev", "rev and ancestors query parameters cannot be present simultaneously.")
 
-  implicit private val aclsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[AclResource]] =
-    searchResultsJsonLdEncoder(Acl.context)
+  private given JsonLdEncoder[SearchResults[AclResource]] = searchResultsJsonLdEncoder(Acl.context)
 
-  implicit private val malformedQueryParamJsonLdEncoder: JsonLdEncoder[MalformedQueryParamRejection] =
-    RdfRejectionHandler.compactFromCirceRejection
+  private given JsonLdEncoder[MalformedQueryParamRejection] = RdfRejectionHandler.compactFromCirceRejection
 
   private val exceptionHandler = ExceptionHandler { case err: AclRejection =>
     discardEntityAndForceEmit(err)
@@ -95,9 +94,7 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using b
 
   private def emitWithoutAncestors(io: IO[AclResource]): Route = emit {
     io.map(Option(_))
-      .recover { case AclNotFound(_) =>
-        None
-      }
+      .recover { case AclNotFound(_) => None }
       .map(searchResults(_))
   }
 
@@ -109,38 +106,40 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using b
     SearchResults(vector.length.toLong, vector)
   }
 
-  def routes: Route =
+  private val revParamOrZero = parameter("rev" ? 0)
+  private val selfParam      = parameter("self" ? true)
+  private val ancestorsParam = parameter("ancestors" ? false)
+
+  def routes: Route = {
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("acls") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
             extractAclAddress { address =>
-              parameter("rev" ? 0) { rev =>
+              val authorizeRead  = authorizeFor(address, aclsPermissions.read)
+              val authorizeWrite = authorizeFor(address, aclsPermissions.write)
+              revParamOrZero { rev =>
                 concat(
                   // Replace ACLs
-                  (put & entity(as[ReplaceAcl])) { case ReplaceAcl(AclValues(values)) =>
-                    authorizeFor(address, aclsPermissions.write).apply {
-                      val status = if rev == 0 then Created else OK
-                      emitMetadata(status, acls.replace(Acl(address, values*), rev))
-                    }
+                  (put & authorizeWrite & entity(as[ReplaceAcl])) { case ReplaceAcl(AclValues(values)) =>
+                    val status = if rev == 0 then Created else OK
+                    emitMetadata(status, acls.replace(Acl(address, values*), rev))
                   },
                   // Append or subtract ACLs
-                  (patch & entity(as[PatchAcl]) & authorizeFor(address, aclsPermissions.write)) {
+                  (patch & entity(as[PatchAcl]) & authorizeWrite) {
                     case Append(AclValues(values))   =>
                       emitMetadata(acls.append(Acl(address, values*), rev))
                     case Subtract(AclValues(values)) =>
                       emitMetadata(acls.subtract(Acl(address, values*), rev))
                   },
                   // Delete ACLs
-                  delete {
-                    authorizeFor(address, aclsPermissions.write).apply {
-                      emitMetadata(acls.delete(address, rev))
-                    }
+                  (delete & authorizeWrite) {
+                    emitMetadata(acls.delete(address, rev))
                   },
                   // Fetch ACLs
-                  (get & parameter("self" ? true)) {
+                  (get & selfParam) {
                     case true  =>
-                      (parameter("rev".as[Int].?) & parameter("ancestors" ? false)) {
+                      (revParamOpt & ancestorsParam) {
                         case (Some(_), true)    => emit(simultaneousRevAndAncestorsRejection)
                         case (Some(rev), false) =>
                           // Fetch self ACLs without ancestors at specific revision
@@ -153,47 +152,45 @@ class AclsRoutes(identities: Identities, acls: Acls, aclCheck: AclCheck)(using b
                           emitWithoutAncestors(acls.fetchSelf(address))
                       }
                     case false =>
-                      authorizeFor(address, aclsPermissions.read).apply {
-                        (parameter("rev".as[Int].?) & parameter("ancestors" ? false)) {
-                          case (Some(_), true)    => reject(simultaneousRevAndAncestorsRejection)
-                          case (Some(rev), false) =>
-                            // Fetch all ACLs without ancestors at specific revision
-                            emitWithoutAncestors(acls.fetchAt(address, rev))
-                          case (None, true)       =>
-                            // Fetch all ACLs with ancestors
-                            emitWithAncestors(acls.fetchWithAncestors(address))
-                          case (None, false)      =>
-                            // Fetch all ACLs without ancestors
-                            emitWithoutAncestors(acls.fetch(address))
-                        }
+                      (authorizeRead & revParamOpt & ancestorsParam) {
+                        case (Some(_), true)    => reject(simultaneousRevAndAncestorsRejection)
+                        case (Some(rev), false) =>
+                          // Fetch all ACLs without ancestors at specific revision
+                          emitWithoutAncestors(acls.fetchAt(address, rev))
+                        case (None, true)       =>
+                          // Fetch all ACLs with ancestors
+                          emitWithAncestors(acls.fetchWithAncestors(address))
+                        case (None, false)      =>
+                          // Fetch all ACLs without ancestors
+                          emitWithoutAncestors(acls.fetch(address))
                       }
                   }
                 )
               }
             },
             // Filter ACLs
-            (get & extractAclAddressFilter) { addressFilter =>
-              parameter("self" ? true) {
-                case true  =>
-                  // Filter self ACLs with or without ancestors
-                  emitWithAncestors(acls.listSelf(addressFilter).map(_.removeEmpty()))
-                case false =>
-                  // Filter all ACLs with or without ancestors
-                  emitWithAncestors(
-                    acls
-                      .list(addressFilter)
-                      .map { aclCol =>
-                        val accessibleAcls = aclCol.filterByPermission(caller.identities, aclsPermissions.read)
-                        val callerAcls     = aclCol.filter(caller.identities)
-                        accessibleAcls ++ callerAcls
-                      }
-                  )
-              }
+            (get & extractAclAddressFilter & selfParam) { case (addressFilter, self) =>
+              emitWithAncestors(fetchFilteredAcls(addressFilter, self))
             }
           )
         }
       }
     }
+  }
+
+  private def fetchFilteredAcls(addressFilter: AclAddressFilter, self: Boolean)(using caller: Caller) = {
+    if self then {
+      acls.listSelf(addressFilter).map(_.removeEmpty())
+    } else {
+      acls
+        .list(addressFilter)
+        .map { aclCol =>
+          val accessibleAcls = aclCol.filterByPermission(caller.identities, aclsPermissions.read)
+          val callerAcls     = aclCol.filter(caller.identities)
+          accessibleAcls ++ callerAcls
+        }
+    }
+  }
 }
 
 object AclsRoutes {
@@ -201,8 +198,8 @@ object AclsRoutes {
   final private[routes] case class ReplaceAcl(acl: AclValues)
   private[routes] object ReplaceAcl {
 
-    implicit val aclReplaceDecoder: Decoder[ReplaceAcl] = {
-      implicit val config: Configuration = Configuration.default.withStrictDecoding
+    given Decoder[ReplaceAcl] = {
+      given Configuration = Configuration.default.withStrictDecoding
       deriveConfiguredDecoder[ReplaceAcl]
     }
   }
@@ -212,8 +209,8 @@ object AclsRoutes {
     final case class Subtract(acl: AclValues) extends PatchAcl
     final case class Append(acl: AclValues)   extends PatchAcl
 
-    implicit val aclPatchDecoder: Decoder[PatchAcl] = {
-      implicit val config: Configuration = Configuration.default.withStrictDecoding.withDiscriminator(keywords.tpe)
+    given Decoder[PatchAcl] = {
+      given Configuration = Configuration.default.withStrictDecoding.withDiscriminator(keywords.tpe)
       deriveConfiguredDecoder[PatchAcl]
     }
   }
@@ -222,12 +219,12 @@ object AclsRoutes {
     * @return
     *   the [[Route]] for ACLs
     */
-  def apply(identities: Identities, acls: Acls, aclCheck: AclCheck)(using
+  def apply(identities: Identities, aclCheck: AclCheck, acls: Acls)(using
       BaseUri,
       RemoteContextResolution,
       JsonKeyOrdering,
       Tracer[IO]
   ): AclsRoutes =
-    new AclsRoutes(identities, acls, aclCheck)
+    new AclsRoutes(identities, aclCheck, acls)
 
 }

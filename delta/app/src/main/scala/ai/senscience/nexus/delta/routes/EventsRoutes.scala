@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, lastEventId}
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
@@ -29,7 +30,7 @@ class EventsRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     sseEventLog: SseEventLog
-)(implicit baseUri: BaseUri)
+)(using baseUri: BaseUri)
     extends AuthDirectives(identities, aclCheck: AclCheck) {
 
   given Tracer[IO] = Tracer.noop
@@ -42,42 +43,37 @@ class EventsRoutes(
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         lastEventId { offset =>
           concat(
             concat(
               // SSE for all events with a given selector
-              (resolveSelector & pathPrefix("events") & pathEndOrSingleSlash & get) { selector =>
-                concat(
-                  authorizeFor(AclAddress.Root, events.read).apply {
-                    emit(sseEventLog.streamBy(selector, offset))
-                  },
-                  (head & authorizeFor(AclAddress.Root, events.read)) {
-                    complete(OK)
-                  }
-                )
+              (resolveSelector & pathPrefix("events") & pathEndOrSingleSlash) { selector =>
+                authorizeFor(AclAddress.Root, events.read).apply {
+                  concat(
+                    get { emit(sseEventLog.streamBy(selector, offset)) },
+                    head { complete(OK) }
+                  )
+                }
+
               },
               // SSE for events with a given selector within a given organization
-              (resolveSelector & label & pathPrefix("events") & pathEndOrSingleSlash & get) { (selector, org) =>
-                concat(
-                  authorizeFor(org, events.read).apply {
-                    emit(sseEventLog.streamBy(selector, org, offset))
-                  },
-                  (head & authorizeFor(org, events.read)) {
-                    complete(OK)
-                  }
-                )
+              (resolveSelector & label & pathPrefix("events") & pathEndOrSingleSlash) { (selector, org) =>
+                authorizeFor(org, events.read).apply {
+                  concat(
+                    get { emit(sseEventLog.streamBy(selector, org, offset)) },
+                    head { complete(OK) }
+                  )
+                }
               },
               // SSE for events with a given selector within a given project
               (resolveSelector & projectRef & pathPrefix("events") & pathEndOrSingleSlash) { (selector, project) =>
-                concat(
-                  (get & authorizeFor(project, events.read)).apply {
-                    emit(sseEventLog.streamBy(selector, project, offset))
-                  },
-                  (head & authorizeFor(project, events.read)) {
-                    complete(OK)
-                  }
-                )
+                authorizeFor(project, events.read) {
+                  concat(
+                    get { emit(sseEventLog.streamBy(selector, project, offset)) },
+                    head { complete(OK) }
+                  )
+                }
               }
             )
           )
@@ -97,6 +93,6 @@ object EventsRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       sseEventLog: SseEventLog
-  )(implicit baseUri: BaseUri): Route = new EventsRoutes(identities, aclCheck, sseEventLog).routes
+  )(using BaseUri): Route = new EventsRoutes(identities, aclCheck, sseEventLog).routes
 
 }

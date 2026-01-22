@@ -28,10 +28,9 @@ import scala.util.Random
 
 class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost/base//", "v1")
+  private given baseUri: BaseUri = BaseUri.unsafe("http://localhost/base//", "v1")
 
-  implicit private val paginationConfig: PaginationConfig =
-    PaginationConfig(defaultSize = 10, sizeLimit = 20, fromLimit = 50)
+  private given PaginationConfig = PaginationConfig(defaultSize = 10, sizeLimit = 20, fromLimit = 50)
 
   private val route: Route =
     (get & uriPrefix(baseUri.base)) {
@@ -48,9 +47,6 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
         },
         (pathPrefix("projectRef") & projectRef & pathEndOrSingleSlash) { ref =>
           complete(ref.toString)
-        },
-        (pathPrefix("uuid") & uuid & pathEndOrSingleSlash) { uuid =>
-          complete(uuid.toString)
         },
         (pathPrefix("id") & idSegment & pathEndOrSingleSlash) {
           case IriSegment(iri)       => complete(s"iri='$iri'")
@@ -115,19 +111,6 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
     "reject if project ref is wrongly formatted" in {
       Get("/base/projectRef/@rg/proj") ~> Accept(`*/*`) ~> route ~> check {
         rejection shouldBe a[ValidationRejection]
-      }
-    }
-
-    "return a UUID" in {
-      val uuid = UUID.randomUUID()
-      Get(s"/base/uuid/$uuid") ~> Accept(`*/*`) ~> route ~> check {
-        response.asString shouldEqual uuid.toString
-      }
-    }
-
-    "reject if UUID wrongly formatted" in {
-      Get("/base/uuid/other") ~> Accept(`*/*`) ~> route ~> check {
-        handled shouldEqual false
       }
     }
 
@@ -373,7 +356,6 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
 object UriDirectivesSpec {
   final case class IntValue(value: Int)
   object IntValue {
-    implicit val intValueOrderingFields: OrderingFields[IntValue] =
-      OrderingFields { case "value" => Ordering[Int] on (_.value) }
+    given OrderingFields[IntValue] = OrderingFields { case "value" => Ordering[Int] on (_.value) }
   }
 }

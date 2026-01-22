@@ -39,70 +39,60 @@ import org.typelevel.otel4s.trace.Tracer
   * @param aclCheck
   *   verify the acls for users
   */
-final class PermissionsRoutes(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(using
+final class PermissionsRoutes(identities: Identities, aclCheck: AclCheck, permissions: Permissions)(using
     baseUri: BaseUri
 )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
-  implicit private val resourceFUnitJsonLdEncoder: JsonLdEncoder[ResourceF[Unit]] =
+  private given JsonLdEncoder[ResourceF[Unit]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.permissionsMetadata))
 
   private val exceptionHandler = ExceptionHandler { case err: PermissionsRejection =>
     discardEntityAndForceEmit(err)
   }
 
-  private def authorizeRead(implicit caller: Caller)  = authorizeFor(AclAddress.Root, permissionsPerms.read)
-  private def authorizeWrite(implicit caller: Caller) = authorizeFor(AclAddress.Root, permissionsPerms.write)
+  private val revParamOrZero   = parameter("rev" ? 0)
+  private val patchPermissions = entity(as[PatchPermissions])
 
   private def emitMetadata(io: IO[PermissionsResource]): Route = emit(io.map(_.void))
 
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("permissions") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
+          val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)
+          val authorizeWrite = authorizeFor(AclAddress.Root, permissionsPerms.write)
           concat(
             pathEndOrSingleSlash {
               concat(
                 // Fetch permissions
-                get {
-                  authorizeRead.apply {
-                    parameter("rev".as[Int].?) {
-                      case Some(rev) => emit(permissions.fetchAt(rev))
-                      case None      => emit(permissions.fetch)
-                    }
-                  }
+                (get & authorizeRead & revParamOpt) {
+                  case Some(rev) => emit(permissions.fetchAt(rev))
+                  case None      => emit(permissions.fetch)
                 },
                 // Replace permissions
-                (put & parameter("rev" ? 0)) { rev =>
-                  authorizeWrite.apply {
-                    entity(as[PatchPermissions]) {
-                      case Replace(set) => emitMetadata(permissions.replace(set, rev))
-                      case _            =>
-                        malformedContent(s"Value for field '${keywords.tpe}' must be 'Replace' when using 'PUT'.")
-                    }
+                (put & revParamOrZero & authorizeWrite) { rev =>
+                  patchPermissions {
+                    case Replace(set) => emitMetadata(permissions.replace(set, rev))
+                    case _            =>
+                      malformedContent(s"Value for field '${keywords.tpe}' must be 'Replace' when using 'PUT'.")
                   }
                 },
                 // Append or Subtract permissions
-                (patch & parameter("rev" ? 0)) { rev =>
-                  authorizeWrite.apply {
-                    entity(as[PatchPermissions]) {
-                      case Append(set)   => emitMetadata(permissions.append(set, rev))
-                      case Subtract(set) => emitMetadata(permissions.subtract(set, rev))
-                      case _             =>
-                        malformedContent(
-                          s"Value for field '${keywords.tpe}' must be 'Append' or 'Subtract' when using 'PATCH'."
-                        )
-                    }
+                (patch & revParamOrZero & authorizeWrite) { rev =>
+                  patchPermissions {
+                    case Append(set)   => emitMetadata(permissions.append(set, rev))
+                    case Subtract(set) => emitMetadata(permissions.subtract(set, rev))
+                    case _             =>
+                      malformedContent(
+                        s"Value for field '${keywords.tpe}' must be 'Append' or 'Subtract' when using 'PATCH'."
+                      )
                   }
                 },
                 // Delete permissions
-                delete {
-                  authorizeWrite.apply {
-                    parameter("rev".as[Int]) { rev =>
-                      emitMetadata(permissions.delete(rev))
-                    }
-                  }
+                (delete & authorizeWrite & revParam) { rev =>
+                  emitMetadata(permissions.delete(rev))
                 }
               )
             }
@@ -121,13 +111,13 @@ object PermissionsRoutes {
     * @return
     *   the [[Route]] for the permission resources
     */
-  def apply(identities: Identities, permissions: Permissions, aclCheck: AclCheck)(using
+  def apply(identities: Identities, aclCheck: AclCheck, permissions: Permissions)(using
       BaseUri,
       RemoteContextResolution,
       JsonKeyOrdering,
       Tracer[IO]
   ): Route =
-    new PermissionsRoutes(identities, permissions, aclCheck: AclCheck).routes
+    new PermissionsRoutes(identities, aclCheck, permissions).routes
 
   sealed private[routes] trait PatchPermissions extends Product with Serializable
 
@@ -137,12 +127,11 @@ object PermissionsRoutes {
     final case class Subtract(permissions: Set[Permission]) extends PatchPermissions
     final case class Replace(permissions: Set[Permission])  extends PatchPermissions
 
-    implicit final private val configuration: Configuration =
-      Configuration.default.withStrictDecoding.withDiscriminator(keywords.tpe)
+    private given Configuration = Configuration.default.withStrictDecoding.withDiscriminator(keywords.tpe)
 
     private val replacedType = Json.obj(keywords.tpe -> "Replace".asJson)
 
-    implicit val patchPermissionsDecoder: Decoder[PatchPermissions] =
+    given Decoder[PatchPermissions] =
       Decoder.instance { hc =>
         deriveConfiguredDecoder[PatchPermissions].decodeJson(replacedType.deepMerge(hc.value))
       }

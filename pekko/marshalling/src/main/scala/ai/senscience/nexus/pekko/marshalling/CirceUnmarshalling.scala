@@ -3,9 +3,11 @@ package ai.senscience.nexus.pekko.marshalling
 import RdfMediaTypes.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import io.circe.{Decoder, Json}
+import io.circe.{Decoder, Json, JsonObject}
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.model.ContentTypeRange
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
+import org.apache.pekko.http.scaladsl.server.Directive1
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
 import org.apache.pekko.util.ByteString
 
@@ -23,13 +25,16 @@ trait CirceUnmarshalling {
   /**
     * HTTP entity => `Json`
     */
-  implicit final val jsonUnmarshaller: FromEntityUnmarshaller[Json] =
+  given jsonUnmarshaller: FromEntityUnmarshaller[Json] =
     Unmarshaller.byteStringUnmarshaller
       .forContentTypes(unmarshallerContentTypes*)
       .map {
         case ByteString.empty => throw Unmarshaller.NoContentException
         case data             => readFromArray[Json](data.toArray)
       }
+
+  val jsonEntity: Directive1[Json]             = entity(as[Json])
+  val jsonObjectEntity: Directive1[JsonObject] = entity(as[JsonObject])
 
   /**
     * HTTP entity => `Json` => `A`

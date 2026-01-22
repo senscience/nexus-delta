@@ -495,7 +495,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
           configuredIndex.routes,
           idResolutionRoute.routes,
           historyRoutes.routes
-        )(baseUri),
+        )(using baseUri),
         requiresStrictEntity = true
       )
   }

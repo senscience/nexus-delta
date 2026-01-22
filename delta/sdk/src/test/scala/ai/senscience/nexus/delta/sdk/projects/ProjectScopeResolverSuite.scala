@@ -56,55 +56,55 @@ class ProjectScopeResolverSuite extends NexusSuite with Doobie.Fixture {
   }
 
   test(s"Get $project1 for a user with full access") {
-    projectResolver(Scope.Project(project1), permissions.read)(bob).assertEquals(Set(project1))
+    projectResolver(Scope.Project(project1), permissions.read)(using bob).assertEquals(Set(project1))
   }
 
   test(s"List all projects in '$org' for a user with full access") {
-    projectResolver(Scope.Org(org), permissions.read)(bob).assertEquals(Set(project1, project2))
+    projectResolver(Scope.Org(org), permissions.read)(using bob).assertEquals(Set(project1, project2))
   }
 
   test("List all projects in 'root' for a user with full access") {
-    projectResolver(Scope.Root, permissions.read)(bob).assertEquals(Set(project1, project2, project3))
+    projectResolver(Scope.Root, permissions.read)(using bob).assertEquals(Set(project1, project2, project3))
   }
 
   test(s"Get $project1 for a user with limited access on '$org'") {
-    projectResolver(Scope.Project(project1), permissions.read)(alice).assertEquals(Set(project1))
+    projectResolver(Scope.Project(project1), permissions.read)(using alice).assertEquals(Set(project1))
   }
 
   test(s"List all projects in '$org' for a user with limited access on '$org'") {
-    projectResolver(Scope.Org(org), permissions.read)(alice).assertEquals(Set(project1, project2))
+    projectResolver(Scope.Org(org), permissions.read)(using alice).assertEquals(Set(project1, project2))
   }
 
   test(s"List only '$org' projects on 'root' in for a user with limited access on '$org'") {
-    projectResolver(Scope.Root, permissions.read)(alice).assertEquals(Set(project1, project2))
+    projectResolver(Scope.Root, permissions.read)(using alice).assertEquals(Set(project1, project2))
   }
 
   test(s"Get '$project1' for a user with limited access on '$project1'") {
-    projectResolver(Scope.Project(project1), permissions.read)(charlie).assertEquals(Set(project1))
+    projectResolver(Scope.Project(project1), permissions.read)(using charlie).assertEquals(Set(project1))
   }
 
   test(s"Raise an error for $project2 for a user with limited access on '$project1'") {
-    projectResolver(Scope.Project(project2), permissions.read)(charlie).intercept[AuthorizationFailed]
+    projectResolver(Scope.Project(project2), permissions.read)(using charlie).intercept[AuthorizationFailed]
   }
 
   test(s"List only '$project1' default view in '$org' for a user with limited access on '$project1'") {
-    projectResolver(Scope.Org(org), permissions.read)(charlie).assertEquals(Set(project1))
+    projectResolver(Scope.Org(org), permissions.read)(using charlie).assertEquals(Set(project1))
   }
 
   test(s"List only '$project1' default view in 'root' for a user with limited access on '$project1'") {
-    projectResolver(Scope.Root, permissions.read)(charlie).assertEquals(Set(project1))
+    projectResolver(Scope.Root, permissions.read)(using charlie).assertEquals(Set(project1))
   }
 
   test(s"Raise an error for $project1 for Anonymous") {
-    projectResolver(Scope.Project(project1), permissions.read)(anon).intercept[AuthorizationFailed]
+    projectResolver(Scope.Project(project1), permissions.read)(using anon).intercept[AuthorizationFailed]
   }
 
   test(s"Raise an error for $org for Anonymous") {
-    projectResolver(Scope.Org(org), permissions.read)(anon).intercept[AuthorizationFailed]
+    projectResolver(Scope.Org(org), permissions.read)(using anon).intercept[AuthorizationFailed]
   }
 
   test("Raise an error for root for Anonymous") {
-    projectResolver(Scope.Root, permissions.read)(anon).intercept[AuthorizationFailed]
+    projectResolver(Scope.Root, permissions.read)(using anon).intercept[AuthorizationFailed]
   }
 
 }

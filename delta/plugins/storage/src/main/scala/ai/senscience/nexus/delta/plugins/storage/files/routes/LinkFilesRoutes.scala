@@ -11,6 +11,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -37,9 +38,9 @@ class LinkFilesRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       (pathPrefix("link" / "files") & handleStorageExceptions) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           projectRef { project =>
-            implicit class IndexOps(io: IO[FileResource]) {
+            extension (io: IO[FileResource]) {
               def index(m: IndexingMode): IO[FileResource] = io.flatTap(self.index(project, _, m))
             }
             concat(

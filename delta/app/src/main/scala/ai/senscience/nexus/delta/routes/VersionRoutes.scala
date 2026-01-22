@@ -33,7 +33,7 @@ class VersionRoutes(
     plugins: List[PluginDescription],
     dependencies: List[ServiceDependency],
     env: Name
-)(implicit
+)(using
     baseUri: BaseUri,
     cr: RemoteContextResolution,
     ordering: JsonKeyOrdering
@@ -42,7 +42,7 @@ class VersionRoutes(
 
   given Tracer[IO] = Tracer.noop
 
-  private def fullOrDegraded(implicit caller: Caller) = aclCheck.authorizeFor(AclAddress.Root, version.read).flatMap {
+  private def fullOrDegraded(using Caller) = aclCheck.authorizeFor(AclAddress.Root, version.read).flatMap {
     case true  => dependencies.traverse(_.serviceDescription).map(VersionBundle(main, _, plugins, env))
     case false => IO.pure(emtyVersionBundle)
   }
@@ -50,7 +50,7 @@ class VersionRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("version") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           (get & pathEndOrSingleSlash) {
             emit(fullOrDegraded)
           }
@@ -80,20 +80,20 @@ object VersionRoutes {
     private def toMap(values: Iterable[ComponentDescription]): Map[String, String] =
       values.map(desc => desc.name -> desc.version).toMap
 
-    implicit private val versionBundleEncoder: Encoder.AsObject[VersionBundle] =
+    given Encoder.AsObject[VersionBundle] =
       Encoder.encodeJsonObject.contramapObject { case VersionBundle(main, dependencies, plugins, env) =>
         JsonObject(
-          main.name      -> main.version.asJson,
-          "dependencies" -> toMap(dependencies).asJson,
-          "plugins"      -> toMap(plugins).asJson,
-          "environment"  -> env.asJson
+          main.name      := main.version,
+          "dependencies" := toMap(dependencies),
+          "plugins"      := toMap(plugins),
+          "environment"  := env
         )
       }
 
-    implicit val versionBundleJsonLdEncoder: JsonLdEncoder[VersionBundle] =
+    given JsonLdEncoder[VersionBundle] =
       JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.version))
 
-    implicit val versionHttpResponseFields: HttpResponseFields[VersionBundle] = HttpResponseFields.defaultOk
+    given HttpResponseFields[VersionBundle] = HttpResponseFields.defaultOk
   }
 
   /**
@@ -105,7 +105,7 @@ object VersionRoutes {
       plugins: List[PluginDescription],
       dependencies: List[ServiceDependency],
       cfg: DescriptionConfig
-  )(implicit
+  )(using
       baseUri: BaseUri,
       cr: RemoteContextResolution,
       ordering: JsonKeyOrdering

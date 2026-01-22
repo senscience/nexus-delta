@@ -28,15 +28,13 @@ final class UserPermissionsRoutes(identities: Identities, aclCheck: AclCheck)(us
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      pathPrefix("user") {
-        pathPrefix("permissions") {
-          projectRef { project =>
-            extractCaller { case given Caller =>
-              head {
-                parameter("permission".as[Permission]) { permission =>
-                  authorizeFor(project, permission) {
-                    complete(StatusCodes.NoContent)
-                  }
+      (pathPrefix("user") & pathPrefix("permissions")) {
+        projectRef { project =>
+          extractCaller { case given Caller =>
+            head {
+              parameter("permission".as[Permission]) { permission =>
+                authorizeFor(project, permission) {
+                  complete(StatusCodes.NoContent)
                 }
               }
             }

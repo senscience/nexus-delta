@@ -35,14 +35,11 @@ import org.scalatest.BeforeAndAfterAll
 
 import java.time.Instant
 import java.util.UUID
-import scala.concurrent.duration.*
 
 class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with BeforeAndAfterAll {
 
-  implicit override def patienceConfig: PatienceConfig = PatienceConfig(6.seconds, 10.milliseconds)
-
-  private val projectUuid           = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(projectUuid)
+  private val projectUuid = UUID.randomUUID()
+  private given UUIDF     = UUIDF.fixed(projectUuid)
 
   private val orgUuid = UUID.randomUUID()
 
@@ -73,7 +70,7 @@ class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with 
   private val base  = "https://localhost/base/"
   private val vocab = "https://localhost/voc/"
 
-  implicit private val prefixIriConfig: PrefixConfig = PrefixConfig(
+  private given PrefixConfig = PrefixConfig(
     PrefixIriTemplate.unsafe(defaultBase),
     PrefixIriTemplate.unsafe(defaultVocab)
   )
@@ -98,9 +95,9 @@ class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with 
   )
 
   private val projectScopeResolver = new ProjectScopeResolver {
-    override def apply(scope: Scope, permission: Permission)(implicit caller: Caller): IO[Set[ProjectRef]] = ???
+    override def apply(scope: Scope, permission: Permission)(using Caller): IO[Set[ProjectRef]] = ???
 
-    override def access(scope: Scope, permission: Permission)(implicit
+    override def access(scope: Scope, permission: Permission)(using
         caller: Caller
     ): IO[ProjectScopeResolver.PermissionAccess] = {
       IO.pure {
@@ -539,13 +536,13 @@ class ProjectsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with 
     org -> project
   }
 
-  private def thereIsADeprecatedProject(implicit pos: Position) = {
+  private def thereIsADeprecatedProject(using Position) = {
     val (org, project) = thereIsAProject
     deprecateProject(org, project, 1)
     (org, project)
   }
 
-  private def deprecateProject(org: String, project: String, rev: Int)(implicit pos: Position): Unit = {
+  private def deprecateProject(org: String, project: String, rev: Int)(using Position): Unit = {
     Delete(s"/v1/projects/$org/$project?rev=$rev") ~> as(writer) ~> routes ~> check {
       status shouldEqual StatusCodes.OK
       response.asJson should be(deprecated)

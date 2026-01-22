@@ -53,7 +53,7 @@ trait ElasticSearchViewsDirectives extends UriDirectives {
 
   private def deprecated = parameter("deprecated".as[Boolean].?)
 
-  private def versionParams = (parameter("rev".as[Int].?) & tagParam).tmap(VersionParams(_, _))
+  private def versionParams = (revParamOpt & tagParam).tmap(VersionParams(_, _))
 
   private def logParams(using BaseUri) =
     (parameter("createdBy".as[Subject].?) & createdAt & parameter("updatedBy".as[Subject].?) & updatedAt)

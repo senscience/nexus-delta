@@ -271,7 +271,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
           bg.routes,
           indexing.routes,
           supervision.routes
-        )(baseUri),
+        )(using baseUri),
         requiresStrictEntity = true
       )
   }

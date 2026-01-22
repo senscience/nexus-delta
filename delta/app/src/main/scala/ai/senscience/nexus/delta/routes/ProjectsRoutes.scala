@@ -99,55 +99,47 @@ final class ProjectsRoutes(
               concat(
                 routeSpan("projects/<str:org>/<str:project>") {
                   concat(
-                    (put & pathEndOrSingleSlash) {
-                      parameter("rev".as[Int].?) {
-                        case None      =>
-                          // Create project
-                          (authorizeCreate & decodeFields) { fields =>
-                            emitMetadata(StatusCodes.Created, projects.create(project, fields))
-                          }
-                        case Some(rev) =>
-                          // Update project
-                          (authorizeWrite & decodeFields) { fields =>
-                            emitMetadata(projects.update(project, rev, fields))
-                          }
-                      }
+                    (put & pathEndOrSingleSlash & revParamOpt) {
+                      case None      =>
+                        // Create project
+                        (authorizeCreate & decodeFields) { fields =>
+                          emitMetadata(StatusCodes.Created, projects.create(project, fields))
+                        }
+                      case Some(rev) =>
+                        // Update project
+                        (authorizeWrite & decodeFields) { fields =>
+                          emitMetadata(projects.update(project, rev, fields))
+                        }
                     },
-                    (get & pathEndOrSingleSlash) {
-                      (parameter("rev".as[Int].?)) {
-                        case Some(rev) => // Fetch project at specific revision
+                    (get & pathEndOrSingleSlash & revParamOpt) {
+                      case Some(rev) => // Fetch project at specific revision
+                        authorizeRead {
+                          emit(projects.fetchAt(project, rev))
+                        }
+                      case None      => // Fetch project
+                        emitOrFusionRedirect(
+                          project,
                           authorizeRead {
-                            emit(projects.fetchAt(project, rev))
+                            emit(projects.fetch(project))
                           }
-                        case None      => // Fetch project
-                          emitOrFusionRedirect(
-                            project,
-                            authorizeRead {
-                              emit(projects.fetch(project))
-                            }
-                          )
-                      }
+                        )
                     },
                     // Deprecate/delete project
-                    (delete & pathEndOrSingleSlash) {
-                      parameters("rev".as[Int], "prune".?(false)) {
-                        case (rev, true)  =>
-                          authorizeDelete {
-                            emitMetadata(projects.delete(project, rev))
-                          }
-                        case (rev, false) =>
-                          authorizeWrite {
-                            emitMetadata(projects.deprecate(project, rev))
-                          }
-                      }
+                    (delete & pathEndOrSingleSlash & revParam & parameter("prune".?(false))) {
+                      case (rev, true)  =>
+                        authorizeDelete {
+                          emitMetadata(projects.delete(project, rev))
+                        }
+                      case (rev, false) =>
+                        authorizeWrite {
+                          emitMetadata(projects.deprecate(project, rev))
+                        }
                     }
                   )
                 },
-                (pathPrefix("undeprecate") & put & revParam) { revision =>
+                (pathPrefix("undeprecate") & put & authorizeWrite & revParam) { revision =>
                   routeSpan("projects/<str:org>/<str:project>/undeprecate") {
-                    authorizeWrite {
-                      emit(projects.undeprecate(project, revision))
-                    }
+                    emit(projects.undeprecate(project, revision))
                   }
                 },
                 // Project statistics

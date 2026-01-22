@@ -55,7 +55,7 @@ object EventsModule extends NexusModuleDef {
         sseEventLog: SseEventLog,
         baseUri: BaseUri
     ) =>
-      new EventsRoutes(identities, aclCheck, sseEventLog)(baseUri)
+      new EventsRoutes(identities, aclCheck, sseEventLog)(using baseUri)
   }
 
   many[PriorityRoute].add { (route: EventsRoutes) =>

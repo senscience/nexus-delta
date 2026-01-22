@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
@@ -44,10 +45,10 @@ class CompositeViewsIndexingRoutes(
     with ElasticSearchViewsDirectives
     with BlazegraphViewsDirectives {
 
-  implicit private val offsetsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectionOffset]] =
+  private given offsetsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectionOffset]] =
     searchResultsJsonLdEncoder(ContextValue(contexts.offset))
 
-  implicit private val statisticsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectionStatistics]] =
+  private given statisticsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectionStatistics]] =
     searchResultsJsonLdEncoder(ContextValue(contexts.statistics))
 
   private def fetchActiveView =
@@ -58,7 +59,7 @@ class CompositeViewsIndexingRoutes(
   def routes: Route =
     handleExceptions(CompositeViewExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           fetchActiveView { view =>
             val project        = view.project
             val authorizeRead  = authorizeFor(project, Read)
@@ -78,22 +79,16 @@ class CompositeViewsIndexingRoutes(
                 )
               },
               // Fetch composite indexing description
-              (pathPrefix("description") & pathEndOrSingleSlash & get) {
-                authorizeRead {
-                  emit(details.description(view))
-                }
+              (pathPrefix("description") & pathEndOrSingleSlash & get & authorizeRead) {
+                emit(details.description(view))
               },
               // Fetch composite view statistics
-              (pathPrefix("statistics") & pathEndOrSingleSlash & get) {
-                authorizeRead {
-                  emit(details.statistics(view))
-                }
+              (pathPrefix("statistics") & pathEndOrSingleSlash & get & authorizeRead) {
+                emit(details.statistics(view))
               },
               // Fetch elastic search view indexing failures
-              (pathPrefix("failures") & get) {
-                authorizeWrite {
-                  projectionDirectives.indexingErrors(view.ref)
-                }
+              (pathPrefix("failures") & get & authorizeWrite) {
+                projectionDirectives.indexingErrors(view.ref)
               },
               pathPrefix("projections") {
                 concat(
@@ -111,10 +106,8 @@ class CompositeViewsIndexingRoutes(
                     )
                   },
                   // Fetch all views' projections statistics
-                  (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
-                    authorizeRead {
-                      emit(details.statistics(view))
-                    }
+                  (get & pathPrefix("_") & pathPrefix("statistics") & authorizeRead & pathEndOrSingleSlash) {
+                    emit(details.statistics(view))
                   },
                   // Manage a views' projection offset
                   (idSegment & pathPrefix("offset") & pathEndOrSingleSlash) { projectionId =>
@@ -130,26 +123,20 @@ class CompositeViewsIndexingRoutes(
                     )
                   },
                   // Fetch a views' projection statistics
-                  (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { projectionId =>
-                    authorizeRead {
-                      emit(projectionStatistics(view, projectionId))
-                    }
+                  (get & idSegment & pathPrefix("statistics") & authorizeRead & pathEndOrSingleSlash) { projectionId =>
+                    emit(projectionStatistics(view, projectionId))
                   }
                 )
               },
               pathPrefix("sources") {
                 concat(
                   // Fetch all views' sources statistics
-                  (get & pathPrefix("_") & pathPrefix("statistics") & pathEndOrSingleSlash) {
-                    authorizeFor(project, Read).apply {
-                      emit(details.statistics(view))
-                    }
+                  (get & pathPrefix("_") & pathPrefix("statistics") & authorizeRead & pathEndOrSingleSlash) {
+                    emit(details.statistics(view))
                   },
                   // Fetch a views' sources statistics
-                  (get & idSegment & pathPrefix("statistics") & pathEndOrSingleSlash) { sourceId =>
-                    authorizeFor(project, Read).apply {
-                      emit(sourceStatistics(view, sourceId))
-                    }
+                  (get & idSegment & pathPrefix("statistics") & authorizeRead & pathEndOrSingleSlash) { sourceId =>
+                    emit(sourceStatistics(view, sourceId))
                   }
                 )
               }
@@ -180,19 +167,19 @@ class CompositeViewsIndexingRoutes(
       offsets <- details.sourceStatistics(view, source.id)
     } yield offsets
 
-  private def fullRestart(view: ActiveViewDef)(implicit s: Subject) =
+  private def fullRestart(view: ActiveViewDef)(using Subject) =
     for {
       offsets <- details.offsets(view.indexingRef)
       _       <- projections.scheduleFullRestart(view.ref)
     } yield offsets.map(_.copy(offset = Offset.Start))
 
-  private def fullRebuild(view: ActiveViewDef)(implicit s: Subject) =
+  private def fullRebuild(view: ActiveViewDef)(using Subject) =
     for {
       offsets <- details.offsets(view.indexingRef)
       _       <- projections.scheduleFullRebuild(view.ref)
     } yield offsets.map(_.copy(offset = Offset.Start))
 
-  private def partialRebuild(view: ActiveViewDef, projectionId: IdSegment)(implicit s: Subject) =
+  private def partialRebuild(view: ActiveViewDef, projectionId: IdSegment)(using Subject) =
     for {
       projection <- fetchProjection(view, projectionId)
       offsets    <- details.projectionOffsets(view.indexingRef, projection.id)

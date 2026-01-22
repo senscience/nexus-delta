@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
@@ -24,15 +25,14 @@ final class ViewsRoutes(
 )(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck: AclCheck) {
 
-  def routes: Route =
+  private given JsonLdEncoder[SearchResults[ResourceF[Unit]]] =
+    searchResultsJsonLdEncoder(ContextEmpty)
+  def routes: Route                                           =
     baseUriPrefix(baseUri.prefix) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         pathPrefix("views") {
           projectRef { project =>
-            val authorizeRead                                   = authorizeFor(project, Read)
-            given JsonLdEncoder[SearchResults[ResourceF[Unit]]] =
-              searchResultsJsonLdEncoder(ContextEmpty)
-            (get & authorizeRead & pathEndOrSingleSlash) {
+            (get & authorizeFor(project, Read) & pathEndOrSingleSlash) {
               emit(viewsList(project))
             }
           }

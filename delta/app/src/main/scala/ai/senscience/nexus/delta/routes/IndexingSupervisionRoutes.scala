@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{baseUriPrefix, emitJson, timeRange}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -30,14 +31,14 @@ final class IndexingSupervisionRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       (pathPrefix("supervision") & pathPrefix("indexing")) {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           pathPrefix("errors") {
-            authorizeFor(AclAddress.Root, supervision.read).apply {
+            authorizeFor(AclAddress.Root, supervision.read) {
               concat(
                 (pathPrefix("count") & timeRange("instant") & get & pathEndOrSingleSlash) { timeRange =>
                   emitJson(projectionErrors.count(timeRange))
                 },
-                (pathPrefix("latest") & parameter("rev".as[Int].?) & get & pathEndOrSingleSlash) { sizeOpt =>
+                (pathPrefix("latest") & parameter("size".as[Int].?) & get & pathEndOrSingleSlash) { sizeOpt =>
                   emitJson(projectionErrors.latest(sizeOpt.getOrElse(100)).map(IndexingErrorBundle(_)))
                 }
               )
@@ -54,7 +55,7 @@ object IndexingSupervisionRoutes {
   private case class IndexingErrorBundle(errors: List[FailedElemLog])
 
   private object IndexingErrorBundle {
-    implicit val indexingErrorBundleEncoder: Encoder[IndexingErrorBundle] = deriveEncoder[IndexingErrorBundle]
+    given Encoder[IndexingErrorBundle] = deriveEncoder[IndexingErrorBundle]
   }
 
 }

@@ -6,11 +6,12 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
+import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseElemStream
-import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
+import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import cats.effect.IO
@@ -34,30 +35,28 @@ class ElemRoutes(
     extends AuthDirectives(identities, aclCheck: AclCheck) {
   import schemeDirectives.*
 
+  private val tagParamOrLatest = tagParam.map(_.getOrElse(Latest))
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         lastEventId { offset =>
           pathPrefix("elems") {
             projectRef { project =>
               authorizeFor(project, events.read).apply {
-                (parameter("tag".as[UserTag].?) & types(project)) { (tag, types) =>
+                (tagParamOrLatest & types(project)) { (tag, types) =>
                   concat(
                     (get & pathPrefix("continuous")) {
-                      emit(
-                        sseElemStream.continuous(project, SelectFilter(types, tag.getOrElse(Latest)), offset)
-                      )
+                      emit(sseElemStream.continuous(project, SelectFilter(types, tag), offset))
                     },
                     (get & pathPrefix("currents")) {
-                      emit(sseElemStream.currents(project, SelectFilter(types, tag.getOrElse(Latest)), offset))
+                      emit(sseElemStream.currents(project, SelectFilter(types, tag), offset))
                     },
                     (get & pathPrefix("remaining")) {
                       emit(
                         sseElemStream
-                          .remaining(project, SelectFilter(types, tag.getOrElse(Latest)), offset)
-                          .map { r =>
-                            r.getOrElse(RemainingElems(0L, Instant.EPOCH))
-                          }
+                          .remaining(project, SelectFilter(types, tag), offset)
+                          .map { _.getOrElse(RemainingElems(0L, Instant.EPOCH)) }
                       )
                     },
                     head {

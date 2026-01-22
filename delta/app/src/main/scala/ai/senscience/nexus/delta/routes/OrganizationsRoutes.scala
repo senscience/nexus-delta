@@ -19,10 +19,9 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationRejection}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
-import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.Decoder
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
@@ -35,21 +34,21 @@ import org.typelevel.otel4s.trace.Tracer
   *
   * @param identities
   *   the identities operations bundle
-  * @param organizations
-  *   the organizations operations bundle
   * @param aclCheck
   *   verify the acl for users
+  * @param organizations
+  *   the organizations operations bundle
   */
 final class OrganizationsRoutes(
     identities: Identities,
+    aclCheck: AclCheck,
     organizations: Organizations,
-    orgDeleter: OrganizationDeleter,
-    aclCheck: AclCheck
+    orgDeleter: OrganizationDeleter
 )(using baseUri: BaseUri)(using PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
-  private def orgsSearchParams(implicit caller: Caller): Directive1[OrganizationSearchParams] =
+  private def orgsSearchParams(using Caller): Directive1[OrganizationSearchParams] =
     (searchParams & parameter("label".?)).tmap { case (deprecated, rev, createdBy, updatedBy, label) =>
       OrganizationSearchParams(
         deprecated,
@@ -67,84 +66,66 @@ final class OrganizationsRoutes(
   private def emitMetadata(io: IO[OrganizationResource]): Route =
     emitMetadata(StatusCodes.OK, io)
 
+  private def orgDescription = entity(as[OrganizationInput]).map(_.description)
+
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("orgs") {
-        extractCaller { implicit caller =>
+        extractCaller { case given Caller =>
           concat(
             // List organizations
             (get & extractHttp4sUri & fromPaginated & orgsSearchParams & sort[Organization] & pathEndOrSingleSlash) {
               (uri, pagination, params, order) =>
-                implicit val searchJsonLdEncoder: JsonLdEncoder[SearchResults[OrganizationResource]] =
+                given JsonLdEncoder[SearchResults[OrganizationResource]] =
                   searchResultsJsonLdEncoder(Organization.context, pagination, uri)
-
-                emit(
-                  organizations
-                    .list(pagination, params, order)
-                    .widen[SearchResults[OrganizationResource]]
-                )
+                emit(organizations.list(pagination, params, order).widen[SearchResults[OrganizationResource]])
             },
-            concat(
-              (label & pathEndOrSingleSlash) { org =>
-                concat(
-                  put {
-                    parameter("rev".as[Int]) { rev =>
-                      authorizeFor(org, orgs.write).apply {
-                        // Update organization
-                        entity(as[OrganizationInput]) { case OrganizationInput(description) =>
-                          emitMetadata(organizations.update(org, description, rev))
-                        }
+            (label & pass) { org =>
+              val authorizeCreate = authorizeFor(org, orgs.create)
+              val authorizeRead   = authorizeFor(org, orgs.read)
+              val authorizeWrite  = authorizeFor(org, orgs.write)
+              val authorizeDelete = authorizeFor(org, orgs.delete)
+              concat(
+                pathEndOrSingleSlash {
+                  concat(
+                    (put & noRev & authorizeCreate) {
+                      // Create organization
+                      orgDescription { description =>
+                        emitMetadata(StatusCodes.Created, organizations.create(org, description))
                       }
-                    }
-                  },
-                  get {
-                    authorizeFor(org, orgs.read).apply {
-                      parameter("rev".as[Int].?) {
-                        case Some(rev) => // Fetch organization at specific revision
-                          emit(organizations.fetchAt(org, rev))
-                        case None      => // Fetch organization
-                          emit(organizations.fetch(org))
-
+                    },
+                    (put & authorizeWrite & revParam) { rev =>
+                      // Update organization
+                      orgDescription { description =>
+                        emitMetadata(organizations.update(org, description, rev))
                       }
+                    },
+                    (get & authorizeRead & revParamOpt) {
+                      case Some(rev) => // Fetch organization at specific revision
+                        emit(organizations.fetchAt(org, rev))
+                      case None      => // Fetch organization
+                        emit(organizations.fetch(org))
+                    },
+                    // Deprecate or delete an organization
+                    (delete & revParamOpt & parameter("prune".as[Boolean].?)) {
+                      case (Some(rev), prune) if !prune.contains(true) =>
+                        authorizeWrite { emitMetadata(organizations.deprecate(org, rev)) }
+                      case (None, Some(true))                          =>
+                        authorizeDelete { emit(orgDeleter(org)) }
+                      case (_, _)                                      => discardEntityAndForceEmit(InvalidDeleteRequest(org): OrganizationRejection)
                     }
-                  },
-                  // Deprecate or delete organization
-                  delete {
-                    parameters("rev".as[Int].?, "prune".as[Boolean].?) {
-                      case (Some(rev), None)        => deprecate(org, rev)
-                      case (Some(rev), Some(false)) => deprecate(org, rev)
-                      case (None, Some(true))       =>
-                        authorizeFor(org, orgs.delete).apply {
-                          emit(orgDeleter.apply(org))
-                        }
-                      case (_, _)                   => discardEntityAndForceEmit(InvalidDeleteRequest(org): OrganizationRejection)
-                    }
-                  }
-                )
-              },
-              (label & put & pathPrefix("undeprecate") & pathEndOrSingleSlash & parameter("rev".as[Int])) {
-                (org, rev) =>
-                  authorizeFor(org, orgs.write).apply {
+                  )
+                },
+                (put & pathPrefix("undeprecate") & pathEndOrSingleSlash & revParam) { rev =>
+                  authorizeWrite {
                     emitMetadata(organizations.undeprecate(org, rev))
                   }
-              }
-            ),
-            (label & pathEndOrSingleSlash) { label =>
-              (put & authorizeFor(label, orgs.create)) {
-                // Create organization
-                entity(as[OrganizationInput]) { case OrganizationInput(description) =>
-                  emitMetadata(StatusCodes.Created, organizations.create(label, description))
                 }
-              }
+              )
             }
           )
         }
       }
-    }
-
-  private def deprecate(id: Label, rev: Int)(implicit c: Caller) =
-    authorizeFor(id, orgs.write).apply {
-      emitMetadata(organizations.deprecate(id, rev))
     }
 }
 
@@ -152,9 +133,8 @@ object OrganizationsRoutes {
   final private[routes] case class OrganizationInput(description: Option[String])
 
   private[routes] object OrganizationInput {
-
-    implicit final private val configuration: Configuration      = Configuration.default.withStrictDecoding
-    implicit val organizationDecoder: Decoder[OrganizationInput] = deriveConfiguredDecoder[OrganizationInput]
+    private given Configuration      = Configuration.default.withStrictDecoding
+    given Decoder[OrganizationInput] = deriveConfiguredDecoder[OrganizationInput]
   }
 
   /**
@@ -163,10 +143,10 @@ object OrganizationsRoutes {
     */
   def apply(
       identities: Identities,
+      aclCheck: AclCheck,
       organizations: Organizations,
-      orgDeleter: OrganizationDeleter,
-      aclCheck: AclCheck
+      orgDeleter: OrganizationDeleter
   )(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
-    new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck).routes
+    new OrganizationsRoutes(identities, aclCheck, organizations, orgDeleter).routes
 
 }

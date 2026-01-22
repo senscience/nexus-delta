@@ -24,7 +24,7 @@ class IdentitiesRoutes(identities: Identities, aclCheck: AclCheck)(using baseUri
   def routes: Route = {
     baseUriPrefix(baseUri.prefix) {
       (pathPrefix("identities") & pathEndOrSingleSlash) {
-        (extractCaller & get) { implicit caller =>
+        (extractCaller & get) { caller =>
           emit(IO.pure(caller))
         }
       }

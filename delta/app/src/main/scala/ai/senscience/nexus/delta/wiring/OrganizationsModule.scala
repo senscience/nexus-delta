@@ -57,16 +57,16 @@ object OrganizationsModule extends NexusModuleDef {
   make[OrganizationsRoutes].from {
     (
         identities: Identities,
+        aclCheck: AclCheck,
         organizations: Organizations,
         orgDeleter: OrganizationDeleter,
         orgConfig: OrganizationsConfig,
         baseUri: BaseUri,
-        aclCheck: AclCheck,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         tracer: Tracer[IO] @Id("orgs")
     ) =>
-      new OrganizationsRoutes(identities, organizations, orgDeleter, aclCheck)(using baseUri)(using
+      new OrganizationsRoutes(identities, aclCheck, organizations, orgDeleter)(using baseUri)(using
         orgConfig.pagination,
         cr,
         ordering,

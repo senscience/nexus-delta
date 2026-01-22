@@ -81,7 +81,7 @@ object Response {
       }
 
     private def extractDistinctTypes(rejections: Seq[Reject[?]]) =
-      rejections.map(_.json.hcursor.get[String](keywords.tpe).toOption).flatten.distinct
+      rejections.flatMap(_.json.hcursor.get[String](keywords.tpe).toOption).distinct
 
     implicit final val rejectJsonLdEncoder: JsonLdEncoder[Seq[Reject[?]]] =
       JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
