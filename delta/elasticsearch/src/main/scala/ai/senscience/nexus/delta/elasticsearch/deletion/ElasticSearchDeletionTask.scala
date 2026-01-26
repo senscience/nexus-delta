@@ -45,7 +45,7 @@ object ElasticSearchDeletionTask {
       currentViews,
       (v: ActiveViewDef, subject: Subject) =>
         views
-          .internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(subject)
+          .internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(using subject)
           .handleErrorWith { r =>
             logger.error(s"Deprecating '$v' resulted in error: '$r'.")
           }
