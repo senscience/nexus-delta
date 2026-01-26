@@ -46,7 +46,7 @@ class IdResolutionRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture 
     }
 
     "redirect the proxy call to the resolve endpoint" in {
-      val segment             = s"neurosciencegraph/data/test"
+      val segment             = "neurosciencegraph/data/test"
       val fullId              = s"https://bbp.epfl.ch/$segment"
       val expectedRedirection = s"$baseUri/resolve/${encodeUriPath(fullId)}"
 
