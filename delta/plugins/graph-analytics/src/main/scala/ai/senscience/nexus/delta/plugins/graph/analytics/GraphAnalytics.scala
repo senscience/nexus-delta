@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, QueryBuilder}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest, IndexLabel}
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig.TermAggregationsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.{propertiesAggQuery, relationshipsAggQuery}
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection.InvalidPropertyType
@@ -14,9 +14,8 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.data.NonEmptySeq
 import cats.effect.IO
-import cats.implicits.*
-import io.circe.{Decoder, JsonObject}
-import org.http4s.Query
+import cats.syntax.all.*
+import io.circe.Decoder
 
 trait GraphAnalytics {
 
@@ -45,14 +44,14 @@ object GraphAnalytics {
       private val expandIri: ExpandIri[InvalidPropertyType] = new ExpandIri(InvalidPropertyType.apply)
 
       private def propertiesAggQueryFor(tpe: Iri) =
-        propertiesAggQuery(config).map(_.replace("@type" -> "{{type}}", tpe))
+        propertiesAggQuery(config).map(_.replace("@type" -> "{{type}}", tpe)).map(ElasticSearchRequest(_))
 
       override def relationships(projectRef: ProjectRef): IO[AnalyticsGraph] =
         for {
           _         <- fetchContext.onRead(projectRef)
-          query     <- relationshipsAggQuery(config)
+          request   <- relationshipsAggQuery(config).map(ElasticSearchRequest(_))
           indexValue = index(prefix, projectRef).value
-          stats     <- client.searchAs[AnalyticsGraph](QueryBuilder.unsafe(query), indexValue, Query.empty)
+          stats     <- client.searchAs[AnalyticsGraph](request, Set(indexValue))
         } yield stats
 
       override def properties(
@@ -60,10 +59,9 @@ object GraphAnalytics {
           tpe: IdSegment
       ): IO[PropertiesStatistics] = {
 
-        def search(tpe: Iri, idx: IndexLabel, query: JsonObject) = {
-          implicit val d: Decoder[PropertiesStatistics] = propertiesDecoderFromEsAggregations(tpe)
-          val queryBuilder                              = QueryBuilder.unsafe(query).withTotalHits(true)
-          client.searchAs[PropertiesStatistics](queryBuilder, idx.value, Query.empty)
+        def search(tpe: Iri, idx: IndexLabel, request: ElasticSearchRequest) = {
+          given Decoder[PropertiesStatistics] = propertiesDecoderFromEsAggregations(tpe)
+          client.searchAs[PropertiesStatistics](request, Set(idx.value))
         }
 
         for {

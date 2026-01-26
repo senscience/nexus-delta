@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.{configuredIndexingId, c
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.query.ConfiguredIndexQuery
-import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.elasticSearchRequest
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -95,10 +95,8 @@ final class ConfiguredIndexRoutes(
               },
               routeSpan("index/configured/<str:org>/<str:project>/<str:target>/_search") {
                 (indexTarget & pathPrefix("_search") & post & pathEndOrSingleSlash) { target =>
-                  authorizeQuery {
-                    (extractQueryParams & jsonObjectEntity) { (qp, query) =>
-                      emit(configuredQuery.search(project, target, query, qp))
-                    }
+                  (authorizeQuery & elasticSearchRequest) { request =>
+                    emit(configuredQuery.search(project, target, request))
                   }
                 }
               }

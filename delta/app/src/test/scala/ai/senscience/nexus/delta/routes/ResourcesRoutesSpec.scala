@@ -23,7 +23,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.testkit.scalatest.ce.CatsIOValues
 import cats.syntax.all.*
 import io.circe.{Json, Printer}
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
@@ -34,11 +33,7 @@ import org.scalatest.Assertion
 
 import java.util.UUID
 
-class ResourcesRoutesSpec
-    extends BaseRouteSpec
-    with DoobieScalaTestFixture
-    with ValidateResourceFixture
-    with CatsIOValues {
+class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with ValidateResourceFixture {
 
   private val uuid                  = UUID.randomUUID()
   implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)

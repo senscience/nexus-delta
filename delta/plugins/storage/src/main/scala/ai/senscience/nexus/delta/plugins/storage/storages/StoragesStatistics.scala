@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest, IndexLabel}
 import ai.senscience.nexus.delta.plugins.storage.files.nxvFile
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -8,8 +8,6 @@ import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import io.circe.literal.*
-import io.circe.{DecodingFailure, JsonObject}
-import org.http4s.Query
 
 trait StoragesStatistics {
 
@@ -37,13 +35,13 @@ object StoragesStatistics {
       fetchStorageId: (IdSegment, ProjectRef) => IO[Iri],
       index: IndexLabel
   ): StoragesStatistics = {
-    val search = (jsonObject: JsonObject) => client.search(jsonObject, Set(index.value), Query.empty)()
+    val search = (request: ElasticSearchRequest) => client.search(request, Set(index.value))
 
     (idSegment: IdSegment, project: ProjectRef) => {
       for {
         storageId <- fetchStorageId(idSegment, project)
-        query     <- storageStatisticsQuery(project, storageId)
-        result    <- search(query)
+        request    = storageStatisticsQuery(project, storageId)
+        result    <- search(request)
         stats     <- IO.fromEither(result.as[StorageStatEntry])
       } yield stats
     }
@@ -57,10 +55,11 @@ object StoragesStatistics {
     * @return
     *   a query for the total number of files and the total size of a storage in a given project
     */
-  private def storageStatisticsQuery(projectRef: ProjectRef, storageId: Iri): IO[JsonObject] =
-    IO.fromOption(json"""
-         {
-          "query": {
+  private def storageStatisticsQuery(projectRef: ProjectRef, storageId: Iri): ElasticSearchRequest =
+    ElasticSearchRequest(
+      "query" ->
+        json"""
+            {
             "bool": {
               "filter": [
                 { "term": { "@type": $nxvFile } },
@@ -68,13 +67,13 @@ object StoragesStatistics {
                 { "term": { "storage": $storageId } }
               ]
             }
-          },
-          "aggs": {
-            "storageSize": { "sum": { "field": "bytes" } },
-            "filesCount": { "sum": { "field": "newFileWritten" } }
-          },
-          "size": 0
-        }
-        """.asObject)(DecodingFailure("Failed to decode ES statistics query.", List.empty))
+          }
+         """,
+      "aggs"  -> json"""{
+          "storageSize": { "sum": { "field": "bytes" } },
+          "filesCount": { "sum": { "field": "newFileWritten" } }
+        }""",
+      "size"  -> json"0"
+    )
 
 }

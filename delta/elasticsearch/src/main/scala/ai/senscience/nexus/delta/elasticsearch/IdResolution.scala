@@ -37,10 +37,8 @@ trait IdResolution {
     *
     * @param iri
     *   identifier of the resource to be resolved
-    * @param caller
-    *   user having requested the resolution
     */
-  def apply(iri: Iri)(implicit caller: Caller): IO[ResolutionResult]
+  def apply(iri: Iri)(using Caller): IO[ResolutionResult]
 }
 
 object IdResolution {
@@ -61,7 +59,7 @@ object IdResolution {
       new JsonLdEncoder[ResolutionResult] {
 
         private def encoder[A](value: JsonLdContent[A])(implicit baseUri: BaseUri): JsonLdEncoder[ResourceF[A]] = {
-          implicit val encoder: JsonLdEncoder[A] = value.encoder
+          given JsonLdEncoder[A] = value.encoder
           resourceFAJsonLdEncoder[A](ContextValue.empty)
         }
 
@@ -83,7 +81,7 @@ object IdResolution {
           }
       }
 
-    implicit val resultHttpResponseFields: HttpResponseFields[ResolutionResult] = HttpResponseFields.defaultOk
+    given HttpResponseFields[ResolutionResult] = HttpResponseFields.defaultOk
 
   }
 
@@ -93,7 +91,7 @@ object IdResolution {
       fetchResource: (ResourceRef, ProjectRef) => IO[Option[JsonLdContent[?]]]
   ): IdResolution = new IdResolution {
 
-    override def apply(iri: Iri)(implicit caller: Caller): IO[ResolutionResult] = {
+    override def apply(iri: Iri)(using Caller): IO[ResolutionResult] = {
       val locate  = ResourcesSearchParams(id = Some(iri))
       val request = MainIndexRequest(locate, FromPagination(0, 10000), SortList.empty)
 

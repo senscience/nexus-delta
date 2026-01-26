@@ -47,7 +47,7 @@ object BulkResponse {
         */
       final case class Error(id: String, json: JsonObject) extends Outcome
 
-      implicit private[client] val outcomeDecoder: Decoder[Outcome] = {
+      private[client] given Decoder[Outcome] = {
         val operations = List("index", "delete", "update", "create")
         Decoder.instance { hc =>
           for {
@@ -65,7 +65,7 @@ object BulkResponse {
     }
   }
 
-  implicit private[client] val bulkResponseDecoder: Decoder[BulkResponse] =
+  private[client] given Decoder[BulkResponse] =
     Decoder.instance { hc =>
       hc.get[Boolean]("errors").flatMap { hasErrors =>
         if hasErrors then

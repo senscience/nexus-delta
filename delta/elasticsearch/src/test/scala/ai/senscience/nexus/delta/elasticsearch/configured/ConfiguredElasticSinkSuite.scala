@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.syntax.all.*
 import fs2.Chunk
 import munit.{AnyFixture, Location}
-import org.http4s.Query
 
 import java.time.Instant
 import scala.concurrent.duration.DurationInt
@@ -71,7 +70,7 @@ class ConfiguredElasticSinkSuite extends NexusElasticsearchSuite with ElasticSea
   private def assertSearch(index: IndexLabel, expected: (Iri, ConfiguredIndexDocument)*)(using Location) = {
     val expectedSources = expected.toSet.flatMap(_._2.value.asObject)
     client
-      .search(QueryBuilder.empty, Set(index.value), Query.empty)
+      .search(QueryBuilder.empty, Set(index.value))
       .map(_.sources.toSet)
       .assertEquals(expectedSources)
   }

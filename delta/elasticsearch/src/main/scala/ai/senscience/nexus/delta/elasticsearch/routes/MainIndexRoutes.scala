@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.{mainIndexingId, mainInd
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
-import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.elasticSearchRequest
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -18,7 +18,6 @@ import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
-import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.{Directive, Route}
@@ -32,7 +31,6 @@ final class MainIndexRoutes(
     projectionDirectives: ProjectionsDirectives
 )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
-    with CirceUnmarshalling
     with RdfMarshalling {
 
   private def defaultViewSegment: Directive[Unit] =
@@ -92,10 +90,8 @@ final class MainIndexRoutes(
             // Query default indexing for this given project
             routeSpan("views/<str:org>/<str:project>/documents/_search") {
               (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-                authorizeQuery {
-                  (extractQueryParams & jsonObjectEntity) { (qp, query) =>
-                    emit(mainIndexQuery.search(project, query, qp))
-                  }
+                (authorizeQuery & elasticSearchRequest) { request =>
+                  emit(mainIndexQuery.search(project, request))
                 }
               }
             }

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.ElasticsearchQueryError
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions
@@ -31,7 +32,7 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}
-import org.http4s.{Query, Status}
+import org.http4s.Status
 import org.scalatest.CancelAfterFailure
 
 import java.util.UUID
@@ -60,9 +61,9 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
     "prefix p: <http://localhost/>\nCONSTRUCT{ {resource_id} p:transformed ?v } WHERE { {resource_id} p:predicate ?v}"
   ).rightValue
 
-  private val query = JsonObject.empty
-  private val id    = iri"http://localhost/${genString()}"
-  private val uuid  = UUID.randomUUID()
+  private val request = ElasticSearchRequest()
+  private val id      = iri"http://localhost/${genString()}"
+  private val uuid    = UUID.randomUUID()
 
   private val indexDef = ElasticsearchIndexDef.empty
 
@@ -122,8 +123,8 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
 
   private val indexResults = Map(esP1Idx -> document(), esP2Idx -> document())
 
-  private val esQuery = (q: JsonObject, indices: Set[String], _: Query) =>
-    if q == query then
+  private val esQuery = (request: ElasticSearchRequest, indices: Set[String]) =>
+    if request == request then
       IO.pure(Json.arr(indices.foldLeft(Seq.empty[Json])((acc, idx) => acc :+ indexResults(idx).asJson)*))
     else IO.raiseError(ElasticsearchQueryError(Status.BadRequest, None))
 
@@ -135,24 +136,23 @@ class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with Cance
       forAll(
         List(alice -> Set(indexResults(esP1Idx)), bob -> Set(indexResults(esP1Idx), indexResults(esP2Idx)))
       ) { case (caller, expected) =>
-        val json = viewsQuery.queryProjections(id, project.ref, query, Query.empty)(caller).accepted
+        val json = viewsQuery.queryProjections(id, project.ref, request)(using caller).accepted
         json.asArray.value.toSet shouldEqual expected.map(_.asJson)
       }
       viewsQuery
-        .queryProjections(id, project.ref, query, Query.empty)(anon)
+        .queryProjections(id, project.ref, request)(using anon)
         .rejectedWith[AuthorizationFailed]
     }
 
     "query a ElasticSearch projections' index" in {
       val blaze = nxv + "blaze1"
       val es1   = nxv + "es1"
-      val json  = viewsQuery.query(id, es1, project.ref, query, Query.empty)(bob).accepted
+      val json  = viewsQuery.query(id, es1, project.ref, request)(using bob).accepted
       json.asArray.value.toSet shouldEqual Set(indexResults(esP1Idx).asJson)
 
-      viewsQuery.query(id, es1, project.ref, query, Query.empty)(anon).rejectedWith[AuthorizationFailed]
-      viewsQuery.query(id, blaze, project.ref, query, Query.empty)(bob).rejected shouldEqual
+      viewsQuery.query(id, es1, project.ref, request)(using anon).rejectedWith[AuthorizationFailed]
+      viewsQuery.query(id, blaze, project.ref, request)(using bob).rejected shouldEqual
         ProjectionNotFound(id, blaze, project.ref, ElasticSearchProjectionType)
     }
   }
-
 }

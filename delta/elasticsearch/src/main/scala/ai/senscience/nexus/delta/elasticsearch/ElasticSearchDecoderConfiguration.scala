@@ -11,10 +11,9 @@ private[elasticsearch] object ElasticSearchDecoderConfiguration {
     * @return
     *   a decoder configuration that uses the elasticsearch context
     */
-  def apply(implicit rcr: RemoteContextResolution): IO[Configuration] =
-    for {
-      contextValue  <- IO { ContextValue(contexts.elasticsearch) }
-      jsonLdContext <- JsonLdContext(contextValue)
-    } yield Configuration(jsonLdContext, "id")
+  def apply(using RemoteContextResolution): IO[Configuration] =
+    JsonLdContext(ContextValue(contexts.elasticsearch)).map { jsonLdContext =>
+      Configuration(jsonLdContext, "id")
+    }
 
 }

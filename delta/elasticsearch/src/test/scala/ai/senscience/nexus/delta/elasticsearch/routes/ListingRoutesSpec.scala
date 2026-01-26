@@ -1,18 +1,23 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
+import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.model.contexts.searchMetadata
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions as esPermissions, schema as elasticSearchSchema}
 import ai.senscience.nexus.delta.elasticsearch.routes.DummyMainIndexQuery.{aggregationResponse, listResponse}
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts.search
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
+import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy, ProjectScopeResolver}
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.Scope
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
@@ -22,24 +27,32 @@ import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
-class ListingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class ListingRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
+
+  override given rcr: RemoteContextResolution = super.rcr.merge(Fixtures.rcr)
 
   private val myId2        = nxv + "myid2"
   private val myId2Encoded = encodeUriPath(myId2.toString)
 
-  implicit private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
+  private val project                    = ProjectGen.resourceFor(
+    ProjectGen.project(
+      "myorg",
+      "myproject",
+      mappings = ApiMappings("view" -> elasticSearchSchema.iri)
+    )
+  )
+  private val fetchContext: FetchContext = FetchContextDummy(Map(project.value.ref -> project.value.context))
 
   private val resourceToSchemaMapping = ResourceToSchemaMappings(Label.unsafe("views") -> elasticSearchSchema.iri)
 
   private val groupDirectives = DeltaSchemeDirectives(fetchContext)
 
   private def projectResolver: ProjectScopeResolver = new ProjectScopeResolver {
-    override def apply(scope: Scope, permission: Permission)(implicit caller: Caller): IO[Set[ProjectRef]] =
+    override def apply(scope: Scope, permission: Permission)(using Caller): IO[Set[ProjectRef]] =
       IO.pure { Set.empty }
 
-    override def access(scope: Scope, permission: Permission)(implicit
-        caller: Caller
-    ): IO[ProjectScopeResolver.PermissionAccess] = ???
+    override def access(scope: Scope, permission: Permission)(using Caller): IO[ProjectScopeResolver.PermissionAccess] =
+      ???
   }
 
   private lazy val mainIndexQuery = new DummyMainIndexQuery

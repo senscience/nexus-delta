@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult.{MultipleResults, SingleResult}
 import ai.senscience.nexus.delta.elasticsearch.IdResolutionSuite.searchResults
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -21,12 +22,11 @@ import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
-import org.http4s.Query
 
 class IdResolutionSuite extends NexusSuite with Fixtures {
 
-  private val realm         = Label.unsafe("myrealm")
-  private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val realm           = Label.unsafe("myrealm")
+  private given alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
 
   private val org = Label.unsafe("org")
 
@@ -36,17 +36,16 @@ class IdResolutionSuite extends NexusSuite with Fixtures {
   private val project2 = ProjectRef(org2, Label.unsafe("proj2"))
 
   private def projectResolver: ProjectScopeResolver = new ProjectScopeResolver {
-    override def apply(scope: Scope, permission: Permission)(implicit caller: Caller): IO[Set[ProjectRef]] =
+    override def apply(scope: Scope, permission: Permission)(using Caller): IO[Set[ProjectRef]] =
       IO.pure { Set(project1, project2) }
 
-    override def access(scope: Scope, permission: Permission)(implicit
-        caller: Caller
-    ): IO[ProjectScopeResolver.PermissionAccess] = ???
+    override def access(scope: Scope, permission: Permission)(using Caller): IO[ProjectScopeResolver.PermissionAccess] =
+      ???
   }
 
   private def mainIndexQuery(searchResults: SearchResults[JsonObject]): MainIndexQuery = {
     new MainIndexQuery {
-      override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] = IO.pure(Json.Null)
+      override def search(project: ProjectRef, request: ElasticSearchRequest): IO[Json] = IO.pure(Json.Null)
 
       override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] =
         IO.pure(searchResults)
@@ -70,14 +69,14 @@ class IdResolutionSuite extends NexusSuite with Fixtures {
   test("No listing results lead to AuthorizationFailed") {
     val noListingResults = mainIndexQuery(searchResults(Seq.empty))
     IdResolution(projectResolver, noListingResults, fetchResource)
-      .apply(iri)(alice)
+      .apply(iri)
       .intercept[AuthorizationFailed]
   }
 
   test("Single listing result leads to the resource being fetched") {
     val singleListingResult = mainIndexQuery(searchResults(Seq(res)))
     IdResolution(projectResolver, singleListingResult, fetchResource)
-      .apply(iri)(alice)
+      .apply(iri)
       .assertEquals(SingleResult(ResourceRef(iri), project1, successContent))
   }
 
@@ -85,16 +84,14 @@ class IdResolutionSuite extends NexusSuite with Fixtures {
     val searchRes            = searchResults(Seq(res, res))
     val multipleQueryResults = mainIndexQuery(searchRes)
     IdResolution(projectResolver, multipleQueryResults, fetchResource)
-      .apply(iri)(alice)
+      .apply(iri)
       .assertEquals(MultipleResults(searchRes))
   }
 
 }
 
 object IdResolutionSuite {
-  def asResourceF(resourceRef: ResourceRef, projectRef: ProjectRef)(implicit
-      rcr: RemoteContextResolution
-  ): DataResource = {
+  def asResourceF(resourceRef: ResourceRef, projectRef: ProjectRef)(using RemoteContextResolution): DataResource = {
     val resource = ResourceGen.resource(resourceRef.iri, projectRef, Json.obj())
     ResourceGen.resourceFor(resource)
   }

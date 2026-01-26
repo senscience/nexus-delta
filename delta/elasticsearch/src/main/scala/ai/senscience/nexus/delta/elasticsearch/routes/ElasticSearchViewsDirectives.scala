@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.TypeOperator.Or
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{KeywordsParam, LogParam, Type, TypeOperator, TypeParams, VersionParams}
@@ -11,11 +12,11 @@ import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
+import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling.jsonObjectEntity
 import io.circe.parser.parse
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{Directive, Directive0, Directive1, MalformedQueryParamRejection}
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
-import org.http4s.Query
 
 trait ElasticSearchViewsDirectives extends UriDirectives {
 
@@ -107,12 +108,13 @@ trait ElasticSearchViewsDirectives extends UriDirectives {
     }
 
   /**
-    * Extract the elasticsearch query parameters from all the Uri query parameters
+    * Extract the elasticsearch request from the entity and the query params
+    * @return
     */
-  def extractQueryParams: Directive1[Query] =
-    extractUri.map { uri =>
-      val params = uri.query().toMultiMap -- searchParamsSortAndPaginationKeys
-      Query.fromMap(params)
+  def elasticSearchRequest: Directive1[ElasticSearchRequest] =
+    (jsonObjectEntity & extractUri).tmap { case (body, uri) =>
+      val params = uri.query().toMap -- searchParamsSortAndPaginationKeys
+      ElasticSearchRequest(body, params)
     }
 
 }

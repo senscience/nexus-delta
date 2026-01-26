@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViewsQuerySuite.Sample
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchRequest}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{ViewIsDeprecated, ViewNotFound}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -32,7 +32,6 @@ import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}
-import org.http4s.Query
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -46,8 +45,9 @@ class ElasticSearchViewsQuerySuite
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(esClient, doobie)
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
-  implicit private val uuidF: UUIDF     = UUIDF.random
+  private given JsonLdApi    = TitaniumJsonLdApi.strict
+  private given BaseUri      = BaseUri.unsafe("http://localhost", "v1")
+  private given uuidF: UUIDF = UUIDF.random
 
   private val prefix = "prefix"
 
@@ -202,7 +202,7 @@ class ElasticSearchViewsQuerySuite
     /**
       * Extract ids from documents from an Elasticsearch search raw response
       */
-    def extractAll(json: Json)(implicit loc: Location): Seq[Iri] = {
+    def extractAll(json: Json)(using Location): Seq[Iri] = {
       for {
         hits    <- json.hcursor.downField("hits").get[Vector[Json]]("hits")
         sources <- hits.traverse(_.hcursor.get[Json]("_source"))
@@ -210,19 +210,17 @@ class ElasticSearchViewsQuerySuite
       } yield ids
     }.rightValue
 
-    def extract(results: Seq[Json])(implicit loc: Location): Seq[Iri] =
+    def extract(results: Seq[Json])(using Location): Seq[Iri] =
       results.traverse(extract).rightValue
 
     def extract(json: Json): Decoder.Result[Iri] = json.hcursor.get[Iri]("@id")
 
   }
 
-  private val noParameters = Query.empty
-
   // Match all resources and sort them by created date and date
-  private val matchAllSorted                               = jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }"""
-  //  private val sort                                         = SortList.byCreationDateAndId
-  implicit private val defaultSort: Ordering[DataResource] = Ordering.by { r => r.createdAt -> r.id }
+  private val matchAllSorted           =
+    ElasticSearchRequest(jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }""")
+  private given Ordering[DataResource] = Ordering.by { r => r.createdAt -> r.id }
 
   /**
     * Generate ids for the provided samples for the given view and sort them by creation date and id
@@ -237,7 +235,7 @@ class ElasticSearchViewsQuerySuite
     views.flatMap { view => resources.map(_.asResourceF(view)) }.sorted.map(_.id)
 
   test("Init views and populate indices") {
-    implicit val caller: Caller         = alice
+    given Caller                        = alice
     val createIndexingViews             = allIndexingViews.traverse { viewRef =>
       views.create(viewRef.viewId, viewRef.project, indexingValue)
     }
@@ -276,76 +274,76 @@ class ElasticSearchViewsQuerySuite
   }
 
   test("Query for all documents in a view") {
-    implicit val caller: Caller = alice
-    val expectedIds             = generateIds(view1Proj1, allResources)
+    given Caller    = alice
+    val expectedIds = generateIds(view1Proj1, allResources)
     viewsQuery
-      .query(view1Proj1, matchAllSorted, noParameters)
+      .query(view1Proj1, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(expectedIds)
   }
 
   test("Query a view without permissions") {
-    implicit val caller: Caller = anon
-    viewsQuery.query(view1Proj1, JsonObject.empty, Query.empty).intercept[AuthorizationFailed]
+    given Caller = anon
+    viewsQuery.query(view1Proj1, ElasticSearchRequest(JsonObject.empty)).intercept[AuthorizationFailed]
   }
 
   test("Query the deprecated view should raise an deprecation error") {
-    implicit val caller: Caller = alice
-    val deprecated              = ViewRef(project1.ref, nxv + "deprecated")
+    given Caller   = alice
+    val deprecated = ViewRef(project1.ref, nxv + "deprecated")
     for {
       _ <- views.create(deprecated.viewId, deprecated.project, indexingValue)
       _ <- views.deprecate(deprecated.viewId, deprecated.project, 1)
       _ <- viewsQuery
-             .query(deprecated, matchAllSorted, noParameters)
+             .query(deprecated, matchAllSorted)
              .interceptEquals(ViewIsDeprecated(deprecated.viewId))
     } yield ()
   }
 
   test("Query an aggregate view with a user with full access") {
-    implicit val caller: Caller = bob
-    val accessibleViews         = List(view1Proj1, view2Proj1, view1Proj2, view2Proj2)
-    val expectedIds             = generateIds(accessibleViews, allResources)
+    given Caller        = bob
+    val accessibleViews = List(view1Proj1, view2Proj1, view1Proj2, view2Proj2)
+    val expectedIds     = generateIds(accessibleViews, allResources)
     viewsQuery
-      .query(aggregate2, matchAllSorted, noParameters)
+      .query(aggregate2, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(expectedIds)
   }
 
   test("Query an aggregate view with a user with limited access") {
-    implicit val caller: Caller = alice
-    val accessibleViews         = List(view1Proj1, view2Proj1)
-    val expectedIds             = generateIds(accessibleViews, allResources)
+    given Caller        = alice
+    val accessibleViews = List(view1Proj1, view2Proj1)
+    val expectedIds     = generateIds(accessibleViews, allResources)
     viewsQuery
-      .query(aggregate2, matchAllSorted, noParameters)
+      .query(aggregate2, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(expectedIds)
   }
 
   test("Query an aggregate view with a user with no access") {
-    implicit val caller: Caller = anon
-    val expectedIds             = List.empty
+    given Caller    = anon
+    val expectedIds = List.empty
     viewsQuery
-      .query(aggregate2, matchAllSorted, noParameters)
+      .query(aggregate2, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(expectedIds)
   }
 
   test("Creating a point in time without permission should fail") {
-    implicit val caller: Caller = anon
+    given Caller = anon
     viewsQuery
       .createPointInTime(view1Proj1.viewId, project1.ref, 30.seconds)
       .intercept[AuthorizationFailed]
   }
 
   test("Creating a point in time for a view that doesn't exist in the project should fail") {
-    implicit val caller: Caller = alice
+    given Caller = alice
     viewsQuery
       .createPointInTime(view1Proj2.viewId, project1.ref, 30.seconds)
       .interceptEquals(ViewNotFound(view1Proj2.viewId, project1.ref))
   }
 
   test("Creating and deleting a point in time with the right access should succeed") {
-    implicit val caller: Caller = alice
+    given Caller = alice
     viewsQuery
       .createPointInTime(view1Proj1.viewId, project1.ref, 30.seconds)
       .flatMap { pit =>
@@ -368,7 +366,7 @@ object ElasticSearchViewsQuerySuite {
       updatedBy: Subject = Anonymous
   ) {
 
-    def asResourceF(view: ViewRef)(implicit rcr: RemoteContextResolution): DataResource = {
+    def asResourceF(view: ViewRef)(using RemoteContextResolution): DataResource = {
       val resource = ResourceGen.resource(view.viewId / suffix, view.project, Json.obj())
       ResourceGen
         .resourceFor(resource, types = types, rev = rev, deprecated = deprecated)
@@ -381,9 +379,7 @@ object ElasticSearchViewsQuerySuite {
         )
     }
 
-    def asDocument(
-        view: ViewRef
-    )(implicit baseUri: BaseUri, rcr: RemoteContextResolution, jsonldApi: JsonLdApi): IO[Json] =
+    def asDocument(view: ViewRef)(using BaseUri, RemoteContextResolution, JsonLdApi): IO[Json] =
       asResourceF(view).toCompactedJsonLd.map(_.json)
 
   }

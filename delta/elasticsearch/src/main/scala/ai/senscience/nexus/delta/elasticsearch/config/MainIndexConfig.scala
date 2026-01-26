@@ -21,5 +21,5 @@ final case class MainIndexConfig(prefix: String, name: String, shards: Int, buck
 }
 
 object MainIndexConfig {
-  implicit final val defaultIndexConfigReader: ConfigReader[MainIndexConfig] = deriveReader[MainIndexConfig]
+  given ConfigReader[MainIndexConfig] = deriveReader[MainIndexConfig]
 }

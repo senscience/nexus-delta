@@ -1,11 +1,9 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
-import ai.senscience.nexus.delta.sdk.model.search.SortList
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
-import org.http4s.Query
+import io.circe.Json
 
 /** Allows to perform elasticsearch queries on Graph Analytics views */
 trait GraphAnalyticsViewsQuery {
@@ -14,12 +12,10 @@ trait GraphAnalyticsViewsQuery {
     * In a given project, perform the provided elasticsearch query on the projects' Graph Analytics view.
     * @param projectRef
     *   project in which to make the query
-    * @param query
-    *   elasticsearch query to perform on the Graph Analytics view
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
+    * @param request
+    *   elasticsearch request to perform on the Graph Analytics view
     */
-  def query(projectRef: ProjectRef, query: JsonObject, qp: Query): IO[Json]
+  def query(projectRef: ProjectRef, request: ElasticSearchRequest): IO[Json]
 }
 
 /**
@@ -30,9 +26,9 @@ trait GraphAnalyticsViewsQuery {
   *   elasticsearch client
   */
 class GraphAnalyticsViewsQueryImpl(prefix: String, client: ElasticSearchClient) extends GraphAnalyticsViewsQuery {
-  override def query(projectRef: ProjectRef, query: JsonObject, qp: Query): IO[Json] = {
+  override def query(projectRef: ProjectRef, request: ElasticSearchRequest): IO[Json] = {
     val index = GraphAnalytics.index(prefix, projectRef)
-    client.search(query, Set(index.value), qp)(SortList.empty)
+    client.search(request, Set(index.value))
   }
 
 }

@@ -9,16 +9,18 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
-import ai.senscience.nexus.delta.sourcing.model.Identity
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import cats.effect.{IO, Ref}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
-class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class ElasticSearchIndexingRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
+  private val projectRef   = ProjectRef.unsafe("myorg", "myproject")
   private val myId         = nxv + "myid"
   private val indexingView = ActiveViewDef(
     ViewRef(projectRef, myId),
@@ -43,7 +45,7 @@ class ElasticSearchIndexingRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
   private val runTrigger         = Ref.unsafe[IO, Boolean](false)
   private val esRestartScheduler = new ElasticsearchRestartScheduler {
-    override def run(fromOffset: Offset)(implicit subject: Identity.Subject): IO[Unit] =
+    override def run(fromOffset: Offset)(using Identity.Subject): IO[Unit] =
       runTrigger.set(true).void
   }
 

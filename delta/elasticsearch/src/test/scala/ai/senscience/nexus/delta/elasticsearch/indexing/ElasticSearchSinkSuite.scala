@@ -13,8 +13,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.testkit.CirceLiteral
 import fs2.Chunk
 import io.circe.Json
-import munit.AnyFixture
-import org.http4s.Query
+import munit.{AnyFixture, Location}
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -53,6 +52,12 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
   private def dropped(id: Iri, offset: Offset) =
     DroppedElem(membersEntity, id, project, Instant.EPOCH, offset, rev)
 
+  private def assertExists(expected: Set[(Iri, Json)])(using Location) =
+    client
+      .search(QueryBuilder.empty, Set(index.value))
+      .map(_.sources.toSet)
+      .assertEquals(expected.flatMap(_._2.asObject))
+
   test("Create the index") {
     client.createIndex(index, indexDef).assertEquals(true)
   }
@@ -60,25 +65,15 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
   test("Index a chunk of documents and retrieve them") {
     val chunk = asChunk(members)
 
-    for {
-      _ <- sink.apply(chunk).assertEquals(chunk.map(_.void))
-      _ <- client
-             .search(QueryBuilder.empty, Set(index.value), Query.empty)
-             .map(_.sources.toSet)
-             .assertEquals(members.flatMap(_._2.asObject))
-    } yield ()
+    sink.apply(chunk).assertEquals(chunk.map(_.void)) >>
+      assertExists(members)
   }
 
   test("Delete dropped items from the index") {
     val chunk = Chunk(brian, alice).map { case (id, _) => dropped(id, Offset.at(members.size.toLong + 1)) }
 
-    for {
-      _ <- sink.apply(chunk).assertEquals(chunk.map(_.void))
-      _ <- client
-             .search(QueryBuilder.empty, Set(index.value), Query.empty)
-             .map(_.sources.toSet)
-             .assertEquals(Set(bob, judy).flatMap(_._2.asObject))
-    } yield ()
+    sink.apply(chunk).assertEquals(chunk.map(_.void)) >>
+      assertExists(Set(bob, judy))
   }
 
   test("Report errors when a invalid json is submitted") {
@@ -102,30 +97,26 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
     )
 
     for {
-      result  <- sink.apply(chunk).map(_.toList)
-      _        =
+      result <- sink.apply(chunk).map(_.toList)
+      _       =
         assertEquals(result.size, 3, "3 elements were submitted to the sink, we expect 3 elements in the result chunk.")
       // The failed elem should be return intact
-      _        = assertEquals(Some(failed), result.headOption)
+      _       = assertEquals(Some(failed), result.headOption)
       // The invalid one should hold the Elasticsearch error
-      _        = result.lift(1) match {
-                   case Some(f: FailedElem) =>
-                     f.throwable match {
-                       case reason: FailureReason =>
-                         assertEquals(reason.`type`, "IndexingFailure")
-                         val detailKeys = reason.value.asObject.map(_.keys.toSet)
-                         assertEquals(detailKeys, Some(Set("type", "reason", "caused_by")))
-                       case t                     => fail(s"An indexing failure was expected, got '$t'", t)
-                     }
-                   case other               => fail(s"A failed elem was expected, got '$other'")
-                 }
+      _       = result.lift(1) match {
+                  case Some(f: FailedElem) =>
+                    f.throwable match {
+                      case reason: FailureReason =>
+                        assertEquals(reason.`type`, "IndexingFailure")
+                        val detailKeys = reason.value.asObject.map(_.keys.toSet)
+                        assertEquals(detailKeys, Some(Set("type", "reason", "caused_by")))
+                      case t                     => fail(s"An indexing failure was expected, got '$t'", t)
+                    }
+                  case other               => fail(s"A failed elem was expected, got '$other'")
+                }
       // The valid one should remain a success and hold a Unit value
-      _        = assert(result.lift(2).flatMap(_.toOption).contains(()))
-      expected = Set(bob, judy, alice).flatMap(_._2.asObject)
-      _       <- client
-                   .search(QueryBuilder.empty, Set(index.value), Query.empty)
-                   .map(_.sources.toSet)
-                   .assertEquals(expected)
+      _       = assert(result.lift(2).flatMap(_.toOption).contains(()))
+      _      <- assertExists(Set(bob, judy, alice))
     } yield ()
   }
 

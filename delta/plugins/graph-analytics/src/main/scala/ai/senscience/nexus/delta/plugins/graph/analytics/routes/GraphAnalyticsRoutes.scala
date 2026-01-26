@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.routes
 
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
-import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.elasticSearchRequest
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection
 import ai.senscience.nexus.delta.plugins.graph.analytics.permissions.query
 import ai.senscience.nexus.delta.plugins.graph.analytics.{GraphAnalytics, GraphAnalyticsViewsQuery}
@@ -69,10 +69,9 @@ class GraphAnalyticsRoutes(
                   )
                 },
                 // Search a graph analytics view
-                (post & pathPrefix("_search") & authorizeQuery & pathEndOrSingleSlash) {
-                  (extractQueryParams & jsonObjectEntity) { (qp, query) =>
-                    emit(viewsQuery.query(project, query, qp))
-                  }
+                (post & pathPrefix("_search") & pathEndOrSingleSlash & authorizeQuery & elasticSearchRequest) {
+                  request =>
+                    emit(viewsQuery.query(project, request))
                 }
               )
             }

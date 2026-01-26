@@ -17,13 +17,15 @@ import io.circe.literal.json
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
 
-final case class QueryBuilder private[client] (private val query: JsonObject) {
+final case class QueryBuilder private[client] (
+    private val body: JsonObject,
+    private val queryParams: Map[String, String]
+) {
 
   private val trackTotalHits = "track_total_hits"
   private val searchAfter    = "search_after"
 
-  implicit private val sortEncoder: Encoder[Sort] =
-    Encoder.encodeJson.contramap(sort => Json.obj(sort.value -> sort.order.asJson))
+  private given Encoder[Sort] = Encoder.encodeJson.contramap(sort => Json.obj(sort.value := sort.order))
 
   /**
     * Adds pagination to the current payload
@@ -33,22 +35,22 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     */
   def withPage(page: Pagination): QueryBuilder =
     page match {
-      case FromPagination(from, size)      => copy(query.add("from", from.asJson).add("size", size.asJson))
-      case SearchAfterPagination(sa, size) => copy(query.add(searchAfter, sa.asJson).add("size", size.asJson))
+      case FromPagination(from, size)      => copy(body.add("from", from.asJson).add("size", size.asJson))
+      case SearchAfterPagination(sa, size) => copy(body.add(searchAfter, sa.asJson).add("size", size.asJson))
     }
 
   /**
     * Enables or disables the tracking of total hits count
     */
   def withTotalHits(value: Boolean): QueryBuilder =
-    copy(query.add(trackTotalHits, value.asJson))
+    copy(body.add(trackTotalHits, value.asJson))
 
   /**
     * Adds sort to the current payload
     */
   def withSort(sortList: SortList): QueryBuilder =
     if sortList.isEmpty then this
-    else copy(query.add("sort", sortList.values.asJson))
+    else copy(body.add("sort", sortList.values.asJson))
 
   private def versionTerms(version: VersionParams) =
     version.rev.map(term(nxv.rev.prefix, _)) ++
@@ -91,8 +93,8 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
   def withFilters(params: ResourcesSearchParams, projects: Set[ProjectRef])(using BaseUri): QueryBuilder = {
     val (includeTypes, excludeTypes) = typesTerms(params.types)
     val projectsTerm                 = or(projects.map { project => term("_project", project) }.toSeq*)
-    QueryBuilder(
-      query.deepMerge(
+    copy(
+      body = body.deepMerge(
         queryPayload(
           mustTerms = includeTypes ++
             logTerms(params.log) ++
@@ -112,27 +114,10 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
   }
 
   private def or(terms: JsonObject*) =
-    JsonObject("bool" -> Json.obj("should" -> terms.asJson))
+    JsonObject("bool" := Json.obj("should" := terms))
 
   private def and(terms: JsonObject*) =
-    JsonObject("bool" -> Json.obj("must" -> terms.asJson))
-
-  /**
-    * Add indices filter to the query body
-    */
-  def withIndices(indices: Iterable[String]): QueryBuilder = {
-    val filter   = Json
-      .obj(
-        "filter" -> terms("_index", indices).asJson
-      )
-    val newQuery = query("query") match {
-      case None               => query.add("query", Json.obj("bool" -> filter))
-      case Some(currentQuery) =>
-        val boolQuery = Json.obj("must" -> currentQuery).deepMerge(filter)
-        query.add("query", Json.obj("bool" -> boolQuery))
-    }
-    QueryBuilder(newQuery)
-  }
+    JsonObject("bool" := Json.obj("must" := terms))
 
   private def queryPayload(
       mustTerms: List[JsonObject],
@@ -141,11 +126,10 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
   ): JsonObject = {
     val eval = if withScore then "must" else "filter"
     JsonObject(
-      "query" -> Json.obj(
-        "bool" -> Json
-          .obj(eval -> mustTerms.asJson)
-          .addIfNonEmpty("must_not", mustNotTerms)
-      )
+      "query" ->
+        Json.obj(
+          "bool" -> Json.obj(eval := mustTerms).addIfNonEmpty("must_not", mustNotTerms)
+        )
     )
   }
 
@@ -161,10 +145,7 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
   }
 
   private def term[A: Encoder](k: String, value: A): JsonObject =
-    JsonObject("term" -> Json.obj(k -> value.asJson))
-
-  private def terms[A: Encoder](k: String, values: Iterable[A]): JsonObject =
-    JsonObject("terms" -> Json.obj(k -> values.asJson))
+    JsonObject("term" -> Json.obj(k := value))
 
   /**
     * Defines a multi-match query. If the input [[q]] is an absolute IRI, then the `path_hierarchy` analyzer is used in
@@ -174,8 +155,8 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
     val iri      = Iri.reference(q).toOption
     val payload  = JsonObject(
       "multi_match" -> Json.obj(
-        "query"  -> iri.map(_.toString).getOrElse(q).asJson,
-        "fields" -> json"""[ "*", "*.fulltext", "_tags", "_original_source", "_uuid" ]"""
+        "query"  := iri.map(_.toString).getOrElse(q),
+        "fields" := json"""[ "*", "*.fulltext", "_tags", "_original_source", "_uuid" ]"""
       )
     )
     val analyzer = JsonObject(
@@ -197,13 +178,14 @@ final case class QueryBuilder private[client] (private val query: JsonObject) {
         ),
         "size" := 0
       )
-    QueryBuilder(query.deepMerge(aggregations))
+
+    copy(body = body.deepMerge(aggregations))
   }
 
   private def termAggregation(name: String, fieldName: String, bucketSize: Int) =
     name -> Json.obj("terms" -> Json.obj("field" := fieldName, "size" := bucketSize))
 
-  def build: JsonObject = query
+  def build: ElasticSearchRequest = ElasticSearchRequest(body, queryParams)
 }
 
 object QueryBuilder {
@@ -211,13 +193,21 @@ object QueryBuilder {
   /**
     * An empty [[QueryBuilder]]
     */
-  val empty: QueryBuilder = QueryBuilder(JsonObject.empty)
+  val empty: QueryBuilder = QueryBuilder(JsonObject.empty, Map.empty)
 
-  def unsafe(jsonObject: JsonObject): QueryBuilder = QueryBuilder(jsonObject)
+  def unsafe(jsonObject: JsonObject): QueryBuilder = QueryBuilder.unsafe(jsonObject, Map.empty)
+
+  def unsafe(jsonObject: JsonObject, queryParams: Map[String, String]): QueryBuilder =
+    QueryBuilder(jsonObject, queryParams)
 
   /**
     * A [[QueryBuilder]] using the filter ''params''.
     */
-  def apply(params: ResourcesSearchParams, projects: Set[ProjectRef])(implicit baseUri: BaseUri): QueryBuilder =
-    empty.withFilters(params, projects)
+  def apply(params: ResourcesSearchParams, projects: Set[ProjectRef])(using BaseUri): QueryBuilder =
+    apply(params, projects, Map.empty)
+
+  def apply(params: ResourcesSearchParams, projects: Set[ProjectRef], queryParams: Map[String, String])(using
+      BaseUri
+  ): QueryBuilder =
+    QueryBuilder(JsonObject.empty, queryParams).withFilters(params, projects)
 }

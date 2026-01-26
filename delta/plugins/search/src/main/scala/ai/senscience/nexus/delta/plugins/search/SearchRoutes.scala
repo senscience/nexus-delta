@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search
 
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchExceptionHandler
-import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.extractQueryParams
+import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.elasticSearchRequest
 import ai.senscience.nexus.delta.plugins.search.model.SearchConfig.NamedSuite
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
 import ai.senscience.nexus.delta.plugins.search.model.{SearchConfig, SearchRejection}
@@ -47,19 +47,17 @@ class SearchRoutes(
           extractCaller { case given Caller =>
             concat(
               // Query the underlying aggregate elasticsearch view for global search
-              (pathPrefix("query") & post) {
-                (extractQueryParams & jsonObjectEntity) { (qp, payload) =>
-                  concat(
-                    pathEndOrSingleSlash {
-                      emit(search.query(payload, qp))
-                    },
-                    (pathPrefix("suite") & label & additionalProjects & pathEndOrSingleSlash) {
-                      (suite, additionalProjects) =>
-                        val filteredQp = qp.filterNot { case (key, _) => key == addProjectParam }
-                        emit(search.query(suite, additionalProjects.toSet, payload, filteredQp))
-                    }
-                  )
-                }
+              (pathPrefix("query") & post & elasticSearchRequest) { request =>
+                concat(
+                  pathEndOrSingleSlash {
+                    emit(search.query(request))
+                  },
+                  (pathPrefix("suite") & label & additionalProjects & pathEndOrSingleSlash) {
+                    (suite, additionalProjects) =>
+                      val filteredRequest = request.mapQueryParams(_ - addProjectParam)
+                      emit(search.query(suite, additionalProjects.toSet, filteredRequest))
+                  }
+                )
               },
               // Get fields config
               (pathPrefix("config") & get & pathEndOrSingleSlash) {

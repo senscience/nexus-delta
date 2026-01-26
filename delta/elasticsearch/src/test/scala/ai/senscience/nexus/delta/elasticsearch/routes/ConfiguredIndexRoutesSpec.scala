@@ -1,19 +1,20 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.model.permissions as esPermissions
 import ai.senscience.nexus.delta.elasticsearch.query.ConfiguredIndexQuery
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect
 import cats.effect.IO
 import cats.effect.kernel.Ref
-import io.circe.{Json, JsonObject}
+import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
-import org.http4s.Query
 
-class ConfiguredIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class ConfiguredIndexRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")
@@ -26,8 +27,7 @@ class ConfiguredIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     override def search(
         project: ProjectRef,
         target: ConfiguredIndexQuery.Target,
-        query: JsonObject,
-        qp: Query
+        request: ElasticSearchRequest
     ): effect.IO[Json] =
       IO.pure(searchResult)
 

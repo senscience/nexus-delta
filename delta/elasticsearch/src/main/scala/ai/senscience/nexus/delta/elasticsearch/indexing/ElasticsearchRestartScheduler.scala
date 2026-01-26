@@ -13,7 +13,7 @@ import cats.effect.IO
   */
 trait ElasticsearchRestartScheduler {
 
-  def run(fromOffset: Offset)(implicit subject: Subject): IO[Unit]
+  def run(fromOffset: Offset)(using Subject): IO[Unit]
 
 }
 
@@ -26,7 +26,7 @@ object ElasticsearchRestartScheduler {
       restartScheduler: ProjectionsRestartScheduler
   ): ElasticsearchRestartScheduler =
     new ElasticsearchRestartScheduler {
-      override def run(fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
+      override def run(fromOffset: Offset)(using Subject): IO[Unit] =
         logger.info(s"Starting reindexing all elasticsearch views from $fromOffset") >>
           restartScheduler.run(projectionNameStream, fromOffset).timed.flatMap { case (duration, _) =>
             logger.info(s"All elasticsearch views restarted reindexing in '${duration.toSeconds} seconds'")

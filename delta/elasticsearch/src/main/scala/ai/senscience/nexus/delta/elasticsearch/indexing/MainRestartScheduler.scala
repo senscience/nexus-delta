@@ -16,7 +16,7 @@ import fs2.Stream
   */
 trait MainRestartScheduler {
 
-  def run(fromOffset: Offset)(implicit subject: Subject): IO[Unit]
+  def run(fromOffset: Offset)(using Subject): IO[Unit]
 
 }
 
@@ -32,7 +32,7 @@ object MainRestartScheduler {
       restartScheduler: ProjectionsRestartScheduler
   ): MainRestartScheduler =
     new MainRestartScheduler {
-      override def run(fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
+      override def run(fromOffset: Offset)(using Subject): IO[Unit] =
         logger.info(s"Starting reindexing all main views from $fromOffset") >>
           restartScheduler.run(projectionNameStream, fromOffset).timed.flatMap { case (duration, _) =>
             logger.info(s"All main views restarted reindexing in '${duration.toSeconds} seconds'")

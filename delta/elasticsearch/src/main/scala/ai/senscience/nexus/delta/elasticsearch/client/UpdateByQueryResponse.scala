@@ -6,7 +6,7 @@ final case class UpdateByQueryResponse(task: String)
 
 object UpdateByQueryResponse {
 
-  implicit val updateByQueryResponseDecoder: Decoder[UpdateByQueryResponse] =
+  given Decoder[UpdateByQueryResponse] =
     Decoder.instance { hc =>
       hc.get[String]("task").map(UpdateByQueryResponse(_))
     }

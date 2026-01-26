@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, ElasticSearchRequest, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.indexing.{ElemDocumentIdScheme, MarkElems}
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsResult.{Index, Noop, UpdateByQuery}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sourcing.stream.ElemChunk
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import io.circe.JsonObject
 import io.circe.literal.*
 import io.circe.syntax.EncoderOps
 import org.typelevel.otel4s.trace.Tracer
@@ -36,28 +35,27 @@ final class GraphAnalyticsSink(
 
   override def inType: Typeable[GraphAnalyticsResult] = Typeable[GraphAnalyticsResult]
 
-  @SuppressWarnings(Array("OptionGet"))
-  private def relationshipsQuery(updates: Map[Iri, Set[Iri]]): JsonObject = {
-    val terms = updates.map { case (id, _) => id.asJson }.asJson
-    json"""
-    {
-      "query": {
-        "bool": {
-          "filter": {
-            "terms": {
-              "references.@id": $terms
+  private def relationshipsQuery(updates: Map[Iri, Set[Iri]]): ElasticSearchRequest = {
+    val terms  = updates.map { case (id, _) => id.asJson }.asJson
+    ElasticSearchRequest(
+      "query"  ->
+        json"""
+          {
+            "bool": {
+              "filter": {
+                "terms": {
+                  "references.@id": $terms
+                }
+              }
             }
-          }
-        }
-      },
-      "script": {
-        "id": "updateRelationships",
-        "params": {
-          "updates": $updates
-        }
-      }
-    }
-    """.asObject.get
+          }""",
+      "script" -> json"""{
+                          "id": "updateRelationships",
+                          "params": {
+                            "updates": $updates
+                          }
+                        }"""
+    )
   }
 
   override def apply(elements: ElemChunk[GraphAnalyticsResult]): IO[ElemChunk[Unit]] = {

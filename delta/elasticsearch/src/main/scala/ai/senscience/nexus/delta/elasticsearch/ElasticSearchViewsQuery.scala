@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, IndexLabel, PointInTime}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest, IndexLabel, PointInTime}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewRejection.{DifferentElasticSearchViewType, ViewIsDeprecated}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticSearchViewRejection, ElasticSearchViewState, ElasticSearchViewType}
@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sdk.model.search.SortList
 import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sdk.views.View.{AggregateView, IndexingView}
 import ai.senscience.nexus.delta.sdk.views.{View, ViewRef, ViewsStore}
@@ -18,8 +17,7 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.{Json, JsonObject}
-import org.http4s.Query
+import io.circe.Json
 import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.FiniteDuration
@@ -37,16 +35,13 @@ trait ElasticSearchViewsQuery {
     *   the id of the view either in Iri or aliased form
     * @param project
     *   the project where the view exists
-    * @param query
-    *   the elasticsearch query to run
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
+    * @param request
+    *   the elasticsearch request to run
     */
   def query(
       id: IdSegment,
       project: ProjectRef,
-      query: JsonObject,
-      qp: Query
+      request: ElasticSearchRequest
   )(using Caller): IO[Json]
 
   /**
@@ -54,13 +49,11 @@ trait ElasticSearchViewsQuery {
     * query permissions on the view before performing the query.
     * @param view
     *   the reference to the view
-    * @param query
-    *   the elasticsearch query to run
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
+    * @param request
+    *   the elasticsearch request to run
     */
-  def query(view: ViewRef, query: JsonObject, qp: Query)(using Caller): IO[Json] =
-    this.query(view.viewId, view.project, query, qp)
+  def query(view: ViewRef, request: ElasticSearchRequest)(using Caller): IO[Json] =
+    this.query(view.viewId, view.project, request)
 
   /**
     * Creates a point-in-time to be used in further searches
@@ -99,13 +92,12 @@ final class ElasticSearchViewsQueryImpl private[elasticsearch] (
   override def query(
       id: IdSegment,
       project: ProjectRef,
-      query: JsonObject,
-      qp: Query
+      request: ElasticSearchRequest
   )(using Caller): IO[Json] = {
     for {
       view    <- viewStore.fetch(id, project)
       indices <- extractIndices(view)
-      search  <- client.search(query, indices, qp)(SortList.empty)
+      search  <- client.search(request, indices)
     } yield search
   }.surround("elasticsearchUserQuery")
 
