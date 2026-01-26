@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.client
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.*
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.{*, given}
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.*
@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
-import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.model.search.{ResultEntry, SearchResults}
 import ai.senscience.nexus.delta.sdk.otel.{OtelMetricsClient, OtelTracingClient, SpanDef}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
@@ -27,7 +27,7 @@ import org.http4s.client.dsl.io.*
 import org.http4s.client.middleware.GZip
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.`Content-Type`
-import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Query, Status, Uri}
+import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Status, Uri}
 import org.typelevel.otel4s.trace.Tracer
 import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 
@@ -77,9 +77,9 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
 
   private val queryKey = AttributeKey[String]("nexus.elasticsearch.query")
 
-  private def searchQuery(query: JsonObject) = {
+  private def spanSearchRequest(request: ElasticSearchRequest) = {
     val attributes = Attributes.newBuilder
-    attributes ++= Option.when(otel.captureQueries)(Attribute(queryKey, query.toJson.noSpaces))
+    attributes ++= Option.when(otel.captureQueries)(Attribute(queryKey, request.body.asJson.noSpaces))
     attributes += read
     SpanDef(s"<string:index>/$searchPath", attributes.result())
   }
@@ -222,19 +222,19 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * Runs an update by query with the passed ''query'' and ''indices''. The query is run as a task and the task is
     * requested until it finished
     *
-    * @param query
-    *   the search query
+    * @param request
+    *   the search request
     * @param indices
     *   the indices targeted by the update query
     */
-  def updateByQuery(query: JsonObject, indices: Set[String]): IO[Unit] = {
-    val (indexPath, q)       = indexPathAndQuery(indices, QueryBuilder(query))
-    val updateEndpoint       = (endpoint / indexPath / updateByQueryPath).withQueryParams(defaultUpdateByQuery)
-    val updateByQuerySpanDef = SpanDef(s"<string:index>/$updateByQueryPath", write)
-    val taskSpanDef          = SpanDef(s"$tasksPath/<string:task>", write)
-    val request              = POST(q.build, updateEndpoint)
+  def updateByQuery(request: ElasticSearchRequest, indices: Set[String]): IO[Unit] = {
+    val (indexPath, newRequest) = indexPathAndRequestBody(indices, request)
+    val updateEndpoint          = (endpoint / indexPath / updateByQueryPath).withQueryParams(defaultUpdateByQuery)
+    val updateByQuerySpanDef    = SpanDef(s"<string:index>/$updateByQueryPath", write)
+    val taskSpanDef             = SpanDef(s"$tasksPath/<string:task>", write)
+    val postRequest             = POST(newRequest.body, updateEndpoint)
     for {
-      response <- OtelTracingClient(client, updateByQuerySpanDef).expect[UpdateByQueryResponse](request)
+      response <- OtelTracingClient(client, updateByQuerySpanDef).expect[UpdateByQueryResponse](postRequest)
       taskReq   = GET((endpoint / tasksPath / response.task).withQueryParam(waitForCompletion, "true"))
       _        <- OtelTracingClient(client, taskSpanDef).expect[Json](taskReq)
     } yield ()
@@ -244,15 +244,15 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * Runs an delete by query with the passed ''query'' and ''index''. The query is run as a task and the task is
     * requested until it finished
     *
-    * @param query
-    *   the search query
+    * @param request
+    *   the search request
     * @param index
     *   the index targeted by the delete query
     */
-  def deleteByQuery(query: JsonObject, index: IndexLabel): IO[Unit] = {
+  def deleteByQuery(request: ElasticSearchRequest, index: IndexLabel): IO[Unit] = {
     val deleteEndpoint = (endpoint / index.value / deleteByQueryPath).withQueryParams(defaultDeleteByQuery)
     val spanDef        = SpanDef(s"<string:index>/$deleteByQueryPath", withIndex(index), write)
-    val req            = POST(query, deleteEndpoint)
+    val req            = POST(request.body, deleteEndpoint)
     OtelTracingClient(client, spanDef).expect[Json](req).void
   }
 
@@ -286,43 +286,21 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     *   the search query
     * @param indices
     *   the indices to use on search (if empty, searches in all the indices)
-    * @param qp
-    *   the optional query parameters
     */
-  def search(
-      query: QueryBuilder,
-      indices: Set[String],
-      qp: Query
-  ): IO[SearchResults[JsonObject]] =
-    searchAs[SearchResults[JsonObject]](query, indices, qp)(SearchResults.empty)
+  def search(query: QueryBuilder, indices: Set[String]): IO[SearchResults[JsonObject]] =
+    searchAs[SearchResults[JsonObject]](query, indices)(SearchResults.empty)
 
   /**
     * Search for the provided ''query'' inside the ''indices''
     *
-    * @param query
-    *   the initial search query
+    * @param request
+    *   the initial search request
     * @param indices
     *   the indices to use on search (if empty, searches in all the indices)
-    * @param qp
-    *   the optional query parameters
-    * @param sort
-    *   the sorting criteria
     */
-  def search(
-      query: JsonObject,
-      indices: Set[String],
-      qp: Query
-  )(
-      sort: SortList = SortList.empty
-  ): IO[Json] =
+  def search(request: ElasticSearchRequest, indices: Set[String]): IO[Json] =
     if indices.isEmpty then IO.pure(emptyResults)
-    else {
-      val (indexPath, q) = indexPathAndQuery(indices, QueryBuilder(query))
-      val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
-      val payload        = q.withSort(sort).withTotalHits(true).build
-      val spanDef        = searchQuery(query)
-      OtelTracingClient(client, spanDef).expectOr[Json](POST(payload, searchEndpoint))(ElasticsearchQueryError(_))
-    }
+    else searchAs[Json](request, indices)
 
   /**
     * Search for the provided ''query'' inside the ''indices'' returning a parsed result as [[T]].
@@ -331,22 +309,10 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     *   the search query
     * @param indices
     *   the indices to use on search
-    * @param qp
-    *   the optional query parameters
     */
-  def searchAs[T: Decoder](
-      query: QueryBuilder,
-      indices: Set[String],
-      qp: Query
-  )(onEmpty: => T): IO[T] =
+  def searchAs[T: Decoder](query: QueryBuilder, indices: Set[String])(onEmpty: => T): IO[T] =
     if indices.isEmpty then IO.pure(onEmpty)
-    else {
-      val (indexPath, q) = indexPathAndQuery(indices, query)
-      val searchEndpoint = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ qp.params)
-      val queryJson      = q.build
-      val spanDef        = searchQuery(queryJson)
-      OtelTracingClient(client, spanDef).expect[T](POST(queryJson, searchEndpoint))
-    }
+    else searchAs[T](query.build, indices)
 
   /**
     * Search for the provided ''query'' inside the ''indices'' returning a parsed result as [[T]].
@@ -355,18 +321,14 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     *   the search query
     * @param index
     *   the index to use on search
-    * @param qp
-    *   the optional query parameters
     */
-  def searchAs[T: Decoder](
-      query: QueryBuilder,
-      index: String,
-      qp: Query
-  ): IO[T] = {
-    val searchEndpoint = (endpoint / index / searchPath).withQueryParams(defaultQuery ++ qp.params)
-    val queryJson      = query.build
-    val spanDef        = searchQuery(queryJson)
-    OtelTracingClient(client, spanDef).expect[T](POST(queryJson, searchEndpoint))
+  def searchAs[T: Decoder](query: QueryBuilder, index: String): IO[T] = searchAs[T](query.build, Set(index))
+
+  def searchAs[T: Decoder](request: ElasticSearchRequest, indices: Set[String]): IO[T] = {
+    val (indexPath, newRequest) = indexPathAndRequestBody(indices, request)
+    val spanDef                 = spanSearchRequest(newRequest)
+    val searchEndpoint          = (endpoint / indexPath / searchPath).withQueryParams(defaultQuery ++ newRequest.queryParams)
+    OtelTracingClient(client, spanDef).expectOr[T](POST(newRequest.body, searchEndpoint))(ElasticsearchQueryError(_))
   }
 
   /**
@@ -438,10 +400,24 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     OtelTracingClient(client, spanDef).successful(DELETE(pointInTime, endpoint / pit)).void
   }
 
-  private def indexPathAndQuery(indices: Set[String], query: QueryBuilder): (String, QueryBuilder) = {
+  private def indexPathAndRequestBody(
+      indices: Set[String],
+      request: ElasticSearchRequest
+  ): (String, ElasticSearchRequest) = {
     val indexPath = indices.mkString(",")
-    if indexPath.length < maxIndexPathLength then (indexPath, query)
-    else (allIndexPath, query.withIndices(indices))
+    if indexPath.length < maxIndexPathLength then (indexPath, request)
+    else {
+      val filter     = Json.obj("filter" := JsonObject("terms" -> Json.obj("_index" := indices)))
+      val newRequest = request.mapBody { body =>
+        body("query") match {
+          case None               => request.body.add("query", Json.obj("bool" -> filter))
+          case Some(currentQuery) =>
+            val boolQuery = Json.obj("must" -> currentQuery).deepMerge(filter)
+            request.body.add("query", Json.obj("bool" -> boolQuery))
+        }
+      }
+      (allIndexPath, newRequest)
+    }
   }
 
   given Decoder[ResolvedServiceDescription] =
@@ -532,7 +508,7 @@ object ElasticSearchClient {
       }
     }
 
-  implicit val decodeQueryResults: Decoder[SearchResults[JsonObject]] =
+  given Decoder[SearchResults[JsonObject]] =
     Decoder.decodeJsonObject.flatMap(
       _.asJson.hcursor
         .downField("hits")

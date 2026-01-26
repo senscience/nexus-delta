@@ -62,7 +62,7 @@ class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
         aclCheck,
         graphAnalytics,
         ProjectionsDirectives.testEcho,
-        (_, _, _) => IO.pure(viewQueryResponse)
+        (_, _) => IO.pure(viewQueryResponse)
       ).routes
     )
 

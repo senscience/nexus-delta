@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.query
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchRequest}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams
@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
@@ -28,7 +28,6 @@ import cats.syntax.all.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject}
 import munit.{AnyFixture, Location}
-import org.http4s.Query
 
 import java.time.Instant
 
@@ -37,7 +36,8 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
 
   private lazy val client = esClient()
 
-  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given JsonLdApi = TitaniumJsonLdApi.strict
+  private given BaseUri   = BaseUri.unsafe("http://localhost", "v1")
 
   private def epochPlus(plus: Long) = Instant.EPOCH.plusSeconds(plus)
   private val realm                 = Label.unsafe("myrealm")
@@ -282,34 +282,36 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
     }
   }
 
-  private val matchAllSorted = jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }"""
+  private val matchAllSorted = ElasticSearchRequest(
+    jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }"""
+  )
 
   test(s"Search only among $project1") {
     mainIndexQuery
-      .search(project1, matchAllSorted, Query.empty)
+      .search(project1, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(orgs.map(_.id))
   }
 
   test(s"Search only among $project2") {
     mainIndexQuery
-      .search(project2, matchAllSorted, Query.empty)
+      .search(project2, matchAllSorted)
       .map(Ids.extractAll)
       .assertEquals(List(trace.id, cell.id))
   }
 
   test(s"Search in $project1 to get the trace id returns nothing") {
-    val query = jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }"""
+    val request = ElasticSearchRequest(jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }""")
     mainIndexQuery
-      .search(project1, query, Query.empty)
+      .search(project1, request)
       .map(Ids.extractAll)
       .assertEquals(List.empty)
   }
 
   test(s"Search in $project2 to get the trace id returns it") {
-    val query = jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }"""
+    val request = ElasticSearchRequest(jobj"""{ "query": { "term": { "@id": "${trace.id}" } } }""")
     mainIndexQuery
-      .search(project2, query, Query.empty)
+      .search(project2, request)
       .map(Ids.extractAll)
       .assertEquals(List(trace.id))
   }

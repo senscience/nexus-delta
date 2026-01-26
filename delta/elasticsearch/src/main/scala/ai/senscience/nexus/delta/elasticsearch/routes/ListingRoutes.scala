@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
+import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
@@ -31,7 +32,7 @@ class ListingRoutes(
     projectScopeResolver: ProjectScopeResolver,
     resourcesToSchemas: ResourceToSchemaMappings,
     schemeDirectives: DeltaSchemeDirectives,
-    defaultIndexQuery: MainIndexQuery
+    mainIndexQuery: MainIndexQuery
 )(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with ElasticSearchViewsDirectives
@@ -110,13 +111,17 @@ class ListingRoutes(
       }
     }
 
+  private def mainIndexRequest(pc: Option[ProjectContext], resourceSchema: Iri) =
+    (searchParametersAndSortList(pc) & paginated).tmap { (params, sort, page) =>
+      MainIndexRequest(params.withSchema(resourceSchema), page, sort)
+    }
+
   private val resourcesListings: Route =
     concat(resourcesToSchemas.value.map { case (Label(resourceSegment), resourceSchema) =>
       pathPrefix(resourceSegment) {
         extractCaller { case given Caller =>
           concat(
-            (searchParametersAndSortList(None) & paginated) { (params, sort, page) =>
-              val request = MainIndexRequest(params.withSchema(resourceSchema), page, sort)
+            mainIndexRequest(None, resourceSchema) { request =>
               concat(
                 // List all resources of type resourceSegment
                 pathEndOrSingleSlash {
@@ -138,9 +143,8 @@ class ListingRoutes(
             projectRef { project =>
               projectContext(project) { pc =>
                 // List all resources of type resourceSegment inside a project
-                (searchParametersAndSortList(Some(pc)) & paginated & pathEndOrSingleSlash) { (params, sort, page) =>
-                  val request = MainIndexRequest(params.withSchema(resourceSchema), page, sort)
-                  val scope   = Scope.Project(project)
+                (mainIndexRequest(Some(pc), resourceSchema) & pathEndOrSingleSlash) { request =>
+                  val scope = Scope.Project(project)
                   concat(
                     aggregate(request, scope),
                     list(request, scope)
@@ -154,12 +158,12 @@ class ListingRoutes(
     }.toSeq*)
 
   private def list(request: MainIndexRequest, scope: Scope)(using Caller): Route =
-    (get & paginated & extractHttp4sUri) { (page, uri) =>
+    (get & extractHttp4sUri) { uri =>
       given JsonLdEncoder[SearchResults[JsonObject]] =
-        searchResultsJsonLdEncoder(ContextValue(contexts.searchMetadata), page, uri)
+        searchResultsJsonLdEncoder(ContextValue(contexts.searchMetadata), request.pagination, uri)
       emit {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
-          defaultIndexQuery.list(request, projects)
+          mainIndexQuery.list(request, projects)
         }
       }
     }
@@ -168,7 +172,7 @@ class ListingRoutes(
     (get & aggregated) {
       emitJson {
         projectScopeResolver(scope, resources.read).flatMap { projects =>
-          defaultIndexQuery.aggregate(request, projects)
+          mainIndexQuery.aggregate(request, projects)
         }
       }
     }

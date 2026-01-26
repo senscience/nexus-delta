@@ -7,6 +7,6 @@ import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 final case class PointInTime(id: String)
 
 object PointInTime {
-  implicit private val config: Configuration          = Configuration.default
-  implicit val pointInTimeDecoder: Codec[PointInTime] = deriveConfiguredCodec[PointInTime]
+  private given Configuration = Configuration.default
+  given Codec[PointInTime]    = deriveConfiguredCodec[PointInTime]
 }

@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.client
 import ai.senscience.nexus.delta.elasticsearch.client.BulkResponse.MixedOutcomes.Outcome
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh.WaitFor
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchCreateIndexError, ElasticsearchUpdateMappingError}
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticsearchCreateIndexError, ElasticsearchQueryError, ElasticsearchUpdateMappingError}
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
@@ -18,7 +18,6 @@ import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
 import munit.AnyFixture
-import org.http4s.Query
 
 import scala.concurrent.duration.*
 
@@ -33,7 +32,7 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
   private lazy val client = esClient()
 
   private def searchAllIn(index: IndexLabel): IO[Seq[JsonObject]] =
-    client.search(QueryBuilder.empty.withPage(page), Set(index.value), Query.empty).map(_.sources)
+    client.search(QueryBuilder.empty.withPage(page), Set(index.value)).map(_.sources)
 
   private def replaceAndRefresh(index: IndexLabel, id: String, document: JsonObject) =
     client.replace(index, id, document) >> client.refresh(index)
@@ -213,15 +212,16 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
 
     for {
       _        <- client.bulk(operations, Refresh.WaitFor)
-      query     = QueryBuilder(jobj"""{"query": {"bool": {"must": {"exists": {"field": "field1"} } } } }""")
+      query     = QueryBuilder
+                    .unsafe(jobj"""{"query": {"bool": {"must": {"exists": {"field": "field1"} } } } }""")
                     .withPage(page)
                     .withSort(SortList(List(Sort("-field1"))))
       expected  = SearchResults(2, Vector(jobj"""{ "field1" : 3 }""", jobj"""{ "field1" : 1, "field2" : "value2"}"""))
                     .copy(token = Some("[1]"))
-      _        <- client.search(query, Set(index.value), Query.empty).assertEquals(expected)
-      query2    = QueryBuilder(jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }""").withPage(page)
+      _        <- client.search(query, Set(index.value)).assertEquals(expected)
+      query2    = QueryBuilder.unsafe(jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }""").withPage(page)
       expected2 = ScoredSearchResults(1, 1f, Vector(ScoredResultEntry(1f, jobj"""{ "field1" : 3 }""")))
-      _        <- client.search(query2, Set(index.value), Query.empty).assertEquals(expected2)
+      _        <- client.search(query2, Set(index.value)).assertEquals(expected2)
     } yield ()
   }
 
@@ -235,14 +235,19 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
 
     for {
       _               <- client.bulk(operations, Refresh.WaitFor)
-      query            = jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }"""
-      expectedResults <- loader
-                           .jsonContentOf("elasticsearch-results.json", "index" -> index)
+      request          = ElasticSearchRequest(jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }""")
+      expectedResults <- loader.jsonContentOf("elasticsearch-results.json", "index" -> index)
       _               <- client
-                           .search(query, Set(index.value), Query.empty)(SortList.empty)
+                           .search(request, Set(index.value))
                            .map(_.removeKeys("took"))
                            .assertEquals(expectedResults)
     } yield ()
+  }
+
+  test("Fail for an invalid search") {
+    val index   = generateIndexLabel
+    val request = ElasticSearchRequest(jobj"""{ "query": { "other": {} } }""")
+    client.search(request, Set(index.value)).intercept[ElasticsearchQueryError]
   }
 
   test("Delete documents by query") {
@@ -254,14 +259,14 @@ class ElasticSearchClientSuite extends NexusElasticsearchSuite with ElasticSearc
 
     for {
       // Indexing and checking count
-      _    <- client.bulk(operations, Refresh.WaitFor)
-      _    <- client.count(index.value).assertEquals(2L)
+      _      <- client.bulk(operations, Refresh.WaitFor)
+      _      <- client.count(index.value).assertEquals(2L)
       // Deleting document matching the given query
-      query = jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }"""
-      _    <- client.deleteByQuery(query, index)
-      _    <- client.count(index.value).assertEquals(1L).eventually
-      _    <- client.getSource[Json](index, "1")
-      _    <- client.getSource[Json](index, "2").assertEquals(None)
+      request = ElasticSearchRequest(jobj"""{"query": {"bool": {"must": {"term": {"field1": 3} } } } }""")
+      _      <- client.deleteByQuery(request, index)
+      _      <- client.count(index.value).assertEquals(1L).eventually
+      _      <- client.getSource[Json](index, "1")
+      _      <- client.getSource[Json](index, "2").assertEquals(None)
     } yield ()
   }
 

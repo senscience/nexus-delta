@@ -184,7 +184,7 @@ object ElasticSearchViewRejection {
   final case class TooManyViewReferences(provided: Int, max: Int)
       extends ElasticSearchViewRejection(s"$provided exceeds the maximum allowed number of view references ($max).")
 
-  implicit val elasticSearchRejectionEncoder: Encoder.AsObject[ElasticSearchViewRejection] =
+  given Encoder.AsObject[ElasticSearchViewRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -198,10 +198,10 @@ object ElasticSearchViewRejection {
       }
     }
 
-  implicit final val viewRejectionJsonLdEncoder: JsonLdEncoder[ElasticSearchViewRejection] =
+  given JsonLdEncoder[ElasticSearchViewRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val elasticSearchViewRejectionHttpResponseFields: HttpResponseFields[ElasticSearchViewRejection] =
+  given HttpResponseFields[ElasticSearchViewRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
       case ViewNotFound(_, _)          => StatusCodes.NotFound

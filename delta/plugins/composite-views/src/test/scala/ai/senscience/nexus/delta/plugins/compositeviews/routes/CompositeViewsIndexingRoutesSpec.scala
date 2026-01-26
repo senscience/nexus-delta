@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViewsGen
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeRestart.{FullRebuild, FullRestart, PartialRebuild}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
@@ -10,13 +9,16 @@ import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartSt
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run.Main
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeBranch, CompositeProgress}
 import ai.senscience.nexus.delta.plugins.compositeviews.test.{expandOnlyIris, expectIndexingView}
+import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViewsFixture, CompositeViewsGen}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.ViewRef
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{ProjectionProgress, RemainingElems}
@@ -28,7 +30,11 @@ import org.apache.pekko.http.scaladsl.server.Route
 
 import java.time.Instant
 import scala.concurrent.duration.*
-class CompositeViewsIndexingRoutesSpec extends CompositeViewsRoutesFixtures {
+class CompositeViewsIndexingRoutesSpec
+    extends BaseRouteSpec
+    with DoobieScalaTestFixture
+    with CompositeViewsAclFixture
+    with CompositeViewsFixture {
 
   private val now      = Instant.now()
   private val nowPlus5 = now.plusSeconds(5)

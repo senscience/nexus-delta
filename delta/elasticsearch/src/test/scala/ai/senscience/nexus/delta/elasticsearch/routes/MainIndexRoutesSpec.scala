@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.indexing.MainRestartScheduler
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions as esPermissions}
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
@@ -7,15 +8,15 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import cats.effect.{IO, Ref}
 import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
-import org.http4s.Query
 
-class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class MainIndexRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")
@@ -25,7 +26,7 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
   private val encodedDefaultViewId = encodeUriPath(defaultViewId.toString)
 
   private val mainIndexQuery = new MainIndexQuery {
-    override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] =
+    override def search(project: ProjectRef, request: ElasticSearchRequest): IO[Json] =
       IO.pure(searchResult)
 
     override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] = ???
@@ -35,7 +36,7 @@ class MainIndexRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
   private val runTrigger           = Ref.unsafe[IO, Boolean](false)
   private val mainRestartScheduler = new MainRestartScheduler {
-    override def run(fromOffset: Offset)(implicit subject: Identity.Subject): IO[Unit] =
+    override def run(fromOffset: Offset)(using Identity.Subject): IO[Unit] =
       runTrigger.set(true).void
   }
 

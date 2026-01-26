@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.CirceLiteral
 import munit.AnyFixture
-import org.http4s.Query
 
 class MainIndexDeletionTaskSuite
     extends NexusElasticsearchSuite
@@ -44,9 +43,7 @@ class MainIndexDeletionTaskSuite
 
     def countInIndex(project: ProjectRef) = {
       val searchByProject = ElasticDeleteDocs.searchByProject(project)
-      client
-        .search(QueryBuilder.unsafe(searchByProject), Set(index.value), Query.empty)
-        .map(_.total)
+      client.search(QueryBuilder.unsafe(searchByProject), Set(index.value)).map(_.total)
     }
 
     for {

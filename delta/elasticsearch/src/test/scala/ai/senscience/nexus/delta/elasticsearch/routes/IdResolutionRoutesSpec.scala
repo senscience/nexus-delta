@@ -8,28 +8,30 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sourcing.model.ResourceRef
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
+import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
 import cats.effect.IO
 import io.circe.Decoder
 import org.apache.pekko.http.scaladsl.model.headers.Location
 import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.Route
 
-class IdResolutionRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class IdResolutionRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
+  private val projectRef = ProjectRef.unsafe("myorg", "myproject")
   private val encodedIri = encodeUriPath("https://bbp.epfl.ch/data/resource")
 
   private val successId      = nxv + "success"
   private val jsonResource   = jsonContentOf("resources/resource.json", "id" -> successId)
   private val successContent = ResourceGen.jsonLdContent(successId, projectRef, jsonResource)
 
-  implicit private val f: FusionConfig = fusionConfig
+  given FusionConfig = fusionConfig
 
   private val idResolution = new IdResolution {
-
     override def apply(iri: Iri)(implicit caller: Caller): IO[IdResolution.ResolutionResult] =
       IO.pure(SingleResult(ResourceRef.Latest(successId), projectRef, successContent))
   }
+
   private val route =
     Route.seal(new IdResolutionRoutes(identities, aclCheck, idResolution).routes)
 
@@ -44,7 +46,7 @@ class IdResolutionRoutesSpec extends ElasticSearchViewsRoutesFixtures {
     }
 
     "redirect the proxy call to the resolve endpoint" in {
-      val segment             = s"neurosciencegraph/data/$uuid"
+      val segment             = "neurosciencegraph/data/test"
       val fullId              = s"https://bbp.epfl.ch/$segment"
       val expectedRedirection = s"$baseUri/resolve/${encodeUriPath(fullId)}"
 
@@ -56,7 +58,7 @@ class IdResolutionRoutesSpec extends ElasticSearchViewsRoutesFixtures {
 
   }
 
-  implicit class HeaderOps(response: HttpResponse) {
+  extension (response: HttpResponse) {
     def locationHeader: String = response.header[Location].value.uri.toString()
 
     def topLevelField[A: Decoder](field: String): A =

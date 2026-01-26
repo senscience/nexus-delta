@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.plugins.search
 
 import ai.senscience.nexus.delta.elasticsearch.Fixtures
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.elasticsearch.model.{permissions, ElasticsearchIndexDef}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
@@ -26,7 +27,6 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import io.circe.Json
 import io.circe.syntax.EncoderOps
-import org.http4s.Query
 
 import java.time.Instant
 import java.util.UUID
@@ -107,24 +107,23 @@ class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures wi
   }
 
   "Search" should {
-    val executeSearch: ExecuteSearch = (_, accessibleIndices, _) => IO.pure(accessibleIndices.asJson)
+    val executeSearch: ExecuteSearch = (_, accessibleIndices) => IO.pure(accessibleIndices.asJson)
     lazy val search                  = Search(listViews, aclCheck, executeSearch, prefix, allSuites)
 
-    val matchAll     = jobj"""{"size": 100}"""
-    val noParameters = Query.empty
+    val matchAll = ElasticSearchRequest(jobj"""{"size": 100}""")
 
     "search all indices accordingly to Bob's full access" in {
-      val results = search.query(matchAll, noParameters)(bob).accepted
+      val results = search.query(matchAll)(using bob).accepted
       assertContainProjects(results, project1, project2)
     }
 
     "search only the project 1 index accordingly to Alice's restricted access" in {
-      val results = search.query(matchAll, noParameters)(alice).accepted
+      val results = search.query(matchAll)(using alice).accepted
       assertContainProjects(results, project1)
     }
 
     "search within an unknown suite" in {
-      search.query(Label.unsafe("xxx"), Set.empty, matchAll, noParameters)(bob).rejectedWith[UnknownSuite]
+      search.query(Label.unsafe("xxx"), Set.empty, matchAll)(using bob).rejectedWith[UnknownSuite]
     }
 
     List(
@@ -132,7 +131,7 @@ class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures wi
       (proj2Suite, List(project2))
     ).foreach { case (suite, expected) =>
       s"search within suite $suite accordingly to Bob's full access" in {
-        val results = search.query(suite, Set.empty, matchAll, noParameters)(bob).accepted
+        val results = search.query(suite, Set.empty, matchAll)(using bob).accepted
         assertContainProjects(results, expected*)
       }
     }
@@ -142,23 +141,23 @@ class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures wi
       (proj2Suite, List.empty)
     ).foreach { case (suite, expected) =>
       s"search within suite $suite accordingly to Alice's restricted access" in {
-        val results = search.query(suite, Set.empty, matchAll, noParameters)(alice).accepted
+        val results = search.query(suite, Set.empty, matchAll)(using alice).accepted
         assertContainProjects(results, expected*)
       }
     }
 
     "Search on proj2Suite and add project1 as an extra project accordingly to Bob's full access" in {
-      val results = search.query(proj2Suite, Set(project1), matchAll, noParameters)(bob).accepted
+      val results = search.query(proj2Suite, Set(project1), matchAll)(using bob).accepted
       assertContainProjects(results, project1, project2)
     }
 
     "Search on proj1Suite and add project2 as an extra project accordingly to Alice's restricted access" in {
-      val results = search.query(proj1Suite, Set(project2), matchAll, noParameters)(alice).accepted
+      val results = search.query(proj1Suite, Set(project2), matchAll)(using alice).accepted
       assertContainProjects(results, project1)
     }
 
     "Search on proj2Suite and add project1 as an extra project accordingly to Alice's restricted access" in {
-      val results = search.query(proj2Suite, Set(project1), matchAll, noParameters)(alice).accepted
+      val results = search.query(proj2Suite, Set(project1), matchAll)(using alice).accepted
       assertContainProjects(results, project1)
     }
   }

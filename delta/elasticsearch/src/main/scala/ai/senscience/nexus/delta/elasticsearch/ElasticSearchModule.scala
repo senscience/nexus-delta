@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
 import ai.senscience.nexus.delta.elasticsearch.config.{ElasticSearchViewsConfig, MainIndexConfig}
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig
+import ai.senscience.nexus.delta.elasticsearch.context.ElasticSearchContext
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ConfiguredIndexDeletionTask, ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
 import ai.senscience.nexus.delta.elasticsearch.indexing.*
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
@@ -13,7 +14,6 @@ import ai.senscience.nexus.delta.elasticsearch.routes.*
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
@@ -441,33 +441,24 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ViewsList(views.list)
   }
 
+  make[ElasticSearchContext].from { (metadataContexts: Set[MetadataContextValue]) =>
+    ElasticSearchContext(metadataContexts)
+  }
+
   make[MetadataContextValue]
     .named("search-metadata")
-    .from((agg: Set[MetadataContextValue]) => agg.foldLeft(MetadataContextValue.empty)(_.merge(_)))
+    .from((elasticSearchContext: ElasticSearchContext) => elasticSearchContext.searchMetadata)
 
   make[MetadataContextValue]
     .named("indexing-metadata")
-    .from { (listingsMetadataCtx: MetadataContextValue @Id("search-metadata")) =>
-      MetadataContextValue(listingsMetadataCtx.value.visit(obj = { case ContextObject(obj) =>
-        ContextObject(obj.filterKeys(_.startsWith("_")))
-      }))
+    .from((elasticSearchContext: ElasticSearchContext) => elasticSearchContext.indexingMetadata)
+
+  many[SseEncoder[?]].add { (base: BaseUri) => ElasticSearchViewEvent.sseEncoder(using base) }
+
+  many[RemoteContextResolution].addEffect { (elasticSearchContext: ElasticSearchContext) =>
+    RemoteContextResolution.loadResources(contexts.definition).map {
+      _.merge(elasticSearchContext.rcr)
     }
-
-  many[SseEncoder[?]].add { (base: BaseUri) => ElasticSearchViewEvent.sseEncoder(base) }
-
-  many[RemoteContextResolution].addEffect {
-    (
-        searchMetadataCtx: MetadataContextValue @Id("search-metadata"),
-        indexingMetadataCtx: MetadataContextValue @Id("indexing-metadata")
-    ) =>
-      RemoteContextResolution.loadResources(contexts.definition).map {
-        _.merge(
-          RemoteContextResolution.fixed(
-            contexts.indexingMetadata -> indexingMetadataCtx.value,
-            contexts.searchMetadata   -> searchMetadataCtx.value
-          )
-        )
-      }
   }
 
   many[ApiMappings].add(ElasticSearchViews.mappings)

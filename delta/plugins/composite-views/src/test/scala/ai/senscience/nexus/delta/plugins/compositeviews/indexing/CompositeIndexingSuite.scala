@@ -60,7 +60,7 @@ import io.circe.syntax.*
 import io.circe.{Encoder, Json}
 import munit.catseffect.IOFixture
 import munit.{AnyFixture, CatsEffectSuite}
-import org.http4s.{Query, Uri}
+import org.http4s.Uri
 import org.typelevel.otel4s.trace.Tracer
 
 import java.time.Instant
@@ -591,14 +591,10 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
 
   private def checkElasticSearchDocuments(index: IndexLabel, expected: Json*): IO[Unit] = {
     val page = FromPagination(0, 5000)
+    val qb   = QueryBuilder.empty.withSort(SortList(List(Sort("@id")))).withPage(page)
     for {
       _       <- esClient.refresh(index)
-      results <- esClient
-                   .search(
-                     QueryBuilder.empty.withSort(SortList(List(Sort("@id")))).withPage(page),
-                     Set(index.value),
-                     Query.empty
-                   )
+      results <- esClient.search(qb, Set(index.value))
       _        = assertEquals(results.sources.size, expected.size)
       _        = results.sources.zip(expected).foreach { case (obtained, expected) =>
                    obtained.asJson.equalsIgnoreArrayOrder(expected)

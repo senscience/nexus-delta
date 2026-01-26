@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
@@ -15,7 +16,7 @@ import io.circe.syntax.KeyOps
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
-class ElasticSearchHistoryRoutesSpec extends ElasticSearchViewsRoutesFixtures {
+class ElasticSearchHistoryRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
   private val myId        = iri"""https://bbp.epfl.ch/data/myid"""
   private val myIdEncoded = encodeUriPath(myId.toString)

@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.compositeviews
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest}
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.CompositeViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.ElasticSearchProjection
@@ -8,11 +8,9 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sdk.model.search.SortList
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
-import org.http4s.Query
+import io.circe.Json
 
 trait ElasticSearchQuery {
 
@@ -26,18 +24,15 @@ trait ElasticSearchQuery {
     *   the id of the composite views' target projection either in Iri or aliased form
     * @param project
     *   the project where the view exists
-    * @param query
-    *   the elasticsearch query to run
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
+    * @param request
+    *   the elasticsearch request to run
     */
   def query(
       id: IdSegment,
       projectionId: IdSegment,
       project: ProjectRef,
-      query: JsonObject,
-      qp: Query
-  )(implicit caller: Caller): IO[Json]
+      request: ElasticSearchRequest
+  )(using Caller): IO[Json]
 
   /**
     * Queries all the Elasticsearch indices of the passed composite views' projection. We check for the caller to have
@@ -47,23 +42,20 @@ trait ElasticSearchQuery {
     *   the id of the composite view either in Iri or aliased form
     * @param project
     *   the project where the view exists
-    * @param query
+    * @param request
     *   the elasticsearch query to run
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
     */
   def queryProjections(
       id: IdSegment,
       project: ProjectRef,
-      query: JsonObject,
-      qp: Query
-  )(implicit caller: Caller): IO[Json]
+      request: ElasticSearchRequest
+  )(using Caller): IO[Json]
 
 }
 
 object ElasticSearchQuery {
 
-  private[compositeviews] type ElasticSearchClientQuery = (JsonObject, Set[String], Query) => IO[Json]
+  private[compositeviews] type ElasticSearchClientQuery = (ElasticSearchRequest, Set[String]) => IO[Json]
 
   final def apply(
       aclCheck: AclCheck,
@@ -71,7 +63,7 @@ object ElasticSearchQuery {
       client: ElasticSearchClient,
       prefix: String
   ): ElasticSearchQuery =
-    apply(aclCheck, views.fetchIndexingView, views.expand, client.search(_, _, _)(SortList.empty), prefix)
+    apply(aclCheck, views.fetchIndexingView, views.expand, client.search, prefix)
 
   private[compositeviews] def apply(
       aclCheck: AclCheck,
@@ -86,28 +78,26 @@ object ElasticSearchQuery {
           id: IdSegment,
           projectionId: IdSegment,
           project: ProjectRef,
-          query: JsonObject,
-          qp: Query
-      )(implicit caller: Caller): IO[Json] =
+          request: ElasticSearchRequest
+      )(using Caller): IO[Json] =
         for {
           view       <- fetchView(id, project)
           projection <- fetchProjection(view, projectionId)
           _          <-
             aclCheck.authorizeForOr(project, projection.permission)(AuthorizationFailed(project, projection.permission))
           index       = projectionIndex(projection, view.uuid, prefix).value
-          search     <- elasticSearchQuery(query, Set(index), qp)
+          search     <- elasticSearchQuery(request, Set(index))
         } yield search
 
       override def queryProjections(
           id: IdSegment,
           project: ProjectRef,
-          query: JsonObject,
-          qp: Query
-      )(implicit caller: Caller): IO[Json] =
+          request: ElasticSearchRequest
+      )(using Caller): IO[Json] =
         for {
           view    <- fetchView(id, project)
           indices <- allowedProjections(view, project)
-          search  <- elasticSearchQuery(query, indices, qp)
+          search  <- elasticSearchQuery(request, indices)
         } yield search
 
       private def fetchProjection(view: ActiveViewDef, projectionId: IdSegment) =
@@ -118,7 +108,7 @@ object ElasticSearchQuery {
       private def allowedProjections(
           view: ActiveViewDef,
           project: ProjectRef
-      )(implicit caller: Caller): IO[Set[String]] =
+      )(using Caller): IO[Set[String]] =
         aclCheck
           .mapFilterAtAddress[ElasticSearchProjection, String](
             view.elasticSearchProjections,

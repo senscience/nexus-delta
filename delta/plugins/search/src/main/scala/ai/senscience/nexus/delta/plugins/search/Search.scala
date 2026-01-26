@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest}
 import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
 import ai.senscience.nexus.delta.plugins.compositeviews.indexing.projectionIndex
@@ -13,30 +13,19 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Project as ProjectAcl
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
-import io.circe.{Json, JsonObject}
-import org.http4s.Query
+import io.circe.Json
 
 trait Search {
 
   /**
     * Queries all the underlying search indices that the ''caller'' has access to
-    *
-    * @param payload
-    *   the query payload
     */
-  def query(payload: JsonObject, qp: Query)(implicit caller: Caller): IO[Json]
+  def query(request: ElasticSearchRequest)(using Caller): IO[Json]
 
   /**
     * Queries the underlying search indices for the provided suite that the ''caller'' has access to
-    *
-    * @param suite
-    *   the suite where the search query has to be applied
-    * @param payload
-    *   the query payload
     */
-  def query(suite: Label, additionalProjects: Set[ProjectRef], payload: JsonObject, qp: Query)(implicit
-      caller: Caller
-  ): IO[Json]
+  def query(suite: Label, additionalProjects: Set[ProjectRef], request: ElasticSearchRequest)(using Caller): IO[Json]
 }
 
 object Search {
@@ -44,7 +33,7 @@ object Search {
   final case class TargetProjection(projection: ElasticSearchProjection, view: CompositeView)
 
   private[search] type ListProjections = () => IO[Seq[TargetProjection]]
-  private[search] type ExecuteSearch   = (JsonObject, Set[String], Query) => IO[Json]
+  private[search] type ExecuteSearch   = (ElasticSearchRequest, Set[String]) => IO[Json]
 
   /**
     * Constructs a new [[Search]] instance.
@@ -74,7 +63,7 @@ object Search {
               } yield TargetProjection(esProjection, res.value)
             }
         )
-    val executeSearch: ExecuteSearch     = client.search(_, _, _)()
+    val executeSearch: ExecuteSearch     = client.search
     apply(listProjections, aclCheck, executeSearch, prefix, suites)
   }
 
@@ -90,9 +79,7 @@ object Search {
   ): Search =
     new Search {
 
-      private def query(projectionPredicate: TargetProjection => Boolean, payload: JsonObject, qp: Query)(implicit
-          caller: Caller
-      ) =
+      private def query(projectionPredicate: TargetProjection => Boolean, request: ElasticSearchRequest)(using Caller) =
         for {
           allProjections    <- listProjections().map(_.filter(projectionPredicate))
           accessibleIndices <- aclCheck.mapFilter[TargetProjection, String](
@@ -100,19 +87,19 @@ object Search {
                                  p => ProjectAcl(p.view.project) -> p.projection.permission,
                                  p => projectionIndex(p.projection, p.view.uuid, prefix).value
                                )
-          results           <- executeSearch(payload, accessibleIndices, qp)
+          results           <- executeSearch(request, accessibleIndices)
         } yield results
 
-      override def query(payload: JsonObject, qp: Query)(implicit caller: Caller): IO[Json] =
-        query(_ => true, payload, qp)
+      override def query(request: ElasticSearchRequest)(using Caller): IO[Json] =
+        query(_ => true, request)
 
-      override def query(suite: Label, additionalProjects: Set[ProjectRef], payload: JsonObject, qp: Query)(implicit
-          caller: Caller
+      override def query(suite: Label, additionalProjects: Set[ProjectRef], request: ElasticSearchRequest)(using
+          Caller
       ): IO[Json] = {
         IO.fromOption(suites.get(suite))(UnknownSuite(suite)).flatMap { suiteProjects =>
           val allProjects                             = suiteProjects ++ additionalProjects
           def predicate(p: TargetProjection): Boolean = allProjects.contains(p.view.project)
-          query(predicate(_), payload, qp)
+          query(predicate, request)
         }
       }
 

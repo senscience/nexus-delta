@@ -40,11 +40,11 @@ import java.util.UUID
 
 class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures with Fixtures {
 
-  private val realm                  = Label.unsafe("myrealm")
-  implicit private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val realm           = Label.unsafe("myrealm")
+  private given alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val defaultIndexDef = DefaultIndexDef.fromJson(JsonObject.empty, JsonObject.empty)
   "An ElasticSearchViews" should {

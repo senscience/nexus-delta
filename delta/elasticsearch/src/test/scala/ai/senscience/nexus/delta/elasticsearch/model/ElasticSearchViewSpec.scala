@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.Fixtures
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, ElasticsearchSettings}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchView.{AggregateElasticSearchView, IndexingElasticSearchView}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.syntax.*
@@ -19,11 +20,12 @@ import java.util.UUID
 
 class ElasticSearchViewSpec extends CatsEffectSpec with CirceLiteral with CirceEq with Fixtures {
 
-  private val id      = nxv + "myview"
-  private val project = ProjectRef.unsafe("org", "project")
-  private val tagsMap = Tags(UserTag.unsafe("tag") -> 1)
-  private val source  = json"""{"source": "value"}"""
-  private val perm    = Permission.unsafe("views/query")
+  private given JsonLdApi = TitaniumJsonLdApi.strict
+  private val id          = nxv + "myview"
+  private val project     = ProjectRef.unsafe("org", "project")
+  private val tagsMap     = Tags(UserTag.unsafe("tag") -> 1)
+  private val source      = json"""{"source": "value"}"""
+  private val perm        = Permission.unsafe("views/query")
 
   "An IndexingElasticSearchView" should {
     val uuid                                                      = UUID.fromString("f85d862a-9ec0-4b9a-8aed-2938d7ca9981")

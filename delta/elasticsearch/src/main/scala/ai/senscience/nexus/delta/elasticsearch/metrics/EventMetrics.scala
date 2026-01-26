@@ -1,16 +1,16 @@
 package ai.senscience.nexus.delta.elasticsearch.metrics
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.Index
-import ai.senscience.nexus.delta.elasticsearch.client.{BulkResponse, ElasticSearchClient, QueryBuilder, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.given
+import ai.senscience.nexus.delta.elasticsearch.client.{BulkResponse, ElasticSearchClient, ElasticSearchRequest, Refresh}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
-import io.circe.JsonObject
 import io.circe.literal.json
-import io.circe.syntax.EncoderOps
-import org.http4s.Query
+import io.circe.syntax.{EncoderOps, KeyOps}
+import io.circe.{Json, JsonObject}
 
 trait FetchHistory {
   def history(project: ProjectRef, id: Iri): IO[SearchResults[JsonObject]]
@@ -46,54 +46,45 @@ object EventMetrics {
       client.bulk(actions, Refresh.False)
     }
 
-    private def deleteByProjectQuery(project: ProjectRef) = IO.fromOption(
-      json"""{"query": {"term": {"project": ${project.asJson} } } }""".asObject
-    )(new IllegalStateException("Failed to convert to json object the deleteByProject query."))
+    override def deleteByProject(project: ProjectRef): IO[Unit] = {
+      val deleteByProject = ElasticSearchRequest(
+        "query" -> json"""{"term": {"project": ${project.asJson} } }"""
+      )
+      client.deleteByQuery(deleteByProject, index)
+    }
 
-    override def deleteByProject(project: ProjectRef): IO[Unit] =
-      deleteByProjectQuery(project).flatMap { client.deleteByQuery(_, index) }
-
-    private def deleteByResourceQuery(project: ProjectRef, id: Iri) = IO.fromOption(
-      json"""
-            {
-              "query": {
-                "bool": {
-                  "must": [
-                    { "term": { "project": ${project.asJson} } },
-                    { "term": { "@id": ${id.asJson} } }
-                  ]
-                }
-              }
-            }""".asObject
-    )(new IllegalStateException("Failed to convert to json object the deleteByProject query."))
-
-    override def deleteByResource(project: ProjectRef, id: Iri): IO[Unit] =
-      deleteByResourceQuery(project, id).flatMap { client.deleteByQuery(_, index) }
-
-    private def historyQuery(project: ProjectRef, id: Iri) =
-      IO.fromOption(json"""{
-             "query": {
-                "bool": {
-                  "must": [
-                    { "term": { "project": ${project.asJson} } },
-                    { "term": { "@id": ${id.asJson} } }
-                  ]
-                }
-              },
-              "size": 2000,
-              "from": 0,
-              "sort": [
-                  { "rev": { "order" : "asc" } }
-              ]
-            }
-          """.asObject)(new IllegalStateException("Failed to convert to json object the deleteByResource query."))
+    override def deleteByResource(project: ProjectRef, id: Iri): IO[Unit] = {
+      val deleteByResource = ElasticSearchRequest(
+        "query" ->
+          json"""{
+                   "bool": {
+                     "must": [
+                       { "term": { "project": ${project.asJson} } },
+                       { "term": { "@id": ${id.asJson} } }
+                     ]
+                   }
+                 }"""
+      )
+      client.deleteByQuery(deleteByResource, index)
+    }
 
     override def history(project: ProjectRef, id: Iri): IO[SearchResults[JsonObject]] = {
-      for {
-        jsonQuery   <- historyQuery(project, id)
-        queryBuilder = QueryBuilder.unsafe(jsonQuery)
-        results     <- client.search(queryBuilder, Set(index.value), Query.empty)
-      } yield results
+      val request = ElasticSearchRequest(
+        JsonObject(
+          "query" := json"""{
+                  "bool": {
+                    "must": [
+                      { "term": { "project": ${project.asJson} } },
+                      { "term": { "@id": ${id.asJson} } }
+                    ]
+                  }
+                }""",
+          "size"  := 2000,
+          "from"  := 0,
+          "sort"  := Json.arr(json"""{ "rev": { "order" : "asc" } }""")
+        )
+      )
+      client.searchAs[SearchResults[JsonObject]](request, Set(index.value))
     }
   }
 

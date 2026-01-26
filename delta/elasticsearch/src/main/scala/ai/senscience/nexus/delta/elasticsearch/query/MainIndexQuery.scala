@@ -1,15 +1,14 @@
 package ai.senscience.nexus.delta.elasticsearch.query
 
-import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Hits, QueryBuilder}
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest, Hits, QueryBuilder}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults, SortList}
+import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.effect.IO
 import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Json, JsonObject}
-import org.http4s.Query
 import org.typelevel.otel4s.trace.Tracer
 
 /**
@@ -21,12 +20,10 @@ trait MainIndexQuery {
     * Query the main index with the provided query limiting the search to the given project
     * @param project
     *   the project the query targets
-    * @param query
-    *   the query to execute
-    * @param qp
-    *   the extra query parameters for the elasticsearch index
+    * @param request
+    *   the request to execute
     */
-  def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json]
+  def search(project: ProjectRef, request: ElasticSearchRequest): IO[Json]
 
   /**
     * Retrieves a list of resources from the provided search request on the set of projects
@@ -41,26 +38,29 @@ trait MainIndexQuery {
 
 object MainIndexQuery {
 
-  private val excludeOriginalSource = "_source_excludes" -> "_original_source"
+  private val excludeOriginalSource = Map("_source_excludes" -> "_original_source")
 
   def apply(
       client: ElasticSearchClient,
       config: MainIndexConfig
   )(using BaseUri, Tracer[IO]): MainIndexQuery = new MainIndexQuery {
 
-    override def search(project: ProjectRef, query: JsonObject, qp: Query): IO[Json] = {
-      client.search(FilterByProject(project, query), Set(config.index.value), qp)(SortList.empty)
+    override def search(project: ProjectRef, request: ElasticSearchRequest): IO[Json] = {
+      client.search(FilterByProject(project, request), Set(config.index.value))
     }.surround("mainUserQuery")
 
     override def list(request: MainIndexRequest, projects: Set[ProjectRef]): IO[SearchResults[JsonObject]] = {
       val query =
-        QueryBuilder(request.params, projects).withPage(request.pagination).withTotalHits(true).withSort(request.sort)
-      client.search(query, Set(config.index.value), Query.fromPairs(excludeOriginalSource))
+        QueryBuilder(request.params, projects, excludeOriginalSource)
+          .withPage(request.pagination)
+          .withTotalHits(true)
+          .withSort(request.sort)
+      client.search(query, Set(config.index.value))
     }.surround("mainListQuery")
 
     override def aggregate(request: MainIndexRequest, projects: Set[ProjectRef]): IO[AggregationResult] = {
       val query = QueryBuilder(request.params, projects).aggregation(config.bucketSize)
-      client.searchAs[AggregationResult](query, config.index.value, Query.empty)
+      client.searchAs[AggregationResult](query, config.index.value)
     }.surround("mainAggregate")
   }
 

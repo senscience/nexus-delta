@@ -43,13 +43,12 @@ object IndexLabel {
         .when(indexGroupRegex.unapplySeq(string).isDefined)(new IndexGroup(string.toLowerCase))
         .toRight(IllegalIndexLabel(string))
 
-    implicit final val indexGroupEncoder: Encoder[IndexGroup] =
-      Encoder.encodeString.contramap(_.value)
+    given Encoder[IndexGroup] = Encoder.encodeString.contramap(_.value)
 
-    implicit final val indexGroupDecoder: Decoder[IndexGroup] =
+    given Decoder[IndexGroup] =
       Decoder.decodeString.emap(str => IndexGroup(str).leftMap(_.getMessage))
 
-    implicit val indexGroupJsonLdDecoder: JsonLdDecoder[IndexGroup] =
+    given JsonLdDecoder[IndexGroup] =
       (cursor: ExpandedJsonLdCursor) =>
         cursor.get[String].flatMap { IndexGroup(_).leftMap { e => ParsingFailure(e.getMessage) } }
   }
@@ -83,7 +82,7 @@ object IndexLabel {
   final def fromView(prefix: String, uuid: UUID, indexingRev: IndexingRev): IndexLabel =
     new IndexLabel(s"${prefix}_${uuid}_${indexingRev.value}")
 
-  implicit val indexLabelJsonLdDecoder: JsonLdDecoder[IndexLabel] =
+  given JsonLdDecoder[IndexLabel] =
     (cursor: ExpandedJsonLdCursor) =>
       cursor.get[String].flatMap {
         IndexLabel(_).leftMap { e => ParsingFailure(e.getMessage) }

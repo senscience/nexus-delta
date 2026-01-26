@@ -15,7 +15,7 @@ import cats.effect.{IO, Ref}
 
 class ElasticSearchDeletionTaskSuite extends NexusSuite with CirceLiteral {
 
-  implicit private val subject: Subject = Anonymous
+  private given Subject = Anonymous
 
   private val project     = ProjectRef.unsafe("org", "proj")
   private val indexingRev = IndexingRev.init

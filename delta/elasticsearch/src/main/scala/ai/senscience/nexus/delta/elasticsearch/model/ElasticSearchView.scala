@@ -164,7 +164,7 @@ object ElasticSearchView {
   val context: ContextValue = ContextValue(contexts.elasticsearch)
 
   given Encoder.AsObject[ElasticSearchView] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
     // To keep retro-compatibility, we compute legacy fields from the view pipeline
     def encodeLegacyFields(v: ElasticSearchView) =
@@ -248,12 +248,9 @@ object ElasticSearchView {
     }
   }
 
-  implicit private val elasticSearchMetadataEncoder: Encoder.AsObject[Metadata] =
-    Encoder.encodeJsonObject.contramapObject(meta =>
-      JsonObject.empty
-        .addIfExists("_uuid", meta.uuid)
-    )
+  given Encoder.AsObject[Metadata] =
+    Encoder.encodeJsonObject.contramapObject(meta => JsonObject.empty.addIfExists("_uuid", meta.uuid))
 
-  implicit val elasticSearchMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
+  given JsonLdEncoder[Metadata] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.elasticsearchMetadata))
 }

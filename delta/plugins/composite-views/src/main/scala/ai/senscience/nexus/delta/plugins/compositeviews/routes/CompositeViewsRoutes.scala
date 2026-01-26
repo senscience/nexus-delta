@@ -103,16 +103,14 @@ class CompositeViewsRoutes(
                           }
                       },
                       // Query all composite views' elasticsearch projections indices
-                      (pathPrefix("_search") & pathEndOrSingleSlash & post) {
-                        (extractQueryParams & jsonObjectEntity) { (qp, query) =>
-                          projectionOpt match {
-                            case Some(projectionId) =>
-                              // Query a composite views' elasticsearch projection index
-                              emit(elasticSearchQuery.query(viewId, projectionId, project, query, qp))
-                            case None               =>
-                              // Query all composite views' elasticsearch projections indices
-                              emit(elasticSearchQuery.queryProjections(viewId, project, query, qp))
-                          }
+                      (post & pathPrefix("_search") & pathEndOrSingleSlash & elasticSearchRequest) { request =>
+                        projectionOpt match {
+                          case Some(projectionId) =>
+                            // Query a composite views' elasticsearch projection index
+                            emit(elasticSearchQuery.query(viewId, projectionId, project, request))
+                          case None               =>
+                            // Query all composite views' elasticsearch projections indices
+                            emit(elasticSearchQuery.queryProjections(viewId, project, request))
                         }
                       }
                     )

@@ -107,8 +107,8 @@ final class ElasticSearchViewsRoutes(
                   // Query an elasticsearch view
                   (pathPrefix("_search") & post & pathEndOrSingleSlash) {
                     routeSpan("views/<str:org>/<str:project>/<str:id>/_search") {
-                      (extractQueryParams & jsonObjectEntity) { (qp, query) =>
-                        emit(viewsQuery.query(id, project, query, qp))
+                      elasticSearchRequest { request =>
+                        emit(viewsQuery.query(id, project, request))
                       }
                     }
                   },

@@ -1,18 +1,16 @@
 package ai.senscience.nexus.delta.elasticsearch.query
 
-import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient
+import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, ElasticSearchRequest}
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig.Enabled
 import ai.senscience.nexus.delta.elasticsearch.query.ConfiguredIndexQuery.Target
-import ai.senscience.nexus.delta.sdk.model.search.SortList
 import ai.senscience.nexus.delta.sdk.syntax.surround
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
 import cats.effect.kernel.Clock
 import cats.effect.std.AtomicCell
 import cats.syntax.all.*
-import io.circe.{Json, JsonObject}
-import org.http4s.Query
+import io.circe.Json
 import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -22,7 +20,7 @@ trait ConfiguredIndexQuery {
   /**
     * Search on the configured indices the given query
     */
-  def search(project: ProjectRef, target: Target, query: JsonObject, qp: Query): IO[Json]
+  def search(project: ProjectRef, target: Target, request: ElasticSearchRequest): IO[Json]
 
   /**
     * Refresh the configured indices Note that the refresh is only possible at the rate defined in the configuration
@@ -45,8 +43,8 @@ object ConfiguredIndexQuery {
 
     private val disabled = IO.raiseError(new IllegalStateException("Configured indexing is disabled."))
 
-    override def search(project: ProjectRef, target: Target, query: JsonObject, qp: Query): IO[Json] = disabled
-    override def refresh: IO[Unit]                                                                   = disabled
+    override def search(project: ProjectRef, target: Target, request: ElasticSearchRequest): IO[Json] = disabled
+    override def refresh: IO[Unit]                                                                    = disabled
   }
 
   final class Active(
@@ -61,12 +59,12 @@ object ConfiguredIndexQuery {
       acc + (index.index -> index.prefixedIndex(config.prefix).value)
     }
 
-    override def search(project: ProjectRef, target: Target, query: JsonObject, qp: Query): IO[Json] = {
+    override def search(project: ProjectRef, target: Target, request: ElasticSearchRequest): IO[Json] = {
       val indices = target match {
         case Target.All           => indexMap.values.toSet
         case Target.Single(value) => indexMap.get(value).toSet
       }
-      client.search(FilterByProject(project, query), indices, qp)(SortList.empty)
+      client.search(FilterByProject(project, request), indices)
     }.surround("configuredSearch")
 
     override def refresh: IO[Unit] =

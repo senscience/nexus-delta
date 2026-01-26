@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.plugins.search
 
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.plugins.search.SearchRoutesSpec.{name, projects}
 import ai.senscience.nexus.delta.plugins.search.model.SearchRejection.UnknownSuite
@@ -10,11 +11,10 @@ import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
+import io.circe.Json
 import io.circe.syntax.*
-import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
-import org.http4s.Query
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 
 class SearchRoutesSpec extends BaseRouteSpec {
@@ -25,15 +25,15 @@ class SearchRoutesSpec extends BaseRouteSpec {
 
   // Dummy implementation of search which just returns the payload
   private val search = new Search {
-    override def query(payload: JsonObject, qp: Query)(implicit caller: Caller): IO[Json] = {
-      IO.raiseWhen(payload.isEmpty)(unknownSuite).as(payload.asJson)
+    override def query(request: ElasticSearchRequest)(using Caller): IO[Json] = {
+      IO.raiseWhen(request.body.isEmpty)(unknownSuite).as(request.body.asJson)
     }
 
-    override def query(suite: Label, additionalProjects: Set[ProjectRef], payload: JsonObject, qp: Query)(implicit
-        caller: Caller
+    override def query(suite: Label, additionalProjects: Set[ProjectRef], request: ElasticSearchRequest)(using
+        Caller
     ): IO[Json] =
-      IO.raiseWhen(payload.isEmpty)(unknownSuite)
-        .as(Json.obj(suite.value -> payload.asJson, "addProjects" -> additionalProjects.asJson))
+      IO.raiseWhen(request.body.isEmpty)(unknownSuite)
+        .as(Json.obj(suite.value -> request.body.asJson, "addProjects" -> additionalProjects.asJson))
   }
 
   private val fields = Json.obj("fields" := true)

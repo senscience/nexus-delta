@@ -1,22 +1,25 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.routes
 
-import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/sparql-query`
+import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUriQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryClientDummy
-import ai.senscience.nexus.delta.plugins.compositeviews.CompositeViews
-import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
+import ai.senscience.nexus.delta.plugins.compositeviews.model.contexts
+import ai.senscience.nexus.delta.plugins.compositeviews.{CompositeViews, CompositeViewsFixture}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.NTriples
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
-import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
+import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
 import ai.senscience.nexus.delta.sdk.views.CompositeViewErrors.{viewIsDeprecatedError, viewIsNotDeprecatedError}
+import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
+import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/sparql-query`
 import ai.senscience.nexus.pekko.marshalling.{CirceMarshalling, RdfMediaTypes}
 import io.circe.syntax.*
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
@@ -28,7 +31,16 @@ import org.scalatest.Assertion
 
 import scala.concurrent.duration.*
 
-class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
+class CompositeViewsRoutesSpec
+    extends BaseRouteSpec
+    with CirceMarshalling
+    with DoobieScalaTestFixture
+    with CompositeViewsAclFixture
+    with CompositeViewsFixture {
+
+  override given rcr: RemoteContextResolution = loadCoreContexts(
+    contexts.definition ++ Set(iri"http://music.com/context" -> "indexing/music-context.json")
+  )
 
   private given FusionConfig = fusionConfig
 
@@ -37,7 +49,7 @@ class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
   private val blazeId = iri"http://example.com/blazegraph-projection"
 
   private val selectQuery = SparqlQuery("SELECT * WHERE {?s ?p ?o}")
-  private val esQuery     = jobj"""{"query": {"match_all": {} } }"""
+  private val esQuery     = ElasticSearchRequest(jobj"""{"query": {"match_all": {} } }""")
   private val esResult    = json"""{"k": "v"}"""
 
   private val responseCommonNs         = NTriples("queryCommonNs", BNode.random)
@@ -88,12 +100,6 @@ class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
 
   val viewSource        = jsonContentOf("composite-view-source.json")
   val viewSourceUpdated = jsonContentOf("composite-view-source-updated.json")
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    aclCheck.append(AclAddress.Root, reader -> Set(permissions.read)).accepted
-    aclCheck.append(AclAddress.Root, writer -> Set(permissions.write)).accepted
-  }
 
   "Composite views routes" should {
     "fail to create a view without permission" in {
@@ -216,7 +222,7 @@ class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
       )
 
       forAll(endpoints) { endpoint =>
-        Post(endpoint, esQuery.asJson)(CirceMarshalling.jsonMarshaller, ec) ~> routes ~> check {
+        Post(endpoint, esQuery.body.asJson) ~> routes ~> check {
           response.status shouldEqual StatusCodes.OK
           response.asJson shouldEqual esResult
         }
@@ -311,7 +317,7 @@ class CompositeViewsRoutesSpec extends CompositeViewsRoutesFixtures {
       )
 
       forAll(endpoints) { endpoint =>
-        Post(endpoint, esQuery.asJson)(CirceMarshalling.jsonMarshaller, ec) ~> routes ~> check {
+        Post(endpoint, esQuery.body) ~> routes ~> check {
           response.status shouldEqual StatusCodes.BadRequest
           response.asJson shouldEqual viewIsDeprecatedError(viewId)
         }

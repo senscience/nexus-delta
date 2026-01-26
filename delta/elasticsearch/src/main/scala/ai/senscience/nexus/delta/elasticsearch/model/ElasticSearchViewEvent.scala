@@ -218,7 +218,7 @@ object ElasticSearchViewEvent {
     Serializer.dropNulls()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[ElasticSearchViewEvent] = new SseEncoder[ElasticSearchViewEvent] {
+  def sseEncoder(using BaseUri): SseEncoder[ElasticSearchViewEvent] = new SseEncoder[ElasticSearchViewEvent] {
     override val databaseDecoder: Decoder[ElasticSearchViewEvent] = serializer.codec
 
     override def entityType: EntityType = ElasticSearchViews.entityType
@@ -226,8 +226,8 @@ object ElasticSearchViewEvent {
     override val selectors: Set[Label] = Set(Label.unsafe("views"))
 
     override val sseEncoder: Encoder.AsObject[ElasticSearchViewEvent] = {
-      val context                                                    = ContextValue(Vocabulary.contexts.metadata, contexts.elasticsearch)
-      implicit val config: Configuration                             = Configuration.default
+      val context                           = ContextValue(Vocabulary.contexts.metadata, contexts.elasticsearch)
+      given Configuration                   = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => "_viewId"
@@ -239,9 +239,9 @@ object ElasticSearchViewEvent {
           case "uuid"    => "_uuid"
           case other     => other
         })
-      implicit val subjectEncoder: Encoder[Subject]                  = IriEncoder.jsonEncoder[Subject]
-      implicit val viewValueEncoder: Encoder[ElasticSearchViewValue] = Encoder.instance(_ => Json.Null)
-      implicit val viewTpeEncoder: Encoder[ElasticSearchViewType]    = Encoder.instance(_ => Json.Null)
+      given Encoder[Subject]                = IriEncoder.jsonEncoder[Subject]
+      given Encoder[ElasticSearchViewValue] = Encoder.instance(_ => Json.Null)
+      given Encoder[ElasticSearchViewType]  = Encoder.instance(_ => Json.Null)
 
       Encoder.encodeJsonObject.contramapObject { event =>
         deriveConfiguredEncoder[ElasticSearchViewEvent]

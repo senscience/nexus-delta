@@ -56,13 +56,11 @@ final class ElasticSearchViews private (
     *   the parent project of the view
     * @param value
     *   the view configuration
-    * @param subject
-    *   the subject that initiated the action
     */
   def create(
       project: ProjectRef,
       value: ElasticSearchViewValue
-  )(implicit subject: Subject): IO[ViewResource] =
+  )(using Subject): IO[ViewResource] =
     uuidF().flatMap(uuid => create(uuid.toString, project, value))
 
   /**
@@ -74,14 +72,12 @@ final class ElasticSearchViews private (
     *   the parent project of the view
     * @param value
     *   the view configuration
-    * @param subject
-    *   the subject that initiated the action
     */
   def create(
       id: IdSegment,
       project: ProjectRef,
       value: ElasticSearchViewValue
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       (iri, _) <- expandWithContext(fetchContext.onCreate, project, id)
       res      <- eval(CreateElasticSearchView(iri, project, value, value.toJson(iri), subject))
@@ -96,13 +92,11 @@ final class ElasticSearchViews private (
     *   the parent project of the view
     * @param source
     *   the json representation of the view
-    * @param caller
-    *   the caller that initiated the action
     */
   def create(
       project: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[ViewResource] = {
+  )(using caller: Caller): IO[ViewResource] = {
     for {
       pc           <- fetchContext.onCreate(project)
       (iri, value) <- sourceDecoder(project, pc, source)
@@ -118,14 +112,12 @@ final class ElasticSearchViews private (
     *   the parent project of the view
     * @param source
     *   the json representation of the view
-    * @param caller
-    *   the caller that initiated the action
     */
   def create(
       id: IdSegment,
       project: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[ViewResource] = {
+  )(using caller: Caller): IO[ViewResource] = {
     for {
       (iri, pc) <- expandWithContext(fetchContext.onCreate, project, id)
       value     <- sourceDecoder(project, pc, iri, source)
@@ -144,15 +136,13 @@ final class ElasticSearchViews private (
     *   the current view revision
     * @param value
     *   the new view configuration
-    * @param subject
-    *   the subject that initiated the action
     */
   def update(
       id: IdSegment,
       project: ProjectRef,
       rev: Int,
       value: ElasticSearchViewValue
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       res      <- eval(UpdateElasticSearchView(iri, project, rev, value, value.toJson(iri), subject))
@@ -170,15 +160,13 @@ final class ElasticSearchViews private (
     *   the current view revision
     * @param source
     *   the new view configuration in json representation
-    * @param caller
-    *   the caller that initiated the action
     */
   def update(
       id: IdSegment,
       project: ProjectRef,
       rev: Int,
       source: Json
-  )(implicit caller: Caller): IO[ViewResource] = {
+  )(using caller: Caller): IO[ViewResource] = {
     for {
       (iri, pc) <- expandWithContext(fetchContext.onModify, project, id)
       _         <- validateNotDefaultView(iri)
@@ -197,14 +185,12 @@ final class ElasticSearchViews private (
     *   the view parent project
     * @param rev
     *   the current view revision
-    * @param subject
-    *   the subject that initiated the action
     */
   def deprecate(
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       _        <- validateNotDefaultView(iri)
@@ -232,7 +218,7 @@ final class ElasticSearchViews private (
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       res      <- eval(UndeprecateElasticSearchView(iri, project, rev, subject))
@@ -248,10 +234,8 @@ final class ElasticSearchViews private (
     *   the view parent project
     * @param rev
     *   the current view revision
-    * @param subject
-    *   the subject that initiated the action
     */
-  private[elasticsearch] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(implicit
+  private[elasticsearch] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(using
       subject: Subject
   ): IO[Unit] =
     eval(DeprecateElasticSearchView(id, project, rev, subject)).void
@@ -454,7 +438,7 @@ object ElasticSearchViews {
   private[elasticsearch] def evaluate(
       validate: ValidateElasticSearchView,
       clock: Clock[IO]
-  )(state: Option[ElasticSearchViewState], cmd: ElasticSearchViewCommand)(implicit
+  )(state: Option[ElasticSearchViewState], cmd: ElasticSearchViewCommand)(using
       uuidF: UUIDF
   ): IO[ElasticSearchViewEvent] = {
 
@@ -513,8 +497,8 @@ object ElasticSearchViews {
   def definition(
       validate: ValidateElasticSearchView,
       clock: Clock[IO]
-  )(implicit
-      uuidF: UUIDF
+  )(using
+      UUIDF
   ): ScopedEntityDefinition[
     Iri,
     ElasticSearchViewState,
