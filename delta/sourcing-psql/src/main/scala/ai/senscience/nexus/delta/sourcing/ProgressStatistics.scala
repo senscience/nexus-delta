@@ -104,9 +104,8 @@ object ProgressStatistics {
       case (None, None)       => ProgressStatistics.empty
     }
 
-  implicit val progressStatisticEncoder: Encoder.AsObject[ProgressStatistics] = deriveEncoder
+  given Encoder.AsObject[ProgressStatistics] = deriveEncoder
 
-  implicit val progressStatisticJsonLdEncoder: JsonLdEncoder[ProgressStatistics] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
+  given JsonLdEncoder[ProgressStatistics] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
 
 }

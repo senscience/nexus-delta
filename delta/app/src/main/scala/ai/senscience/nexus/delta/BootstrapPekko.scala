@@ -57,7 +57,7 @@ object BootstrapPekko {
   }
 
   def apply(locator: Locator, plugins: List[Plugin]): Resource[IO, Unit] = {
-    implicit val as: ActorSystem      = locator.get[ActorSystem]
+    given as: ActorSystem             = locator.get[ActorSystem]
     val http: HttpConfig              = locator.get[HttpConfig]
     val projections: ProjectionConfig = locator.get[ProjectionConfig]
     val otel: OtelJava[IO]            = locator.get[OtelJava[IO]]

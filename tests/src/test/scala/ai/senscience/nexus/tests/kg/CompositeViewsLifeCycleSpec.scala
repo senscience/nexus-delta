@@ -120,8 +120,8 @@ object CompositeViewsLifeCycleSpec {
   object Spaces {
     final case class ProjectionSpace(value: String)
 
-    implicit val projectionSpaceDecoder: Decoder[ProjectionSpace] = deriveDecoder[ProjectionSpace]
-    implicit val spacesDecoder: Decoder[Spaces]                   = deriveDecoder[Spaces]
+    given Decoder[ProjectionSpace] = deriveDecoder[ProjectionSpace]
+    given Decoder[Spaces]          = deriveDecoder[Spaces]
   }
 
   private val query =

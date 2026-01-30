@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxsh, sh}
 import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
 import io.circe.{Encoder, Json}
 import org.apache.jena.query.DatasetFactory

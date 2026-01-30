@@ -17,13 +17,14 @@ sealed trait ResponseToRedirect {
 
 object ResponseToRedirect {
 
-  implicit def ioRedirect(io: IO[Http4sUri]): ResponseToRedirect =
+  given Conversion[IO[Http4sUri], ResponseToRedirect] = { io =>
     new ResponseToRedirect {
       override def apply(redirection: Redirection): Route =
         onSuccess(io.unsafeToFuture()) { uri =>
           redirect(toPekko(uri), redirection)
         }
     }
+  }
 
   private def toPekko(uri: Http4sUri): Uri = Uri(uri.toString())
 }

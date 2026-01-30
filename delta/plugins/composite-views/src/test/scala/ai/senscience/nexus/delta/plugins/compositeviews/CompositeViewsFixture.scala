@@ -34,8 +34,8 @@ trait CompositeViewsFixture extends ConfigFixtures {
       "prefix p: <http://localhost/>\nCONSTRUCT{ {resource_id} p:transformed ?v } WHERE { {resource_id} p:predicate ?v}"
     ).getOrElse(throw new RuntimeException("Should never happen"))
 
-  val uuid                  = UUID.fromString("f8468909-a797-4b10-8b5f-000cba337bfa")
-  implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+  val uuid: UUID     = UUID.fromString("f8468909-a797-4b10-8b5f-000cba337bfa")
+  given uuidF: UUIDF = UUIDF.fixed(uuid)
 
   val epoch           = Instant.EPOCH
   val epochPlus10     = Instant.EPOCH.plusMillis(10L)

@@ -34,7 +34,7 @@ final class ResolversImpl private (
   override def create(
       projectRef: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[ResolverResource] = {
+  )(using caller: Caller): IO[ResolverResource] = {
     for {
       pc                   <- fetchContext.onCreate(projectRef)
       (iri, resolverValue) <- sourceDecoder(projectRef, pc, source)
@@ -46,7 +46,7 @@ final class ResolversImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[ResolverResource] = {
+  )(using caller: Caller): IO[ResolverResource] = {
     for {
       pc            <- fetchContext.onCreate(projectRef)
       iri           <- expandIri(id, pc)
@@ -59,7 +59,7 @@ final class ResolversImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       resolverValue: ResolverValue
-  )(implicit caller: Caller): IO[ResolverResource] = {
+  )(using caller: Caller): IO[ResolverResource] = {
     for {
       pc    <- fetchContext.onCreate(projectRef)
       iri   <- expandIri(id, pc)
@@ -73,7 +73,7 @@ final class ResolversImpl private (
       projectRef: ProjectRef,
       rev: Int,
       source: Json
-  )(implicit caller: Caller): IO[ResolverResource] = {
+  )(using caller: Caller): IO[ResolverResource] = {
     for {
       pc            <- fetchContext.onModify(projectRef)
       iri           <- expandIri(id, pc)
@@ -87,9 +87,7 @@ final class ResolversImpl private (
       projectRef: ProjectRef,
       rev: Int,
       resolverValue: ResolverValue
-  )(implicit
-      caller: Caller
-  ): IO[ResolverResource] = {
+  )(using caller: Caller): IO[ResolverResource] = {
     for {
       pc    <- fetchContext.onModify(projectRef)
       iri   <- expandIri(id, pc)
@@ -102,7 +100,7 @@ final class ResolversImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit subject: Identity.Subject): IO[ResolverResource] = {
+  )(using subject: Identity.Subject): IO[ResolverResource] = {
     for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)

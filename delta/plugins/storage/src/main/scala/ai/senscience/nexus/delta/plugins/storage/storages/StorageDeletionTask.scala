@@ -18,7 +18,7 @@ import fs2.io.file.Files
   */
 final class StorageDeletionTask(currentStorages: ProjectRef => Stream[IO, StorageValue]) extends ProjectDeletionTask {
 
-  override def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage] =
+  override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] =
     logger.info(s"Starting deletion of local files for $project") >>
       run(project)
 

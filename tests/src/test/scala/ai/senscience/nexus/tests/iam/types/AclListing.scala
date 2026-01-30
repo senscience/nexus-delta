@@ -25,17 +25,17 @@ final case class Group(realm: String, group: String)  extends Identity
 
 object AclListing {
 
-  implicit val config: Configuration = Configuration.default.withDiscriminator("@type")
+  given Configuration = Configuration.default.withDiscriminator("@type")
 
-  implicit val identityDecoder: Decoder[Identity]     = deriveConfiguredDecoder[Identity]
-  implicit val aclEntryDecoder: Decoder[AclEntry]     = deriveConfiguredDecoder[AclEntry]
-  implicit val aclDecoder: Decoder[Acl]               = deriveConfiguredDecoder[Acl]
-  implicit val aclListingDecoder: Decoder[AclListing] = deriveConfiguredDecoder[AclListing]
+  given Decoder[Identity]   = deriveConfiguredDecoder[Identity]
+  given Decoder[AclEntry]   = deriveConfiguredDecoder[AclEntry]
+  given Decoder[Acl]        = deriveConfiguredDecoder[Acl]
+  given Decoder[AclListing] = deriveConfiguredDecoder[AclListing]
 }
 
 object Permission {
 
-  implicit val permissionDecoder: Decoder[Permission] = Decoder.decodeString.emap { value =>
+  given Decoder[Permission] = Decoder.decodeString.emap { value =>
     value.split("/").toList match {
       case name :: action :: Nil => Right(Permission(name, action))
       case _                     => Left(s"Couldn't parse $value into a permission")

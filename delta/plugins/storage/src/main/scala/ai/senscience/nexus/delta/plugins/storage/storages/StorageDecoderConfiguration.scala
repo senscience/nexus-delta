@@ -7,7 +7,7 @@ import cats.effect.IO
 
 private[storages] object StorageDecoderConfiguration {
 
-  def apply(implicit rcr: RemoteContextResolution): IO[Configuration] =
+  def apply(using RemoteContextResolution): IO[Configuration] =
     for {
       contextValue  <- IO.delay { ContextValue(contexts.storages) }
       jsonLdContext <- JsonLdContext(contextValue)

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.views
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.{EntityCheck, EntityDependencyStore, Transactors}
 import cats.data.NonEmptySet

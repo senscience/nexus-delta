@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.kernel.http
 
-import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.http.circe.given
 import cats.effect.IO
 import io.circe.Json
 import org.http4s.{EntityDecoder, Response}

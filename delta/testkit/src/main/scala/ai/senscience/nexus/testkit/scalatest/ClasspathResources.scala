@@ -10,7 +10,7 @@ import org.scalatest.Assertions as ScalaTestAssertions
 
 trait ExtractValue {
 
-  implicit class ExtractValueOps[A](io: IO[A]) {
+  extension [A](io: IO[A]) {
     def extract: A = extractValue(io)
   }
 
@@ -30,7 +30,7 @@ trait MUnitExtractValue extends ExtractValue with ce.CatsIOValues {
 }
 
 trait ClasspathLoader {
-  implicit protected val loader: ClasspathResourceLoader = ClasspathResourceLoader()
+  protected given loader: ClasspathResourceLoader = ClasspathResourceLoader()
 }
 
 trait ClasspathResources extends ClasspathLoader with ExtractValue {

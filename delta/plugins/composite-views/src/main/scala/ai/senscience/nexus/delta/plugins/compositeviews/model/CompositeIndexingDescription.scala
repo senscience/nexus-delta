@@ -44,16 +44,15 @@ object CompositeIndexingDescription {
     final case class SparqlSpace(value: String) extends ProjectionSpace
   }
 
-  implicit val compositeIndexingDescriptionEncoder: Encoder.AsObject[CompositeIndexingDescription] = {
-    implicit val configuration: Configuration                              = Configuration.default.withDiscriminator(keywords.tpe)
-    implicit val projectionSpaceEncoder: Encoder.AsObject[ProjectionSpace] = deriveConfiguredEncoder[ProjectionSpace]
+  given Encoder.AsObject[CompositeIndexingDescription] = {
+    given Configuration                     = Configuration.default.withDiscriminator(keywords.tpe)
+    given Encoder.AsObject[ProjectionSpace] = deriveConfiguredEncoder[ProjectionSpace]
     deriveConfiguredEncoder[CompositeIndexingDescription]
   }
 
-  implicit val compositeIndexingDescriptionJsonLdEncoder: JsonLdEncoder[CompositeIndexingDescription] =
+  given JsonLdEncoder[CompositeIndexingDescription] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.offset).merge(ContextValue(contexts.statistics)))
 
-  implicit val compositeIndexingDescriptionHttpResponseFields: HttpResponseFields[CompositeIndexingDescription] =
-    HttpResponseFields.defaultOk
+  given HttpResponseFields[CompositeIndexingDescription] = HttpResponseFields.defaultOk
 
 }

@@ -22,12 +22,11 @@ final case class PermissionsConfig(
 
 object PermissionsConfig {
 
-  implicit final val permissionConfigReader: ConfigReader[Permission] =
+  given ConfigReader[Permission] =
     ConfigReader.fromString(str =>
       Permission(str).leftMap(err => CannotConvert(str, classOf[Permission].getSimpleName, err.getMessage))
     )
 
-  implicit final val permissionsConfigReader: ConfigReader[PermissionsConfig] =
-    deriveReader[PermissionsConfig]
+  given ConfigReader[PermissionsConfig] = deriveReader[PermissionsConfig]
 
 }

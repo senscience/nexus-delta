@@ -42,11 +42,11 @@ object ArchivePluginModule extends NexusModuleDef {
         baseUri: BaseUri,
         rcr: RemoteContextResolution @Id("aggregate")
     ) =>
-      ArchiveDownload(aclCheck, shifts, files, fileSelf)(sort, baseUri, rcr)
+      ArchiveDownload(aclCheck, shifts, files, fileSelf)(using sort, baseUri, rcr)
   }
 
   make[FileSelf].from { (fetchContext: FetchContext, baseUri: BaseUri) =>
-    FileSelf(fetchContext)(baseUri)
+    FileSelf(fetchContext)(using baseUri)
   }
 
   make[Archives].from {

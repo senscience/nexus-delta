@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.FileAttributes.FileAttributesOrigin
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
@@ -89,13 +89,13 @@ object FileAttributes {
     case object Storage extends FileAttributesOrigin
     case object Link    extends FileAttributesOrigin
 
-    implicit val fileAttributesEncoder: Encoder[FileAttributesOrigin] = Encoder.encodeString.contramap {
+    given Encoder[FileAttributesOrigin] = Encoder.encodeString.contramap {
       case Client  => "Client"
       case Storage => "Storage"
       case Link    => "Link"
     }
 
-    implicit val fileAttributesDecoder: Decoder[FileAttributesOrigin] = Decoder.decodeString.emap {
+    given Decoder[FileAttributesOrigin] = Decoder.decodeString.emap {
       case "Client"   => Right(Client)
       case "Storage"  => Right(Storage)
       case "External" => Right(Link)
@@ -109,9 +109,9 @@ object FileAttributes {
       underscoreFieldsForMetadata: Boolean = false,
       removePath: Boolean = false,
       removeLocation: Boolean = false
-  )(implicit digestEncoder: Encoder.AsObject[Digest]): Encoder.AsObject[FileAttributes] = {
+  )(using Encoder.AsObject[Digest]): Encoder.AsObject[FileAttributes] = {
 
-    implicit val config: Configuration = underscoreFieldsForMetadata match {
+    given Configuration = underscoreFieldsForMetadata match {
       case true  => withUnderscoreMetadataFields(originalConfig)
       case false => originalConfig
     }

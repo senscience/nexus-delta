@@ -35,8 +35,8 @@ object ResourcesConfig {
     */
   final case class SchemaEnforcementConfig(typeWhitelist: Set[Iri], allowNoTypes: Boolean)
 
-  implicit final val resourcesConfigReader: ConfigReader[ResourcesConfig] = {
-    implicit val schemaEnforcementReader: ConfigReader[SchemaEnforcementConfig] = deriveReader[SchemaEnforcementConfig]
+  given ConfigReader[ResourcesConfig] = {
+    given ConfigReader[SchemaEnforcementConfig] = deriveReader[SchemaEnforcementConfig]
     deriveReader[ResourcesConfig]
   }
 }

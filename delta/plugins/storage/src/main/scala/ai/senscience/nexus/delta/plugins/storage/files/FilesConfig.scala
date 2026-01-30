@@ -13,6 +13,5 @@ import pureconfig.generic.semiauto.deriveReader
 final case class FilesConfig(eventLog: EventLogConfig, mediaTypeDetector: MediaTypeDetectorConfig)
 
 object FilesConfig {
-  implicit final val filesConfigReader: ConfigReader[FilesConfig] =
-    deriveReader[FilesConfig]
+  given ConfigReader[FilesConfig] = deriveReader[FilesConfig]
 }

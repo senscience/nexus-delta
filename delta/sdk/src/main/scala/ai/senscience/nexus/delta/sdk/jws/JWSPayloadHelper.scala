@@ -32,7 +32,7 @@ object JWSPayloadHelper {
     override def verify(payload: Json): IO[Json] = IO.raiseError(UnconfiguredJWS)
   }
 
-  final class JWSPayloadHelperImpl(key: RSAKey, tokenValidity: FiniteDuration)(implicit clock: Clock[IO])
+  final class JWSPayloadHelperImpl(key: RSAKey, tokenValidity: FiniteDuration)(using clock: Clock[IO])
       extends JWSPayloadHelper {
     private val signer               = new RSASSASigner(key)
     private val verifier             = new RSASSAVerifier(key.toPublicJWK)

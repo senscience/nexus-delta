@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.graph.{Dot, Graph, NQuads, NTriples}
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}

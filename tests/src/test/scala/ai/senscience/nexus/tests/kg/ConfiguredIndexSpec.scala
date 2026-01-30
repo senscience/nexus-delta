@@ -1,7 +1,7 @@
 package ai.senscience.nexus.tests.kg
 
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
-import ai.senscience.nexus.testkit.CirceLiteral.circeLiteralSyntax
+import ai.senscience.nexus.testkit.CirceLiteral.*
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.listing._results
@@ -62,7 +62,6 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
   }
 
   "Configured indices" should {
-
     "be created" in {
       elasticsearchDsl.includes("delta_person", "delta_role", "delta_creative-work")
     }

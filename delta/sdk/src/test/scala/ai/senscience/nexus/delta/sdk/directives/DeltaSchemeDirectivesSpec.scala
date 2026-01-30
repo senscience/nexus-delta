@@ -26,8 +26,8 @@ class DeltaSchemeDirectivesSpec
     with TestMatchers
     with Inspectors {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost/base//", "v1")
-  private val schemaView                = nxv + "schema"
+  private given baseUri: BaseUri = BaseUri.unsafe("http://localhost/base//", "v1")
+  private val schemaView         = nxv + "schema"
 
   private val mappings = ApiMappings("alias" -> (nxv + "alias"), "nxv" -> nxv.base, "view" -> schemaView)
   private val vocab    = iri"http://localhost/vocab/"
@@ -41,8 +41,8 @@ class DeltaSchemeDirectivesSpec
     (get & uriPrefix(baseUri.base)) {
       import schemeDirectives.*
       concat(
-        (pathPrefix("types") & projectRef & pathEndOrSingleSlash) { implicit projectRef =>
-          types.apply { types =>
+        (pathPrefix("types") & projectRef & pathEndOrSingleSlash) { project =>
+          types(project) { types =>
             val typesAsString = types.asRestrictedTo.map(_.iris.mkString(",")).getOrElse("")
             complete(typesAsString)
           }

@@ -28,7 +28,7 @@ object ViewsStore {
 
   private val logger = Logger[ViewsStore.type]
 
-  import ai.senscience.nexus.delta.sourcing.implicits.*
+  import ai.senscience.nexus.delta.sourcing.implicits.given
 
   def apply[Rejection, Value](
       serializer: Serializer[Iri, Value],
@@ -37,7 +37,7 @@ object ViewsStore {
       xas: Transactors
   ): ViewsStore[Rejection] = new ViewsStore[Rejection] {
 
-    implicit val stateDecoder: Decoder[Value] = serializer.codec
+    given Decoder[Value] = serializer.codec
 
     // For embedded views in aggregate view drop intermediate aggregate view and those who raise an error
     private def embeddedView(project: ProjectRef, id: Iri, value: Value): IO[Option[IndexingView]] =

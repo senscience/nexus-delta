@@ -6,9 +6,9 @@ import munit.{Assertions, Location}
 
 trait JsonAssertions { self: Assertions =>
 
-  implicit private val jsonPrinter: Printer = Printer.spaces2
+  private given jsonPrinter: Printer = Printer.spaces2
 
-  implicit class JsonAssertionsOps(json: Json)(implicit loc: Location) {
+  extension (json: Json) {
 
     private def sortKeys(value: Json): Json = {
       def canonicalJson(json: Json): Json =
@@ -24,7 +24,7 @@ trait JsonAssertions { self: Assertions =>
       canonicalJson(value)
     }
 
-    def equalsIgnoreArrayOrder(expected: Json): Unit = {
+    def equalsIgnoreArrayOrder(expected: Json)(using Location): Unit = {
       val obtainedSorted = sortKeys(json)
       val expectedSorted = sortKeys(expected)
       assertEquals(

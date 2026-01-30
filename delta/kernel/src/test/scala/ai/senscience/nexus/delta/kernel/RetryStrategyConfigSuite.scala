@@ -9,17 +9,13 @@ import scala.concurrent.duration.DurationInt
 
 class RetryStrategyConfigSuite extends FunSuite {
 
-  private def assertSuccess(config: String, expected: RetryStrategyConfig)(implicit location: Location): Unit = {
-    val result = Configs.load[RetryStrategyConfig](Configs.parseString(config), "retry-config")
-    assertEquals(result, expected)
-  }
+  private def load(config: String) = Configs.load[RetryStrategyConfig](Configs.parseString(config), "retry-config")
 
-  private def assertFail(config: String)(implicit location: Location): Unit = {
-    intercept[ConfigReaderException[RetryStrategyConfig]] {
-      Configs.load[RetryStrategyConfig](Configs.parseString(config), "retry-config")
-    }
-    ()
-  }
+  private def assertSuccess(config: String, expected: RetryStrategyConfig)(using Location): Unit =
+    assertEquals(load(config), expected)
+
+  private def assertFail(config: String)(using Location) =
+    intercept[ConfigReaderException[RetryStrategyConfig]] { load(config: String) }
 
   test("Parse a always give up strategy") {
     val config = "retry-config { retry = never }"

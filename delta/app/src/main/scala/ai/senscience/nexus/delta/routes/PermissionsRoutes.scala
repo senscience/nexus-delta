@@ -13,12 +13,11 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.permissions as permissionsPerms
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsRejection}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -60,9 +59,10 @@ final class PermissionsRoutes(identities: Identities, aclCheck: AclCheck, permis
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("permissions") {
-        extractCaller { case given Caller =>
-          val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)
-          val authorizeWrite = authorizeFor(AclAddress.Root, permissionsPerms.write)
+        extractCaller { case caller =>
+          val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)(using caller)
+          val authorizeWrite = authorizeFor(AclAddress.Root, permissionsPerms.write)(using caller)
+          given Subject      = caller.subject
           concat(
             pathEndOrSingleSlash {
               concat(

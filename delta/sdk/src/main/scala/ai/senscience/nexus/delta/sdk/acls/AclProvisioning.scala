@@ -37,7 +37,7 @@ final class AclProvisioning(acls: Acls, config: AclProvisioningConfig, serviceAc
   private def loadAcls(input: AclBatchReplace, acls: Acls, serviceAccount: ServiceAccount) = {
     logger.info(s"Provisioning ${input.acls.size} acl entries...") >>
       input.acls.traverse { acl =>
-        acls.replace(acl, 0)(serviceAccount.subject).recoverWith { e =>
+        acls.replace(acl, 0)(using serviceAccount.subject).recoverWith { e =>
           logger.error(e)(s"Acl for address '${acl.address}' could not be set: '${e.getMessage}.")
         }
       }.void >> logger.info("Provisioning acls is completed.")

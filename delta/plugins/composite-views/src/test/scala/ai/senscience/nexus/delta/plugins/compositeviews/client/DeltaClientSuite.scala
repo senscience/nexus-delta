@@ -1,13 +1,13 @@
 package ai.senscience.nexus.delta.plugins.compositeviews.client
 
 import ai.senscience.nexus.delta.kernel.RdfHttp4sMediaTypes
-import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.http.circe.given
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClient.RemoteCheckError
 import ai.senscience.nexus.delta.plugins.compositeviews.client.DeltaClientSuite.token
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewSource.RemoteProjectSource
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch
 import ai.senscience.nexus.delta.rdf.graph.NQuads
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, Credentials}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -68,7 +68,7 @@ class DeltaClientSuite extends NexusSuite {
   private val nquadsContentType      = `Content-Type`(RdfHttp4sMediaTypes.`application/n-quads`)
   private val eventStreamContentType = `Content-Type`(MediaType.`text/event-stream`)
 
-  implicit val userTagQueryParamDecoder: QueryParamDecoder[UserTag] = QueryParamDecoder[String].map(UserTag.unsafe)
+  private given QueryParamDecoder[UserTag] = QueryParamDecoder[String].map(UserTag.unsafe)
 
   object UserTagQueryParamMatcher extends OptionalQueryParamDecoderMatcher[UserTag]("tag")
 

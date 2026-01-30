@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.event
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.syntax.all.*
 import doobie.*
@@ -51,9 +51,9 @@ object ScopedEventStore {
       config: QueryConfig
   ): ScopedEventStore[Id, E] =
     new ScopedEventStore[Id, E] {
-      implicit val putId: Put[Id]   = serializer.putId
-      implicit val getValue: Get[E] = serializer.getValue
-      implicit val putValue: Put[E] = serializer.putValue
+      private given Put[Id] = serializer.putId
+      private given Get[E]  = serializer.getValue
+      private given Put[E]  = serializer.putValue
 
       override def save(event: E): doobie.ConnectionIO[Unit] =
         sql"""

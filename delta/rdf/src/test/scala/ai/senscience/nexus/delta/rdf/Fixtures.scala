@@ -9,9 +9,9 @@ import ai.senscience.nexus.testkit.CirceLiteral
 
 trait Fixtures extends CirceLiteral {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given api: JsonLdApi = TitaniumJsonLdApi.strict
 
-  val iri = iri"http://nexus.senscience.ai/john-doé"
+  val johnDoeIri = iri"http://nexus.senscience.ai/john-doé"
 
   // format: off
   val remoteContexts: Map[Iri, ContextValue] =
@@ -25,7 +25,7 @@ trait Fixtures extends CirceLiteral {
     )
   // format: on
 
-  implicit val remoteResolution: RemoteContextResolution = RemoteContextResolution.fixed(remoteContexts.toSeq*)
+  given remoteResolution: RemoteContextResolution = RemoteContextResolution.fixed(remoteContexts.toSeq*)
 
   object vocab {
     val value                  = iri"http://senscience.ai/"

@@ -25,6 +25,5 @@ final case class AclsConfig(
 )
 
 object AclsConfig {
-  implicit final val aclsConfigReader: ConfigReader[AclsConfig] =
-    deriveReader[AclsConfig]
+  given ConfigReader[AclsConfig] = deriveReader[AclsConfig]
 }

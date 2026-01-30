@@ -50,7 +50,7 @@ object ValidationResult {
   final case class Validated(project: ProjectRef, schema: ResourceRef.Revision, report: ValidationReport)
       extends ValidationResult
 
-  implicit val resourceRejectionEncoder: Encoder.AsObject[ValidationResult] =
+  given Encoder.AsObject[ValidationResult] =
     Encoder.AsObject.instance[ValidationResult] { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(
@@ -67,8 +67,7 @@ object ValidationResult {
       }
     }
 
-  implicit val resourceRejectionJsonLdEncoder: JsonLdEncoder[ValidationResult] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.validation))
+  given JsonLdEncoder[ValidationResult] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.validation))
 
-  implicit val validationResultHttpResponseFields: HttpResponseFields[ValidationResult] = HttpResponseFields.defaultOk
+  given HttpResponseFields[ValidationResult] = HttpResponseFields.defaultOk
 }

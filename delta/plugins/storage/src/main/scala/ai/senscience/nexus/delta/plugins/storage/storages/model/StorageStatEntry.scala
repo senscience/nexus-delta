@@ -19,13 +19,12 @@ final case class StorageStatEntry(files: Long, spaceUsed: Long)
 
 object StorageStatEntry {
 
-  implicit val storageStatEntryEncoder: Encoder[StorageStatEntry] =
-    deriveCodec[StorageStatEntry]
+  given Encoder[StorageStatEntry] = deriveCodec[StorageStatEntry]
 
-  implicit val storageStatEntryJsonLdEncoder: JsonLdEncoder[StorageStatEntry] =
+  given JsonLdEncoder[StorageStatEntry] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.storages))
 
-  implicit val singleStorageStatResultDecoder: Decoder[StorageStatEntry] =
+  given Decoder[StorageStatEntry] =
     Decoder.instance { hc =>
       val aggregations = hc.downField("aggregations")
       for {
@@ -34,6 +33,6 @@ object StorageStatEntry {
       } yield StorageStatEntry(files, size)
     }
 
-  implicit val storageStatEntryHttpResponseFields: HttpResponseFields[StorageStatEntry] = HttpResponseFields.defaultOk
+  given HttpResponseFields[StorageStatEntry] = HttpResponseFields.defaultOk
 
 }

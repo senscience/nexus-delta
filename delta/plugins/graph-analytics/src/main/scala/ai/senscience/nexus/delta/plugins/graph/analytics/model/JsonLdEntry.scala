@@ -29,7 +29,7 @@ object JsonLdEntry {
       extends JsonLdEntry
 
   object ObjectEntry {
-    implicit val objectEntryEncoder: Encoder.AsObject[ObjectEntry] = Encoder.AsObject.instance { o =>
+    given Encoder.AsObject[ObjectEntry] = Encoder.AsObject.instance { o =>
       JsonObject(
         "path"      -> o.path.mkString(pathSeparator).asJson,
         "isInArray" -> o.isInArray.asJson,
@@ -70,7 +70,7 @@ object JsonLdEntry {
         )
     }
 
-  implicit val jsonLdEntryEncoder: Encoder.AsObject[JsonLdEntry] = Encoder.AsObject.instance { e =>
+  given Encoder.AsObject[JsonLdEntry] = Encoder.AsObject.instance { e =>
     val default = JsonObject("path" -> e.path.mkString(pathSeparator).asJson, "isInArray" -> e.isInArray.asJson)
     e match {
       case o: ObjectEntry  => o.asJsonObject

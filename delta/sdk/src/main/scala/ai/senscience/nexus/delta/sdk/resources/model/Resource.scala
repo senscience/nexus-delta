@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.ResourceShift
 import ai.senscience.nexus.delta.sdk.indexing.{MainDocument, MainDocumentEncoder}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent

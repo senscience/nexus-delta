@@ -14,8 +14,8 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
@@ -50,7 +50,8 @@ final class ElasticSearchIndexingRoutes(
     }
 
   private def views = pathPrefix("views") {
-    extractCaller { case given Caller =>
+    extractCaller { case caller @ given Caller =>
+      given Subject = caller.subject
       fetchActiveView { view =>
         val project        = view.ref.project
         val authorizeRead  = authorizeFor(project, Read)
@@ -102,12 +103,12 @@ final class ElasticSearchIndexingRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("elasticsearch") & pathPrefix("reindex")) {
-      extractCaller { case given Caller =>
+      extractCaller { case caller @ given Caller =>
         val authorizeRootWrite = authorizeFor(Root, Write)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
             StatusCodes.Accepted,
-            elasticsearchRestartScheduler.run(offset).start.void
+            elasticsearchRestartScheduler.run(offset)(using caller.subject).start.void
           )
         }
       }

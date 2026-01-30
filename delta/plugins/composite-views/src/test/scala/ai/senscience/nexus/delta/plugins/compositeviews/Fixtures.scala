@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.syntax.*
 
 trait Fixtures extends RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given api: JsonLdApi = TitaniumJsonLdApi.strict
 
   given rcr: RemoteContextResolution = loadCoreContexts(
     contexts.definition ++ Set(iri"http://music.com/context" -> "indexing/music-context.json")

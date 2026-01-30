@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.Re
 import ai.senscience.nexus.delta.sdk.resolvers.model.{IdentityResolution, Priority, Resolver, ResourceResolutionReport}
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.Latest
-import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.data.NonEmptyList
 import cats.effect.IO

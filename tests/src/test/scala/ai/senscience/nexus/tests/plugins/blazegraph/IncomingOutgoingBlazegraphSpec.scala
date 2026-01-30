@@ -131,7 +131,7 @@ object IncomingOutgoingBlazegraphSpec {
         _updatedBy: String
     ) extends Reference
     object Internal {
-      implicit val internalReferenceDecoder: Decoder[Internal] = deriveDecoder[Internal]
+      given internalReferenceDecoder: Decoder[Internal] = deriveDecoder[Internal]
     }
 
     case class External(
@@ -140,10 +140,10 @@ object IncomingOutgoingBlazegraphSpec {
         paths: List[String]
     ) extends Reference
     object External {
-      implicit val externalReferenceDecoder: Decoder[External] = deriveDecoder[External]
+      given externalReferenceDecoder: Decoder[External] = deriveDecoder[External]
     }
 
-    implicit val referenceDecoder: Decoder[Reference] =
+    given Decoder[Reference] =
       Internal.internalReferenceDecoder.or(External.externalReferenceDecoder.map(_.asInstanceOf[Reference]))
   }
 

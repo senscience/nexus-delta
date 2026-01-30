@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.OrderingFields
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess.{EphemeralAccess, InProjectAccess, RootAccess}
@@ -133,7 +133,7 @@ object ResourceF {
       ResourceMetadata(r.access, r.rev, r.deprecated, r.createdAt, r.createdBy, r.updatedAt, r.updatedBy, r.schema)
   }
 
-  implicit private def resourceUrisEncoder(implicit base: BaseUri): Encoder.AsObject[ResourceAccess] =
+  private given resourceUrisEncoder: BaseUri => Encoder.AsObject[ResourceAccess] =
     Encoder.AsObject.instance {
       case global: RootAccess      =>
         JsonObject("_self" := global.uri)
@@ -149,8 +149,8 @@ object ResourceF {
         )
     }
 
-  implicit final private def metadataEncoder(implicit base: BaseUri): Encoder.AsObject[ResourceMetadata] = {
-    implicit val subjectEncoder: Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+  private given metadataEncoder: BaseUri => Encoder.AsObject[ResourceMetadata] = {
+    given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
     Encoder.AsObject.instance { r =>
       JsonObject(
         "_rev"           := r.rev,
@@ -164,10 +164,10 @@ object ResourceF {
     }
   }
 
-  implicit private def metadataJsonLdEncoder(implicit base: BaseUri): JsonLdEncoder[ResourceMetadata] =
+  private given metadataJsonLdEncoder: BaseUri => JsonLdEncoder[ResourceMetadata] =
     JsonLdEncoder.computeFromCirce(BNode.random, ContextValue(contexts.metadata))
 
-  implicit def resourceFEncoderObj[A: Encoder.AsObject](implicit base: BaseUri): Encoder.AsObject[ResourceF[A]] =
+  given resourceFEncoderObj: [A: Encoder.AsObject] => (base: BaseUri) => Encoder.AsObject[ResourceF[A]] =
     Encoder.encodeJsonObject.contramapObject { r =>
       ResourceIdAndTypes(r.resolvedId, r.types).asJsonObject
         .deepMerge(
@@ -180,7 +180,7 @@ object ResourceF {
 
   final private case class ResourceIdAndTypes(resolvedId: Iri, types: Set[Iri])
 
-  implicit private val idAndTypesEncoder: Encoder.AsObject[ResourceIdAndTypes] =
+  private given idAndTypesEncoder: Encoder.AsObject[ResourceIdAndTypes] =
     Encoder.AsObject.instance { case ResourceIdAndTypes(id, types) =>
       JsonObject.empty.add(keywords.id, id.asJson).addIfNonEmpty(keywords.tpe, types)
     }
@@ -188,16 +188,14 @@ object ResourceF {
   private def idAndTypesJsonLdEncoder(context: ContextValue): JsonLdEncoder[ResourceIdAndTypes] =
     JsonLdEncoder.computeFromCirce(_.resolvedId, context)
 
-  implicit def defaultResourceFAJsonLdEncoder[A: JsonLdEncoder](implicit base: BaseUri): JsonLdEncoder[ResourceF[A]] =
+  given defaultResourceFAJsonLdEncoder: [A: JsonLdEncoder] => BaseUri => JsonLdEncoder[ResourceF[A]] =
     resourceFAJsonLdEncoder((encoder, value) => encoder.context(value.value).merge(ContextValue(contexts.metadata)))
 
   /**
     * Creates a [[JsonLdEncoder]] of a [[ResourceF]] of ''A'' using the available [[JsonLdEncoder]] of ''A'' and the
     * fixed context ''ctx''
     */
-  def resourceFAJsonLdEncoder[A: JsonLdEncoder](ctx: ContextValue)(implicit
-      base: BaseUri
-  ): JsonLdEncoder[ResourceF[A]] =
+  def resourceFAJsonLdEncoder[A: JsonLdEncoder](ctx: ContextValue)(using BaseUri): JsonLdEncoder[ResourceF[A]] =
     resourceFAJsonLdEncoder((_, _) => ctx.merge(ContextValue(contexts.metadata)))
 
   /**
@@ -244,7 +242,7 @@ object ResourceF {
 
   def etagValue[A](value: ResourceF[A]) = s"${value.access.relativeUri}_${value.rev}"
 
-  implicit def resourceFHttpResponseFields[A]: HttpResponseFields[ResourceF[A]] =
+  given resourceFHttpResponseFields: [A] => HttpResponseFields[ResourceF[A]] =
     HttpResponseFields.fromTag { value => etagValue(value) }
 
 }

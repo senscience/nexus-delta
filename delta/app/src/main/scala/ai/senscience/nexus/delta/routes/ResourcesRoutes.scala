@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
@@ -23,6 +23,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete a
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, Resources}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -59,7 +60,8 @@ final class ResourcesRoutes(
 
   private val resourceSchema = schemas.resources
 
-  private given [A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] = ResourceF.resourceFAJsonLdEncoder(ContextValue.empty)
+  private given [A: JsonLdEncoder] => JsonLdEncoder[ResourceF[A]] =
+    ResourceF.resourceFAJsonLdEncoder(ContextValue.empty)
 
   private val nonGenericResourceCandidate: Throwable => Boolean = {
     case _: ResourceNotFound | _: InvalidSchemaRejection | _: ReservedResourceTypes => true
@@ -87,7 +89,8 @@ final class ResourcesRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("resources") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           projectRef { project =>
             val authorizeDelete = authorizeFor(project, Delete)
             val authorizeRead   = authorizeFor(project, Read)

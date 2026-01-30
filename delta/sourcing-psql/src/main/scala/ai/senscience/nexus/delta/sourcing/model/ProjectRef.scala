@@ -63,24 +63,23 @@ object ProjectRef {
   def unsafe(organization: String, project: String): ProjectRef =
     ProjectRef(Label.unsafe(organization), Label.unsafe(project))
 
-  implicit val projectRefGet: Get[ProjectRef] = Get[String].temap(ProjectRef.parse)
-  implicit val projectRefPut: Put[ProjectRef] = Put[String].contramap(_.toString)
+  given Get[ProjectRef] = Get[String].temap(ProjectRef.parse)
+  given Put[ProjectRef] = Put[String].contramap(_.toString)
 
-  implicit val projectRefEncoder: Encoder[ProjectRef]       = Encoder.encodeString.contramap(_.toString)
-  implicit val projectRefKeyEncoder: KeyEncoder[ProjectRef] = KeyEncoder.encodeKeyString.contramap(_.toString)
-  implicit val projectRefKeyDecoder: KeyDecoder[ProjectRef] = KeyDecoder.instance(parse(_).toOption)
-  implicit val projectRefDecoder: Decoder[ProjectRef]       = Decoder.decodeString.emap { parse }
+  given Encoder[ProjectRef] = Encoder.encodeString.contramap(_.toString)
+  given Decoder[ProjectRef] = Decoder.decodeString.emap { parse }
 
-  implicit val projectRefJsonLdEncoder: JsonLdEncoder[ProjectRef] =
+  given KeyEncoder[ProjectRef] = KeyEncoder.encodeKeyString.contramap(_.toString)
+  given KeyDecoder[ProjectRef] = KeyDecoder.instance(parse(_).toOption)
+
+  given JsonLdEncoder[ProjectRef] =
     JsonLdEncoder.computeFromCirce(ContextValue.empty)
-  implicit val projectRefJsonLdDecoder: JsonLdDecoder[ProjectRef] =
+  given JsonLdDecoder[ProjectRef] =
     (cursor: ExpandedJsonLdCursor) => cursor.get[String].flatMap { parse(_).leftMap { e => ParsingFailure(e) } }
 
-  implicit val projectRefOrder: Order[ProjectRef] = Order.by { projectRef =>
-    (projectRef.organization.value, projectRef.project.value)
-  }
+  given Order[ProjectRef] = Order.by { projectRef => (projectRef.organization.value, projectRef.project.value) }
 
-  implicit val projectRefConfigReader: ConfigReader[ProjectRef] = ConfigReader.fromString { value =>
+  given ConfigReader[ProjectRef] = ConfigReader.fromString { value =>
     value.split("/").toList match {
       case orgStr :: projectStr :: Nil =>
         (Label(orgStr), Label(projectStr))

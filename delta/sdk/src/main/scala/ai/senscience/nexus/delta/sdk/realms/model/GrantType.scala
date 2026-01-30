@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.realms.model
 
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder, Json}
 import org.http4s.Uri
@@ -73,7 +73,7 @@ object GrantType {
 
   object Snake {
 
-    implicit final val grantTypeDecoder: Decoder[GrantType] = Decoder.decodeString.emap {
+    given Decoder[GrantType] = Decoder.decodeString.emap {
       case "authorization_code" => Right(AuthorizationCode)
       case "implicit"           => Right(Implicit)
       case "password"           => Right(Password)
@@ -85,7 +85,7 @@ object GrantType {
   }
 
   object Camel {
-    implicit final val grantTypeEncoder: Encoder[GrantType] = Encoder.instance {
+    given Encoder[GrantType] = Encoder.instance {
       case AuthorizationCode    => Json.fromString("authorizationCode")
       case Implicit             => Json.fromString("implicit")
       case Password             => Json.fromString("password")
@@ -94,7 +94,7 @@ object GrantType {
       case RefreshToken         => Json.fromString("refreshToken")
       case CustomGrantType(uri) => uri.asJson
     }
-    implicit final val grantTypeDecoder: Decoder[GrantType] = Decoder.decodeString.emap {
+    given Decoder[GrantType] = Decoder.decodeString.emap {
       case "authorizationCode" => Right(AuthorizationCode)
       case "implicit"          => Right(Implicit)
       case "password"          => Right(Password)

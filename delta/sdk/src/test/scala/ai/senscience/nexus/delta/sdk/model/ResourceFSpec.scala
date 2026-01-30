@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.generators.{PermissionsGen, ResourceGen}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
@@ -11,7 +11,7 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 
 class ResourceFSpec extends CatsEffectSpec with Fixtures {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   "A ResourceF of a permission" should {
     val updatedBy = User("maria", Label.unsafe("bbp"))

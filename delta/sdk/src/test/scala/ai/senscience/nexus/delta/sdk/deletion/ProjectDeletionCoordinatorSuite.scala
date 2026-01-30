@@ -15,7 +15,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotF
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, PrefixIri, ProjectFields}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ScopeInitializer}
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
@@ -36,14 +36,14 @@ import java.util.UUID
 
 class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
 
-  implicit private val subject: Subject = Identity.User("Bob", Label.unsafe("realm"))
+  private given subject: Subject = Identity.User("Bob", Label.unsafe("realm"))
 
   private val serviceAccount = ServiceAccount(subject)
 
   private val org     = Label.unsafe("org")
   private val orgUuid = UUID.randomUUID()
 
-  implicit val uuidF: UUIDF = UUIDF.fixed(UUID.randomUUID())
+  private given UUIDF = UUIDF.fixed(UUID.randomUUID())
 
   private def fetchOrg: FetchActiveOrganization = {
     case `org` => IO.pure(Organization(org, orgUuid, None))
@@ -58,8 +58,8 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(hashDoobie)
 
-  implicit private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
-  private val inits                                                              = ScopeInitializer.withoutErrorStore(Set.empty)
+  private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
+  private val inits                                                     = ScopeInitializer.withoutErrorStore(Set.empty)
 
   private lazy val projects                =
     ProjectsImpl(fetchOrg, _ => IO.unit, _ => IO.unit, inits, defaultApiMappings, eventLogConfig, xas, clock)
@@ -87,9 +87,7 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
   private def initCoordinator(config: DeletionConfig) =
     Ref.of[IO, Set[ProjectRef]](Set.empty).map { deleted =>
       val deletionTask: ProjectDeletionTask = new ProjectDeletionTask {
-        override def apply(project: ProjectRef)(implicit
-            subject: Subject
-        ): IO[ProjectDeletionReport.Stage] =
+        override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] =
           deleted.update(_ + project).as(taskStage)
       }
       (
@@ -118,8 +116,8 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
       _ <- projectLastUpdateStore.save(
              List(ProjectLastUpdate(markedAsDeleted, Instant.EPOCH, Offset.start))
            )
-      _ <- ScopedEventQueries.distinctProjects.assertEquals(Set(active, deprecated, markedAsDeleted))
-      _ <- ScopedStateQueries.distinctProjects.assertEquals(Set(active, deprecated, markedAsDeleted))
+      _ <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(active, deprecated, markedAsDeleted))
+      _ <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(active, deprecated, markedAsDeleted))
     } yield ()
   }
 
@@ -159,8 +157,8 @@ class ProjectDeletionCoordinatorSuite extends NexusSuite with ConfigFixtures {
       _                 <- projects.fetch(deprecated)
       _                 <- projects.fetch(markedAsDeleted).interceptEquals(ProjectNotFound(markedAsDeleted))
       // Checking that there is no project or event related to the deleted project
-      _                 <- ScopedEventQueries.distinctProjects.assertEquals(Set(active, deprecated))
-      _                 <- ScopedStateQueries.distinctProjects.assertEquals(Set(active, deprecated))
+      _                 <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(active, deprecated))
+      _                 <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(active, deprecated))
       // Checking that the dependencies have been cleared
       _                 <- EntityDependencyStore
                              .directDependencies(markedAsDeleted, entityToDelete, xas)

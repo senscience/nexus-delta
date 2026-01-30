@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 
-class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
+class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(using
     as: ActorSystem,
     materializer: Materializer,
     ec: ExecutionContext
@@ -52,14 +52,14 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
     fromFuture(httpExt.singleRequest(req)).map(assertResponse)
   }
 
-  def run[A](req: HttpRequest)(implicit um: FromEntityUnmarshaller[A]): IO[(A, HttpResponse)] =
+  def run[A](req: HttpRequest)(using um: FromEntityUnmarshaller[A]): IO[(A, HttpResponse)] =
     fromFuture(httpExt.singleRequest(req)).flatMap { res =>
       fromFuture(um.apply(res.entity)).map(a => (a, res))
     }
 
   def post[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(POST, url, Some(body), identity, extraHeaders)(assertResponse)
 
   def putJsonAndStatus(url: String, body: Json, identity: Identity): IO[(Json, StatusCode)] = {
@@ -68,23 +68,23 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
 
   def put[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(PUT, url, Some(body), identity, extraHeaders)(assertResponse)
 
   def postAndReturn[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[A] =
+  )(using um: FromEntityUnmarshaller[A]): IO[A] =
     requestAssertAndReturn(POST, url, Some(body), identity, extraHeaders)(assertResponse).map(_._1)
 
   def putAndReturn[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[A] =
+  )(using um: FromEntityUnmarshaller[A]): IO[A] =
     requestAssertAndReturn(PUT, url, Some(body), identity, extraHeaders)(assertResponse).map(_._1)
 
   /** Put with no body */
   def putEmptyBody[A](url: String, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(PUT, url, None, identity, extraHeaders)(assertResponse)
 
   def putAttachmentFromPath[A](
@@ -94,7 +94,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       fileName: String,
       identity: Identity,
       extraHeaders: Seq[HttpHeader] = jsonHeaders
-  )(assertResponse: (A, HttpResponse) => Assertion)(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] = {
+  )(assertResponse: (A, HttpResponse) => Assertion)(using um: FromEntityUnmarshaller[A]): IO[Assertion] = {
     request(
       PUT,
       url,
@@ -111,12 +111,12 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
 
   def uploadFile(project: String, storage: String, file: FileInput, rev: Option[Int])(
       assertResponse: (Json, HttpResponse) => Assertion
-  )(implicit identity: Identity): IO[Assertion] =
+  )(using identity: Identity): IO[Assertion] =
     uploadFile(project, Some(storage), file, rev)(assertResponse)
 
   def uploadFile(project: String, storage: Option[String], file: FileInput, rev: Option[Int])(
       assertResponse: (Json, HttpResponse) => Assertion
-  )(implicit identity: Identity): IO[Assertion] = {
+  )(using identity: Identity): IO[Assertion] = {
     val storageParam                               = storage.map { s => s"storage=nxv:$s" }
     val revParam                                   = rev.map { r => s"&rev=$r" }
     val params                                     = (storageParam ++ revParam).mkString("?", "&", "")
@@ -157,20 +157,20 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
 
   def patch[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(PATCH, url, Some(body), identity, extraHeaders)(assertResponse)
 
   def getWithBody[A](url: String, body: Json, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(GET, url, Some(body), identity, extraHeaders)(assertResponse)
 
   def get[A](url: String, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssert(GET, url, None, identity, extraHeaders)(assertResponse)
 
-  def getJson[A](url: String, identity: Identity)(implicit um: FromEntityUnmarshaller[A]): IO[A] = {
+  def getJson[A](url: String, identity: Identity)(using um: FromEntityUnmarshaller[A]): IO[A] = {
     requestJson(GET, url, None, identity, (a: A, _: HttpResponse) => a, jsonHeaders)
   }
 
@@ -197,7 +197,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
   }
   def delete[A](url: String, identity: Identity, extraHeaders: Seq[HttpHeader] = jsonHeaders)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion]                                                    =
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion]                                                       =
     requestAssert(DELETE, url, None, identity, extraHeaders)(assertResponse)
 
   def requestAssertAndReturn[A](
@@ -206,7 +206,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       body: Option[Json],
       identity: Identity,
       extraHeaders: Seq[HttpHeader] = jsonHeaders
-  )(assertResponse: (A, HttpResponse) => Assertion)(implicit um: FromEntityUnmarshaller[A]): IO[(A, Assertion)] = {
+  )(assertResponse: (A, HttpResponse) => Assertion)(using um: FromEntityUnmarshaller[A]): IO[(A, Assertion)] = {
     def buildClue(a: A, response: HttpResponse) =
       s"""
          |Endpoint: ${method.value} $url
@@ -237,14 +237,14 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       body: Option[Json],
       identity: Identity,
       extraHeaders: Seq[HttpHeader] = jsonHeaders
-  )(assertResponse: (A, HttpResponse) => Assertion)(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] =
+  )(assertResponse: (A, HttpResponse) => Assertion)(using um: FromEntityUnmarshaller[A]): IO[Assertion] =
     requestAssertAndReturn[A](method, url, body, identity, extraHeaders) { (a, resp) =>
       assertResponse(a, resp)
     }.map(_._2)
 
   def sparqlQuery[A](url: String, query: String, identity: Identity, extraHeaders: Seq[HttpHeader] = Nil)(
       assertResponse: (A, HttpResponse) => Assertion
-  )(implicit um: FromEntityUnmarshaller[A]): IO[Assertion] = {
+  )(using um: FromEntityUnmarshaller[A]): IO[Assertion] = {
     request(
       POST,
       url,
@@ -280,7 +280,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       identity: Identity,
       f: (A, HttpResponse) => R,
       extraHeaders: Seq[HttpHeader]
-  )(implicit um: FromEntityUnmarshaller[A]): IO[R] = {
+  )(using um: FromEntityUnmarshaller[A]): IO[R] = {
     def createEntity(json: Json) =
       if mustGzip(extraHeaders) then HttpEntity(ContentTypes.`application/json`, compress(json))
       else HttpEntity(ContentTypes.`application/json`, json.noSpaces)
@@ -310,7 +310,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
     }
   }
 
-  private val empty: RequestEntity                 = HttpEntity.Empty
+  private val empty: RequestEntity              = HttpEntity.Empty
   def request[A, B, R](
       method: HttpMethod,
       url: String,
@@ -319,7 +319,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       toEntity: B => RequestEntity,
       f: (A, HttpResponse) => R,
       extraHeaders: Seq[HttpHeader]
-  )(implicit um: FromEntityUnmarshaller[A]): IO[R] =
+  )(using um: FromEntityUnmarshaller[A]): IO[R] =
     apply(
       HttpRequest(
         method = method,
@@ -338,7 +338,7 @@ class HttpClient private (baseUrl: Uri, httpExt: HttpExt)(implicit
       lens: A => B,
       identity: Identity,
       extraHeaders: Seq[HttpHeader] = jsonHeaders
-  )(implicit um: FromEntityUnmarshaller[A]): Stream[IO, B] = {
+  )(using um: FromEntityUnmarshaller[A]): Stream[IO, B] = {
     Stream.unfoldLoopEval[IO, String, B](url) { currentUrl =>
       requestJson[A, A](
         GET,
@@ -392,9 +392,5 @@ object HttpClient {
 
   val gzipHeaders: Seq[HttpHeader] = Seq(Accept(MediaRanges.`*/*`), `Accept-Encoding`(HttpEncodings.gzip))
 
-  def apply(baseUrl: Uri)(implicit
-      as: ActorSystem,
-      materializer: Materializer,
-      ec: ExecutionContext
-  ) = new HttpClient(baseUrl, Http())
+  def apply(baseUrl: Uri)(using ActorSystem, Materializer, ExecutionContext) = new HttpClient(baseUrl, Http())
 }

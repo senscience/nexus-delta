@@ -51,13 +51,13 @@ object PipeStep {
     */
   def withConfig(name: Label, config: ExpandedJsonLd): PipeStep = PipeStep(name, None, Some(config))
 
-  implicit val pipeStepEncoder: Encoder.AsObject[PipeStep] = {
-    implicit val expandedEncoder: Encoder[ExpandedJsonLd] = Encoder.instance(_.json)
+  given Encoder.AsObject[PipeStep] = {
+    given Encoder[ExpandedJsonLd] = Encoder.instance(_.json)
     deriveEncoder[PipeStep]
   }
 
-  implicit val pipeStepDecoder: Decoder[PipeStep] = {
-    implicit val expandedDecoder: Decoder[ExpandedJsonLd] =
+  given Decoder[PipeStep] = {
+    given Decoder[ExpandedJsonLd] =
       Decoder.decodeJson.emap(ExpandedJsonLd.expanded(_).leftMap(_.getMessage))
     deriveDecoder[PipeStep].map {
       case p if p.config.isDefined =>
@@ -67,11 +67,11 @@ object PipeStep {
     }
   }
 
-  implicit val pipeStepJsonLdEncoder: JsonLdEncoder[PipeStep] =
+  given JsonLdEncoder[PipeStep] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.pipeline))
 
-  implicit def pipeStepJsonLdDecoder(implicit configuration: Configuration): JsonLdDecoder[PipeStep] = {
-    implicit val expandedJsonLdDecoder: JsonLdDecoder[ExpandedJsonLd] = (cursor: ExpandedJsonLdCursor) => cursor.focus
+  given pipeStepJsonLdDecoder: Configuration => JsonLdDecoder[PipeStep] = {
+    given JsonLdDecoder[ExpandedJsonLd] = (cursor: ExpandedJsonLdCursor) => cursor.focus
     deriveConfigJsonLdDecoder[PipeStep].map {
       case p if p.config.isDefined =>
         val config = p.config.map { e => ExpandedJsonLd.unsafe(nxv + p.name.value, e.obj) }

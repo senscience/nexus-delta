@@ -76,24 +76,22 @@ object Label {
   private def configConvert(value: String): Either[CannotConvert, Label] =
     apply(value).leftMap(e => CannotConvert(value, classOf[Label].getSimpleName, e.getMessage))
 
-  implicit val labelGet: Get[Label] = Get[String].temap(Label(_).leftMap(_.getMessage))
-  implicit val labelPut: Put[Label] = Put[String].contramap(_.value)
+  given Get[Label] = Get[String].temap(Label(_).leftMap(_.getMessage))
+  given Put[Label] = Put[String].contramap(_.value)
 
-  implicit val labelKeyDecoder: KeyDecoder[Label] = KeyDecoder.instance(Label(_).toOption)
-  implicit val labelKeyEncoder: KeyEncoder[Label] = KeyEncoder.instance(_.value)
+  given KeyDecoder[Label] = KeyDecoder.instance(Label(_).toOption)
+  given KeyEncoder[Label] = KeyEncoder.instance(_.value)
 
-  implicit final val labelEncoder: Encoder[Label] =
-    Encoder.encodeString.contramap(_.value)
+  given Encoder[Label] = Encoder.encodeString.contramap(_.value)
 
-  implicit final val labelDecoder: Decoder[Label] =
-    Decoder.decodeString.emap(str => Label(str).leftMap(_.getMessage))
+  given Decoder[Label] = Decoder.decodeString.emap(str => Label(str).leftMap(_.getMessage))
 
-  implicit val labelJsonLdDecoder: JsonLdDecoder[Label] =
+  given JsonLdDecoder[Label] =
     (cursor: ExpandedJsonLdCursor) =>
       cursor.get[String].flatMap { Label(_).leftMap { e => ParsingFailure(e.getMessage) } }
 
-  implicit val labelConfigReader: ConfigReader[Label] = ConfigReader.fromString(configConvert)
+  given ConfigReader[Label] = ConfigReader.fromString(configConvert)
 
-  def labelMapReader[V](implicit readerV: ConfigReader[V]): ConfigReader[Map[Label, V]] =
+  def labelMapReader[V](using readerV: ConfigReader[V]): ConfigReader[Map[Label, V]] =
     genericMapReader[Label, V](configConvert)
 }

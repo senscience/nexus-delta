@@ -24,7 +24,7 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
 
   test("Construct an expanded JSON-LD") {
     expandedFromJson("compacted.json").flatMap { result =>
-      expanded("expanded.json", "id" -> iri).map { expected =>
+      expanded("expanded.json", "id" -> johnDoeIri).map { expected =>
         assertEquals(result, expected)
       }
     }
@@ -52,7 +52,7 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   test("Construct successfully with remote contexts") {
     for {
       result   <- expandedFromJson("jsonld/expanded/input-with-remote-context.json")
-      expected <- expanded("expanded.json", "id" -> iri)
+      expected <- expanded("expanded.json", "id" -> johnDoeIri)
     } yield {
       assertEquals(result, expected)
     }
@@ -69,8 +69,8 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   }
 
   test("Constract an empty expanded result") {
-    ExpandedJsonLd(json"""{"@id": "$iri"}""").map { expanded =>
-      assertEquals(expanded.rootId, iri)
+    ExpandedJsonLd(json"""{"@id": "$johnDoeIri"}""").map { expanded =>
+      assertEquals(expanded.rootId, johnDoeIri)
       assertEquals(expanded.json, json"""[ {} ]""")
     }
   }
@@ -78,7 +78,7 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   test("Constructed with multiple root objects") {
     val batmanIri = iri"$prefix/batman"
     val expected  = json"""[{"${keywords.graph}": [
-              {"@id": "$iri", "@type": ["$prefix/Person"], "$prefix/name": [{"@value": "John"} ] },
+              {"@id": "$johnDoeIri", "@type": ["$prefix/Person"], "$prefix/name": [{"@value": "John"} ] },
                {"@id": "$batmanIri", "@type": ["$prefix/Person", "$prefix/Hero"], "$prefix/name": [{"@value": "Batman"} ] }
               ]}]"""
     expandedFromJson("jsonld/expanded/input-multiple-roots.json").map { result =>
@@ -119,9 +119,9 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   test("Be converted to graph") {
     for {
       graph    <- graphFromJson("compacted.json")
-      expected <- graphFromJson("expanded.json", "id" -> iri)
+      expected <- graphFromJson("expanded.json", "id" -> johnDoeIri)
     } yield {
-      assertEquals(graph.rootNode, iri)
+      assertEquals(graph.rootNode, johnDoeIri)
       assertIsomorphic(graph, expected)
     }
   }
@@ -131,40 +131,40 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
     val batman  = base + "batman"
     val robin   = base + "robin"
     ExpandedJsonLd
-      .expanded(json"""[{"@id": "$iri"}]""")
+      .expanded(json"""[{"@id": "$johnDoeIri"}]""")
       .map { expanded =>
         expanded.add(friends, batman).add(friends, robin).json
       }
-      .assertRight(json"""[{"@id": "$iri", "$friends": [{"@id": "$batman"}, {"@id": "$robin"} ] } ]""")
+      .assertRight(json"""[{"@id": "$johnDoeIri", "$friends": [{"@id": "$batman"}, {"@id": "$robin"} ] } ]""")
   }
 
   test("Add @type Iri to existing @type") {
     val (person, animal, hero) = (schema.Person, schema + "Animal", schema + "Hero")
     ExpandedJsonLd
-      .expanded(json"""[{"@id": "$iri", "@type": ["$person", "$animal"] } ]""")
+      .expanded(json"""[{"@id": "$johnDoeIri", "@type": ["$person", "$animal"] } ]""")
       .map {
         _.addType(hero).addType(hero).json
       }
-      .assertRight(json"""[{"@id": "$iri", "@type": ["$person", "$animal", "$hero"] } ]""")
+      .assertRight(json"""[{"@id": "$johnDoeIri", "@type": ["$person", "$animal", "$hero"] } ]""")
   }
 
   test("Add @type Iri") {
     ExpandedJsonLd
-      .expanded(json"""[{"@id": "$iri"}]""")
+      .expanded(json"""[{"@id": "$johnDoeIri"}]""")
       .map {
         _.addType(schema.Person).json
       }
-      .assertRight(json"""[{"@id": "$iri", "@type": ["${schema.Person}"] } ]""")
+      .assertRight(json"""[{"@id": "$johnDoeIri", "@type": ["${schema.Person}"] } ]""")
   }
 
   test("Add @value value") {
     val tags                           = vocab + "tags"
     val (tag1, tag2, tag3, tag4, tag5) = ("first", 2, false, 30L, 3.14)
     val expected                       =
-      json"""[{"@id": "$iri", "$tags": [{"@value": "$tag1"}, {"@value": $tag2 }, {"@value": $tag3}, {"@value": $tag4}, {"@value": $tag5 } ] } ]"""
+      json"""[{"@id": "$johnDoeIri", "$tags": [{"@value": "$tag1"}, {"@value": $tag2 }, {"@value": $tag3}, {"@value": $tag4}, {"@value": $tag5 } ] } ]"""
 
     ExpandedJsonLd
-      .expanded(json"""[{"@id": "$iri"}]""")
+      .expanded(json"""[{"@id": "$johnDoeIri"}]""")
       .map {
         _.add(tags, tag1)
           .add(tags, tag2)
@@ -177,13 +177,13 @@ class ExpandedJsonLdSuite extends NexusSuite with RdfLoader with Fixtures with G
   }
 
   test("Fail when there are remote cyclic references") {
-    val contexts: Map[Iri, ContextValue]                   =
+    val contexts: Map[Iri, ContextValue]            =
       Map(
         iri"http://localhost/c" -> ContextValue(json"""["http://localhost/d", {"c": "http://localhost/c"} ]"""),
         iri"http://localhost/d" -> ContextValue(json"""["http://localhost/e", {"d": "http://localhost/d"} ]"""),
         iri"http://localhost/e" -> ContextValue(json"""["http://localhost/c", {"e": "http://localhost/e"} ]""")
       )
-    implicit val remoteResolution: RemoteContextResolution = RemoteContextResolution.fixed(contexts.toSeq*)
+    given remoteResolution: RemoteContextResolution = RemoteContextResolution.fixed(contexts.toSeq*)
 
     val input =
       json"""{"@context": ["http://localhost/c", {"a": "http://localhost/a"} ], "a": "A", "c": "C", "d": "D"}"""

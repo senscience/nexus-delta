@@ -175,7 +175,7 @@ object RealmRejection {
   final case class NoValidKeysFound(document: Uri)
       extends RealmRejection(s"Failed to find a valid RSA JWK key at '$document'.")
 
-  implicit val realmRejectionEncoder: Encoder.AsObject[RealmRejection] =
+  given Encoder.AsObject[RealmRejection] =
     Encoder.AsObject.instance { r =>
       val tpe     = ClassUtils.simpleName(r)
       val default = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -186,10 +186,9 @@ object RealmRejection {
       }
     }
 
-  implicit final val realmRejectionJsonLdEncoder: JsonLdEncoder[RealmRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
+  given JsonLdEncoder[RealmRejection] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsRealms: HttpResponseFields[RealmRejection] =
+  given HttpResponseFields[RealmRejection] =
     HttpResponseFields {
       case RealmRejection.RevisionNotFound(_, _) => StatusCodes.NotFound
       case RealmRejection.RealmNotFound(_)       => StatusCodes.NotFound

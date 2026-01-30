@@ -25,8 +25,8 @@ class CompositeViewsSpec extends BaseIntegrationSpec {
   object Stats {
     import io.circe.*
     import io.circe.generic.semiauto.*
-    implicit val decoder: Decoder[Stats]          = deriveDecoder[Stats]
-    implicit val encoder: Encoder.AsObject[Stats] = deriveEncoder[Stats]
+    given Decoder[Stats]          = deriveDecoder[Stats]
+    given Encoder.AsObject[Stats] = deriveEncoder[Stats]
   }
 
   private val orgId            = genId()

@@ -48,15 +48,17 @@ class DeltaDirectivesSpec
     with CirceLiteral
     with Inspectors {
 
-  implicit private val ordering: JsonKeyOrdering =
+  private given JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
 
-  implicit private val f: FusionConfig =
+  private given fusionEnabled: FusionConfig =
     FusionConfig(uri"https://bbp.epfl.ch/nexus/web/", enableRedirects = true, uri"https://bbp.epfl.ch")
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private val fusionDisabled = fusionEnabled.copy(enableRedirects = false)
+
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private val id                = nxv + "myresource"
   private val resource          = SimpleResource(id, 1, Instant.EPOCH, "Maria", 20)
@@ -64,9 +66,9 @@ class DeltaDirectivesSpec
     "https://bbp.epfl.ch/nexus/web/org/proj/resources/https:%2F%2Fbluebrain.github.io%2Fnexus%2Fvocabulary%2Fid"
   )
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  private given JsonLdApi = TitaniumJsonLdApi.strict
 
-  implicit private val rcr: RemoteContextResolution =
+  private given RemoteContextResolution =
     RemoteContextResolution.fixed(
       SimpleResource.contextIri -> SimpleResource.context,
       contexts.error            -> jsonContentOf("contexts/error.json").topContextValueOrEmpty
@@ -83,8 +85,8 @@ class DeltaDirectivesSpec
   private val ioProject        = IO.pure(ref.asJson)
   private val projectFusionUri = uri"https://bbp.epfl.ch/nexus/web/admin/org/proj"
 
-  implicit val rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
-  implicit val exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
+  private given RejectionHandler = RdfRejectionHandler.apply
+  private given ExceptionHandler = RdfExceptionHandler.apply
 
   private val routeUnsealed: Route =
     encodeResponse {
@@ -111,7 +113,7 @@ class DeltaDirectivesSpec
           pathPrefix("resources") {
             concat(
               path("redirectFusionDisabled") {
-                emitOrFusionRedirect(ref, Latest(nxv + "id"), emit(resource))(f.copy(enableRedirects = false))
+                emitOrFusionRedirect(ref, Latest(nxv + "id"), emit(resource))(using fusionDisabled)
               },
               path("redirectFusionLatest") {
                 emitOrFusionRedirect(ref, Latest(nxv + "id"), emit(resource))
@@ -123,14 +125,14 @@ class DeltaDirectivesSpec
                 emitOrFusionRedirect(ref, Tag(nxv + "id", UserTag.unsafe("my-tag")), emit(resource))
               },
               path("redirectFusionDisabled") {
-                emitOrFusionRedirect(ref, Latest(nxv + "id"), emit(resource))(f.copy(enableRedirects = false))
+                emitOrFusionRedirect(ref, Latest(nxv + "id"), emit(resource))(using fusionDisabled)
               }
             )
           },
           pathPrefix("projects") {
             concat(
               path("redirectFusionDisabled") {
-                emitOrFusionRedirect(ref, emit(ioProject))(f.copy(enableRedirects = false))
+                emitOrFusionRedirect(ref, emit(ioProject))(using fusionEnabled.copy(enableRedirects = false))
               },
               path("redirectFusion") {
                 emitOrFusionRedirect(ref, emit(ioProject))
@@ -406,10 +408,10 @@ object DeltaDirectivesSpec {
 
     val contextIri: Iri = iri"http://example.com/contexts/simple-resource-2.json"
 
-    implicit private val simpleResource2Encoder: Encoder.AsObject[SimpleResource2] =
+    private given Encoder.AsObject[SimpleResource2] =
       Encoder.AsObject.instance(v => JsonObject.empty.add("@id", v.id.asJson).add("_rev", v.rev.asJson))
 
-    implicit val simpleResource2JsonLdEncoder: JsonLdEncoder[SimpleResource2] =
+    given JsonLdEncoder[SimpleResource2] =
       JsonLdEncoder.computeFromCirce(_.id, ContextValue(contextIri))
 
   }

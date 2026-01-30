@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.projects.Projects
@@ -250,7 +250,7 @@ object ProjectEvent {
     Serializer(Projects.encodeId)
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[ProjectEvent] =
+  def sseEncoder(using base: BaseUri): SseEncoder[ProjectEvent] =
     new SseEncoder[ProjectEvent] {
 
       override val databaseDecoder: Decoder[ProjectEvent] = serializer.codec
@@ -262,7 +262,7 @@ object ProjectEvent {
       override val sseEncoder: Encoder.AsObject[ProjectEvent] = {
         val context = ContextValue(contexts.metadata, contexts.projects)
 
-        implicit val config: Configuration = Configuration.default
+        given Configuration = Configuration.default
           .withDiscriminator(keywords.tpe)
           .copy(transformMemberNames = {
             case "label"             => nxv.label.prefix
@@ -275,7 +275,7 @@ object ProjectEvent {
             case other               => other
           })
 
-        implicit val subjectEncoder: Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+        given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
         Encoder.encodeJsonObject.contramapObject[ProjectEvent] { event =>
           deriveConfiguredEncoder[ProjectEvent]
             .encodeObject(event)

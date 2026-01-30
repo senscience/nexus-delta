@@ -22,9 +22,9 @@ abstract class SerializationSuite
     with JsonAssertions
     with RemoteContextResolutionFixtures {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  given baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit def res: RemoteContextResolution = loadCoreContextsAndSchemas
+  given res: RemoteContextResolution = loadCoreContextsAndSchemas
 
   def loadEvents[E](module: String, eventsToFile: (E, String)*): Map[E, (Json, JsonObject)] =
     eventsToFile.foldLeft(VectorMap.empty[E, (Json, JsonObject)]) { case (acc, (event, fileName)) =>
@@ -38,7 +38,7 @@ abstract class SerializationSuite
     jsonContentOf(s"$module/database/$fileName")
 
   private def generateOutput[Id, Value](serializer: Serializer[Id, Value], obtained: Value) =
-    read(write(serializer.codec(obtained))(serializer.jsonIterCodec))
+    read(write(serializer.codec(obtained))(using serializer.jsonIterCodec))
 
   def assertOutput[Id, Value](serializer: Serializer[Id, Value], obtained: Value, expected: Json)(using
       Location

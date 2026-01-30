@@ -57,7 +57,7 @@ object JsonLdRejection {
     */
   final case class DecodingFailed(error: JsonLdDecoderError) extends JsonLdRejection(error.getMessage)
 
-  implicit val jsonLdRejectionEncoder: Encoder.AsObject[JsonLdRejection] =
+  given Encoder.AsObject[JsonLdRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -68,9 +68,9 @@ object JsonLdRejection {
       }
     }
 
-  implicit val resourceRejectionJsonLdEncoder: JsonLdEncoder[JsonLdRejection] =
+  given JsonLdEncoder[JsonLdRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsJsonLd: HttpResponseFields[JsonLdRejection] =
+  given HttpResponseFields[JsonLdRejection] =
     HttpResponseFields(_ => StatusCodes.BadRequest)
 }

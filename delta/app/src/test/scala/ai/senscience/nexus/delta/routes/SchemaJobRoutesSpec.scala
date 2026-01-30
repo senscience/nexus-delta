@@ -111,6 +111,7 @@ class SchemaJobRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
         json"""
         {
         "@context": "https://bluebrain.github.io/nexus/contexts/statistics.json",
+        "@type" : "ViewStatistics",
         "delayInSeconds" : 0,
         "discardedEvents": 400,
         "evaluatedEvents": 8570,

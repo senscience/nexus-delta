@@ -24,12 +24,12 @@ import java.nio.ByteBuffer
 
 class ResponseToJsonLdSpec extends CatsEffectSpec with RouteHelpers with JsonSyntax with RouteConcatenation {
 
-  implicit val rcr: RemoteContextResolution =
+  private given RemoteContextResolution =
     RemoteContextResolution.fixed(
       SimpleResource.contextIri -> SimpleResource.context,
       contexts.error            -> jsonContentOf("contexts/error.json").topContextValueOrEmpty
     )
-  implicit val jo: JsonKeyOrdering          = JsonKeyOrdering.default()
+  private given JsonKeyOrdering         = JsonKeyOrdering.default()
 
   private val FileContents = "hello"
 

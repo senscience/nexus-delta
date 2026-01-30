@@ -6,7 +6,7 @@ import doobie.syntax.all.*
 
 object PartitionQueries {
 
-  def partitionsOf(mainTable: String)(implicit xas: Transactors): IO[List[String]] = {
+  def partitionsOf(mainTable: String, xas: Transactors): IO[List[String]] = {
     val partitionPrefix = s"$mainTable%"
     sql"""|SELECT table_name from information_schema.tables
           |WHERE table_name != $mainTable

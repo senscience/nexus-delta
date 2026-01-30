@@ -40,11 +40,11 @@ class ResourcesImplSpec
     with RemoteContextResolutionFixtures
     with CirceLiteral {
 
-  implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
-  implicit private val caller: Caller   = Caller(subject, Set(subject))
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given caller: Caller   = Caller(subject, Set(subject))
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private given rcr: RemoteContextResolution = loadCoreContextsAndSchemas
 

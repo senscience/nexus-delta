@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.model.search.{AggregationResult, SearchResults}
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.testkit.CirceLiteral.circeLiteralSyntax
+import ai.senscience.nexus.testkit.CirceLiteral.*
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
 

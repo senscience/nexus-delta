@@ -23,7 +23,7 @@ import org.scalatest.Assertion
 
 abstract class StorageSpec extends BaseIntegrationSpec {
 
-  implicit val currentUser: Identity.UserCredentials = Coyote
+  given Identity.UserCredentials = Coyote
 
   val storageConfig: StorageConfig = load[StorageConfig](ConfigFactory.load(), "storage")
 

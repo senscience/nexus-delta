@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, IriFilter, ProjectRef}
@@ -215,10 +215,10 @@ object CompositeViewSource {
       )
   }
 
-  implicit final def sourceEncoder(implicit base: BaseUri): Encoder.AsObject[CompositeViewSource] = {
+  given BaseUri => Encoder.AsObject[CompositeViewSource] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val config: Configuration = Configuration(
+    given Configuration = Configuration(
       transformMemberNames = {
         case "id"  => keywords.id
         case other => other
@@ -236,8 +236,8 @@ object CompositeViewSource {
     deriveConfiguredEncoder[CompositeViewSource]
   }
 
-  implicit final val sourceLdDecoder: JsonLdDecoder[CompositeViewSource] = {
-    implicit val identityLdDecoder: JsonLdDecoder[Identity] = deriveDefaultJsonLdDecoder[Identity]
+  given JsonLdDecoder[CompositeViewSource] = {
+    given JsonLdDecoder[Identity] = deriveDefaultJsonLdDecoder[Identity]
     deriveDefaultJsonLdDecoder[CompositeViewSource]
   }
 }

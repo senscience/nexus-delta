@@ -23,11 +23,9 @@ object ProjectHealer {
       serviceAccount: ServiceAccount
   ): ProjectHealer =
     new ProjectHealer {
-      implicit private val serviceAccountSubject: Subject = serviceAccount.subject
-
+      given Subject                                    = serviceAccount.subject
       override def heal(project: ProjectRef): IO[Unit] =
         scopeInitializer.initializeProject(project) >> errorStore.delete(project)
-
     }
 
 }

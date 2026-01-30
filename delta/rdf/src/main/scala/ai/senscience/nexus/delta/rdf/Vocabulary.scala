@@ -136,8 +136,8 @@ object Vocabulary {
     * Nexus vocabulary
     */
   object nxv {
-    implicit val base: Iri = iri"https://bluebrain.github.io/nexus/vocabulary/"
-    def +(suffix: String)  = iri"$base$suffix"
+    given base: Iri       = iri"https://bluebrain.github.io/nexus/vocabulary/"
+    def +(suffix: String) = iri"$base$suffix"
 
     // Metadata vocabulary
     val authorizationEndpoint = Metadata("authorizationEndpoint")
@@ -146,7 +146,7 @@ object Vocabulary {
     val createdBy             = Metadata("createdBy")
     val deprecated            = Metadata("deprecated")
     val endSessionEndpoint    = Metadata("endSessionEndpoint")
-    val eventSubject          = Metadata("subject")(iri"${base}metadata/")
+    val eventSubject          = Metadata("subject")(using iri"${base}metadata/")
     val grantTypes            = Metadata("grantTypes")
     val instant               = Metadata("instant")
     val issuer                = Metadata("issuer")
@@ -270,7 +270,7 @@ object Vocabulary {
       * @param lastSegment
       *   the last segment to append to the ''base'' to build the metadata vocabulary term
       */
-    def apply(lastSegment: String)(implicit base: Iri): Metadata =
+    def apply(lastSegment: String)(using base: Iri): Metadata =
       Metadata("_" + lastSegment, iri"$base$lastSegment", lastSegment)
   }
 }

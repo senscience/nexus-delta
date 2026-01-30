@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.exporter.Exporter.ExportResult
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.{RefreshStrategy, StreamingQuery}
 import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
-import ai.senscience.nexus.delta.sourcing.syntax.DoobieSyntax.FragmentEncoderOps
+import ai.senscience.nexus.delta.sourcing.syntax.*
 import cats.effect.IO
 import cats.effect.std.Semaphore
 import doobie.Fragments

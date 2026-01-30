@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception
 
 import java.util.UUID
 
-final class S3StorageSaveFile(s3StorageClient: S3StorageClient, locationGenerator: S3LocationGenerator)(implicit
+final class S3StorageSaveFile(s3StorageClient: S3StorageClient, locationGenerator: S3LocationGenerator)(using
     uuidf: UUIDF
 ) {
 

@@ -59,13 +59,13 @@ class ArchiveDownloadSpec
     with ArchiveHelpers
     with RemoteContextResolutionFixture {
 
-  implicit val ec: ExecutionContext = system.dispatcher
+  private given ExecutionContext = system.dispatcher
 
-  implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
-  implicit private val caller: Caller   = Caller(subject)
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given caller: Caller   = Caller(subject)
+  private given BaseUri          = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit private val jsonKeyOrdering: JsonKeyOrdering =
+  private given JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
@@ -143,21 +143,16 @@ class ArchiveDownloadSpec
       fileSelf
     )
 
-    def downloadAndExtract(value: ArchiveValue, ignoreNotFound: Boolean)(implicit pos: Position) = {
+    def downloadAndExtract(value: ArchiveValue, ignoreNotFound: Boolean)(using Position) =
       archiveDownload(value, project.ref, ignoreNotFound).map(sourceToMap).accepted
-    }
 
-    def failToDownload[R <: ArchiveRejection: ClassTag](value: ArchiveValue, ignoreNotFound: Boolean)(implicit
-        pos: Position
-    ) = {
+    def failToDownload[R <: ArchiveRejection: ClassTag](value: ArchiveValue, ignoreNotFound: Boolean)(using Position) =
       archiveDownload(value, project.ref, ignoreNotFound).rejectedWith[R]
-    }
 
-    def rejectedAccess(value: ArchiveValue)(implicit pos: Position) = {
+    def rejectedAccess(value: ArchiveValue)(using Position) =
       archiveDownload
-        .apply(value, project.ref, ignoreNotFound = true)(Caller.Anonymous)
+        .apply(value, project.ref, ignoreNotFound = true)(using Caller.Anonymous)
         .rejectedWith[AuthorizationFailed]
-    }
 
     "provide a zip for both resources and files" in {
       val value    = ArchiveValue.unsafe(

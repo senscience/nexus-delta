@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.model
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.Binding
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, ResourceRef}
@@ -60,7 +60,7 @@ object SparqlLink {
       * @param bindings
       *   the sparql result bindings
       */
-    def apply(bindings: Map[String, Binding])(implicit base: BaseUri): Option[SparqlLink] =
+    def apply(bindings: Map[String, Binding])(using BaseUri): Option[SparqlLink] =
       for {
         link         <- SparqlExternalLink(bindings)
         project      <- bindings.get(nxv.project.prefix).map(_.value).flatMap(ProjectRef.parse(_).toOption)
@@ -123,11 +123,11 @@ object SparqlLink {
   private def toIris(string: String): Array[Iri] =
     string.split(" ").flatMap(Iri.reference(_).toOption)
 
-  implicit def linkEncoder(implicit base: BaseUri): Encoder.AsObject[SparqlLink] = Encoder.AsObject.instance {
+  given BaseUri => Encoder.AsObject[SparqlLink] = Encoder.AsObject.instance {
     case SparqlExternalLink(id, paths, types) =>
       JsonObject("@id" -> id.asJson, "@type" -> types.asJson, "paths" -> paths.asJson)
     case SparqlResourceLink(resource)         =>
-      implicit val pathsEncoder: Encoder.AsObject[List[Iri]] =
+      given Encoder.AsObject[List[Iri]] =
         Encoder.AsObject.instance(paths => JsonObject("paths" -> Json.fromValues(paths.map(_.asJson))))
       resource.asJsonObject
   }

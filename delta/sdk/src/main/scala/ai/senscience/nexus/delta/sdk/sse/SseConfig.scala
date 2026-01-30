@@ -8,5 +8,5 @@ final case class SseConfig(query: QueryConfig)
 
 object SseConfig {
 
-  implicit final val sseConfigReader: ConfigReader[SseConfig] = deriveReader[SseConfig]
+  given ConfigReader[SseConfig] = deriveReader[SseConfig]
 }

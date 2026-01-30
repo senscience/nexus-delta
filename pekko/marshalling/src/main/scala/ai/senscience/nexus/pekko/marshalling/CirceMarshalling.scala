@@ -18,7 +18,7 @@ trait CirceMarshalling {
   /**
     * `Json` => HTTP entity
     */
-  implicit final def jsonMarshaller: ToEntityMarshaller[Json] =
+  given jsonMarshaller: ToEntityMarshaller[Json] =
     Marshaller.oneOf(mediaTypes*) { mediaType =>
       Marshaller.withFixedContentType(ContentType(mediaType)) { json =>
         HttpEntity(
@@ -31,7 +31,7 @@ trait CirceMarshalling {
   /**
     * `A` => HTTP entity
     */
-  implicit final def marshaller[A: Encoder]: ToEntityMarshaller[A] =
+  given marshaller: [A: Encoder] => ToEntityMarshaller[A] =
     jsonMarshaller.compose(Encoder[A].apply)
 }
 

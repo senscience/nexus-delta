@@ -102,7 +102,7 @@ sealed trait CompositeViewProjection extends Product with Serializable {
     */
   def pipeChain: Option[PipeChain] = PipeChain(resourceSchemas, resourceTypes, includeMetadata, includeDeprecated)
 
-  def transformationPipe(implicit rcr: RemoteContextResolution): Operation.Pipe
+  def transformationPipe(using RemoteContextResolution): Operation.Pipe
 
   def updateIndexingRev(value: IndexingRev): CompositeViewProjection =
     this match {
@@ -169,14 +169,13 @@ object CompositeViewProjection {
     override def asSparql: Option[SparqlProjection]               = Some(this)
     override def asElasticSearch: Option[ElasticSearchProjection] = None
 
-    override def transformationPipe(implicit rcr: RemoteContextResolution): Operation.Pipe =
-      GraphResourceToNTriples
+    override def transformationPipe(using RemoteContextResolution): Operation.Pipe = GraphResourceToNTriples
   }
 
-  implicit final val projectionEncoder: Encoder.AsObject[CompositeViewProjection] = {
+  given Encoder.AsObject[CompositeViewProjection] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val config: Configuration = Configuration(
+    given Configuration = Configuration(
       transformMemberNames = {
         case "id"  => keywords.id
         case other => other

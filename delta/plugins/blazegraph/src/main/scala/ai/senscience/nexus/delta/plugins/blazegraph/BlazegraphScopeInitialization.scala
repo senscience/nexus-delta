@@ -31,8 +31,8 @@ class BlazegraphScopeInitialization(
 )(using Tracer[IO])
     extends ScopeInitialization {
 
-  private val logger                                  = Logger[BlazegraphScopeInitialization]
-  implicit private val serviceAccountSubject: Subject = serviceAccount.subject
+  private val logger    = Logger[BlazegraphScopeInitialization]
+  private given Subject = serviceAccount.subject
 
   private def defaultValue: IndexingBlazegraphViewValue = IndexingBlazegraphViewValue(
     name = Some(defaults.name),

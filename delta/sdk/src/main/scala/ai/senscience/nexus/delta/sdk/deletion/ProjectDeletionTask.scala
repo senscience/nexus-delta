@@ -13,6 +13,6 @@ trait ProjectDeletionTask {
   /**
     * Perform the deletion task for the given project on behalf of the given user
     */
-  def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage]
+  def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage]
 
 }

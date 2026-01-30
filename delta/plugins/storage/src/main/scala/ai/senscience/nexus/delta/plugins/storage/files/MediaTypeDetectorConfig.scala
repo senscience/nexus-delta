@@ -20,14 +20,14 @@ object MediaTypeDetectorConfig {
 
   def apply(values: (String, MediaType)*) = new MediaTypeDetectorConfig(values.toMap)
 
-  implicit final val mediaTypeDetectorConfigReader: ConfigReader[MediaTypeDetectorConfig] = {
-    implicit val mediaTypeConfigReader: ConfigReader[MediaType]  =
+  given ConfigReader[MediaTypeDetectorConfig] = {
+    given ConfigReader[MediaType]              =
       ConfigReader.fromString(str =>
         MediaType
           .parse(str)
           .leftMap(_ => CannotConvert(str, classOf[MediaType].getSimpleName, s"'$str' is not a valid media type."))
       )
-    implicit val mapReader: ConfigReader[Map[String, MediaType]] = genericMapReader(Right(_))
+    given ConfigReader[Map[String, MediaType]] = genericMapReader(Right(_))
 
     ConfigReader.fromCursor { cursor =>
       for {

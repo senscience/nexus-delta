@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sourcing.Arithmetic.{ArithmeticCommand, Arithme
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTimeout
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.event.GlobalEventStore
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.state.{GlobalStateStore, ProjectionStateSave}

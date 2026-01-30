@@ -42,7 +42,7 @@ class EventsSpec extends BaseIntegrationSpec {
       val fileContent        = """{ "this": ["is", "a", "test", "attachment"]}"""
       val updatedFileContent = """{ "this": ["is", "a", "test", "attachment", "2"] }"""
 
-      implicit val identity: Identity = BugsBunny
+      given Identity = BugsBunny
 
       for {
         // ResourceCreated event

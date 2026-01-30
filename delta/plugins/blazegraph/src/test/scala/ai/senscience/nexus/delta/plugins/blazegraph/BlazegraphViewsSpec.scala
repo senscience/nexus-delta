@@ -9,7 +9,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -33,14 +32,14 @@ import java.util.UUID
 class BlazegraphViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures with Fixtures {
 
   "BlazegraphViews" when {
-    val uuid                  = UUID.randomUUID()
-    implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+    val uuid           = UUID.randomUUID()
+    given uuidF: UUIDF = UUIDF.fixed(uuid)
 
     val prefix = "prefix"
 
-    val realm                   = Label.unsafe("myrealm")
-    val bob                     = User("Bob", realm)
-    implicit val caller: Caller = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
+    val realm            = Label.unsafe("myrealm")
+    given bob: User      = User("Bob", realm)
+    given caller: Caller = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
 
     val indexingValue  = IndexingBlazegraphViewValue(
       None,

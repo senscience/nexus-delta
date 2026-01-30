@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resolvers
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.resolvers.model.Priority
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.PriorityAlreadyExists
 import ai.senscience.nexus.delta.sourcing.Transactors

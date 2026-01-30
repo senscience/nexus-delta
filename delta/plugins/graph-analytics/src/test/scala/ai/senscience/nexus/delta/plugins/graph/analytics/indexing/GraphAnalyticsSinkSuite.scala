@@ -96,7 +96,7 @@ class GraphAnalyticsSinkSuite
   private def success(id: Iri, result: GraphAnalyticsResult) =
     SuccessElem(Resources.entityType, id, project, Instant.EPOCH, Offset.start, result, 1)
 
-  private def assertDocument(resourceId: Iri, expectedPath: String)(implicit location: Location) = {
+  private def assertDocument(resourceId: Iri, expectedPath: String)(using Location) = {
     loader.jsonContentOf(expectedPath).flatMap { expected =>
       client.getSource[Json](index, resourceId.toString).map {
         case Some(result) =>

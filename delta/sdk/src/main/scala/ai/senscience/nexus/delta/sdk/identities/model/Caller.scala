@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.identities.model
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{*, given}
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -33,21 +33,19 @@ object Caller {
     if identities.contains(subject) then new Caller(subject, identities)
     else new Caller(subject, identities + subject)
 
-  implicit final def callerEncoder(implicit base: BaseUri): Encoder.AsObject[Caller] = {
-    implicit val identityEncoder: Encoder[Identity] = IdentityInstances.identityEncoder
+  given BaseUri => Encoder.AsObject[Caller] = {
+    val identityDecoder = IdentityInstances.identityEncoder
     Encoder.AsObject.instance[Caller] { caller =>
       JsonObject.singleton(
         "identities",
-        Encoder.encodeList(identityEncoder)(caller.identities.toList.sortBy(_.asIri.toString))
+        Encoder.encodeList(using identityDecoder)(caller.identities.toList.sortBy(_.asIri.toString))
       )
     }
   }
 
-  private val context                                                             = ContextValue(contexts.metadata, contexts.identities)
-  implicit def callerJsonLdEncoder(implicit base: BaseUri): JsonLdEncoder[Caller] = {
-    JsonLdEncoder.computeFromCirce(context)
-  }
+  private val context                    = ContextValue(contexts.metadata, contexts.identities)
+  given BaseUri => JsonLdEncoder[Caller] = JsonLdEncoder.computeFromCirce(context)
 
-  implicit val callerHttpResponseFields: HttpResponseFields[Caller] = HttpResponseFields.defaultOk
+  given HttpResponseFields[Caller] = HttpResponseFields.defaultOk
 
 }

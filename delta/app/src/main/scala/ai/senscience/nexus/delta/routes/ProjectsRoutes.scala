@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
@@ -23,6 +22,7 @@ import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.Scope
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.data.OptionT
@@ -66,8 +66,10 @@ final class ProjectsRoutes(
     }
   }
 
-  private def emitMetadata(statusCode: StatusCode, io: IO[ProjectResource]): Route =
+  private def emitMetadata(statusCode: StatusCode, io: IO[ProjectResource]): Route = {
+    import ai.senscience.nexus.delta.sdk.implicits.*
     emit(statusCode, io.mapValue(_.metadata))
+  }
 
   private def emitMetadata(io: IO[ProjectResource]): Route =
     emitMetadata(StatusCodes.OK, io)
@@ -75,7 +77,8 @@ final class ProjectsRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("projects") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           concat(
             // List projects
             (get & pathEndOrSingleSlash & extractHttp4sUri & fromPaginated & projectsSearchParams(None) &

@@ -79,7 +79,6 @@ object ResourceGen {
     val expanded       = result.value.replaceId(id)
     val compacted      = expanded.toCompacted(source.topContextValueOrEmpty).accepted
     val remoteContexts = RemoteContextRef(result.remoteContexts)
-    Resource(id, project, tags, schema, source, compacted, expanded)
     ResourceState(
       id,
       project,
@@ -148,7 +147,7 @@ object ResourceGen {
     JsonLdContent(resourceF, resourceF.value.source, Tags.empty)
   }
 
-  implicit final private class CatsIOValuesOps[A](private val io: IO[A]) {
+  extension [A](io: IO[A]) {
     def accepted: A =
       io.unsafeRunTimed(45.seconds).getOrElse(throw new RuntimeException("IO timed out during .accepted call"))
   }

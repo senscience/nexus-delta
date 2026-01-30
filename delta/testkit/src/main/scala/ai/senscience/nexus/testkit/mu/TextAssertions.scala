@@ -7,7 +7,7 @@ import munit.{Assertions, Location}
   */
 trait TextAssertions { self: Assertions =>
 
-  implicit class TextAssertionsOps(value: String)(implicit loc: Location) {
+  extension (value: String)(using Location) {
 
     def equalLinesUnordered(expected: String): Unit = {
       val valueSorted    = value.split("\n").filterNot(_.trim.isEmpty).sorted.toSeq

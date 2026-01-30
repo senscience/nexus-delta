@@ -9,7 +9,7 @@ import scala.reflect.{classTag, ClassTag}
 object Logger {
 
   def apply[A: ClassTag]: Log4CatsLogger[IO] = {
-    implicit val loggerName: LoggerName = LoggerName(classTag[A].runtimeClass.getName.stripSuffix("$"))
+    given LoggerName = LoggerName(classTag[A].runtimeClass.getName.stripSuffix("$"))
     Slf4jLogger.getLogger[IO]
   }
 }

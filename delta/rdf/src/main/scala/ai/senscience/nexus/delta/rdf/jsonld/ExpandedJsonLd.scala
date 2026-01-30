@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.{JsonLdDecoder, JsonLdDecode
 import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.rdf.{ExplainResult, IriOrBNode, RdfError}
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder, Json, JsonObject}
 
@@ -257,8 +257,8 @@ object ExpandedJsonLd {
     obj(keywords.id).map(_.as[Iri]).getOrElse(Right(BNode.random)).leftMap(_ => InvalidIri)
 
   object Database {
-    implicit final val expandedEncoder: Encoder[ExpandedJsonLd] = Encoder.instance(_.json)
-    implicit final val expandedDecoder: Decoder[ExpandedJsonLd] =
+    given expandedEncoder: Encoder[ExpandedJsonLd] = Encoder.instance(_.json)
+    given expandedDecoder: Decoder[ExpandedJsonLd] =
       Decoder.decodeJson.emap(ExpandedJsonLd.expanded(_).leftMap(_.getMessage))
   }
 

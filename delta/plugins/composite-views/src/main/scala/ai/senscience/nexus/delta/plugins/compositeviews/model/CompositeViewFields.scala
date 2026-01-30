@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFa
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.semiauto.deriveDefaultJsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.{Configuration, JsonLdDecoder}
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.data.NonEmptyList
 import io.circe.syntax.EncoderOps
@@ -32,7 +32,7 @@ final case class CompositeViewFields(
     projections: NonEmptyList[CompositeViewProjectionFields],
     rebuildStrategy: Option[RebuildStrategy]
 ) {
-  def toJson(iri: Iri)(implicit base: BaseUri): Json =
+  def toJson(iri: Iri)(using base: BaseUri): Json =
     this.asJsonObject.add(keywords.id, iri.asJson).asJson.deepDropNullValues
 }
 
@@ -48,10 +48,10 @@ object CompositeViewFields {
   ): CompositeViewFields =
     CompositeViewFields(None, None, sources, projections, rebuildStrategy)
 
-  implicit final def compositeViewFieldsEncoder(implicit base: BaseUri): Encoder.AsObject[CompositeViewFields] = {
+  given BaseUri => Encoder.AsObject[CompositeViewFields] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val config: Configuration = Configuration.default
+    given Configuration = Configuration.default
     deriveConfiguredEncoder[CompositeViewFields]
   }
 
@@ -60,8 +60,8 @@ object CompositeViewFields {
     .addAliasIdType("name", iri"https://schema.org/name")
 
   final def jsonLdDecoder(minIntervalRebuild: FiniteDuration): JsonLdDecoder[CompositeViewFields] = {
-    implicit val rebuildStrategyDecoder: JsonLdDecoder[RebuildStrategy] = {
-      implicit val scopedFiniteDurationDecoder: JsonLdDecoder[FiniteDuration] =
+    given JsonLdDecoder[RebuildStrategy] = {
+      given JsonLdDecoder[FiniteDuration] =
         JsonLdDecoder.finiteDurationJsonLdDecoder.andThen { case (cursor, duration) =>
           Option
             .when(duration.gteq(minIntervalRebuild))(duration)
@@ -77,7 +77,7 @@ object CompositeViewFields {
       deriveDefaultJsonLdDecoder[RebuildStrategy]
     }
 
-    implicit val config: Configuration = Configuration.default.copy(context = ctx)
+    given Configuration = Configuration.default.copy(context = ctx)
 
     deriveConfigJsonLdDecoder[CompositeViewFields]
   }

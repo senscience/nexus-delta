@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream.pipes
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.*
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.given
 import ai.senscience.nexus.delta.sourcing.stream.pipes.SelectPredicates.SelectPredicatesConfig
 import ai.senscience.nexus.testkit.mu.NexusSuite
 

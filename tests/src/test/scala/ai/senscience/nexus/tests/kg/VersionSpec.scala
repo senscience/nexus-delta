@@ -31,7 +31,7 @@ object VersionSpec {
       elasticsearch: String
   )
   object DependenciesBundle {
-    implicit val dependenciesBundleDecoder: Decoder[DependenciesBundle] = deriveDecoder[DependenciesBundle]
+    given Decoder[DependenciesBundle] = deriveDecoder[DependenciesBundle]
   }
 
   final case class PluginsBundle(
@@ -41,7 +41,7 @@ object VersionSpec {
       storage: String
   )
   object PluginsBundle {
-    implicit val pluginsBundleDecoder: Decoder[PluginsBundle] = deriveDecoder[PluginsBundle]
+    given Decoder[PluginsBundle] = deriveDecoder[PluginsBundle]
   }
 
   final case class VersionBundle(
@@ -51,7 +51,7 @@ object VersionSpec {
       plugins: PluginsBundle
   )
   object VersionBundle {
-    implicit val versionBundleDecoder: Decoder[VersionBundle] = deriveDecoder[VersionBundle]
+    given Decoder[VersionBundle] = deriveDecoder[VersionBundle]
   }
 
 }

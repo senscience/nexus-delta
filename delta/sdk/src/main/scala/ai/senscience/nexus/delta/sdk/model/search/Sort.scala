@@ -54,7 +54,7 @@ object Sort {
       override def toString: String = ""
     }
 
-    implicit val orderTypeEncoder: Encoder[OrderType] = Encoder.encodeString.contramap {
+    given Encoder[OrderType] = Encoder.encodeString.contramap {
       case Desc => "desc"
       case Asc  => "asc"
     }

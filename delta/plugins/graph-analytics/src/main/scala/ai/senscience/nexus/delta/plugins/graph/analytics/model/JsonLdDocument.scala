@@ -35,7 +35,7 @@ object JsonLdDocument {
 
   object Reference {
 
-    implicit val nodeReferenceEncoder: Encoder.AsObject[Reference] = Encoder.AsObject.instance { reference =>
+    given Encoder.AsObject[Reference] = Encoder.AsObject.instance { reference =>
       reference.entry.asJsonObject.add("found", reference.found.asJson)
     }
   }
@@ -137,7 +137,7 @@ object JsonLdDocument {
 
   }
 
-  implicit val jsonLdDocumentMonoid: Monoid[JsonLdDocument] = new Monoid[JsonLdDocument] {
+  given Monoid[JsonLdDocument] = new Monoid[JsonLdDocument] {
     override def empty: JsonLdDocument = JsonLdDocument.empty
 
     override def combine(x: JsonLdDocument, y: JsonLdDocument): JsonLdDocument = JsonLdDocument(
@@ -148,8 +148,8 @@ object JsonLdDocument {
     )
   }
 
-  implicit val jsonLdDocumentEncoder: Encoder[JsonLdDocument] = {
-    implicit val config: Configuration = Configuration.default
+  given Encoder[JsonLdDocument] = {
+    given Configuration = Configuration.default
     deriveConfiguredEncoder[JsonLdDocument].mapJsonObject(_.remove("referenceIds"))
   }
 

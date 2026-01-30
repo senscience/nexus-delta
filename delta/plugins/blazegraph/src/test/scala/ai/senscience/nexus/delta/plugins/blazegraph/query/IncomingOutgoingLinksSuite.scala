@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.NTriples
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntry
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess, ResourceF}
@@ -31,7 +31,7 @@ class IncomingOutgoingLinksSuite extends NexusSuite with SparqlClientSetup.Fixtu
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(blazegraphClient, queries)
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private val project          = ProjectRef.unsafe("org", "proj")
   private val incomingOutgoing = "incoming-outgoing"

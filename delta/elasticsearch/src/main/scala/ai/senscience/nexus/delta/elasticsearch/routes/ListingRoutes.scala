@@ -47,7 +47,7 @@ class ListingRoutes(
 
   private val genericResourcesRoutes: Route =
     pathPrefix("resources") {
-      extractCaller { implicit caller =>
+      extractCaller { case given Caller =>
         concat(
           (searchParametersAndSortList(None) & paginated) { (params, sort, page) =>
             val request = MainIndexRequest(params, page, sort)

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream.pipes
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, ResourceRef}

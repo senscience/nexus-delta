@@ -29,7 +29,7 @@ class ListPartitionerSuite extends NexusSuite {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(hashDoobie)
 
-  implicit private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
+  private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
 
   private lazy val eventStore = PullRequest.eventStore(queryConfig)
 
@@ -53,9 +53,9 @@ class ListPartitionerSuite extends NexusSuite {
       _ <- List(state1, state2).traverse(stateStore.save).transact(xas.write)
     } yield ()
 
-  private def expectedPartitions(number: Int)(implicit loc: Location) =
-    PartitionQueries.partitionsOf("scoped_events").map(_.size).assertEquals(number) >>
-      PartitionQueries.partitionsOf("scoped_states").map(_.size).assertEquals(number)
+  private def expectedPartitions(number: Int)(using Location) =
+    PartitionQueries.partitionsOf("scoped_events", xas).map(_.size).assertEquals(number) >>
+      PartitionQueries.partitionsOf("scoped_states", xas).map(_.size).assertEquals(number)
 
   test("Provision the partitions and save the config") {
     for {
@@ -67,12 +67,12 @@ class ListPartitionerSuite extends NexusSuite {
       _            <- expectedPartitions(3)
       _            <- populate
       // Both projects should be available
-      _            <- ScopedEventQueries.distinctProjects.assertEquals(Set(project1, project2))
-      _            <- ScopedStateQueries.distinctProjects.assertEquals(Set(project1, project2))
+      _            <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(project1, project2))
+      _            <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(project1, project2))
       _            <- partitioner.onDeleteProject(project1).transact(xas.write)
       // Only project2 should remain
-      _            <- ScopedEventQueries.distinctProjects.assertEquals(Set(project2))
-      _            <- ScopedStateQueries.distinctProjects.assertEquals(Set(project2))
+      _            <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(project2))
+      _            <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(project2))
       // Only the partition for the org and project2 should remain
       _            <- expectedPartitions(2)
       // Init again with the same value should be ok

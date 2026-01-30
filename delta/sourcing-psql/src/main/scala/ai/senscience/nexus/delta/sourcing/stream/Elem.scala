@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import cats.effect.IO
-import cats.implicits.{toFoldableOps, toFunctorOps, toTraverseOps}
+import cats.syntax.all.*
 import cats.{Applicative, Eval, Traverse}
 import doobie.Read
 import io.circe.generic.extras.Configuration
@@ -219,18 +219,18 @@ object Elem {
   }
 
   object SuccessElem {
-    implicit def read[Value](implicit s: Decoder[Value]): Read[SuccessElem[Value]] = {
-      import ai.senscience.nexus.delta.sourcing.implicits.*
+    given [Value: Decoder] => Read[SuccessElem[Value]] = {
+      import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
       import doobie.*
       import doobie.postgres.implicits.*
-      implicit val v: Get[Value] = pgDecoderGetT[Value]
+      given Get[Value] = pgDecoderGetT[Value]
       Read[(EntityType, Iri, Value, Int, Instant, Long, Label, Label)].map {
         case (tpe, id, value, rev, instant, offset, org, proj) =>
           SuccessElem(tpe, id, ProjectRef(org, proj), instant, Offset.at(offset), value, rev)
       }
     }
 
-    implicit val traverse: Traverse[SuccessElem] = new Traverse[SuccessElem] {
+    given Traverse[SuccessElem] = new Traverse[SuccessElem] {
       override def traverse[G[_]: Applicative, A, B](s: SuccessElem[A])(f: A => G[B]): G[SuccessElem[B]] =
         Applicative[G].map(f(s.value))(v => s.copy(value = v))
 
@@ -283,7 +283,7 @@ object Elem {
       rev: Int
   ) extends Elem[Nothing]
 
-  implicit val traverseElem: Traverse[Elem] = new Traverse[Elem] {
+  given Traverse[Elem] = new Traverse[Elem] {
     override def traverse[G[_]: Applicative, A, B](fa: Elem[A])(f: A => G[B]): G[Elem[B]] =
       fa match {
         case s: SuccessElem[A]    => s.traverse(f).widen[Elem[B]]
@@ -304,11 +304,11 @@ object Elem {
       }
   }
 
-  implicit private val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  private given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
-  implicit val elemUnitEncoder: Codec.AsObject[Elem[Unit]] = {
-    implicit val throwableEncoder: Encoder[Throwable] = FailureReason.failureReasonCodec.contramap(FailureReason(_))
-    implicit val throwableDecoder: Decoder[Throwable] = FailureReason.failureReasonCodec.map(identity)
+  given elemUnitEncoder: Codec.AsObject[Elem[Unit]] = {
+    given Encoder[Throwable] = FailureReason.failureReasonCodec.contramap(FailureReason(_))
+    given Decoder[Throwable] = FailureReason.failureReasonCodec.map(identity)
 
     deriveConfiguredCodec[Elem[Unit]]
   }

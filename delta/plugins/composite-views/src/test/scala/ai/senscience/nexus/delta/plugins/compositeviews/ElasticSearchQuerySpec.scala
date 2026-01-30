@@ -31,7 +31,7 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptyList
 import cats.effect.IO
 import io.circe.syntax.*
-import io.circe.{Json, JsonObject}
+import io.circe.Json
 import org.http4s.Status
 import org.scalatest.CancelAfterFailure
 
@@ -39,12 +39,10 @@ import java.util.UUID
 
 class ElasticSearchQuerySpec extends CatsEffectSpec with CirceLiteral with CancelAfterFailure {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
-
-  private val realm                = Label.unsafe("myrealm")
-  private val alice: Caller        = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
-  implicit private val bob: Caller = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
-  private val anon: Caller         = Caller(Anonymous, Set(Anonymous))
+  private val realm         = Label.unsafe("myrealm")
+  private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private given bob: Caller = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
+  private val anon: Caller  = Caller(Anonymous, Set(Anonymous))
 
   private def document(id: String = genString(), label: String = genString(), value: String = genString()) =
     jobj"""{"@id": "http://localhost/$id", "label": "$label", "value": "$value"}"""

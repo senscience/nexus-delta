@@ -81,9 +81,7 @@ class UserPermissionsSpec extends BaseIntegrationSpec {
     } yield succeed
   }
 
-  private def createStorage(id: String, readPermission: Permission, writePermission: Permission)(implicit
-      pos: Position
-  ) = {
+  private def createStorage(id: String, readPermission: Permission, writePermission: Permission)(using Position) = {
     val payload = jsonContentOf(
       "kg/storages/disk-perms-parameterised.json",
       "id"               -> id,

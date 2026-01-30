@@ -26,7 +26,7 @@ import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
@@ -52,10 +52,6 @@ class FilesSpec
     with FileFixtures
     with Eventually {
 
-  private val realm = Label.unsafe("myrealm")
-  private val bob   = User("Bob", realm)
-  private val alice = User("Alice", realm)
-
   def description(filename: String): FileDescription = {
     FileDescription(filename, None, Some(FileCustomMetadata.empty))
   }
@@ -76,7 +72,10 @@ class FilesSpec
     FileDescription(filename, None, Some(FileCustomMetadata(Some(name), Some(description), Some(keywords))))
 
   "The Files operations bundle" when {
-    implicit val caller: Caller = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
+    val realm            = Label.unsafe("myrealm")
+    given bob: Subject   = User("Bob", realm)
+    val alice            = User("Alice", realm)
+    given caller: Caller = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
 
     val tag        = UserTag.unsafe("tag")
     val otherRead  = Permission.unsafe("other/read")
@@ -136,7 +135,7 @@ class FilesSpec
     lazy val fileOps: FileOperations = FileOperationsMock.forDisk
 
     val mediaTypeDetector = new MediaTypeDetector(MediaTypeDetectorConfig.Empty)
-    val dataExtractor     = FormDataExtractor(mediaTypeDetector)(system)
+    val dataExtractor     = FormDataExtractor(mediaTypeDetector)(using system)
     val linkAction        = LinkFileAction.alwaysFails
     lazy val files: Files =
       Files(fetchContext, fetchStorage, dataExtractor, xas, eventLogConfig, fileOps, linkAction, clock)
@@ -262,7 +261,7 @@ class FilesSpec
       "reject if the file exceeds max file size for the storage" in {
         val id      = fileId("file-too-large")
         val request = FileUploadRequest.from(randomEntity("large_file", (maxFileSize + 1).toInt))
-        files.create(id, Some(customStorageId), request, None)(aliceCaller).rejected shouldEqual FileTooLarge(
+        files.create(id, Some(customStorageId), request, None)(using aliceCaller).rejected shouldEqual FileTooLarge(
           maxFileSize
         )
       }

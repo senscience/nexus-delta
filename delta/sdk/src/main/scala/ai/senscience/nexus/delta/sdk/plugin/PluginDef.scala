@@ -74,5 +74,5 @@ object PluginDef {
     .resolve(resolveOptions)
     .getConfig(s"plugins.$name")
 
-  implicit val pluginDefOrdering: Ordering[PluginDef] = Ordering.by(_.priority)
+  given Ordering[PluginDef] = Ordering.by(_.priority)
 }

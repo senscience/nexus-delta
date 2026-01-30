@@ -33,8 +33,11 @@ class S3FileOperationsSuite
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(localStackS3Client)
 
-  implicit private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], conf: S3StorageConfig) =
+  private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], conf: S3StorageConfig) =
     localStackS3Client()
+
+  private given () => S3StorageClient     = s3StorageClient
+  private given () => S3AsyncClientOp[IO] = underlying
 
   private lazy val locationGenerator = new S3LocationGenerator(conf.prefixPath)
   private lazy val fileOps           = S3FileOperations.mk(s3StorageClient, locationGenerator)

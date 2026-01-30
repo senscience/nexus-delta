@@ -44,17 +44,17 @@ object Permission {
   final def unsafe(value: String): Permission =
     new Permission(value)
 
-  implicit final val permissionCodec: Codec[Permission] =
+  given Codec[Permission] =
     Codec.from(
       Decoder.decodeString.emap(str => Permission(str).leftMap(_.getMessage)),
       Encoder.encodeString.contramap(_.value)
     )
 
-  implicit final val permissionJsonLdDecoder: JsonLdDecoder[Permission] = (cursor: ExpandedJsonLdCursor) =>
+  given JsonLdDecoder[Permission] = (cursor: ExpandedJsonLdCursor) =>
     cursor
       .get[String]
       .flatMap(str => Permission(str).leftMap(_ => ParsingFailure("Json", str, cursor.history)))
 
-  implicit final val permissionOrder: Order[Permission] = Order.by(_.value)
+  given Order[Permission] = Order.by(_.value)
 
 }

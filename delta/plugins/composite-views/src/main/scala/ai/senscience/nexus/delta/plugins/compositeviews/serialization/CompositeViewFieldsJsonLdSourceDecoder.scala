@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.plugins.compositeviews.model.{contexts, CompositeViewFields}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingDecoder
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
@@ -24,14 +24,10 @@ import scala.concurrent.duration.FiniteDuration
 final class CompositeViewFieldsJsonLdSourceDecoder private (
     decoder: JsonLdSourceResolvingDecoder[CompositeViewFields]
 ) {
-  def apply(ref: ProjectRef, context: ProjectContext, source: Json)(implicit
-      caller: Caller
-  ): IO[(Iri, CompositeViewFields)] =
+  def apply(ref: ProjectRef, context: ProjectContext, source: Json)(using Caller): IO[(Iri, CompositeViewFields)] =
     decoder(ref, context, mapJsonToString(source))
 
-  def apply(ref: ProjectRef, context: ProjectContext, iri: Iri, source: Json)(implicit
-      caller: Caller
-  ): IO[CompositeViewFields] =
+  def apply(ref: ProjectRef, context: ProjectContext, iri: Iri, source: Json)(using Caller): IO[CompositeViewFields] =
     decoder(ref, context, iri, mapJsonToString(source))
 
   private def mapJsonToString(json: Json): Json = json
@@ -47,8 +43,7 @@ object CompositeViewFieldsJsonLdSourceDecoder {
       contextResolution: ResolverContextResolution,
       minIntervalRebuild: FiniteDuration
   ): CompositeViewFieldsJsonLdSourceDecoder = {
-    implicit val compositeViewFieldsJsonLdDecoder: JsonLdDecoder[CompositeViewFields] =
-      CompositeViewFields.jsonLdDecoder(minIntervalRebuild)
+    given JsonLdDecoder[CompositeViewFields] = CompositeViewFields.jsonLdDecoder(minIntervalRebuild)
     new CompositeViewFieldsJsonLdSourceDecoder(
       new JsonLdSourceResolvingDecoder[CompositeViewFields](
         contexts.compositeViews,

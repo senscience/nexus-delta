@@ -21,7 +21,7 @@ sealed trait ResourceAccess extends Product with Serializable {
     * @return
     *   the access [[Uri]]
     */
-  def uri(implicit base: BaseUri): Uri =
+  def uri(using base: BaseUri): Uri =
     base.endpoint.finalSlash.resolve(relativeUri)
 }
 

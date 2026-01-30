@@ -43,9 +43,9 @@ object DigestAlgorithm {
   final def apply(algorithm: String): Option[DigestAlgorithm] =
     Option.when(builtIn.contains(algorithm))(new DigestAlgorithm(algorithm))
 
-  implicit final val digestAlgorithmEncoder: Encoder[DigestAlgorithm] = Encoder.encodeString.contramap(_.value)
-  implicit final val digestAlgorithmDecoder: Decoder[DigestAlgorithm] =
+  given Encoder[DigestAlgorithm] = Encoder.encodeString.contramap(_.value)
+  given Decoder[DigestAlgorithm] =
     Decoder.decodeString.emap(str => apply(str).toRight(s"Invalid digest algorithm '$str'"))
 
-  implicit final val digestAlgorithmJsonLdDecoder: JsonLdDecoder[DigestAlgorithm] = _.getValue(apply)
+  given JsonLdDecoder[DigestAlgorithm] = _.getValue(apply)
 }

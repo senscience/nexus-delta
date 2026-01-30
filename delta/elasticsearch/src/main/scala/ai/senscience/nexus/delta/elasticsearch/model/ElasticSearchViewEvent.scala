@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
@@ -211,7 +211,7 @@ object ElasticSearchViewEvent {
   ) extends ElasticSearchViewEvent
 
   val serializer: Serializer[Iri, ElasticSearchViewEvent] = {
-    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Database.*
+    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration                          = Serializer.circeConfiguration
     given Codec.AsObject[ElasticSearchViewEvent] = deriveConfiguredCodec[ElasticSearchViewEvent]

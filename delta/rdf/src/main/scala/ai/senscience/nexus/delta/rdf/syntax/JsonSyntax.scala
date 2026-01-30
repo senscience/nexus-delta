@@ -8,278 +8,277 @@ import io.circe.*
 import io.circe.syntax.*
 
 trait JsonSyntax {
-  implicit final def jsonOpsSyntax(json: Json): JsonOps                  = new JsonOps(json)
-  implicit final def jsonObjectOpsSyntax(obj: JsonObject): JsonObjectOps = new JsonObjectOps(obj)
-}
 
-@SuppressWarnings(Array("OptionGet"))
-final class JsonObjectOps(private val obj: JsonObject) extends AnyVal {
+  extension (json: Json) {
 
-  /**
-    * Map value of all instances of a key.
-    * @param key
-    *   the key
-    * @param f
-    *   the function to apply
-    * @return
-    *   [[JsonObject]] with all values of a key mapped
-    */
-  def mapAllKeys(key: String, f: Json => Json): JsonObject = JsonUtils.mapAllKeys(obj.asJson, key, f).asObject.get
+    /**
+      * Checks whether or not the passed ''json'' is empty
+      */
+    def isEmpty(): Boolean = JsonUtils.isEmpty(json)
 
-  /**
-    * @return
-    *   the value of the top @context key when found, an empty Json otherwise
-    */
-  def topContextValueOrEmpty: ContextValue = JsonLdContext.topContextValueOrEmpty(obj.asJson)
+    /**
+      * Map value of all instances of a key.
+      *
+      * @param key
+      *   the key
+      * @param f
+      *   the function to apply
+      * @return
+      *   [[Json]] with all values of a key mapped
+      */
+    def mapAllKeys(key: String, f: Json => Json): Json = JsonUtils.mapAllKeys(json, key, f)
 
-  /**
-    * @return
-    *   the all the values with key @context
-    */
-  def contextValues: Set[ContextValue] = JsonLdContext.contextValues(obj.asJson)
+    /**
+      * @return
+      *   the value of the top @context key when found, an empty Json otherwise
+      */
+    def topContextValueOrEmpty: ContextValue = JsonLdContext.topContextValueOrEmpty(json)
 
-  /**
-    * Removes the provided keys from the top object on the current json object.
-    */
-  def removeKeys(keys: String*): JsonObject = JsonUtils.removeKeys(obj.asJson, keys*).asObject.get
+    /**
+      * @return
+      *   the all the values with key @context
+      */
+    def contextValues: Set[ContextValue] = JsonLdContext.contextValues(json)
 
-  /**
-    * Removes the provided keys from everywhere on the current json object.
-    */
-  def removeAllKeys(keys: String*): JsonObject = JsonUtils.removeAllKeys(obj.asJson, keys*).asObject.get
+    /**
+      * Replaces the current context of the ''json'' with the passed ''ctx''
+      */
+    def replaceContext(ctx: Json) = removeKeys(keywords.context).addContext(ctx)
 
-  /**
-    * Removes the metadata keys from the current json.
-    */
-  def removeMetadataKeys(): JsonObject = JsonUtils.removeMetadataKeys(obj.asJson).asObject.get
+    /**
+      * Merges the values of the key @context in both existing ''json'' and ''that'' Json documents.
+      *
+      * @param that
+      *   the context to append to this json. E.g.: {"@context": {...}}
+      * @return
+      *   a new Json with the original json and the merged context of both passed jsons. If a key inside the @context is
+      *   repeated in both jsons, the one in ''that'' will override the one in ''json''
+      */
+    def addContext(that: Json): Json = JsonLdContext.addContext(json, that)
 
-  /**
-    * Removes the provided values from everywhere on the current json object.
-    */
-  def removeAllValues[A: Encoder](values: A*): JsonObject =
-    JsonUtils.removeAllValues(obj.asJson, values*).asObject.get
+    /**
+      * Replaces the current context of the ''json'' with the passed ''ctx''
+      */
+    def replaceContext(ctx: JsonObject) = removeKeys(keywords.context).addContext(ctx)
 
-  /**
-    * Replace in the current json object with the found key value pairs in ''from'' with the value in ''toValue''
-    */
-  def replace[A: Encoder, B: Encoder](from: (String, A), toValue: B): JsonObject =
-    JsonUtils.replace(obj.asJson, from._1, from._2, toValue).asObject.get
+    /**
+      * Merges the values of the key @context in both existing ''json'' and ''that'' Json object documents.
+      *
+      * @see
+      *   [[addContext(json)]]
+      */
+    def addContext(that: JsonObject): Json = addContext(that.asJson)
 
-  /**
-    * Replace in the current json object with the found value in ''from'' with the value in ''toValue''
-    */
-  def replace[A: Encoder, B: Encoder](from: A, toValue: B): JsonObject =
-    JsonUtils.replace(obj.asJson, from, toValue).asObject.get
+    /**
+      * Adds a context Iri to an existing @context, or creates an @context with the Iri as a value.
+      */
+    def addContext(iri: Iri*): Json = iri.foldLeft(json)((json, iri) => JsonLdContext.addContext(json, iri))
 
-  /**
-    * Replace in the current json object the found ''key'' with the value in ''value''
-    */
-  def replaceKeyWithValue[A: Encoder](key: String, value: A): JsonObject =
-    JsonUtils.replace(obj.asJson, key, value).asObject.get
+    /**
+      * Removes the provided keys from the top object on the current json.
+      */
+    def removeKeys(keys: String*): Json = JsonUtils.removeKeys(json, keys*)
 
-  /**
-    * Replace in the current json object the found ''key'' with the value in ''value'' when the value exists
-    */
-  def replaceKeyWithValue[A: Encoder](key: String, value: Option[A]): JsonObject =
-    value.fold(obj)(JsonUtils.replace(obj.asJson, key, _).asObject.get)
+    /**
+      * Removes the provided keys from everywhere on the current json.
+      */
+    def removeAllKeys(keys: String*): Json = JsonUtils.removeAllKeys(json, keys*)
 
-  /**
-    * Extract all the values found from the passed ''keys'' in the current json object.
-    *
-    * @param keys
-    *   the keys from where to extract the Json values
-    */
-  def extractValuesFrom(keys: String*): Set[Json] = JsonUtils.extractValuesFrom(obj.asJson, keys*)
+    /**
+      * Removes the metadata keys from the current json.
+      */
+    def removeMetadataKeys(): Json = JsonUtils.removeMetadataKeys(json)
 
-  /**
-    * Sort all the keys in the current json object.
-    *
-    * @param ordering
-    *   the sorting strategy
-    */
-  def sort(implicit ordering: JsonKeyOrdering): JsonObject = JsonUtils.sort(obj.asJson).asObject.get
+    /**
+      * Removes the provided values from everywhere on the current json.
+      */
+    def removeAllValues[A: Encoder](values: A*): Json = JsonUtils.removeAllValues(json, values*)
 
-  /**
-    * Merges the values of the key @context in both existing ''obj'' and ''that'' Json object documents.
-    *
-    * @param that
-    *   the context to append to this json. E.g.: {"@context": {...}}
-    * @return
-    *   a new Json object with the original json and the merged context of both passed jsons. If a key inside the
-    *   "@context" is repeated in both json objects, the one in ''that'' will override the one in ''obj''
-    */
-  def addContext(that: Json): JsonObject = JsonLdContext.addContext(obj.asJson, that).asObject.get
+    /**
+      * Replace in the current json the found key value pairs in ''from'' with the value in ''toValue''
+      */
+    /**
+      * Replace in the current json with the found key value pairs in ''from'' with the value in ''toValue''
+      */
+    def replace[A: Encoder, B: Encoder](from: (String, A), toValue: B): Json =
+      JsonUtils.replace(json, from._1, from._2, toValue)
 
-  /**
-    * Merges the values of the key @context in both existing ''obj'' and ''that'' Json object documents.
-    *
-    * @see
-    *   [[addContext(json)]]
-    */
-  def addContext(that: JsonObject): JsonObject = addContext(that.asJson)
+    /**
+      * Replace in the current json with the found value in ''from'' with the value in ''toValue''
+      */
+    def replace[A: Encoder, B: Encoder](from: A, toValue: B): Json =
+      JsonUtils.replace(json, from, toValue)
 
-  /**
-    * Adds a context Iri to an existing @context, or creates an @context with the Iri as a value.
-    */
-  def addContext(iri: Iri): JsonObject = JsonLdContext.addContext(obj.asJson, iri).asObject.get
+    /**
+      * Replace in the current json the found ''key'' with the value in ''toValue''
+      */
+    def replaceKeyWithValue[A: Encoder](key: String, value: A): Json =
+      JsonUtils.replace(json, key, value)
 
-  /**
-    * Adds to the current json object the passed ''key'' and ''valueOpt'' when the value is a Some
-    */
-  def addIfExists[A: Encoder](key: String, valueOpt: Option[A]): JsonObject =
-    valueOpt.fold(obj)(value => obj.add(key, value.asJson))
+    /**
+      * Replace in the current json the found ''key'' with the value in ''value'' when the value exists
+      */
+    def replaceKeyWithValue[A: Encoder](key: String, value: Option[A]): Json =
+      value.fold(json)(replaceKeyWithValue(key, _))
 
-  /**
-    * Adds to the current json object the passed ''key'' and ''values'' when the values are not empty
-    */
-  def addIfNonEmpty[A: Encoder](key: String, values: Iterable[A]): JsonObject =
-    values.take(2).toList match {
-      case Nil         => obj
-      case head :: Nil => obj.add(key, head.asJson)
-      case _           => obj.add(key, values.asJson)
-    }
-}
+    /**
+      * Extract all the values found from the passed ''keys'' in the current json.
+      *
+      * @param keys
+      *   the keys from where to extract the Json values
+      */
+    def extractValuesFrom(keys: String*): Set[Json] = JsonUtils.extractValuesFrom(json, keys*)
 
-final class JsonOps(private val json: Json) extends AnyVal {
+    /**
+      * Sort all the keys in the current json.
+      *
+      * @param ordering
+      *   the sorting strategy
+      */
+    def sort(using ordering: JsonKeyOrdering): Json = JsonUtils.sort(json)
 
-  /**
-    * Checks whether or not the passed ''json'' is empty
-    */
-  def isEmpty(): Boolean = JsonUtils.isEmpty(json)
+    /**
+      * Adds to the current json the passed ''key'' and ''valueOpt'' when the value is a Some
+      */
+    def addIfExists[A: Encoder](key: String, valueOpt: Option[A]): Json =
+      valueOpt.fold(json)(value => json.deepMerge(Json.obj(key -> value.asJson)))
 
-  /**
-    * Map value of all instances of a key.
-    * @param key
-    *   the key
-    * @param f
-    *   the function to apply
-    * @return
-    *   [[Json]] with all values of a key mapped
-    */
-  def mapAllKeys(key: String, f: Json => Json): Json = JsonUtils.mapAllKeys(json, key, f)
+    /**
+      * Adds to the current json the passed ''key'' and ''values'' when the values are not empty
+      */
+    def addIfNonEmpty[A: Encoder](key: String, values: Iterable[A]): Json =
+      values.take(2).toList match {
+        case Nil         => json
+        case head :: Nil => json.deepMerge(Json.obj(key -> head.asJson))
+        case _           => json.deepMerge(Json.obj(key -> values.asJson))
+      }
+  }
 
-  /**
-    * @return
-    *   the value of the top @context key when found, an empty Json otherwise
-    */
-  def topContextValueOrEmpty: ContextValue = JsonLdContext.topContextValueOrEmpty(json)
+  extension (obj: JsonObject) {
 
-  /**
-    * @return
-    *   the all the values with key @context
-    */
-  def contextValues: Set[ContextValue] = JsonLdContext.contextValues(json)
+    /**
+      * Map value of all instances of a key.
+      *
+      * @param key
+      *   the key
+      * @param f
+      *   the function to apply
+      * @return
+      *   [[JsonObject]] with all values of a key mapped
+      */
+    def mapAllKeys(key: String, f: Json => Json): JsonObject = JsonUtils.mapAllKeys(obj.asJson, key, f).asObject.get
 
-  /**
-    * Replaces the current context of the ''json'' with the passed ''ctx''
-    */
-  def replaceContext(ctx: Json) = removeKeys(keywords.context).addContext(ctx)
+    /**
+      * @return
+      *   the value of the top @context key when found, an empty Json otherwise
+      */
+    def topContextValueOrEmpty: ContextValue = JsonLdContext.topContextValueOrEmpty(obj.asJson)
 
-  /**
-    * Merges the values of the key @context in both existing ''json'' and ''that'' Json documents.
-    *
-    * @param that
-    *   the context to append to this json. E.g.: {"@context": {...}}
-    * @return
-    *   a new Json with the original json and the merged context of both passed jsons. If a key inside the @context is
-    *   repeated in both jsons, the one in ''that'' will override the one in ''json''
-    */
-  def addContext(that: Json): Json = JsonLdContext.addContext(json, that)
+    /**
+      * @return
+      *   the all the values with key @context
+      */
+    def contextValues: Set[ContextValue] = JsonLdContext.contextValues(obj.asJson)
 
-  /**
-    * Replaces the current context of the ''json'' with the passed ''ctx''
-    */
-  def replaceContext(ctx: JsonObject) = removeKeys(keywords.context).addContext(ctx)
+    /**
+      * Removes the provided keys from the top object on the current json object.
+      */
+    def removeKeys(keys: String*): JsonObject = JsonUtils.removeKeys(obj.asJson, keys*).asObject.get
 
-  /**
-    * Merges the values of the key @context in both existing ''json'' and ''that'' Json object documents.
-    *
-    * @see
-    *   [[addContext(json)]]
-    */
-  def addContext(that: JsonObject): Json = addContext(that.asJson)
+    /**
+      * Removes the provided keys from everywhere on the current json object.
+      */
+    def removeAllKeys(keys: String*): JsonObject = JsonUtils.removeAllKeys(obj.asJson, keys*).asObject.get
 
-  /**
-    * Adds a context Iri to an existing @context, or creates an @context with the Iri as a value.
-    */
-  def addContext(iri: Iri*): Json = iri.foldLeft(json)((json, iri) => JsonLdContext.addContext(json, iri))
+    /**
+      * Removes the metadata keys from the current json.
+      */
+    def removeMetadataKeys(): JsonObject = JsonUtils.removeMetadataKeys(obj.asJson).asObject.get
 
-  /**
-    * Removes the provided keys from the top object on the current json.
-    */
-  def removeKeys(keys: String*): Json = JsonUtils.removeKeys(json, keys*)
+    /**
+      * Removes the provided values from everywhere on the current json object.
+      */
+    def removeAllValues[A: Encoder](values: A*): JsonObject =
+      JsonUtils.removeAllValues(obj.asJson, values*).asObject.get
 
-  /**
-    * Removes the provided keys from everywhere on the current json.
-    */
-  def removeAllKeys(keys: String*): Json = JsonUtils.removeAllKeys(json, keys*)
+    /**
+      * Replace in the current json object with the found key value pairs in ''from'' with the value in ''toValue''
+      */
+    def replace[A: Encoder, B: Encoder](from: (String, A), toValue: B): JsonObject =
+      JsonUtils.replace(obj.asJson, from._1, from._2, toValue).asObject.get
 
-  /**
-    * Removes the metadata keys from the current json.
-    */
-  def removeMetadataKeys(): Json = JsonUtils.removeMetadataKeys(json)
+    /**
+      * Replace in the current json object with the found value in ''from'' with the value in ''toValue''
+      */
+    def replace[A: Encoder, B: Encoder](from: A, toValue: B): JsonObject =
+      JsonUtils.replace(obj.asJson, from, toValue).asObject.get
 
-  /**
-    * Removes the provided values from everywhere on the current json.
-    */
-  def removeAllValues[A: Encoder](values: A*): Json = JsonUtils.removeAllValues(json, values*)
+    /**
+      * Replace in the current json object the found ''key'' with the value in ''value''
+      */
+    def replaceKeyWithValue[A: Encoder](key: String, value: A): JsonObject =
+      JsonUtils.replace(obj.asJson, key, value).asObject.get
 
-  /**
-    * Replace in the current json the found key value pairs in ''from'' with the value in ''toValue''
-    */
-  /**
-    * Replace in the current json with the found key value pairs in ''from'' with the value in ''toValue''
-    */
-  def replace[A: Encoder, B: Encoder](from: (String, A), toValue: B): Json =
-    JsonUtils.replace(json, from._1, from._2, toValue)
+    /**
+      * Replace in the current json object the found ''key'' with the value in ''value'' when the value exists
+      */
+    def replaceKeyWithValue[A: Encoder](key: String, value: Option[A]): JsonObject =
+      value.fold(obj)(JsonUtils.replace(obj.asJson, key, _).asObject.get)
 
-  /**
-    * Replace in the current json with the found value in ''from'' with the value in ''toValue''
-    */
-  def replace[A: Encoder, B: Encoder](from: A, toValue: B): Json =
-    JsonUtils.replace(json, from, toValue)
+    /**
+      * Extract all the values found from the passed ''keys'' in the current json object.
+      *
+      * @param keys
+      *   the keys from where to extract the Json values
+      */
+    def extractValuesFrom(keys: String*): Set[Json] = JsonUtils.extractValuesFrom(obj.asJson, keys*)
 
-  /**
-    * Replace in the current json the found ''key'' with the value in ''toValue''
-    */
-  def replaceKeyWithValue[A: Encoder](key: String, value: A): Json =
-    JsonUtils.replace(json, key, value)
+    /**
+      * Sort all the keys in the current json object.
+      *
+      * @param ordering
+      *   the sorting strategy
+      */
+    def sort(using ordering: JsonKeyOrdering): JsonObject = JsonUtils.sort(obj.asJson).asObject.get
 
-  /**
-    * Replace in the current json the found ''key'' with the value in ''value'' when the value exists
-    */
-  def replaceKeyWithValue[A: Encoder](key: String, value: Option[A]): Json =
-    value.fold(json)(replaceKeyWithValue(key, _))
+    /**
+      * Merges the values of the key @context in both existing ''obj'' and ''that'' Json object documents.
+      *
+      * @param that
+      *   the context to append to this json. E.g.: {"@context": {...}}
+      * @return
+      *   a new Json object with the original json and the merged context of both passed jsons. If a key inside the
+      *   "@context" is repeated in both json objects, the one in ''that'' will override the one in ''obj''
+      */
+    def addContext(that: Json): JsonObject = JsonLdContext.addContext(obj.asJson, that).asObject.get
 
-  /**
-    * Extract all the values found from the passed ''keys'' in the current json.
-    *
-    * @param keys
-    *   the keys from where to extract the Json values
-    */
-  def extractValuesFrom(keys: String*): Set[Json] = JsonUtils.extractValuesFrom(json, keys*)
+    /**
+      * Merges the values of the key @context in both existing ''obj'' and ''that'' Json object documents.
+      *
+      * @see
+      *   [[addContext(json)]]
+      */
+    def addContext(that: JsonObject): JsonObject = addContext(that.asJson)
 
-  /**
-    * Sort all the keys in the current json.
-    *
-    * @param ordering
-    *   the sorting strategy
-    */
-  def sort(implicit ordering: JsonKeyOrdering): Json = JsonUtils.sort(json)
+    /**
+      * Adds a context Iri to an existing @context, or creates an @context with the Iri as a value.
+      */
+    def addContext(iri: Iri): JsonObject = JsonLdContext.addContext(obj.asJson, iri).asObject.get
 
-  /**
-    * Adds to the current json the passed ''key'' and ''valueOpt'' when the value is a Some
-    */
-  def addIfExists[A: Encoder](key: String, valueOpt: Option[A]): Json =
-    valueOpt.fold(json)(value => json.deepMerge(Json.obj(key -> value.asJson)))
+    /**
+      * Adds to the current json object the passed ''key'' and ''valueOpt'' when the value is a Some
+      */
+    def addIfExists[A: Encoder](key: String, valueOpt: Option[A]): JsonObject =
+      valueOpt.fold(obj)(value => obj.add(key, value.asJson))
 
-  /**
-    * Adds to the current json the passed ''key'' and ''values'' when the values are not empty
-    */
-  def addIfNonEmpty[A: Encoder](key: String, values: Iterable[A]): Json =
-    values.take(2).toList match {
-      case Nil         => json
-      case head :: Nil => json.deepMerge(Json.obj(key -> head.asJson))
-      case _           => json.deepMerge(Json.obj(key -> values.asJson))
-    }
+    /**
+      * Adds to the current json object the passed ''key'' and ''values'' when the values are not empty
+      */
+    def addIfNonEmpty[A: Encoder](key: String, values: Iterable[A]): JsonObject =
+      values.take(2).toList match {
+        case Nil         => obj
+        case head :: Nil => obj.add(key, head.asJson)
+        case _           => obj.add(key, values.asJson)
+      }
+  }
 }

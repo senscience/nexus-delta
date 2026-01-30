@@ -9,7 +9,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class ServiceErrorSuite extends NexusSuite with CirceLiteral with Fixtures {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   test("Serialize properly the `AuthorizationFailed`") {
     val error: ServiceError = AuthorizationFailed("Some details")

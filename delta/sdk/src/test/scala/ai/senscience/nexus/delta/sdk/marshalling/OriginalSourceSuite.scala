@@ -18,7 +18,7 @@ import java.time.Instant
 
 class OriginalSourceSuite extends NexusSuite with CirceLiteral {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private val id       = nxv + "id"
   private val project  = ProjectRef.unsafe("org", "proj")
@@ -55,7 +55,7 @@ class OriginalSourceSuite extends NexusSuite with CirceLiteral {
       expectedType: String,
       expectedContext: ContextValue,
       payloadFields: (String, Json)*
-  )(implicit l: Location): Unit = {
+  )(using Location): Unit = {
     def onObject(obj: JsonObject): Unit = {
       assertEquals(obj("@id"), Some(expectedId.asJson))
       assertEquals(obj("@type"), Some(expectedType.asJson))

@@ -48,7 +48,7 @@ class OwnerPermissionsScopeInitializationSpec extends CatsEffectSpec with Doobie
     "not set owner permissions if acls are already defined for an org" in {
       val organization = OrganizationGen.organization(genString())
       acls
-        .append(Acl(organization.label, bob.subject -> Set(Permissions.resources.read)), 0)(
+        .append(Acl(organization.label, bob.subject -> Set(Permissions.resources.read)), 0)(using
           sa.caller.subject
         )
         .accepted
@@ -71,7 +71,7 @@ class OwnerPermissionsScopeInitializationSpec extends CatsEffectSpec with Doobie
     "not set owner permissions if acls are already defined for a project" in {
       val project  = ProjectGen.project(genString(), genString())
       acls
-        .append(Acl(AclAddress.Project(project.ref), bob.subject -> Set(Permissions.resources.read)), 0)(
+        .append(Acl(AclAddress.Project(project.ref), bob.subject -> Set(Permissions.resources.read)), 0)(using
           sa.caller.subject
         )
         .accepted

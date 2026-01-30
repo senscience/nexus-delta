@@ -44,7 +44,7 @@ object ProjectDeletionCoordinator {
       clock: Clock[IO]
   ) extends ProjectDeletionCoordinator {
 
-    implicit private val serviceAccountSubject: Subject = serviceAccount.subject
+    given Subject = serviceAccount.subject
 
     def run(offset: Offset): ElemStream[Unit] =
       fetchProjects(offset).evalMap {

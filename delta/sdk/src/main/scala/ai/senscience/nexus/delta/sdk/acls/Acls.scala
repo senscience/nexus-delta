@@ -75,7 +75,7 @@ trait Acls {
     * @param address
     *   the ACL address
     */
-  final def fetchSelf(address: AclAddress)(implicit caller: Caller): IO[AclResource] =
+  final def fetchSelf(address: AclAddress)(using Caller): IO[AclResource] =
     fetch(address).map(filterSelf)
 
   /**
@@ -85,7 +85,7 @@ trait Acls {
     * @param address
     *   the ACL address
     */
-  def fetchSelfWithAncestors(address: AclAddress)(implicit caller: Caller): IO[AclCollection] =
+  def fetchSelfWithAncestors(address: AclAddress)(using caller: Caller): IO[AclCollection] =
     fetchWithAncestors(address).map(_.filter(caller.identities))
 
   /**
@@ -97,9 +97,7 @@ trait Acls {
     * @param rev
     *   the revision to fetch
     */
-  final def fetchSelfAt(address: AclAddress, rev: Int)(implicit
-      caller: Caller
-  ): IO[AclResource] =
+  final def fetchSelfAt(address: AclAddress, rev: Int)(using Caller): IO[AclResource] =
     fetchAt(address, rev).map(filterSelf)
 
   /**
@@ -122,7 +120,7 @@ trait Acls {
     * @param address
     *   the ACL address
     */
-  final def fetchSelfAcl(address: AclAddress)(implicit caller: Caller): IO[Acl] =
+  final def fetchSelfAcl(address: AclAddress)(using Caller): IO[Acl] =
     fetchSelf(address).attemptNarrow[AclNotFound].map {
       case Left(AclNotFound(_)) => Acl(address)
       case Right(resource)      => resource.value
@@ -141,10 +139,8 @@ trait Acls {
     *
     * @param filter
     *   the ACL filter address. All [[AclAddress]] matching the provided filter will be returned
-    * @param caller
-    *   the caller that contains the provided identities
     */
-  def listSelf(filter: AclAddressFilter)(implicit caller: Caller): IO[AclCollection]
+  def listSelf(filter: AclAddressFilter)(using Caller): IO[AclCollection]
 
   /**
     * Stream project states in a non-finite stream
@@ -159,7 +155,7 @@ trait Acls {
     * @param rev
     *   the last known revision of the resource
     */
-  def replace(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource]
+  def replace(acl: Acl, rev: Int)(using Subject): IO[AclResource]
 
   /**
     * Appends ''acl''.
@@ -169,7 +165,7 @@ trait Acls {
     * @param rev
     *   the last known revision of the resource
     */
-  def append(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource]
+  def append(acl: Acl, rev: Int)(using Subject): IO[AclResource]
 
   /**
     * Subtracts ''acl''.
@@ -179,7 +175,7 @@ trait Acls {
     * @param rev
     *   the last known revision of the resource
     */
-  def subtract(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource]
+  def subtract(acl: Acl, rev: Int)(using Subject): IO[AclResource]
 
   /**
     * Delete all ''acl'' on the passed ''address''.
@@ -189,7 +185,7 @@ trait Acls {
     * @param rev
     *   the last known revision of the resource
     */
-  def delete(address: AclAddress, rev: Int)(implicit caller: Subject): IO[AclResource]
+  def delete(address: AclAddress, rev: Int)(using Subject): IO[AclResource]
 
   /**
     * Hard deletes events and states for the given acl address. This is meant to be used internally for project and
@@ -197,7 +193,7 @@ trait Acls {
     */
   def purge(acl: AclAddress): IO[Unit]
 
-  private def filterSelf(resource: AclResource)(implicit caller: Caller): AclResource =
+  private def filterSelf(resource: AclResource)(using caller: Caller): AclResource =
     resource.map(_.filter(caller.identities))
 
 }
@@ -355,7 +351,7 @@ object Acls {
     * acls
     */
   def projectDeletionTask(acls: Acls): ProjectDeletionTask = new ProjectDeletionTask {
-    override def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage] = {
+    override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] = {
       val report = ProjectDeletionReport.Stage("acls", "The acl has been deleted.")
       acls.purge(project).as(report)
     }

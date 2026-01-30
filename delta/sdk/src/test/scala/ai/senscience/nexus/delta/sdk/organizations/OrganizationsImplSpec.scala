@@ -26,11 +26,11 @@ class OrganizationsImplSpec
     with CancelAfterFailure
     with ConfigFixtures {
 
-  val uuid                  = UUID.randomUUID()
-  implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+  val uuid                   = UUID.randomUUID()
+  private given uuidF: UUIDF = UUIDF.fixed(uuid)
 
-  val epoch: Instant            = Instant.EPOCH
-  implicit val subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  val epoch: Instant             = Instant.EPOCH
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
 
   val description  = Some("my description")
   val description2 = Some("my other description")
@@ -38,11 +38,10 @@ class OrganizationsImplSpec
   val label2       = Label.unsafe("myorg2")
 
   private def orgInitializer(wasExecuted: Ref[IO, Boolean]) = new ScopeInitializer {
-    override def initializeOrganization(organizationResource: OrganizationResource)(implicit
-        caller: Subject
-    ): IO[Unit] = wasExecuted.set(true)
+    override def initializeOrganization(organizationResource: OrganizationResource)(using Subject): IO[Unit] =
+      wasExecuted.set(true)
 
-    override def initializeProject(project: ProjectRef)(implicit caller: Subject): IO[Unit] =
+    override def initializeProject(project: ProjectRef)(using Subject): IO[Unit] =
       IO.unit
   }
 

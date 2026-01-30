@@ -43,7 +43,7 @@ final class MultiResolution(
   def apply(
       resourceSegment: IdSegmentRef,
       projectRef: ProjectRef
-  )(implicit caller: Caller): IO[MultiResolutionResult[ResourceResolutionReport]] =
+  )(using Caller): IO[MultiResolutionResult[ResourceResolutionReport]] =
     for {
       project     <- fetchProject(projectRef)
       resourceRef <- expandResourceIri(resourceSegment, project)
@@ -68,7 +68,7 @@ final class MultiResolution(
       resourceSegment: IdSegmentRef,
       projectRef: ProjectRef,
       resolverSegment: IdSegment
-  )(implicit caller: Caller): IO[MultiResolutionResult[ResolverReport]] = {
+  )(using Caller): IO[MultiResolutionResult[ResolverReport]] = {
 
     for {
       project     <- fetchProject(projectRef)

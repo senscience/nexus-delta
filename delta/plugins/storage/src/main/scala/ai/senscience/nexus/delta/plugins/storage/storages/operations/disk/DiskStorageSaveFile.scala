@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
 import java.nio.file.FileAlreadyExistsException
 import java.util.UUID
 
-final class DiskStorageSaveFile(implicit uuidf: UUIDF) {
+final class DiskStorageSaveFile(using uuidf: UUIDF) {
 
   private val flags: Flags = Flags(List(Flag.CreateNew, Flag.Write))
 

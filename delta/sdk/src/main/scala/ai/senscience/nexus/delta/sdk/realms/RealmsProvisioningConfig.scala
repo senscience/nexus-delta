@@ -16,9 +16,8 @@ final case class RealmsProvisioningConfig(enabled: Boolean, realms: Map[Label, R
 
 object RealmsProvisioningConfig {
 
-  implicit private val mapReader: ConfigReader[Map[Label, RealmFields]] = Label.labelMapReader[RealmFields]
+  private given ConfigReader[Map[Label, RealmFields]] = Label.labelMapReader[RealmFields]
 
-  implicit final val realmsProvisioningConfigReader: ConfigReader[RealmsProvisioningConfig] =
-    deriveReader[RealmsProvisioningConfig]
+  given ConfigReader[RealmsProvisioningConfig] = deriveReader[RealmsProvisioningConfig]
 
 }

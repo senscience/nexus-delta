@@ -20,10 +20,10 @@ object IriFilter {
   def fromSet(iris: Set[Iri]): IriFilter = if iris.nonEmpty then new Include(iris) {} else None
   def restrictedTo(iri: Iri): IriFilter  = fromSet(Set(iri))
 
-  implicit val enc: Encoder[IriFilter]             = {
+  given Encoder[IriFilter]       = {
     case None          => Json.arr()
     case Include(iris) => iris.asJson
   }
-  implicit val dec: Decoder[IriFilter]             = Decoder[Set[Iri]].map(fromSet)
-  implicit val jsonLdDec: JsonLdDecoder[IriFilter] = JsonLdDecoder[Set[Iri]].map(fromSet)
+  given Decoder[IriFilter]       = Decoder[Set[Iri]].map(fromSet)
+  given JsonLdDecoder[IriFilter] = JsonLdDecoder[Set[Iri]].map(fromSet)
 }

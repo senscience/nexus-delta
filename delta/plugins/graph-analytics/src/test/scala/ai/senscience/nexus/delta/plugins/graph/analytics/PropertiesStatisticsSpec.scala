@@ -10,15 +10,13 @@ import io.circe.Decoder
 class PropertiesStatisticsSpec extends CatsEffectSpec with ContextFixtures {
 
   "PropertiesStatistics" should {
-
-    implicit val jsonLdApi: JsonLdApi = TitaniumJsonLdApi.lenient
+    given JsonLdApi = TitaniumJsonLdApi.lenient
 
     val responseJson = jsonContentOf("paths-properties-aggregations-response.json")
     val expected     = jsonContentOf("properties-tree.json")
 
     "be converted from Elasticsearch response to client response" in {
-      implicit val d: Decoder[PropertiesStatistics] =
-        propertiesDecoderFromEsAggregations(iri"https://neuroshapes.org/Trace")
+      given Decoder[PropertiesStatistics] = propertiesDecoderFromEsAggregations(iri"https://neuroshapes.org/Trace")
       responseJson.as[PropertiesStatistics].rightValue.toCompactedJsonLd.accepted.json shouldEqual expected
     }
   }

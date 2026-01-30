@@ -39,14 +39,14 @@ trait CirceUnmarshalling {
   /**
     * HTTP entity => `Json` => `A`
     */
-  implicit final def decoderUnmarshaller[A: Decoder]: FromEntityUnmarshaller[A] =
+  given decoderUnmarshaller: [A: Decoder] => FromEntityUnmarshaller[A] =
     jsonUnmarshaller.map(Decoder[A].decodeJson).map(_.fold(throw _, identity))
 
   /**
     * ByteString => `Json`
     */
-  implicit final def fromByteStringUnmarshaller[A: Decoder]: Unmarshaller[ByteString, A] =
-    Unmarshaller[ByteString, Json](ec => bs => Future(readFromByteBuffer(bs.asByteBuffer))(ec))
+  given fromByteStringUnmarshaller: [A: Decoder] => Unmarshaller[ByteString, A] =
+    Unmarshaller[ByteString, Json](ec => bs => Future(readFromByteBuffer(bs.asByteBuffer))(using ec))
       .map(Decoder[A].decodeJson)
       .map(_.fold(throw _, identity))
 }

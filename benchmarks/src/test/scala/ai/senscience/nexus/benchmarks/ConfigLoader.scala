@@ -8,7 +8,7 @@ import scala.reflect.ClassTag
 
 object ConfigLoader {
 
-  def load[C: ClassTag: ConfigReader](namespace: String): C =
+  def load[C: {ClassTag, ConfigReader}](namespace: String): C =
     Configs
       .parseResource("default.conf")
       .map { config =>

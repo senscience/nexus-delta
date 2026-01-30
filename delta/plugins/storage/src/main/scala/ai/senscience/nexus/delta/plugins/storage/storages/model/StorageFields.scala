@@ -152,14 +152,13 @@ object StorageFields {
       }
   }
 
-  implicit private[model] val storageFieldsEncoder: Encoder.AsObject[StorageFields] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  private[model] given Encoder.AsObject[StorageFields] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
     Encoder.encodeJsonObject.contramapObject { storage =>
       deriveConfiguredEncoder[StorageFields].encodeObject(storage).add(keywords.tpe, storage.tpe.iri.asJson)
     }
   }
 
-  implicit def storageFieldsJsonLdDecoder(implicit cfg: JsonLdConfiguration): JsonLdDecoder[StorageFields] =
-    deriveConfigJsonLdDecoder[StorageFields]
+  given JsonLdConfiguration => JsonLdDecoder[StorageFields] = deriveConfigJsonLdDecoder[StorageFields]
 }

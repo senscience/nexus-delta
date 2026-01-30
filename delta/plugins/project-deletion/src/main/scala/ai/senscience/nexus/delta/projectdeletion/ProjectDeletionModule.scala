@@ -15,7 +15,7 @@ import org.typelevel.otel4s.trace.Tracer
 
 class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
 
-  implicit private val loader: ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
+  private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
 
   makeConfig[ProjectDeletionConfig]("plugins.project-deletion")
 

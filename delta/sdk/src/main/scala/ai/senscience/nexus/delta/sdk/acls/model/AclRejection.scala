@@ -105,7 +105,7 @@ object AclRejection {
         s"Some of the realms specified are not known: '${realms.mkString("\"", ", ", "\"")}'"
       )
 
-  implicit val aclRejectionEncoder: Encoder.AsObject[AclRejection] =
+  given Encoder.AsObject[AclRejection] =
     Encoder.AsObject.instance { r =>
       val tpe     = ClassUtils.simpleName(r)
       val default = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -116,10 +116,10 @@ object AclRejection {
       }
     }
 
-  implicit final val aclRejectionJsonLdEncoder: JsonLdEncoder[AclRejection] =
+  given JsonLdEncoder[AclRejection] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.error))
 
-  implicit val responseFieldsAcls: HttpResponseFields[AclRejection] =
+  given HttpResponseFields[AclRejection] =
     HttpResponseFields {
       case AclNotFound(_)         => StatusCodes.NotFound
       case IncorrectRev(_, _, _)  => StatusCodes.Conflict

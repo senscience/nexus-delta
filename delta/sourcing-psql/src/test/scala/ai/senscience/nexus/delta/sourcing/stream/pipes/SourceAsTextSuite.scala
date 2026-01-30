@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream.pipes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.given
 import ai.senscience.nexus.delta.sourcing.PullRequest
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem

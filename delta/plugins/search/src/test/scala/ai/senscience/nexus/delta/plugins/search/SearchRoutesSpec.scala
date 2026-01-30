@@ -19,7 +19,7 @@ import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 
 class SearchRoutesSpec extends BaseRouteSpec {
 
-  implicit override def rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(contexts.definition)
 
   private val unknownSuite = UnknownSuite(Label.unsafe("xxx"))
 

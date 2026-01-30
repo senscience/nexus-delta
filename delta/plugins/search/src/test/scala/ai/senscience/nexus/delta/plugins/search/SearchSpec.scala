@@ -33,9 +33,9 @@ import java.util.UUID
 
 class SearchSpec extends CatsEffectSpec with CirceLiteral with ConfigFixtures with Fixtures {
 
-  private val realm                  = Label.unsafe("myrealm")
-  implicit private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
-  private val bob: Caller            = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
+  private val realm           = Label.unsafe("myrealm")
+  private given alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val bob: Caller     = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
 
   private val project1        = ProjectRef.unsafe("org", "proj")
   private val project2        = ProjectRef.unsafe("org2", "proj2")

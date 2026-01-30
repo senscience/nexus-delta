@@ -8,23 +8,22 @@ import io.circe.{Decoder, Encoder, JsonObject}
 package object circe {
 
   object nonEmptyMap {
-    implicit def dropKeyEncoder[K, V](implicit encodeV: Encoder[V]): Encoder[NonEmptyMap[K, V]] =
+
+    given dropKeyEncoder: [K, V] => (encodeV: Encoder[V]) => Encoder[NonEmptyMap[K, V]] =
       Encoder.instance { map =>
         map.toNel.map(_._2).asJson
       }
 
-    def dropKeyDecoder[K, V](
-        extract: V => K
-    )(implicit orderK: Order[K], decodeV: Decoder[V]): Decoder[NonEmptyMap[K, V]] =
+    def dropKeyDecoder[K, V](extract: V => K)(using orderK: Order[K], decodeV: Decoder[V]): Decoder[NonEmptyMap[K, V]] =
       Decoder.decodeNonEmptyList[V].map {
         _.map { v => extract(v) -> v }.toNem
       }
 
   }
 
-  implicit class JsonObjOps(j: JsonObject) {
-    def dropNulls: JsonObject = dropNullValues(j)
+  extension (obj: JsonObject) {
+    def dropNulls: JsonObject = dropNullValues(obj)
   }
 
-  def dropNullValues(j: JsonObject): JsonObject = j.filter { case (_, v) => !v.isNull }
+  def dropNullValues(obj: JsonObject): JsonObject = obj.filter { case (_, v) => !v.isNull }
 }

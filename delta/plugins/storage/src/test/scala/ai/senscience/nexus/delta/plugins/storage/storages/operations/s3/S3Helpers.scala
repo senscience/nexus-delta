@@ -15,7 +15,7 @@ trait S3Helpers extends FileDataHelpers { self: Generators =>
 
   def givenAnS3Bucket[A](
       test: String => IO[A]
-  )(implicit client: S3StorageClient, fs2Client: S3AsyncClientOp[IO]): IO[Unit] = {
+  )(using client: S3StorageClient, fs2Client: S3AsyncClientOp[IO]): IO[Unit] = {
     val bucket = genString()
     fs2Client.createBucket(CreateBucketRequest.builder().bucket(bucket).build) >>
       test(bucket) >>
@@ -23,7 +23,7 @@ trait S3Helpers extends FileDataHelpers { self: Generators =>
       fs2Client.deleteBucket(DeleteBucketRequest.builder().bucket(bucket).build).void
   }
 
-  def emptyBucket(bucket: String)(implicit client: S3StorageClient, fs2Client: S3AsyncClientOp[IO]): IO[Unit] =
+  def emptyBucket(bucket: String)(using client: S3StorageClient, fs2Client: S3AsyncClientOp[IO]): IO[Unit] =
     client
       .listObjectsV2(bucket)
       .flatMap { resp =>
@@ -32,24 +32,24 @@ trait S3Helpers extends FileDataHelpers { self: Generators =>
       }
       .void
 
-  def deleteObject(bucket: String, key: String)(implicit client: S3AsyncClientOp[IO]): IO[Unit] =
+  def deleteObject(bucket: String, key: String)(using client: S3AsyncClientOp[IO]): IO[Unit] =
     client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build()).void
 
   def givenAFileInABucket(bucket: String, contents: String)(
       test: String => IO[Unit]
-  )(implicit client: S3StorageClient): IO[Unit] =
+  )(using client: S3StorageClient): IO[Unit] =
     givenAFileInABucket(bucket, genString(), contents)(test)
 
   def givenAFileInABucket(bucket: String, key: String, contents: String)(
       test: String => IO[Unit]
-  )(implicit client: S3StorageClient): IO[Unit] = {
+  )(using client: S3StorageClient): IO[Unit] = {
     val put = PutObjectRequest(bucket, key, Some(MediaType.`text/plain`), contents.length.toLong)
     client.uploadFile(put, streamData(contents)) >> test(key)
   }
 
   def givenFilesInABucket(bucket: String, contents1: String, contents2: String)(
       test: (String, String) => IO[Unit]
-  )(implicit client: S3StorageClient): IO[Unit] = {
+  )(using client: S3StorageClient): IO[Unit] = {
     val key1 = genString()
     val put1 = PutObjectRequest(bucket, key1, Some(MediaType.`text/plain`), contents1.length.toLong)
     val key2 = genString()

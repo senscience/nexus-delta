@@ -15,6 +15,5 @@ final case class StoragePluginConfig(
 
 object StoragePluginConfig {
 
-  implicit final val storagePluginConfig: ConfigReader[StoragePluginConfig] =
-    deriveReader[StoragePluginConfig]
+  given ConfigReader[StoragePluginConfig] = deriveReader[StoragePluginConfig]
 }

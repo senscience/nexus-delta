@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route

@@ -40,12 +40,12 @@ object ElasticSearchViewType {
     override val tpe: Iri         = nxv + toString
   }
 
-  implicit final val esViewTypeEncoder: Encoder[ElasticSearchViewType] = Encoder.instance {
+  given Encoder[ElasticSearchViewType] = Encoder.instance {
     case ElasticSearch          => Json.fromString("ElasticSearchView")
     case AggregateElasticSearch => Json.fromString("AggregateElasticSearchView")
   }
 
-  implicit final val esViewTypeDecoder: Decoder[ElasticSearchViewType] = Decoder.decodeString.emap {
+  given Decoder[ElasticSearchViewType] = Decoder.decodeString.emap {
     case "ElasticSearchView"          => Right(ElasticSearch)
     case "AggregateElasticSearchView" => Right(AggregateElasticSearch)
   }

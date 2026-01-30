@@ -149,24 +149,24 @@ class SparqlCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture {
   private def assertViewNoProgress(view: ActiveViewDef) =
     projections.progress(view.projection).assertEquals(None)
 
-  private def assertViewCompleted(view: ActiveViewDef)(implicit location: Location) =
+  private def assertViewCompleted(view: ActiveViewDef)(using Location) =
     sv.describe(view.projection)
       .map(_.map(_.status))
       .assertEquals(Some(ExecutionStatus.Completed))
       .eventually
 
-  private def assertNoRunningView(view: ActiveViewDef)(implicit location: Location) =
+  private def assertNoRunningView(view: ActiveViewDef)(using Location) =
     sv.describe(view.projection)
       .assertEquals(None)
       .eventually
 
-  private def assertNamespaceCreated(view: ActiveViewDef)(implicit location: Location): Unit =
+  private def assertNamespaceCreated(view: ActiveViewDef)(using Location): Unit =
     assert(
       createdIndices.contains(view.namespace),
       s"The index for '${view.ref.viewId}' should have been created."
     )
 
-  private def assertNamespaceDeleted(view: ActiveViewDef)(implicit location: Location): Unit =
+  private def assertNamespaceDeleted(view: ActiveViewDef)(using Location): Unit =
     assert(
       deletedIndices.contains(view.namespace),
       s"The index for '${view.ref.viewId}' should have been deleted."

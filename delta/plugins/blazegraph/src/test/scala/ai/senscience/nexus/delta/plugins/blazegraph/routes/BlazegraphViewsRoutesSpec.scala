@@ -37,7 +37,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
 
   private val prefix = "prefix"
 
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val indexingSource  = jsonContentOf("indexing-view-source.json")
   private val aggregateSource = jsonContentOf("aggregate-view-source.json")
@@ -49,7 +49,7 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
 
   private val fetchContext = FetchContextDummy(Map(project.ref -> project.context), Set(deprecatedProject.ref))
 
-  implicit private val f: FusionConfig = fusionConfig
+  private given FusionConfig = fusionConfig
 
   private val selectQuery    = SparqlQuery("SELECT * {?s ?p ?o}")
   private val constructQuery = SparqlConstructQuery("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}").rightValue

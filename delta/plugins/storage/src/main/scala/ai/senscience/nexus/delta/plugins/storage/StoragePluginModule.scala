@@ -142,10 +142,10 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
       }
   }
 
-  make[DiskFileOperations].from { (uuidF: UUIDF) => DiskFileOperations.mk(uuidF) }
+  make[DiskFileOperations].from { (uuidF: UUIDF) => DiskFileOperations.mk(using uuidF) }
 
   make[S3FileOperations].from { (client: S3StorageClient, locationGenerator: S3LocationGenerator, uuidF: UUIDF) =>
-    S3FileOperations.mk(client, locationGenerator)(uuidF)
+    S3FileOperations.mk(client, locationGenerator)(using uuidF)
   }
 
   make[FileOperations].from { (disk: DiskFileOperations, s3: S3FileOperations) =>
@@ -178,7 +178,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
       Files(
         fetchContext,
         fetchStorage,
-        FormDataExtractor(mediaTypeDetector)(as),
+        FormDataExtractor(mediaTypeDetector)(using as),
         xas,
         cfg.files.eventLog,
         fileOps,
@@ -262,7 +262,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
   addIndexingType(Files.entityType)
 
   many[ResourceShift[?, ?]].add { (files: Files, base: BaseUri, showLocation: ShowFileLocation) =>
-    File.shift(files)(base, showLocation)
+    File.shift(files)(using base, showLocation)
   }
 
   many[MainDocumentEncoder[?, ?]].add { (base: BaseUri, showLocation: ShowFileLocation) =>
@@ -293,9 +293,9 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   many[ApiMappings].add(Storages.mappings + Files.mappings)
 
-  many[SseEncoder[?]].add { (base: BaseUri) => StorageEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => StorageEvent.sseEncoder(using base) }
   many[SseEncoder[?]].add { (base: BaseUri, showLocation: ShowFileLocation) =>
-    FileEvent.sseEncoder(base, showLocation)
+    FileEvent.sseEncoder(using base, showLocation)
   }
 
   many[ScopedEventMetricEncoder[?]].add { FileEvent.fileEventMetricEncoder }

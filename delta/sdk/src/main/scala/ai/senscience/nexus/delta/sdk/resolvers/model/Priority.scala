@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.ResolverPriorityIntervalError
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.{Decoder, Encoder}
 
 /**
@@ -34,10 +34,10 @@ object Priority {
     */
   def unsafe(value: Int) = new Priority(value)
 
-  implicit val priorityEncoder: Encoder[Priority] = Encoder.encodeInt.contramap(_.value)
-  implicit val priorityDecoder: Decoder[Priority] = Decoder.decodeInt.emap(Priority(_).leftMap(_.getMessage))
+  given Encoder[Priority] = Encoder.encodeInt.contramap(_.value)
+  given Decoder[Priority] = Decoder.decodeInt.emap(Priority(_).leftMap(_.getMessage))
 
-  implicit val priorityJsonLdDecoder: JsonLdDecoder[Priority] =
+  given JsonLdDecoder[Priority] =
     (cursor: ExpandedJsonLdCursor) =>
       cursor.get[Int].flatMap { Priority(_).leftMap { e => ParsingFailure(e.getMessage) } }
 }

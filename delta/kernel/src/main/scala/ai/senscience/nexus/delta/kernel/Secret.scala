@@ -21,11 +21,10 @@ final case class Secret[A](value: A) {
 
 object Secret {
 
-  implicit val secretFunctor: Functor[Secret] =
+  given Functor[Secret] =
     new Functor[Secret] {
       override def map[A, B](fa: Secret[A])(f: A => B): Secret[B] = fa.map(f)
     }
 
-  implicit val secretConfigReaderString: ConfigReader[Secret[String]] =
-    ConfigReader.fromString(str => Right(Secret(str)))
+  given ConfigReader[Secret[String]] = ConfigReader.fromString(str => Right(Secret(str)))
 }

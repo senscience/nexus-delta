@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.archive.model
 
 import ai.senscience.nexus.delta.plugins.archive.{model, schema as archiveSchema, tpe, ArchiveResource}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.instances.*
+import ai.senscience.nexus.delta.rdf.instances.given
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF, ResourceRepresentation}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -60,7 +60,7 @@ final case class ArchiveState(
 
 object ArchiveState {
 
-  implicit val serializer: Serializer[Iri, ArchiveState] = {
+  given serializer: Serializer[Iri, ArchiveState] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration                          = Serializer.circeConfiguration
     given Codec.AsObject[ResourceRepresentation] = deriveConfiguredCodec[ResourceRepresentation]

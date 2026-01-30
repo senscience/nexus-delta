@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.{Acl, AclAddress, FlattenedAclSt
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls, AclsImpl}
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{acls as aclsPermissions, *}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
@@ -28,11 +28,11 @@ class AclsRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
   private val realm1 = Label.unsafe("realm")
   private val realm2 = Label.unsafe("myrealm")
 
-  private val user      = User("uuid", realm1)
-  private val role      = Role("myrole", realm2)
-  private val group     = Group("mygroup", realm2)
-  private val group2    = Group("mygroup2", realm2)
-  private val readWrite = Set(aclsPermissions.read, aclsPermissions.write, events.read)
+  private given user: User = User("uuid", realm1)
+  private val role         = Role("myrole", realm2)
+  private val group        = Group("mygroup", realm2)
+  private val group2       = Group("mygroup2", realm2)
+  private val readWrite    = Set(aclsPermissions.read, aclsPermissions.write, events.read)
 
   private val managePermission = Permission.unsafe("acls/manage")
   private val manage           = Set(managePermission)

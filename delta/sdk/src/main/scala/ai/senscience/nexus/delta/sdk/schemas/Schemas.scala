@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
@@ -37,7 +36,7 @@ trait Schemas {
     * @param source
     *   the schema payload
     */
-  def create(projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[SchemaResource]
+  def create(projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource]
 
   /**
     * Creates a new schema with the expanded form of the passed id.
@@ -49,11 +48,7 @@ trait Schemas {
     * @param source
     *   the schema payload
     */
-  def create(
-      id: IdSegment,
-      projectRef: ProjectRef,
-      source: Json
-  )(implicit caller: Caller): IO[SchemaResource]
+  def create(id: IdSegment, projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource]
 
   /**
     * Generates the schema where the id is either present on the payload or self generated without persisting it in the
@@ -64,7 +59,7 @@ trait Schemas {
     * @param source
     *   the schema payload
     */
-  def createDryRun(projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[SchemaResource]
+  def createDryRun(projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource]
 
   /**
     * Updates an existing schema.
@@ -78,12 +73,7 @@ trait Schemas {
     * @param source
     *   the schema payload
     */
-  def update(
-      id: IdSegment,
-      projectRef: ProjectRef,
-      rev: Int,
-      source: Json
-  )(implicit caller: Caller): IO[SchemaResource]
+  def update(id: IdSegment, projectRef: ProjectRef, rev: Int, source: Json)(using Caller): IO[SchemaResource]
 
   /**
     * Refreshes an existing schema. This is equivalent to posting an update with the latest source. Used for when the
@@ -94,10 +84,7 @@ trait Schemas {
     * @param projectRef
     *   the project reference where the schema belongs
     */
-  def refresh(
-      id: IdSegment,
-      projectRef: ProjectRef
-  )(implicit caller: Caller): IO[SchemaResource]
+  def refresh(id: IdSegment, projectRef: ProjectRef)(using Caller): IO[SchemaResource]
 
   /**
     * Adds a tag to an existing schema.
@@ -119,7 +106,7 @@ trait Schemas {
       tag: UserTag,
       tagRev: Int,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource]
+  )(using Subject): IO[SchemaResource]
 
   /**
     * Delete a tag on an existing schema.
@@ -138,7 +125,7 @@ trait Schemas {
       projectRef: ProjectRef,
       tag: UserTag,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource]
+  )(using Subject): IO[SchemaResource]
 
   /**
     * Deprecates an existing schema.
@@ -154,7 +141,7 @@ trait Schemas {
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource]
+  )(using Subject): IO[SchemaResource]
 
   /**
     * Undeprecates an existing schema.
@@ -170,7 +157,7 @@ trait Schemas {
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource]
+  )(using Subject): IO[SchemaResource]
 
   /**
     * Fetches a schema.

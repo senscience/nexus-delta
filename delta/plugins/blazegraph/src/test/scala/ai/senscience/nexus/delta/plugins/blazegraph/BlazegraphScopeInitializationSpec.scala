@@ -25,15 +25,15 @@ class BlazegraphScopeInitializationSpec
     with ConfigFixtures
     with Fixtures {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val prefix = "prefix"
 
-  private val saRealm: Label              = Label.unsafe("service-accounts")
-  private val usersRealm: Label           = Label.unsafe("users")
-  implicit private val sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
-  implicit private val bob: Subject       = User("bob", usersRealm)
+  private val saRealm: Label       = Label.unsafe("service-accounts")
+  private val usersRealm: Label    = Label.unsafe("users")
+  private given sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
+  private given bob: Subject       = User("bob", usersRealm)
 
   private val am       = ApiMappings("nxv" -> nxv.base, "Person" -> schemaorg.Person)
   private val projBase = nxv.base

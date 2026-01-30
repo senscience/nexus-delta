@@ -18,27 +18,26 @@ import org.http4s.Uri
 
 package object indexing {
 
-  implicit val viewStatisticEncoder: Encoder.AsObject[ProgressStatistics] =
+  given Encoder.AsObject[ProgressStatistics] =
     deriveEncoder[ProgressStatistics].mapJsonObject(_.add(keywords.tpe, "ViewStatistics".asJson))
 
-  implicit val viewStatisticJsonLdEncoder: JsonLdEncoder[ProgressStatistics] =
+  given JsonLdEncoder[ProgressStatistics] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
 
   private val failedElemContext: ContextValue = ContextValue(contexts.error)
 
-  implicit val failedElemDataEncoder: Encoder.AsObject[FailedElemData] =
+  given Encoder.AsObject[FailedElemData] =
     deriveEncoder[FailedElemData].mapJsonObject(_.remove("entityType"))
 
-  implicit val failedElemDataJsonLdEncoder: JsonLdEncoder[FailedElemData] =
+  given JsonLdEncoder[FailedElemData] =
     JsonLdEncoder.computeFromCirce(failedElemContext)
 
-  implicit val failedElemLogEncoder: Encoder.AsObject[FailedElemLog] =
-    deriveEncoder[FailedElemLog]
+  given Encoder.AsObject[FailedElemLog] = deriveEncoder[FailedElemLog]
 
   type FailedElemSearchResults = SearchResults[FailedElemData]
 
-  def failedElemSearchJsonLdEncoder(pagination: Pagination, uri: Uri)(implicit
-      baseUri: BaseUri
+  def failedElemSearchJsonLdEncoder(pagination: Pagination, uri: Uri)(using
+      BaseUri
   ): JsonLdEncoder[FailedElemSearchResults] =
     searchResultsJsonLdEncoder[FailedElemData](failedElemContext, pagination, uri)
 }

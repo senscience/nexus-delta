@@ -36,8 +36,8 @@ final case class ProjectDeletionConfig(
 
 object ProjectDeletionConfig {
 
-  implicit final val projectDeletionConfigLdEncoder: JsonLdEncoder[ProjectDeletionConfig] = {
-    implicit val jsonEncoder: Encoder.AsObject[ProjectDeletionConfig] =
+  given JsonLdEncoder[ProjectDeletionConfig] = {
+    given Encoder.AsObject[ProjectDeletionConfig] =
       Encoder.encodeJsonObject.contramapObject { cfg =>
         JsonObject(
           keywords.tpe                -> Json.fromString("ProjectDeletionConfig"),
@@ -52,10 +52,9 @@ object ProjectDeletionConfig {
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.projectDeletion))
   }
 
-  implicit val projectDeletionConfigHttpResponseFields: HttpResponseFields[ProjectDeletionConfig] =
-    HttpResponseFields.defaultOk
+  given HttpResponseFields[ProjectDeletionConfig] = HttpResponseFields.defaultOk
 
-  implicit final val projectDeletionConfigReader: ConfigReader[ProjectDeletionConfig] =
+  given ConfigReader[ProjectDeletionConfig] =
     deriveReader[ProjectDeletionConfig].emap { cfg =>
       Either.cond(
         cfg.idleInterval.toMillis > cfg.idleCheckPeriod.toMillis,

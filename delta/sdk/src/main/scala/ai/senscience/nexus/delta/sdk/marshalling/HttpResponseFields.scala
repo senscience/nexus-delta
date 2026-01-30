@@ -71,6 +71,6 @@ object HttpResponseFields {
 
   def defaultOk[A]: HttpResponseFields[A] = HttpResponseFields { _ => StatusCodes.OK }
 
-  implicit val responseFieldsUnit: HttpResponseFields[Unit] = defaultOk[Unit]
+  given HttpResponseFields[Unit] = defaultOk[Unit]
 }
 // $COVERAGE-ON$

@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.generators.ResolverGen.{resolverResourceFor, sourceFrom, sourceWithoutId}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{*, given}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
@@ -20,7 +20,7 @@ import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, ResolverResource}
 import ai.senscience.nexus.delta.sourcing.EntityDependencyStore
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
@@ -33,13 +33,14 @@ import java.util.UUID
 
 class ResolversImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with CancelAfterFailure with ConfigFixtures {
 
-  private val realm                = Label.unsafe("myrealm")
-  implicit private val bob: Caller =
-    Caller(User("Bob", realm), Set(User("Bob", realm), Group("mygroup", realm), Authenticated(realm)))
-  private val alice                = Caller(User("Alice", realm), Set(User("Alice", realm), Group("mygroup2", realm)))
+  private val realm = Label.unsafe("myrealm")
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private given bobSubject: Subject = User("Bob", realm)
+  private given bob: Caller         = Caller(bobSubject, Set(User("Bob", realm), Group("mygroup", realm), Authenticated(realm)))
+  private val alice                 = Caller(User("Alice", realm), Set(User("Alice", realm), Group("mygroup2", realm)))
+
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private def res: RemoteContextResolution =
     RemoteContextResolution.fixed(
@@ -144,7 +145,7 @@ class ResolversImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with 
         ) { case (id, value) =>
           val payload = sourceFrom(id, value)
           resolvers
-            .create(id, projectRef, payload)(alice)
+            .create(id, projectRef, payload)(using alice)
             .accepted shouldEqual resolverResourceFor(
             id,
             projectRef,

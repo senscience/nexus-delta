@@ -16,7 +16,7 @@ object Credentials {
     * When no auth token should be used
     */
   case object Anonymous extends Credentials {
-    implicit val configReader: ConfigReader[Anonymous.type] = deriveReader[Anonymous.type]
+    given ConfigReader[Anonymous.type] = deriveReader[Anonymous.type]
   }
 
   /**
@@ -24,7 +24,7 @@ object Credentials {
     */
   case class JWTToken(token: String) extends Credentials
   case object JWTToken {
-    implicit val configReader: ConfigReader[JWTToken] = deriveReader[JWTToken]
+    given ConfigReader[JWTToken] = deriveReader[JWTToken]
   }
 
   /**
@@ -34,8 +34,8 @@ object Credentials {
     */
   case class ClientCredentials(user: String, password: Secret[String], realm: Label) extends Credentials
   object ClientCredentials {
-    implicit val configReader: ConfigReader[ClientCredentials] = deriveReader[ClientCredentials]
+    given ConfigReader[ClientCredentials] = deriveReader[ClientCredentials]
   }
 
-  implicit val configReader: ConfigReader[Credentials] = deriveReader[Credentials]
+  given ConfigReader[Credentials] = deriveReader[Credentials]
 }

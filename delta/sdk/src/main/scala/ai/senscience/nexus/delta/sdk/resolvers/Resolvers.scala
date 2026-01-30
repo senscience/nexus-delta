@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.sdk.ResolverResource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.instances.*
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
@@ -37,7 +36,7 @@ trait Resolvers {
     * @param source
     *   the payload to create the resolver
     */
-  def create(projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[ResolverResource]
+  def create(projectRef: ProjectRef, source: Json)(using Caller): IO[ResolverResource]
 
   /**
     * Create a new resolver with the provided id
@@ -49,7 +48,7 @@ trait Resolvers {
     * @param source
     *   the payload to create the resolver
     */
-  def create(id: IdSegment, projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[ResolverResource]
+  def create(id: IdSegment, projectRef: ProjectRef, source: Json)(using Caller): IO[ResolverResource]
 
   /**
     * Create a new resolver with the provided id
@@ -60,9 +59,7 @@ trait Resolvers {
     * @param resolverValue
     *   the value of the resolver
     */
-  def create(id: IdSegment, projectRef: ProjectRef, resolverValue: ResolverValue)(implicit
-      caller: Caller
-  ): IO[ResolverResource]
+  def create(id: IdSegment, projectRef: ProjectRef, resolverValue: ResolverValue)(using Caller): IO[ResolverResource]
 
   /**
     * Update an existing resolver
@@ -75,9 +72,7 @@ trait Resolvers {
     * @param source
     *   the payload to update the resolver
     */
-  def update(id: IdSegment, projectRef: ProjectRef, rev: Int, source: Json)(implicit
-      caller: Caller
-  ): IO[ResolverResource]
+  def update(id: IdSegment, projectRef: ProjectRef, rev: Int, source: Json)(using Caller): IO[ResolverResource]
 
   /**
     * Update an existing resolver
@@ -90,8 +85,8 @@ trait Resolvers {
     * @param resolverValue
     *   the value of the resolver
     */
-  def update(id: IdSegment, projectRef: ProjectRef, rev: Int, resolverValue: ResolverValue)(implicit
-      caller: Caller
+  def update(id: IdSegment, projectRef: ProjectRef, rev: Int, resolverValue: ResolverValue)(using
+      Caller
   ): IO[ResolverResource]
 
   /**
@@ -103,7 +98,7 @@ trait Resolvers {
     * @param rev
     *   the ResolverState revision of the resolver
     */
-  def deprecate(id: IdSegment, projectRef: ProjectRef, rev: Int)(implicit subject: Subject): IO[ResolverResource]
+  def deprecate(id: IdSegment, projectRef: ProjectRef, rev: Int)(using Subject): IO[ResolverResource]
 
   /**
     * Fetch the resolver at the requested version

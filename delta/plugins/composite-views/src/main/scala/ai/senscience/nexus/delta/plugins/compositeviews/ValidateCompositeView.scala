@@ -42,7 +42,7 @@ object ValidateCompositeView {
       prefix: String,
       maxSources: Int,
       maxProjections: Int
-  )(implicit baseUri: BaseUri): ValidateCompositeView = (uuid: UUID, value: CompositeViewValue) => {
+  )(using baseUri: BaseUri): ValidateCompositeView = (uuid: UUID, value: CompositeViewValue) => {
     def validateAcls(cpSource: CrossProjectSource): IO[Unit] = {
       given Caller = Caller(Anonymous, cpSource.identities)
       aclCheck.authorizeForOr(cpSource.project, events.read)(CrossProjectSourceForbidden(cpSource))

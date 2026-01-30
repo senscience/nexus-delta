@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.{PullRequestActive, PullRequestClosed}
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.{Latest, UserTag}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}

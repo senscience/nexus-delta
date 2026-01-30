@@ -4,27 +4,23 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.ScopeInitializationFaile
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.projects.ScopeInitializationErrorStore.{noopStore, ScopeInitErrorRow}
 import ai.senscience.nexus.delta.sdk.{OrganizationResource, ScopeInitializer}
-import ai.senscience.nexus.delta.sourcing.model.Identity.User
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{IO, Ref}
 
 class ProjectHealerSuite extends NexusSuite {
 
   private def scopeInitializer(projectInitializationWasExecuted: Ref[IO, Boolean]) = new ScopeInitializer {
-    override def initializeOrganization(organizationResource: OrganizationResource)(implicit
-        caller: Identity.Subject
-    ): IO[Unit]                                                                                      = IO.unit
-    override def initializeProject(project: ProjectRef)(implicit caller: Identity.Subject): IO[Unit] =
+    override def initializeOrganization(organizationResource: OrganizationResource)(using Subject): IO[Unit] = IO.unit
+    override def initializeProject(project: ProjectRef)(using Subject): IO[Unit]                             =
       projectInitializationWasExecuted.set(true)
   }
 
   private def failingScopeInitializer = new ScopeInitializer {
-    override def initializeOrganization(organizationResource: OrganizationResource)(implicit
-        caller: Identity.Subject
-    ): IO[Unit]                                                                                      =
+    override def initializeOrganization(organizationResource: OrganizationResource)(using Subject): IO[Unit] =
       IO.raiseError(ScopeInitializationFailed("failed during org creation"))
-    override def initializeProject(project: ProjectRef)(implicit caller: Identity.Subject): IO[Unit] =
+    override def initializeProject(project: ProjectRef)(using Subject): IO[Unit]                             =
       IO.raiseError(ScopeInitializationFailed("failed during project creation"))
   }
 

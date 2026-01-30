@@ -24,7 +24,9 @@ object SimpleResource extends CirceLiteral {
   val context: ContextValue =
     json"""{ "@context": {"_rev": "${nxv + "rev"}", "_createdAt": "${nxv + "createdAt"}", "@vocab": "${nxv.base}"} }""".topContextValueOrEmpty
 
-  implicit private val simpleResourceEncoder: Encoder.AsObject[SimpleResource] =
+  val rawHeader: RawHeader = new RawHeader("Test", "Value")
+
+  private given Encoder.AsObject[SimpleResource] =
     Encoder.AsObject.instance { v =>
       JsonObject.empty
         .add("@id", v.id.asJson)
@@ -34,18 +36,16 @@ object SimpleResource extends CirceLiteral {
         .add("_createdAt", v.createdAt.asJson)
     }
 
-  implicit val simpleResourceJsonLdEncoder: JsonLdEncoder[SimpleResource] =
+  given JsonLdEncoder[SimpleResource] =
     JsonLdEncoder.computeFromCirce(_.id, ContextValue(contextIri))
 
-  implicit val simpleResourceHttpResponseFields: HttpResponseFields[SimpleResource] =
+  given HttpResponseFields[SimpleResource] =
     new HttpResponseFields[SimpleResource] {
       override def statusFrom(value: SimpleResource): StatusCode = StatusCodes.Accepted
 
-      override def headersFrom(value: SimpleResource): Seq[HttpHeader] = Seq(new RawHeader("Test", "Value"))
+      override def headersFrom(value: SimpleResource): Seq[HttpHeader] = Seq(rawHeader)
 
       override def entityTag(value: SimpleResource): Option[String] = Some(value.id.toString)
     }
-
-  val rawHeader: RawHeader = new RawHeader("Test", "Value")
 
 }

@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ai.senscience.nexus.delta.sdk.circe.{dropNullValues, JsonObjOps}
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.circe.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.{IriEncoder, JsonLdAssembly}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
@@ -414,8 +414,8 @@ object ResourceEvent {
   ) extends ResourceEvent
 
   val serializer: Serializer[Iri, ResourceEvent] = {
-    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.given
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts
@@ -452,7 +452,7 @@ object ResourceEvent {
         )
     }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[ResourceEvent] = new SseEncoder[ResourceEvent] {
+  def sseEncoder(using base: BaseUri): SseEncoder[ResourceEvent] = new SseEncoder[ResourceEvent] {
 
     override val databaseDecoder: Decoder[ResourceEvent] = serializer.codec
 
@@ -461,8 +461,8 @@ object ResourceEvent {
     override val selectors: Set[Label] = Set(resourcesSelector)
 
     override val sseEncoder: Encoder.AsObject[ResourceEvent] = {
-      val context                        = ContextValue(contexts.metadata)
-      implicit val config: Configuration = Configuration.default
+      val context         = ContextValue(contexts.metadata)
+      given Configuration = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => nxv.resourceId.prefix
@@ -476,11 +476,11 @@ object ResourceEvent {
           case other     => other
         })
 
-      implicit val compactedJsonLdEncoder: Encoder[CompactedJsonLd]    = Encoder.instance(_.json)
-      implicit val constrainedByEncoder: Encoder[ResourceRef.Revision] = Encoder.instance(_.iri.asJson)
-      implicit val expandedJsonLdEncoder: Encoder[ExpandedJsonLd]      = Encoder.instance(_.json)
+      given Encoder[CompactedJsonLd]      = Encoder.instance(_.json)
+      given Encoder[ResourceRef.Revision] = Encoder.instance(_.iri.asJson)
+      given Encoder[ExpandedJsonLd]       = Encoder.instance(_.json)
 
-      implicit val subjectEncoder: Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+      given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
       Encoder.encodeJsonObject.contramapObject { event =>
         val obj = deriveConfiguredEncoder[ResourceEvent].encodeObject(event)
         obj.dropNulls

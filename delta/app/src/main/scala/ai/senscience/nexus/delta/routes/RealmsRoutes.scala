@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
@@ -18,6 +17,7 @@ import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResul
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.realms as realmsPermissions
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.{Realm, RealmFields, RealmRejection}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -43,15 +43,18 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(u
       RealmSearchParams(None, deprecated, rev, createdBy, updatedBy)
     }
 
-  private def emitMetadata(statusCode: StatusCode, io: IO[RealmResource]): Route =
+  private def emitMetadata(statusCode: StatusCode, io: IO[RealmResource]): Route = {
+    import ai.senscience.nexus.delta.sdk.implicits.*
     emit(statusCode, io.mapValue(_.metadata))
+  }
 
   private def emitMetadata(io: IO[RealmResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
       pathPrefix("realms") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           concat(
             // List realms
             (get & extractHttp4sUri & fromPaginated & realmsSearchParams & sort[Realm] & pathEndOrSingleSlash) {

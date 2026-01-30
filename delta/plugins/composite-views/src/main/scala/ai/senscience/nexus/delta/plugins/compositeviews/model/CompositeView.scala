@@ -106,16 +106,16 @@ object CompositeView {
 
   object RebuildStrategy {
 
-    implicit final val rebuildStrategyEncoder: Encoder.AsObject[RebuildStrategy] = {
-      implicit val config: Configuration                          = Configuration.default.withDiscriminator(keywords.tpe)
-      implicit val finiteDurationEncoder: Encoder[FiniteDuration] = Encoder.encodeString.contramap(_.toString())
+    given Encoder.AsObject[RebuildStrategy] = {
+      given Configuration           = Configuration.default.withDiscriminator(keywords.tpe)
+      given Encoder[FiniteDuration] = Encoder.encodeString.contramap(_.toString())
       deriveConfiguredEncoder[RebuildStrategy]
     }
   }
 
-  implicit private def compositeViewEncoder(implicit base: BaseUri): Encoder.AsObject[CompositeView] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
-    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.*
+  given BaseUri => Encoder.AsObject[CompositeView] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.given
     Encoder.encodeJsonObject.contramapObject { v =>
       deriveConfiguredEncoder[CompositeView]
         .encodeObject(v)
@@ -133,7 +133,7 @@ object CompositeView {
     }
   }
 
-  implicit def compositeViewJsonLdEncoder(implicit base: BaseUri): JsonLdEncoder[CompositeView] = {
+  given BaseUri => JsonLdEncoder[CompositeView] = {
     val underlying: JsonLdEncoder[CompositeView] =
       JsonLdEncoder.computeFromCirce(_.id, ContextValue(contexts.compositeViews))
     new JsonLdEncoder[CompositeView] {
@@ -155,9 +155,9 @@ object CompositeView {
     }
   }
 
-  implicit private val compositeViewMetadataEncoder: Encoder.AsObject[Metadata] =
+  given Encoder.AsObject[Metadata] =
     Encoder.encodeJsonObject.contramapObject(meta => JsonObject("_uuid" -> meta.uuid.asJson))
 
-  implicit val compositeViewMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
+  given JsonLdEncoder[Metadata] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.compositeViewsMetadata))
 }

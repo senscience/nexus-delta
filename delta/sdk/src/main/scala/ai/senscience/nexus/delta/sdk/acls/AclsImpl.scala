@@ -82,23 +82,23 @@ final class AclsImpl private (
       .surround("listAcls", withAncestors(filter))
   }
 
-  override def listSelf(filter: AclAddressFilter)(implicit caller: Caller): IO[AclCollection] =
+  override def listSelf(filter: AclAddressFilter)(using caller: Caller): IO[AclCollection] =
     list(filter)
       .map(_.filter(caller.identities))
       .surround("listSelfAcls", withAncestors(filter))
 
   override def states(offset: Offset): Stream[IO, AclState] = log.currentStates(offset, identity)
 
-  override def replace(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
+  override def replace(acl: Acl, rev: Int)(using caller: Subject): IO[AclResource] =
     eval(ReplaceAcl(acl, rev, caller)).surround("replaceAcls")
 
-  override def append(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
+  override def append(acl: Acl, rev: Int)(using caller: Subject): IO[AclResource] =
     eval(AppendAcl(acl, rev, caller)).surround("appendAcls")
 
-  override def subtract(acl: Acl, rev: Int)(implicit caller: Subject): IO[AclResource] =
+  override def subtract(acl: Acl, rev: Int)(using caller: Subject): IO[AclResource] =
     eval(SubtractAcl(acl, rev, caller)).surround("subtractAcls")
 
-  override def delete(address: AclAddress, rev: Int)(implicit caller: Subject): IO[AclResource] =
+  override def delete(address: AclAddress, rev: Int)(using caller: Subject): IO[AclResource] =
     eval(DeleteAcl(address, rev, caller)).surround("deleteAcls")
 
   private def eval(cmd: AclCommand): IO[AclResource] = log.evaluate(cmd.address, cmd).map(_._2.toResource)

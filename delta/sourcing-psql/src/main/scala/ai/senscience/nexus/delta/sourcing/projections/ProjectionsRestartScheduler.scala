@@ -7,14 +7,14 @@ import fs2.Stream
 
 trait ProjectionsRestartScheduler {
 
-  def run(projectionStream: Stream[IO, String], fromOffset: Offset)(implicit subject: Subject): IO[Unit]
+  def run(projectionStream: Stream[IO, String], fromOffset: Offset)(using Subject): IO[Unit]
 
 }
 
 object ProjectionsRestartScheduler {
 
   def apply(projections: Projections): ProjectionsRestartScheduler = new ProjectionsRestartScheduler {
-    override def run(projectionStream: Stream[IO, String], fromOffset: Offset)(implicit subject: Subject): IO[Unit] =
+    override def run(projectionStream: Stream[IO, String], fromOffset: Offset)(using Subject): IO[Unit] =
       projectionStream
         .evalMap { projectionName =>
           projections.scheduleRestart(projectionName, fromOffset)

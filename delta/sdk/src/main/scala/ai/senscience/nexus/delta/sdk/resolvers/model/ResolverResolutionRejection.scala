@@ -109,7 +109,7 @@ object ResolverResolutionRejection {
   final case class WrappedResolverRejection(rejection: ResolverRejection)
       extends ResolutionFetchRejection(rejection.reason)
 
-  implicit private[model] val resolverResolutionRejectionEncoder: Encoder.AsObject[ResolverResolutionRejection] =
+  private[model] given Encoder.AsObject[ResolverResolutionRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
@@ -120,6 +120,5 @@ object ResolverResolutionRejection {
       }
     }
 
-  implicit final val resolverResolutionRejectionJsonLdEncoder: JsonLdEncoder[ResolverResolutionRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
+  given JsonLdEncoder[ResolverResolutionRejection] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 }

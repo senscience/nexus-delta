@@ -9,7 +9,7 @@ import cats.effect.IO
 
 trait Fixtures extends RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given api: JsonLdApi = TitaniumJsonLdApi.strict
 
   given rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
 

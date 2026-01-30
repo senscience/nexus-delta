@@ -18,10 +18,11 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.parser
@@ -61,7 +62,8 @@ final class FilesRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("files", schemas.files)) {
       (handleStorageExceptions & pathPrefix("files")) {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           projectRef { project =>
             extension (io: IO[FileResource]) {
               private def index(m: IndexingMode): IO[FileResource] = io.flatTap(self.index(project, _, m))

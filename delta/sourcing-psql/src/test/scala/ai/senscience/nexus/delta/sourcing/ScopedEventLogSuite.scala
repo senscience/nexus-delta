@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.{PullRequ
 import ai.senscience.nexus.delta.sourcing.PullRequest.{PullRequestCommand, PullRequestEvent, PullRequestState}
 import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
@@ -60,9 +60,9 @@ class ScopedEventLogSuite extends NexusSuite with Doobie.Fixture {
   private val tagActive = UserTag.unsafe("active")
   private val tagClosed = UserTag.unsafe("closed")
 
-  implicit val user: User = User("writer", Label.unsafe("realm"))
+  private given user: User = User("writer", Label.unsafe("realm"))
 
-  private def assertStateNotFound(project: ProjectRef, id: Iri)(implicit loc: Location) =
+  private def assertStateNotFound(project: ProjectRef, id: Iri)(using Location) =
     eventLog.stateOr(project, id, NotFound).interceptEquals(NotFound)
 
   private lazy val eventLog: ScopedEventLog[
@@ -98,8 +98,8 @@ class ScopedEventLogSuite extends NexusSuite with Doobie.Fixture {
   )
 
   test("Evaluate successfully a command and store both event and state for an initial state") {
-    implicit val decoder: Decoder[PullRequestState] = PullRequestState.serializer.codec
-    val expectedDependencies                        = Set(DependsOn(proj, id2))
+    given Decoder[PullRequestState] = PullRequestState.serializer.codec
+    val expectedDependencies        = Set(DependsOn(proj, id2))
     for {
       _        <- eventLog.evaluate(proj, id, Create(id, proj)).assertEquals((opened, state1))
       _        <- eventStore.history(proj, id).transact(xas.read).assert(opened)

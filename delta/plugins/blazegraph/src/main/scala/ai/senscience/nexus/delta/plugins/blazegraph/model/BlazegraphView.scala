@@ -146,8 +146,8 @@ object BlazegraphView {
     */
   final case class Metadata(uuid: Option[UUID], indexingRev: Option[Int])
 
-  implicit private val blazegraphViewsEncoder: Encoder.AsObject[BlazegraphView] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  given Encoder.AsObject[BlazegraphView] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
     Encoder.encodeJsonObject.contramapObject { v =>
       deriveConfiguredEncoder[BlazegraphView]
         .encodeObject(v)
@@ -160,16 +160,16 @@ object BlazegraphView {
     }
   }
 
-  implicit val blazegraphViewsJsonLdEncoder: JsonLdEncoder[BlazegraphView] =
+  given JsonLdEncoder[BlazegraphView] =
     JsonLdEncoder.computeFromCirce(_.id, ContextValue(contexts.blazegraph))
 
-  implicit private val blazegraphMetadataEncoder: Encoder.AsObject[Metadata] =
+  given Encoder.AsObject[Metadata] =
     Encoder.encodeJsonObject.contramapObject(meta =>
       JsonObject.empty
         .addIfExists("_uuid", meta.uuid)
         .addIfExists("_indexingRev", meta.indexingRev)
     )
 
-  implicit val blazegraphMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
+  given JsonLdEncoder[Metadata] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.blazegraphMetadata))
 }

@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.{ExpandIri, JsonLdAssembly}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase, ProjectContext}
@@ -44,7 +43,7 @@ trait Resources {
       schema: IdSegment,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource]
+  )(using Caller): IO[DataResource]
 
   /**
     * Creates a new resource with the expanded form of the passed id.
@@ -64,7 +63,7 @@ trait Resources {
       schema: IdSegment,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource]
+  )(using Caller): IO[DataResource]
 
   /**
     * Updates an existing resource.
@@ -88,7 +87,7 @@ trait Resources {
       rev: Int,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource]
+  )(using Caller): IO[DataResource]
 
   /**
     * Update the schema that is attached to the resource
@@ -104,7 +103,7 @@ trait Resources {
       id: IdSegment,
       projectRef: ProjectRef,
       schema: IdSegment
-  )(implicit caller: Caller): IO[DataResource]
+  )(using Caller): IO[DataResource]
 
   /**
     * Refreshes an existing resource. This is equivalent to posting an update with the latest source. Used for when the
@@ -122,7 +121,7 @@ trait Resources {
       id: IdSegment,
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment]
-  )(implicit caller: Caller): IO[DataResource]
+  )(using Caller): IO[DataResource]
 
   /**
     * Adds a tag to an existing resource.
@@ -148,7 +147,7 @@ trait Resources {
       tag: UserTag,
       tagRev: Int,
       rev: Int
-  )(implicit caller: Subject): IO[DataResource]
+  )(using Subject): IO[DataResource]
 
   /**
     * Delete a tag on an existing resource.
@@ -171,7 +170,7 @@ trait Resources {
       schemaOpt: Option[IdSegment],
       tag: UserTag,
       rev: Int
-  )(implicit caller: Subject): IO[DataResource]
+  )(using Subject): IO[DataResource]
 
   /**
     * Deprecates an existing resource.
@@ -191,7 +190,7 @@ trait Resources {
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment],
       rev: Int
-  )(implicit caller: Subject): IO[DataResource]
+  )(using Subject): IO[DataResource]
 
   /**
     * Undeprecates an existing resource.
@@ -211,7 +210,7 @@ trait Resources {
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment],
       rev: Int
-  )(implicit caller: Subject): IO[DataResource]
+  )(using Subject): IO[DataResource]
 
   /**
     * Delete an existing resource
@@ -220,7 +219,7 @@ trait Resources {
     * @param project
     *   the project reference where the resource belongs
     */
-  def delete(id: IdSegment, project: ProjectRef)(implicit caller: Subject): IO[Unit]
+  def delete(id: IdSegment, project: ProjectRef)(using Subject): IO[Unit]
 
   /**
     * Fetches a resource state.

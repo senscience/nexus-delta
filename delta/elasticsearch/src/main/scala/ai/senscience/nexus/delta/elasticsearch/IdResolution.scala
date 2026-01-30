@@ -55,10 +55,10 @@ object IdResolution {
     private val searchJsonLdEncoder: JsonLdEncoder[SearchResults[JsonObject]] =
       searchResultsJsonLdEncoder(ContextValue(contexts.search))
 
-    implicit def resultJsonLdEncoder(implicit baseUri: BaseUri): JsonLdEncoder[ResolutionResult] =
+    given BaseUri => JsonLdEncoder[ResolutionResult] =
       new JsonLdEncoder[ResolutionResult] {
 
-        private def encoder[A](value: JsonLdContent[A])(implicit baseUri: BaseUri): JsonLdEncoder[ResourceF[A]] = {
+        private def encoder[A](value: JsonLdContent[A])(using baseUri: BaseUri): JsonLdEncoder[ResourceF[A]] = {
           given JsonLdEncoder[A] = value.encoder
           resourceFAJsonLdEncoder[A](ContextValue.empty)
         }

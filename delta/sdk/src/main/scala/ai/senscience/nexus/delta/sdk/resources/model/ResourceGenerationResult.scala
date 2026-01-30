@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
-import ai.senscience.nexus.delta.sdk.resources.model.ResourceGenerationResult.*
+import ai.senscience.nexus.delta.sdk.resources.model.ResourceGenerationResult.{given, *}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.{DataResource, SchemaResource}
 import cats.effect.IO
@@ -26,7 +26,7 @@ final case class ResourceGenerationResult(
     attempt: Either[Rejection, DataResource]
 ) {
 
-  def asJson(implicit base: BaseUri, rcr: RemoteContextResolution): IO[Json] = {
+  def asJson(using BaseUri, RemoteContextResolution): IO[Json] = {
     for {
       schema          <- schema.fold(emptySchema)(toJsonField("schema", _))
       resourceOrError <- attempt.fold(
@@ -36,28 +36,25 @@ final case class ResourceGenerationResult(
     } yield schema.deepMerge(resourceOrError)
   }
 
-  private def errorField(rejection: Rejection)(implicit rcr: RemoteContextResolution) = rejection match {
+  private def errorField(rejection: Rejection)(using RemoteContextResolution) = rejection match {
     case rejection: ResourceRejection => toJsonField("error": String, rejection)
     case rejection: JsonLdRejection   => toJsonField("error": String, rejection)
     case other: Rejection             => IO.pure(Json.obj("@type" := ClassUtils.simpleName(other), "reason" := other.reason))
   }
 
-  private def toJsonField[A](fieldName: String, value: A)(implicit
-      encoder: JsonLdEncoder[A],
-      rcr: RemoteContextResolution
-  ) =
+  private def toJsonField[A](fieldName: String, value: A)(using JsonLdEncoder[A], RemoteContextResolution) =
     value.toCompactedJsonLd.map { v => v.json }.map { s => Json.obj(fieldName -> s) }
 
-  private def toJsonField[A](fieldName: String, value: ResourceF[A])(implicit
-      encoder: JsonLdEncoder[A],
-      base: BaseUri,
-      rcr: RemoteContextResolution
+  private def toJsonField[A](fieldName: String, value: ResourceF[A])(using
+      JsonLdEncoder[A],
+      BaseUri,
+      RemoteContextResolution
   ) =
     value.toCompactedJsonLd.map { v => v.json }.map { s => Json.obj(fieldName -> s) }
 }
 
 object ResourceGenerationResult {
-  implicit private[model] val api: JsonLdApi = TitaniumJsonLdApi.lenient
+  private[model] given JsonLdApi = TitaniumJsonLdApi.lenient
 
   val emptySchema: IO[Json] = IO.pure(Json.obj())
 }

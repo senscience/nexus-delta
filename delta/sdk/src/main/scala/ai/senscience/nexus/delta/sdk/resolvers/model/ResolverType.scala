@@ -32,12 +32,12 @@ object ResolverType {
     override def types: Set[Iri] = Set(nxv.Resolver, nxv.CrossProject)
   }
 
-  implicit final val resolverTypeEncoder: Encoder[ResolverType] = Encoder.instance {
+  given Encoder[ResolverType] = Encoder.instance {
     case InProject    => Json.fromString("InProject")
     case CrossProject => Json.fromString("CrossProject")
   }
 
-  implicit final val resolverTypeDecoder: Decoder[ResolverType] = Decoder.decodeString.emap {
+  given Decoder[ResolverType] = Decoder.decodeString.emap {
     case "InProject"    => Right(InProject)
     case "CrossProject" => Right(CrossProject)
   }

@@ -11,6 +11,6 @@ final case class ExportEventQuery(output: Label, projects: NonEmptyList[ProjectR
 
 object ExportEventQuery {
 
-  implicit private val config: Configuration             = Configuration.default.withStrictDecoding
-  implicit val exportQueryCodec: Codec[ExportEventQuery] = deriveConfiguredCodec[ExportEventQuery]
+  private given Configuration   = Configuration.default.withStrictDecoding
+  given Codec[ExportEventQuery] = deriveConfiguredCodec[ExportEventQuery]
 }

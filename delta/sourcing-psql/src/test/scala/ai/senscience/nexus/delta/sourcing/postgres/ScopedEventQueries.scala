@@ -7,7 +7,7 @@ import doobie.syntax.all.*
 
 object ScopedEventQueries {
 
-  def distinctProjects(implicit xas: Transactors): IO[Set[ProjectRef]] =
+  def distinctProjects(xas: Transactors): IO[Set[ProjectRef]] =
     sql"""SELECT distinct org, project from scoped_events"""
       .query[(Label, Label)]
       .map { case (org, proj) =>

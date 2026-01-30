@@ -16,8 +16,8 @@ object JWSConfig {
     val rsaKey: RSAKey = RSAUtils.generateRSAKeyFromPrivate(privateKey)
   }
 
-  implicit private val privateKeyConvert: ConfigConvert[RSAPrivateCrtKey] =
+  private given ConfigConvert[RSAPrivateCrtKey] =
     ConfigConvert.viaStringTry[RSAPrivateCrtKey](RSAUtils.parseRSAPrivateKey, _.toString)
 
-  implicit val delegationReader: ConfigReader[JWSConfig] = deriveReader
+  given ConfigReader[JWSConfig] = deriveReader
 }

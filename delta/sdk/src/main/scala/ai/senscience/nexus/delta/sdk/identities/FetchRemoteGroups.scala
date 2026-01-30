@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.identities
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.cache.{CacheConfig, LocalCache}
 import ai.senscience.nexus.delta.kernel.http.ResponseUtils.decodeBodyAsJson
-import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
 import ai.senscience.nexus.delta.kernel.jwt.ParsedToken
 import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.{GetGroupsFromOidcError, InvalidAccessToken}
 import cats.effect.IO

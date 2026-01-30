@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageValue.Dis
 import ai.senscience.nexus.delta.plugins.storage.storages.schemas.storage as storageSchema
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
@@ -58,7 +59,7 @@ final class Storages private (
   def create(
       projectRef: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[StorageResource] = {
+  )(using caller: Caller): IO[StorageResource] = {
     for {
       pc                   <- fetchContext.onCreate(projectRef)
       (iri, storageFields) <- sourceDecoder(projectRef, pc, source)
@@ -81,7 +82,7 @@ final class Storages private (
       id: IdSegment,
       projectRef: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[StorageResource] = {
+  )(using caller: Caller): IO[StorageResource] = {
     for {
       pc            <- fetchContext.onCreate(projectRef)
       iri           <- expandIri(id, pc)
@@ -105,7 +106,7 @@ final class Storages private (
       id: IdSegment,
       projectRef: ProjectRef,
       storageFields: StorageFields
-  )(implicit caller: Caller): IO[StorageResource] = {
+  )(using caller: Caller): IO[StorageResource] = {
     for {
       pc    <- fetchContext.onCreate(projectRef)
       iri   <- expandIri(id, pc)
@@ -132,7 +133,7 @@ final class Storages private (
       projectRef: ProjectRef,
       rev: Int,
       source: Json
-  )(implicit caller: Caller): IO[StorageResource] =
+  )(using Caller): IO[StorageResource] =
     update(id, projectRef, rev, source, unsetPreviousDefault = true)
 
   private def update(
@@ -141,7 +142,7 @@ final class Storages private (
       rev: Int,
       source: Json,
       unsetPreviousDefault: Boolean
-  )(implicit caller: Caller): IO[StorageResource] = {
+  )(using caller: Caller): IO[StorageResource] = {
     for {
       pc            <- fetchContext.onModify(projectRef)
       iri           <- expandIri(id, pc)
@@ -168,7 +169,7 @@ final class Storages private (
       projectRef: ProjectRef,
       rev: Int,
       storageFields: StorageFields
-  )(implicit caller: Caller): IO[StorageResource] = {
+  )(using caller: Caller): IO[StorageResource] = {
     for {
       pc    <- fetchContext.onModify(projectRef)
       iri   <- expandIri(id, pc)
@@ -192,7 +193,7 @@ final class Storages private (
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[StorageResource] = {
+  )(using subject: Subject): IO[StorageResource] = {
     for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -214,7 +215,7 @@ final class Storages private (
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[StorageResource] = {
+  )(using subject: Subject): IO[StorageResource] = {
     for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -277,7 +278,7 @@ final class Storages private (
         .evalTap { storage =>
           val source =
             storage.value.source.replace("default" -> true, false).replace("default" -> "true", false)
-          val io     = update(storage.id, project, storage.rev, source, unsetPreviousDefault = false)(
+          val io     = update(storage.id, project, storage.rev, source, unsetPreviousDefault = false)(using
             serviceAccount.caller
           )
           logFailureAndContinue(io)
@@ -491,10 +492,10 @@ object Storages {
       serviceAccount: ServiceAccount,
       clock: Clock[IO]
   )(using uuidF: UUIDF)(using Tracer[IO]): IO[Storages] = {
-    implicit val rcr: RemoteContextResolution = contextResolution.rcr
+    given RemoteContextResolution = contextResolution.rcr
 
     StorageDecoderConfiguration.apply
-      .map { implicit config =>
+      .map { case given Configuration =>
         new JsonLdSourceResolvingDecoder[StorageFields](contexts.storages, contextResolution, uuidF)
       }
       .map { sourceDecoder =>

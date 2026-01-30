@@ -60,13 +60,12 @@ object SparqlQuery {
           case _                              => Left("The provided query is a valid SPARQL query but not a CONSTRUCT query")
         }
 
-    implicit val sparqlConstructQueryEncoder: Encoder[SparqlConstructQuery] =
-      Encoder.encodeString.contramap(_.value)
+    given Encoder[SparqlConstructQuery] = Encoder.encodeString.contramap(_.value)
 
-    implicit val sparqlConstructQueryDecoder: Decoder[SparqlConstructQuery] =
+    given Decoder[SparqlConstructQuery] =
       Decoder.decodeString.map(SparqlConstructQuery.unsafe)
 
-    implicit val sparqlConstructQueryJsonLdDecoder: JsonLdDecoder[SparqlConstructQuery] =
+    given JsonLdDecoder[SparqlConstructQuery] =
       (cursor: ExpandedJsonLdCursor) => cursor.get[String].flatMap { apply(_).leftMap { e => ParsingFailure(e) } }
 
   }

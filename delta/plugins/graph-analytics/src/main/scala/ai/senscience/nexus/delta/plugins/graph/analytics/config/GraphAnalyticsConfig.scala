@@ -39,10 +39,9 @@ object GraphAnalyticsConfig {
     */
   final case class TermAggregationsConfig(size: Int, shardSize: Int)
 
-  implicit final private val termAggregationsConfigReader: ConfigReader[TermAggregationsConfig] =
-    deriveReader[TermAggregationsConfig]
+  private given ConfigReader[TermAggregationsConfig] = deriveReader[TermAggregationsConfig]
 
-  implicit final val graphAnalyticsConfigReader: ConfigReader[GraphAnalyticsConfig] =
+  given ConfigReader[GraphAnalyticsConfig] =
     deriveReader[GraphAnalyticsConfig].emap { c =>
       validateAggregations(c.termAggregations).map(_ => c)
     }

@@ -19,6 +19,5 @@ object BatchConfig {
 
   val individual: BatchConfig = BatchConfig(1, 200.millis)
 
-  implicit final val batchConfigReader: ConfigReader[BatchConfig] =
-    deriveReader[BatchConfig]
+  given ConfigReader[BatchConfig] = deriveReader[BatchConfig]
 }

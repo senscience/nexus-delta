@@ -8,9 +8,7 @@ final case class Permissions(permissions: Set[Permission], _rev: Int)
 
 object Permissions {
 
-  implicit val config: Configuration = Configuration.default
+  given Configuration = Configuration.default
 
-  implicit val identityDecoder: Decoder[Permissions] = {
-    deriveConfiguredDecoder[Permissions]
-  }
+  given Decoder[Permissions] = deriveConfiguredDecoder[Permissions]
 }

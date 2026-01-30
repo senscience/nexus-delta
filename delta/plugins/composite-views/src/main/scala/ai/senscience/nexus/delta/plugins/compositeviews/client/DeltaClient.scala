@@ -111,7 +111,7 @@ object DeltaClient {
   final private class DeltaClientImpl(client: Client[IO], retryDelay: FiniteDuration) extends DeltaClient {
 
     override def projectStatistics(source: RemoteProjectSource): IO[ProjectStatistics] = {
-      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
       val remoteOrg     = source.project.organization.value
       val remoteProject = source.project.project.value
       val endpoint      = source.endpoint / "projects" / remoteOrg / remoteProject / "statistics"
@@ -120,7 +120,7 @@ object DeltaClient {
     }
 
     override def remaining(source: RemoteProjectSource, offset: Offset): IO[RemainingElems] = {
-      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
       SseClient.lastEventId(offset).flatMap { lastEventId =>
         val headers: Vector[Header.ToRaw] = Vector(accept, lastEventId)
         val request                       = GET(elemAddress(source) / "remaining", headers*)

@@ -15,9 +15,9 @@ final case class ProjectPayload(
 
 object ProjectPayload extends Generators {
 
-  def baseForProject(name: String)(implicit config: TestsConfig) = s"${config.deltaUri.toString()}/resources/$name/_/"
+  def baseForProject(name: String)(using config: TestsConfig) = s"${config.deltaUri.toString()}/resources/$name/_/"
 
-  def generate(name: String, enforceSchema: Boolean = false)(implicit config: TestsConfig): ProjectPayload = {
+  def generate(name: String, enforceSchema: Boolean = false)(using config: TestsConfig): ProjectPayload = {
     val base = baseForProject(name)
     generateWithCustomBase(name, base, enforceSchema)
   }
@@ -58,7 +58,7 @@ object ProjectPayload extends Generators {
       enforceSchema = enforceSchema
     )
 
-  implicit val encoder: Encoder[ProjectPayload] = Encoder.AsObject.instance { payload =>
+  given Encoder[ProjectPayload] = Encoder.AsObject.instance { payload =>
     val mappings   = Json.arr(
       payload.apiMappings.map { case (prefix, namespace) =>
         Json.obj("prefix" := prefix, "namespace" := namespace)

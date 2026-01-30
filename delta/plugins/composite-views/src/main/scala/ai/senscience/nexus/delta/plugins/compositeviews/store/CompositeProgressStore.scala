@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.R
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, IndexingViewRef}
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionProgress
@@ -116,7 +116,7 @@ object CompositeProgressStore {
   )
 
   object CompositeProgressRow {
-    implicit val projectionProgressRowRead: Read[CompositeProgressRow] = {
+    given Read[CompositeProgressRow] = {
       Read[(ProjectRef, Iri, IndexingRev, Iri, Iri, Run, Long, Long, Long, Long, Instant, Instant)].map {
         case (project, viewId, rev, source, target, run, offset, processed, discarded, failed, _, updatedAt) =>
           CompositeProgressRow(

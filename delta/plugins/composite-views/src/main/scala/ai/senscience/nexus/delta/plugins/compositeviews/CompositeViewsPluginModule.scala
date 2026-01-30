@@ -82,7 +82,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         config.prefix,
         config.sources.maxSources,
         config.maxProjections
-      )(baseUri)
+      )(using baseUri)
   }
 
   make[CompositeViews].fromEffect {
@@ -289,7 +289,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
       CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(using ordering, tracer)
   }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(using base) }
 
   many[PriorityRoute].add {
     (

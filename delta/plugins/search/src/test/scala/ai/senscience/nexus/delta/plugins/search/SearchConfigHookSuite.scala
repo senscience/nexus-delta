@@ -23,7 +23,7 @@ import scala.concurrent.duration.*
 
 class SearchConfigHookSuite extends NexusSuite with CompositeViewsFixture {
 
-  implicit private val projectBase: ProjectBase = ProjectBase(nxv.base)
+  private given ProjectBase = ProjectBase(nxv.base)
 
   private val defaults      = Defaults("viewName", "viewDescription")
   private val esIndexDef    = ElasticsearchIndexDef.fromJson(

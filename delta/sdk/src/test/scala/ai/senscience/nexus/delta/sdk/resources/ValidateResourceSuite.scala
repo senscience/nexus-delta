@@ -28,7 +28,7 @@ import munit.Location
 
 class ValidateResourceSuite extends NexusSuite with RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi                = TitaniumJsonLdApi.lenient
+  private given JsonLdApi                    = TitaniumJsonLdApi.lenient
   private given rcr: RemoteContextResolution = loadCoreContextsAndSchemas
 
   private val project = ProjectRef.unsafe("org", "proj")
@@ -77,7 +77,7 @@ class ValidateResourceSuite extends NexusSuite with RemoteContextResolutionFixtu
   private val validateResource = ValidateResource(schemaClaimResolver, ValidateShacl(rcr).accepted)
 
   private def assertResult(result: ValidationResult, expectedProject: ProjectRef, expectedSchema: ResourceRef.Revision)(
-      implicit loc: Location
+      using Location
   ): Unit = {
     assertEquals(result.project, expectedProject)
     assertEquals(result.schema, expectedSchema)

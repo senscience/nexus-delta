@@ -19,6 +19,5 @@ final case class OrganizationsConfig(
 )
 
 object OrganizationsConfig {
-  implicit final val orgsConfigReader: ConfigReader[OrganizationsConfig] =
-    deriveReader[OrganizationsConfig]
+  given ConfigReader[OrganizationsConfig] = deriveReader[OrganizationsConfig]
 }

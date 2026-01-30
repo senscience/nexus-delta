@@ -12,14 +12,13 @@ object AclValues {
 
   final private case class IdentityPermissions(identity: Identity, permissions: Set[Permission])
 
-  implicit private val identityPermsDecoder: Decoder[IdentityPermissions] = {
-    implicit val config: Configuration = Configuration.default.withStrictDecoding
+  private given Decoder[IdentityPermissions] = {
+    given Configuration = Configuration.default.withStrictDecoding
     deriveConfiguredDecoder[IdentityPermissions]
   }
 
-  implicit val aclValuesDecoder: Decoder[AclValues] =
-    Decoder
-      .decodeSeq[IdentityPermissions]
-      .map(seq => AclValues(seq.map(value => value.identity -> value.permissions)))
+  given Decoder[AclValues] = Decoder
+    .decodeSeq[IdentityPermissions]
+    .map(seq => AclValues(seq.map(value => value.identity -> value.permissions)))
 
 }

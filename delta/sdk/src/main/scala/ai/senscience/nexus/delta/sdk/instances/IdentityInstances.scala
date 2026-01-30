@@ -15,7 +15,7 @@ import io.circe.{Encoder, Json}
 
 trait IdentityInstances {
 
-  implicit final val identityIriDecoder: IriDecoder[Identity] = new IriDecoder[Identity] {
+  given IriDecoder[Identity] = new IriDecoder[Identity] {
     override def apply(iri: Iri)(using base: BaseUri): Either[FormatError, Identity] =
       iri.stripPrefix(base.iriEndpoint) match {
         case "/anonymous"              => Right(Anonymous)
@@ -27,7 +27,7 @@ trait IdentityInstances {
       }
   }
 
-  implicit final val identityIriEncoder: IriEncoder[Identity] = new IriEncoder[Identity] {
+  given IriEncoder[Identity] = new IriEncoder[Identity] {
     override def apply(value: Identity)(using base: BaseUri): Iri = value match {
       case Anonymous                           => base.iriEndpoint / "anonymous"
       case Authenticated(realm)                => base.iriEndpoint / "realms" / realm.value / "authenticated"
@@ -38,23 +38,23 @@ trait IdentityInstances {
   }
 
   private val baseEncoder: Encoder.AsObject[Identity] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator("@type")
+    given Configuration = Configuration.default.withDiscriminator("@type")
     deriveConfiguredEncoder[Identity]
   }
 
-  implicit def identityEncoder(implicit base: BaseUri): Encoder[Identity] = {
+  given identityEncoder: BaseUri => Encoder[Identity] = {
     val idEncoder: Encoder[Identity] = IriEncoder.jsonEncoder[Identity]
     Encoder.encodeJson.contramap { ident =>
       baseEncoder(ident).deepMerge(Json.obj("@id" -> idEncoder(ident)))
     }
   }
 
-  implicit def subjectEncoder(implicit base: BaseUri): Encoder[Subject] =
+  given subjectEncoder: BaseUri => Encoder[Subject] =
     Encoder.encodeJson.contramap {
       identityEncoder.apply(_: Identity)
     }
 
-  implicit final val subjectIriDecoder: IriDecoder[Subject] = new IriDecoder[Subject] {
+  given subjectIriDecoder: IriDecoder[Subject] = new IriDecoder[Subject] {
     override def apply(iri: Iri)(using base: BaseUri): Either[FormatError, Subject] =
       iri.stripPrefix(base.iriEndpoint) match {
         case "/anonymous"              => Right(Anonymous)
@@ -63,7 +63,7 @@ trait IdentityInstances {
       }
   }
 
-  implicit def subjectFromCaller(implicit caller: Caller): Subject = caller.subject
+  given subjectFromCaller: Conversion[Caller, Subject] = _.subject
 }
 
 object IdentityInstances extends IdentityInstances {

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.acls.model.Acl.Metadata
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.Serializer
@@ -128,20 +128,19 @@ object Acl {
 
   object Metadata {
 
-    implicit private val config: Configuration = Configuration.default.copy(transformMemberNames = {
+    private given Configuration = Configuration.default.copy(transformMemberNames = {
       case "path" => nxv.path.prefix
       case other  => other
     })
 
-    implicit private val aclMetadataEncoder: Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
+    private given Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
 
-    implicit val aclMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
-      JsonLdEncoder.computeFromCirce(ContextValue(contexts.aclsMetadata))
+    given JsonLdEncoder[Metadata] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.aclsMetadata))
   }
 
   object Database {
 
-    implicit val aclCodec: Codec[Acl] = {
+    given aclCodec: Codec[Acl] = {
       import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
       given Configuration            = Serializer.circeConfiguration
       final case class AclEntry(identity: Identity, permissions: Set[Permission])
@@ -162,7 +161,7 @@ object Acl {
     }
   }
 
-  implicit def aclEncoder(implicit base: BaseUri): Encoder.AsObject[Acl] =
+  given aclEncoder: BaseUri => Encoder.AsObject[Acl] =
     Encoder.AsObject.instance { acl =>
       JsonObject(
         "_path" -> acl.address.asJson,
@@ -176,6 +175,6 @@ object Acl {
 
   val context: ContextValue = ContextValue(contexts.acls)
 
-  implicit def aclJsonLdEncoder(implicit base: BaseUri): JsonLdEncoder[Acl] =
+  given aclJsonLdEncoder: BaseUri => JsonLdEncoder[Acl] =
     JsonLdEncoder.computeFromCirce(context)
 }

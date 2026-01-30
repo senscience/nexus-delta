@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.circe.JsonObjOps
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.circe.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.*
@@ -395,7 +395,7 @@ object FileEvent {
         )
     }
 
-  def sseEncoder(implicit base: BaseUri, showLocation: ShowFileLocation): SseEncoder[FileEvent] =
+  def sseEncoder(using base: BaseUri, showLocation: ShowFileLocation): SseEncoder[FileEvent] =
     new SseEncoder[FileEvent] {
       override val databaseDecoder: Decoder[FileEvent] = serializer.codec
 
@@ -404,10 +404,10 @@ object FileEvent {
       override val selectors: Set[Label] = Set(Label.unsafe("files"), resourcesSelector)
 
       override val sseEncoder: Encoder.AsObject[FileEvent] = {
-        val context                                   = ContextValue(Vocabulary.contexts.metadata, contexts.files)
-        val metadataKeys: Set[String]                 =
+        val context                   = ContextValue(Vocabulary.contexts.metadata, contexts.files)
+        val metadataKeys: Set[String] =
           Set("subject", "types", "source", "project", "rev", "instant", "digest", "mediaType", "attributes", "bytes")
-        implicit val circeConfig: Configuration       = Configuration.default
+        given Configuration           = Configuration.default
           .withDiscriminator(keywords.tpe)
           .copy(transformMemberNames = {
             case "id"                                  => "_fileId"
@@ -415,17 +415,17 @@ object FileEvent {
             case field if metadataKeys.contains(field) => s"_$field"
             case other                                 => other
           })
-        implicit val subjectEncoder: Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+        given Encoder[Subject]        = IriEncoder.jsonEncoder[Subject]
 
         Encoder.encodeJsonObject.contramapObject { event =>
-          val storageAndType                    = event match {
+          val storageAndType           = event match {
             case created: FileCreated => Some(created.storage -> created.storageType)
             case updated: FileUpdated => Some(updated.storage -> updated.storageType)
             case _                    => None
           }
-          implicit val storageType: StorageType = storageAndType.map(_._2).getOrElse(StorageType.DiskStorage)
+          val storageType: StorageType = storageAndType.map(_._2).getOrElse(StorageType.DiskStorage)
 
-          implicit val attributesEncoder: Encoder[FileAttributes] = FileAttributes.createConfiguredEncoder(
+          given Encoder[FileAttributes] = FileAttributes.createConfiguredEncoder(
             implicitly[Configuration],
             underscoreFieldsForMetadata = true,
             removePath = true,
@@ -543,6 +543,6 @@ object FileEvent {
           FileExtraFields(fce.storage.iri, fce.storageType, None, None, None, None, None)
       }
 
-    implicit val fileExtraFieldsEncoder: Encoder.AsObject[FileExtraFields] = deriveEncoder[FileExtraFields]
+    given Encoder.AsObject[FileExtraFields] = deriveEncoder[FileExtraFields]
   }
 }

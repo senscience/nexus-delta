@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.config
 
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import cats.data.NonEmptyVector
 import org.http4s.{BasicCredentials, Uri}
 import pureconfig.ConfigReader

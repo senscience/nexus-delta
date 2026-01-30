@@ -13,12 +13,11 @@ import org.scalatest.Assertion
 import tags.BlazegraphOnly
 
 import java.time.Instant
-import scala.concurrent.duration.*
 
 @BlazegraphOnly
 class SearchConfigIndexingSpec extends BaseIntegrationSpec {
 
-  implicit override def patienceConfig: PatienceConfig = PatienceConfig(config.patience * 2, 300.millis)
+  override def slowTest: Boolean = true
 
   private val orgId   = genId()
   private val projId1 = genId()
@@ -252,7 +251,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
 
       assertOneSource(query) { json =>
         json should equalIgnoreArrayOrder(expected)
-      }.accepted
+      }
     }
 
     "have the correct coordinatedInBrainAtlas property" in {
@@ -270,7 +269,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
 
       assertOneSource(query) { json =>
         json should equalIgnoreArrayOrder(expected)
-      }.accepted
+      }
     }
 
     "have the correct species property" in {
@@ -1219,7 +1218,7 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
     * Queries ES using the provided query. Asserts that there is only on result in _source. Runs the provided assertion
     * on the _source.
     */
-  private def assertOneSource(query: Json)(assertion: Json => Assertion)(implicit pos: Position): IO[Assertion] =
+  private def assertOneSource(query: Json)(assertion: Json => Assertion)(using Position): IO[Assertion] =
     deltaClient.post[Json]("/search/query", query, Rick) { (json, response) =>
       response.status shouldEqual StatusCodes.OK
       val results = Optics.hitsSource.getAll(json)
@@ -1240,14 +1239,14 @@ class SearchConfigIndexingSpec extends BaseIntegrationSpec {
       }
     }
 
-  private def assertIds(query: Json)(expectedIds: String*)(implicit pos: Position): IO[Assertion] =
+  private def assertIds(query: Json)(expectedIds: String*)(using Position): IO[Assertion] =
     deltaClient.post[Json]("/search/query", query, Rick) { (json, response) =>
       response.status shouldEqual StatusCodes.OK
       val results = Optics.hitsIds.getAll(json)
       results shouldEqual expectedIds
     }
 
-  private def assertEmpty(query: Json)(implicit pos: Position): IO[Assertion] =
+  private def assertEmpty(query: Json)(using Position): IO[Assertion] =
     assertOneSource(query)(j => assert(j == json"""{ }"""))
 
   /** Check that a given field in the json can be parsed as [[Instant]] */

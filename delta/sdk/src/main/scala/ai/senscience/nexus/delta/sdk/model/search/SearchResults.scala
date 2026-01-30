@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk.model.search
 import ai.senscience.nexus.delta.kernel.search.Pagination
 import ai.senscience.nexus.delta.kernel.search.Pagination.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ai.senscience.nexus.delta.rdf.instances.*
+import ai.senscience.nexus.delta.rdf.instances.given
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
@@ -66,19 +66,19 @@ object SearchResults {
   final case class UnscoredSearchResults[A](total: Long, results: Seq[ResultEntry[A]], token: Option[String] = None)
       extends SearchResults[A]
 
-  implicit final def scoredSearchResultsFunctor(implicit F: Functor[ResultEntry]): Functor[ScoredSearchResults] =
+  given scoredSearchResultsFunctor: (F: Functor[ResultEntry]) => Functor[ScoredSearchResults] =
     new Functor[ScoredSearchResults] {
       override def map[A, B](fa: ScoredSearchResults[A])(f: A => B): ScoredSearchResults[B] =
         fa.copy(results = fa.results.map(qr => F.map(qr)(f)))
     }
 
-  implicit final def unscoredSearchResultsFunctor(implicit F: Functor[ResultEntry]): Functor[UnscoredSearchResults] =
+  given unscoredSearchResultsFunctor: (F: Functor[ResultEntry]) => Functor[UnscoredSearchResults] =
     new Functor[UnscoredSearchResults] {
       override def map[A, B](fa: UnscoredSearchResults[A])(f: A => B): UnscoredSearchResults[B] =
         fa.copy(results = fa.results.map(qr => F.map(qr)(f)))
     }
 
-  implicit final def searchResultsFunctor(implicit F: Functor[ResultEntry]): Functor[SearchResults] =
+  given searchResultsFunctor: (Functor[ResultEntry]) => Functor[SearchResults] =
     new Functor[SearchResults] {
 
       override def map[A, B](fa: SearchResults[A])(f: A => B): SearchResults[B] =
@@ -126,7 +126,7 @@ object SearchResults {
       .map { resources =>
         SearchResults(
           resources.size.toLong,
-          resources.sorted(ordering).slice(pagination.from, pagination.from + pagination.size)
+          resources.sorted(using ordering).slice(pagination.from, pagination.from + pagination.size)
         )
       }
 
@@ -138,7 +138,7 @@ object SearchResults {
       additionalContext: ContextValue,
       pagination: Pagination,
       searchUri: Uri
-  )(implicit baseUri: BaseUri): JsonLdEncoder[SearchResults[A]] = {
+  )(using BaseUri): JsonLdEncoder[SearchResults[A]] = {
     val nextLink: SearchResults[A] => Option[Uri] = results =>
       pagination -> results.token match {
         case (_: SearchAfterPagination, None)                    => None
@@ -163,7 +163,7 @@ object SearchResults {
       additionalContext: ContextValue,
       next: SearchResults[A] => Option[Uri]
   ): JsonLdEncoder[SearchResults[A]] = {
-    implicit val encoder: Encoder.AsObject[SearchResults[A]] = searchResultsEncoder(next)
+    given Encoder.AsObject[SearchResults[A]] = searchResultsEncoder(next)
     JsonLdEncoder.computeFromCirce(context.merge(additionalContext))
   }
 
@@ -185,7 +185,7 @@ object SearchResults {
   private def next(
       current: Uri,
       nextToken: String
-  )(implicit baseUri: BaseUri): Uri =
+  )(using BaseUri): Uri =
     toPublic(current)
       .removeQueryParam(from)
       .withQueryParam(after, nextToken)
@@ -193,17 +193,17 @@ object SearchResults {
   private def next(
       current: Uri,
       pagination: FromPagination
-  )(implicit baseUri: BaseUri): Uri = {
+  )(using BaseUri): Uri = {
     val nextFrom = pagination.from + pagination.size
     toPublic(current)
       .withQueryParam(from, nextFrom.toString)
       .withQueryParam(size, pagination.size.toString)
   }
 
-  private def toPublic(uri: Uri)(implicit baseUri: BaseUri): Uri =
+  private def toPublic(uri: Uri)(using baseUri: BaseUri): Uri =
     uri.copy(scheme = baseUri.scheme, authority = baseUri.authority)
 
   def empty[A]: SearchResults[A] = UnscoredSearchResults(0L, Seq.empty)
 
-  implicit def searchResultsHttpResponseFields[A]: HttpResponseFields[SearchResults[A]] = HttpResponseFields.defaultOk
+  given searchResultsHttpResponseFields: [A] => HttpResponseFields[SearchResults[A]] = HttpResponseFields.defaultOk
 }

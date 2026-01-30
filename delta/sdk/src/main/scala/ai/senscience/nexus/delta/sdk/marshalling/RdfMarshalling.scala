@@ -32,10 +32,10 @@ trait RdfMarshalling {
   /**
     * JsonLd -> HttpEntity
     */
-  implicit def jsonLdMarshaller[A <: JsonLd](implicit
+  given jsonLdMarshaller: [A <: JsonLd] => (
       ordering: JsonKeyOrdering,
       codec: JsonValueCodec[Json] = RdfMarshalling.jsonCodecDropNull
-  ): ToEntityMarshaller[A] =
+  ) => ToEntityMarshaller[A] =
     Marshaller.withFixedContentType(ContentType(`application/ld+json`)) { jsonLd =>
       HttpEntity(
         `application/ld+json`,
@@ -48,7 +48,7 @@ trait RdfMarshalling {
     */
   def customContentTypeJsonMarshaller(
       contentType: ContentType
-  )(implicit
+  )(using
       ordering: JsonKeyOrdering,
       codec: JsonValueCodec[Json] = RdfMarshalling.jsonCodecDropNull
   ): ToEntityMarshaller[Json] =
@@ -62,16 +62,16 @@ trait RdfMarshalling {
   /**
     * Json -> HttpEntity
     */
-  implicit def jsonMarshaller(implicit
+  given jsonMarshaller: (
       ordering: JsonKeyOrdering,
       codec: JsonValueCodec[Json] = RdfMarshalling.jsonCodecDropNull
-  ): ToEntityMarshaller[Json] =
+  ) => ToEntityMarshaller[Json] =
     Marshaller.oneOf(jsonMediaTypes.map(customContentTypeJsonMarshaller)*)
 
   /**
     * NTriples -> HttpEntity
     */
-  implicit val nTriplesMarshaller: ToEntityMarshaller[NTriples] = {
+  given nTriplesMarshaller: ToEntityMarshaller[NTriples] = {
     def inner(mediaType: MediaType.NonBinary): ToEntityMarshaller[NTriples] =
       Marshaller.StringMarshaller.wrap(mediaType)(_.value)
 
@@ -81,21 +81,21 @@ trait RdfMarshalling {
   /**
     * NQuads -> HttpEntity
     */
-  implicit val nQuadsMarshaller: ToEntityMarshaller[NQuads] =
+  given nQuadsMarshaller: ToEntityMarshaller[NQuads] =
     Marshaller.StringMarshaller.wrap(`application/n-quads`)(_.value)
 
   /**
     * Dot -> HttpEntity
     */
-  implicit val dotMarshaller: ToEntityMarshaller[Dot] =
+  given dotMarshaller: ToEntityMarshaller[Dot] =
     Marshaller.StringMarshaller.wrap(`text/vnd.graphviz`)(_.value)
 
-  implicit val fromEntitySparqlQueryUnmarshaller: FromEntityUnmarshaller[SparqlQuery] =
+  given fromEntitySparqlQueryUnmarshaller: FromEntityUnmarshaller[SparqlQuery] =
     PredefinedFromEntityUnmarshallers.stringUnmarshaller
       .forContentTypes(RdfMediaTypes.`application/sparql-query`, MediaTypes.`text/plain`)
       .map(SparqlQuery(_))
 
-  implicit val fromStringSparqlQueryUnmarshaller: FromStringUnmarshaller[SparqlQuery] =
+  given fromStringSparqlQueryUnmarshaller: FromStringUnmarshaller[SparqlQuery] =
     Unmarshaller.strict(SparqlQuery(_))
 }
 

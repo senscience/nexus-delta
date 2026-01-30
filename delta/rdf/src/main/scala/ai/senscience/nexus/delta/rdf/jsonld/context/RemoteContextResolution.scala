@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextArray, ContextRemoteIri}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolutionError.RemoteContextNotFound
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
@@ -57,14 +57,15 @@ trait RemoteContextResolution { self =>
   /**
     * Merges the current [[RemoteContextResolution]] with the passed ones
     */
-  def merge(others: RemoteContextResolution*): RemoteContextResolution =
-    (iri: Iri) => {
+  def merge(others: RemoteContextResolution*): RemoteContextResolution = { (iri: Iri) =>
+    {
       val ios = self.resolve(iri) :: others.map(_.resolve(iri)).toList
       ios.tailRecM {
         case Nil          => IO.raiseError(RemoteContextNotFound(iri)) // that never happens
         case head :: tail => head.attempt.map(_.leftMap(_ => tail))
       }
     }
+  }
 }
 
 object RemoteContextResolution {

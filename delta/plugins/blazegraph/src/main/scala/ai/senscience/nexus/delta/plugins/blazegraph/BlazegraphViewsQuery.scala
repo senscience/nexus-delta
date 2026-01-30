@@ -39,7 +39,7 @@ trait BlazegraphViewsQuery {
       project: ProjectRef,
       query: SparqlQuery,
       responseType: SparqlQueryResponseType.Aux[R]
-  )(implicit caller: Caller): IO[R]
+  )(using Caller): IO[R]
 }
 
 object BlazegraphViewsQuery {
@@ -79,7 +79,7 @@ object BlazegraphViewsQuery {
           project: ProjectRef,
           sparqlQuery: SparqlQuery,
           responseType: Aux[R]
-      )(implicit caller: Caller): IO[R] = {
+      )(using Caller): IO[R] = {
         for {
           view       <- viewsStore.fetch(id, project)
           namespaces <- viewToNamespaces(view)
@@ -88,7 +88,7 @@ object BlazegraphViewsQuery {
       }.surround("sparqlUserQuery")
 
       // Translate a view to the set of underlying namespaces according to the current caller acls
-      private def viewToNamespaces(view: View)(implicit caller: Caller) =
+      private def viewToNamespaces(view: View)(using Caller) =
         view match {
           case i: IndexingView  =>
             aclCheck

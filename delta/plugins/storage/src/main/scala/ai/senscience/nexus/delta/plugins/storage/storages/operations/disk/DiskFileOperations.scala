@@ -24,7 +24,7 @@ trait DiskFileOperations {
 
 object DiskFileOperations {
 
-  def mk(implicit uuidf: UUIDF): DiskFileOperations = new DiskFileOperations {
+  def mk(using UUIDF): DiskFileOperations = new DiskFileOperations {
 
     private val saveFile = new DiskStorageSaveFile()
 

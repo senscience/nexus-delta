@@ -49,7 +49,7 @@ object FileResponse {
   )
 
   object Metadata {
-    implicit def fileResponseMetadataHttpResponseFields: HttpResponseFields[Metadata] =
+    given HttpResponseFields[Metadata] =
       new HttpResponseFields[Metadata] {
         override def statusFrom(value: Metadata): StatusCode       = StatusCodes.OK
         override def headersFrom(value: Metadata): Seq[HttpHeader] = Seq.empty
@@ -58,7 +58,7 @@ object FileResponse {
       }
   }
 
-  def apply[E <: Throwable: ClassTag: JsonLdEncoder: HttpResponseFields](
+  def apply[E <: Throwable: {ClassTag, JsonLdEncoder, HttpResponseFields}](
       filename: String,
       contentType: ContentType,
       etag: Option[String],

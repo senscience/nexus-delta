@@ -18,11 +18,11 @@ class SerializerSuite extends NexusSuite with Doobie.Fixture with Doobie.Asserti
   private lazy val xas = doobie()
 
   test("Check foo serializer not dropping nulls") {
-    implicit val getValue: Get[Foo] = Foo.serializer.getValue
-    implicit val putValue: Put[Foo] = Foo.serializer.putValue
-    val foo                         = Foo(5, None)
-    val foo2                        = Foo(10, Some(2))
-    val insertGet                   = for {
+    given Get[Foo] = Foo.serializer.getValue
+    given Put[Foo] = Foo.serializer.putValue
+    val foo        = Foo(5, None)
+    val foo2       = Foo(10, Some(2))
+    val insertGet  = for {
       _              <- sql"""CREATE TEMPORARY table FOO (value JSONB NOT NULL)""".update.run
       _              <- sql"""INSERT INTO FOO values ($foo)""".update.run
       _              <- sql"""INSERT INTO FOO values ($foo2)""".update.run
@@ -40,11 +40,11 @@ class SerializerSuite extends NexusSuite with Doobie.Fixture with Doobie.Asserti
   }
 
   test("Check bar serializer dropping nulls") {
-    implicit val getValue: Get[Bar] = Bar.serializer.getValue
-    implicit val putValue: Put[Bar] = Bar.serializer.putValue
-    val bar                         = Bar(5, None)
-    val bar2                        = Bar(10, Some(2))
-    val insertGet                   = for {
+    given Get[Bar] = Bar.serializer.getValue
+    given Put[Bar] = Bar.serializer.putValue
+    val bar        = Bar(5, None)
+    val bar2       = Bar(10, Some(2))
+    val insertGet  = for {
       _              <- sql"""CREATE TEMPORARY table BAR (value JSONB NOT NULL)""".update.run
       _              <- sql"""INSERT INTO BAR values ($bar)""".update.run
       _              <- sql"""INSERT INTO BAR values ($bar2)""".update.run
@@ -70,9 +70,9 @@ object SerializerSuite {
   object Foo {
 
     val serializer: Serializer[Int, Foo] = {
-      implicit val configuration: Configuration = Serializer.circeConfiguration
+      given Configuration       = Serializer.circeConfiguration
+      given Codec.AsObject[Foo] = deriveConfiguredCodec[Foo]
 
-      implicit val coder: Codec.AsObject[Foo] = deriveConfiguredCodec[Foo]
       Serializer(i => iri"https://localhost/foo/$i")
     }
   }
@@ -82,10 +82,10 @@ object SerializerSuite {
   object Bar {
 
     val serializer: Serializer[Int, Bar] = {
-      implicit val configuration: Configuration = Serializer.circeConfiguration
+      given Configuration       = Serializer.circeConfiguration
+      given Codec.AsObject[Bar] = deriveConfiguredCodec[Bar]
 
-      implicit val coder: Codec.AsObject[Bar] = deriveConfiguredCodec[Bar]
-      Serializer.dropNulls(i => iri"https://localhost/foo/$i")
+      Serializer.dropNulls(i => iri"https://localhost/bar/$i")
     }
   }
 

@@ -28,14 +28,14 @@ object Tag {
   case object Latest extends Latest {
     override val value: String = "latest"
 
-    implicit val latestTagJsonLdDecoder: JsonLdDecoder[Latest] =
+    given latestTagJsonLdDecoder: JsonLdDecoder[Latest] =
       (cursor: ExpandedJsonLdCursor) =>
         cursor.get[String].flatMap {
           case `value` => Right(Latest)
           case other   => Left(ParsingFailure(s"Tag '$other' does not match expected value 'latest'"))
         }
 
-    implicit val latestTagDecoder: Decoder[Latest] =
+    given latestTagDecoder: Decoder[Latest] =
       Decoder.decodeString.emap(str => if str == "latest" then Right(Latest) else Left("Expected 'latest' string"))
   }
 
@@ -55,36 +55,31 @@ object Tag {
         case value           => Left(IllegalLabelFormat(value))
       }
 
-    implicit final val userTagEncoder: Encoder[UserTag] =
-      Encoder.encodeString.contramap(_.value)
+    given Encoder[UserTag] = Encoder.encodeString.contramap(_.value)
 
-    implicit final val userTagDecoder: Decoder[UserTag] =
-      Decoder.decodeString.emap(str => UserTag(str).leftMap(_.message))
+    given userTagDecoder: Decoder[UserTag] = Decoder.decodeString.emap(str => UserTag(str).leftMap(_.message))
 
-    implicit val userTagKeyEncoder: KeyEncoder[UserTag] = KeyEncoder.encodeKeyString.contramap(_.toString)
-    implicit val userTagKeyDecoder: KeyDecoder[UserTag] = KeyDecoder.instance(UserTag(_).toOption)
+    given KeyEncoder[UserTag] = KeyEncoder.encodeKeyString.contramap(_.toString)
 
-    implicit final val userTagJsonLdDecoder: JsonLdDecoder[UserTag] =
-      (cursor: ExpandedJsonLdCursor) =>
-        cursor.get[String].flatMap { UserTag(_).leftMap { e => ParsingFailure(e.message) } }
+    given KeyDecoder[UserTag] = KeyDecoder.instance(UserTag(_).toOption)
+
+    given userTagJsonLdDecoder: JsonLdDecoder[UserTag] = (cursor: ExpandedJsonLdCursor) =>
+      cursor.get[String].flatMap { UserTag(_).leftMap { e => ParsingFailure(e.message) } }
   }
 
-  implicit val tagGet: Get[Tag] = Get[String].map {
+  given tagGet: Get[Tag] = Get[String].map {
     case "latest" => Latest
     case s        => UserTag.unsafe(s)
   }
 
-  implicit val tagPut: Put[Tag] = Put[String].contramap(_.value)
+  given tagPut: Put[Tag] = Put[String].contramap(_.value)
 
-  implicit val tagEncoder: Encoder[Tag] =
-    Encoder.encodeString.contramap(_.value)
+  given tagEncoder: Encoder[Tag] = Encoder.encodeString.contramap(_.value)
 
-  implicit val tagDecoder: Decoder[Tag] =
-    Latest.latestTagDecoder.or(UserTag.userTagDecoder.map(identity[Tag]))
+  given tagDecoder: Decoder[Tag] = Latest.latestTagDecoder.or(UserTag.userTagDecoder.map(identity[Tag]))
 
-  implicit val tagJsonLdDecoder: JsonLdDecoder[Tag] =
+  given tagJsonLdDecoder: JsonLdDecoder[Tag] =
     Latest.latestTagJsonLdDecoder.or(UserTag.userTagJsonLdDecoder.covary[Tag])
 
-  implicit val tagFragmentEncoder: FragmentEncoder[Tag] =
-    FragmentEncoder.instance { tag => Some(fr"tag = $tag") }
+  given tagFragmentEncoder: FragmentEncoder[Tag] = FragmentEncoder.instance { tag => Some(fr"tag = $tag") }
 }

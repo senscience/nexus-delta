@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectBase
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -23,9 +23,9 @@ import java.util.UUID
 
 class CompositeViewFactorySuite extends NexusSuite {
 
-  implicit private val projectBase: ProjectBase = ProjectBase(iri"http://localhost/project")
-  private val uuid                              = UUID.randomUUID()
-  implicit private val uuidF: UUIDF             = UUIDF.fixed(uuid)
+  private given projectBase: ProjectBase = ProjectBase(iri"http://localhost/project")
+  private val uuid                       = UUID.randomUUID()
+  private given UUIDF                    = UUIDF.fixed(uuid)
 
   private val schemas: IriFilter = IriFilter.restrictedTo(nxv + "Schema")
   private val types: IriFilter   = IriFilter.restrictedTo(nxv + "Type")

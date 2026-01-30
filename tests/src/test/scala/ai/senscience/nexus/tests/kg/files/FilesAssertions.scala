@@ -23,7 +23,7 @@ object FilesAssertions extends Matchers with OptionValues with ScalaFutures {
       expectedContent: String,
       compressed: Boolean = false,
       cacheable: Boolean = false
-  )(implicit position: Position, mat: Materializer, ec: ExecutionContext): (ByteString, HttpResponse) => Assertion =
+  )(using Position, Materializer, ExecutionContext): (ByteString, HttpResponse) => Assertion =
     (content: ByteString, response: HttpResponse) => {
       response.status shouldEqual StatusCodes.OK
       dispositionType(response) shouldEqual ContentDispositionTypes.attachment
@@ -60,6 +60,6 @@ object FilesAssertions extends Matchers with OptionValues with ScalaFutures {
   private def httpEncodings(response: HttpResponse): Seq[HttpEncoding] =
     response.header[`Content-Encoding`].value.encodings
 
-  private def decodeGzip(input: ByteString)(implicit mat: Materializer, ec: ExecutionContext): String =
+  private def decodeGzip(input: ByteString)(using Materializer, ExecutionContext): String =
     Coders.Gzip.decode(input).map(_.utf8String).futureValue
 }

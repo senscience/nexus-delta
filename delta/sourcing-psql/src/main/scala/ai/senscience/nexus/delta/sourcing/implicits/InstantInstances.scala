@@ -6,7 +6,6 @@ import java.time.Instant
 
 trait InstantInstances {
 
-  implicit final val instantInstances: Order[Instant] =
-    (x: Instant, y: Instant) => x.compareTo(y)
+  given Order[Instant] = (x: Instant, y: Instant) => x.compareTo(y)
 
 }

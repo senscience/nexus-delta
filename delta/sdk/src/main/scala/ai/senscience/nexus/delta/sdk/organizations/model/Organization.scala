@@ -44,24 +44,22 @@ object Organization {
     */
   final case class Metadata(label: Label, uuid: UUID)
 
-  implicit private val config: Configuration = Configuration.default.copy(transformMemberNames = {
+  private given Configuration = Configuration.default.copy(transformMemberNames = {
     case "label" => nxv.label.prefix
     case "uuid"  => nxv.uuid.prefix
     case other   => other
   })
 
-  implicit val organizationEncoder: Encoder.AsObject[Organization] =
-    deriveConfiguredEncoder[Organization]
+  given Encoder.AsObject[Organization] = deriveConfiguredEncoder[Organization]
 
-  val context: ContextValue                                           = ContextValue(contexts.organizations)
-  implicit val organizationJsonLdEncoder: JsonLdEncoder[Organization] =
-    JsonLdEncoder.computeFromCirce(context)
+  val context: ContextValue         = ContextValue(contexts.organizations)
+  given JsonLdEncoder[Organization] = JsonLdEncoder.computeFromCirce(context)
 
-  implicit private val organizationMetadataEncoder: Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
-  implicit val organizationMetadataJsonLdEncoder: JsonLdEncoder[Metadata]      =
+  private given Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
+  given JsonLdEncoder[Metadata]            =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.organizationsMetadata))
 
-  implicit val orgOrderingFields: OrderingFields[Organization] =
+  given OrderingFields[Organization] =
     OrderingFields {
       case "_label" => Ordering[String] on (_.label.value)
       case "_uuid"  => Ordering[UUID] on (_.uuid)

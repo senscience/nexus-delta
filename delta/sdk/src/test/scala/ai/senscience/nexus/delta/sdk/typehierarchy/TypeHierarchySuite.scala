@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.typehierarchy
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHierarchyMapping
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.{RevisionNotFound, TypeHierarchyAlreadyExists, TypeHierarchyDoesNotExist}
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, TypeHierarchyResource}
@@ -19,7 +19,7 @@ class TypeHierarchySuite extends NexusSuite with ConfigFixtures with FixedClock 
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobieTruncateAfterTest)
   private lazy val xas                           = doobieTruncateAfterTest()
 
-  implicit val subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
 
   private val config             = TypeHierarchyConfig(eventLogConfig)
   private lazy val typeHierarchy = TypeHierarchy.apply(xas, config, clock)

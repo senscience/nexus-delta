@@ -7,7 +7,7 @@ final case class NexusSource(value: Json) extends AnyVal
 
 object NexusSource {
 
-  implicit val nexusSourceDecoder: Decoder[NexusSource] = Decoder.decodeJsonObject.emap { obj =>
+  given Decoder[NexusSource] = Decoder.decodeJsonObject.emap { obj =>
     val underscoreFields = obj.keys.filter(_.startsWith("_"))
     Either.cond(
       underscoreFields.isEmpty,

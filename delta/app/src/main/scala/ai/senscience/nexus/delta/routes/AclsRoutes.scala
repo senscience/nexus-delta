@@ -16,13 +16,13 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.{malformedQueryParamEncoder, malformedQueryParamResponseFields}
 import ai.senscience.nexus.delta.sdk.marshalling.{QueryParamsUnmarshalling, RdfRejectionHandler}
+import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.given
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.model.ResourceF.*
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls as aclsPermissions
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -52,7 +52,8 @@ class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using b
 
   private given JsonLdEncoder[SearchResults[AclResource]] = searchResultsJsonLdEncoder(Acl.context)
 
-  private given JsonLdEncoder[MalformedQueryParamRejection] = RdfRejectionHandler.compactFromCirceRejection
+  private given JsonLdEncoder[MalformedQueryParamRejection] =
+    RdfRejectionHandler.compactFromCirceRejection[MalformedQueryParamRejection]
 
   private val exceptionHandler = ExceptionHandler { case err: AclRejection =>
     discardEntityAndForceEmit(err)
@@ -113,7 +114,8 @@ class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using b
   def routes: Route = {
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("acls") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           concat(
             extractAclAddress { address =>
               val authorizeRead  = authorizeFor(address, aclsPermissions.read)

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
@@ -100,7 +100,7 @@ object FailedElemLogStore {
   def apply(xas: Transactors, config: QueryConfig, clock: Clock[IO]): FailedElemLogStore =
     new FailedElemLogStore {
 
-      implicit val timeRangeFragmentEncoder: FragmentEncoder[TimeRange] = createTimeRangeFragmentEncoder("instant")
+      private given timeRangeFragmentEncoder: FragmentEncoder[TimeRange] = createTimeRangeFragmentEncoder("instant")
 
       override def count(timeRange: TimeRange): IO[Long] = {
         val whereInstant = Fragments.whereAndOpt(timeRange.asFragment)

@@ -76,10 +76,10 @@ object Realm {
     */
   final case class Metadata(label: Label)
 
-  import GrantType.Camel.*
-  import ai.senscience.nexus.delta.sdk.instances.*
+  import GrantType.Camel.given
+  import ai.senscience.nexus.delta.sdk.instances.given
 
-  implicit private[Realm] val config: Configuration = Configuration.default.copy(transformMemberNames = {
+  private[Realm] given Configuration = Configuration.default.copy(transformMemberNames = {
     case "authorizationEndpoint" => nxv.authorizationEndpoint.prefix
     case "endSessionEndpoint"    => nxv.endSessionEndpoint.prefix
     case "grantTypes"            => nxv.grantTypes.prefix
@@ -91,21 +91,18 @@ object Realm {
     case other                   => other
   })
 
-  implicit val realmEncoder: Encoder.AsObject[Realm] = {
+  given Encoder.AsObject[Realm] =
     deriveConfiguredEncoder[Realm].mapJsonObject(
       _.remove("keys")
     )
-  }
 
-  val context: ContextValue                             = ContextValue(contexts.realms)
-  implicit val realmJsonLdEncoder: JsonLdEncoder[Realm] =
-    JsonLdEncoder.computeFromCirce(context)
+  val context: ContextValue  = ContextValue(contexts.realms)
+  given JsonLdEncoder[Realm] = JsonLdEncoder.computeFromCirce(context)
 
-  implicit private val realmMetadataEncoder: Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
-  implicit val realmMetadataJsonLdEncoder: JsonLdEncoder[Metadata]      =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.realmsMetadata))
+  private given Encoder.AsObject[Metadata] = deriveConfiguredEncoder[Metadata]
+  given JsonLdEncoder[Metadata]            = JsonLdEncoder.computeFromCirce(ContextValue(contexts.realmsMetadata))
 
-  implicit val realmOrderingFields: OrderingFields[Realm] =
+  given OrderingFields[Realm] =
     OrderingFields {
       case "_label"  => Ordering[String] on (_.label.value)
       case "_issuer" => Ordering[String] on (_.issuer)

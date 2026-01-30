@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.JsonLdFormat.{Compacted, Expanded}
-import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.given
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, JsonLdFormat}
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
@@ -159,48 +159,45 @@ object ResponseToJsonLd extends FileBytesInstances {
 
 sealed trait FileBytesInstances extends ValueInstances {
 
-  implicit def ioFileBytes(
-      io: IO[FileResponse]
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
-    ResponseToJsonLd.fromFile(io)
+  given ioFileBytes
+      : (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[IO[FileResponse], ResponseToJsonLd] = {
+    io => ResponseToJsonLd.fromFile(io)
+  }
 
-  implicit def fileBytesValue(
-      value: FileResponse
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
-    ResponseToJsonLd.fromFile(IO.pure(value))
+  given fileBytesValue
+      : (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[FileResponse, ResponseToJsonLd] = {
+    value => ResponseToJsonLd.fromFile(IO.pure(value))
+  }
 
 }
 
 sealed trait ValueInstances extends LowPriorityValueInstances {
 
-  implicit def ioValue[A: JsonLdEncoder: HttpResponseFields](
-      io: IO[A]
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
+  given ioValue: [A: {JsonLdEncoder, HttpResponseFields}] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    => Conversion[IO[A], ResponseToJsonLd] = { io =>
     ResponseToJsonLd.fromComplete(io.map(v => Complete(v)))
+  }
 
-  implicit def ioJsonLdValue(
-      io: IO[JsonLdValue]
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
-    ResponseToJsonLd(
-      io.map { value =>
-        Complete(OK, Seq.empty, None, value)
-      }
-    )
+  given ioJsonLdValue
+      : (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[IO[JsonLdValue], ResponseToJsonLd] = {
+    io => ResponseToJsonLd(io.map { value => Complete(OK, Seq.empty, None, value) })
+  }
 
-  implicit def completeValue[A: JsonLdEncoder](
-      value: Complete[A]
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
+  given completeValue: [A: JsonLdEncoder] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    => Conversion[Complete[A], ResponseToJsonLd] = { value =>
     ResponseToJsonLd.fromComplete(IO.pure(value))
+  }
 
-  implicit def valueWithHttpResponseFields[A: JsonLdEncoder: HttpResponseFields](
-      value: A
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
+  given valueWithHttpResponseFields: [A: {JsonLdEncoder, HttpResponseFields}]
+    => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[A, ResponseToJsonLd] = { value =>
     ResponseToJsonLd.fromComplete(IO.pure(Complete(value)))
+  }
 }
 
 sealed trait LowPriorityValueInstances {
-  implicit def valueWithoutHttpResponseFields[A: JsonLdEncoder](
-      value: A
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLd =
+
+  given valueWithoutHttpResponseFields: [A: JsonLdEncoder] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    => Conversion[A, ResponseToJsonLd] = { value =>
     ResponseToJsonLd.fromComplete(IO.pure(Complete(OK, Seq.empty, None, value)))
+  }
 }

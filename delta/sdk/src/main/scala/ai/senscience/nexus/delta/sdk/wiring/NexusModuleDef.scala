@@ -18,7 +18,7 @@ import scala.reflect.ClassTag
 
 trait NexusModuleDef extends ModuleDef {
 
-  final def makeConfig[C: ClassTag: ConfigReader: Tag](path: String): MakeDSLUnnamedAfterFrom[C] =
+  final def makeConfig[C: {ClassTag, ConfigReader, Tag}](path: String): MakeDSLUnnamedAfterFrom[C] =
     make[C].fromEffect { (config: Config) =>
       Configs.loadEffect[C](config, path)
     }

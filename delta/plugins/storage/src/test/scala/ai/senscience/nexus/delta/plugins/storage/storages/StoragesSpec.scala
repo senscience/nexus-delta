@@ -8,13 +8,12 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.UnexpectedId
 import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectNotFound}
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
@@ -33,13 +32,11 @@ private class StoragesSpec
     with UUIDFFixtures.Random
     with RemoteContextResolutionFixture {
 
-  private val realm = Label.unsafe("myrealm")
-  private val bob   = User("Bob", realm)
-
   "The Storages operations bundle" when {
     val serviceAccount: ServiceAccount = ServiceAccount(User("nexus-sa", Label.unsafe("sa")))
-
-    implicit val caller: Caller = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
+    val realm                          = Label.unsafe("myrealm")
+    given bob: Subject                 = User("Bob", realm)
+    given Caller                       = Caller(bob, Set(bob, Group("mygroup", realm), Authenticated(realm)))
 
     val org               = Label.unsafe("org")
     val base              = nxv.base

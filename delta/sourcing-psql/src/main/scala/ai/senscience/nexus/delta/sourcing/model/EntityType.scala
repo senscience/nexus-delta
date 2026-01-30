@@ -11,14 +11,11 @@ final case class EntityType(value: String) extends AnyVal {
 }
 
 object EntityType {
-  implicit val entityTypeGet: Get[EntityType] = Get[String].map(EntityType(_))
-  implicit val entityTypePut: Put[EntityType] = Put[String].contramap(_.value)
+  given Get[EntityType] = Get[String].map(EntityType(_))
+  given Put[EntityType] = Put[String].contramap(_.value)
 
-  implicit val entityTypeEncoder: Encoder[EntityType] =
-    Encoder.encodeString.contramap(_.value)
+  given Encoder[EntityType] = Encoder.encodeString.contramap(_.value)
+  given Decoder[EntityType] = Decoder.decodeString.map(EntityType(_))
 
-  implicit val entityTypeDecoder: Decoder[EntityType] =
-    Decoder.decodeString.map(EntityType(_))
-
-  implicit val entityTypeKeyEncoder: KeyEncoder[EntityType] = KeyEncoder.encodeKeyString.contramap(_.toString)
+  given KeyEncoder[EntityType] = KeyEncoder.encodeKeyString.contramap(_.toString)
 }

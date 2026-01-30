@@ -13,5 +13,5 @@ import org.apache.pekko.http.scaladsl.server.Route
 final case class PriorityRoute(priority: Int, route: Route, requiresStrictEntity: Boolean)
 
 object PriorityRoute {
-  implicit val priorityRouteOrdering: Ordering[PriorityRoute] = Ordering.by(_.priority)
+  given priorityRouteOrdering: Ordering[PriorityRoute] = Ordering.by(_.priority)
 }

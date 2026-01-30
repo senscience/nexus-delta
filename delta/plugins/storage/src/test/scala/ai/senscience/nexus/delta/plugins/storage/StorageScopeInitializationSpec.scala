@@ -26,10 +26,10 @@ class StorageScopeInitializationSpec
 
   private val serviceAccount: ServiceAccount = ServiceAccount(User("nexus-sa", Label.unsafe("sa")))
 
-  private val saRealm: Label              = Label.unsafe("service-accounts")
-  private val usersRealm: Label           = Label.unsafe("users")
-  implicit private val sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
-  implicit private val bob: Subject       = User("bob", usersRealm)
+  private val saRealm: Label       = Label.unsafe("service-accounts")
+  private val usersRealm: Label    = Label.unsafe("users")
+  private given sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
+  private given bob: Subject       = User("bob", usersRealm)
 
   private val am      = ApiMappings("nxv" -> nxv.base, "Person" -> schema.Person)
   private val project =

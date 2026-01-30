@@ -147,7 +147,7 @@ trait DeltaDirectives extends UriDirectives {
     * If the `Accept` header is set to `text/html`, redirect to the matching resource page in fusion if the feature is
     * enabled
     */
-  def emitOrFusionRedirect(project: ProjectRef, id: IdSegmentRef, emitDelta: Route)(implicit
+  def emitOrFusionRedirect(project: ProjectRef, id: IdSegmentRef, emitDelta: Route)(using
       config: FusionConfig
   ): Route = {
     val resourceBase =
@@ -166,7 +166,7 @@ trait DeltaDirectives extends UriDirectives {
     * If the `Accept` header is set to `text/html`, redirect to the matching project page in fusion if the feature is
     * enabled
     */
-  def emitOrFusionRedirect(project: ProjectRef, emitDelta: Route)(implicit
+  def emitOrFusionRedirect(project: ProjectRef, emitDelta: Route)(using
       config: FusionConfig
   ): Route =
     emitOrFusionRedirect(
@@ -174,7 +174,7 @@ trait DeltaDirectives extends UriDirectives {
       emitDelta
     )
 
-  def emitOrFusionRedirect(fusionUri: org.http4s.Uri, emitDelta: Route)(implicit config: FusionConfig): Route =
+  def emitOrFusionRedirect(fusionUri: org.http4s.Uri, emitDelta: Route)(using config: FusionConfig): Route =
     extractRequest { req =>
       if config.enableRedirects && req.header[Accept].exists(_.mediaRanges.contains(fusionRange)) then {
         emitRedirect(SeeOther, IO.pure(fusionUri))
@@ -203,7 +203,7 @@ trait DeltaDirectives extends UriDirectives {
     vary(Set(Accept.name, `Accept-Encoding`.name))
 
   /** The URI of fusion's id resolution endpoint */
-  def fusionResolveUri(id: Uri)(implicit config: FusionConfig): Uri =
+  def fusionResolveUri(id: Uri)(using config: FusionConfig): Uri =
     config.base / "resolve" / id.toString
 
   private def vary(headers: Set[String]): Directive0 =

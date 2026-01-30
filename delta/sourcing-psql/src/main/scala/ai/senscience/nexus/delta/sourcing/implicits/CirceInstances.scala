@@ -18,16 +18,15 @@ import org.postgresql.util.PGobject
   */
 trait CirceInstances {
 
-  implicit def jsonbPut: Put[Json] =
-    jsonbPut(jsonSourceCodec)
+  given jsonbPut: Put[Json] = jsonbPut(using jsonSourceCodec)
 
-  def write(value: Json)(implicit codec: JsonValueCodec[Json]): String =
+  def write(value: Json)(using codec: JsonValueCodec[Json]): String =
     writeToString(value, defaultWriterConfig)
 
   def read(value: String): Json =
-    readFromString(value)(jsonSourceCodec)
+    readFromString(value)(using jsonSourceCodec)
 
-  def jsonbPut(implicit codec: JsonValueCodec[Json]): Put[Json] =
+  def jsonbPut(using codec: JsonValueCodec[Json]): Put[Json] =
     Put.Advanced
       .other[PGobject](
         NonEmptyList.of("jsonb")
@@ -39,7 +38,7 @@ trait CirceInstances {
         o
       }
 
-  implicit val jsonbGet: Get[Json] =
+  given jsonbGet: Get[Json] =
     Get.Advanced
       .other[PGobject](
         NonEmptyList.of("jsonb")

@@ -27,18 +27,17 @@ object SearchRejection {
     */
   final case class UnknownSuite(value: Label) extends SearchRejection(s"The suite '$value' can't be found.")
 
-  implicit private[plugins] val searchViewRejectionEncoder: Encoder.AsObject[SearchRejection] =
+  private[plugins] given Encoder.AsObject[SearchRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
     }
 
-  implicit final val searchRejectionJsonLdEncoder: JsonLdEncoder[SearchRejection] =
+  given JsonLdEncoder[SearchRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val searchHttpResponseFields: HttpResponseFields[SearchRejection] =
-    HttpResponseFields {
-      case UnknownSuite(_) => StatusCodes.NotFound
-      case _               => StatusCodes.BadRequest
+  given HttpResponseFields[SearchRejection] =
+    HttpResponseFields { case UnknownSuite(_) =>
+      StatusCodes.NotFound
     }
 }

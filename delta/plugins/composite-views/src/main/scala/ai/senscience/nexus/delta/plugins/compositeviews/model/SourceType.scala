@@ -49,5 +49,5 @@ object SourceType {
     override val tpe: Iri         = nxv + toString
   }
 
-  implicit val sourceTypeEncoder: Encoder[SourceType] = Encoder.encodeString.contramap(_.tpe.toString)
+  given Encoder[SourceType] = Encoder.encodeString.contramap(_.tpe.toString)
 }

@@ -31,15 +31,14 @@ object GraphAnalyticsRejection {
   final case class InvalidPropertyType(id: String)
       extends GraphAnalyticsRejection(s"Property type '$id' cannot be expanded to an Iri.")
 
-  implicit val graphAnalyticsRejectionEncoder: Encoder.AsObject[GraphAnalyticsRejection] =
+  given Encoder.AsObject[GraphAnalyticsRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
     }
 
-  implicit final val graphAnalyticsRejectionJsonLdEncoder: JsonLdEncoder[GraphAnalyticsRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
+  given JsonLdEncoder[GraphAnalyticsRejection] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val graphAnalyticsRejectionHttpResponseFields: HttpResponseFields[GraphAnalyticsRejection] =
+  given HttpResponseFields[GraphAnalyticsRejection] =
     HttpResponseFields { _ => StatusCodes.BadRequest }
 }

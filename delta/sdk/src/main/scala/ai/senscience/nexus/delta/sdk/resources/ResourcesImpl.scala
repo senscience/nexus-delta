@@ -38,7 +38,7 @@ final class ResourcesImpl private (
       schema: IdSegment,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource] = {
+  )(using caller: Caller): IO[DataResource] = {
     for {
       projectContext <- fetchContext.onCreate(projectRef)
       schemeRef      <- IO.fromEither(expandResourceRef(schema, projectContext))
@@ -53,7 +53,7 @@ final class ResourcesImpl private (
       schema: IdSegment,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource] = {
+  )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onCreate, projectRef, id)
       schemeRef             <- IO.fromEither(expandResourceRef(schema, projectContext))
@@ -69,7 +69,7 @@ final class ResourcesImpl private (
       rev: Int,
       source: Json,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[DataResource] = {
+  )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -82,7 +82,7 @@ final class ResourcesImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       schema: IdSegment
-  )(implicit caller: Caller): IO[DataResource] = {
+  )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemaRef             <- IO.fromEither(expandResourceRef(schema, projectContext))
@@ -95,7 +95,7 @@ final class ResourcesImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment]
-  )(implicit caller: Caller): IO[DataResource] = {
+  )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -112,7 +112,7 @@ final class ResourcesImpl private (
       tag: UserTag,
       tagRev: Int,
       rev: Int
-  )(implicit caller: Subject): IO[DataResource] =
+  )(using caller: Subject): IO[DataResource] =
     (for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -125,7 +125,7 @@ final class ResourcesImpl private (
       schemaOpt: Option[IdSegment],
       tag: UserTag,
       rev: Int
-  )(implicit caller: Subject): IO[DataResource] =
+  )(using caller: Subject): IO[DataResource] =
     (for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -137,7 +137,7 @@ final class ResourcesImpl private (
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment],
       rev: Int
-  )(implicit caller: Subject): IO[DataResource] = {
+  )(using caller: Subject): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -150,7 +150,7 @@ final class ResourcesImpl private (
       projectRef: ProjectRef,
       schemaOpt: Option[IdSegment],
       rev: Int
-  )(implicit caller: Subject): IO[DataResource] = {
+  )(using caller: Subject): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
@@ -158,7 +158,7 @@ final class ResourcesImpl private (
     } yield res
   }.surround("undeprecateResource")
 
-  override def delete(id: IdSegment, project: ProjectRef)(implicit caller: Subject): IO[Unit] = {
+  override def delete(id: IdSegment, project: ProjectRef)(using caller: Subject): IO[Unit] = {
     for {
       (iri, _) <- expandWithContext(fetchContext.onModify, project, id)
       _        <- logger.info(s"Deleting resource $iri in project $project")

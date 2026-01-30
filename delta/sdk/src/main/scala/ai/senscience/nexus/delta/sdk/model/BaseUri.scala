@@ -90,7 +90,7 @@ object BaseUri {
 
   def unsafe(base: String, prefix: String): BaseUri = BaseUri(Uri.unsafeFromString(base), Label.unsafe(prefix))
 
-  implicit final val baseUriConfigReader: ConfigReader[BaseUri] =
+  given ConfigReader[BaseUri] =
     uriReader.emap { uri =>
       BaseUri(uri).leftMap {
         case IllegalAbsoluteIRIFormatError(iri) =>
@@ -102,9 +102,9 @@ object BaseUri {
       }
     }
 
-  implicit val baseUriEncoder: Encoder[BaseUri]                   = Encoder.encodeString.contramap(_.toString)
-  implicit val baseUriDecoder: Decoder[BaseUri]                   = UriInstances.uriDecoder.emap(apply(_).leftMap(_.toString))
-  implicit final val baseUriJsonLdDecoder: JsonLdDecoder[BaseUri] = _.getValue { s =>
+  given Encoder[BaseUri]       = Encoder.encodeString.contramap(_.toString)
+  given Decoder[BaseUri]       = UriInstances.uriDecoder.emap(apply(_).leftMap(_.toString))
+  given JsonLdDecoder[BaseUri] = _.getValue { s =>
     Uri.fromString(s).flatMap(apply).toOption
   }
 }

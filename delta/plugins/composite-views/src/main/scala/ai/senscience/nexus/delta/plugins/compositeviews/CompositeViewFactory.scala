@@ -16,7 +16,7 @@ object CompositeViewFactory {
     *
     *   - The indexing revision for the common spaces and the projections defaults to 1.
     */
-  def create(fields: CompositeViewFields)(implicit projectBase: ProjectBase, uuidF: UUIDF): IO[CompositeViewValue] =
+  def create(fields: CompositeViewFields)(using projectBase: ProjectBase, uuidF: UUIDF): IO[CompositeViewValue] =
     for {
       sources     <- fields.sources.traverse { create }
       projections <- fields.projections.traverse { create(_, IndexingRev.init) }
@@ -37,7 +37,7 @@ object CompositeViewFactory {
     *     are updated
     *   - When a projection is updated, only the indexing revision of this projection is updated
     */
-  def update(fields: CompositeViewFields, current: CompositeViewValue, nextRev: IndexingRev)(implicit
+  def update(fields: CompositeViewFields, current: CompositeViewValue, nextRev: IndexingRev)(using
       projectBase: ProjectBase,
       uuidF: UUIDF
   ): IO[CompositeViewValue] = {
@@ -62,12 +62,12 @@ object CompositeViewFactory {
   }
 
   // Generate an id and a uuid for a source or a projection
-  private def generate(implicit projectBase: ProjectBase, uuidF: UUIDF) =
+  private def generate(using projectBase: ProjectBase, uuidF: UUIDF) =
     uuidF().map { uuid => uuid -> projectBase.iri / uuid.toString }
 
   private[compositeviews] def create(
       input: CompositeViewSourceFields
-  )(implicit projectBase: ProjectBase, uuidF: UUIDF) =
+  )(using projectBase: ProjectBase, uuidF: UUIDF) =
     generate.map { case (uuid, id) =>
       val source = input.toSource(uuid, id)
       source.id -> source
@@ -77,7 +77,7 @@ object CompositeViewFactory {
   private[compositeviews] def upsert(
       input: CompositeViewSourceFields,
       find: Iri => Option[CompositeViewSource]
-  )(implicit projectBase: ProjectBase, uuidF: UUIDF) = {
+  )(using projectBase: ProjectBase, uuidF: UUIDF) = {
     val currentSourceOpt = input.id.flatMap(find)
     currentSourceOpt
       .map { currentSource =>
@@ -90,7 +90,7 @@ object CompositeViewFactory {
       }
   }
 
-  private[compositeviews] def create(input: CompositeViewProjectionFields, nextRev: IndexingRev)(implicit
+  private[compositeviews] def create(input: CompositeViewProjectionFields, nextRev: IndexingRev)(using
       projectBase: ProjectBase,
       uuidF: UUIDF
   ) =
@@ -105,7 +105,7 @@ object CompositeViewFactory {
       find: Iri => Option[CompositeViewProjection],
       newRev: IndexingRev,
       sourceHasChanged: Boolean
-  )(implicit projectBase: ProjectBase, uuidF: UUIDF) = {
+  )(using projectBase: ProjectBase, uuidF: UUIDF) = {
     val currentProjectionOpt = input.id.flatMap(find)
     currentProjectionOpt
       .map { currentProjection =>

@@ -31,23 +31,23 @@ object SearchConfigHook {
 
   private val logger = Logger[SearchConfigHook]
 
-  def apply(compositeViews: CompositeViews, defaults: Defaults, indexingConfig: IndexingConfig)(implicit
-      baseUri: BaseUri,
-      subject: Subject
+  def apply(compositeViews: CompositeViews, defaults: Defaults, indexingConfig: IndexingConfig)(using
+      BaseUri,
+      Subject
   ) = new SearchConfigHook(
     defaults,
     indexingConfig,
     update(compositeViews)
   )
 
-  private def update(views: CompositeViews)(implicit
-      subject: Subject,
-      baseUri: BaseUri
-  ): (ActiveViewDef, CompositeViewFields) => IO[Unit] = { (viewDef: ActiveViewDef, fields: CompositeViewFields) =>
-    views
-      .update(viewDef.ref.viewId, viewDef.ref.project, viewDef.rev, fields)
-      .handleErrorWith(e => logger.error(s"Could not update view '${viewDef.ref}'. Message: '${e.getMessage}'"))
-      .flatMap(_ => logger.info(s"Search view '${viewDef.ref}' has been successfully updated."))
+  private def update(
+      views: CompositeViews
+  )(using BaseUri, Subject): (ActiveViewDef, CompositeViewFields) => IO[Unit] = {
+    (viewDef: ActiveViewDef, fields: CompositeViewFields) =>
+      views
+        .update(viewDef.ref.viewId, viewDef.ref.project, viewDef.rev, fields)
+        .handleErrorWith(e => logger.error(s"Could not update view '${viewDef.ref}'. Message: '${e.getMessage}'"))
+        .flatMap(_ => logger.info(s"Search view '${viewDef.ref}' has been successfully updated."))
   }
 
 }

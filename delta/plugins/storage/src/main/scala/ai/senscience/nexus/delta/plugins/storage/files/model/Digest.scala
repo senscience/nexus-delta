@@ -47,7 +47,7 @@ object Digest {
     */
   case object NotComputedDigest extends Digest
 
-  implicit val digestEncoder: Encoder.AsObject[Digest] = Encoder.encodeJsonObject.contramapObject {
+  given Encoder.AsObject[Digest] = Encoder.encodeJsonObject.contramapObject {
     case ComputedDigest(algorithm, value)                 => JsonObject("_algorithm" -> algorithm.asJson, "_value" -> value.asJson)
     case MultiPartDigest(algorithm, value, numberOfParts) =>
       JsonObject("_algorithm" -> algorithm.asJson, "_value" -> value.asJson, "_numberOfParts" -> numberOfParts.asJson)

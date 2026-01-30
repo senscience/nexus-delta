@@ -43,12 +43,12 @@ object BlazegraphViewType {
     override def tpe: Iri = nxv + toString
   }
 
-  implicit final val blazegraphViewTypeEncoder: Encoder[BlazegraphViewType] = Encoder.instance {
+  given Encoder[BlazegraphViewType] = Encoder.instance {
     case IndexingBlazegraphView  => Json.fromString("BlazegraphView")
     case AggregateBlazegraphView => Json.fromString("AggregateBlazegraphView")
   }
 
-  implicit final val blazegraphViewTypeDecoder: Decoder[BlazegraphViewType] = Decoder.decodeString.emap {
+  given Decoder[BlazegraphViewType] = Decoder.decodeString.emap {
     case "BlazegraphView"          => Right(IndexingBlazegraphView)
     case "AggregateBlazegraphView" => Right(AggregateBlazegraphView)
   }

@@ -42,22 +42,22 @@ final class PermissionsImpl private (
   override def replace(
       permissions: Set[Permission],
       rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource] =
+  )(using caller: Subject): IO[PermissionsResource] =
     eval(ReplacePermissions(rev, permissions, caller)).surround("replacePermissions")
 
   override def append(
       permissions: Set[Permission],
       rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource] =
+  )(using caller: Subject): IO[PermissionsResource] =
     eval(AppendPermissions(rev, permissions, caller)).surround("appendPermissions")
 
   override def subtract(
       permissions: Set[Permission],
       rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource] =
+  )(using caller: Subject): IO[PermissionsResource] =
     eval(SubtractPermissions(rev, permissions, caller)).surround("subtractPermissions")
 
-  override def delete(rev: Int)(implicit caller: Subject): IO[PermissionsResource] =
+  override def delete(rev: Int)(using caller: Subject): IO[PermissionsResource] =
     eval(DeletePermissions(rev, caller)).surround("deletePermissions")
 
   private def eval(cmd: PermissionsCommand): IO[PermissionsResource] =

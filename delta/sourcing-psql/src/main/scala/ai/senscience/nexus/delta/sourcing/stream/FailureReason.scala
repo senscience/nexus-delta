@@ -13,9 +13,9 @@ case class FailureReason(`type`: String, value: Json) extends Exception with NoS
 
 object FailureReason {
 
-  implicit private val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  private given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
-  implicit val failureReasonCodec: Codec.AsObject[FailureReason] = deriveConfiguredCodec[FailureReason]
+  given failureReasonCodec: Codec.AsObject[FailureReason] = deriveConfiguredCodec[FailureReason]
 
   def apply(throwable: Throwable): FailureReason =
     apply(throwable.getClass.getCanonicalName, throwable.getMessage, Some(stackTraceAsString(throwable)))

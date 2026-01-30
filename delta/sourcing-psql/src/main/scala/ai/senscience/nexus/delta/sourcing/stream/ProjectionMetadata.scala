@@ -36,5 +36,5 @@ object ProjectionMetadata {
     */
   def apply(module: String, name: String): ProjectionMetadata = ProjectionMetadata(module, name, None, None)
 
-  implicit final val projectionMetadataEncoder: Encoder[ProjectionMetadata] = deriveEncoder
+  given Encoder[ProjectionMetadata] = deriveEncoder
 }

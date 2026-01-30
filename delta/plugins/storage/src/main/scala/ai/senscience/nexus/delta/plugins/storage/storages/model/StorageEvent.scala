@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
@@ -192,7 +192,7 @@ object StorageEvent {
     Serializer.dropNulls()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[StorageEvent] = new SseEncoder[StorageEvent] {
+  def sseEncoder(using base: BaseUri): SseEncoder[StorageEvent] = new SseEncoder[StorageEvent] {
     override val databaseDecoder: Decoder[StorageEvent] = serializer.codec
 
     override def entityType: EntityType = Storages.entityType
@@ -202,7 +202,7 @@ object StorageEvent {
     override val sseEncoder: Encoder.AsObject[StorageEvent] = {
       val context = ContextValue(Vocabulary.contexts.metadata, contexts.storages)
 
-      implicit val config: Configuration = Configuration.default
+      given Configuration = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => "_storageId"
@@ -214,8 +214,8 @@ object StorageEvent {
           case other     => other
         })
 
-      implicit val subjectEncoder: Encoder[Subject]           = IriEncoder.jsonEncoder[Subject]
-      implicit val storageValueEncoder: Encoder[StorageValue] = Encoder.instance[StorageValue](_ => Json.Null)
+      given Encoder[Subject]      = IriEncoder.jsonEncoder[Subject]
+      given Encoder[StorageValue] = Encoder.instance[StorageValue](_ => Json.Null)
 
       Encoder.encodeJsonObject.contramapObject { event =>
         deriveConfiguredEncoder[StorageEvent]

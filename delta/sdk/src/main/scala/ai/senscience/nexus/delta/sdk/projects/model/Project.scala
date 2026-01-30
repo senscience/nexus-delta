@@ -103,12 +103,12 @@ object Project {
   final case class Source(description: Option[String], apiMappings: ApiMappings, base: ProjectBase, vocab: Iri)
 
   object Source {
-    implicit val projectSourceEncoder: Encoder[Source] = deriveEncoder[Source]
+    given Encoder[Source] = deriveEncoder[Source]
   }
 
   val context: ContextValue = ContextValue(contexts.projects)
 
-  implicit private val config: Configuration = Configuration.default.copy(transformMemberNames = {
+  private given Configuration = Configuration.default.copy(transformMemberNames = {
     case "label"                => nxv.label.prefix
     case "uuid"                 => nxv.uuid.prefix
     case "organizationLabel"    => nxv.organizationLabel.prefix
@@ -118,7 +118,7 @@ object Project {
     case other                  => other
   })
 
-  implicit val projectEncoder: Encoder.AsObject[Project] =
+  given Encoder.AsObject[Project] =
     Encoder.encodeJsonObject.contramapObject { project =>
       deriveConfiguredEncoder[Project]
         .encodeObject(project)
@@ -127,26 +127,25 @@ object Project {
         .add(nxv.effectiveApiMappings.prefix, effectiveApiMappingsEncoder(project.context.apiMappings))
     }
 
-  implicit val projectJsonLdEncoder: JsonLdEncoder[Project] =
-    JsonLdEncoder.computeFromCirce(context)
+  given JsonLdEncoder[Project] = JsonLdEncoder.computeFromCirce(context)
 
   private val effectiveApiMappingsEncoder: Encoder[ApiMappings] = {
     final case class Mapping(_prefix: String, _namespace: Iri)
-    implicit val mappingEncoder: Encoder.AsObject[Mapping] = deriveConfiguredEncoder[Mapping]
+    given Encoder.AsObject[Mapping] = deriveConfiguredEncoder[Mapping]
     Encoder.encodeJson.contramap { case ApiMappings(mappings) =>
       mappings.map { case (prefix, namespace) => Mapping(prefix, namespace) }.asJson
     }
   }
 
-  implicit private val projectMetadataEncoder: Encoder.AsObject[Metadata] = {
-    implicit val enc: Encoder[ApiMappings] = effectiveApiMappingsEncoder
+  private given Encoder.AsObject[Metadata] = {
+    given Encoder[ApiMappings] = effectiveApiMappingsEncoder
     deriveConfiguredEncoder[Metadata]
   }
 
-  implicit val projectMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
+  given JsonLdEncoder[Metadata] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.projectsMetadata))
 
-  implicit val projectOrderingFields: OrderingFields[Project] =
+  given OrderingFields[Project] =
     OrderingFields {
       case "_label"             => Ordering[String] on (_.label.value)
       case "_uuid"              => Ordering[UUID] on (_.uuid)

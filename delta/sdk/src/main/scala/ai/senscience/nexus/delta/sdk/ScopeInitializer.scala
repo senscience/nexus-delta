@@ -13,14 +13,10 @@ import cats.implicits.*
 trait ScopeInitializer {
 
   /** Execute the actions necessary at org creation */
-  def initializeOrganization(
-      organizationResource: OrganizationResource
-  )(implicit caller: Subject): IO[Unit]
+  def initializeOrganization(organizationResource: OrganizationResource)(using Subject): IO[Unit]
 
   /** Execute the actions necessary at project creation */
-  def initializeProject(
-      project: ProjectRef
-  )(implicit caller: Subject): IO[Unit]
+  def initializeProject(project: ProjectRef)(using Subject): IO[Unit]
 
 }
 
@@ -43,7 +39,7 @@ object ScopeInitializer {
 
       override def initializeOrganization(
           organizationResource: OrganizationResource
-      )(implicit caller: Subject): IO[Unit] =
+      )(using caller: Subject): IO[Unit] =
         scopeInitializations
           .runAll { init =>
             init.onOrganizationCreation(organizationResource.value, caller)
@@ -54,7 +50,7 @@ object ScopeInitializer {
 
       override def initializeProject(
           project: ProjectRef
-      )(implicit caller: Subject): IO[Unit] = {
+      )(using caller: Subject): IO[Unit] = {
         scopeInitializations
           .runAll { init =>
             init
@@ -71,7 +67,7 @@ object ScopeInitializer {
 
     }
 
-  implicit private class SetOps[A](set: Set[A]) {
+  extension [A](set: Set[A]) {
 
     /**
       * Runs all the provided effects in parallel, but does not cancel the rest if one fails. In this implementation,

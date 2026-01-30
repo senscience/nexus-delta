@@ -25,9 +25,9 @@ import java.util.UUID
 
 class LinkFileActionSuite extends NexusSuite {
 
-  private val realm           = Label.unsafe("myrealm")
-  private val user            = User("user", realm)
-  implicit val caller: Caller = Caller(user, Set.empty)
+  private val realm    = Label.unsafe("myrealm")
+  private val user     = User("user", realm)
+  private given Caller = Caller(user, Set.empty)
 
   private val project    = ProjectRef.unsafe("org", "project")
   private val storageIri = nxv + "s3-storage"
@@ -37,11 +37,11 @@ class LinkFileActionSuite extends NexusSuite {
 
   private val fetchStorage = new FetchStorage {
 
-    override def onRead(id: ResourceRef, project: ProjectRef)(implicit caller: Caller): IO[Storage] =
+    override def onRead(id: ResourceRef, project: ProjectRef)(using Caller): IO[Storage] =
       IO.raiseError(new IllegalStateException("Should not be called"))
 
-    override def onWrite(id: Option[IriOrBNode.Iri], project: ProjectRef)(implicit
-        caller: Caller
+    override def onWrite(id: Option[IriOrBNode.Iri], project: ProjectRef)(using
+        Caller
     ): IO[(ResourceRef.Revision, Storage)] =
       IO.raiseUnless(id.contains(storageIri))(AuthorizationFailed("Fail")) >> IO.pure(storageRef -> s3Storage)
   }

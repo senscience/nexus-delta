@@ -25,7 +25,7 @@ abstract class SparqlSinkSuite extends NexusSuite with SparqlClientSetup.Fixture
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(blazegraphClient)
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   def client: SparqlClient
 

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, El
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel.IndexGroup
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeViewProjection.{ElasticSearchProjection, SparqlProjection}
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ProjectionType.{ElasticSearchProjectionType, SparqlProjectionType}
-import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery.*
+import ai.senscience.nexus.delta.plugins.compositeviews.model.TemplateSparqlConstructQuery.given
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
@@ -146,10 +146,10 @@ object CompositeViewProjectionFields {
       )
   }
 
-  implicit final val projectionEncoder: Encoder.AsObject[CompositeViewProjectionFields] = {
+  given Encoder.AsObject[CompositeViewProjectionFields] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val config: Configuration = Configuration(
+    given Configuration = Configuration(
       transformMemberNames = {
         case "id"  => keywords.id
         case other => other
@@ -166,13 +166,13 @@ object CompositeViewProjectionFields {
     deriveConfiguredEncoder[CompositeViewProjectionFields]
   }
 
-  implicit final val projectionLdDecoder: JsonLdDecoder[CompositeViewProjectionFields] = {
+  given JsonLdDecoder[CompositeViewProjectionFields] = {
 
     val ctx = Configuration.default.context
       .addAliasIdType("ElasticSearchProjectionFields", ElasticSearchProjectionType.tpe)
       .addAliasIdType("SparqlProjectionFields", SparqlProjectionType.tpe)
 
-    implicit val cfg: Configuration = Configuration.default.copy(context = ctx)
+    given Configuration = Configuration.default.copy(context = ctx)
     deriveConfigJsonLdDecoder[CompositeViewProjectionFields]
   }
 

@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
@@ -33,12 +32,13 @@ import munit.{AnyFixture, Location}
 
 class BlazegraphViewsQuerySuite extends NexusSuite with ConfigFixtures with Fixtures {
 
-  implicit private val uuidF: UUIDF = UUIDF.random
+  private given UUIDF = UUIDF.random
 
-  private val realm                  = Label.unsafe("myrealm")
-  implicit private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
-  private val bob: Caller            = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
-  private val anon: Caller           = Caller(Anonymous, Set(Anonymous))
+  private val realm             = Label.unsafe("myrealm")
+  private given aliceUser: User = User("Alice", realm)
+  private given alice: Caller   = Caller(aliceUser, Set(User("Alice", realm), Group("users", realm)))
+  private val bob: Caller       = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
+  private val anon: Caller      = Caller(Anonymous, Set(Anonymous))
 
   private val project1     = ProjectGen.project("org", "proj")
   private val project2     = ProjectGen.project("org2", "proj2")
@@ -147,11 +147,9 @@ class BlazegraphViewsQuerySuite extends NexusSuite with ConfigFixtures with Fixt
       }
       .map(_.toSet)
 
-  private def assertNamespaceAccess(view: ViewRef, caller: Caller, expectedNamespaces: Set[String])(implicit
-      location: Location
-  ) =
+  private def assertNamespaceAccess(view: ViewRef, caller: Caller, expectedNamespaces: Set[String])(using Location) =
     viewsQuery
-      .query(view.viewId, view.project, constructQuery, SparqlJsonLd)(caller)
+      .query(view.viewId, view.project, constructQuery, SparqlJsonLd)(using caller)
       .flatMap { response =>
         IO.fromEither(response.value.as[Set[String]])
       }
@@ -166,7 +164,7 @@ class BlazegraphViewsQuerySuite extends NexusSuite with ConfigFixtures with Fixt
   test("Query an indexed view without permissions") {
     val view = view1Proj1
     viewsQuery
-      .query(view.viewId, view.project, constructQuery, SparqlJsonLd)(anon)
+      .query(view.viewId, view.project, constructQuery, SparqlJsonLd)(using anon)
       .intercept[AuthorizationFailed]
   }
 

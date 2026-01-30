@@ -128,9 +128,8 @@ object EventMetric {
       )
   }
 
-  implicit val eventMetricEncoder: Encoder.AsObject[EventMetric] = {
-
-    implicit val subjectCodec: Encoder[Subject] = Identity.Database.subjectCodec
+  given eventMetricEncoder: Encoder.AsObject[EventMetric] = {
+    given Encoder[Subject] = Identity.Database.subjectCodec
     Encoder.AsObject.instance { e =>
       val common = JsonObject(
         "instant" := e.instant,
@@ -153,7 +152,7 @@ object EventMetric {
     }
   }
 
-  implicit val projectScopedMetricEncoder: Encoder.AsObject[ProjectScopedMetric] =
+  given Encoder.AsObject[ProjectScopedMetric] =
     eventMetricEncoder.contramapObject { identity }
 
 }

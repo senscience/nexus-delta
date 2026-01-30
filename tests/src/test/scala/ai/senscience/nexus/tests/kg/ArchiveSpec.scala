@@ -11,7 +11,7 @@ import ai.senscience.nexus.tests.resources.SimpleResource
 import ai.senscience.nexus.tests.{BaseIntegrationSpec, Identity, SchemaPayload}
 import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
 import org.apache.pekko.http.scaladsl.model.{MediaRanges, MediaTypes, StatusCodes, Uri}
-import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers.stringUnmarshaller
 import org.apache.pekko.util.ByteString
 import io.circe.Json
 
@@ -130,7 +130,7 @@ class ArchiveSpec extends BaseIntegrationSpec with ArchiveHelpers {
         response.status shouldEqual StatusCodes.SeeOther
         val locationHeaderValue = response.header[Location].value.uri.toString()
         locationHeaderValue shouldEqual archiveLocation
-      })(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
+      })(using stringUnmarshaller)
     }
 
     "fail if payload is wrong" in {

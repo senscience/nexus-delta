@@ -56,7 +56,6 @@ object DataConstructQuery extends PipeDef {
     )
   }
   object DataConstructQueryConfig                                        {
-    implicit val dataConstructQueryConfigJsonLdDecoder: JsonLdDecoder[DataConstructQueryConfig] =
-      deriveDefaultJsonLdDecoder
+    given JsonLdDecoder[DataConstructQueryConfig] = deriveDefaultJsonLdDecoder
   }
 }

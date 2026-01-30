@@ -72,7 +72,7 @@ final class Files(
       project: ProjectRef,
       uploadRequest: FileUploadRequest,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       pc                    <- fetchContext.onCreate(project)
       iri                   <- generateId(pc)
@@ -101,7 +101,7 @@ final class Files(
       storageId: Option[IdSegment],
       uploadRequest: FileUploadRequest,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       (iri, pc)             <- id.expandIri(fetchContext.onCreate)
       storageIri            <- storageId.traverse(expandStorageIri(_, pc))
@@ -129,9 +129,7 @@ final class Files(
       description: FileDescription,
       storageId: Option[IdSegment],
       tag: Option[UserTag]
-  )(implicit
-      caller: Caller
-  ): IO[FileDelegationRequest] = {
+  )(using caller: Caller): IO[FileDelegationRequest] = {
     for {
       pc             <- fetchContext.onCreate(project)
       iri            <- id.fold(generateId(pc)) { FileId.iriExpander(_, pc) }
@@ -160,9 +158,7 @@ final class Files(
       description: FileDescription,
       storageId: Option[IdSegment],
       tag: Option[UserTag]
-  )(implicit
-      caller: Caller
-  ): IO[FileDelegationRequest] = {
+  )(using caller: Caller): IO[FileDelegationRequest] = {
     for {
       pc             <- fetchContext.onModify(project)
       iri            <- FileId.iriExpander(id, pc)
@@ -193,7 +189,7 @@ final class Files(
       rev: Int,
       uploadRequest: FileUploadRequest,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       (iri, pc)             <- id.expandIri(fetchContext.onModify)
       storageIri            <- storageId.traverse(expandStorageIri(_, pc))
@@ -209,7 +205,7 @@ final class Files(
       rev: Int,
       metadata: FileCustomMetadata,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       (iri, _) <- id.expandIri(fetchContext.onModify)
       res      <- eval(UpdateFileCustomMetadata(iri, id.project, metadata, rev, caller.subject, tag))
@@ -222,7 +218,7 @@ final class Files(
       storageId: Option[IdSegment],
       linkRequest: FileLinkRequest,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       projectContext <- fetchContext.onCreate(project)
       iri            <- id.fold(generateId(projectContext)) { FileId.iriExpander(_, projectContext) }
@@ -238,7 +234,7 @@ final class Files(
       storageId: Option[IdSegment],
       linkRequest: FileLinkRequest,
       tag: Option[UserTag]
-  )(implicit caller: Caller): IO[FileResource] = {
+  )(using caller: Caller): IO[FileResource] = {
     for {
       (iri, pc)    <- id.expandIri(fetchContext.onModify)
       project       = id.project
@@ -266,12 +262,12 @@ final class Files(
       tag: UserTag,
       tagRev: Int,
       rev: Int
-  )(implicit subject: Subject): IO[FileResource] = {
-    for {
-      (iri, _) <- id.expandIri(fetchContext.onModify)
-      res      <- eval(TagFile(iri, id.project, tagRev, tag, rev, subject))
-    } yield res
-  }.surround("tagFile")
+  )(using subject: Subject): IO[FileResource] =
+    id.expandIri(fetchContext.onModify)
+      .flatMap { case (iri, _) =>
+        eval(TagFile(iri, id.project, tagRev, tag, rev, subject))
+      }
+      .surround("tagFile")
 
   /**
     * Delete a tag on an existing file.
@@ -287,12 +283,12 @@ final class Files(
       id: FileId,
       tag: UserTag,
       rev: Int
-  )(implicit subject: Subject): IO[FileResource] = {
-    for {
-      (iri, _) <- id.expandIri(fetchContext.onModify)
-      res      <- eval(DeleteFileTag(iri, id.project, tag, rev, subject))
-    } yield res
-  }.surround("deleteFileTag")
+  )(using subject: Subject): IO[FileResource] =
+    id.expandIri(fetchContext.onModify)
+      .flatMap { case (iri, _) =>
+        eval(DeleteFileTag(iri, id.project, tag, rev, subject))
+      }
+      .surround("deleteFileTag")
 
   /**
     * Deprecate an existing file
@@ -305,12 +301,12 @@ final class Files(
   def deprecate(
       id: FileId,
       rev: Int
-  )(implicit subject: Subject): IO[FileResource] = {
-    for {
-      (iri, _) <- id.expandIri(fetchContext.onModify)
-      res      <- eval(DeprecateFile(iri, id.project, rev, subject))
-    } yield res
-  }.surround("deprecateFile")
+  )(using subject: Subject): IO[FileResource] =
+    id.expandIri(fetchContext.onModify)
+      .flatMap { case (iri, _) =>
+        eval(DeprecateFile(iri, id.project, rev, subject))
+      }
+      .surround("deprecateFile")
 
   /**
     * Undeprecate an existing file
@@ -323,12 +319,12 @@ final class Files(
   def undeprecate(
       id: FileId,
       rev: Int
-  )(implicit subject: Subject): IO[FileResource] = {
-    for {
-      (iri, _) <- id.expandIri(fetchContext.onModify)
-      res      <- eval(UndeprecateFile(iri, id.project, rev, subject))
-    } yield res
-  }.surround("undeprecateFile")
+  )(using subject: Subject): IO[FileResource] =
+    id.expandIri(fetchContext.onModify)
+      .flatMap { case (iri, _) =>
+        eval(UndeprecateFile(iri, id.project, rev, subject))
+      }
+      .surround("undeprecateFile")
 
   /**
     * Fetch the last version of a file content
@@ -336,7 +332,7 @@ final class Files(
     * @param id
     *   the identifier that will be expanded to the Iri of the file with its optional rev/tag
     */
-  def fetchContent(id: FileId)(implicit caller: Caller): IO[FileResponse] = {
+  def fetchContent(id: FileId)(using caller: Caller): IO[FileResponse] = {
     for {
       file      <- fetch(id)
       attributes = file.value.attributes

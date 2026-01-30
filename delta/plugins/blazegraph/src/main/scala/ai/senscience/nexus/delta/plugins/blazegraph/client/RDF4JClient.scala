@@ -62,7 +62,7 @@ final class RDF4JClient(client: Client[IO], endpoint: Uri, repositoryTemplate: S
 
   override def listNamespaces: IO[Vector[String]] = {
     val request = GET(repositoriesEndpoint, accept(SparqlResultsJson.mediaTypes))
-    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
     client.expect[SparqlResults](request).map { response =>
       response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
         val namespaceName = binding.get("id").map(_.value)
@@ -81,7 +81,7 @@ final class RDF4JClient(client: Client[IO], endpoint: Uri, repositoryTemplate: S
       q: SparqlQuery,
       mediaTypes: NonEmptyList[MediaType],
       additionalHeaders: Seq[Header.ToRaw]
-  )(implicit entityDecoder: EntityDecoder[IO, A], classTag: ClassTag[A]): IO[A] = {
+  )(using EntityDecoder[IO, A], ClassTag[A]): IO[A] = {
     val contentType = `Content-Type`(`application/sparql-query`)
     val request     = POST(q.value, queryEndpoint(namespace), accept(mediaTypes), contentType)
     client.expectOr[A](request)(SparqlQueryError(_))

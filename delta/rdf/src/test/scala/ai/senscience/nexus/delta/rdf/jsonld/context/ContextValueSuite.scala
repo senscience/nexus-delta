@@ -14,12 +14,12 @@ class ContextValueSuite extends NexusSuite with Fixtures {
 
   test("Be extracted from the @context field") {
     val expected = json"""{"@base": "${base.value}"}"""
-    assertContext(json"""[{"@context": {"@base": "${base.value}"}, "@id": "$iri", "age": 30}]""", expected)
-    assertContext(json"""{"@context": {"@base": "${base.value}"}, "@id": "$iri", "age": 30}""", expected)
+    assertContext(json"""[{"@context": {"@base": "${base.value}"}, "@id": "$johnDoeIri", "age": 30}]""", expected)
+    assertContext(json"""{"@context": {"@base": "${base.value}"}, "@id": "$johnDoeIri", "age": 30}""", expected)
   }
 
   test("Extract an empty context when there is no @context") {
-    assertEquals(json"""{"@id": "$iri", "age": 30}""".topContextValueOrEmpty, ContextValue.empty)
+    assertEquals(json"""{"@id": "$johnDoeIri", "age": 30}""".topContextValueOrEmpty, ContextValue.empty)
   }
 
   test("Be empty") {

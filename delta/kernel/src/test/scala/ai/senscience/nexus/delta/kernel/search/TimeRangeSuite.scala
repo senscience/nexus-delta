@@ -13,10 +13,10 @@ class TimeRangeSuite extends FunSuite {
   private val april_2022_string    = "2022-04-10T04:20:00Z"
   private val april_2022           = Instant.parse(april_2022_string)
 
-  private def assertLeft(value: String, error: ParseError)(implicit location: Location): Unit =
+  private def assertLeft(value: String, error: ParseError)(using Location): Unit =
     assertEquals(parse(value), Left(error))
 
-  private def assertRight(value: String, result: TimeRange)(implicit location: Location): Unit =
+  private def assertRight(value: String, result: TimeRange)(using Location): Unit =
     assertEquals(parse(value), Right(result))
 
   List(

@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDire
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
@@ -25,6 +25,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.schemas.{read as Re
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaRejection.SchemaNotFound
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -57,7 +58,7 @@ final class SchemasRoutes(
 
   import schemeDirectives.*
 
-  private given [A: JsonLdEncoder]: JsonLdEncoder[ResourceF[A]] =
+  private given [A: JsonLdEncoder] => JsonLdEncoder[ResourceF[A]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.schemasMetadata))
 
   private def exceptionHandler(enableRejects: Boolean) =
@@ -100,7 +101,8 @@ final class SchemasRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("schemas", shacl)) {
       pathPrefix("schemas") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)

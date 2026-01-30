@@ -55,7 +55,7 @@ object ResolverScopeInitialization {
   def apply(resolvers: Resolvers, serviceAccount: ServiceAccount, defaults: Defaults)(using
       Tracer[IO]
   ): ResolverScopeInitialization = {
-    implicit val caller: Caller        = serviceAccount.caller
+    given Caller                       = serviceAccount.caller
     def createResolver: CreateResolver = resolvers.create(nxv.defaultResolver, _, _).void
     new ResolverScopeInitialization(
       createResolver,

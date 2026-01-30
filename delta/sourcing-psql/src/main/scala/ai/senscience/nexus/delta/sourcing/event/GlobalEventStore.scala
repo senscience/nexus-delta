@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.event
 
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.event.Event.GlobalEvent
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.{Serializer, Transactors}
 import cats.effect.IO
@@ -52,9 +52,9 @@ object GlobalEventStore {
       xas: Transactors
   ): GlobalEventStore[Id, E] =
     new GlobalEventStore[Id, E] {
-      implicit val putId: Put[Id]   = serializer.putId
-      implicit val getValue: Get[E] = serializer.getValue
-      implicit val putValue: Put[E] = serializer.putValue
+      private given Put[Id] = serializer.putId
+      private given Get[E]  = serializer.getValue
+      private given Put[E]  = serializer.putValue
 
       override def save(event: E): ConnectionIO[Unit] =
         sql"""

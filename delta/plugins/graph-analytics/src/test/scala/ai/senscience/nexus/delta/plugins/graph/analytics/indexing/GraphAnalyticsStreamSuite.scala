@@ -89,8 +89,8 @@ object GraphAnalyticsStreamSuite {
     val entityType: EntityType = EntityType("sample")
 
     val serializer: Serializer[Iri, Sample] = {
-      implicit val configuration: Configuration  = Serializer.circeConfiguration
-      implicit val coder: Codec.AsObject[Sample] = deriveConfiguredCodec[Sample]
+      given Configuration          = Serializer.circeConfiguration
+      given Codec.AsObject[Sample] = deriveConfiguredCodec[Sample]
       Serializer()
     }
   }

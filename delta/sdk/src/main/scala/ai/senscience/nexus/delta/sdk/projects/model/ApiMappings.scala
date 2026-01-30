@@ -38,16 +38,16 @@ object ApiMappings {
 
   final private case class Mapping(prefix: String, namespace: Iri)
 
-  implicit final private val configuration: Configuration = Configuration.default.withStrictDecoding
+  private given Configuration = Configuration.default.withStrictDecoding
 
-  implicit private val mappingDecoder: Decoder[Mapping] = deriveConfiguredDecoder[Mapping]
-  implicit private val mappingEncoder: Encoder[Mapping] = deriveConfiguredEncoder[Mapping]
+  private given Decoder[Mapping] = deriveConfiguredDecoder[Mapping]
+  private given Encoder[Mapping] = deriveConfiguredEncoder[Mapping]
 
-  implicit val apiMappingsEncoder: Encoder[ApiMappings] =
+  given Encoder[ApiMappings] =
     Encoder.encodeJson.contramap { case ApiMappings(mappings) =>
       mappings.map { case (prefix, namespace) => Mapping(prefix, namespace) }.asJson
     }
 
-  implicit val apiMappingsDecoder: Decoder[ApiMappings] =
+  given Decoder[ApiMappings] =
     Decoder.decodeList[Mapping].map(list => ApiMappings(list.map(m => m.prefix -> m.namespace).toMap))
 }

@@ -65,8 +65,8 @@ object ArchiveValue {
 
   final private case class ArchiveValueInput(resources: NonEmptySet[ArchiveReference])
 
-  implicit final val archiveValueJsonLdDecoder: JsonLdDecoder[ArchiveValue] = {
-    implicit val cfg: Configuration = Configuration.default
+  given JsonLdDecoder[ArchiveValue] = {
+    given Configuration = Configuration.default
     deriveConfigJsonLdDecoder[ArchiveValueInput].flatMap { input =>
       apply(input.resources).leftMap(err => ParsingFailure(err.reason))
     }

@@ -26,9 +26,7 @@ object IdentityResolution {
     */
   final case class ProvidedIdentities(value: Set[Identity]) extends IdentityResolution
 
-  implicit def identityResolutionEncoder(implicit
-      identityEncoder: Encoder[Identity]
-  ): Encoder.AsObject[IdentityResolution] = {
+  given identityResolutionEncoder: Encoder[Identity] => Encoder.AsObject[IdentityResolution] = {
     Encoder.AsObject.instance {
       case UseCurrentCaller          => JsonObject.singleton("useCurrentCaller", Json.fromBoolean(true))
       case ProvidedIdentities(value) =>

@@ -29,7 +29,7 @@ class HashPartitionerSuite extends NexusSuite {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(hashDoobie)
 
-  implicit private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
+  private lazy val (partitioner: DatabasePartitioner, xas: Transactors) = hashDoobie()
 
   private lazy val eventStore = PullRequest.eventStore(queryConfig)
 
@@ -61,19 +61,19 @@ class HashPartitionerSuite extends NexusSuite {
     val statePartitions = expectedPartitions("scoped_states")
     for {
       _            <- DatabasePartitioner.getConfig(partitioningStrategy, xas).assertEquals(true)
-      _            <- PartitionQueries.partitionsOf("scoped_events").assertEquals(eventPartitions)
-      _            <- PartitionQueries.partitionsOf("scoped_states").assertEquals(statePartitions)
+      _            <- PartitionQueries.partitionsOf("scoped_events", xas).assertEquals(eventPartitions)
+      _            <- PartitionQueries.partitionsOf("scoped_states", xas).assertEquals(statePartitions)
       _            <- populate
       // Both projects should be available
-      _            <- ScopedEventQueries.distinctProjects.assertEquals(Set(project1, project2))
-      _            <- ScopedStateQueries.distinctProjects.assertEquals(Set(project1, project2))
+      _            <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(project1, project2))
+      _            <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(project1, project2))
       _            <- partitioner.onDeleteProject(project1).transact(xas.write)
       // Only project2 should remain
-      _            <- ScopedEventQueries.distinctProjects.assertEquals(Set(project2))
-      _            <- ScopedStateQueries.distinctProjects.assertEquals(Set(project2))
+      _            <- ScopedEventQueries.distinctProjects(xas).assertEquals(Set(project2))
+      _            <- ScopedStateQueries.distinctProjects(xas).assertEquals(Set(project2))
       // The partitions should remain the same
-      _            <- PartitionQueries.partitionsOf("scoped_events").assertEquals(eventPartitions)
-      _            <- PartitionQueries.partitionsOf("scoped_states").assertEquals(statePartitions)
+      _            <- PartitionQueries.partitionsOf("scoped_events", xas).assertEquals(eventPartitions)
+      _            <- PartitionQueries.partitionsOf("scoped_states", xas).assertEquals(statePartitions)
       // Init again with the same value should be ok
       _            <- partitioner.onInit.assert
       // Init with another partition strategy should fail

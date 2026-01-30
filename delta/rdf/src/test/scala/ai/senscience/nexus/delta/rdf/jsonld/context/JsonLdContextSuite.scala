@@ -137,14 +137,14 @@ class JsonLdContextSuite extends NexusSuite with Fixtures {
   test("Add remote contexts Iri") {
     val remoteCtx = iri"https://senscience.ai/remote"
     List(
-      json"""{"@id":"$iri","age": 30}"""                                                                                    -> json"""{"@context":"$remoteCtx","@id":"$iri","age": 30}""",
-      json"""{"@context":"http://ex.com/1","@id":"$iri","age": 30}"""                                                       -> json"""{"@context":["http://ex.com/1","$remoteCtx"],"@id":"$iri","age": 30}""",
-      json"""{"@context":[],"@id":"$iri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$iri","age": 30}""",
-      json"""{"@context":{},"@id":"$iri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$iri","age": 30}""",
-      json"""{"@context":"","@id":"$iri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$iri","age": 30}""",
-      json"""{"@context":["http://ex.com/1","http://ex.com/2"],"@id":"$iri","age": 30}"""                                   -> json"""{"@context":["http://ex.com/1","http://ex.com/2","$remoteCtx"],"@id":"$iri","age": 30}""",
-      json"""{"@context":{"@vocab":"${vocab.value}","@base":"${base.value}"},"@id":"$iri","age": 30}"""                     -> json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"},"$remoteCtx"],"@id":"$iri","age": 30}""",
-      json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"},"http://ex.com/1"],"@id":"$iri","age": 30}""" -> json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"}, "http://ex.com/1", "$remoteCtx"],"@id":"$iri","age": 30}"""
+      json"""{"@id":"$johnDoeIri","age": 30}"""                                                                                    -> json"""{"@context":"$remoteCtx","@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":"http://ex.com/1","@id":"$johnDoeIri","age": 30}"""                                                       -> json"""{"@context":["http://ex.com/1","$remoteCtx"],"@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":[],"@id":"$johnDoeIri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":{},"@id":"$johnDoeIri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":"","@id":"$johnDoeIri","age": 30}"""                                                                      -> json"""{"@context":"$remoteCtx","@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":["http://ex.com/1","http://ex.com/2"],"@id":"$johnDoeIri","age": 30}"""                                   -> json"""{"@context":["http://ex.com/1","http://ex.com/2","$remoteCtx"],"@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":{"@vocab":"${vocab.value}","@base":"${base.value}"},"@id":"$johnDoeIri","age": 30}"""                     -> json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"},"$remoteCtx"],"@id":"$johnDoeIri","age": 30}""",
+      json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"},"http://ex.com/1"],"@id":"$johnDoeIri","age": 30}""" -> json"""{"@context":[{"@vocab":"${vocab.value}","@base":"${base.value}"}, "http://ex.com/1", "$remoteCtx"],"@id":"$johnDoeIri","age": 30}"""
     ).foreach { case (input, expected) =>
       assertEquals(input.addContext(remoteCtx), expected)
     }
@@ -156,8 +156,8 @@ class JsonLdContextSuite extends NexusSuite with Fixtures {
     val expected = jsonContentOf("jsonld/context/context12-merged.json")
     assertEquals(context1.addContext(context2), expected)
 
-    val json1 = context1.deepMerge(json"""{"@id": "$iri", "age": 30}""")
-    assertEquals(json1.addContext(context2), expected.deepMerge(json"""{"@id": "$iri", "age": 30}"""))
+    val json1 = context1.deepMerge(json"""{"@id": "$johnDoeIri", "age": 30}""")
+    assertEquals(json1.addContext(context2), expected.deepMerge(json"""{"@id": "$johnDoeIri", "age": 30}"""))
   }
 
   test("Merge contexts when one is empty") {
@@ -182,7 +182,7 @@ class JsonLdContextSuite extends NexusSuite with Fixtures {
     val expected      = jsonContentOf("jsonld/context/context12-merged-array.json")
     assertEquals(context1Array.addContext(context2), expected)
 
-    val json1 = context1Array.deepMerge(json"""{"@id": "$iri", "age": 30}""")
-    assertEquals(json1.addContext(context2), expected.deepMerge(json"""{"@id": "$iri", "age": 30}"""))
+    val json1 = context1Array.deepMerge(json"""{"@id": "$johnDoeIri", "age": 30}""")
+    assertEquals(json1.addContext(context2), expected.deepMerge(json"""{"@id": "$johnDoeIri", "age": 30}"""))
   }
 }

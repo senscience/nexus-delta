@@ -4,7 +4,7 @@ import munit.{Assertions, Location}
 
 trait CollectionAssertions { self: Assertions =>
 
-  implicit class CollectionAssertionsOps[A](cc: Iterable[A])(implicit loc: Location) {
+  extension [A](cc: Iterable[A])(using Location) {
 
     def assertContains(value: A): Unit =
       assert(cc.exists(_ == value), s"Element $value not found in the collection")

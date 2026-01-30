@@ -17,7 +17,6 @@ final case class StrictEntity(timeout: FiniteDuration) extends AnyVal {
 
 object StrictEntity {
 
-  implicit final val strictEntityReader: ConfigReader[StrictEntity] =
-    ConfigReader.finiteDurationConfigReader.map(StrictEntity(_))
+  given ConfigReader[StrictEntity] = ConfigReader.finiteDurationConfigReader.map(StrictEntity(_))
 
 }

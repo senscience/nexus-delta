@@ -99,7 +99,7 @@ object ArchiveRejection {
   final case class ResourceNotFound(ref: ResourceRef, project: ProjectRef)
       extends ArchiveRejection(s"The resource '${ref.toString}' was not found in project '$project'.")
 
-  implicit final val archiveRejectionEncoder: Encoder.AsObject[ArchiveRejection] =
+  given Encoder.AsObject[ArchiveRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -111,10 +111,10 @@ object ArchiveRejection {
       }
     }
 
-  implicit final val archiveRejectionJsonLdEncoder: JsonLdEncoder[ArchiveRejection] =
+  given JsonLdEncoder[ArchiveRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit final val archiveResponseFields: HttpResponseFields[ArchiveRejection] =
+  given HttpResponseFields[ArchiveRejection] =
     HttpResponseFields {
       case ResourceAlreadyExists(_, _)        => StatusCodes.Conflict
       case InvalidResourceCollection(_, _, _) => StatusCodes.BadRequest

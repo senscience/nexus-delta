@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.{A
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewValue}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceDecoder
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -28,10 +28,10 @@ class BlazegraphViewDecodingSpec extends CatsEffectSpec with Fixtures {
     enforceSchema = false
   )
 
-  implicit private val uuidF: UUIDF = UUIDF.fixed(UUID.randomUUID())
+  private given uuidF: UUIDF = UUIDF.fixed(UUID.randomUUID())
 
-  implicit val config: Configuration = BlazegraphDecoderConfiguration.apply.accepted
-  private val decoder                = new JsonLdSourceDecoder[BlazegraphViewValue](contexts.blazegraph, uuidF)
+  private given config: Configuration = BlazegraphDecoderConfiguration.apply.accepted
+  private val decoder                 = new JsonLdSourceDecoder[BlazegraphViewValue](contexts.blazegraph, uuidF)
 
   "An IndexingBlazegraphValue" should {
 

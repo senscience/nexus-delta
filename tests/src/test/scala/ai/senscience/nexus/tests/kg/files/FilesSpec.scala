@@ -239,8 +239,8 @@ class FilesSpec extends BaseIntegrationSpec {
   }
 
   private def uploadFile(file: FileInput, assertJson: Json => Assertion) = {
-    implicit val identity: Identity = Writer
-    val fullId                      = {
+    given Identity = Writer
+    val fullId     = {
       for {
         _    <- deltaClient.uploadFile(projectRef, None, file, None) { case (json, response) =>
                   response.status shouldEqual StatusCodes.Created

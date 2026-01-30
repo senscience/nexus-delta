@@ -90,9 +90,9 @@ final case class SchemaState(
 
 object SchemaState {
 
-  implicit val serializer: Serializer[Iri, SchemaState] = {
-    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
+  given serializer: Serializer[Iri, SchemaState] = {
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.given
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration               = Serializer.circeConfiguration
     given Codec.AsObject[SchemaState] = deriveConfiguredCodec[SchemaState]

@@ -33,7 +33,7 @@ object AuthTokenError {
   final case class RealmIsDeprecated(realm: Realm)
       extends AuthTokenError(s"Realm for authentication is deprecated: ${realm.label}")
 
-  implicit val identityErrorEncoder: Encoder.AsObject[AuthTokenError] = {
+  given Encoder.AsObject[AuthTokenError] = {
     Encoder.AsObject.instance[AuthTokenError] {
       case AuthTokenHttpError(r)          =>
         JsonObject(keywords.tpe := "AuthTokenHttpError", "reason" := r.reason)
@@ -44,6 +44,6 @@ object AuthTokenError {
     }
   }
 
-  implicit val identityErrorJsonLdEncoder: JsonLdEncoder[AuthTokenError] =
+  given JsonLdEncoder[AuthTokenError] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 }

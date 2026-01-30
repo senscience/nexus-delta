@@ -15,8 +15,8 @@ object SimpleResource extends HandleBarsFixture with SelfFixture {
 
   private val loader = ClasspathResourceLoader()
 
-  def fetchResponse(user: Authenticated, project: String, resourceId: String, rev: Int, priority: Int)(implicit
-      config: TestsConfig
+  def fetchResponse(user: Authenticated, project: String, resourceId: String, rev: Int, priority: Int)(using
+      TestsConfig
   ): IO[Json] =
     loader.jsonContentOf(
       "kg/resources/simple-resource-response.json",
@@ -30,8 +30,8 @@ object SimpleResource extends HandleBarsFixture with SelfFixture {
       )*
     )
 
-  def annotatedResource(user: Authenticated, project: String, resourceId: String, rev: Int, priority: Int)(implicit
-      config: TestsConfig
+  def annotatedResource(user: Authenticated, project: String, resourceId: String, rev: Int, priority: Int)(using
+      TestsConfig
   ): IO[Json] =
     loader.jsonContentOf(
       "kg/resources/simple-resource-with-metadata.json",

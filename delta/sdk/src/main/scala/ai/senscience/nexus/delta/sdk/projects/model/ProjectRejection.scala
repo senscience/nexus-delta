@@ -95,7 +95,7 @@ object ProjectRejection {
 
     final private[model] case class ReferencesByProject(value: Map[ProjectRef, Set[Iri]])
 
-    implicit private[model] val referencesEncoder: Encoder.AsObject[ReferencesByProject] =
+    private[model] given Encoder.AsObject[ReferencesByProject] =
       Encoder.encodeMap[ProjectRef, Set[Iri]].contramapObject(_.value)
   }
 
@@ -121,7 +121,7 @@ object ProjectRejection {
   final case class ProjectInitializationFailed(failure: ScopeInitializationFailed)
       extends ProjectRejection("The project has been successfully created but it could not be initialized correctly")
 
-  implicit val projectRejectionEncoder: Encoder.AsObject[ProjectRejection] =
+  given Encoder.AsObject[ProjectRejection] =
     Encoder.AsObject.instance { r =>
       val tpe     = ClassUtils.simpleName(r)
       val default = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -137,10 +137,10 @@ object ProjectRejection {
       }
     }
 
-  implicit final val projectRejectionJsonLdEncoder: JsonLdEncoder[ProjectRejection] =
+  given JsonLdEncoder[ProjectRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsProjects: HttpResponseFields[ProjectRejection] =
+  given HttpResponseFields[ProjectRejection] =
     HttpResponseFields {
       case ProjectRejection.RevisionNotFound(_, _)         => StatusCodes.NotFound
       case ProjectRejection.ProjectNotFound(_)             => StatusCodes.NotFound

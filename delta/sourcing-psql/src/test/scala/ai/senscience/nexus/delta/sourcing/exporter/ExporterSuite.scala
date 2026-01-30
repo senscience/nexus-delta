@@ -88,7 +88,7 @@ class ExporterSuite extends NexusSuite with Doobie.Fixture with TempDirectory.Fi
       query: ExportEventQuery,
       expectedFileCount: Int,
       expectedOrdering: List[Int]
-  )(implicit location: Location) =
+  )(using Location) =
     readDataFiles(result.targetDirectory).map { case (fileCount, exportContent) =>
       assertEquals(fileCount, expectedFileCount)
       val orderingValues = exportContent.mapFilter(orderingValue)

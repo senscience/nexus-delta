@@ -13,7 +13,7 @@ import io.circe.syntax.EncoderOps
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
 import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
 import org.apache.pekko.http.scaladsl.model.{MediaRange, StatusCodes}
-import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers.stringUnmarshaller
 import org.scalactic.source.Position
 
 class ProjectsSpec extends BaseIntegrationSpec with OpticsValidators {
@@ -224,7 +224,7 @@ class ProjectsSpec extends BaseIntegrationSpec with OpticsValidators {
           .value
           .uri
           .toString() shouldEqual s"https://bbp.epfl.ch/nexus/web/admin/$id"
-      }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
+      }(using stringUnmarshaller)
   }
 
   "listing projects" should {
@@ -349,13 +349,11 @@ class ProjectsSpec extends BaseIntegrationSpec with OpticsValidators {
     }
   }
 
-  def undeprecateProject(org: String, project: String, revision: Int)(implicit pos: Position) = {
+  def undeprecateProject(org: String, project: String, revision: Int)(using Position) =
     deltaClient.put[Json](s"/projects/$org/$project/undeprecate?rev=$revision", Json.obj(), Bojack) { (_, response) =>
       response.status shouldBe StatusCodes.OK
     }
-  }
 
-  def getProjectLatest(org: String, project: String): IO[Json] = {
+  def getProjectLatest(org: String, project: String): IO[Json] =
     deltaClient.getJson[Json](s"/projects/$org/$project", Bojack)
-  }
 }

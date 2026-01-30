@@ -41,7 +41,7 @@ object ResultEntry {
     */
   final case class UnscoredResultEntry[A](source: A) extends ResultEntry[A]
 
-  implicit final val resultEntryFunctor: Functor[ResultEntry] =
+  given Functor[ResultEntry] =
     new Functor[ResultEntry] {
       override def map[A, B](fa: ResultEntry[A])(f: A => B): ResultEntry[B] =
         fa match {
@@ -50,19 +50,19 @@ object ResultEntry {
         }
     }
 
-  implicit final val scoredResultEntryFunctor: Functor[ScoredResultEntry] =
+  given Functor[ScoredResultEntry] =
     new Functor[ScoredResultEntry] {
       override def map[A, B](fa: ScoredResultEntry[A])(f: A => B): ScoredResultEntry[B] =
         fa.copy(source = f(fa.source))
     }
 
-  implicit final val unscoredResultEntryFunctor: Functor[UnscoredResultEntry] =
+  given Functor[UnscoredResultEntry] =
     new Functor[UnscoredResultEntry] {
       override def map[A, B](fa: UnscoredResultEntry[A])(f: A => B): UnscoredResultEntry[B] =
         fa.copy(source = f(fa.source))
     }
 
-  implicit def resultEntryEncoder[A: Encoder.AsObject]: Encoder.AsObject[ResultEntry[A]] =
+  given [A: Encoder.AsObject] => Encoder.AsObject[ResultEntry[A]] =
     Encoder.AsObject.instance {
       case ScoredResultEntry(score, source) =>
         source.asJsonObject.add(nxv.score.prefix, Json.fromFloatOrNull(score))

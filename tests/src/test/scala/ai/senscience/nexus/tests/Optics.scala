@@ -29,7 +29,7 @@ trait OpticsValidators
       rev: Int,
       label: String,
       deprecated: Boolean = false
-  )(implicit config: TestsConfig): Assertion = {
+  )(using config: TestsConfig): Assertion = {
     `@id`.getOption(json).value shouldEqual s"${config.deltaUri.toString()}/$idPrefix/$id"
     `@type`.getOption(json).value shouldEqual tpe
     _uuid

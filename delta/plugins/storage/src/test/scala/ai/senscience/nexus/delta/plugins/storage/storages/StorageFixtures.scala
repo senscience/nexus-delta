@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.storages
 
 import ai.senscience.nexus.delta.kernel.Secret
-import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{DiskStorageConfig, S3StorageConfig, StorageTypeConfig}
+import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.{DiskStorageConfig, S3StorageConfig, ShowFileLocation, StorageTypeConfig}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageFields.{DiskStorageFields, S3StorageFields}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.{AbsolutePath, DigestAlgorithm}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
@@ -25,12 +25,12 @@ trait StorageFixtures extends CirceLiteral {
   val tmpVolume: AbsolutePath = AbsolutePath(Paths.get("/tmp")).toOption.get
 
   // format: off
-  implicit val config: StorageTypeConfig = StorageTypeConfig(
+  given config: StorageTypeConfig = StorageTypeConfig(
     disk = DiskStorageConfig(diskVolume, Set(diskVolume,tmpVolume), DigestAlgorithm.default, permissions.read, permissions.write, showLocation = false, 50),
     amazon = Some(S3StorageConfig(Uri.unsafeFromString("localhost"), useDefaultCredentialProvider = false, Secret("my_key"), Secret("my_secret_key"),
       permissions.read, permissions.write, showLocation = false, 60, defaultBucket = "potato", prefix = None))
   )
-  implicit val showLocation: StoragesConfig.ShowFileLocation = config.showFileLocation
+  given showLocation: ShowFileLocation = config.showFileLocation
   val diskFields        = DiskStorageFields(Some("diskName"), Some("diskDescription"), default = true, Some(tmpVolume), Some(Permission.unsafe("disk/read")), Some(Permission.unsafe("disk/write")), Some(50))
   val diskVal           = diskFields.toValue(config).get
   val diskFieldsUpdate  = DiskStorageFields(Some("diskName"), Some("diskDescription"), default = false, Some(tmpVolume), Some(Permission.unsafe("disk/read")), Some(Permission.unsafe("disk/write")), Some(40))

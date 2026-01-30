@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.identities
 
 import ai.senscience.nexus.delta.kernel.cache.CacheConfig
-import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.given
 import ai.senscience.nexus.delta.kernel.jwt.ParsedToken
 import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.InvalidAccessToken
 import ai.senscience.nexus.testkit.CirceLiteral

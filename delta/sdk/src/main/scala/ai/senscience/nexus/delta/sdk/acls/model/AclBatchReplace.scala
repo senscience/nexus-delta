@@ -6,7 +6,7 @@ final case class AclBatchReplace(acls: Vector[Acl])
 
 object AclBatchReplace {
 
-  implicit val aclBatchReplaceDecoder: Decoder[AclBatchReplace] = Decoder[Map[AclAddress, AclValues]].map { valuesMap =>
+  given Decoder[AclBatchReplace] = Decoder[Map[AclAddress, AclValues]].map { valuesMap =>
     val acls = valuesMap.foldLeft(Vector.empty[Acl]) { case (acc, (address, values)) =>
       acc :+ Acl(address, values.value*)
     }

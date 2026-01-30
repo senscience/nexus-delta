@@ -18,9 +18,9 @@ object IndexingRev {
 
   val init = IndexingRev(1)
 
-  implicit val indexingRevEncoder: Encoder[IndexingRev] = Encoder.encodeInt.contramap(_.value)
-  implicit val indexingRevDecoder: Decoder[IndexingRev] = Decoder.decodeInt.map { IndexingRev(_) }
+  given Encoder[IndexingRev] = Encoder.encodeInt.contramap(_.value)
+  given Decoder[IndexingRev] = Decoder.decodeInt.map { IndexingRev(_) }
 
-  implicit final val indexingRevGet: Get[IndexingRev] = Get[Int].map(IndexingRev(_))
-  implicit final val indexingRevPut: Put[IndexingRev] = Put[Int].contramap(_.value)
+  given Get[IndexingRev] = Get[Int].map(IndexingRev(_))
+  given Put[IndexingRev] = Put[Int].contramap(_.value)
 }

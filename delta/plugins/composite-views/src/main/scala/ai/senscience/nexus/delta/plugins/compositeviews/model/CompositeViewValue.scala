@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.model
 
 import ai.senscience.nexus.delta.plugins.compositeviews.model.CompositeView.RebuildStrategy
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.views.IndexingRev
 import cats.data.NonEmptyMap
 import io.circe.generic.extras.Configuration
@@ -33,34 +33,28 @@ final case class CompositeViewValue(
 object CompositeViewValue {
 
   @SuppressWarnings(Array("TryGet"))
-  def databaseCodec()(implicit configuration: Configuration): Codec[CompositeViewValue] = {
+  def databaseCodec()(using Configuration): Codec[CompositeViewValue] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
-    implicit val finiteDurationEncoder: Encoder[FiniteDuration] = Encoder.encodeString.contramap(_.toString())
-    implicit val finiteDurationDecoder: Decoder[FiniteDuration] = Decoder.decodeString.emap { s =>
+    given Encoder[FiniteDuration] = Encoder.encodeString.contramap(_.toString())
+    given Decoder[FiniteDuration] = Decoder.decodeString.emap { s =>
       Duration(s) match {
         case finite: FiniteDuration => Right(finite)
         case _                      => Left(s"$s is not a valid FinalDuration")
       }
     }
 
-    implicit val rebuildStrategyCodec: Codec.AsObject[RebuildStrategy] =
-      deriveConfiguredCodec[RebuildStrategy]
+    given Codec.AsObject[RebuildStrategy] = deriveConfiguredCodec[RebuildStrategy]
 
-    implicit val compositeViewProjectionCodec: Codec.AsObject[CompositeViewProjection] =
-      deriveConfiguredCodec[CompositeViewProjection]
+    given Codec.AsObject[CompositeViewProjection] = deriveConfiguredCodec[CompositeViewProjection]
 
-    implicit val compositeViewSourceCodec: Codec.AsObject[CompositeViewSource] =
-      deriveConfiguredCodec[CompositeViewSource]
+    given Codec.AsObject[CompositeViewSource] = deriveConfiguredCodec[CompositeViewSource]
 
     // No need to repeat the key (as it is included in the value) in the json result so we just encode the value
-    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.*
+    import ai.senscience.nexus.delta.sdk.circe.nonEmptyMap.{given, *}
 
     // Decoding and extracting the id/key back from the value
-    implicit val nonEmptyMapProjectionDecoder: Decoder[NonEmptyMap[Iri, CompositeViewProjection]] =
-      dropKeyDecoder(_.id)
-
-    implicit val nonEmptyMapSourceDecoder: Decoder[NonEmptyMap[Iri, CompositeViewSource]] =
-      dropKeyDecoder(_.id)
+    given nonEmptyMapProjectionDecoder: Decoder[NonEmptyMap[Iri, CompositeViewProjection]] = dropKeyDecoder(_.id)
+    given nonEmptyMapSourceDecoder: Decoder[NonEmptyMap[Iri, CompositeViewSource]]         = dropKeyDecoder(_.id)
 
     Codec.from(
       deriveConfiguredDecoder[CompositeViewValue],

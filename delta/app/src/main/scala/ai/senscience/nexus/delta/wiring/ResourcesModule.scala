@@ -117,7 +117,7 @@ object ResourcesModule extends NexusModuleDef {
       )(using baseUri)(using cr, ordering, fusionConfig, tracer)
   }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => ResourceEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => ResourceEvent.sseEncoder(using base) }
 
   many[ScopedEventMetricEncoder[?]].add { ResourceEvent.resourceEventMetricEncoder }
 

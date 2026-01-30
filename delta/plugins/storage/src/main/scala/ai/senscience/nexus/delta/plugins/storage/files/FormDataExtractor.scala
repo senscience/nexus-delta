@@ -50,7 +50,7 @@ object FormDataExtractor {
 
   // Creating an unmarshaller defaulting to `application/octet-stream` as a content type
   @SuppressWarnings(Array("TryGet"))
-  implicit private val um: FromEntityUnmarshaller[Multipart.FormData] =
+  private given um: FromEntityUnmarshaller[Multipart.FormData] =
     MultipartUnmarshallers
       .multipartUnmarshaller[Multipart.FormData, Multipart.FormData.BodyPart, Multipart.FormData.BodyPart.Strict](
         mediaRange = `multipart/form-data`,
@@ -62,9 +62,9 @@ object FormDataExtractor {
         createStrict = (_, parts) => Multipart.FormData.Strict(parts)
       )
 
-  def apply(mediaTypeDetector: MediaTypeDetector)(implicit as: ActorSystem): FormDataExtractor =
+  def apply(mediaTypeDetector: MediaTypeDetector)(using as: ActorSystem): FormDataExtractor =
     new FormDataExtractor {
-      implicit val ec: ExecutionContext = as.getDispatcher
+      given ExecutionContext = as.getDispatcher
 
       override def apply(entity: HttpEntity, maxFileSize: Long): IO[UploadedFileInformation] = {
         for {

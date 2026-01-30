@@ -11,7 +11,7 @@ object SparqlTarget {
 
   case object Rdf4j extends SparqlTarget
 
-  implicit val sparqlTargetReader: ConfigReader[SparqlTarget] = ConfigReader.stringConfigReader.emap {
+  given ConfigReader[SparqlTarget] = ConfigReader.stringConfigReader.emap {
     case "blazegraph" => Right(Blazegraph)
     case "rdf4j"      => Right(Rdf4j)
     case _            =>

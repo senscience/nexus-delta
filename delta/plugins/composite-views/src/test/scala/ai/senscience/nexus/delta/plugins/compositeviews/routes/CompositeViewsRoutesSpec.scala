@@ -38,7 +38,7 @@ class CompositeViewsRoutesSpec
     with CompositeViewsAclFixture
     with CompositeViewsFixture {
 
-  override given rcr: RemoteContextResolution = loadCoreContexts(
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(
     contexts.definition ++ Set(iri"http://music.com/context" -> "indexing/music-context.json")
   )
 

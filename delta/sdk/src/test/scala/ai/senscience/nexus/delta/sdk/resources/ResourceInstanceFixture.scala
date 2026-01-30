@@ -70,7 +70,7 @@ trait ResourceInstanceFixture extends CirceLiteral {
   )
 
   val graph: Graph = {
-    implicit val jsonldApi: JsonLdApi = TitaniumJsonLdApi.lenient
+    given JsonLdApi = TitaniumJsonLdApi.lenient
     expanded.toGraph.unsafeRunSync()
   }
 

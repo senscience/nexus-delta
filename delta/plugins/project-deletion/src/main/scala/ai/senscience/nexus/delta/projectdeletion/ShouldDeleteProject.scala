@@ -33,7 +33,7 @@ object ShouldDeleteProject {
       config.deleteDeprecatedProjects && pr.deprecated
 
     def deletableDueToBeingIdle(pr: ProjectResource): IO[Boolean] = {
-      implicit val and: Semigroup[Boolean] = andSemigroup
+      given Semigroup[Boolean] = andSemigroup
       for {
         now  <- clock.realTimeInstant
         idle <- NonEmptyList.of(IO.pure(projectIsIdle(pr, now)), resourcesAreIdle(pr, now)).reduce
@@ -51,11 +51,11 @@ object ShouldDeleteProject {
     def alreadyDeleted(pr: ProjectResource): Boolean = pr.value.markedForDeletion
 
     def worthyOfDeletion(pr: ProjectResource): IO[Boolean] = {
-      implicit val or: Semigroup[Boolean] = orSemigroup
+      given Semigroup[Boolean] = orSemigroup
       NonEmptyList.of(IO.pure(deletableDueToDeprecation(pr)), deletableDueToBeingIdle(pr)).reduce
     }
 
-    implicit val and: Semigroup[Boolean] = andSemigroup
+    given Semigroup[Boolean] = andSemigroup
     NonEmptyList
       .of(
         IO.pure(isIncluded(pr)),

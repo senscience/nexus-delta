@@ -8,26 +8,24 @@ import org.scalatest.{Assertion, Assertions}
 import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 
-trait CatsIOValues {
+trait CatsIOValues { self: Assertions =>
 
-  self: Assertions =>
-
-  implicit final class CatsIOValuesOps[A](private val io: IO[A]) {
-    def accepted(implicit pos: source.Position): A = {
+  extension [A](io: IO[A]) {
+    def accepted(using pos: source.Position): A = {
       io.unsafeRunTimed(45.seconds).getOrElse(fail(s"IO timed out during .accepted call at $pos"))
     }
 
-    def rejected(implicit pos: source.Position): Throwable = rejectedWith[Throwable]
+    def rejected(using pos: source.Position): Throwable = rejectedWith[Throwable]
 
-    def assertRejectedEquals[E](expected: E)(implicit pos: source.Position, EE: ClassTag[E]): Assertion =
+    def assertRejectedEquals[E](expected: E)(using pos: source.Position, EE: ClassTag[E]): Assertion =
       assertResult(expected)(rejectedWith[E])
 
-    def assertRejectedWith[E](implicit pos: source.Position, EE: ClassTag[E]): Assertion = {
+    def assertRejectedWith[E](using pos: source.Position, EE: ClassTag[E]): Assertion = {
       rejectedWith[E]
       succeed
     }
 
-    def rejectedWith[E](implicit pos: source.Position, EE: ClassTag[E]): E = {
+    def rejectedWith[E](using pos: source.Position, EE: ClassTag[E]): E = {
       io.attempt.accepted match {
         case Left(EE(value)) => value
         case Left(value)     =>

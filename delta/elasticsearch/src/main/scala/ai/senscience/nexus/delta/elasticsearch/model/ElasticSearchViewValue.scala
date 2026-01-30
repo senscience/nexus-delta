@@ -47,7 +47,7 @@ sealed trait ElasticSearchViewValue extends Product with Serializable {
   def tpe: ElasticSearchViewType
 
   def toJson(iri: Iri): Json = {
-    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Source.*
+    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Source.given
     this.asJsonObject.add(keywords.id, iri.asJson).asJson.deepDropNullValues
   }
 
@@ -194,10 +194,10 @@ object ElasticSearchViewValue {
 
   object Source {
 
-    implicit final val elasticSearchViewValueEncoder: Encoder.AsObject[ElasticSearchViewValue] = {
+    given Encoder.AsObject[ElasticSearchViewValue] = {
       import io.circe.generic.extras.Configuration
       import io.circe.generic.extras.semiauto.*
-      implicit val config: Configuration = Configuration(
+      given Configuration = Configuration(
         transformMemberNames = identity,
         transformConstructorNames = {
           case "IndexingElasticSearchViewValue"  => ElasticSearchViewType.ElasticSearch.toString
@@ -213,8 +213,8 @@ object ElasticSearchViewValue {
   }
 
   object Database {
-    implicit private val configuration: Configuration               = Serializer.circeConfiguration
-    implicit val valueCodec: Codec.AsObject[ElasticSearchViewValue] = deriveConfiguredCodec[ElasticSearchViewValue]
+    given Configuration                                      = Serializer.circeConfiguration
+    given valueCodec: Codec.AsObject[ElasticSearchViewValue] = deriveConfiguredCodec[ElasticSearchViewValue]
   }
 
 }
