@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy as TypeHierarchyModel
@@ -35,9 +34,9 @@ final class TypeHierarchyRoutes(
 
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
-      extractCaller { case caller @ given Caller =>
+      extractCaller { case caller =>
+        val authorizeWrite = authorizeFor(AclAddress.Root, typehierarchy.write)(using caller)
         given Subject      = caller.subject
-        val authorizeWrite = authorizeFor(AclAddress.Root, typehierarchy.write)
         pathPrefix("type-hierarchy") {
           concat(
             // Fetch using the revision
