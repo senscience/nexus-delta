@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclRejection.{AclCannotContainEm
 import ai.senscience.nexus.delta.sdk.generators.AclGen.resourceFor
 import ai.senscience.nexus.delta.sdk.generators.PermissionsGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Group, Subject}
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label, ProjectRef}
@@ -22,12 +21,11 @@ import java.time.Instant
 
 class AclsImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with CancelAfterFailure with ConfigFixtures {
 
-  val epoch: Instant            = Instant.EPOCH
-  val realm: Label              = Label.unsafe("realm")
-  val realm2: Label             = Label.unsafe("myrealm2")
-  implicit val subject: Subject = Identity.User("user", realm)
-  implicit val caller: Caller   = Caller(subject)
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  val epoch: Instant             = Instant.EPOCH
+  val realm: Label               = Label.unsafe("realm")
+  val realm2: Label              = Label.unsafe("myrealm2")
+  private given subject: Subject = Identity.User("user", realm)
+  private given caller: Caller   = Caller(subject)
 
   val user: Identity  = subject
   val group: Identity = Group("mygroup", realm2)

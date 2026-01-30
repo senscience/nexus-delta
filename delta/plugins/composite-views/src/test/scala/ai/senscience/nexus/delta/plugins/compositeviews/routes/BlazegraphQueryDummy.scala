@@ -17,7 +17,7 @@ class BlazegraphQueryDummy(client: SparqlQueryClient, views: CompositeViews) ext
       project: ProjectRef,
       query: SparqlQuery,
       responseType: Aux[R]
-  )(implicit caller: Caller): IO[R] =
+  )(using Caller): IO[R] =
     for {
       view <- views.fetch(id, project)
       _    <- IO.raiseWhen(view.deprecated)(ViewIsDeprecated(view.id))
@@ -30,7 +30,7 @@ class BlazegraphQueryDummy(client: SparqlQueryClient, views: CompositeViews) ext
       project: ProjectRef,
       query: SparqlQuery,
       responseType: Aux[R]
-  )(implicit caller: Caller): IO[R] =
+  )(using Caller): IO[R] =
     for {
       view <- views.fetch(id, project)
       _    <- IO.raiseWhen(view.deprecated)(ViewIsDeprecated(view.id))
@@ -42,7 +42,7 @@ class BlazegraphQueryDummy(client: SparqlQueryClient, views: CompositeViews) ext
       project: ProjectRef,
       query: SparqlQuery,
       responseType: Aux[R]
-  )(implicit caller: Caller): IO[R] =
+  )(using Caller): IO[R] =
     for {
       view <- views.fetch(id, project)
       _    <- IO.raiseWhen(view.deprecated)(ViewIsDeprecated(view.id))

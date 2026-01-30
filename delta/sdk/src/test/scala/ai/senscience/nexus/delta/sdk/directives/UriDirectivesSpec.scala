@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.{encodeUriPath, encodeUri
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.directives.UriDirectivesSpec.IntValue
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.indexing.IndexingMode
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
@@ -83,8 +83,8 @@ class UriDirectivesSpec extends BaseSpec with RouteHelpers with UriDirectives {
 
   private def sortRoute(list: List[ResourceF[Int]]): Route =
     (get & uriPrefix(baseUri.base)) {
-      (pathPrefix("ordering") & sort[IntValue] & pathEndOrSingleSlash) { implicit ordering =>
-        complete(list.map(_.map(IntValue.apply)).sorted.map(_.value.value).mkString(","))
+      (pathPrefix("ordering") & sort[IntValue] & pathEndOrSingleSlash) { ordering =>
+        complete(list.map(_.map(IntValue.apply)).sorted(using ordering).map(_.value.value).mkString(","))
       }
     }
 

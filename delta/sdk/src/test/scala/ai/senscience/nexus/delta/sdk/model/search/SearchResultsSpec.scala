@@ -43,7 +43,7 @@ class SearchResultsSpec extends BaseSpec {
     }
   }
 
-  implicit class SearchResultsOps[A](searchResults: SearchResults[A]) {
+  extension [A](searchResults: SearchResults[A]) {
     def copyWith[B](res: Seq[ResultEntry[B]]): SearchResults[B] = searchResults match {
       case ScoredSearchResults(_, maxScore, _, _) => ScoredSearchResults[B](res.length.toLong, maxScore, res)
       case UnscoredSearchResults(_, _, _)         => UnscoredSearchResults[B](res.length.toLong, res)

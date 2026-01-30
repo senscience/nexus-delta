@@ -14,9 +14,9 @@ import scala.concurrent.duration.DurationInt
 
 class ProjectDeletionRoutesSpec extends CatsEffectSpec with RouteHelpers {
 
-  implicit private val ordering: JsonKeyOrdering = JsonKeyOrdering.default()
-  implicit private val baseUri: BaseUri          = BaseUri.unsafe("http://localhost", "v1")
-  private given RemoteContextResolution          = RemoteContextResolution.loadResourcesUnsafe(contexts.definition)
+  private given JsonKeyOrdering         = JsonKeyOrdering.default()
+  private given BaseUri                 = BaseUri.unsafe("http://localhost", "v1")
+  private given RemoteContextResolution = RemoteContextResolution.loadResourcesUnsafe(contexts.definition)
 
   "A ProjectDeletionRoutes" should {
     val config     = ProjectDeletionConfig(

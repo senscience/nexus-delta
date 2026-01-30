@@ -24,10 +24,10 @@ import java.util.UUID
 
 class ResourcesTrialSuite extends NexusSuite with ValidateResourceFixture with RemoteContextResolutionFixtures {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
-  implicit private val caller: Caller = Caller.Anonymous
+  private given Caller = Caller.Anonymous
 
   private given res: RemoteContextResolution = loadCoreContextsAndSchemas
 
@@ -47,16 +47,14 @@ class ResourcesTrialSuite extends NexusSuite with ValidateResourceFixture with R
   private val source         = NexusSource(jsonContentOf("resources/resource.json", "id" -> id))
   private val resourceSchema = nxv + "schema"
 
-  private def assertSuccess(
-      result: ResourceGenerationResult
-  )(schema: Option[SchemaResource])(implicit loc: Location) = {
+  private def assertSuccess(result: ResourceGenerationResult)(schema: Option[SchemaResource])(using Location): Unit = {
     assertEquals(result.schema, schema)
     assertEquals(result.attempt.map(_.value.id), Right(id))
   }
 
   private def assertError(
       io: IO[ResourceGenerationResult]
-  )(schema: Option[SchemaResource], error: ResourceRejection)(implicit loc: Location) =
+  )(schema: Option[SchemaResource], error: ResourceRejection)(using Location) =
     io.map { generated =>
       assertEquals(generated.schema, schema)
       assertEquals(generated.attempt.map(_.value), Left(error))

@@ -21,7 +21,7 @@ final case class AbsolutePath private (value: Path) extends AnyVal {
 
 object AbsolutePath {
 
-  implicit val absolutePathEq: Eq[AbsolutePath] = Eq.fromUniversalEquals[AbsolutePath]
+  given Eq[AbsolutePath] = Eq.fromUniversalEquals[AbsolutePath]
 
   /**
     * Safely constructs an absolute path.
@@ -47,13 +47,11 @@ object AbsolutePath {
 
   final def unsafe(path: Path) = new AbsolutePath(path)
 
-  implicit final val absolutePathJsonEncoder: Encoder[AbsolutePath] =
-    Encoder.encodeString.contramap(_.toString)
+  given Encoder[AbsolutePath] = Encoder.encodeString.contramap(_.toString)
 
-  implicit final val absolutePathJsonDecoder: Decoder[AbsolutePath] =
-    Decoder.decodeString.emap(AbsolutePath.apply)
+  given Decoder[AbsolutePath] = Decoder.decodeString.emap(AbsolutePath.apply)
 
-  implicit final val absolutePathJsonLdDecoder: JsonLdDecoder[AbsolutePath] =
+  given JsonLdDecoder[AbsolutePath] =
     JsonLdDecoder.stringJsonLdDecoder.andThen { (cursor, str) =>
       Try(Paths.get(str)) match {
         case Failure(_)     => Left(ParsingFailure("AbsolutePath", str, cursor.history))
@@ -61,6 +59,6 @@ object AbsolutePath {
       }
     }
 
-  implicit private val pathOrder: Order[Path]         = Order.fromComparable
-  implicit val absolutePathOrder: Order[AbsolutePath] = Order.by(_.value)
+  given Order[Path]         = Order.fromComparable
+  given Order[AbsolutePath] = Order.by(_.value)
 }

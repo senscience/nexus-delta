@@ -101,7 +101,7 @@ object SparqlClientError {
         details
       )
 
-  implicit val sparqlClientErrorEncoder: Encoder[SparqlClientError] = Encoder.AsObject.instance { e =>
+  given Encoder[SparqlClientError] = Encoder.AsObject.instance { e =>
     JsonObject(
       keywords.tpe := "SparqlClientError",
       "reason"     := e.reason,
@@ -109,10 +109,10 @@ object SparqlClientError {
     )
   }
 
-  implicit final val sparqlClientErrorJsonLdEncoder: JsonLdEncoder[SparqlClientError] =
+  given JsonLdEncoder[SparqlClientError] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val sparqlClientErrorHttpResponseFields: HttpResponseFields[SparqlClientError] =
+  given HttpResponseFields[SparqlClientError] =
     HttpResponseFields {
       case SparqlQueryError(status, _) => StatusCode.int2StatusCode(status.code)
       case _                           => StatusCodes.InternalServerError

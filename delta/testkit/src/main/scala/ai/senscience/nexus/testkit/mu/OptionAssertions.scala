@@ -4,7 +4,7 @@ import munit.{Assertions, Location}
 
 trait OptionAssertions { self: Assertions =>
 
-  implicit class OptionAssertionsOps[A](option: Option[A])(implicit loc: Location) {
+  extension [A](option: Option[A])(using Location) {
 
     def assertSome(value: A): Unit =
       assert(option.contains(value), s"$value was not found in the option, it contains '${option.getOrElse("None")}'")

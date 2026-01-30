@@ -28,4 +28,4 @@ final case class GlobalEntityDefinition[Id, S <: GlobalState, Command, E <: Glob
     stateSerializer: Serializer[Id, S],
     onUniqueViolation: (Id, Command) => Rejection,
     projectionStateSave: ProjectionStateSave[Id, S] = ProjectionStateSave.noop[Id, S]
-)(implicit val get: Get[Id], val put: Put[Id])
+)(using val get: Get[Id], val put: Put[Id])

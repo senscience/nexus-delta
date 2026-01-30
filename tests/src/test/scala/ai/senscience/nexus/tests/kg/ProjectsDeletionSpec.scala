@@ -103,7 +103,7 @@ final class ProjectsDeletionSpec extends BaseIntegrationSpec {
       val aggregateSparqlPayload =
         jsonContentOf("kg/views/agg-sparql-view.json", "project1" -> ref1, "project2" -> ref2)
 
-      implicit val identity: Identity = Bojack
+      given Identity = Bojack
 
       for {
         _ <- deltaClient.put[Json](s"/resources/$ref1/_/resource11", resourcePayload, Bojack)(expectCreated)

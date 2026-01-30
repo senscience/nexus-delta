@@ -4,11 +4,10 @@ import org.scalactic.source
 import org.scalatest.Suite
 import org.scalatest.exceptions.{StackDepthException, TestFailedException}
 
-trait EitherValues {
+trait EitherValues { self: Suite =>
 
-  self: Suite =>
-  class EitherValuesOps[L, R](either: Either[L, R], pos: source.Position) {
-    def rightValue: R =
+  extension [L, R](either: Either[L, R]) {
+    def rightValue(using pos: source.Position): R =
       either match {
         case Right(value) => value
         case Left(_)      =>
@@ -19,7 +18,7 @@ trait EitherValues {
           )
       }
 
-    def leftValue: L =
+    def leftValue(using pos: source.Position): L =
       either match {
         case Left(value) => value
         case Right(_)    =>
@@ -30,8 +29,4 @@ trait EitherValues {
           )
       }
   }
-
-  implicit def convertEitherToValuable[L, R](either: Either[L, R])(implicit p: source.Position): EitherValuesOps[L, R] =
-    new EitherValuesOps(either, p)
-
 }

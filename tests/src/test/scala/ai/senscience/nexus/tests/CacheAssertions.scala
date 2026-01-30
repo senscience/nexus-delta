@@ -8,10 +8,10 @@ import org.scalatest.matchers.should.Matchers
 
 object CacheAssertions extends Matchers {
 
-  def expectConditionalCacheHeaders(response: HttpResponse)(implicit position: Position): Assertion =
+  def expectConditionalCacheHeaders(response: HttpResponse)(using Position): Assertion =
     response.header[ETag] shouldBe defined
 
-  def expectNoConditionalCacheHeaders(response: HttpResponse)(implicit position: Position): Assertion =
+  def expectNoConditionalCacheHeaders(response: HttpResponse)(using Position): Assertion =
     response.header[ETag] shouldBe empty
 
 }

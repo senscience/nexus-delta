@@ -102,7 +102,7 @@ object PermissionsRejection {
   case object UnexpectedState
       extends UnexpectedState("Unexpected state for permissions. Please try again later or contact the administrator.")
 
-  implicit val permissionsRejectionEncoder: Encoder.AsObject[PermissionsRejection] =
+  given Encoder.AsObject[PermissionsRejection] =
     Encoder.AsObject.instance { r =>
       val tpe     = ClassUtils.simpleName(r)
       val default = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -113,10 +113,10 @@ object PermissionsRejection {
       }
     }
 
-  implicit final val permissionsRejectionJsonLdEncoder: JsonLdEncoder[PermissionsRejection] =
+  given JsonLdEncoder[PermissionsRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsPermissions: HttpResponseFields[PermissionsRejection] =
+  given HttpResponseFields[PermissionsRejection] =
     HttpResponseFields {
       case PermissionsRejection.IncorrectRev(_, _)     => StatusCodes.Conflict
       case PermissionsRejection.RevisionNotFound(_, _) => StatusCodes.NotFound

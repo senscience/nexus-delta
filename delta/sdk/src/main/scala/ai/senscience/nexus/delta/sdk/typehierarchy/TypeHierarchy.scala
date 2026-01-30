@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyCommand.{C
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyEvent.{TypeHierarchyCreated, TypeHierarchyUpdated}
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.{IncorrectRev, RevisionNotFound, TypeHierarchyAlreadyExists, TypeHierarchyDoesNotExist}
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchyCommand, TypeHierarchyEvent, TypeHierarchyRejection, TypeHierarchyState}
-import ai.senscience.nexus.delta.sourcing.implicits.IriInstances.*
+import ai.senscience.nexus.delta.sourcing.implicits.IriInstances.given
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.{GlobalEntityDefinition, GlobalEventLog, StateMachine, Transactors}
@@ -18,10 +18,10 @@ import cats.effect.kernel.Clock
 trait TypeHierarchy {
 
   /** Creates a type hierarchy with the provided mapping. */
-  def create(mapping: TypeHierarchyMapping)(implicit subject: Subject): IO[TypeHierarchyResource]
+  def create(mapping: TypeHierarchyMapping)(using Subject): IO[TypeHierarchyResource]
 
   /** Updates the type hierarchy with the provided mapping at the provided revision. */
-  def update(mapping: TypeHierarchyMapping, rev: Int)(implicit subject: Subject): IO[TypeHierarchyResource]
+  def update(mapping: TypeHierarchyMapping, rev: Int)(using Subject): IO[TypeHierarchyResource]
 
   /** Fetches the current type hierarchy. */
   def fetch: IO[TypeHierarchyResource]
@@ -43,10 +43,10 @@ object TypeHierarchy {
     apply(GlobalEventLog(definition(clock), config.eventLog, xas))
 
   def apply(log: TypeHierarchyLog): TypeHierarchy = new TypeHierarchy {
-    override def create(mapping: TypeHierarchyMapping)(implicit subject: Subject): IO[TypeHierarchyResource] =
+    override def create(mapping: TypeHierarchyMapping)(using subject: Subject): IO[TypeHierarchyResource] =
       eval(CreateTypeHierarchy(mapping, subject))
 
-    override def update(mapping: TypeHierarchyMapping, rev: Int)(implicit subject: Subject): IO[TypeHierarchyResource] =
+    override def update(mapping: TypeHierarchyMapping, rev: Int)(using subject: Subject): IO[TypeHierarchyResource] =
       eval(UpdateTypeHierarchy(mapping, rev, subject))
 
     override def fetch: IO[TypeHierarchyResource] =

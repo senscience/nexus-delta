@@ -13,10 +13,9 @@ final case class PermissionSet(permissions: Set[Permission])
 
 object PermissionSet {
 
-  implicit final val permissionSetEncoder: Encoder.AsObject[PermissionSet] = deriveEncoder
-  implicit final val permissionSetDecoder: Decoder[PermissionSet]          = deriveDecoder
+  given Encoder.AsObject[PermissionSet] = deriveEncoder
+  given Decoder[PermissionSet]          = deriveDecoder
 
-  implicit final val permissionSetJsonLdEncoder: JsonLdEncoder[PermissionSet] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.permissions))
+  given JsonLdEncoder[PermissionSet] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.permissions))
 
 }

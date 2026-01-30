@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.jsonld
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.sdk.error.FormatErrors.{IllegalIdentityIriFormatError, IllegalSubjectIriFormatError}
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.*
 import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
@@ -10,7 +10,7 @@ import ai.senscience.nexus.testkit.scalatest.BaseSpec
 
 class IdentityIriEncodingSpec extends BaseSpec {
 
-  implicit private val base: BaseUri                = BaseUri.unsafe("http://localhost:8080", "v1")
+  private given BaseUri                             = BaseUri.unsafe("http://localhost:8080", "v1")
   private val realm                                 = Label.unsafe("myrealm")
   private val list: Seq[(IriOrBNode.Iri, Identity)] = List(
     iri"http://localhost:8080/v1/anonymous"                    -> Anonymous,

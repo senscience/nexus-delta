@@ -101,7 +101,7 @@ object ResolversModule extends NexusModuleDef {
       )
   }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => ResolverEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => ResolverEvent.sseEncoder(using base) }
 
   make[ResolverScopeInitialization].from {
     (

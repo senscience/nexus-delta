@@ -40,9 +40,7 @@ object ResponseToJson extends RdfMarshalling {
       }
     }
 
-  implicit def ioResponseJson[A: Encoder](
-      io: IO[A]
-  )(using JsonKeyOrdering, Tracer[IO]): ResponseToJson =
+  given ioResponseJson: [A: Encoder] => (JsonKeyOrdering, Tracer[IO]) => Conversion[IO[A], ResponseToJson] = { io =>
     ResponseToJson(io.map(v => Complete(OK, Seq.empty, None, v)))
-
+  }
 }

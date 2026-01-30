@@ -11,7 +11,7 @@ import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
 
 class ResourceHistorySpec extends BaseIntegrationSpec {
 
-  implicit val currentUser: Identity.UserCredentials = Rick
+  private given currentUser: Identity.UserCredentials = Rick
 
   private val orgId   = genId()
   private val projId  = genId()

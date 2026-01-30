@@ -17,6 +17,5 @@ final case class ResolversConfig(
 )
 
 object ResolversConfig {
-  implicit final val resolversConfigReader: ConfigReader[ResolversConfig] =
-    deriveReader[ResolversConfig]
+  given ConfigReader[ResolversConfig] = deriveReader[ResolversConfig]
 }

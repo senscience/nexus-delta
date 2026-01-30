@@ -39,7 +39,7 @@ class CompositeProjectionLifeCycleSuite extends NexusSuite with CompositeViewsFi
         }
       }
     }
-  private def assertViewHooks(view: ActiveViewDef, hooks: Set[String])(implicit loc: Location)    =
+  private def assertViewHooks(view: ActiveViewDef, hooks: Set[String])(using Location)            =
     for {
       triggeredHooks <- Ref.of[IO, Set[String]](Set.empty)
       indexing       <- Ref.of[IO, Option[ViewRef]](None)

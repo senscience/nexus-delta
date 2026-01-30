@@ -7,30 +7,24 @@ import cats.syntax.functor.*
 
 trait IOSyntax {
 
-  implicit final def ioRetryStrategyOps[A](io: IO[A]): IORetryStrategyOps[A] =
-    new IORetryStrategyOps[A](io)
+  extension [A](io: IO[A]) {
 
-  implicit final def ioFunctorOps[A, F[_]: Functor](io: IO[F[A]]): IOFunctorOps[A, F] = new IOFunctorOps(io)
-}
+    /**
+      * Apply the retry strategy on the provided IO
+      */
+    def retry(retryStrategy: RetryStrategy): IO[A] = RetryStrategy.use(io, retryStrategy)
+  }
 
-final class IORetryStrategyOps[A](private val io: IO[A]) extends AnyVal {
+  extension [A, F[_]: Functor](io: IO[F[A]]) {
 
-  /**
-    * Apply the retry strategy on the provided IO
-    */
-  def retry(retryStrategy: RetryStrategy): IO[A] = RetryStrategy.use(io, retryStrategy)
-
-}
-
-final class IOFunctorOps[A, F[_]: Functor](private val io: IO[F[A]]) {
-
-  /**
-    * Map value of [[F]] wrapped in an [[IO]].
-    *
-    * @param f
-    *   the mapping function
-    * @return
-    *   a new [[F]] with value being the result of applying [[f]] to the value of old [[F]]
-    */
-  def mapValue[B](f: A => B): IO[F[B]] = io.map(_.map(f))
+    /**
+      * Map value of [[F]] wrapped in an [[IO]].
+      *
+      * @param f
+      *   the mapping function
+      * @return
+      *   a new [[F]] with value being the result of applying [[f]] to the value of old [[F]]
+      */
+    def mapValue[B](f: A => B): IO[F[B]] = io.map(_.map(f))
+  }
 }

@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.elasticsearch.model.ResourcesSearchParams.{LogP
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriQuery
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectContext}

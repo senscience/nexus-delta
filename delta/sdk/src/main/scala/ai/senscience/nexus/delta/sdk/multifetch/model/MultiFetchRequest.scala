@@ -22,11 +22,11 @@ object MultiFetchRequest {
 
   final case class Input(id: ResourceRef, project: ProjectRef)
 
-  implicit val multiFetchRequestDecoder: Decoder[MultiFetchRequest] = {
+  given Decoder[MultiFetchRequest] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val cfg: Configuration           = Configuration.default
-    implicit val inputDecoder: Decoder[Input] = deriveConfiguredDecoder[Input]
+    given Configuration  = Configuration.default
+    given Decoder[Input] = deriveConfiguredDecoder[Input]
     deriveConfiguredDecoder[MultiFetchRequest]
   }
 

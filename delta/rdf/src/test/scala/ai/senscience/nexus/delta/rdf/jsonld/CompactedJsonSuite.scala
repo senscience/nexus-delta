@@ -13,7 +13,7 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
   val context = Contexts.value
 
   private def loadCompactedFromExpanded(rootId: IriOrBNode, removeId: Boolean = false) = {
-    val id = Option.unless(removeId)("id" -> iri)
+    val id = Option.unless(removeId)("id" -> johnDoeIri)
     compactedFromJson(rootId, context, "expanded.json", id.toSeq*)
   }
 
@@ -21,10 +21,10 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
 
   test("Construct successfully") {
     for {
-      result       <- loadCompactedFromExpanded(iri)
+      result       <- loadCompactedFromExpanded(johnDoeIri)
       expectedJson <- loader.jsonContentOf("compacted.json")
     } yield {
-      assertEquals(result.rootId, iri)
+      assertEquals(result.rootId, johnDoeIri)
       assertEquals(result.ctx, context)
       assertEquals(result.json, expectedJson)
     }
@@ -52,7 +52,7 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
   test("Frame from a multi-root json") {
     for {
       json   <- loader.jsonContentOf("jsonld/compacted/input-multiple-roots.json")
-      framed <- CompactedJsonLd.frame(iri, context, json)
+      framed <- CompactedJsonLd.frame(johnDoeIri, context, json)
     } yield {
       assertEquals(
         framed.json.removeKeys(keywords.context),
@@ -63,9 +63,9 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
 
   test("Convert to expanded form") {
     for {
-      compacted <- loadCompactedFromExpanded(iri)
+      compacted <- loadCompactedFromExpanded(johnDoeIri)
       result    <- compacted.toExpanded
-      expected  <- expanded("expanded.json", "id" -> iri)
+      expected  <- expanded("expanded.json", "id" -> johnDoeIri)
     } yield {
       assertEquals(result, expected)
     }
@@ -83,9 +83,9 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
 
   test("Convert to graph") {
     for {
-      compacted <- loadCompactedFromExpanded(iri)
+      compacted <- loadCompactedFromExpanded(johnDoeIri)
       result    <- compacted.toGraph
-      expected  <- graphFromJson("expanded.json", "id" -> iri)
+      expected  <- graphFromJson("expanded.json", "id" -> johnDoeIri)
     } yield {
       assertIsomorphic(result, expected)
     }
@@ -103,11 +103,11 @@ class CompactedJsonSuite extends NexusSuite with Fixtures with RdfLoader with Gr
 
   test("merge with another compacted document") {
     val compacted  = CompactedJsonLd.unsafe(rootBNode, context, jobj"""{"@type": "Person"}""")
-    val compacted2 = CompactedJsonLd.unsafe(iri, ContextValue.empty, jobj"""{"name": "Batman"}""")
+    val compacted2 = CompactedJsonLd.unsafe(johnDoeIri, ContextValue.empty, jobj"""{"name": "Batman"}""")
 
     val expectedMerge1and2 =
-      CompactedJsonLd.unsafe(iri, context, jobj"""{"@id": "$iri", "@type": "Person", "name": "Batman"}""")
-    assertEquals(compacted.merge(iri, compacted2), expectedMerge1and2)
+      CompactedJsonLd.unsafe(johnDoeIri, context, jobj"""{"@id": "$johnDoeIri", "@type": "Person", "name": "Batman"}""")
+    assertEquals(compacted.merge(johnDoeIri, compacted2), expectedMerge1and2)
 
     val expectedMerge2and1 =
       CompactedJsonLd.unsafe(rootBNode, context, jobj"""{"@type": "Person", "name": "Batman"}""")

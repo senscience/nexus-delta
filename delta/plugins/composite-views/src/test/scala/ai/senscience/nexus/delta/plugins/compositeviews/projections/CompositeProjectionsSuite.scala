@@ -28,7 +28,7 @@ class CompositeProjectionsSuite extends NexusSuite with Doobie.Fixture with Doob
 
   private lazy val xas = doobie()
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 100.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 100.millis)
 
   private lazy val compositeRestartStore  = new CompositeRestartStore(xas)
   private lazy val compositeProgressStore = new CompositeProgressStore(xas, clock)

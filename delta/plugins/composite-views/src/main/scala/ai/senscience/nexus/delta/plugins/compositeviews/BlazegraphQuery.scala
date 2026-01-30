@@ -33,7 +33,7 @@ trait BlazegraphQuery {
       project: ProjectRef,
       query: SparqlQuery,
       responseType: SparqlQueryResponseType.Aux[R]
-  )(implicit caller: Caller): IO[R]
+  )(using Caller): IO[R]
 
   /**
     * Queries the blazegraph namespace of the passed composite views' projection. We check for the caller to have the
@@ -56,7 +56,7 @@ trait BlazegraphQuery {
       project: ProjectRef,
       query: SparqlQuery,
       responseType: SparqlQueryResponseType.Aux[R]
-  )(implicit caller: Caller): IO[R]
+  )(using Caller): IO[R]
 
   /**
     * Queries all the blazegraph namespaces of the passed composite views' projection We check for the caller to have
@@ -76,7 +76,7 @@ trait BlazegraphQuery {
       project: ProjectRef,
       query: SparqlQuery,
       responseType: SparqlQueryResponseType.Aux[R]
-  )(implicit caller: Caller): IO[R]
+  )(using Caller): IO[R]
 
 }
 
@@ -109,7 +109,7 @@ object BlazegraphQuery {
           project: ProjectRef,
           query: SparqlQuery,
           responseType: Aux[R]
-      )(implicit caller: Caller): IO[R] =
+      )(using Caller): IO[R] =
         for {
           view       <- fetchView(id, project)
           permissions = view.sparqlProjections.map(_.permission)
@@ -126,7 +126,7 @@ object BlazegraphQuery {
           project: ProjectRef,
           query: SparqlQuery,
           responseType: Aux[R]
-      )(implicit caller: Caller): IO[R] =
+      )(using Caller): IO[R] =
         for {
           view       <- fetchView(id, project)
           projection <- fetchProjection(view, projectionId)
@@ -141,7 +141,7 @@ object BlazegraphQuery {
           project: ProjectRef,
           query: SparqlQuery,
           responseType: Aux[R]
-      )(implicit caller: Caller): IO[R] =
+      )(using Caller): IO[R] =
         for {
           view       <- fetchView(id, project)
           namespaces <- allowedProjections(view, project)
@@ -153,9 +153,7 @@ object BlazegraphQuery {
           IO.fromEither(view.sparqlProjection(id))
         }
 
-      private def allowedProjections(view: ActiveViewDef, project: ProjectRef)(implicit
-          caller: Caller
-      ): IO[Set[String]] =
+      private def allowedProjections(view: ActiveViewDef, project: ProjectRef)(using Caller): IO[Set[String]] =
         aclCheck
           .mapFilterAtAddress[SparqlProjection, String](
             view.sparqlProjections,

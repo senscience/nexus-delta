@@ -9,7 +9,7 @@ class AnalyticsGraphSpec extends CatsEffectSpec with ContextFixtures {
 
   "A AnalyticsGraph" should {
 
-    implicit val jsonLdApi: JsonLdApi = TitaniumJsonLdApi.lenient
+    given JsonLdApi = TitaniumJsonLdApi.lenient
 
     val responseJson = jsonContentOf("paths-relationships-aggregations-response.json")
     val expected     = jsonContentOf("analytics-graph.json")

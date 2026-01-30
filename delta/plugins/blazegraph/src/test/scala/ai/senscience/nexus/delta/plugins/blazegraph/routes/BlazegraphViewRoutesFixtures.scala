@@ -38,16 +38,16 @@ trait BlazegraphViewRoutesFixtures
     with BeforeAndAfterAll
     with Fixtures {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  given baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit val ordering: JsonKeyOrdering          =
+  given ordering: JsonKeyOrdering          =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
-  implicit val rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
-  implicit val exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
+  given rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
+  given exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
 
-  implicit val paginationConfig: PaginationConfig = pagination
+  given paginationConfig: PaginationConfig = pagination
 
   val uuid = UUID.randomUUID()
 

@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 
 trait ProjectRefInstances {
 
-  implicit final val projectRefIriEncoder: IriEncoder[ProjectRef] = new IriEncoder[ProjectRef] {
-    override def apply(value: ProjectRef)(implicit base: BaseUri): Iri =
+  given IriEncoder[ProjectRef] = new IriEncoder[ProjectRef] {
+    override def apply(value: ProjectRef)(using base: BaseUri): Iri =
       ResourceAccess.project(value).uri.toIri
   }
 }

@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import cats.implicits.*
+import cats.syntax.all.*
 import io.circe.Json
 import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
 import org.apache.pekko.http.scaladsl.model.Uri
@@ -40,9 +40,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   /**
     * Extract the common searchParameters (deprecated, rev, createdBy, updatedBy) from query parameters
     */
-  def searchParams(implicit
-      base: BaseUri
-  ): Directive[(Option[Boolean], Option[Int], Option[Subject], Option[Subject])] =
+  def searchParams(using base: BaseUri): Directive[(Option[Boolean], Option[Int], Option[Subject], Option[Subject])] =
     parameter("deprecated".as[Boolean].?) &
       revParamOpt &
       parameter("createdBy".as[Subject].?) &
@@ -145,7 +143,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
       }
     }
 
-  def resourceRef(idSegment: IdSegment)(implicit pc: ProjectContext): Directive1[ResourceRef] =
+  def resourceRef(idSegment: IdSegment)(using pc: ProjectContext): Directive1[ResourceRef] =
     Resources.expandResourceRef(idSegment, pc.apiMappings, pc.base, InvalidResourceId(_)) match {
       case Right(resourceRef) => provide(resourceRef)
       case Left(err)          => reject(validationRejection(err.getMessage))
@@ -231,7 +229,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   /**
     * Extracts pagination specific query params ''from'' and ''size'' or use defaults.
     */
-  def fromPaginated(implicit qs: PaginationConfig): Directive1[FromPagination] =
+  def fromPaginated(using qs: PaginationConfig): Directive1[FromPagination] =
     (parameter(from.as[Int] ? 0) & parameter(size.as[Int] ? qs.defaultSize)).tflatMap {
       case (_, s) if s > qs.sizeLimit => reject(limitExceededRejection(size, qs.sizeLimit))
       case (f, _) if f > qs.fromLimit => reject(limitExceededRejection(from, qs.fromLimit))
@@ -241,7 +239,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   /**
     * Extracts pagination specific query params ''from'' and ''after'' or use defaults.
     */
-  def afterPaginated(implicit qs: PaginationConfig): Directive1[SearchAfterPagination] =
+  def afterPaginated(using qs: PaginationConfig): Directive1[SearchAfterPagination] =
     (parameter(after.as[Json].?) & parameter(size.as[Int] ? qs.defaultSize)).tflatMap {
       case (None, _)                  => reject()
       case (_, s) if s > qs.sizeLimit => reject(limitExceededRejection(size, qs.sizeLimit))
@@ -251,7 +249,7 @@ trait UriDirectives extends QueryParamsUnmarshalling {
   /**
     * Extracts pagination specific query params ''from'' and ''after' or ''from'' and ''size' or use defaults.
     */
-  def paginated(implicit qs: PaginationConfig): Directive1[Pagination] = {
+  def paginated(using qs: PaginationConfig): Directive1[Pagination] = {
     parameters(after.as[Json].?, from.as[Int].?).tflatMap {
       case (Some(_), Some(_)) =>
         val r = MalformedQueryParamRejection(

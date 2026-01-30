@@ -10,7 +10,8 @@ import org.http4s.EntityEncoder
   *   https://github.com/http4s/http4s
   */
 trait CirceEntityEncoder {
-  implicit def circeEntityEncoder[A: Encoder]: EntityEncoder[IO, A] =
+
+  given circeEntityEncoder: [A: Encoder] => EntityEncoder[IO, A] =
     jsonEncoderOf[A]
 }
 

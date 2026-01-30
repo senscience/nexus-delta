@@ -16,6 +16,5 @@ import pureconfig.generic.semiauto.deriveReader
 final case class PaginationConfig(defaultSize: Int, sizeLimit: Int, fromLimit: Int)
 
 object PaginationConfig {
-  implicit final val paginationConfigReader: ConfigReader[PaginationConfig] =
-    deriveReader[PaginationConfig]
+  given ConfigReader[PaginationConfig] = deriveReader[PaginationConfig]
 }

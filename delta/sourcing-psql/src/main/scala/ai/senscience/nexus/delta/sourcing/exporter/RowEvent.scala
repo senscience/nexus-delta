@@ -21,17 +21,17 @@ final case class RowEvent(
 
 object RowEvent {
 
-  implicit final val inputEventEncoder: Codec[RowEvent] = {
+  given Codec[RowEvent] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.deriveConfiguredCodec
-    implicit val offsetEncoder: Encoder[Offset.At] = Encoder.encodeLong.contramap(_.value)
-    implicit val offsetDecoder: Decoder[Offset.At] = Decoder.decodeLong.map(Offset.At(_))
-    implicit val config: Configuration             = Configuration.default
+    given Encoder[Offset.At] = Encoder.encodeLong.contramap(_.value)
+    given Decoder[Offset.At] = Decoder.decodeLong.map(Offset.At(_))
+    given Configuration      = Configuration.default
     deriveConfiguredCodec[RowEvent]
   }
 
-  implicit val inputEventRead: Read[RowEvent] = {
-    import ai.senscience.nexus.delta.sourcing.implicits.*
+  given Read[RowEvent] = {
+    import ai.senscience.nexus.delta.sourcing.implicits.given
     import doobie.*
     import doobie.postgres.implicits.*
     Read[(Long, EntityType, Label, Label, Iri, Int, Json, Instant)].map {

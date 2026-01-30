@@ -33,7 +33,7 @@ final case class StoragesConfig(
 
 object StoragesConfig {
 
-  implicit val storageConfigReader: ConfigReader[StoragesConfig] =
+  given ConfigReader[StoragesConfig] =
     ConfigReader.fromCursor { cursor =>
       for {
         obj              <- cursor.asObjectCursor
@@ -72,7 +72,7 @@ object StoragesConfig {
       val description: String = s"'allowed-volumes' must contain at least '$defaultVolume' (default-volume)"
     }
 
-    implicit val storageTypeConfigReader: ConfigReader[StorageTypeConfig] = {
+    given ConfigReader[StorageTypeConfig] = {
       val diskStorageConfig = deriveReader[DiskStorageConfig]
       val s3StorageConfig   = deriveReader[S3StorageConfig]
       ConfigReader.fromCursor { cursor =>
@@ -176,13 +176,13 @@ object StoragesConfig {
     val prefixPath: Path = prefix.getOrElse(Path.empty)
   }
 
-  implicit private val permissionConverter: ConfigConvert[Permission] =
+  given ConfigConvert[Permission] =
     ConfigConvert.viaString[Permission](optF(Permission(_).toOption), _.toString)
 
-  implicit private val digestAlgConverter: ConfigConvert[DigestAlgorithm] =
+  given ConfigConvert[DigestAlgorithm] =
     ConfigConvert.viaString[DigestAlgorithm](optF(DigestAlgorithm(_)), _.toString)
 
-  implicit private val absolutePathConverter: ConfigConvert[AbsolutePath] =
+  given ConfigConvert[AbsolutePath] =
     ConfigConvert.viaString[AbsolutePath](
       str => AbsolutePath(str).leftMap(err => CannotConvert(str, "AbsolutePath", err)),
       _.toString

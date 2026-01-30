@@ -12,6 +12,5 @@ final case class SupervisedDescription(
 )
 
 object SupervisedDescription {
-  implicit final val supervisedDescriptionEncoder: Encoder[SupervisedDescription] =
-    deriveEncoder
+  given Encoder[SupervisedDescription] = deriveEncoder
 }

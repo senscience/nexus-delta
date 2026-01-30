@@ -14,7 +14,7 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.ExecutionContext
 
-class ElasticsearchDsl(implicit
+class ElasticsearchDsl(using
     as: ActorSystem,
     materializer: Materializer,
     ec: ExecutionContext

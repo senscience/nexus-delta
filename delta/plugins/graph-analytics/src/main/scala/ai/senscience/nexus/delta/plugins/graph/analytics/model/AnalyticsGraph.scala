@@ -74,23 +74,21 @@ object AnalyticsGraph {
 
   val empty: AnalyticsGraph = AnalyticsGraph(Seq.empty, Seq.empty)
 
-  implicit private val relationshipsEncoder: Encoder.AsObject[AnalyticsGraph] = {
-    implicit val cfg: Configuration                          =
-      Configuration.default.copy(transformMemberNames = {
-        case "id"  => keywords.id
-        case other => s"_$other"
-      })
-    implicit val nodeEncoder: Encoder.AsObject[Node]         = deriveConfiguredEncoder
-    implicit val edgePathEncoder: Encoder.AsObject[EdgePath] = deriveConfiguredEncoder
-    implicit val edgeEncoder: Encoder.AsObject[Edge]         = deriveConfiguredEncoder
+  private given Encoder.AsObject[AnalyticsGraph] = {
+    given Configuration              = Configuration.default.copy(transformMemberNames = {
+      case "id"  => keywords.id
+      case other => s"_$other"
+    })
+    given Encoder.AsObject[Node]     = deriveConfiguredEncoder
+    given Encoder.AsObject[EdgePath] = deriveConfiguredEncoder
+    given Encoder.AsObject[Edge]     = deriveConfiguredEncoder
     deriveConfiguredEncoder[AnalyticsGraph]
   }
-  implicit val relationshipsJsonLdEncoder: JsonLdEncoder[AnalyticsGraph]      =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.relationships))
+  given JsonLdEncoder[AnalyticsGraph]            = JsonLdEncoder.computeFromCirce(ContextValue(contexts.relationships))
 
-  implicit val relationshipsHttpResponseFields: HttpResponseFields[AnalyticsGraph] = HttpResponseFields.defaultOk
+  given HttpResponseFields[AnalyticsGraph] = HttpResponseFields.defaultOk
 
-  implicit val relationshipsDecoderFromEsAggregations: Decoder[AnalyticsGraph] = {
+  given Decoder[AnalyticsGraph] = {
 
     def resourceType(hc: HCursor) =
       for {

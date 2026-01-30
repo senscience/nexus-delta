@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import cats.Order
 import io.circe.{Decoder, Encoder}
@@ -41,7 +41,7 @@ object ResourceRef {
   }
 
   object Latest {
-    implicit val latestOrder: Order[Latest] = Order.by { latest => latest.iri }
+    given latestOrder: Order[Latest] = Order.by { latest => latest.iri }
   }
 
   /**
@@ -69,16 +69,16 @@ object ResourceRef {
     final def apply(iri: Iri, rev: Int): Revision =
       Revision(iri"$iri?rev=$rev", iri, rev)
 
-    implicit val resRefRevEncoder: Encoder[ResourceRef.Revision] = Encoder.encodeString.contramap(_.original.toString)
+    given Encoder[ResourceRef.Revision] = Encoder.encodeString.contramap(_.original.toString)
 
-    implicit val resRefRevDecoder: Decoder[ResourceRef.Revision] = Decoder.decodeString.emap { str =>
+    given Decoder[ResourceRef.Revision] = Decoder.decodeString.emap { str =>
       val original = iri"$str"
       val iriNoRev = original.removeQueryParams("rev")
       val optRev   = original.query().params.get("rev").flatMap(_.toIntOption)
       optRev.map(ResourceRef.Revision(original, iriNoRev, _)).toRight("Expected Int value 'rev' query parameter")
     }
 
-    implicit val revisionOrder: Order[Revision] = Order.by { revision => (revision.iri, revision.rev) }
+    given revisionOrder: Order[Revision] = Order.by { revision => (revision.iri, revision.rev) }
   }
 
   /**
@@ -106,7 +106,7 @@ object ResourceRef {
     final def apply(iri: Iri, tag: UserTag): Tag =
       Tag(iri"$iri?tag=$tag", iri, tag)
 
-    implicit val tagOrder: Order[Tag] = Order.by { tag => (tag.iri, tag.tag.value) }
+    given tagOrder: Order[Tag] = Order.by { tag => (tag.iri, tag.tag.value) }
   }
 
   /**
@@ -127,14 +127,14 @@ object ResourceRef {
     }
   }
 
-  implicit val resourceRefEncoder: Encoder[ResourceRef]  = Iri.iriEncoder.contramap(_.original)
-  implicit val resourceRefDecoder: Decoder[ResourceRef]  = Iri.iriDecoder.map(apply)
-  implicit val jsonLdDecoder: JsonLdDecoder[ResourceRef] = JsonLdDecoder.iriJsonLdDecoder.map(apply)
+  given Encoder[ResourceRef]       = Iri.iriEncoder.contramap(_.original)
+  given Decoder[ResourceRef]       = Iri.iriDecoder.map(apply)
+  given JsonLdDecoder[ResourceRef] = JsonLdDecoder.iriJsonLdDecoder.map(apply)
 
   /**
     * Defines an order instance such as [[Latest]] > [[Tag]] > [[Revision]]
     */
-  implicit val resourceRefOrder: Order[ResourceRef] = Order.from {
+  given Order[ResourceRef] = Order.from {
     case (_: Revision, _: Latest)     => -1
     case (_: Revision, _: Tag)        => -1
     case (r1: Revision, r2: Revision) => Revision.revisionOrder.compare(r1, r2)

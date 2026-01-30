@@ -60,7 +60,7 @@ trait BaseIntegrationSpec
 
   private val logger = Logger[this.type]
 
-  implicit val config: TestsConfig = load[TestsConfig](ConfigFactory.load(), "tests")
+  given config: TestsConfig = load[TestsConfig](ConfigFactory.load(), "tests")
 
   val deltaUrl: Uri = Uri(s"http://${sys.props.getOrElse("delta-url", "localhost:8080")}/v1")
 
@@ -83,7 +83,13 @@ trait BaseIntegrationSpec
   val elasticsearchViewsDsl = new ElasticSearchViewsDsl(deltaClient)
   val storagesDsl           = new StoragesDsl(deltaClient)
 
-  implicit override def patienceConfig: PatienceConfig = PatienceConfig(config.patience, 100.millis)
+  def slowTest: Boolean = false
+
+  override given patienceConfig: PatienceConfig = {
+    val timeout  = if slowTest then config.patience * 2 else config.patience
+    val interval = if slowTest then 300.millis else 100.millis
+    PatienceConfig(timeout * 2, interval)
+  }
 
   def eventually(io: IO[Assertion]): Assertion =
     eventually { io.unsafeRunSync() }

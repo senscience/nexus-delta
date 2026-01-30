@@ -30,8 +30,8 @@ class MultiFetchSpec extends BaseIntegrationSpec {
 
     val resourcePayload = SimpleResource.sourcePayload(5).accepted
 
-    implicit val identity: Identity = Bob
-    val file                        = FileInput("nxv:file", "attachment.json", ContentTypes.`application/json`, """{ "content": "json" }""")
+    given Identity = Bob
+    val file       = FileInput("nxv:file", "attachment.json", ContentTypes.`application/json`, """{ "content": "json" }""")
 
     val createResources = for {
       // Creation

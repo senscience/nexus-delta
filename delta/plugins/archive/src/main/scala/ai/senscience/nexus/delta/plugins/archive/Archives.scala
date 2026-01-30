@@ -53,10 +53,8 @@ class Archives(
     *   the archive parent project
     * @param value
     *   the archive value
-    * @param subject
-    *   the subject that initiated the action
     */
-  def create(iri: Iri, project: ProjectRef, value: ArchiveValue)(implicit subject: Subject): IO[ArchiveResource] =
+  def create(iri: Iri, project: ProjectRef, value: ArchiveValue)(using subject: Subject): IO[ArchiveResource] =
     eval(CreateArchive(iri, project, value, subject)).surround("createArchive")
 
   /**
@@ -67,10 +65,8 @@ class Archives(
     *   the archive parent project
     * @param source
     *   the archive json representation
-    * @param subject
-    *   the subject that initiated the action
     */
-  def create(project: ProjectRef, source: Json)(implicit subject: Subject): IO[ArchiveResource] =
+  def create(project: ProjectRef, source: Json)(using subject: Subject): IO[ArchiveResource] =
     (for {
       p            <- fetchContext.onRead(project)
       (iri, value) <- sourceDecoder(p, source)
@@ -88,14 +84,12 @@ class Archives(
     *   the archive parent project
     * @param source
     *   the archive json representation
-    * @param subject
-    *   the subject that initiated the action
     */
   def create(
       id: IdSegment,
       project: ProjectRef,
       source: Json
-  )(implicit subject: Subject): IO[ArchiveResource] =
+  )(using Subject): IO[ArchiveResource] =
     (for {
       (iri, p) <- expandWithContext(id, project)
       value    <- sourceDecoder(p, iri, source)
@@ -132,7 +126,7 @@ class Archives(
       id: IdSegment,
       project: ProjectRef,
       ignoreNotFound: Boolean
-  )(implicit caller: Caller): IO[PekkoSource] =
+  )(using Caller): IO[PekkoSource] =
     (for {
       resource <- fetch(id, project)
       value     = resource.value

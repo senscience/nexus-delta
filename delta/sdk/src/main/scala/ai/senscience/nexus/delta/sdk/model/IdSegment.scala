@@ -27,9 +27,9 @@ sealed trait IdSegment extends Product with Serializable { self =>
 
 object IdSegment {
 
-  implicit def iriToIriSegment(iri: Iri): IdSegment             = IriSegment(iri)
-  implicit def refToIriSegment(iri: ResourceRef): IdSegment     = IriSegment(iri.original)
-  implicit def stringToStringSegment(string: String): IdSegment = StringSegment(string)
+  given Conversion[Iri, IdSegment]         = IriSegment(_)
+  given Conversion[ResourceRef, IdSegment] = ref => IriSegment(ref.original)
+  given Conversion[String, IdSegment]      = StringSegment(_)
 
   /**
     * Construct an [[IdSegment]] from the passed ''string''

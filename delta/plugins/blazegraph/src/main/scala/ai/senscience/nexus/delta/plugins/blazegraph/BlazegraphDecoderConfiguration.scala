@@ -7,7 +7,7 @@ import cats.effect.IO
 
 object BlazegraphDecoderConfiguration {
 
-  def apply(implicit rcr: RemoteContextResolution): IO[Configuration] = for {
+  def apply(using RemoteContextResolution): IO[Configuration] = for {
     contextValue  <- IO.delay { ContextValue(contexts.blazegraph) }
     jsonLdContext <- JsonLdContext(contextValue)
   } yield {

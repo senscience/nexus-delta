@@ -85,7 +85,7 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
         config: SearchConfig,
         baseUri: BaseUri,
         serviceAccount: ServiceAccount
-    ) => SearchConfigHook(compositeViews, config.defaults, config.indexing)(baseUri, serviceAccount.subject)
+    ) => SearchConfigHook(compositeViews, config.defaults, config.indexing)(using baseUri, serviceAccount.subject)
   }
 
 }

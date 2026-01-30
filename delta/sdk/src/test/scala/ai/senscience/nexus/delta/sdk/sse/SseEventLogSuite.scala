@@ -16,7 +16,7 @@ import java.time.Instant
 
 class SseEventLogSuite extends NexusSuite with ConfigFixtures {
 
-  implicit private val jo: JsonKeyOrdering = JsonKeyOrdering.alphabetical
+  private given JsonKeyOrdering = JsonKeyOrdering.alphabetical
 
   private val project = ProjectRef.unsafe("org", "proj")
 

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ai.senscience.nexus.delta.sdk.syntax.httpResponseFieldsSyntax
+import ai.senscience.nexus.delta.sdk.syntax.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, JsonObject}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
@@ -40,7 +40,7 @@ object IdentityError {
     */
   final case class InvalidToken(rejection: TokenRejection) extends IdentityError(rejection.getMessage)
 
-  implicit val tokenRejectionEncoder: Encoder.AsObject[TokenRejection] =
+  given Encoder.AsObject[TokenRejection] =
     Encoder.AsObject.instance { r =>
       val tpe  = ClassUtils.simpleName(r)
       val json = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.getMessage.asJson)
@@ -50,10 +50,10 @@ object IdentityError {
       }
     }
 
-  implicit final val tokenRejectionJsonLdEncoder: JsonLdEncoder[TokenRejection] =
+  given JsonLdEncoder[TokenRejection] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.error))
 
-  implicit val identityErrorEncoder: Encoder.AsObject[IdentityError] =
+  given Encoder.AsObject[IdentityError] =
     Encoder.AsObject.instance[IdentityError] {
       case InvalidToken(r)      =>
         r.asJsonObject
@@ -61,13 +61,12 @@ object IdentityError {
         JsonObject(keywords.tpe -> "AuthenticationFailed".asJson, "reason" -> AuthenticationFailed.getMessage.asJson)
     }
 
-  implicit val identityErrorJsonLdEncoder: JsonLdEncoder[IdentityError] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
+  given JsonLdEncoder[IdentityError] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsTokenRejection: HttpResponseFields[TokenRejection] =
+  given HttpResponseFields[TokenRejection] =
     HttpResponseFields(_ => StatusCodes.Unauthorized)
 
-  implicit val responseFieldsIdentities: HttpResponseFields[IdentityError] =
+  given HttpResponseFields[IdentityError] =
     HttpResponseFields {
       case IdentityError.AuthenticationFailed    => StatusCodes.Unauthorized
       case IdentityError.InvalidToken(rejection) => rejection.status

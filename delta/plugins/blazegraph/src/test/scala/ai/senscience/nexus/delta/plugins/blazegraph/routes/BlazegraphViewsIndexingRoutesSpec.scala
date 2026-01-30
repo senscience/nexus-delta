@@ -41,7 +41,7 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
 
   private val runTrigger             = Ref.unsafe[IO, Boolean](false)
   private val sparqlRestartScheduler = new SparqlRestartScheduler {
-    override def run(fromOffset: Offset)(implicit subject: Identity.Subject): IO[Unit] =
+    override def run(fromOffset: Offset)(using Identity.Subject): IO[Unit] =
       runTrigger.set(true).void
   }
 

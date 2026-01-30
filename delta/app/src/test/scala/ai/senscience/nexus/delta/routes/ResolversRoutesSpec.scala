@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, ResourceGen, SchemaGen}
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
@@ -38,8 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class ResolversRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val org      = Label.unsafe("org")
   private val am       = ApiMappings("nxv" -> nxv.base, "Person" -> schema.Person, "resolver" -> schemas.resolvers)

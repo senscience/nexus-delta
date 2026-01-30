@@ -52,19 +52,19 @@ trait CompositeProjections {
     * Schedules a full rebuild restarting indexing process for all targets while keeping the sources (and the
     * intermediate Sparql space) progress
     */
-  def scheduleFullRestart(view: ViewRef)(implicit subject: Subject): IO[Unit]
+  def scheduleFullRestart(view: ViewRef)(using Subject): IO[Unit]
 
   /**
     * Schedules a full rebuild restarting indexing process for all targets while keeping the sources (and the
     * intermediate Sparql space) progress
     */
-  def scheduleFullRebuild(view: ViewRef)(implicit subject: Subject): IO[Unit]
+  def scheduleFullRebuild(view: ViewRef)(using Subject): IO[Unit]
 
   /**
     * Schedules a rebuild restarting indexing process for the given target while keeping the progress for the sources
     * and the other projections
     */
-  def schedulePartialRebuild(view: ViewRef, target: Iri)(implicit subject: Subject): IO[Unit]
+  def schedulePartialRebuild(view: ViewRef, target: Iri)(using Subject): IO[Unit]
 
   /**
     * Reset the progress for the rebuild branches
@@ -118,13 +118,13 @@ object CompositeProjections {
 
       override def deleteAll(view: IndexingViewRef): IO[Unit] = compositeProgressStore.deleteAll(view)
 
-      override def scheduleFullRestart(view: ViewRef)(implicit subject: Subject): IO[Unit] =
+      override def scheduleFullRestart(view: ViewRef)(using subject: Subject): IO[Unit] =
         scheduleRestart(FullRestart(view, _, subject))
 
-      override def scheduleFullRebuild(view: ViewRef)(implicit subject: Subject): IO[Unit] =
+      override def scheduleFullRebuild(view: ViewRef)(using subject: Subject): IO[Unit] =
         scheduleRestart(FullRebuild(view, _, subject))
 
-      override def schedulePartialRebuild(view: ViewRef, target: Iri)(implicit subject: Subject): IO[Unit] =
+      override def schedulePartialRebuild(view: ViewRef, target: Iri)(using subject: Subject): IO[Unit] =
         scheduleRestart(PartialRebuild(view, target, _, subject))
 
       private def scheduleRestart(f: Instant => CompositeRestart) =

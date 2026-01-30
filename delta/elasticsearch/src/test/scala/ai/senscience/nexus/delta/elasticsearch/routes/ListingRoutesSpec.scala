@@ -29,7 +29,7 @@ import org.apache.pekko.http.scaladsl.server.Route
 
 class ListingRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
 
-  override given rcr: RemoteContextResolution = super.rcr.merge(Fixtures.rcr)
+  override def extraContexts: RemoteContextResolution = Fixtures.rcr
 
   private val myId2        = nxv + "myid2"
   private val myId2Encoded = encodeUriPath(myId2.toString)

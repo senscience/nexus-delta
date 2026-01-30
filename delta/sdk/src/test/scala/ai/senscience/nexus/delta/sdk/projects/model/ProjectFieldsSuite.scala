@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects.model
 
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig
 import ai.senscience.nexus.delta.sdk.projects.ProjectsConfig.PrefixConfig.PrefixIriTemplate
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef

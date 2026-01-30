@@ -17,9 +17,9 @@ object MediaType {
   val `application/json`: MediaType         = MediaType(Http4sMediaType.application.json)
   val `text/plain`: MediaType               = MediaType(Http4sMediaType.text.plain)
 
-  implicit val mediaTypeEncoder: Encoder[MediaType] = Encoder.encodeString.contramap(_.tree)
+  given Encoder[MediaType] = Encoder.encodeString.contramap(_.tree)
 
-  implicit val mediaTypeDecoder: Decoder[MediaType] = Decoder.decodeString.emap(MediaType.parse)
+  given Decoder[MediaType] = Decoder.decodeString.emap(MediaType.parse)
 
   def apply(mt: Http4sMediaType): MediaType =
     MediaType(mt.mainType, mt.subType)

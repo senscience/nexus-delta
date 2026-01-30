@@ -7,11 +7,11 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 
 trait HttpResponseFieldsInstances {
-  implicit val offsetResponseFields: HttpResponseFields[Offset] = HttpResponseFields.defaultOk
+  given offsetResponseFields: HttpResponseFields[Offset] = HttpResponseFields.defaultOk
 
-  implicit val progressStatisticsResponseFields: HttpResponseFields[ProgressStatistics] = HttpResponseFields.defaultOk
+  given progressStatisticsResponseFields: HttpResponseFields[ProgressStatistics] = HttpResponseFields.defaultOk
 
-  implicit val remainingElemsHttpResponseFields: HttpResponseFields[RemainingElems] = HttpResponseFields.defaultOk
+  given remainingElemsHttpResponseFields: HttpResponseFields[RemainingElems] = HttpResponseFields.defaultOk
 
-  implicit val tagsHttpResponseFields: HttpResponseFields[Tags] = HttpResponseFields.defaultOk
+  given tagsHttpResponseFields: HttpResponseFields[Tags] = HttpResponseFields.defaultOk
 }

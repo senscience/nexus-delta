@@ -43,10 +43,8 @@ object PrefixIri {
   final def unsafe(value: Iri): PrefixIri =
     new PrefixIri(value)
 
-  implicit final val prefixIriEncoder: Encoder[PrefixIri] =
-    Encoder.encodeString.contramap(_.value.toString)
+  given Encoder[PrefixIri] = Encoder.encodeString.contramap(_.value.toString)
 
-  implicit final val prefixIriDecoder: Decoder[PrefixIri] =
-    Decoder.decodeString.emap(s => PrefixIri(s).leftMap(_.getMessage))
+  given Decoder[PrefixIri] = Decoder.decodeString.emap(s => PrefixIri(s).leftMap(_.getMessage))
 
 }

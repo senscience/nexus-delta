@@ -147,15 +147,15 @@ object StorageValue {
       )
   }
 
-  implicit private[model] val storageValueEncoder: Encoder.AsObject[StorageValue] = {
-    implicit val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  private[model] given Encoder.AsObject[StorageValue] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
     Encoder.encodeJsonObject.contramapObject { storage =>
       deriveConfiguredEncoder[StorageValue].encodeObject(storage).add(keywords.tpe, storage.tpe.iri.asJson)
     }
   }
 
-  def databaseCodec(implicit configuration: Configuration): Codec.AsObject[StorageValue] =
+  def databaseCodec(using configuration: Configuration): Codec.AsObject[StorageValue] =
     deriveConfiguredCodec[StorageValue]
 
 }

@@ -23,7 +23,7 @@ import org.scalatest.CancelAfterFailure
 
 class GraphAnalyticsRoutesSpec extends BaseRouteSpec with CancelAfterFailure {
 
-  implicit override def rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(contexts.definition)
 
   private val identities = IdentitiesDummy.fromUsers(alice)
 

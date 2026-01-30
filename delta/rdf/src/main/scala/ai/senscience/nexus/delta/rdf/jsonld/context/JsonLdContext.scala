@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.rdf.jsonld.context
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.syntax.{iterableOpsSyntax, jsonOpsSyntax}
+import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
 import io.circe.syntax.*
 import io.circe.{Json, JsonObject}

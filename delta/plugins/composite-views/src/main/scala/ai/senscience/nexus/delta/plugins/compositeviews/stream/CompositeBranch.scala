@@ -32,12 +32,12 @@ object CompositeBranch {
   def rebuild(source: Iri, target: Iri): CompositeBranch = CompositeBranch(source, target, Run.Rebuild)
 
   object Run {
-    implicit val runGet: Get[Run] = Get[String].temap {
+    given Get[Run] = Get[String].temap {
       case Main.value    => Right(Main)
       case Rebuild.value => Right(Rebuild)
       case value         => Left(s"'$value' is not value for `Run`")
     }
-    implicit val runPut: Put[Run] = Put[String].contramap(_.value)
+    given Put[Run] = Put[String].contramap(_.value)
 
     case object Main extends Run {
       override val value = "main"

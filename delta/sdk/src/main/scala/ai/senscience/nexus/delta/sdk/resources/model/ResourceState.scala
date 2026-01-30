@@ -77,7 +77,7 @@ final case class ResourceState(
 ) extends ScopedState {
 
   def toAssembly: IO[JsonLdAssembly] = {
-    implicit val api: JsonLdApi = TitaniumJsonLdApi.lenient
+    given JsonLdApi = TitaniumJsonLdApi.lenient
     expanded.toGraph
       .map { graph =>
         JsonLdAssembly(id, source, compacted, expanded, graph, remoteContexts)
@@ -103,9 +103,9 @@ final case class ResourceState(
 
 object ResourceState {
 
-  implicit val serializer: Serializer[Iri, ResourceState] = {
-    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
+  given serializer: Serializer[Iri, ResourceState] = {
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.given
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
 
     // TODO: The `.withDefaults` method is used in order to inject the default empty remoteContexts

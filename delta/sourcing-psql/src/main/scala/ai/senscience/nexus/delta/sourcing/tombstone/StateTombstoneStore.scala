@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
@@ -117,8 +117,8 @@ object StateTombstoneStore {
   )
 
   object StateTombstone {
-    implicit val tombstoneRead: Read[StateTombstone] = {
-      implicit val v: Get[Cause] = pgDecoderGetT[Cause]
+    given Read[StateTombstone] = {
+      given Get[Cause] = pgDecoderGetT[Cause]
       Read[(EntityType, Label, Label, Iri, Tag, Cause, Instant)].map {
         case (tpe, org, project, id, tag, cause, instant) =>
           StateTombstone(tpe, ProjectRef(org, project), id, tag, cause, instant)
@@ -132,8 +132,8 @@ object StateTombstoneStore {
 
     val deleted: Cause = Cause(deleted = true, Set.empty, None)
 
-    implicit val causeCodec: Codec[Cause] = {
-      implicit val configuration: Configuration = Configuration.default
+    given Codec[Cause] = {
+      given Configuration = Configuration.default
       deriveConfiguredCodec[Cause]
     }
 

@@ -89,20 +89,20 @@ object Storage {
     */
   final case class Metadata(algorithm: DigestAlgorithm)
 
-  implicit private[storages] val storageEncoder: Encoder.AsObject[Storage] =
+  private[storages] given Encoder.AsObject[Storage] =
     Encoder.encodeJsonObject.contramapObject { s =>
       s.storageValue.asJsonObject.add(keywords.tpe, s.tpe.types.asJson)
     }
 
-  implicit val storageJsonLdEncoder: JsonLdEncoder[Storage] = JsonLdEncoder.computeFromCirce(_.id, Storages.context)
+  given JsonLdEncoder[Storage] = JsonLdEncoder.computeFromCirce(_.id, Storages.context)
 
-  implicit private val storageMetadataEncoder: Encoder.AsObject[Metadata] =
+  private given Encoder.AsObject[Metadata] =
     Encoder.encodeJsonObject.contramapObject(meta => JsonObject("_algorithm" -> meta.algorithm.asJson))
 
-  implicit val storageMetadataJsonLdEncoder: JsonLdEncoder[Metadata] =
+  given JsonLdEncoder[Metadata] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.storagesMetadata))
 
-  implicit val storageOrderingFields: OrderingFields[Storage] =
+  given OrderingFields[Storage] =
     OrderingFields { case "_algorithm" =>
       Ordering[String] on (_.storageValue.algorithm.value)
     }

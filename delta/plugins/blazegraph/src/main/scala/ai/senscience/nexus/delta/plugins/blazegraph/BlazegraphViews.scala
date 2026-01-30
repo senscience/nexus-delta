@@ -14,6 +14,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewType.Agg
 import ai.senscience.nexus.delta.plugins.blazegraph.model.BlazegraphViewValue.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.jsonld.decoder.Configuration
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.jsonld.ExpandIri
@@ -57,7 +58,7 @@ final class BlazegraphViews(
     * @param source
     *   the payload to create the view
     */
-  def create(project: ProjectRef, source: Json)(implicit caller: Caller): IO[ViewResource] = {
+  def create(project: ProjectRef, source: Json)(using caller: Caller): IO[ViewResource] = {
     for {
       pc               <- fetchContext.onCreate(project)
       (iri, viewValue) <- sourceDecoder(project, pc, source)
@@ -80,7 +81,7 @@ final class BlazegraphViews(
       id: IdSegment,
       project: ProjectRef,
       source: Json
-  )(implicit caller: Caller): IO[ViewResource] = {
+  )(using caller: Caller): IO[ViewResource] = {
     for {
       pc        <- fetchContext.onCreate(project)
       iri       <- expandIri(id, pc)
@@ -99,9 +100,11 @@ final class BlazegraphViews(
     * @param view
     *   the value of the view
     */
-  def create(id: IdSegment, project: ProjectRef, view: BlazegraphViewValue)(implicit
-      subject: Subject
-  ): IO[ViewResource] = {
+  def create(
+      id: IdSegment,
+      project: ProjectRef,
+      view: BlazegraphViewValue
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       pc    <- fetchContext.onCreate(project)
       iri   <- expandIri(id, pc)
@@ -127,7 +130,7 @@ final class BlazegraphViews(
       project: ProjectRef,
       rev: Int,
       source: Json
-  )(implicit caller: Caller): IO[ViewResource] = {
+  )(using caller: Caller): IO[ViewResource] = {
     for {
       pc        <- fetchContext.onModify(project)
       iri       <- expandIri(id, pc)
@@ -150,7 +153,7 @@ final class BlazegraphViews(
     * @param view
     *   the view value
     */
-  def update(id: IdSegment, project: ProjectRef, rev: Int, view: BlazegraphViewValue)(implicit
+  def update(id: IdSegment, project: ProjectRef, rev: Int, view: BlazegraphViewValue)(using
       subject: Subject
   ): IO[ViewResource] = {
     for {
@@ -176,7 +179,7 @@ final class BlazegraphViews(
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       pc  <- fetchContext.onModify(project)
       iri <- expandIri(id, pc)
@@ -203,7 +206,7 @@ final class BlazegraphViews(
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       pc  <- fetchContext.onModify(project)
       iri <- expandIri(id, pc)
@@ -221,7 +224,7 @@ final class BlazegraphViews(
     * @param rev
     *   the current view revision
     */
-  private[blazegraph] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(implicit
+  private[blazegraph] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(using
       subject: Subject
   ): IO[Unit] =
     eval(DeprecateBlazegraphView(id, project, rev, subject)).void
@@ -416,7 +419,7 @@ object BlazegraphViews {
   private[blazegraph] def evaluate(
       validate: ValidateBlazegraphView,
       clock: Clock[IO]
-  )(state: Option[BlazegraphViewState], cmd: BlazegraphViewCommand)(implicit
+  )(state: Option[BlazegraphViewState], cmd: BlazegraphViewCommand)(using
       uuidF: UUIDF
   ): IO[BlazegraphViewEvent] = {
 
@@ -480,7 +483,7 @@ object BlazegraphViews {
     }
   }
 
-  def definition(validate: ValidateBlazegraphView, clock: Clock[IO])(implicit
+  def definition(validate: ValidateBlazegraphView, clock: Clock[IO])(using
       uuidF: UUIDF
   ): ScopedEntityDefinition[
     Iri,
@@ -546,10 +549,10 @@ object BlazegraphViews {
       xas: Transactors,
       clock: Clock[IO]
   )(using uuidF: UUIDF)(using Tracer[IO]): IO[BlazegraphViews] = {
-    implicit val rcr: RemoteContextResolution = contextResolution.rcr
+    given RemoteContextResolution = contextResolution.rcr
 
     BlazegraphDecoderConfiguration.apply
-      .map { implicit config =>
+      .map { case given Configuration =>
         new JsonLdSourceResolvingDecoder[BlazegraphViewValue](
           contexts.blazegraph,
           contextResolution,

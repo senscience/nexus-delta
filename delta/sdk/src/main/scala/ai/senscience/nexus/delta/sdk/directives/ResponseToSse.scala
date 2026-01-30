@@ -29,7 +29,9 @@ object ResponseToSse {
         }
     }
 
-  implicit def ioStream(io: IO[ServerSentEventStream]): ResponseToSse = ResponseToSse(io)
+  given ioStream: Conversion[IO[ServerSentEventStream], ResponseToSse] = ResponseToSse(_)
 
-  implicit def streamValue(value: ServerSentEventStream): ResponseToSse = ResponseToSse(IO.pure(value))
+  given streamValue: Conversion[ServerSentEventStream, ResponseToSse] = { value =>
+    ResponseToSse(IO.pure(value))
+  }
 }

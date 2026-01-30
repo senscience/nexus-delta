@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.config
 
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.resources
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.testkit.CirceLiteral.circeLiteralSyntax
+import ai.senscience.nexus.testkit.CirceLiteral.*
 import io.circe.Json
 
 object ResourceErrors {

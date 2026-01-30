@@ -34,7 +34,7 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
 
   private val bucket = genId()
 
-  implicit private val s3Client: S3AsyncClientOp[IO] = createS3Client.accepted
+  private given s3Client: S3AsyncClientOp[IO] = createS3Client.accepted
 
   override def beforeAll(): Unit = {
     super.beforeAll()

@@ -19,9 +19,9 @@ import scala.concurrent.duration.DurationInt
 
 object SchemaGen {
   // We put a lenient api for schemas otherwise the api checks data types before the actual schema validation process
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.lenient
+  private given JsonLdApi = TitaniumJsonLdApi.lenient
 
-  def empty(id: Iri, project: ProjectRef) =
+  def empty(id: Iri, project: ProjectRef): SchemaResource =
     SchemaState(
       id,
       project,
@@ -64,7 +64,7 @@ object SchemaGen {
       project: ProjectRef,
       source: Json,
       tags: Tags = Tags.empty
-  )(implicit resolution: RemoteContextResolution): Schema = {
+  )(using RemoteContextResolution): Schema = {
     schemaAsync(id, project, source, tags).accepted
   }
 
@@ -73,7 +73,7 @@ object SchemaGen {
       project: ProjectRef,
       source: Json,
       tags: Tags = Tags.empty
-  )(implicit resolution: RemoteContextResolution): IO[Schema] = {
+  )(using RemoteContextResolution): IO[Schema] = {
     for {
       expanded  <- ExpandedJsonLd(source).map(_.replaceId(id))
       compacted <- expanded.toCompacted(source.topContextValueOrEmpty)
@@ -103,7 +103,7 @@ object SchemaGen {
       subject
     ).toResource
 
-  implicit final private class CatsIOValuesOps[A](private val io: IO[A]) {
+  extension [A](io: IO[A]) {
     def accepted: A =
       io.unsafeRunTimed(45.seconds).getOrElse(throw new RuntimeException("IO timed out during .accepted call"))
   }

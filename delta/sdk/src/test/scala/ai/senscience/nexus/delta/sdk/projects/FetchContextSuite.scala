@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.projects
 
-import ai.senscience.nexus.delta.sdk.implicits.iriStringContextSyntax
+import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.OrganizationIsDeprecated
 import ai.senscience.nexus.delta.sdk.projects.FetchContext.ProjectStatus
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectIsMarkedForDeletion, ProjectNotFound}

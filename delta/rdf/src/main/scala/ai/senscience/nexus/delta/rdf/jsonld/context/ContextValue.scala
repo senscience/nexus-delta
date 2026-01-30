@@ -163,11 +163,10 @@ object ContextValue {
   }
 
   object ContextObject {
-    implicit val contextObjectEncoder: Encoder.AsObject[ContextObject] = Encoder.encodeJsonObject.contramapObject(_.obj)
-    implicit val contextObjectDecoder: Decoder[ContextObject]          = Decoder.decodeJsonObject.map(ContextObject.apply)
+    given Encoder.AsObject[ContextObject] = Encoder.encodeJsonObject.contramapObject(_.obj)
+    given Decoder[ContextObject]          = Decoder.decodeJsonObject.map(ContextObject.apply)
 
-    implicit val contextObjectJsonLdDecoder: JsonLdDecoder[ContextObject] =
-      JsonLdDecoder.jsonObjectJsonLdDecoder.map(ContextObject.apply)
+    given JsonLdDecoder[ContextObject] = JsonLdDecoder.jsonObjectJsonLdDecoder.map(ContextObject.apply)
 
     def empty = ContextObject(JsonObject.empty)
   }
@@ -190,7 +189,7 @@ object ContextValue {
   /**
     * Loads a [[ContextValue]] form the passed ''resourcePath''
     */
-  final def fromFile(resourcePath: String)(implicit loader: ClasspathResourceLoader): IO[ContextValue] =
+  final def fromFile(resourcePath: String)(using loader: ClasspathResourceLoader): IO[ContextValue] =
     loader.jsonContentOf(resourcePath).map(_.topContextValueOrEmpty)
 
   /**
@@ -203,7 +202,7 @@ object ContextValue {
       json.as[Iri].toOption.filter(_.isReference).map(ContextRemoteIri(_))).getOrElse(ContextEmpty)
   // format: on
 
-  implicit val contextValueEncoder: Encoder[ContextValue] = Encoder.instance(_.value)
-  implicit val contextValueDecoder: Decoder[ContextValue] = Decoder.decodeJson.map(apply)
+  given Encoder[ContextValue] = Encoder.instance(_.value)
+  given Decoder[ContextValue] = Decoder.decodeJson.map(apply)
 
 }

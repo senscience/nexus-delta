@@ -4,11 +4,11 @@ import munit.{Assertions, Location}
 
 trait StringAssertions { self: Assertions =>
 
-  implicit class StringAssertionsOps(obtained: String) {
+  extension (obtained: String) {
 
     private def sort(value: String) = value.split("\n").filterNot(_.trim.isEmpty).sorted.toList
 
-    def equalLinesUnordered(expected: String)(implicit loc: Location): Unit = {
+    def equalLinesUnordered(expected: String)(using Location): Unit = {
       val obtainedSorted = sort(obtained)
       val expectedSorted = sort(expected)
 
@@ -25,7 +25,6 @@ trait StringAssertions { self: Assertions =>
            |${expectedSorted.mkString("\n")}
            |""".stripMargin
       )
-
     }
   }
 

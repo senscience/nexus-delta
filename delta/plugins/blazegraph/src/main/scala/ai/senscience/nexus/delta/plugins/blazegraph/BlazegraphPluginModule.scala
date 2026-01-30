@@ -252,7 +252,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   many[ViewsList].add { (views: BlazegraphViews) => ViewsList(views.list) }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => BlazegraphViewEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => BlazegraphViewEvent.sseEncoder(using base) }
 
   many[ApiMappings].add(BlazegraphViews.mappings)
 

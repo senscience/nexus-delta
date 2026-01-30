@@ -21,13 +21,11 @@ final case class RemainingElems(count: Long, maxInstant: Instant)
 
 object RemainingElems {
 
-  implicit final val remainingElemsCodec: Codec[RemainingElems] = {
-    implicit val configuration: Configuration =
-      Configuration.default.withDiscriminator(keywords.tpe)
+  given Codec[RemainingElems] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
     deriveConfiguredCodec[RemainingElems]
   }
 
-  implicit val remainingElemsJsonLdEncoder: JsonLdEncoder[RemainingElems] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.offset))
+  given JsonLdEncoder[RemainingElems] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.offset))
 
 }

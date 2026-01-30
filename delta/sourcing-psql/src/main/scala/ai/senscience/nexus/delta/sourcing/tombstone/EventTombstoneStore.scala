@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.tombstone
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.tombstone.EventTombstoneStore.{EventTombstone, Value}

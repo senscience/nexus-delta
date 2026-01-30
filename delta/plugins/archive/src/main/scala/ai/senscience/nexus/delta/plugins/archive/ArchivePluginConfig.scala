@@ -18,6 +18,5 @@ final case class ArchivePluginConfig(
 )
 object ArchivePluginConfig {
 
-  implicit final val archivePluginConfigReader: ConfigReader[ArchivePluginConfig] =
-    deriveReader[ArchivePluginConfig]
+  given ConfigReader[ArchivePluginConfig] = deriveReader[ArchivePluginConfig]
 }

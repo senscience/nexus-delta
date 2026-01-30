@@ -42,7 +42,7 @@ object OriginalSource {
   final case class Annotated(resourceF: ResourceF[Unit], source: Json) extends OriginalSource
 
   object Annotated {
-    given (using BaseUri): Encoder[Annotated] =
+    given BaseUri => Encoder[Annotated] =
       Encoder.instance { value =>
         val sourceWithoutMetadata = value.source.removeMetadataKeys()
         val metadataJson          = value.resourceF.asJson
@@ -59,7 +59,7 @@ object OriginalSource {
   def annotated[A](resourceF: ResourceF[A], source: Json): OriginalSource =
     apply(resourceF, source, annotated = true)
 
-  given (using BaseUri): Encoder[OriginalSource] =
+  given BaseUri => Encoder[OriginalSource] =
     Encoder.instance {
       case standard: Standard =>
         standard.source

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.sse
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.error.ServiceError.UnknownSseLabel
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.defaultPrinter
@@ -42,10 +42,7 @@ trait SseEventLog {
     * @param offset
     *   the offset to start from
     */
-  def stream(
-      org: Label,
-      offset: Offset
-  ): IO[ServerSentEventStream]
+  def stream(org: Label, offset: Offset): IO[ServerSentEventStream]
 
   /**
     * Get stream of server sent events inside an organization
@@ -68,10 +65,7 @@ trait SseEventLog {
     * @param offset
     *   the offset to start from
     */
-  def stream(
-      project: ProjectRef,
-      offset: Offset
-  ): IO[ServerSentEventStream]
+  def stream(project: ProjectRef, offset: Offset): IO[ServerSentEventStream]
 
   /**
     * Get stream of server sent events inside an project
@@ -95,7 +89,7 @@ object SseEventLog {
 
   private val logger = Logger[SseEventLog]
 
-  private[sse] def toServerSentEvent(elem: Elem[SseData])(implicit jo: JsonKeyOrdering): ServerSentEvent = {
+  private[sse] def toServerSentEvent(elem: Elem[SseData])(using JsonKeyOrdering): ServerSentEvent = {
     val id = Option.when(elem.offset != Offset.start)(elem.offset.value.toString)
     elem match {
       case e: SuccessElem[SseData] =>
@@ -114,10 +108,10 @@ object SseEventLog {
       fetchProject: ProjectRef => IO[Unit],
       config: SseConfig,
       xas: Transactors
-  )(implicit jo: JsonKeyOrdering): IO[SseEventLog] =
+  )(using JsonKeyOrdering): IO[SseEventLog] =
     IO.pure {
       new SseEventLog {
-        implicit private val multiDecoder: MultiDecoder[SseData] =
+        private given MultiDecoder[SseData] =
           MultiDecoder(sseEncoders.map { encoder => encoder.entityType -> encoder.toSse }.toMap)
 
         private val entityTypesBySelector: Map[Label, List[EntityType]] = sseEncoders

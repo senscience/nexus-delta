@@ -141,8 +141,8 @@ final case class RealmState(
 object RealmState {
 
   val serializer: Serializer[Label, RealmState] = {
-    import GrantType.Camel.*
-    import ai.senscience.nexus.delta.sdk.instances.*
+    import GrantType.Camel.given
+    import ai.senscience.nexus.delta.sdk.instances.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration              = Serializer.circeConfiguration
     given Codec.AsObject[RealmState] = deriveConfiguredCodec[RealmState]

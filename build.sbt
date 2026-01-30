@@ -16,7 +16,7 @@ scalafmt: {
 }
  */
 
-val scalaCompilerVersion     = "3.3.7"
+val scalaCompilerVersion     = "3.8.1"
 val typelevelScalafixVersion = "0.5.0"
 
 val awsSdkVersion              = "2.41.7"
@@ -768,8 +768,8 @@ lazy val compilation = {
   Seq(
     scalaVersion                           := scalaCompilerVersion,
     scalacOptions                          ~= { options: Seq[String] =>
-      options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Wnonunit-statement")) ++
-        Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all")
+      options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Xfatal-warnings", "-Wnonunit-statement")) ++
+        Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all", "-Werror")
     },
     javaSpecificationVersion               := "25",
     javacOptions                          ++= Seq(

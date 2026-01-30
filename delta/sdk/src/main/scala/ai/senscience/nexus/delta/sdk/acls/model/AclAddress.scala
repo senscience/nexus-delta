@@ -39,8 +39,8 @@ object AclAddress {
   final private[sdk] val orgAddressRegex  = s"^/(${Label.regex.regex})$$".r
   final private[sdk] val projAddressRegex = s"^/(${Label.regex.regex})/(${Label.regex.regex})$$".r
 
-  implicit final def fromProject(project: ProjectRef): AclAddress = Project(project)
-  implicit final def fromOrg(label: Label): AclAddress            = Organization(label)
+  given fromProject: Conversion[ProjectRef, AclAddress] = Project(_)
+  given fromOrg: Conversion[Label, AclAddress]          = Organization(_)
 
   /**
     * Attempts to construct an AclAddress from the provided string. The accepted formats are the ones generated from the
@@ -100,15 +100,16 @@ object AclAddress {
     def apply(projectRef: ProjectRef): Project = Project(projectRef.organization, projectRef.project)
   }
 
-  implicit val aclAddressGet: Get[AclAddress] = Get[String].temap(AclAddress.fromString(_).leftMap(_.getMessage))
-  implicit val aclAddressPut: Put[AclAddress] = Put[String].contramap(_.string)
+  given Get[AclAddress] = Get[String].temap(AclAddress.fromString(_).leftMap(_.getMessage))
 
-  implicit val aclAddressOrdering: Ordering[AclAddress] = Ordering.by(_.string)
+  given Put[AclAddress] = Put[String].contramap(_.string)
 
-  implicit val aclAddressKeyDecoder: KeyDecoder[AclAddress] = KeyDecoder.instance(AclAddress.fromString(_).toOption)
+  given Ordering[AclAddress] = Ordering.by(_.string)
 
-  implicit val aclAddressEncoder: Encoder[AclAddress] = Encoder.encodeString.contramap(_.string)
-  implicit val aclAddressDecoder: Decoder[AclAddress] = Decoder.decodeString.emap { str =>
+  given KeyDecoder[AclAddress] = KeyDecoder.instance(AclAddress.fromString(_).toOption)
+
+  given Encoder[AclAddress] = Encoder.encodeString.contramap(_.string)
+  given Decoder[AclAddress] = Decoder.decodeString.emap { str =>
     AclAddress.fromString(str).leftMap(_.getMessage)
   }
 }

@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -195,7 +195,7 @@ object CompositeViewRejection {
   /**
     * Rejection returned when the identities for a [[CrossProjectSource]] don't have access to target project.
     */
-  final case class CrossProjectSourceForbidden(crossProjectSource: CrossProjectSource)(implicit val baseUri: BaseUri)
+  final case class CrossProjectSourceForbidden(crossProjectSource: CrossProjectSource)(using BaseUri)
       extends CompositeViewSourceRejection(
         s"None of the identities  ${crossProjectSource.identities.map(_.asIri).mkString(",")} has permissions for project ${crossProjectSource.project}"
       )
@@ -243,7 +243,7 @@ object CompositeViewRejection {
   final case class InvalidCompositeViewId(id: String)
       extends CompositeViewRejection(s"Composite view identifier '$id' cannot be expanded to an Iri.")
 
-  implicit private[plugins] val compositeViewRejectionEncoder: Encoder.AsObject[CompositeViewRejection] =
+  private[plugins] given Encoder.AsObject[CompositeViewRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
@@ -257,10 +257,10 @@ object CompositeViewRejection {
       }
     }
 
-  implicit final val compositeViewRejectionJsonLdEncoder: JsonLdEncoder[CompositeViewRejection] =
+  given JsonLdEncoder[CompositeViewRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val compositeViewHttpResponseFields: HttpResponseFields[CompositeViewRejection] =
+  given HttpResponseFields[CompositeViewRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
       case ViewNotFound(_, _)          => StatusCodes.NotFound

@@ -15,7 +15,7 @@ class PurgeProjectionCoordinatorSuite extends NexusSuite with SupervisorSetup.Fi
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(5.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(5.seconds, 10.millis)
 
   private lazy val sv = supervisor().supervisor
 

@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.syntax.jsonObjectOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.ResolverReport
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef.{Latest, Revision, Tag}
@@ -183,7 +183,7 @@ object ResolverRejection {
     */
   final case class ResolverIsDeprecated(id: Iri) extends ResolverRejection(s"Resolver '$id' is deprecated.")
 
-  implicit val resolverRejectionEncoder: Encoder.AsObject[ResolverRejection] =
+  given Encoder.AsObject[ResolverRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -197,10 +197,9 @@ object ResolverRejection {
       }
     }
 
-  implicit final val resourceRejectionJsonLdEncoder: JsonLdEncoder[ResolverRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
+  given JsonLdEncoder[ResolverRejection] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsResolvers: HttpResponseFields[ResolverRejection] =
+  given HttpResponseFields[ResolverRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)                => StatusCodes.NotFound
       case ResolverNotFound(_, _)                => StatusCodes.NotFound

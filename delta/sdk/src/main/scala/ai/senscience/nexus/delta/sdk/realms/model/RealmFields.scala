@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.realms.model
 
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.Name
 import cats.data.NonEmptySet
 import io.circe.Decoder
@@ -21,8 +21,8 @@ final case class RealmFields(
 
 object RealmFields {
 
-  implicit final private val configuration: Configuration = Configuration.default.withStrictDecoding
-  implicit val realmFieldsDecoder: Decoder[RealmFields]   = deriveConfiguredDecoder[RealmFields]
+  private given Configuration = Configuration.default.withStrictDecoding
+  given Decoder[RealmFields]  = deriveConfiguredDecoder[RealmFields]
 
-  implicit final val realmFieldsConfigReader: ConfigReader[RealmFields] = deriveReader[RealmFields]
+  given ConfigReader[RealmFields] = deriveReader[RealmFields]
 }

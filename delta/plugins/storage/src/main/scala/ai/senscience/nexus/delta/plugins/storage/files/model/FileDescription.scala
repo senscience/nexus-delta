@@ -12,7 +12,7 @@ case class FileDescription(
 
 object FileDescription {
 
-  implicit private val config: Configuration                = Configuration.default
-  implicit val fileDescriptionCodec: Codec[FileDescription] = deriveConfiguredCodec[FileDescription]
+  private given Configuration  = Configuration.default
+  given Codec[FileDescription] = deriveConfiguredCodec[FileDescription]
 
 }

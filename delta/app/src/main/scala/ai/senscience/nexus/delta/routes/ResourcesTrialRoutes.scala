@@ -143,7 +143,7 @@ object ResourcesTrialRoutes {
     new ResourcesTrialRoutes(
       identities,
       aclCheck,
-      (project, source, caller) => schemas.createDryRun(project, source)(caller),
+      (project, source, caller) => schemas.createDryRun(project, source)(using caller),
       resourcesTrial
     )
 }

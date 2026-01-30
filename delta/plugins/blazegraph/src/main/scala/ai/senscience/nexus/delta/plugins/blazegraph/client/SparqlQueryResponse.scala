@@ -12,6 +12,7 @@ import org.apache.pekko.http.scaladsl.marshallers.xml.ScalaXmlSupport
 import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
 import org.apache.pekko.http.scaladsl.model.MediaType
 
+import scala.concurrent.ExecutionContext
 import scala.xml.NodeSeq
 
 /**
@@ -51,15 +52,15 @@ object SparqlQueryResponse {
   private val xmlMediaTypes: Seq[MediaType.NonBinary] =
     List(RdfMediaTypes.`application/rdf+xml`, RdfMediaTypes.`application/sparql-results+xml`)
 
-  implicit val nodeSeqMarshaller: ToEntityMarshaller[NodeSeq] =
+  given nodeSeqMarshaller: ToEntityMarshaller[NodeSeq] =
     Marshaller.oneOf(xmlMediaTypes.map(ScalaXmlSupport.nodeSeqMarshaller)*)
 
   /**
     * SparqlQueryResponse -> HttpEntity
     */
-  implicit def sparqlQueryRespMarshaller(implicit ordering: JsonKeyOrdering): ToEntityMarshaller[SparqlQueryResponse] =
-    Marshaller { implicit ec =>
-      {
+  given JsonKeyOrdering => ToEntityMarshaller[SparqlQueryResponse] =
+    Marshaller {
+      case given ExecutionContext => {
         case SparqlResultsResponse(value)    => jsonMarshaller.apply(value.asJson)
         case SparqlXmlResultsResponse(value) => nodeSeqMarshaller.apply(value)
         case SparqlJsonLdResponse(value)     => jsonMarshaller.apply(value)
@@ -68,6 +69,6 @@ object SparqlQueryResponse {
       }
     }
 
-  private def jsonMarshaller(implicit ordering: JsonKeyOrdering) =
+  private def jsonMarshaller(using JsonKeyOrdering) =
     Marshaller.oneOf(jsonMediaTypes.map(mt => customContentTypeJsonMarshaller(mt.toContentType))*)
 }

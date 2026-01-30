@@ -235,7 +235,7 @@ class ElasticSearchViewsQuerySuite
     views.flatMap { view => resources.map(_.asResourceF(view)) }.sorted.map(_.id)
 
   test("Init views and populate indices") {
-    given Caller                        = alice
+    given Subject                       = alice.subject
     val createIndexingViews             = allIndexingViews.traverse { viewRef =>
       views.create(viewRef.viewId, viewRef.project, indexingValue)
     }
@@ -288,6 +288,7 @@ class ElasticSearchViewsQuerySuite
   }
 
   test("Query the deprecated view should raise an deprecation error") {
+    given Subject  = alice.subject
     given Caller   = alice
     val deprecated = ViewRef(project1.ref, nxv + "deprecated")
     for {

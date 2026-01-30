@@ -52,13 +52,13 @@ object TypeHierarchyRejection {
     */
   case object TypeHierarchyAlreadyExists extends TypeHierarchyRejection("Type hierarchy already exists.")
 
-  implicit val typeHierarchyRejectionEncoder: Encoder.AsObject[TypeHierarchyRejection] =
+  given Encoder.AsObject[TypeHierarchyRejection] =
     Encoder.AsObject.instance(r => JsonObject.singleton("reason", r.reason.asJson))
 
-  implicit val typeHierarchyRejectionJsonLdEncoder: JsonLdEncoder[TypeHierarchyRejection] =
+  given JsonLdEncoder[TypeHierarchyRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val typeHierarchyRejectionHttpFields: HttpResponseFields[TypeHierarchyRejection] =
+  given HttpResponseFields[TypeHierarchyRejection] =
     HttpResponseFields {
       case TypeHierarchyDoesNotExist  => StatusCodes.NotFound
       case TypeHierarchyAlreadyExists => StatusCodes.Conflict

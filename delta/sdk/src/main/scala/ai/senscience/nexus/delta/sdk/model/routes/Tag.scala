@@ -17,7 +17,7 @@ final case class Tag(rev: Int, tag: UserTag)
 
 object Tag {
 
-  implicit final private val configuration: Configuration = Configuration.default.withStrictDecoding
-  implicit val tagDecoder: Decoder[Tag]                   = deriveConfiguredDecoder[Tag]
+  private given Configuration = Configuration.default.withStrictDecoding
+  given Decoder[Tag]          = deriveConfiguredDecoder[Tag]
 
 }

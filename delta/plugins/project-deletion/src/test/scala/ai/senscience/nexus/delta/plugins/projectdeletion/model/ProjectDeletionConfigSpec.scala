@@ -13,7 +13,7 @@ import scala.concurrent.duration.DurationInt
 
 class ProjectDeletionConfigSpec extends CatsEffectSpec {
 
-  implicit private val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given JsonLdApi = TitaniumJsonLdApi.strict
 
   private given RemoteContextResolution = RemoteContextResolution.loadResourcesUnsafe(contexts.definition)
 

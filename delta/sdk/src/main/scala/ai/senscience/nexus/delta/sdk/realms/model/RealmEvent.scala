@@ -231,8 +231,8 @@ object RealmEvent {
       subject: Subject
   ) extends RealmEvent
 
-  import GrantType.Camel.*
-  import ai.senscience.nexus.delta.sdk.instances.*
+  import GrantType.Camel.given
+  import ai.senscience.nexus.delta.sdk.instances.given
 
   val serializer: Serializer[Label, RealmEvent] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given

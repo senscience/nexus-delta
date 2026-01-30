@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.schemas.Schemas
@@ -232,15 +232,15 @@ object SchemaEvent {
   ) extends SchemaEvent
 
   val serializer: Serializer[Iri, SchemaEvent] = {
-    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.*
-    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.*
+    import ai.senscience.nexus.delta.rdf.jsonld.CompactedJsonLd.Database.given
+    import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration               = Serializer.circeConfiguration
     given Codec.AsObject[SchemaEvent] = deriveConfiguredCodec[SchemaEvent]
     Serializer()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[SchemaEvent] = new SseEncoder[SchemaEvent] {
+  def sseEncoder(using base: BaseUri): SseEncoder[SchemaEvent] = new SseEncoder[SchemaEvent] {
 
     override val databaseDecoder: Decoder[SchemaEvent] = serializer.codec
 
@@ -249,8 +249,8 @@ object SchemaEvent {
     override val selectors: Set[Label] = Set(Label.unsafe("schemas"))
 
     override val sseEncoder: Encoder.AsObject[SchemaEvent] = {
-      val context                                                   = ContextValue(contexts.metadata, contexts.shacl)
-      implicit val config: Configuration                            = Configuration.default
+      val context                    = ContextValue(contexts.metadata, contexts.shacl)
+      given Configuration            = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => nxv.schemaId.prefix
@@ -261,9 +261,9 @@ object SchemaEvent {
           case "subject" => nxv.eventSubject.prefix
           case other     => other
         })
-      implicit val compactedJsonLdEncoder: Encoder[CompactedJsonLd] = Encoder.instance(_.json)
-      implicit val expandedJsonLdEncoder: Encoder[ExpandedJsonLd]   = Encoder.instance(_.json)
-      implicit val subjectEncoder: Encoder[Subject]                 = IriEncoder.jsonEncoder[Subject]
+      given Encoder[CompactedJsonLd] = Encoder.instance(_.json)
+      given Encoder[ExpandedJsonLd]  = Encoder.instance(_.json)
+      given Encoder[Subject]         = IriEncoder.jsonEncoder[Subject]
       Encoder.encodeJsonObject.contramapObject { event =>
         deriveConfiguredEncoder[SchemaEvent]
           .encodeObject(event)

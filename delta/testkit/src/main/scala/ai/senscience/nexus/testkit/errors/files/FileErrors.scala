@@ -1,6 +1,6 @@
 package ai.senscience.nexus.testkit.errors.files
 
-import ai.senscience.nexus.testkit.CirceLiteral.circeLiteralSyntax
+import ai.senscience.nexus.testkit.CirceLiteral.json
 
 object FileErrors {
 

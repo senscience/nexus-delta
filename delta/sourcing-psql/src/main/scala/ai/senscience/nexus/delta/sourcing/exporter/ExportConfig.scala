@@ -9,8 +9,8 @@ final case class ExportConfig(batchSize: Int, limitPerFile: Int, permits: Int, t
 
 object ExportConfig {
 
-  implicit final val databaseConfigReader: ConfigReader[ExportConfig] = {
-    implicit val pathConverter: ConfigReader[Path] = ConfigConvert.viaString(catchReadError(s => Path(s)), _.toString)
+  given ConfigReader[ExportConfig] = {
+    given ConfigReader[Path] = ConfigConvert.viaString(catchReadError(s => Path(s)), _.toString)
     deriveReader[ExportConfig]
   }
 

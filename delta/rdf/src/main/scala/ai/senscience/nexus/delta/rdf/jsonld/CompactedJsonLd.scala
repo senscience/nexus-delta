@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
-import ai.senscience.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
+import ai.senscience.nexus.delta.rdf.syntax.*
 import cats.effect.IO
 import io.circe.*
 import io.circe.syntax.*
@@ -131,8 +131,8 @@ object CompactedJsonLd {
     CompactedJsonLd(rootId, contextValue, compacted)
 
   object Database {
-    implicit final val compactedEncoder: Encoder[CompactedJsonLd] = Encoder.instance(_.json)
-    implicit final val compactedDecoder: Decoder[CompactedJsonLd] =
+    given Encoder[CompactedJsonLd] = Encoder.instance(_.json)
+    given Decoder[CompactedJsonLd] =
       Decoder.instance { hc =>
         for {
           id  <- hc.up.get[Iri]("id")

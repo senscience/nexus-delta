@@ -140,7 +140,7 @@ object RetryStrategyConfig {
       )
   }
 
-  implicit val retryStrategyConfigReader: ConfigReader[RetryStrategyConfig] = {
+  given ConfigReader[RetryStrategyConfig] = {
     val onceRetryStrategy: ConfigReader[OnceStrategyConfig]                        = deriveReader[OnceStrategyConfig]
     val constantRetryStrategy: ConfigReader[ConstantStrategyConfig]                = deriveReader[ConstantStrategyConfig]
     val exponentialRetryStrategy: ConfigReader[ExponentialStrategyConfig]          = deriveReader[ExponentialStrategyConfig]

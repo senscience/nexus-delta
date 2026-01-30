@@ -133,7 +133,7 @@ class ResourceSerializationSuite extends SerializationSuite with ResourceInstanc
     )
   }
 
-  implicit class ResourceEventTestOps(event: ResourceEvent) {
+  extension (event: ResourceEvent) {
     def noRemoteContext: ResourceEvent = event match {
       case r: ResourceCreated   => r.copy(remoteContexts = Set.empty)
       case r: ResourceUpdated   => r.copy(remoteContexts = Set.empty)

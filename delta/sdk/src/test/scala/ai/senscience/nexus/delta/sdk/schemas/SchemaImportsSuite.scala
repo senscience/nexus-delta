@@ -21,8 +21,8 @@ import scala.collection.immutable.VectorMap
 
 class SchemaImportsSuite extends NexusSuite with Fixtures {
 
-  private val alice                = User("alice", Label.unsafe("wonderland"))
-  implicit val aliceCaller: Caller = Caller(alice, Set(alice))
+  private val alice    = User("alice", Label.unsafe("wonderland"))
+  private given Caller = Caller(alice, Set(alice))
 
   private val neuroshapes       = "https://neuroshapes.org"
   private val parcellationlabel = iri"$neuroshapes/dash/parcellationlabel"

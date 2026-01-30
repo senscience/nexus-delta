@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.schemas
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -36,8 +36,8 @@ import java.util.UUID
 
 class SchemasRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with CatsIOValues {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val reader = User("reader", realm)
   private val writer = User("writer", realm)

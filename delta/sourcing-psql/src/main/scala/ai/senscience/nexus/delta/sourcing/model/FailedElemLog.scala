@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
@@ -53,7 +53,7 @@ object FailedElemLog {
       reason: FailureReason
   )
 
-  implicit val failedElemLogRead: Read[FailedElemLog] = {
+  given Read[FailedElemLog] = {
     Read[Row].map {
       case (
             ordering,

@@ -14,6 +14,5 @@ import pureconfig.generic.semiauto.deriveReader
 final case class SchemasConfig(eventLog: EventLogConfig, cache: CacheConfig)
 
 object SchemasConfig {
-  implicit final val schemasConfigReader: ConfigReader[SchemasConfig] =
-    deriveReader[SchemasConfig]
+  given ConfigReader[SchemasConfig] = deriveReader[SchemasConfig]
 }

@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.all.*
-import ai.senscience.nexus.delta.sdk.syntax.httpResponseFieldsSyntax
+import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.all.given
+import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.syntax.*
@@ -181,7 +181,7 @@ object FileRejection {
         "Linking a file cannot be performed without a 'filename' or a 'path' that does not end with a filename."
       )
 
-  implicit val fileRejectionEncoder: Encoder.AsObject[FileRejection] =
+  given Encoder.AsObject[FileRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
@@ -197,10 +197,9 @@ object FileRejection {
       }
     }
 
-  implicit final val fileRejectionJsonLdEncoder: JsonLdEncoder[FileRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
+  given JsonLdEncoder[FileRejection] = JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit final val fileRejectionHttpResponseFields: HttpResponseFields[FileRejection] =
+  given HttpResponseFields[FileRejection] =
     HttpResponseFields.fromStatusAndHeaders {
       case RevisionNotFound(_, _)                                             => (StatusCodes.NotFound, Seq.empty)
       case TagNotFound(_)                                                     => (StatusCodes.NotFound, Seq.empty)

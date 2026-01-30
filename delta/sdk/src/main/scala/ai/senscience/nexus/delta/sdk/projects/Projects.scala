@@ -30,13 +30,11 @@ trait Projects {
     *   the project reference
     * @param fields
     *   the project information
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
   def create(
       ref: ProjectRef,
       fields: ProjectFields
-  )(implicit caller: Subject): IO[ProjectResource]
+  )(using Subject): IO[ProjectResource]
 
   /**
     * Update an existing project.
@@ -47,14 +45,12 @@ trait Projects {
     *   the current project revision
     * @param fields
     *   the project information
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
   def update(
       ref: ProjectRef,
       rev: Int,
       fields: ProjectFields
-  )(implicit caller: Subject): IO[ProjectResource]
+  )(using Subject): IO[ProjectResource]
 
   /**
     * Deprecate an existing project.
@@ -63,10 +59,8 @@ trait Projects {
     *   the project reference
     * @param rev
     *   the current project revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
-  def deprecate(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource]
+  def deprecate(ref: ProjectRef, rev: Int)(using Subject): IO[ProjectResource]
 
   /**
     * Un-deprecate an existing project.
@@ -75,10 +69,8 @@ trait Projects {
     *   the project reference
     * @param rev
     *   the current project revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
-  def undeprecate(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource]
+  def undeprecate(ref: ProjectRef, rev: Int)(using Subject): IO[ProjectResource]
 
   /**
     * Deletes an existing project.
@@ -87,10 +79,8 @@ trait Projects {
     *   the project reference
     * @param rev
     *   the current project revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
-  def delete(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource]
+  def delete(ref: ProjectRef, rev: Int)(using Subject): IO[ProjectResource]
 
   /**
     * Fetches a project resource based on its reference.
@@ -192,7 +182,7 @@ object Projects {
       onCreate: ProjectRef => IO[Unit],
       validateDeletion: ValidateProjectDeletion,
       clock: Clock[IO]
-  )(state: Option[ProjectState], command: ProjectCommand)(implicit uuidF: UUIDF): IO[ProjectEvent] = {
+  )(state: Option[ProjectState], command: ProjectCommand)(using uuidF: UUIDF): IO[ProjectEvent] = {
 
     def create(c: CreateProject): IO[ProjectCreated] = state match {
       case None =>
@@ -296,7 +286,7 @@ object Projects {
       onCreate: ProjectRef => IO[Unit],
       validateDeletion: ValidateProjectDeletion,
       clock: Clock[IO]
-  )(implicit
+  )(using
       uuidF: UUIDF
   ): ScopedEntityDefinition[ProjectRef, ProjectState, ProjectCommand, ProjectEvent, ProjectRejection] = {
     ScopedEntityDefinition.untagged(

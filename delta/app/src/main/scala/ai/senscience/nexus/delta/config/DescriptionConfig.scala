@@ -29,6 +29,5 @@ final case class DescriptionConfig(name: Name, env: Name) {
 
 object DescriptionConfig {
 
-  implicit final val descriptionConfigReader: ConfigReader[DescriptionConfig] =
-    deriveReader[DescriptionConfig]
+  given ConfigReader[DescriptionConfig] = deriveReader[DescriptionConfig]
 }

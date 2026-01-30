@@ -28,7 +28,7 @@ final class ProjectionsRestartSchedulerSuite extends NexusSuite with Doobie.Fixt
     val smallerOffset = ProjectionMetadata("test", "smaller-offset", None, None)
     val noOffset      = ProjectionMetadata("test", "no-offset", None, None)
 
-    implicit val subject: Subject = Anonymous
+    given subject: Subject = Anonymous
 
     val projectionStream = Stream
       .iterable(List(greaterOffset, smallerOffset, noOffset))
@@ -38,15 +38,14 @@ final class ProjectionsRestartSchedulerSuite extends NexusSuite with Doobie.Fixt
     def progress(offset: Offset) = ProjectionProgress(offset, Instant.now(), offset.value, 0L, 0L)
 
     for {
-      _ <- projections.save(greaterOffset, progress(fromOffset))
-      _ <- projections.save(smallerOffset, progress(Offset.at(41L)))
-      _ <- restartScheduler.run(projectionStream, fromOffset)
-      _ <- projections
-             .restarts(Offset.start)
-             .map(_._2)
-             .assert(
-               ProjectionRestart(greaterOffset.name, fromOffset, Instant.EPOCH, subject)
-             )
+      _              <- projections.save(greaterOffset, progress(fromOffset))
+      _              <- projections.save(smallerOffset, progress(Offset.at(41L)))
+      _              <- restartScheduler.run(projectionStream, fromOffset)
+      expectedRestart = ProjectionRestart(greaterOffset.name, fromOffset, Instant.EPOCH, subject)
+      _              <- projections
+                          .restarts(Offset.start)
+                          .map(_._2)
+                          .assert(expectedRestart)
     } yield ()
   }
 

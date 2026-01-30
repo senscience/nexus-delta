@@ -33,6 +33,7 @@ object ResponseToMarshaller extends RdfMarshalling {
       }
     }
 
-  implicit def ioEntityMarshaller[A: ToEntityMarshaller](io: IO[A])(using Tracer[IO]): ResponseToMarshaller =
+  given ioEntityMarshaller: [A: ToEntityMarshaller] => Tracer[IO] => Conversion[IO[A], ResponseToMarshaller] = { io =>
     ResponseToMarshaller(io.map(v => Complete(OK, Seq.empty, None, v)))
+  }
 }

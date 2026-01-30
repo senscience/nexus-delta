@@ -27,9 +27,9 @@ class RdfMarshallingSpec
     with CatsIOValues
     with TestMatchers {
 
-  implicit private val api: JsonLdApi               = TitaniumJsonLdApi.strict
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.fixed(contextIri -> context)
-  implicit private val ordering: JsonKeyOrdering    =
+  private given JsonLdApi               = TitaniumJsonLdApi.strict
+  private given RemoteContextResolution = RemoteContextResolution.fixed(contextIri -> context)
+  private given JsonKeyOrdering         =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )

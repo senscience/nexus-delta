@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.realms
 
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.realms.model.RealmRejection.*
 import ai.senscience.nexus.delta.sdk.realms.model.{GrantType, RealmRejection, WellKnown}
 import cats.effect.IO
@@ -33,7 +33,7 @@ object WellKnownResolver {
   }
 
   def apply(client: Client[IO]): WellKnownResolver = {
-    import ai.senscience.nexus.delta.kernel.http.circe.*
+    import ai.senscience.nexus.delta.kernel.http.circe.given
     (configUri: Uri) => apply(client.expect[Json](_))(configUri)
   }
 
@@ -41,7 +41,7 @@ object WellKnownResolver {
     * Constructs a WellKnown instance from an uri
     */
   def apply(fetch: Uri => IO[Json])(configUri: Uri): IO[WellKnown] = {
-    import GrantType.Snake.*
+    import GrantType.Snake.given
 
     def issuer(json: Json): Either[RealmRejection, String] =
       json.hcursor

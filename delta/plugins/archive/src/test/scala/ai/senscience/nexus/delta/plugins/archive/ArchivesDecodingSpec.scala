@@ -19,7 +19,7 @@ import java.nio.file.Paths
 
 class ArchivesDecodingSpec extends CatsEffectSpec with RemoteContextResolutionFixture {
 
-  implicit private val uuidF: UUIDF = UUIDF.random
+  private given uuidF: UUIDF = UUIDF.random
 
   private val context = ProjectContext.unsafe(ApiMappings.empty, nxv.base, nxv.base, enforceSchema = false)
 

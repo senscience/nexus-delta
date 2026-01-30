@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.error.ThrowableValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, rdfs, schemas}
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.given
 import ai.senscience.nexus.delta.rdf.{IriOrBNode, Vocabulary}
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestCommand.*
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestEvent.{PullRequestCreated, PullRequestMerged, PullRequestTagged, PullRequestUpdated}

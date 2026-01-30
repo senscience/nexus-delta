@@ -37,11 +37,11 @@ class SchemasImplSuite extends NexusSuite with Doobie.Fixture with ConfigFixture
 
   private lazy val xas = doobie()
 
-  implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
-  implicit private val caller: Caller   = Caller(subject, Set(subject))
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given caller: Caller   = Caller(subject, Set(subject))
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   given rcr: RemoteContextResolution =
     RemoteContextResolution.loadResourcesUnsafe(schemaContexts.definition)

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sdk.marshalling
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.marshalling.QueryParamsUnmarshalling.{IriBase, IriVocab}
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -22,7 +22,7 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarshaller to transform a String to Iri
     */
-  implicit val iriFromStringUnmarshaller: FromStringUnmarshaller[Iri] =
+  given iriFromStringUnmarshaller: FromStringUnmarshaller[Iri] =
     Unmarshaller.strict[String, Iri] { string =>
       Iri(string) match {
         case Right(iri) => iri
@@ -39,18 +39,18 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarsaller to transform a String to an IriVocab
     */
-  implicit def iriVocabFromStringUnmarshaller(implicit pc: ProjectContext): FromStringUnmarshaller[IriVocab] =
+  given iriVocabFromStringUnmarshaller: ProjectContext => FromStringUnmarshaller[IriVocab] =
     expandIriFromStringUnmarshaller(useVocab = true).map(IriVocab.apply)
 
   /**
     * Unmarshaller to transform a String to an IriBase
     */
-  implicit def iriBaseFromStringUnmarshaller(implicit pc: ProjectContext): FromStringUnmarshaller[IriBase] =
+  given iriBaseFromStringUnmarshaller: ProjectContext => FromStringUnmarshaller[IriBase] =
     expandIriFromStringUnmarshaller(useVocab = false).map(IriBase(_))
 
   private def expandIriFromStringUnmarshaller(
       useVocab: Boolean
-  )(implicit pc: ProjectContext): FromStringUnmarshaller[Iri] =
+  )(using pc: ProjectContext): FromStringUnmarshaller[Iri] =
     Unmarshaller.strict[String, Iri] { str =>
       val ctx = context(pc.vocab, pc.base.iri, pc.apiMappings)
       ctx.expand(str, useVocab = useVocab) match {
@@ -72,7 +72,7 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarshaller to transform a String to Label
     */
-  implicit def labelFromStringUnmarshaller: FromStringUnmarshaller[Label] =
+  given labelFromStringUnmarshaller: FromStringUnmarshaller[Label] =
     Unmarshaller.strict[String, Label] { string =>
       Label(string) match {
         case Right(iri) => iri
@@ -80,7 +80,7 @@ trait QueryParamsUnmarshalling {
       }
     }
 
-  implicit def projectRefFromStringUnmarshaller: FromStringUnmarshaller[ProjectRef] =
+  given projectRefFromStringUnmarshaller: FromStringUnmarshaller[ProjectRef] =
     Unmarshaller.strict[String, ProjectRef] { string =>
       ProjectRef.parse(string) match {
         case Right(iri) => iri
@@ -91,7 +91,7 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarshaller to transform a String to TagLabel
     */
-  implicit def tagLabelFromStringUnmarshaller: FromStringUnmarshaller[UserTag] =
+  given tagLabelFromStringUnmarshaller: FromStringUnmarshaller[UserTag] =
     Unmarshaller.strict[String, UserTag] { string =>
       UserTag(string) match {
         case Right(tagLabel) => tagLabel
@@ -99,7 +99,7 @@ trait QueryParamsUnmarshalling {
       }
     }
 
-  implicit def permissionFromStringUnmarshaller: FromStringUnmarshaller[Permission] =
+  given permissionFromStringUnmarshaller: FromStringUnmarshaller[Permission] =
     Unmarshaller.strict[String, Permission] { string =>
       Permission(string) match {
         case Right(value) => value
@@ -110,7 +110,7 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarshaller to transform an Iri to a Subject
     */
-  implicit def subjectFromIriUnmarshaller(implicit base: BaseUri): Unmarshaller[Iri, Subject] =
+  given subjectFromIriUnmarshaller: BaseUri => Unmarshaller[Iri, Subject] =
     Unmarshaller.strict[Iri, Subject] { iri =>
       iri.as[Subject] match {
         case Right(subject) => subject
@@ -121,16 +121,16 @@ trait QueryParamsUnmarshalling {
   /**
     * Unmarshaller to transform a String to a Subject
     */
-  implicit def subjectFromStringUnmarshaller(implicit base: BaseUri): FromStringUnmarshaller[Subject] =
+  given subjectFromStringUnmarshaller: BaseUri => FromStringUnmarshaller[Subject] =
     iriFromStringUnmarshaller.andThen(subjectFromIriUnmarshaller)
 
   /**
     * Unmarshaller to transform a String to an IdSegment
     */
-  implicit val idSegmentFromStringUnmarshaller: FromStringUnmarshaller[IdSegment] =
+  given idSegmentFromStringUnmarshaller: FromStringUnmarshaller[IdSegment] =
     Unmarshaller.strict[String, IdSegment](IdSegment.apply)
 
-  implicit val jsonFromStringUnmarshaller: FromStringUnmarshaller[Json] =
+  given jsonFromStringUnmarshaller: FromStringUnmarshaller[Json] =
     Unmarshaller.strict[String, Json](parse(_).fold(throw _, identity))
 
 }

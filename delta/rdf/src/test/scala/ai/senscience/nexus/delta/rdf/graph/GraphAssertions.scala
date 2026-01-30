@@ -8,7 +8,7 @@ import scala.jdk.CollectionConverters.*
 
 trait GraphAssertions { suite: NexusSuite =>
 
-  def assertIsomorphic(left: Graph, right: Graph)(implicit location: Location): Unit = {
+  def assertIsomorphic(left: Graph, right: Graph)(using Location): Unit = {
 
     left.rootNode match {
       case iri: Iri => assertEquals(Some(iri), right.rootNode.asIri)

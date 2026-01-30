@@ -5,8 +5,6 @@ import ai.senscience.nexus.tests.Identity.projects.Bojack
 import ai.senscience.nexus.tests.iam.types.Permission.{Events, Organizations, Projects, Resources}
 import io.circe.Json
 
-import scala.concurrent.duration.*
-
 /**
   * Tests related to automatic project deletion
   *
@@ -21,8 +19,7 @@ import scala.concurrent.duration.*
   */
 class AutoProjectDeletionSpec extends BaseIntegrationSpec {
 
-  // We double the default patience in order to make sure that the automatic deletion has time to process the project
-  implicit override def patienceConfig: PatienceConfig = PatienceConfig(config.patience * 2, 300.millis)
+  override def slowTest: Boolean = true
 
   private val org   = "autodeletion"
   private val proj1 = genId()

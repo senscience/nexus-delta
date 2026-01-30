@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sourcing.model.EntityDependency.DependsOn
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Tags}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
-import doobie.{Get, Put}
 
 /**
   * Defines the required information to be able to handle an scoped entity
@@ -33,7 +32,7 @@ final case class ScopedEntityDefinition[Id, S <: ScopedState, Command, E <: Scop
     tagger: Tagger[S, E],
     extractDependencies: S => Option[Set[DependsOn]],
     onUniqueViolation: (Id, Command) => Rejection
-)(implicit val get: Get[Id], val put: Put[Id])
+)
 
 object ScopedEntityDefinition {
 
@@ -47,7 +46,7 @@ object ScopedEntityDefinition {
       stateSerializer: Serializer[Id, S],
       extractDependencies: S => Option[Set[DependsOn]],
       onUniqueViolation: (Id, Command) => Rejection
-  )(implicit get: Get[Id], put: Put[Id]): ScopedEntityDefinition[Id, S, Command, E, Rejection] =
+  ): ScopedEntityDefinition[Id, S, Command, E, Rejection] =
     ScopedEntityDefinition(
       tpe,
       stateMachine,

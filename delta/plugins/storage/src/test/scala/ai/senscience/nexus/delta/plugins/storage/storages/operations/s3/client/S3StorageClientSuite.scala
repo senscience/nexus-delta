@@ -10,8 +10,11 @@ import munit.AnyFixture
 
 class S3StorageClientSuite extends NexusSuite with LocalStackS3StorageClient.Fixture with S3Helpers {
 
-  implicit private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], _: S3StorageConfig) =
+  private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], _: S3StorageConfig) =
     localStackS3Client()
+
+  private given () => S3StorageClient     = s3StorageClient
+  private given () => S3AsyncClientOp[IO] = underlying
 
   private val fileContents  = "file content"
   private val contentLength = fileContents.length.toLong

@@ -7,7 +7,7 @@ import scala.xml.Elem
 
 trait XmlSupport {
 
-  implicit val xmlEntityDecoder: EntityDecoder[IO, Elem] = org.http4s.scalaxml.xmlDecoder[IO]
+  given xmlEntityDecoder: EntityDecoder[IO, Elem] = org.http4s.scalaxml.xmlDecoder[IO]
 
 }
 object XmlSupport extends XmlSupport {}

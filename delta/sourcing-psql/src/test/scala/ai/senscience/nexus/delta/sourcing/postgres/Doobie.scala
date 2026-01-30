@@ -87,7 +87,8 @@ object Doobie {
   }
 
   trait Assertions { self: munit.Assertions =>
-    implicit class DoobieAssertionsOps[A](io: IO[A])(implicit loc: Location) {
+
+    extension [A](io: IO[A])(using Location) {
       def expectUniqueViolation: IO[Unit] = io.attempt.map {
         case Left(p: PSQLException) if isUniqueViolation(p) => ()
         case Left(p: PSQLException)                         =>

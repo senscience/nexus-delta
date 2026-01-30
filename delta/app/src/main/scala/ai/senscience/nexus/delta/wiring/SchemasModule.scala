@@ -157,7 +157,7 @@ object SchemasModule extends NexusModuleDef {
       )
   }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => SchemaEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => SchemaEvent.sseEncoder(using base) }
 
   many[ApiMappings].add(Schemas.mappings)
 

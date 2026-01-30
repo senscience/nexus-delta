@@ -38,14 +38,14 @@ class ElasticSearchViewJsonLdSourceDecoder private (
     decoder: JsonLdSourceResolvingDecoder[ElasticSearchViewFields]
 ) {
 
-  def apply(ref: ProjectRef, context: ProjectContext, source: Json)(implicit
+  def apply(ref: ProjectRef, context: ProjectContext, source: Json)(using
       caller: Caller
   ): IO[(Iri, ElasticSearchViewValue)] =
     decoder(ref, context, mapJsonToString(source)).map { case (iri, fields) =>
       iri -> toValue(fields)
     }
 
-  def apply(ref: ProjectRef, context: ProjectContext, iri: Iri, source: Json)(implicit
+  def apply(ref: ProjectRef, context: ProjectContext, iri: Iri, source: Json)(using
       caller: Caller
   ): IO[ElasticSearchViewValue] =
     decoder(
@@ -109,9 +109,7 @@ object ElasticSearchViewJsonLdSourceDecoder {
       override val tpe: ElasticSearchViewType = ElasticSearchViewType.AggregateElasticSearch
     }
 
-    implicit final def elasticSearchViewFieldsJsonLdDecoder(implicit
-        configuration: Configuration
-    ): JsonLdDecoder[ElasticSearchViewFields] = {
+    given Configuration => JsonLdDecoder[ElasticSearchViewFields] = {
       val legacyFieldsJsonLdDecoder    = deriveConfigJsonLdDecoder[LegacyIndexingElasticSearchViewFields]
       val indexingFieldsJsonLdDecoder  = deriveConfigJsonLdDecoder[IndexingElasticSearchViewFields]
       val aggregateFieldsJsonLdDecoder = deriveConfigJsonLdDecoder[AggregateElasticSearchViewFields]
@@ -191,9 +189,9 @@ object ElasticSearchViewJsonLdSourceDecoder {
   }
 
   def apply(uuidF: UUIDF, contextResolution: ResolverContextResolution): IO[ElasticSearchViewJsonLdSourceDecoder] = {
-    implicit val rcr: RemoteContextResolution = contextResolution.rcr
+    given RemoteContextResolution = contextResolution.rcr
 
-    ElasticSearchDecoderConfiguration.apply.map { implicit config =>
+    ElasticSearchDecoderConfiguration.apply.map { case given Configuration =>
       new ElasticSearchViewJsonLdSourceDecoder(
         new JsonLdSourceResolvingDecoder[ElasticSearchViewFields](
           contexts.elasticsearch,

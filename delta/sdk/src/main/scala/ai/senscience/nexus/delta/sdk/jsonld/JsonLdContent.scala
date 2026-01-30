@@ -19,11 +19,11 @@ import io.circe.Json
   * @tparam A
   *   the resource type
   */
-final case class JsonLdContent[A](resource: ResourceF[A], source: Json, tags: Tags)(implicit
+final case class JsonLdContent[A](resource: ResourceF[A], source: Json, tags: Tags)(using
     val encoder: JsonLdEncoder[A]
 ) {
 
-  def jsonLdValue(implicit base: BaseUri): JsonLdValue = {
+  def jsonLdValue(using BaseUri): JsonLdValue = {
     JsonLdValue(resource)
   }
 }

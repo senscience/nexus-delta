@@ -34,7 +34,7 @@ trait Realms {
   def create(
       label: Label,
       fields: RealmFields
-  )(implicit caller: Subject): IO[RealmResource]
+  )(using Subject): IO[RealmResource]
 
   /**
     * Updates an existing realm using the provided configuration.
@@ -50,7 +50,7 @@ trait Realms {
       label: Label,
       rev: Int,
       fields: RealmFields
-  )(implicit caller: Subject): IO[RealmResource]
+  )(using Subject): IO[RealmResource]
 
   /**
     * Deprecates an existing realm. A deprecated realm prevents clients from authenticating.
@@ -60,7 +60,7 @@ trait Realms {
     * @param rev
     *   the revision of the realm
     */
-  def deprecate(label: Label, rev: Int)(implicit caller: Subject): IO[RealmResource]
+  def deprecate(label: Label, rev: Int)(using Subject): IO[RealmResource]
 
   /**
     * Fetches a realm.

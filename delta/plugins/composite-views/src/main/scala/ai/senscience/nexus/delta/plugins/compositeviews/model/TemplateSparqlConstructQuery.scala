@@ -23,7 +23,7 @@ object TemplateSparqlConstructQuery {
       SparqlConstructQuery(value.replaceAll(quote(idTemplating), fakeIri.rdfFormat))
         .as(SparqlConstructQuery.unsafe(value))
 
-  implicit val sparqlConstructQueryJsonLdDecoder: JsonLdDecoder[SparqlConstructQuery] =
+  given JsonLdDecoder[SparqlConstructQuery] =
     JsonLdDecoder.stringJsonLdDecoder.andThen { case (cursor, str) =>
       TemplateSparqlConstructQuery(str).leftMap(reason =>
         ParsingFailure("SparqlConstructQuery", str, cursor.history, reason)

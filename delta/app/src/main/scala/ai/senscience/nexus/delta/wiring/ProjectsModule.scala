@@ -165,7 +165,7 @@ object ProjectsModule extends NexusModuleDef {
       )
   }
 
-  many[SseEncoder[?]].add { (base: BaseUri) => ProjectEvent.sseEncoder(base) }
+  many[SseEncoder[?]].add { (base: BaseUri) => ProjectEvent.sseEncoder(using base) }
 
   many[PriorityRoute].add { (route: ProjectsRoutes) =>
     PriorityRoute(pluginsMaxPriority + 7, route.routes, requiresStrictEntity = true)

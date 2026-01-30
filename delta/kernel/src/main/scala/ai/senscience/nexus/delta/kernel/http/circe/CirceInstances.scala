@@ -32,7 +32,7 @@ trait CirceInstances {
   def jsonOf[A: Decoder]: EntityDecoder[IO, A] =
     jsonOfWithMedia(MediaType.application.json)
 
-  implicit val jsonEncoder: EntityEncoder[IO, Json] = jsonEncoderOf
+  given jsonEncoder: EntityEncoder[IO, Json] = jsonEncoderOf
 
   def jsonOfWithMedia[A: Decoder](r1: MediaRange, rs: MediaRange*): EntityDecoder[IO, A] =
     jsonOfWithMediaHelper[A](r1, jsonDecodeError, rs*)
@@ -64,12 +64,11 @@ trait CirceInstances {
       }
     }
 
-  implicit val jsonEntityDecoder: EntityDecoder[IO, Json] = jsonDecoder(MediaType.application.json)
+  given jsonEntityDecoder: EntityDecoder[IO, Json] = jsonDecoder(MediaType.application.json)
 
-  implicit val encodeUri: Encoder[Uri] =
-    Encoder.encodeString.contramap[Uri](_.toString)
+  given encodeUri: Encoder[Uri] = Encoder.encodeString.contramap[Uri](_.toString)
 
-  implicit val decodeUri: Decoder[Uri] =
+  given decodeUri: Decoder[Uri] =
     Decoder.decodeString.emap { str =>
       Uri.fromString(str).leftMap(_ => "Uri")
     }

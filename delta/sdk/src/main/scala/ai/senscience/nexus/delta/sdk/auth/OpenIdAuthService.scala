@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sdk.auth
 
-import ai.senscience.nexus.delta.kernel.http.circe.*
+import ai.senscience.nexus.delta.kernel.http.circe.given
 import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.kernel.{Logger, Secret}
 import ai.senscience.nexus.delta.sdk.auth.Credentials.ClientCredentials

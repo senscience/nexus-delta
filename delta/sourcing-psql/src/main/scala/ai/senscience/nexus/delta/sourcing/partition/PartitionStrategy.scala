@@ -32,15 +32,15 @@ object PartitionStrategy {
     */
   final case class Hash(modulo: Int) extends PartitionStrategy
 
-  implicit val partitionStrategyReader: ConfigReader[PartitionStrategy] = deriveReader[PartitionStrategy]
+  given ConfigReader[PartitionStrategy] = deriveReader[PartitionStrategy]
 
-  implicit val partitionCodec: Codec.AsObject[PartitionStrategy] = {
-    implicit val configuration: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  given partitionCodec: Codec.AsObject[PartitionStrategy] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
     deriveConfiguredCodec[PartitionStrategy]
   }
 
-  implicit val partitionGet: Get[PartitionStrategy] =
+  given Get[PartitionStrategy] =
     jsonbGet.temap(v => partitionCodec.decodeJson(v).leftMap(_.message))
 
-  implicit val partitionValue: Put[PartitionStrategy] = jsonbPut.contramap(partitionCodec(_))
+  given Put[PartitionStrategy] = jsonbPut.contramap(partitionCodec(_))
 }

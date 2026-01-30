@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDire
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
@@ -24,6 +23,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resolvers.{read as 
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
 import ai.senscience.nexus.delta.sdk.resolvers.model.{MultiResolutionResult, Resolver, ResolverRejection}
 import ai.senscience.nexus.delta.sdk.resolvers.{MultiResolution, Resolvers}
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -95,7 +95,8 @@ final class ResolversRoutes(
   def routes: Route =
     (baseUriPrefix(baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
       pathPrefix("resolvers") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
@@ -181,7 +182,7 @@ final class ResolversRoutes(
   )(using BaseUri, Caller): Route =
     authorizeFor(project, Permissions.resources.read).apply {
       exceptionHandler(enableRejects = false) {
-        def emitResult[R: JsonLdEncoder: HttpResponseFields](io: IO[MultiResolutionResult[R]]) = {
+        def emitResult[R: {JsonLdEncoder, HttpResponseFields}](io: IO[MultiResolutionResult[R]]) = {
           output match {
             case ResolvedResourceOutputType.Report          => emit(io.map(_.report))
             case ResolvedResourceOutputType.JsonLd          => emit(io.map(_.value.jsonLdValue))

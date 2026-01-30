@@ -26,7 +26,7 @@ final case class ServiceAccount(subject: Subject) extends AnyVal {
 }
 
 object ServiceAccount {
-  implicit final val serviceAccountReader: ConfigReader[ServiceAccount] =
+  given ConfigReader[ServiceAccount] =
     ConfigReader.fromCursor { cursor =>
       for {
         obj      <- cursor.asObjectCursor

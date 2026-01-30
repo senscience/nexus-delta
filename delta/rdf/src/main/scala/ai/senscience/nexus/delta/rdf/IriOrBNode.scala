@@ -337,17 +337,17 @@ object IriOrBNode {
     def unsafe(string: String): Iri =
       new Iri(iriFactory.create(string))
 
-    implicit final val iriDecoder: Decoder[Iri] = Decoder.decodeString.emap(apply)
-    implicit final val iriEncoder: Encoder[Iri] = Encoder.encodeString.contramap(_.toString)
-    implicit final val iriCodec: Codec[Iri]     = Codec.from(iriDecoder, iriEncoder)
+    given iriDecoder: Decoder[Iri] = Decoder.decodeString.emap(apply)
+    given iriEncoder: Encoder[Iri] = Encoder.encodeString.contramap(_.toString)
+    given iriCodec: Codec[Iri]     = Codec.from(iriDecoder, iriEncoder)
 
-    implicit val iriKeyEncoder: KeyEncoder[Iri] = KeyEncoder.encodeKeyString.contramap(_.toString)
-    implicit val iriKeyDecoder: KeyDecoder[Iri] = KeyDecoder.instance(reference(_).toOption)
+    given iriKeyEncoder: KeyEncoder[Iri] = KeyEncoder.encodeKeyString.contramap(_.toString)
+    given iriKeyDecoder: KeyDecoder[Iri] = KeyDecoder.instance(reference(_).toOption)
 
-    implicit final val iriOrdering: Ordering[Iri] = Ordering.by(_.toString)
-    implicit final val iriOrder: Order[Iri]       = Order.fromOrdering
+    given iriOrdering: Ordering[Iri] = Ordering.by(_.toString)
+    given iriOrder: Order[Iri]       = Order.fromOrdering
 
-    implicit val iriConfigReader: ConfigReader[Iri] =
+    given ConfigReader[Iri] =
       ConfigReader.fromString(str => Iri(str).leftMap(err => CannotConvert(str, classOf[Iri].getSimpleName, err)))
   }
 
@@ -385,14 +385,13 @@ object IriOrBNode {
     def unsafe(anonId: String): BNode =
       BNode(anonId)
 
-    implicit final val bNodeDecoder: Decoder[BNode] = Decoder.decodeString.map(BNode.apply)
-    implicit final val bNodeEncoder: Encoder[BNode] = Encoder.encodeString.contramap(_.toString)
+    given bNodeDecoder: Decoder[BNode] = Decoder.decodeString.map(BNode.apply)
+    given bNodeEncoder: Encoder[BNode] = Encoder.encodeString.contramap(_.toString)
   }
 
-  implicit final val iriOrBNodeDecoder: Decoder[IriOrBNode] =
+  given iriOrBNodeDecoder: Decoder[IriOrBNode] =
     Decoder.decodeString.emap(Iri.reference).or(Decoder.decodeString.map(BNode.unsafe))
 
-  implicit final val iriOrBNodeEncoder: Encoder[IriOrBNode] =
-    Encoder.encodeString.contramap(_.toString)
+  given iriOrBNodeEncoder: Encoder[IriOrBNode] = Encoder.encodeString.contramap(_.toString)
 
 }

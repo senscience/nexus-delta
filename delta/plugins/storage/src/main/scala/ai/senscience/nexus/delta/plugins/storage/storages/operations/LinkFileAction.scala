@@ -14,16 +14,16 @@ import cats.effect.IO
 
 trait LinkFileAction {
 
-  def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(implicit
-      caller: Caller
+  def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(using
+      Caller
   ): IO[StorageWrite[FileAttributes]]
 }
 
 object LinkFileAction {
 
   val alwaysFails: LinkFileAction = new LinkFileAction {
-    override def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(implicit
-        caller: Caller
+    override def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(using
+        Caller
     ): IO[StorageWrite[FileAttributes]] = IO.raiseError(LinkFileRejection.Disabled)
   }
 
@@ -31,15 +31,15 @@ object LinkFileAction {
       fetchStorage: FetchStorage,
       mediaTypeDetector: MediaTypeDetector,
       s3FileOps: S3FileOperations
-  ): LinkFileAction = apply(fetchStorage, mediaTypeDetector, s3FileOps.link(_, _))
+  ): LinkFileAction = apply(fetchStorage, mediaTypeDetector, s3FileOps.link)
 
   def apply(
       fetchStorage: FetchStorage,
       mediaTypeDetector: MediaTypeDetector,
       s3FileLink: S3FileLink
   ): LinkFileAction = new LinkFileAction {
-    override def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(implicit
-        caller: Caller
+    override def apply(storageIri: Option[Iri], project: ProjectRef, request: FileLinkRequest)(using
+        Caller
     ): IO[StorageWrite[FileAttributes]] =
       fetchStorage.onWrite(storageIri, project).flatMap {
         case (storageRef, storage: S3Storage) =>

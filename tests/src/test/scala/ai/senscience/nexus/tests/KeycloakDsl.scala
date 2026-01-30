@@ -17,7 +17,7 @@ import org.apache.pekko.stream.Materializer
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 
-class KeycloakDsl(implicit
+class KeycloakDsl(using
     as: ActorSystem,
     materializer: Materializer,
     um: FromEntityUnmarshaller[Json],

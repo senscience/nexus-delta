@@ -17,6 +17,5 @@ import pureconfig.module.http4s.*
 final case class FusionConfig(base: Uri, enableRedirects: Boolean, resolveBase: Uri)
 
 object FusionConfig {
-  implicit final val fusionConfigReader: ConfigReader[FusionConfig] =
-    deriveReader[FusionConfig]
+  given ConfigReader[FusionConfig] = deriveReader[FusionConfig]
 }

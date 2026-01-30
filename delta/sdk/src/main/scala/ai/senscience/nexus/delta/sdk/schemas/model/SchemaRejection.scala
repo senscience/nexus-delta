@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.shacl.ValidationReport
-import ai.senscience.nexus.delta.rdf.syntax.jsonObjectOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -165,7 +165,7 @@ object SchemaRejection {
         s"Incorrect revision '$provided' provided, expected '$expected', the schema may have been updated since last seen."
       )
 
-  implicit val schemasRejectionEncoder: Encoder.AsObject[SchemaRejection] = {
+  given Encoder.AsObject[SchemaRejection] = {
     def importsAsJson(imports: Map[ResourceRef, ResourceResolutionReport]) =
       Json.fromValues(
         imports.map { case (ref, report) =>
@@ -191,10 +191,10 @@ object SchemaRejection {
     }
   }
 
-  implicit final val schemasRejectionJsonLdEncoder: JsonLdEncoder[SchemaRejection] =
+  given JsonLdEncoder[SchemaRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsSchemas: HttpResponseFields[SchemaRejection] =
+  given HttpResponseFields[SchemaRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
       case TagNotFound(_)              => StatusCodes.NotFound

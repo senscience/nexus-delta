@@ -29,7 +29,7 @@ object Scope {
     */
   final case class Project(ref: ProjectRef) extends Scope
 
-  implicit val scopeFragmentEncoder: FragmentEncoder[Scope] = FragmentEncoder.instance {
+  given FragmentEncoder[Scope] = FragmentEncoder.instance {
     case Root         => None
     case Org(label)   => Some(fr"org = $label")
     case Project(ref) => Some(fr"org = ${ref.organization} and project = ${ref.project}")

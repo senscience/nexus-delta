@@ -111,7 +111,7 @@ object OrganizationRejection {
         s"The organization has been successfully created but it could not be initialized due to: '${failure.reason}'"
       )
 
-  implicit val orgRejectionEncoder: Encoder.AsObject[OrganizationRejection] =
+  given Encoder.AsObject[OrganizationRejection] =
     Encoder.AsObject.instance { r =>
       val tpe     = ClassUtils.simpleName(r)
       val default = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -124,10 +124,10 @@ object OrganizationRejection {
 
     }
 
-  implicit final val orgRejectionJsonLdEncoder: JsonLdEncoder[OrganizationRejection] =
+  given JsonLdEncoder[OrganizationRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsOrganizations: HttpResponseFields[OrganizationRejection] =
+  given HttpResponseFields[OrganizationRejection] =
     HttpResponseFields {
       case OrganizationRejection.OrganizationNotFound(_)      => StatusCodes.NotFound
       case OrganizationRejection.OrganizationAlreadyExists(_) => StatusCodes.Conflict

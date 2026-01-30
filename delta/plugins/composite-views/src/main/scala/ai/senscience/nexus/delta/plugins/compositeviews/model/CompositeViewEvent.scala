@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
@@ -198,7 +198,7 @@ object CompositeViewEvent {
     Serializer.dropNulls()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[CompositeViewEvent] =
+  def sseEncoder(using base: BaseUri): SseEncoder[CompositeViewEvent] =
     new SseEncoder[CompositeViewEvent] {
       override val databaseDecoder: Decoder[CompositeViewEvent] = serializer.codec
 
@@ -207,8 +207,8 @@ object CompositeViewEvent {
       override val selectors: Set[Label] = Set(Label.unsafe("views"))
 
       override val sseEncoder: Encoder.AsObject[CompositeViewEvent] = {
-        val context                                                = ContextValue(Vocabulary.contexts.metadata, contexts.compositeViews)
-        implicit val config: Configuration                         = Configuration.default
+        val context                       = ContextValue(Vocabulary.contexts.metadata, contexts.compositeViews)
+        given Configuration               = Configuration.default
           .withDiscriminator(keywords.tpe)
           .copy(transformMemberNames = {
             case "id"      => "_viewId"
@@ -220,9 +220,8 @@ object CompositeViewEvent {
             case "uuid"    => "_uuid"
             case other     => other
           })
-        implicit val subjectEncoder: Encoder[Subject]              = IriEncoder.jsonEncoder[Subject]
-        implicit val viewValueEncoder: Encoder[CompositeViewValue] =
-          Encoder.instance[CompositeViewValue](_ => Json.Null)
+        given Encoder[Subject]            = IriEncoder.jsonEncoder[Subject]
+        given Encoder[CompositeViewValue] = Encoder.instance[CompositeViewValue](_ => Json.Null)
 
         Encoder.encodeJsonObject.contramapObject { event =>
           deriveConfiguredEncoder[CompositeViewEvent]

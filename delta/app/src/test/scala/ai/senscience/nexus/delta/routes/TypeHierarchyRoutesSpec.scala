@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.TypeHierarchyResource
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
@@ -11,8 +11,8 @@ import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchy.TypeHiera
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.TypeHierarchyRejection.TypeHierarchyDoesNotExist
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy as TypeHierarchyModel, TypeHierarchyState}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
-import ai.senscience.nexus.delta.sourcing.model.Identity.User
-import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.{IO, Ref}
 import io.circe.syntax.EncoderOps
 import org.apache.pekko.http.scaladsl.model.StatusCodes
@@ -32,16 +32,12 @@ class TypeHierarchyRoutesSpec extends BaseRouteSpec with BeforeAndAfterEach {
   private val typeHierarchyRef = Ref.unsafe[IO, Option[TypeHierarchyResource]](None)
 
   private val typeHierarchy = new TypeHierarchy {
-    override def create(
-        mapping: TypeHierarchyMapping
-    )(implicit subject: Identity.Subject): IO[TypeHierarchyResource] = {
+    override def create(mapping: TypeHierarchyMapping)(using Subject): IO[TypeHierarchyResource] = {
       typeHierarchyRef.set(Some(typeHierarchyResource(rev = 1))) >>
         IO.pure(typeHierarchyResource(rev = 1))
     }
 
-    override def update(mapping: TypeHierarchyMapping, rev: Int)(implicit
-        subject: Identity.Subject
-    ): IO[TypeHierarchyResource] =
+    override def update(mapping: TypeHierarchyMapping, rev: Int)(using Subject): IO[TypeHierarchyResource] =
       typeHierarchyRef
         .getAndSet(Some(typeHierarchyResource(rev = rev + 1)))
         .flatMap(IO.fromOption(_)(TypeHierarchyDoesNotExist))

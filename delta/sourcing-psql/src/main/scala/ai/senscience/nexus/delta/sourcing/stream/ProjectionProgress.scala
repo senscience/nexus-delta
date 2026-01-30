@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.offset.Offset.Start
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
@@ -43,7 +43,6 @@ object ProjectionProgress {
     */
   val NoProgress: ProjectionProgress = ProjectionProgress(Start, Instant.EPOCH, 0L, 0L, 0L)
 
-  implicit final val projectionProgressEncoder: Encoder[ProjectionProgress] =
-    deriveEncoder
+  given Encoder[ProjectionProgress] = deriveEncoder
 
 }

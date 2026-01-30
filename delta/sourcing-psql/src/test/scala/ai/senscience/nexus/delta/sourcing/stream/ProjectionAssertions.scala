@@ -11,9 +11,9 @@ trait ProjectionAssertions extends CatsEffectEventually {
   /**
     * Wait for the given project to complete its execution on the supervisor
     */
-  def waitProjectionCompletion(supervisor: Supervisor, projectionName: String)(implicit
-      loc: Location,
-      patience: PatienceConfig
+  def waitProjectionCompletion(supervisor: Supervisor, projectionName: String)(using
+      Location,
+      PatienceConfig
   ): IO[Unit] =
     supervisor
       .describe(projectionName)
@@ -26,7 +26,7 @@ trait ProjectionAssertions extends CatsEffectEventually {
     */
   def assertProgress(projections: Projections, projectionName: String)(
       expected: ProjectionProgress
-  )(implicit loc: Location, patience: PatienceConfig): IO[Unit] =
+  )(using Location, PatienceConfig): IO[Unit] =
     projections
       .progress(projectionName)
       .assertEquals(Some(expected))

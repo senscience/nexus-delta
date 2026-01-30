@@ -8,7 +8,7 @@ import io.circe.{Decoder, Json}
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
 import org.apache.pekko.http.scaladsl.model.headers.{Accept, Location}
 import org.apache.pekko.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
-import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers.stringUnmarshaller
 import org.scalatest.Assertion
 
 class IdResolutionSpec extends BaseIntegrationSpec {
@@ -92,25 +92,25 @@ class IdResolutionSpec extends BaseIntegrationSpec {
     "redirect to delta resolve if the request comes to the proxy endpoint" in {
       deltaClient.get[String](s"/resolve-proxy-pass/$neurosciencegraphSegment", Bob) { (_, response) =>
         response.isRedirectTo(deltaResolveEndpoint(encodedNeurosciencegraphId))
-      }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
+      }(using stringUnmarshaller)
     }
 
     "redirect to fusion resolve if the request comes to the proxy endpoint with text/html accept header is present" in {
       deltaClient.get[String](s"/resolve-proxy-pass/$neurosciencegraphSegment", Bob, acceptTextHtml) { (_, response) =>
         response.isRedirectTo(fusionResolveEndpoint(encodedNeurosciencegraphId))
-      }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
+      }(using stringUnmarshaller)
     }
 
   }
 
-  implicit private class HttpResponseOps(response: HttpResponse) {
+  extension (response: HttpResponse) {
     def isRedirectTo(uri: String): Assertion = {
       response.status shouldEqual StatusCodes.SeeOther
       locationHeaderOf(response) shouldEqual uri
     }
   }
 
-  implicit private class JsonOps(json: Json) {
+  extension (json: Json) {
     def topLevelField[A: Decoder](field: String): A =
       json.hcursor.get[A](field).toOption.get
   }

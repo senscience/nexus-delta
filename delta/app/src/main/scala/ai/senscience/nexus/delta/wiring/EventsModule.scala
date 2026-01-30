@@ -43,7 +43,7 @@ object EventsModule extends NexusModuleDef {
         projects.fetch(_).void,
         config,
         xas
-      )(jo)
+      )(using jo)
   }
 
   make[SseElemStream].from { (elemStreaming: ElemStreaming) => SseElemStream(elemStreaming) }

@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 
 trait EitherAssertions { self: Assertions =>
 
-  implicit class EitherAssertionsOps[E, A](either: Either[E, A])(implicit loc: Location) {
+  extension [E, A](either: Either[E, A])(using Location) {
 
     def assertLeft(expected: E): Unit =
       either match {
@@ -18,7 +18,7 @@ trait EitherAssertions { self: Assertions =>
       assert(either.isLeft, "Right caught, expected a left")
     }
 
-    def assertLeftOf[T](implicit T: ClassTag[T]): Unit = {
+    def assertLeftOf[T](using T: ClassTag[T]): Unit = {
       either match {
         case Left(T(_)) => ()
         case Left(l)    =>

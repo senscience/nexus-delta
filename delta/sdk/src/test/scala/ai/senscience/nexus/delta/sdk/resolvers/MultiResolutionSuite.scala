@@ -23,8 +23,8 @@ import io.circe.Json
 
 class MultiResolutionSuite extends NexusSuite with Fixtures {
 
-  private val alice                = User("alice", Label.unsafe("wonderland"))
-  implicit val aliceCaller: Caller = Caller(alice, Set(alice))
+  private val alice    = User("alice", Label.unsafe("wonderland"))
+  private given Caller = Caller(alice, Set(alice))
 
   private val projectRef = ProjectRef.unsafe("org", "project")
 
@@ -44,7 +44,7 @@ class MultiResolutionSuite extends NexusSuite with Fixtures {
   private val unknownResourceId  = nxv + "xxx"
   private val unknownResourceRef = Latest(unknownResourceId)
 
-  private def content[R](resource: ResourceF[R], source: Json)(implicit enc: JsonLdEncoder[R]) =
+  private def content[R](resource: ResourceF[R], source: Json)(using JsonLdEncoder[R]) =
     JsonLdContent(resource, source, Tags.empty)
 
   private val resourceValue = content(resourceFR, resourceFR.value.source)

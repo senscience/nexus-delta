@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.organizations.model
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.*
-import ai.senscience.nexus.delta.rdf.syntax.jsonLdEncoderSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.generators.OrganizationGen
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.testkit.CirceLiteral

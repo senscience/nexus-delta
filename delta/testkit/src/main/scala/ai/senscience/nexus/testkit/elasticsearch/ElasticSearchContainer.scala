@@ -29,7 +29,7 @@ object ElasticSearchContainer {
   private val ElasticSearchUser     = "elastic"
   private val ElasticSearchPassword = "password"
 
-  implicit lazy val credentials: Option[BasicCredentials] = Some(
+  val credentials: Option[BasicCredentials] = Some(
     BasicCredentials(ElasticSearchUser, ElasticSearchPassword)
   )
 

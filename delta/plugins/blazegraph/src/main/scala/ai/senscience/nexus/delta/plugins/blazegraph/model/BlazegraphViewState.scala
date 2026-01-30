@@ -114,7 +114,7 @@ final case class BlazegraphViewState(
 
 object BlazegraphViewState {
 
-  implicit val serializer: Serializer[Iri, BlazegraphViewState] = {
+  given serializer: Serializer[Iri, BlazegraphViewState] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration                       = Serializer.circeConfiguration
     given Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]

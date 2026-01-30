@@ -44,5 +44,5 @@ object ProjectionType {
     override def tpe: Iri = nxv + toString
   }
 
-  implicit val projectionTypeEncoder: Encoder[ProjectionType] = Encoder.encodeString.contramap(_.tpe.toString)
+  given Encoder[ProjectionType] = Encoder.encodeString.contramap(_.tpe.toString)
 }

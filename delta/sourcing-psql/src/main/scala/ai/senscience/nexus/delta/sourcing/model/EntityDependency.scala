@@ -19,7 +19,7 @@ object EntityDependency {
   final case class DependsOn(project: ProjectRef, id: Iri)
 
   object DependsOn {
-    implicit val dependsOnOrder: Order[DependsOn] = Order.by { dependency =>
+    given Order[DependsOn] = Order.by { dependency =>
       (dependency.project, dependency.id)
     }
   }

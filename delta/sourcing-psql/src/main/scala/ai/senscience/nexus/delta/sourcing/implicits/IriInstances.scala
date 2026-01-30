@@ -5,8 +5,8 @@ import doobie.{Get, Put}
 
 trait IriInstances {
 
-  implicit final val iriGet: Get[Iri] = Get[String].temap(Iri(_))
-  implicit final val iriPut: Put[Iri] = Put[String].contramap(_.toString)
+  given iriGet: Get[Iri] = Get[String].temap(Iri(_))
+  given iriPut: Put[Iri] = Put[String].contramap(_.toString)
 
 }
 

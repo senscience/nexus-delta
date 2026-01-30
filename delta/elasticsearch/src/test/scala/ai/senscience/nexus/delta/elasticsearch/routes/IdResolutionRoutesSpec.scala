@@ -28,7 +28,7 @@ class IdResolutionRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture 
   given FusionConfig = fusionConfig
 
   private val idResolution = new IdResolution {
-    override def apply(iri: Iri)(implicit caller: Caller): IO[IdResolution.ResolutionResult] =
+    override def apply(iri: Iri)(using Caller): IO[IdResolution.ResolutionResult] =
       IO.pure(SingleResult(ResourceRef.Latest(successId), projectRef, successContent))
   }
 

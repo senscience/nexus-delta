@@ -43,7 +43,7 @@ final case class File(
 
 object File {
 
-  implicit def fileEncoder(implicit showLocation: ShowFileLocation): Encoder.AsObject[File] =
+  given fileEncoder: (showLocation: ShowFileLocation) => Encoder.AsObject[File] =
     Encoder.encodeJsonObject.contramapObject { file =>
       val storageType: StorageType                      = file.storageType
       val storageJson                                   = Json.obj(
@@ -60,12 +60,12 @@ object File {
       attrEncoder.encodeObject(file.attributes).add("_storage", storageJson)
     }
 
-  implicit def fileJsonLdEncoder(implicit showLocation: ShowFileLocation): JsonLdEncoder[File] =
+  given ShowFileLocation => JsonLdEncoder[File] =
     JsonLdEncoder.computeFromCirce(_.id, Files.context)
 
   type Shift = ResourceShift[FileState, File]
 
-  def shift(files: Files)(implicit baseUri: BaseUri, showLocation: ShowFileLocation): Shift =
+  def shift(files: Files)(using BaseUri, ShowFileLocation): Shift =
     ResourceShift[FileState, File](
       Files.entityType,
       (ref, project) => files.fetch(FileId(ref, project)),

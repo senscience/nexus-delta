@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription.ResolvedServiceDescription
 import ai.senscience.nexus.delta.kernel.http.circe.*
-import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
-import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.*
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
+import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.given
 import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
@@ -196,7 +196,8 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     else {
       val payload      = actions.map(_.payload).mkString("", newLine, newLine)
       val bulkEndpoint = (endpoint / bulkPath).withQueryParam(refreshParam, refresh.value)
-      val request      = POST(payload, bulkEndpoint, `Content-Type`(`application/x-ndjson`))(EntityEncoder.stringEncoder)
+      val request      =
+        POST(payload, bulkEndpoint, `Content-Type`(`application/x-ndjson`))(using EntityEncoder.stringEncoder)
       val spanDef      = SpanDef(bulkPath, write)
       OtelTracingClient(client, spanDef).expectOr[BulkResponse](request)(ElasticsearchWriteError(_)).flatTap {
         case BulkResponse.Success          => logger.debug("All operations in the bulk succeeded.")

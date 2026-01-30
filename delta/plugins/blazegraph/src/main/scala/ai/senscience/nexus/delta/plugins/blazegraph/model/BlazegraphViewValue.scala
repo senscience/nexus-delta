@@ -129,10 +129,10 @@ object BlazegraphViewValue {
     override val tpe: BlazegraphViewType = BlazegraphViewType.AggregateBlazegraphView
   }
 
-  implicit private val blazegraphViewValueEncoder: Encoder.AsObject[BlazegraphViewValue] = {
+  private given Encoder.AsObject[BlazegraphViewValue] = {
     import io.circe.generic.extras.Configuration
 
-    implicit val config: Configuration = Configuration(
+    given Configuration = Configuration(
       transformMemberNames = identity,
       transformConstructorNames = {
         case "IndexingBlazegraphViewValue"  => BlazegraphViewType.IndexingBlazegraphView.toString
@@ -146,13 +146,11 @@ object BlazegraphViewValue {
     deriveConfiguredEncoder[BlazegraphViewValue]
   }
 
-  implicit def blazegraphViewValueJsonLdDecoder(implicit
-      configuration: Configuration
-  ): JsonLdDecoder[BlazegraphViewValue] =
+  given Configuration => JsonLdDecoder[BlazegraphViewValue] =
     deriveConfigJsonLdDecoder[BlazegraphViewValue]
 
   object Database {
-    implicit private val configuration: extras.Configuration    = Serializer.circeConfiguration
-    implicit val bgvvCodec: Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
+    private given extras.Configuration        = Serializer.circeConfiguration
+    given Codec.AsObject[BlazegraphViewValue] = deriveConfiguredCodec[BlazegraphViewValue]
   }
 }

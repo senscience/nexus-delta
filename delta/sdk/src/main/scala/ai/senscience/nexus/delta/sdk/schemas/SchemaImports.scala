@@ -34,7 +34,7 @@ final class SchemaImports(resolveSchema: Resolve[Schema], resolveResource: Resol
     * @return
     *   a "fat-schema" with all the imports resolved
     */
-  def resolve(id: Iri, projectRef: ProjectRef, expanded: ExpandedJsonLd)(implicit
+  def resolve(id: Iri, projectRef: ProjectRef, expanded: ExpandedJsonLd)(using
       caller: Caller
   ): IO[NonEmptyList[ExpandedJsonLd]] = {
 

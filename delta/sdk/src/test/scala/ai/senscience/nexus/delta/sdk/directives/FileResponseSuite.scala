@@ -6,7 +6,7 @@ import org.apache.pekko.http.scaladsl.model.ContentType
 
 class FileResponseSuite extends NexusSuite {
 
-  private def assertContentType(value: String, binary: Boolean, compressible: Boolean)(implicit l: Location): Unit =
+  private def assertContentType(value: String, binary: Boolean, compressible: Boolean)(using Location): Unit =
     ContentType.parse(value) match {
       case Left(err)          => fail(s"Could not parse the content type $err")
       case Right(contentType) =>

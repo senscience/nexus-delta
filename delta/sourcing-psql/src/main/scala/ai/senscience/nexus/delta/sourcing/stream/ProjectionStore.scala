@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionStore.ProjectionProgressRow
@@ -135,7 +135,7 @@ object ProjectionStore {
   )
 
   object ProjectionProgressRow {
-    implicit val projectionProgressRowRead: Read[ProjectionProgressRow] = {
+    given Read[ProjectionProgressRow] = {
       Read[(String, String, Option[ProjectRef], Option[Iri], Long, Long, Long, Long, Instant, Instant)].map {
         case (name, module, project, resourceId, offset, processed, discarded, failed, createdAt, updatedAt) =>
           ProjectionProgressRow(

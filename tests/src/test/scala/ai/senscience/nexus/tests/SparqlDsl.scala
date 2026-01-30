@@ -9,7 +9,7 @@ import org.apache.pekko.http.scaladsl.model.HttpRequest
 import org.apache.pekko.http.scaladsl.model.headers.Accept
 import org.scalatest.matchers.should.Matchers
 
-class SparqlDsl(isBlazegraph: Boolean)(implicit as: ActorSystem) extends CirceUnmarshalling with Matchers {
+class SparqlDsl(isBlazegraph: Boolean)(using as: ActorSystem) extends CirceUnmarshalling with Matchers {
 
   import as.dispatcher
 

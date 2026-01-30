@@ -8,6 +8,5 @@ import scala.concurrent.duration.FiniteDuration
 final case class EventLogConfig(queryConfig: QueryConfig, maxDuration: FiniteDuration)
 
 object EventLogConfig {
-  implicit final val eventLogConfig: ConfigReader[EventLogConfig] =
-    deriveReader[EventLogConfig]
+  given ConfigReader[EventLogConfig] = deriveReader[EventLogConfig]
 }

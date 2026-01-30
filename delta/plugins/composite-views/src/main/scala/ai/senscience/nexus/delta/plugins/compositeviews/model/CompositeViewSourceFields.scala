@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.deriveConfigJsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.{Configuration, JsonLdDecoder}
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Authenticated, Group, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -140,10 +140,10 @@ object CompositeViewSourceFields {
     )
   }
 
-  implicit final def sourceEncoder(implicit base: BaseUri): Encoder.AsObject[CompositeViewSourceFields] = {
+  given BaseUri => Encoder.AsObject[CompositeViewSourceFields] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val config: Configuration = Configuration(
+    given Configuration = Configuration(
       transformMemberNames = {
         case "id"  => keywords.id
         case other => other
@@ -161,15 +161,15 @@ object CompositeViewSourceFields {
     deriveConfiguredEncoder[CompositeViewSourceFields]
   }
 
-  implicit final val sourceLdDecoder: JsonLdDecoder[CompositeViewSourceFields] = {
+  given JsonLdDecoder[CompositeViewSourceFields] = {
 
     val ctx = Configuration.default.context
       .addAliasIdType("ProjectSourceFields", SourceType.ProjectSourceType.tpe)
       .addAliasIdType("CrossProjectSourceFields", SourceType.CrossProjectSourceType.tpe)
       .addAliasIdType("RemoteProjectSourceFields", SourceType.RemoteProjectSourceType.tpe)
 
-    implicit val cfg: Configuration                       = Configuration.default.copy(context = ctx)
-    implicit val identityDecoder: JsonLdDecoder[Identity] = deriveConfigJsonLdDecoder[Identity]
+    given Configuration           = Configuration.default.copy(context = ctx)
+    given JsonLdDecoder[Identity] = deriveConfigJsonLdDecoder[Identity]
       .or(deriveConfigJsonLdDecoder[User].asInstanceOf[JsonLdDecoder[Identity]])
       .or(deriveConfigJsonLdDecoder[Group].asInstanceOf[JsonLdDecoder[Identity]])
       .or(deriveConfigJsonLdDecoder[Authenticated].asInstanceOf[JsonLdDecoder[Identity]])

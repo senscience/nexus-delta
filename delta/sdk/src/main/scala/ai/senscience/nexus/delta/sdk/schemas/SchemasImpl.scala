@@ -35,23 +35,16 @@ final class SchemasImpl private (
 )(using Tracer[IO])
     extends Schemas {
 
-  override def create(
-      projectRef: ProjectRef,
-      source: Json
-  )(implicit caller: Caller): IO[SchemaResource] =
+  override def create(projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource] =
     createCommand(None, projectRef, source).flatMap(eval).surround("createSchema")
 
-  override def create(
-      id: IdSegment,
-      projectRef: ProjectRef,
-      source: Json
-  )(implicit caller: Caller): IO[SchemaResource] =
+  override def create(id: IdSegment, projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource] =
     createCommand(Some(id), projectRef, source).flatMap(eval).surround("createSchema")
 
-  override def createDryRun(projectRef: ProjectRef, source: Json)(implicit caller: Caller): IO[SchemaResource] =
+  override def createDryRun(projectRef: ProjectRef, source: Json)(using Caller): IO[SchemaResource] =
     createCommand(None, projectRef, source).flatMap(dryRun)
 
-  private def createCommand(id: Option[IdSegment], projectRef: ProjectRef, source: Json)(implicit
+  private def createCommand(id: Option[IdSegment], projectRef: ProjectRef, source: Json)(using
       caller: Caller
   ): IO[CreateSchema] =
     for {
@@ -61,12 +54,9 @@ final class SchemasImpl private (
       expandedResolved <- resolveImports(jsonLd.id, projectRef, jsonLd.expanded)
     } yield CreateSchema(jsonLd.id, projectRef, source, jsonLd.compacted, expandedResolved, caller.subject)
 
-  override def update(
-      id: IdSegment,
-      projectRef: ProjectRef,
-      rev: Int,
-      source: Json
-  )(implicit caller: Caller): IO[SchemaResource] = {
+  override def update(id: IdSegment, projectRef: ProjectRef, rev: Int, source: Json)(using
+      caller: Caller
+  ): IO[SchemaResource] = {
     for {
       pc                    <- fetchContext.onModify(projectRef)
       iri                   <- expandIri(id, pc)
@@ -77,10 +67,7 @@ final class SchemasImpl private (
     } yield res
   }.surround("updateSchema")
 
-  override def refresh(
-      id: IdSegment,
-      projectRef: ProjectRef
-  )(implicit caller: Caller): IO[SchemaResource] = {
+  override def refresh(id: IdSegment, projectRef: ProjectRef)(using caller: Caller): IO[SchemaResource] = {
     for {
       pc                    <- fetchContext.onModify(projectRef)
       iri                   <- expandIri(id, pc)
@@ -98,7 +85,7 @@ final class SchemasImpl private (
       tag: UserTag,
       tagRev: Int,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource] = {
+  )(using caller: Subject): IO[SchemaResource] = {
     for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -111,7 +98,7 @@ final class SchemasImpl private (
       projectRef: ProjectRef,
       tag: UserTag,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource] =
+  )(using caller: Subject): IO[SchemaResource] =
     (for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -122,7 +109,7 @@ final class SchemasImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource] =
+  )(using caller: Subject): IO[SchemaResource] =
     (for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -133,7 +120,7 @@ final class SchemasImpl private (
       id: IdSegment,
       projectRef: ProjectRef,
       rev: Int
-  )(implicit caller: Subject): IO[SchemaResource] =
+  )(using caller: Subject): IO[SchemaResource] =
     (for {
       pc  <- fetchContext.onModify(projectRef)
       iri <- expandIri(id, pc)
@@ -157,7 +144,7 @@ final class SchemasImpl private (
   private def dryRun(cmd: SchemaCommand) =
     log.dryRun(cmd.project, cmd.id, cmd).map(_._2.toResource)
 
-  private def resolveImports(id: Iri, projectRef: ProjectRef, expanded: ExpandedJsonLd)(implicit caller: Caller) =
+  private def resolveImports(id: Iri, projectRef: ProjectRef, expanded: ExpandedJsonLd)(using Caller) =
     schemaImports.resolve(id, projectRef, expanded.addType(nxv.Schema))
 
   def list(project: ProjectRef): IO[UnscoredSearchResults[SchemaResource]] =

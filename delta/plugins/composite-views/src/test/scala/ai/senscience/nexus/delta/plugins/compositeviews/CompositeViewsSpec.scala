@@ -30,10 +30,11 @@ class CompositeViewsSpec
     with CompositeViewsFixture
     with CirceEq
     with Fixtures {
-  private val realm                  = Label.unsafe("myrealm")
-  implicit private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val realm            = Label.unsafe("myrealm")
+  private given alice: Subject = User("Alice", realm)
+  private given Caller         = Caller(alice, Set(alice, Group("users", realm)))
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   "CompositeViews" should {
     val apiMappings       = ApiMappings("nxv" -> nxv.base)
@@ -70,9 +71,9 @@ class CompositeViewsSpec
         rev: Int = 1,
         deprecated: Boolean = false,
         createdAt: Instant = Instant.EPOCH,
-        createdBy: Subject = alice.subject,
+        createdBy: Subject = alice,
         updatedAt: Instant = Instant.EPOCH,
-        updatedBy: Subject = alice.subject,
+        updatedBy: Subject = alice,
         source: Json
     ): ViewResource = CompositeViewsGen.resourceFor(
       projectRef,

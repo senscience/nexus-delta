@@ -29,13 +29,11 @@ trait Organizations {
     *   label of the organization to create
     * @param description
     *   the description of the organization to be created
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
   def create(
       label: Label,
       description: Option[String]
-  )(implicit caller: Subject): IO[OrganizationResource]
+  )(using Subject): IO[OrganizationResource]
 
   /**
     * Updates an existing organization description.
@@ -46,14 +44,12 @@ trait Organizations {
     *   the description of the organization to be updated
     * @param rev
     *   the latest known revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
   def update(
       label: Label,
       description: Option[String],
       rev: Int
-  )(implicit caller: Subject): IO[OrganizationResource]
+  )(using Subject): IO[OrganizationResource]
 
   /**
     * Deprecate an organization.
@@ -62,13 +58,11 @@ trait Organizations {
     *   label of the organization to deprecate
     * @param rev
     *   latest known revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
   def deprecate(
       label: Label,
       rev: Int
-  )(implicit caller: Subject): IO[OrganizationResource]
+  )(using Subject): IO[OrganizationResource]
 
   /**
     * Undeprecate an organization.
@@ -77,10 +71,8 @@ trait Organizations {
     *   label of the organization to deprecate
     * @param rev
     *   latest known revision
-    * @param caller
-    *   a reference to the subject that initiated the action
     */
-  def undeprecate(org: Label, rev: Int)(implicit caller: Subject): IO[OrganizationResource]
+  def undeprecate(org: Label, rev: Int)(using Subject): IO[OrganizationResource]
 
   /**
     * Fetch an organization at the current revision by label.
@@ -168,7 +160,7 @@ object Organizations {
       case (None, _)                                        => None
     }
 
-  private[delta] def evaluate(clock: Clock[IO])(state: Option[OrganizationState], command: OrganizationCommand)(implicit
+  private[delta] def evaluate(clock: Clock[IO])(state: Option[OrganizationState], command: OrganizationCommand)(using
       uuidf: UUIDF
   ): IO[OrganizationEvent] = {
 
@@ -219,8 +211,8 @@ object Organizations {
   /**
     * Entity definition for [[Organization]]
     */
-  def definition(clock: Clock[IO])(implicit
-      uuidf: UUIDF
+  def definition(clock: Clock[IO])(using
+      UUIDF
   ): GlobalEntityDefinition[Label, OrganizationState, OrganizationCommand, OrganizationEvent, OrganizationRejection] =
     GlobalEntityDefinition(
       entityType,

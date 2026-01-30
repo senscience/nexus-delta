@@ -41,28 +41,25 @@ object PropertiesStatistics {
     */
   final case class Metadata(id: Iri, name: String, count: Long)
 
-  implicit private lazy val propertiesEncoder: Encoder.AsObject[PropertiesStatistics] = {
-    implicit val cfg: Configuration = Configuration.default.copy(transformMemberNames = {
+  private given Encoder.AsObject[PropertiesStatistics] = {
+    given Configuration = Configuration.default.copy(transformMemberNames = {
       case "id"  => keywords.id
       case other => s"_$other"
     })
 
-    implicit val metadataEncoder: Encoder.AsObject[Metadata] = deriveConfiguredEncoder
+    given Encoder.AsObject[Metadata] = deriveConfiguredEncoder
 
     Encoder.encodeJsonObject.contramapObject { case PropertiesStatistics(metadata, properties) =>
       metadata.asJsonObject.addIfNonEmpty("_properties", properties)
     }
   }
 
-  implicit val propertiesJsonLdEncoder: JsonLdEncoder[PropertiesStatistics] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.properties))
+  given JsonLdEncoder[PropertiesStatistics] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.properties))
 
-  implicit val propertiesStatisticsHttpResponseFields: HttpResponseFields[PropertiesStatistics] =
-    HttpResponseFields.defaultOk
+  given HttpResponseFields[PropertiesStatistics] = HttpResponseFields.defaultOk
 
-  implicit def propertiesDecoderFromEsAggregations(tpe: Iri): Decoder[PropertiesStatistics] = {
-
-    implicit val intOrdering: Ordering[Int] = Ordering.Int.reverse
+  def propertiesDecoderFromEsAggregations(tpe: Iri): Decoder[PropertiesStatistics] = {
+    given Ordering[Int] = Ordering.Int.reverse
 
     @tailrec
     def inner(

@@ -92,18 +92,16 @@ object ResourceRepresentation {
       case other                        => Left(s"$other is not a valid representation")
     }
 
-  implicit final val resourceRepresentationJsonLdDecoder: JsonLdDecoder[ResourceRepresentation] =
+  given JsonLdDecoder[ResourceRepresentation] =
     JsonLdDecoder.stringJsonLdDecoder.andThen { (cursor, str) =>
       parse(str).leftMap(_ => ParsingFailure("Format", str, cursor.history))
     }
 
-  implicit final val resourceRepresentationDecoder: Decoder[ResourceRepresentation] =
+  given Decoder[ResourceRepresentation] =
     Decoder.decodeString.emap(parse)
 
-  implicit final val resourceRepresentationEncoder: Encoder[ResourceRepresentation] =
-    Encoder.encodeString.contramap {
-      _.toString
-    }
+  given Encoder[ResourceRepresentation] =
+    Encoder.encodeString.contramap { _.toString }
 
-  implicit val resourceRepresentationOrder: Order[ResourceRepresentation] = Order.by(_.toString)
+  given Order[ResourceRepresentation] = Order.by(_.toString)
 }

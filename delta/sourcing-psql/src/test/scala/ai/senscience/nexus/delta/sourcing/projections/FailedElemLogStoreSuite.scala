@@ -76,9 +76,7 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
   private def selectById(metadata: ProjectionMetadata) =
     (metadata.project, metadata.resourceId).mapN(ProjectionSelector.ProjectId(_, _))
 
-  private def assertStream(metadata: ProjectionMetadata, offset: Offset, expected: List[FailedElem])(implicit
-      loc: Location
-  ) = {
+  private def assertStream(metadata: ProjectionMetadata, offset: Offset, expected: List[FailedElem])(using Location) = {
     val expectedOffsets = expected.map(_.offset)
     for {
       _ <- store.stream(ProjectionSelector.Name(metadata.name), offset).map(byElemOffset).assertList(expectedOffsets)
@@ -91,7 +89,7 @@ class FailedElemLogStoreSuite extends NexusSuite with MutableClock.Fixture with 
   private def countAndListFor(metadata: ProjectionMetadata, pagination: FromPagination, timeRange: TimeRange)(
       expectedCount: Long,
       expected: FailedElem*
-  )(implicit loc: Location) = {
+  )(using Location) = {
     val byName          = selectByName(metadata)
     val byId            = selectById(metadata)
     val expectedOffsets = expected.map(_.offset).toList

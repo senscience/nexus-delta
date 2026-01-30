@@ -20,11 +20,11 @@ final class CompositeViewsDeletionTask(
     currentViews: ProjectRef => Stream[IO, CompositeViewDef],
     deprecate: (ActiveViewDef, Subject) => IO[Unit]
 ) extends ProjectDeletionTask {
-  override def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage] =
+  override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] =
     logger.info(s"Starting deprecation of composite views for '$project'") >>
       run(project)
 
-  private def run(project: ProjectRef)(implicit subject: Subject) =
+  private def run(project: ProjectRef)(using subject: Subject) =
     currentViews(project)
       .evalScan(init) {
         case (acc, _: DeprecatedViewDef) => IO.pure(acc)
@@ -46,7 +46,7 @@ object CompositeViewsDeletionTask {
       project => views.currentViews(project).map(_.value),
       (v: ActiveViewDef, subject: Subject) =>
         views
-          .internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(subject)
+          .internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(using subject)
           .onError { case r =>
             logger.error(s"Deprecating '$v' resulted in error: '$r'.")
           }

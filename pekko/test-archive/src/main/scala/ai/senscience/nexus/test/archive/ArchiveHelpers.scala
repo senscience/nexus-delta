@@ -18,7 +18,7 @@ import scala.concurrent.duration.*
 
 trait ArchiveHelpers extends ScalaFutures with OptionValues { self: Assertions =>
 
-  implicit class ByteStringMapOps(value: ArchiveContent)(implicit position: Position) {
+  extension (value: ArchiveContent)(using Position) {
     def entryAsJson(path: String): Json = parse(entryAsString(path)) match {
       case Left(value)  => fail(value)
       case Right(value) => value
@@ -33,10 +33,10 @@ trait ArchiveHelpers extends ScalaFutures with OptionValues { self: Assertions =
     }
   }
 
-  def fromZip(byteString: ByteString)(implicit m: Materializer, e: ExecutionContext): ArchiveContent =
+  def fromZip(byteString: ByteString)(using Materializer, ExecutionContext): ArchiveContent =
     fromZip(Source.single(byteString))
 
-  def fromZip(source: Source[ByteString, Any])(implicit m: Materializer, e: ExecutionContext): ArchiveContent = {
+  def fromZip(source: Source[ByteString, Any])(using Materializer, ExecutionContext): ArchiveContent = {
     val path = JFiles.createTempFile("test", ".zip")
 
     val futureContent = source.completionTimeout(10.seconds).runWith(FileIO.toPath(path)).flatMap { _ =>

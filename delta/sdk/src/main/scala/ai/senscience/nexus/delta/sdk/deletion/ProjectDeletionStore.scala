@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.deletion
 
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}

@@ -62,7 +62,7 @@ object FilterBySchema extends PipeDef {
     )
   }
   object FilterBySchemaConfig                             {
-    implicit val filterBySchemaConfigJsonLdDecoder: JsonLdDecoder[FilterBySchemaConfig] = deriveDefaultJsonLdDecoder
+    given JsonLdDecoder[FilterBySchemaConfig] = deriveDefaultJsonLdDecoder
   }
 
   /**

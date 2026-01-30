@@ -5,7 +5,7 @@ import pureconfig.*
 
 trait CredentialsInstances {
 
-  implicit final val basicCredentialsConfigReader: ConfigReader[BasicCredentials] =
+  given ConfigReader[BasicCredentials] =
     ConfigReader.forProduct2[BasicCredentials, String, String]("username", "password")(BasicCredentials(_, _))
 }
 

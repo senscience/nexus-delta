@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.{DependsOn, ReferencedBy}
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tag}
 import cats.effect.IO
@@ -59,7 +59,7 @@ object EntityDependencyStore {
   /**
     * Get direct dependencies for the provided id in the given project
     */
-  def directDependencies[Id](ref: ProjectRef, id: Id, xas: Transactors)(implicit put: Put[Id]): IO[Set[DependsOn]] =
+  def directDependencies[Id](ref: ProjectRef, id: Id, xas: Transactors)(using Put[Id]): IO[Set[DependsOn]] =
     sql"""
          | SELECT target_org, target_project, target_id
          | FROM entity_dependencies
@@ -89,7 +89,7 @@ object EntityDependencyStore {
       .to[Set]
       .transact(xas.read)
 
-  private def recursiveDependencies[Id](ref: ProjectRef, id: Id)(implicit put: Put[Id]) =
+  private def recursiveDependencies[Id](ref: ProjectRef, id: Id)(using Put[Id]) =
     fr"""
          | WITH RECURSIVE recursive_dependencies(org, project, id) AS (
          | SELECT target_org, target_project, target_id
@@ -106,7 +106,7 @@ object EntityDependencyStore {
   /**
     * Get all dependencies for the provided id in the given project
     */
-  def recursiveDependencies[Id](ref: ProjectRef, id: Id, xas: Transactors)(implicit put: Put[Id]): IO[Set[DependsOn]] =
+  def recursiveDependencies[Id](ref: ProjectRef, id: Id, xas: Transactors)(using Put[Id]): IO[Set[DependsOn]] =
     sql"""
          | ${recursiveDependencies(ref, id)}
          | SELECT org, project, id  from recursive_dependencies
@@ -119,10 +119,7 @@ object EntityDependencyStore {
   /**
     * Get and decode latest state values for direct dependencies for the provided id in the given project
     */
-  def decodeDirectDependencies[Id, A](ref: ProjectRef, id: Id, xas: Transactors)(implicit
-      put: Put[Id],
-      decoder: Decoder[A]
-  ): IO[List[A]] =
+  def decodeDirectDependencies[Id: Put, A: Decoder](ref: ProjectRef, id: Id, xas: Transactors): IO[List[A]] =
     sql"""
          | SELECT s.value
          | FROM entity_dependencies d, scoped_states s
@@ -143,10 +140,7 @@ object EntityDependencyStore {
   /**
     * Get and decode latest state values for all dependencies for the provided id in the given project
     */
-  def decodeRecursiveDependencies[Id, A](ref: ProjectRef, id: Id, xas: Transactors)(implicit
-      put: Put[Id],
-      decoder: Decoder[A]
-  ): IO[List[A]] =
+  def decodeRecursiveDependencies[Id: Put, A: Decoder](ref: ProjectRef, id: Id, xas: Transactors): IO[List[A]] =
     sql"""
          | ${recursiveDependencies(ref, id)}
          | SELECT s.value

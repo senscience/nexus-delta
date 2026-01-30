@@ -6,13 +6,12 @@ import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{Agg
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.query as queryPermissions
 import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.rdf.Fixtures.circeLiteralSyntax
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema}
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{*, given}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.{ProjectIsDeprecated, ProjectNotFound}
@@ -30,6 +29,7 @@ import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.data.NonEmptySet
 import cats.effect.IO
 import io.circe.literal.*
+import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
 import munit.Clue.generate
 import org.scalatest.Assertion
@@ -40,8 +40,9 @@ import java.util.UUID
 
 class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures with Fixtures {
 
-  private val realm           = Label.unsafe("myrealm")
-  private given alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val realm                   = Label.unsafe("myrealm")
+  private given aliceSubject: Subject = User("Alice", realm)
+  private given alice: Caller         = Caller(aliceSubject, Set(User("Alice", realm), Group("users", realm)))
 
   private val uuid    = UUID.randomUUID()
   private given UUIDF = UUIDF.fixed(uuid)
@@ -60,8 +61,8 @@ class ElasticSearchViewsSpec extends CatsEffectSpec with DoobieScalaTestFixture 
     val unknownProjectRef    = ProjectRef(org, Label.unsafe("xxx"))
 
     val indexDef = ElasticsearchIndexDef.fromJson(
-      jobj"""{ "dynamic": false }""",
-      Some(jobj"""{ "analysis": { } }""")
+      JsonObject("dynamic" := false),
+      Some(JsonObject("analysis" := JsonObject.empty))
     )
     val mapping  = indexDef.mappings.value
     val settings = indexDef.settings.value

@@ -30,19 +30,18 @@ object JWSError {
 
   case object JWSSignatureExpired extends JWSError("The payload expired")
 
-  implicit val jwsErrorHttpResponseFields: HttpResponseFields[JWSError] = HttpResponseFields.fromStatusAndHeaders {
+  given HttpResponseFields[JWSError] = HttpResponseFields.fromStatusAndHeaders {
     case InvalidJWSPayload   => (StatusCodes.BadRequest, Seq.empty)
     case JWSSignatureExpired => (StatusCodes.Forbidden, Seq.empty)
     case UnconfiguredJWS     => (StatusCodes.InternalServerError, Seq.empty)
   }
 
-  implicit val jwsErrorEncoder: Encoder.AsObject[JWSError] =
+  given Encoder.AsObject[JWSError] =
     Encoder.AsObject.instance { e =>
       val tpe = ClassUtils.simpleName(e)
       JsonObject(keywords.tpe := tpe, "reason" := e.reason)
     }
 
-  implicit final val jwsErrorJsonLdEncoder: JsonLdEncoder[JWSError] =
-    JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.error))
+  given JsonLdEncoder[JWSError] = JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.error))
 
 }

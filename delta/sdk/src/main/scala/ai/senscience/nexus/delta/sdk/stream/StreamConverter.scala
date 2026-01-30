@@ -61,17 +61,16 @@ object StreamConverter {
     }
 
     PekkoSource
-      .fromGraph(GraphDSL.createGraph(source) { implicit builder => source =>
+      .fromGraph(GraphDSL.createGraph(source) { builder => source =>
         import GraphDSL.Implicits.*
+        given GraphDSL.Builder[SourceQueueWithComplete[A]] = builder
         builder.materializedValue ~> sink
         SourceShape(source.out)
       })
       .mapMaterializedValue(_ => NotUsed)
   }
 
-  def apply[A](
-      source: Graph[SourceShape[A], NotUsed]
-  )(implicit materializer: Materializer): Stream[IO, A] =
+  def apply[A](source: Graph[SourceShape[A], NotUsed])(using Materializer): Stream[IO, A] =
     Stream.force {
       IO.delay {
         val subscriber = PekkoSource.fromGraph(source).toMat(PekkoSink.queue[A]())(Keep.right).run()

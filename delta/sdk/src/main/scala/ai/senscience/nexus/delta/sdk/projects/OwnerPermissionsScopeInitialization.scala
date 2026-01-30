@@ -72,7 +72,7 @@ object OwnerPermissionsScopeInitialization {
       ownerPermissions: Set[Permission],
       serviceAccount: ServiceAccount
   )(using Tracer[IO]): OwnerPermissionsScopeInitialization = {
-    implicit val serviceAccountSubject: Subject = serviceAccount.subject
+    given Subject = serviceAccount.subject
     new OwnerPermissionsScopeInitialization(acls.append(_, 0).void, ownerPermissions)
   }
 }

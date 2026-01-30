@@ -2,7 +2,6 @@ package ai.senscience.nexus.delta.sdk.permissions
 
 import ai.senscience.nexus.delta.sdk.generators.PermissionsGen
 import ai.senscience.nexus.delta.sdk.generators.PermissionsGen.minimum
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.permissions.model.PermissionsRejection.{CannotAppendEmptyCollection, CannotDeleteMinimumCollection, CannotReplaceWithEmptyCollection, CannotSubtractEmptyCollection, CannotSubtractFromMinimumCollection, CannotSubtractUndefinedPermissions, IncorrectRev, RevisionNotFound}
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
@@ -17,9 +16,7 @@ import scala.concurrent.duration.*
 
 class PermissionsImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with CancelAfterFailure {
 
-  implicit def subject: Subject = Identity.User("user", Label.unsafe("realm"))
-
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
 
   private val eventLogConfig = EventLogConfig(QueryConfig(5, RefreshStrategy.Delay(100.millis)), 100.millis)
 

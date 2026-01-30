@@ -62,13 +62,13 @@ class ResourcesTrialRoutesSpec extends BaseRouteSpec with ResourceInstanceFixtur
   private val expectedError = ReservedResourceId(nxv + "invalid")
 
   private val resourcesTrial = new ResourcesTrial {
-    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(implicit
-        caller: Caller
+    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using
+        Caller
     ): IO[ResourceGenerationResult] =
       generate(source, None)
 
-    override def generate(project: ProjectRef, schema: ResourceF[Schema], source: NexusSource)(implicit
-        caller: Caller
+    override def generate(project: ProjectRef, schema: ResourceF[Schema], source: NexusSource)(using
+        Caller
     ): IO[ResourceGenerationResult] =
       generate(source, Some(schema))
 
@@ -81,8 +81,8 @@ class ResourcesTrialRoutesSpec extends BaseRouteSpec with ResourceInstanceFixtur
         }
       }
 
-    override def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(implicit
-        caller: Caller
+    override def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using
+        Caller
     ): IO[ValidationResult] =
       (id.value, schemaOpt) match {
         // Returns a validated result for myId when no schema is provided

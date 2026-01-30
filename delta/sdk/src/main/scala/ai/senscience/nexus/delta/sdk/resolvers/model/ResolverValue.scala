@@ -125,7 +125,7 @@ object ResolverValue {
     *   the value to encode as Json
     */
   def generateSource(id: Iri, resolverValue: ResolverValue): Json = {
-    implicit val identityEncoder: Encoder[Identity] = Identity.Database.identityCodec
+    given Encoder[Identity] = Identity.Database.identityCodec
     resolverValue.asJson
       .deepMerge(
         Json.obj(
@@ -136,9 +136,7 @@ object ResolverValue {
       .deepDropNullValues
   }
 
-  implicit private[resolvers] def resolverValueEncoder(implicit
-      identityEncoder: Encoder[Identity]
-  ): Encoder.AsObject[ResolverValue] =
+  private[resolvers] given resolverValueEncoder: Encoder[Identity] => Encoder.AsObject[ResolverValue] =
     Encoder.AsObject.instance {
       case InProjectValue(name, description, priority)                                                 =>
         JsonObject(
@@ -173,13 +171,13 @@ object ResolverValue {
       identities: Option[Set[Identity]]
   ) extends Resolver
 
-  implicit val resolverValueJsonLdDecoder: JsonLdDecoder[ResolverValue] = {
-    implicit val config: JsonLdConfiguration              = JsonLdConfiguration.default
-    implicit val identityDecoder: JsonLdDecoder[Identity] = deriveConfigJsonLdDecoder[Identity]
+  given JsonLdDecoder[ResolverValue] = {
+    given JsonLdConfiguration     = JsonLdConfiguration.default
+    given JsonLdDecoder[Identity] = deriveConfigJsonLdDecoder[Identity]
       .or(deriveConfigJsonLdDecoder[User].asInstanceOf[JsonLdDecoder[Identity]])
       .or(deriveConfigJsonLdDecoder[Group].asInstanceOf[JsonLdDecoder[Identity]])
       .or(deriveConfigJsonLdDecoder[Authenticated].asInstanceOf[JsonLdDecoder[Identity]])
-    val resolverDecoder                                   = deriveConfigJsonLdDecoder[Resolver]
+    val resolverDecoder           = deriveConfigJsonLdDecoder[Resolver]
 
     (cursor: ExpandedJsonLdCursor) =>
       resolverDecoder(cursor).flatMap {

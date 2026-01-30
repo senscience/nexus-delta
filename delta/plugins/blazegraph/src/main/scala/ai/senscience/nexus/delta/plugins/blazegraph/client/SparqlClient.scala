@@ -161,14 +161,14 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       q: SparqlQuery,
       mediaTypes: NonEmptyList[MediaType],
       additionalHeaders: Seq[Header.ToRaw]
-  )(implicit entityDecoder: EntityDecoder[IO, A], classTag: ClassTag[A]): IO[A]
+  )(using EntityDecoder[IO, A], ClassTag[A]): IO[A]
 
   private def sparqlResultsResponse(
       namespace: Iterable[String],
       q: SparqlQuery,
       additionalHeaders: Seq[Header.ToRaw]
   ): IO[SparqlResultsResponse] = {
-    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
     namespace.toList
       .foldLeftM(SparqlResults.empty) { (results, namespace) =>
         queryRequest[SparqlResults](namespace, q, SparqlResultsJson.mediaTypes, additionalHeaders)
@@ -206,7 +206,7 @@ trait SparqlClient extends SparqlQueryClient with XmlSupport {
       q: SparqlQuery,
       additionalHeaders: Seq[Header.ToRaw]
   ): IO[SparqlJsonLdResponse] = {
-    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+    import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
     namespaces.toList
       .foldLeftM(Vector.empty[Json]) { (results, namespace) =>
         queryRequest[Json](namespace, q, SparqlJsonLd.mediaTypes, additionalHeaders)

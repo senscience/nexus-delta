@@ -15,6 +15,5 @@ import scala.concurrent.duration.FiniteDuration
 final case class EphemeralLogConfig(maxDuration: FiniteDuration, ttl: FiniteDuration)
 
 object EphemeralLogConfig {
-  implicit final val ephemeralLogConfig: ConfigReader[EphemeralLogConfig] =
-    deriveReader[EphemeralLogConfig]
+  given ConfigReader[EphemeralLogConfig] = deriveReader[EphemeralLogConfig]
 }

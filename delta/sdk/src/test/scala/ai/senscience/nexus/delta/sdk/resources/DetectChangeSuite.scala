@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.sdk.resources
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
@@ -14,8 +13,6 @@ import io.circe.syntax.KeyOps
 import io.circe.{Json, JsonObject}
 
 class DetectChangeSuite extends NexusSuite {
-
-  implicit val jsonLdApi: JsonLdApi = TitaniumJsonLdApi.lenient
 
   private val id = nxv + "id"
 

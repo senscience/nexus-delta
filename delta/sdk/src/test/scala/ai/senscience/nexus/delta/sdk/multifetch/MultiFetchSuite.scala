@@ -19,8 +19,8 @@ import cats.effect.IO
 
 class MultiFetchSuite extends NexusSuite with Fixtures {
 
-  implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
-  implicit private val caller: Caller   = Caller(subject)
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given caller: Caller   = Caller(subject)
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")

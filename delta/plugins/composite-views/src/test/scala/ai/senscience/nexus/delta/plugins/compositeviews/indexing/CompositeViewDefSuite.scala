@@ -21,9 +21,9 @@ import scala.concurrent.duration.*
 
 class CompositeViewDefSuite extends NexusSuite with CompositeViewsFixture {
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(1.second, 50.millis)
+  private given PatienceConfig = PatienceConfig(1.second, 50.millis)
 
-  private val sleep = IO.sleep(50.millis)
+  private val sleep = IO.sleep(100.millis)
 
   test("Compile correctly the source") {
 

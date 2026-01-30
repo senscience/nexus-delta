@@ -19,11 +19,11 @@ final class BlazegraphDeletionTask(
     deprecate: (ActiveViewDef, Subject) => IO[Unit]
 ) extends ProjectDeletionTask {
 
-  override def apply(project: ProjectRef)(implicit subject: Subject): IO[ProjectDeletionReport.Stage] =
+  override def apply(project: ProjectRef)(using Subject): IO[ProjectDeletionReport.Stage] =
     logger.info(s"Starting deprecation of Blazegraph views for '$project'") >>
       run(project)
 
-  private def run(project: ProjectRef)(implicit subject: Subject) =
+  private def run(project: ProjectRef)(using subject: Subject) =
     currentViews
       .stream(project)
       .evalScan(init) { case (acc, view) =>
@@ -43,7 +43,7 @@ object BlazegraphDeletionTask {
     new BlazegraphDeletionTask(
       currentViews,
       (v: ActiveViewDef, subject: Subject) =>
-        views.internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(subject).handleErrorWith { r =>
+        views.internalDeprecate(v.ref.viewId, v.ref.project, v.rev)(using subject).handleErrorWith { r =>
           logger.error(s"Deprecating '$v' resulted in error: '$r'.")
         }
     )

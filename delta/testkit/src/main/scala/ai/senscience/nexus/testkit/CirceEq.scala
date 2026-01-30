@@ -21,7 +21,7 @@ trait CirceEq {
   })
 
   def arrayThatContains(expectedValue: Json): BeMatcher[Json] = (left: Json) => {
-    implicit val jsonEq: Eq[Json] = ignoreJsonKeyOrderEq
+    given Eq[Json] = ignoreJsonKeyOrderEq
     MatchResult(
       left.asArray.exists(arr => arr.exists(_ === expectedValue)),
       s"Json $left was not an array containing $expectedValue",
@@ -32,14 +32,12 @@ trait CirceEq {
 
 object CirceEq {
 
-  val ignoreJsonKeyOrderEq: Eq[Json] = new Eq[Json] {
-    implicit private val printer: Printer = Printer.spaces2.copy(dropNullValues = true)
+  private val printer: Printer = Printer.spaces2.copy(dropNullValues = true)
 
-    override def eqv(left: Json, right: Json): Boolean = {
-      val leftSorted  = sortKeys(left)
-      val rightSorted = sortKeys(right)
-      leftSorted == rightSorted || printer.print(leftSorted) == printer.print(rightSorted)
-    }
+  val ignoreJsonKeyOrderEq: Eq[Json] = (left: Json, right: Json) => {
+    val leftSorted  = sortKeys(left)
+    val rightSorted = sortKeys(right)
+    leftSorted == rightSorted || printer.print(leftSorted) == printer.print(rightSorted)
   }
 
   private def sortKeys(value: Json): Json = {
@@ -57,7 +55,6 @@ object CirceEq {
   }
 
   final case class IgnoredArrayOrder(json: Json) extends Matcher[Json] {
-    implicit private val printer: Printer = Printer.spaces2.copy(dropNullValues = true)
 
     override def apply(left: Json): MatchResult = {
       val leftSorted  = sortKeys(left)

@@ -33,8 +33,8 @@ class ResolverContextResolutionSuite extends NexusSuite {
   val rcr: RemoteContextResolution =
     RemoteContextResolution.fixed(contexts.metadata -> metadataContext)
 
-  private val alice                = User("alice", Label.unsafe("wonderland"))
-  implicit val aliceCaller: Caller = Caller(alice, Set(alice))
+  private val alice    = User("alice", Label.unsafe("wonderland"))
+  private given Caller = Caller(alice, Set(alice))
 
   private val project = ProjectRef.unsafe("org", "project")
 

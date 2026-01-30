@@ -4,10 +4,9 @@ import ai.senscience.nexus.delta.elasticsearch.client.{ElasticsearchMappings, El
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.{AggregateElasticSearchViewValue, IndexingElasticSearchViewValue}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.rdf.Fixtures.circeLiteralSyntax
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdRejection.{DecodingFailed, InvalidJsonLdFormat, UnexpectedId}
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -36,17 +35,15 @@ class ElasticSearchViewDecodingSpec extends CatsEffectSpec with Fixtures {
     enforceSchema = false
   )
 
-  implicit private val uuidF: UUIDF = UUIDF.fixed(UUID.randomUUID())
+  private given uuidF: UUIDF                               = UUIDF.fixed(UUID.randomUUID())
+  private given resolverContext: ResolverContextResolution = ResolverContextResolution(rcr)
+  private given caller: Caller                             = Caller.Anonymous
 
-  implicit private val resolverContext: ResolverContextResolution = ResolverContextResolution(rcr)
-
-  implicit private val caller: Caller = Caller.Anonymous
-  private val decoder                 =
-    ElasticSearchViewJsonLdSourceDecoder(uuidF, resolverContext).unsafeRunSync()
+  private val decoder = ElasticSearchViewJsonLdSourceDecoder(uuidF, resolverContext).unsafeRunSync()
 
   "An IndexingElasticSearchViewValue" should {
-    val mapping  = ElasticsearchMappings(jobj"""{ "dynamic": false }""")
-    val settings = ElasticsearchSettings(jobj"""{ "analysis": { } }""")
+    val mapping  = ElasticsearchMappings(JsonObject("dynamic" := false))
+    val settings = ElasticsearchSettings(JsonObject("analysis" := JsonObject.empty))
 
     val indexingView = IndexingElasticSearchViewValue(
       resourceTag = None,

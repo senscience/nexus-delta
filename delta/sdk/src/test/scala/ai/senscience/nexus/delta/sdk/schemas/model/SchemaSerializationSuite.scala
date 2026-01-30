@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.schemas.model
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
-import ai.senscience.nexus.delta.rdf.syntax.jsonOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.SerializationSuite
 import ai.senscience.nexus.delta.sdk.generators.SchemaGen
 import ai.senscience.nexus.delta.sdk.schemas.model.SchemaEvent.*

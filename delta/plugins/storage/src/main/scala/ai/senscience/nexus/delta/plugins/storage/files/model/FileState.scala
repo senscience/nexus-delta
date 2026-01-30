@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.storage.files.model
 import ai.senscience.nexus.delta.plugins.storage.files.{nxvFile, schemas, FileResource}
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sourcing.Serializer
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -91,7 +91,7 @@ final case class FileState(
 
 object FileState {
 
-  implicit val serializer: Serializer[Iri, FileState] = {
+  given serializer: Serializer[Iri, FileState] = {
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given configuration: Configuration   = Serializer.circeConfiguration.withDefaults
     given Codec.AsObject[Digest]         = deriveConfiguredCodec[Digest]

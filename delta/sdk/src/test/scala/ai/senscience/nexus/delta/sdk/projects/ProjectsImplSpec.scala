@@ -24,10 +24,10 @@ import java.util.UUID
 
 class ProjectsImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with ConfigFixtures {
 
-  implicit private val subject: Subject = Identity.User("user", Label.unsafe("realm"))
+  private given subject: Subject = Identity.User("user", Label.unsafe("realm"))
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val orgUuid = UUID.randomUUID()
 
@@ -87,7 +87,7 @@ class ProjectsImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with C
 
     "create another project" in {
       val p       = payload.copy(description = Some("Another project"))
-      val project = projects.create(anotherRef, p)(Identity.Anonymous).accepted
+      val project = projects.create(anotherRef, p)(using Identity.Anonymous).accepted
       project.rev shouldEqual 1
     }
 
@@ -236,18 +236,17 @@ class ProjectsImplSpec extends CatsEffectSpec with DoobieScalaTestFixture with C
 
       val initializerWasExecuted = Ref.unsafe[IO, Boolean](false)
       val projectInitializer     = new ScopeInitializer {
-        override def initializeOrganization(organizationResource: OrganizationResource)(implicit
-            caller: Subject
-        ): IO[Unit] = IO.unit
+        override def initializeOrganization(organizationResource: OrganizationResource)(using Subject): IO[Unit] =
+          IO.unit
 
-        override def initializeProject(project: ProjectRef)(implicit caller: Subject): IO[Unit] =
+        override def initializeProject(project: ProjectRef)(using Subject): IO[Unit] =
           initializerWasExecuted.set(true)
       }
       // format: off
       val projects = ProjectsImpl(fetchOrg,onCreate, validateDeletion, projectInitializer, defaultApiMappings, eventLogConfig, xas, clock)
       // format: on
 
-      projects.create(projectRef, payload)(Identity.Anonymous).accepted
+      projects.create(projectRef, payload)(using Identity.Anonymous).accepted
       initializerWasExecuted.get.accepted shouldEqual true
       createProjects.get.accepted should contain(projectRef)
     }

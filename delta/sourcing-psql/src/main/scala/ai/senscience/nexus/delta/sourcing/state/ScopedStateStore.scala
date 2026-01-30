@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.state
 import ai.senscience.nexus.delta.kernel.error.ThrowableValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -134,10 +134,10 @@ object ScopedStateStore {
       config: QueryConfig,
       xas: Transactors
   ): ScopedStateStore[Id, S] = new ScopedStateStore[Id, S] {
-    implicit val putId: Put[Id]      = serializer.putId
-    implicit val getValue: Get[S]    = serializer.getValue
-    implicit val putValue: Put[S]    = serializer.putValue
-    implicit val decoder: Decoder[S] = serializer.codec
+    private given Put[Id]    = serializer.putId
+    private given Get[S]     = serializer.getValue
+    private given Put[S]     = serializer.putValue
+    private given Decoder[S] = serializer.codec
 
     override def save(state: S, tag: Tag): doobie.ConnectionIO[Unit] =
       sql"SELECT 1 FROM scoped_states WHERE type = $tpe AND org = ${state.organization} AND project = ${state.project.project}  AND id = ${state.id} AND tag = $tag"

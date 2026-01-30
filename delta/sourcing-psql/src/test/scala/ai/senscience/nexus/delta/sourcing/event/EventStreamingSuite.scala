@@ -60,7 +60,7 @@ class EventStreamingSuite extends NexusSuite with Doobie.Fixture with Doobie.Ass
 
   private val prDecoder: Decoder[IdRev] = PullRequestEvent.serializer.codec.map { e => IdRev(e.id, e.rev) }
 
-  implicit private val multiDecoder: MultiDecoder[IdRev] =
+  private given MultiDecoder[IdRev] =
     MultiDecoder(PullRequest.entityType -> prDecoder, EntityType("github") -> prDecoder)
 
   test("Save events") {

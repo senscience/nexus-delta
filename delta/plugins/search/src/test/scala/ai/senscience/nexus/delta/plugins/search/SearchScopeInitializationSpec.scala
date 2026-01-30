@@ -26,12 +26,12 @@ class SearchScopeInitializationSpec
     with CompositeViewsFixture
     with Fixtures {
 
-  implicit val baseUri: BaseUri = BaseUri.withoutPrefix(uri"http://localhost")
+  private given BaseUri = BaseUri.withoutPrefix(uri"http://localhost")
 
-  private val saRealm: Label              = Label.unsafe("service-accounts")
-  private val usersRealm: Label           = Label.unsafe("users")
-  implicit private val sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
-  implicit private val bob: Subject       = User("bob", usersRealm)
+  private val saRealm: Label       = Label.unsafe("service-accounts")
+  private val usersRealm: Label    = Label.unsafe("users")
+  private given sa: ServiceAccount = ServiceAccount(User("nexus-sa", saRealm))
+  private given bob: Subject       = User("bob", usersRealm)
 
   private val fetchContext               = FetchContextDummy(List(project))
   private lazy val views: CompositeViews = CompositeViews(

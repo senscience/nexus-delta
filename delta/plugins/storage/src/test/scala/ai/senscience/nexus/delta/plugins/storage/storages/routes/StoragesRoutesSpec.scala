@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
@@ -39,8 +39,9 @@ class StoragesRoutesSpec
     with StorageFixtures
     with UUIDFFixtures.Random {
 
-  implicit override def rcr: RemoteContextResolution =
-    loadCoreContexts(storageContexts.definition ++ fileContexts.definition)
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(
+    storageContexts.definition ++ fileContexts.definition
+  )
 
   private val serviceAccount: ServiceAccount = ServiceAccount(User("nexus-sa", Label.unsafe("sa")))
 

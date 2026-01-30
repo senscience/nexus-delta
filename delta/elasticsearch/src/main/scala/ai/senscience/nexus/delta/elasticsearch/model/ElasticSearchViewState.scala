@@ -132,7 +132,7 @@ final case class ElasticSearchViewState(
 object ElasticSearchViewState {
 
   val serializer: Serializer[Iri, ElasticSearchViewState] = {
-    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Database.*
+    import ai.senscience.nexus.delta.elasticsearch.model.ElasticSearchViewValue.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration                          = Serializer.circeConfiguration
     given Codec.AsObject[ElasticSearchViewState] = deriveConfiguredCodec[ElasticSearchViewState]

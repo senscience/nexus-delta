@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.routes
 import ai.senscience.nexus.delta.elasticsearch.metrics.FetchHistory
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.IriOrBNode
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources

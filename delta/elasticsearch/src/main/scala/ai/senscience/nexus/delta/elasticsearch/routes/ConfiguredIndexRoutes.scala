@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -44,7 +43,7 @@ final class ConfiguredIndexRoutes(
   private def route =
     pathPrefix("index") {
       pathPrefix("configured") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
@@ -86,7 +85,7 @@ final class ConfiguredIndexRoutes(
                         },
                         // Remove an configured index offset (restart it)
                         (delete & authorizeWrite & offset("from")) { fromOffset =>
-                          projectionDirectives.scheduleRestart(projection, fromOffset)
+                          projectionDirectives.scheduleRestart(projection, fromOffset)(using caller.subject)
                         }
                       )
                     }

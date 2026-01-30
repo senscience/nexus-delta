@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.sdk.projects
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema, xsd}
 import ai.senscience.nexus.delta.sdk.generators.{OrganizationGen, ProjectGen}
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.{OrganizationIsDeprecated, OrganizationNotFound}
 import ai.senscience.nexus.delta.sdk.projects.Projects.evaluate
@@ -20,8 +19,6 @@ import cats.effect.{IO, Ref}
 import java.time.Instant
 
 class ProjectsSpec extends CatsEffectSpec {
-
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   "The Projects state machine" when {
     val epoch                         = Instant.EPOCH
@@ -70,7 +67,7 @@ class ProjectsSpec extends CatsEffectSpec {
       case _      => IO.raiseError(new IllegalArgumentException(s"Only '$ref' and '$ref2' are expected here"))
     }
 
-    implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+    given UUIDF = UUIDF.fixed(uuid)
 
     "evaluating an incoming command" should {
 

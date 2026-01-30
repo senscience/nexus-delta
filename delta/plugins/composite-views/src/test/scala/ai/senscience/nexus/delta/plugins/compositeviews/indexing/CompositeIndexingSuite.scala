@@ -29,7 +29,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sdk.views.{IndexingRev, ViewRef}
@@ -143,7 +143,7 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
 
   // Transforming data as elems
   private def elem[A <: Music](project: ProjectRef, value: A, offset: Long, deprecated: Boolean = false, rev: Int = 1)(
-      implicit jsonldEncoder: JsonLdEncoder[A]
+      using jsonldEncoder: JsonLdEncoder[A]
   ): IO[SuccessElem[GraphResource]] = {
     for {
       graph     <- jsonldEncoder.graph(value)
@@ -507,7 +507,7 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     val elasticIndex    = projectionIndex(elasticSearchProjection, uuid, prefix)
     val sparqlNamespace = projectionNamespace(blazegraphProjection, uuid, prefix)
 
-    implicit def mapSemigroup[A, B]: Semigroup[Map[A, B]] = (x: Map[A, B], y: Map[A, B]) => x ++ y
+    given [A, B] => Semigroup[Map[A, B]] = (x: Map[A, B], y: Map[A, B]) => x ++ y
 
     val expectedProgress = CompositeProgress(
       NonEmptyList.of(Main, Rebuild).reduceMap { run =>
@@ -549,7 +549,7 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
       _ <- rebuildCompleted.get.map(_.get(project2)).assertEquals(Some(1)).eventually
       _ <- rebuildCompleted.get.map(_.get(project3)).assertEquals(Some(1)).eventually
       _ <- checkIndexingState
-      _ <- projections.scheduleFullRestart(viewRef)(Anonymous)
+      _ <- projections.scheduleFullRestart(viewRef)(using Anonymous)
       _ <- mainCompleted.get.map(_.get(project1)).assertEquals(Some(2)).eventually
       _ <- mainCompleted.get.map(_.get(project2)).assertEquals(Some(2)).eventually
       _ <- mainCompleted.get.map(_.get(project3)).assertEquals(Some(2)).eventually
@@ -616,7 +616,7 @@ object CompositeIndexingSuite {
 
   private val ctxIri = ContextValue(iri"http://music.com/context")
 
-  implicit val config: Configuration = Configuration.default.copy(
+  given Configuration = Configuration.default.copy(
     transformMemberNames = {
       case "id"  => keywords.id
       case other => other
@@ -645,10 +645,9 @@ object CompositeIndexingSuite {
   }
 
   object Band {
-    implicit val bandEncoder: Encoder.AsObject[Band]    =
+    given Encoder.AsObject[Band] =
       deriveConfiguredEncoder[Band].mapJsonObject(_.add("@type", "Band".asJson))
-    implicit val bandJsonLdEncoder: JsonLdEncoder[Band] =
-      JsonLdEncoder.computeFromCirce((b: Band) => b.id, ctxIri)
+    given JsonLdEncoder[Band]    = JsonLdEncoder.computeFromCirce((b: Band) => b.id, ctxIri)
   }
 
   final case class Album(id: Iri, title: String, by: Iri) extends Music {
@@ -657,17 +656,17 @@ object CompositeIndexingSuite {
   }
 
   object Album {
-    implicit val albumEncoder: Encoder.AsObject[Album]    =
+    given Encoder.AsObject[Album] =
       deriveConfiguredEncoder[Album].mapJsonObject(_.add("@type", "Album".asJson))
-    implicit val albumJsonLdEncoder: JsonLdEncoder[Album] =
+    given JsonLdEncoder[Album]    =
       JsonLdEncoder.computeFromCirce((b: Album) => b.id, ctxIri)
   }
 
   final case class Metadata(uuid: UUID)
 
   object Metadata {
-    implicit private val encoderMetadata: Encoder.AsObject[Metadata] = deriveEncoder
-    implicit val jsonLdEncoderMetadata: JsonLdEncoder[Metadata]      = JsonLdEncoder.computeFromCirce(ctxIri)
+    given Encoder.AsObject[Metadata] = deriveEncoder
+    given JsonLdEncoder[Metadata]    = JsonLdEncoder.computeFromCirce(ctxIri)
   }
 
 }

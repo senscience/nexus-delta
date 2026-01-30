@@ -13,7 +13,7 @@ class S3StorageAccessSuite extends NexusSuite with LocalStackS3StorageClient.Fix
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(localStackS3Client)
 
-  implicit private lazy val (s3Client: S3StorageClient, underlying: S3AsyncClientOp[IO], _: S3StorageConfig) =
+  private lazy val (s3Client: S3StorageClient, underlying: S3AsyncClientOp[IO], _: S3StorageConfig) =
     localStackS3Client()
 
   private lazy val s3Access = S3StorageAccess(s3Client)
@@ -21,7 +21,7 @@ class S3StorageAccessSuite extends NexusSuite with LocalStackS3StorageClient.Fix
   test("Succeed for an existing bucket") {
     givenAnS3Bucket { bucket =>
       s3Access.checkBucketExists(bucket)
-    }
+    }(using s3Client, underlying)
   }
 
   test("Fail when a bucket doesn't exist") {

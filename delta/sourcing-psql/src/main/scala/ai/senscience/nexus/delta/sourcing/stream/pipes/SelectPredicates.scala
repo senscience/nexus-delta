@@ -76,6 +76,6 @@ object SelectPredicates extends PipeDef {
     private def toJson(set: Set[Iri]) = Json.fromValues(set.map(iri => Json.obj("@id" -> iri.asJson)))
   }
   object SelectPredicatesConfig                                                                 {
-    implicit val selectPredicatesConfigJsonLdDecoder: JsonLdDecoder[SelectPredicatesConfig] = deriveDefaultJsonLdDecoder
+    given JsonLdDecoder[SelectPredicatesConfig] = deriveDefaultJsonLdDecoder
   }
 }

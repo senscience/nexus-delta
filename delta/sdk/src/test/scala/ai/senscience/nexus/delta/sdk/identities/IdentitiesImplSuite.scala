@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.kernel.jwt.TokenRejection.*
 import ai.senscience.nexus.delta.kernel.jwt.{AuthToken, ParsedToken}
 import ai.senscience.nexus.delta.sdk.generators.{RealmGen, WellKnownGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.realms.model.Realm
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Authenticated, Group, Role, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.testkit.jwt.TokenGenerator
@@ -15,7 +14,7 @@ import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import com.nimbusds.jwt.{JWTClaimsSet, PlainJWT}
-import io.circe.{parser, Json}
+import io.circe.parser
 import org.http4s.Uri
 
 import java.time.Instant

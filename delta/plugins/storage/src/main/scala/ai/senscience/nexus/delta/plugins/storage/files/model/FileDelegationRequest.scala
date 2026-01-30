@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugins.storage.files.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import io.circe.Codec
@@ -32,7 +32,7 @@ object FileDelegationRequest {
       tag: Option[UserTag]
   ) extends FileDelegationRequest
 
-  implicit private val config: Configuration                           = Configuration.default.withDiscriminator("@type")
-  implicit val targetLocationodec: Codec[TargetLocation]               = deriveConfiguredCodec
-  implicit val fileDelegationRequestodec: Codec[FileDelegationRequest] = deriveConfiguredCodec
+  private given Configuration        = Configuration.default.withDiscriminator("@type")
+  given Codec[TargetLocation]        = deriveConfiguredCodec
+  given Codec[FileDelegationRequest] = deriveConfiguredCodec
 }

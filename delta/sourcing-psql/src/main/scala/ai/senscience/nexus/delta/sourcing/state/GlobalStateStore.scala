@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.state
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.{RefreshStrategy, StreamingQuery}
@@ -64,9 +64,9 @@ object GlobalStateStore {
       config: QueryConfig,
       xas: Transactors
   ): GlobalStateStore[Id, S] = new GlobalStateStore[Id, S] {
-    implicit val putId: Put[Id]   = serializer.putId
-    implicit val getValue: Get[S] = serializer.getValue
-    implicit val putValue: Put[S] = serializer.putValue
+    private given Put[Id] = serializer.putId
+    private given Get[S]  = serializer.getValue
+    private given Put[S]  = serializer.putValue
 
     override def save(state: S): ConnectionIO[Unit] = {
       sql"SELECT 1 FROM global_states WHERE type = $tpe AND id = ${state.id}"

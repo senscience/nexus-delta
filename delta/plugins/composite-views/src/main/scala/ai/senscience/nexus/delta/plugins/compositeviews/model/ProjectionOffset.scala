@@ -18,9 +18,7 @@ import io.circe.generic.semiauto.deriveEncoder
 final case class ProjectionOffset(sourceId: Iri, projectionId: Iri, offset: Offset)
 
 object ProjectionOffset {
-  implicit val projectionOffsetOrdering: Ordering[ProjectionOffset] =
+  given Ordering[ProjectionOffset]         =
     Ordering.by[ProjectionOffset, String](_.sourceId.toString).orElseBy(_.projectionId.toString)
-
-  implicit val projectionOffsetEncoder: Encoder.AsObject[ProjectionOffset] = deriveEncoder[ProjectionOffset]
-
+  given Encoder.AsObject[ProjectionOffset] = deriveEncoder[ProjectionOffset]
 }

@@ -16,7 +16,7 @@ import scala.concurrent.duration.FiniteDuration
 final case class QueryConfig(batchSize: Int, refreshStrategy: RefreshStrategy)
 
 object QueryConfig {
-  implicit final val queryConfig: ConfigReader[QueryConfig] =
+  given ConfigReader[QueryConfig] =
     ConfigReader.fromCursor { cursor =>
       for {
         obj             <- cursor.asObjectCursor

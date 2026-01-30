@@ -87,7 +87,7 @@ final case class AclState(
 object AclState {
 
   val serializer: Serializer[AclAddress, AclState] = {
-    import Acl.Database.*
+    import Acl.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration            = Serializer.circeConfiguration
     given Codec.AsObject[AclState] = Codec.AsObject.from(

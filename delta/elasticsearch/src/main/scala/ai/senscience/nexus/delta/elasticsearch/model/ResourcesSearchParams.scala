@@ -9,6 +9,9 @@ import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.stream.Materializer
+
+import scala.concurrent.ExecutionContext
 
 /**
   * Search parameters for any generic resource type.
@@ -113,14 +116,18 @@ object ResourcesSearchParams {
     }
 
     def typeFromStringUnmarshaller(pc: Option[ProjectContext]): Unmarshaller[String, Type] = {
-      val unmarshaller = pc.fold(iriFromStringUnmarshaller)(pc => iriUnmarshaller(pc).map(_.value))
-      Unmarshaller.withMaterializer[String, Type](implicit ec =>
-        implicit mt => {
-          case str if str.startsWith("-") => unmarshaller.apply(str.drop(1)).map(ExcludedType(_))
-          case str if str.startsWith("+") => unmarshaller.apply(str.drop(1)).map(IncludedType(_))
-          case str                        => unmarshaller.apply(str).map(IncludedType(_))
+      val unmarshaller = pc.fold(iriFromStringUnmarshaller)(pc => iriUnmarshaller(using pc).map(_.value))
+      Unmarshaller.withMaterializer[String, Type] { ec => mt => str =>
+        {
+          given ExecutionContext = ec
+          given Materializer     = mt
+          str match {
+            case str if str.startsWith("-") => unmarshaller.apply(str.drop(1)).map(ExcludedType(_))
+            case str if str.startsWith("+") => unmarshaller.apply(str.drop(1)).map(IncludedType(_))
+            case str                        => unmarshaller.apply(str).map(IncludedType(_))
+          }
         }
-      )
+      }
     }
   }
 

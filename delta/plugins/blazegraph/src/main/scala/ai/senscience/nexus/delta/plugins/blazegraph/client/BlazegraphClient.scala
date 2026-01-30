@@ -67,15 +67,15 @@ final class BlazegraphClient(
       q: SparqlQuery,
       mediaTypes: NonEmptyList[MediaType],
       additionalHeaders: Seq[Header.ToRaw]
-  )(implicit entityDecoder: EntityDecoder[IO, A], classTag: ClassTag[A]): IO[A] = {
+  )(using EntityDecoder[IO, A], ClassTag[A]): IO[A] = {
     val acceptHeader: Header.ToRaw = accept(mediaTypes)
     val attributes                 = Attributes.newBuilder
     attributes += withNamespace(namespace)
     attributes ++= withQuery(q)
     attributes += read
     val spanDef                    = SpanDef("namespace/<string:namespace>/sparql", attributes.result())
-    val request                    =
-      POST(queryEndpoint(namespace), (additionalHeaders.+:(acceptHeader))*).withEntity(UrlForm("query" -> q.value))
+    val headers                    = additionalHeaders.+:(acceptHeader)
+    val request                    = POST(queryEndpoint(namespace), headers*).withEntity(UrlForm("query" -> q.value))
     OtelTracingClient(client, spanDef).expectOr[A](request)(SparqlQueryError(_))
   }
 
@@ -182,7 +182,7 @@ final class BlazegraphClient(
       val describeEndpoint   = (endpoint / "namespace").withQueryParam("describe-each-named-graph", "false")
       val spanDef            = SpanDef("namespace", read)
       val request            = GET(describeEndpoint, accept(SparqlResultsJson.mediaTypes))
-      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.*
+      import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
       OtelTracingClient(client, spanDef).expect[SparqlResults](request).map { response =>
         response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
           val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)

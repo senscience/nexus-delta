@@ -16,7 +16,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.identities.model.{Caller, ServiceAccount}
 import ai.senscience.nexus.delta.sdk.identities.{Identities, IdentitiesDummy}
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
@@ -52,8 +52,9 @@ class FilesRoutesSpec
     with StorageFixtures
     with FileFixtures {
 
-  implicit override def rcr: RemoteContextResolution =
-    loadCoreContexts(storageContexts.definition ++ fileContexts.definition)
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(
+    storageContexts.definition ++ fileContexts.definition
+  )
 
   private val reader   = User("reader", realm)
   private val writer   = User("writer", realm)
@@ -98,7 +99,7 @@ class FilesRoutesSpec
   lazy val fetchStorage: FetchStorage = FetchStorage(storages, aclCheck)
 
   private val mediaTypeDetector = new MediaTypeDetector(MediaTypeDetectorConfig.Empty)
-  private val dataExtractor     = FormDataExtractor(mediaTypeDetector)(system)
+  private val dataExtractor     = FormDataExtractor(mediaTypeDetector)(using system)
   private val linkAction        = LinkFileAction.alwaysFails
   lazy val files: Files         =
     Files(fetchContext, fetchStorage, dataExtractor, xas, eventLogConfig, fileOps, linkAction, clock)
@@ -128,8 +129,10 @@ class FilesRoutesSpec
 
     val defaults = json"""{"maxFileSize": 1000, "volume": "$path"}"""
     val s3Perms  = json"""{"readPermission": "$s3Read", "writePermission": "$s3Write"}"""
-    storages.create(s3Id, projectRef, diskFieldsJson.deepMerge(defaults).deepMerge(s3Perms))(Caller(writer)).accepted
-    storages.create(dId, projectRef, diskFieldsJson.deepMerge(defaults))(Caller(s3writer)).void.accepted
+    storages
+      .create(s3Id, projectRef, diskFieldsJson.deepMerge(defaults).deepMerge(s3Perms))(using Caller(writer))
+      .accepted
+    storages.create(dId, projectRef, diskFieldsJson.deepMerge(defaults))(using Caller(s3writer)).void.accepted
   }
 
   def postJson(path: String, json: Json): HttpRequest =
@@ -799,7 +802,7 @@ class FilesRoutesSpec
       deprecated: Boolean = false,
       createdBy: Subject = writer,
       updatedBy: Subject = writer
-  )(implicit baseUri: BaseUri): Json =
+  )(using BaseUri): Json =
     FilesRoutesSpec
       .fileMetadata(project, id, attributes, storage, storageType, rev, deprecated, createdBy, updatedBy)
 
@@ -818,7 +821,7 @@ object FilesRoutesSpec extends CirceLiteral {
       deprecated: Boolean = false,
       createdBy: Subject,
       updatedBy: Subject
-  )(implicit baseUri: BaseUri): Json = {
+  )(using BaseUri): Json = {
     val self               = ResourceAccess("files", project, id).uri
     val keywordsJson: Json = attributes.keywords.isEmpty match {
       case false =>

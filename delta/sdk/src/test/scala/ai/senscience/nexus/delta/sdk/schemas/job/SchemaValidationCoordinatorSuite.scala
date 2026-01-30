@@ -36,7 +36,7 @@ class SchemaValidationCoordinatorSuite
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
-  implicit private val patienceConfig: PatienceConfig = PatienceConfig(10.seconds, 10.millis)
+  private given PatienceConfig = PatienceConfig(10.seconds, 10.millis)
 
   private lazy val (sv, projections, projectionErrors) = unapply(supervisor())
 

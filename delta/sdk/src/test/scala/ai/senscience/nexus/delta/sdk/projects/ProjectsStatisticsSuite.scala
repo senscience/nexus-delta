@@ -99,8 +99,8 @@ object ProjectsStatisticsSuite {
   object Fruit {
 
     val serializer: Serializer[Iri, Fruit] = {
-      implicit val configuration: Configuration = Serializer.circeConfiguration
-      implicit val coder: Codec.AsObject[Fruit] = deriveConfiguredCodec[Fruit]
+      given Configuration         = Serializer.circeConfiguration
+      given Codec.AsObject[Fruit] = deriveConfiguredCodec[Fruit]
       Serializer()
     }
   }
@@ -123,8 +123,8 @@ object ProjectsStatisticsSuite {
   object Cheese {
 
     val serializer: Serializer[Iri, Cheese] = {
-      implicit val configuration: Configuration  = Serializer.circeConfiguration
-      implicit val coder: Codec.AsObject[Cheese] = deriveConfiguredCodec[Cheese]
+      given Configuration          = Serializer.circeConfiguration
+      given Codec.AsObject[Cheese] = deriveConfiguredCodec[Cheese]
       Serializer()
     }
   }

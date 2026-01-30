@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.projections
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionRestartStore.logger
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart

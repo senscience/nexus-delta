@@ -29,8 +29,8 @@ import scala.concurrent.duration.DurationInt
 
 class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fixtures {
 
-  private val realm                  = Label.unsafe("myrealm")
-  implicit private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private val realm    = Label.unsafe("myrealm")
+  private given Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
 
   private val ref = ProjectRef.unsafe("org", "proj")
   private val pc  = ProjectContext.unsafe(
@@ -40,8 +40,8 @@ class CompositeViewDecodingSpec extends CatsEffectSpec with CirceLiteral with Fi
     enforceSchema = false
   )
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid           = UUID.randomUUID()
+  private given uuidF: UUIDF = UUIDF.fixed(uuid)
 
   val resolverContext: ResolverContextResolution = ResolverContextResolution(rcr)
   private val decoder                            = CompositeViewFieldsJsonLdSourceDecoder(uuidF, resolverContext, 1.minute)

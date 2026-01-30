@@ -9,7 +9,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
 import ai.senscience.nexus.delta.sdk.model.{IdSegmentRef, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete, read, write}
@@ -35,8 +35,8 @@ import java.util.UUID
 
 class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with ValidateResourceFixture {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.fixed(uuid)
+  private val uuid    = UUID.randomUUID()
+  private given UUIDF = UUIDF.fixed(uuid)
 
   private val reader  = User("reader", realm)
   private val writer  = User("writer", realm)
@@ -235,7 +235,7 @@ class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with
           s"/v1/resources/myorg/myproject/${encodeWithBase(schema)}/$id" -> 4
         )
         forAll(endpoints) { case (endpoint, rev) =>
-          Put(s"$endpoint?rev=$rev", payloadUpdated(id).toEntity(Printer.noSpaces)) ~> as(writer) ~> routes ~> check {
+          Put(s"$endpoint?rev=$rev", payloadUpdated(id).toEntity) ~> as(writer) ~> routes ~> check {
             status shouldEqual StatusCodes.OK
             response.asJson shouldEqual standardWriterMetadata(id, rev = rev + 1, schema1)
           }
@@ -282,7 +282,7 @@ class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with
           s"/v1/resources/myorg/myproject/${encodeWithBase(schema)}/$id/refresh"
         )
         forAll(endpoints) { endpoint =>
-          Put(s"$endpoint", payloadUpdated.toEntity(Printer.noSpaces)) ~> as(writer) ~> routes ~> check {
+          Put(s"$endpoint", payloadUpdated.toEntity) ~> as(writer) ~> routes ~> check {
             status shouldEqual StatusCodes.OK
             response.asJson shouldEqual standardWriterMetadata(id, rev = 1, schema = schema1)
           }
@@ -477,7 +477,7 @@ class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with
 
     "fetch a resource where the source has a null value" in {
       val payloadWithNullField = (id: String) => simplePayload(id).deepMerge(json"""{ "empty": null }""")
-      givenAResourceWithPayload(payloadWithNullField(_).toEntity(Printer.noSpaces)) { id =>
+      givenAResourceWithPayload(payloadWithNullField(_).toEntity) { id =>
         Get(s"/v1/resources/myorg/myproject/_/$id") ~> as(reader) ~> routes ~> check {
           response.asJson shouldEqual
             payloadWithNullField(id).dropNullValues
@@ -488,8 +488,9 @@ class ResourcesRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with
     }
 
     "fetch a resource original payload where the source has a null value" in {
-      val payloadWithNullField = (id: String) => json"""{ "@id": "$id", "empty": null }"""
-      givenAResourceWithPayload(payloadWithNullField(_).toEntity(Printer.noSpaces)) { id =>
+      val payloadWithNullField              = (id: String) => json"""{ "@id": "$id", "empty": null }"""
+      given printerPreservingNulls: Printer = Printer.noSpaces
+      givenAResourceWithPayload(payloadWithNullField(_).toEntity) { id =>
         Get(s"/v1/resources/myorg/myproject/_/$id/source") ~> as(reader) ~> routes ~> check {
           response.asJson shouldEqual payloadWithNullField(id)
         }

@@ -77,29 +77,29 @@ object ServiceError {
     */
   final case class UnknownSseLabel(label: Label) extends ServiceError(s"The SSE label $label is unknown.")
 
-  implicit def serviceErrorEncoder(implicit baseUri: BaseUri): Encoder.AsObject[ServiceError] = {
-    implicit val configuration: Configuration = Configuration.default.withDiscriminator("@type")
-    val enc                                   = deriveConfiguredEncoder[ServiceError]
+  given serviceErrorEncoder: BaseUri => Encoder.AsObject[ServiceError] = {
+    given Configuration = Configuration.default.withDiscriminator("@type")
+    val enc             = deriveConfiguredEncoder[ServiceError]
     Encoder.AsObject.instance[ServiceError] { r =>
       enc.encodeObject(r).+:("reason" -> Json.fromString(r.reason))
     }
   }
 
-  implicit def serviceErrorJsonLdEncoder(implicit baseUri: BaseUri): JsonLdEncoder[ServiceError] =
+  given serviceErrorJsonLdEncoder: BaseUri => JsonLdEncoder[ServiceError] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit def indexingFailedEncoder(implicit baseUri: BaseUri): Encoder.AsObject[IndexingFailed] = {
-    implicit val configuration: Configuration = Configuration.default.withDiscriminator("@type")
-    val enc                                   = deriveConfiguredEncoder[ServiceError]
+  given indexingFailedEncoder: BaseUri => Encoder.AsObject[IndexingFailed] = {
+    given Configuration = Configuration.default.withDiscriminator("@type")
+    val enc             = deriveConfiguredEncoder[ServiceError]
     Encoder.AsObject.instance[IndexingFailed] { r =>
       enc.encodeObject(r).add("reason", Json.fromString(r.reason)).add("_resource", r.resource.asJson)
     }
   }
 
-  implicit def consistentWriteFailedJsonLdEncoder(implicit baseUri: BaseUri): JsonLdEncoder[IndexingFailed] =
+  given indexingFailedEncoderJsonLdEncoder: BaseUri => JsonLdEncoder[IndexingFailed] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsServiceError: HttpResponseFields[ServiceError] =
+  given HttpResponseFields[ServiceError] =
     HttpResponseFields {
       case AuthorizationFailed(_)       => StatusCodes.Forbidden
       case ResourceNotFound(_, _)       => StatusCodes.NotFound

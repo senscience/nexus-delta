@@ -168,7 +168,7 @@ object BlazegraphViewRejection {
   final case class TooManyViewReferences(provided: Int, max: Int)
       extends BlazegraphViewRejection(s"$provided exceeds the maximum allowed number of view references ($max).")
 
-  implicit private[plugins] val blazegraphViewRejectionEncoder: Encoder.AsObject[BlazegraphViewRejection] =
+  private[plugins] given Encoder.AsObject[BlazegraphViewRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
@@ -180,10 +180,9 @@ object BlazegraphViewRejection {
       }
     }
 
-  implicit final val blazegraphViewRejectionJsonLdEncoder: JsonLdEncoder[BlazegraphViewRejection] =
-    JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
+  given JsonLdEncoder[BlazegraphViewRejection] = JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit val blazegraphViewHttpResponseFields: HttpResponseFields[BlazegraphViewRejection] =
+  given HttpResponseFields[BlazegraphViewRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
       case ViewNotFound(_, _)          => StatusCodes.NotFound

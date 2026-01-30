@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.syntax
 
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
-import ai.senscience.nexus.delta.sourcing.syntax.DoobieSyntax.FragmentEncoderOps
 import doobie.util.fragment.Fragment
 
 /**
@@ -9,12 +8,7 @@ import doobie.util.fragment.Fragment
   */
 trait DoobieSyntax {
 
-  implicit final def fragmentEncoderOps[A](value: A): FragmentEncoderOps[A] = new FragmentEncoderOps[A](value)
-
-}
-
-object DoobieSyntax {
-  implicit class FragmentEncoderOps[A](private val value: A) extends AnyVal {
-    def asFragment(implicit encoder: FragmentEncoder[A]): Option[Fragment] = encoder(value)
+  extension [A](value: A) {
+    def asFragment(using encoder: FragmentEncoder[A]): Option[Fragment] = encoder(value)
   }
 }

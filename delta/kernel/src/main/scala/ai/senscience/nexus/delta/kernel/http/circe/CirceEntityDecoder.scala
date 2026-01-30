@@ -10,7 +10,7 @@ import org.http4s.EntityDecoder
   *   https://github.com/http4s/http4s
   */
 trait CirceEntityDecoder {
-  implicit def circeEntityDecoder[A: Decoder]: EntityDecoder[IO, A] = jsonOf[A]
+  given circeEntityDecoder: [A: Decoder] => EntityDecoder[IO, A] = jsonOf[A]
 }
 
 object CirceEntityDecoder extends CirceEntityDecoder

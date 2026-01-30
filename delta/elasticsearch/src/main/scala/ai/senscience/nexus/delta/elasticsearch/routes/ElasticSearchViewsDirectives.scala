@@ -92,7 +92,7 @@ trait ElasticSearchViewsDirectives extends UriDirectives {
 
   private[routes] def searchParameters(pc: Option[ProjectContext])(using BaseUri): Directive1[ResourcesSearchParams] = {
     given FromStringUnmarshaller[IriBase] =
-      pc.fold(iriBaseFromStringUnmarshallerNoExpansion)(iriBaseFromStringUnmarshaller(_))
+      pc.fold(iriBaseFromStringUnmarshallerNoExpansion)(iriBaseFromStringUnmarshaller(using _))
 
     (locate & id & deprecated & versionParams & logParams & typeParams(pc) & keywords & schema & textQuery)
       .tmap(ResourcesSearchParams.apply)

@@ -36,12 +36,10 @@ import java.util.UUID
 
 class BlazegraphQuerySpec extends CatsEffectSpec with CancelAfterFailure {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
-
-  private val realm                = Label.unsafe("myrealm")
-  private val alice: Caller        = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
-  implicit private val bob: Caller = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
-  private val anon: Caller         = Caller(Anonymous, Set(Anonymous))
+  private val realm         = Label.unsafe("myrealm")
+  private val alice: Caller = Caller(User("Alice", realm), Set(User("Alice", realm), Group("users", realm)))
+  private given bob: Caller = Caller(User("Bob", realm), Set(User("Bob", realm), Group("users", realm)))
+  private val anon: Caller  = Caller(Anonymous, Set(Anonymous))
 
   private val project   = ProjectGen.project("myorg", "proj")
   private val otherPerm = Permission.unsafe("other")
@@ -136,25 +134,27 @@ class BlazegraphQuerySpec extends CatsEffectSpec with CancelAfterFailure {
 
     "query the common Blazegraph namespace" in {
       viewsQuery.query(id, project.ref, construct, SparqlNTriples).accepted.value shouldEqual responseCommonNs
-      viewsQuery.query(id, project.ref, construct, SparqlNTriples)(alice).rejectedWith[AuthorizationFailed]
-      viewsQuery.query(id, project.ref, construct, SparqlNTriples)(anon).rejectedWith[AuthorizationFailed]
+      viewsQuery.query(id, project.ref, construct, SparqlNTriples)(using alice).rejectedWith[AuthorizationFailed]
+      viewsQuery.query(id, project.ref, construct, SparqlNTriples)(using anon).rejectedWith[AuthorizationFailed]
     }
 
     "query all the Blazegraph projections' namespaces" in {
       forAll(List(alice -> responseBlazeP1Ns, bob -> responseBlazeP12Ns)) { case (caller, expected) =>
-        viewsQuery.queryProjections(id, project.ref, construct, SparqlNTriples)(caller).accepted.value shouldEqual
+        viewsQuery.queryProjections(id, project.ref, construct, SparqlNTriples)(using caller).accepted.value shouldEqual
           expected
       }
-      viewsQuery.queryProjections(id, project.ref, construct, SparqlNTriples)(anon).rejectedWith[AuthorizationFailed]
+      viewsQuery
+        .queryProjections(id, project.ref, construct, SparqlNTriples)(using anon)
+        .rejectedWith[AuthorizationFailed]
     }
 
     "query a Blazegraph projections' namespace" in {
       val blaze1 = nxv + "blaze1"
       val es     = nxv + "es1"
-      viewsQuery.query(id, blaze1, project.ref, construct, SparqlNTriples)(bob).accepted.value shouldEqual
+      viewsQuery.query(id, blaze1, project.ref, construct, SparqlNTriples)(using bob).accepted.value shouldEqual
         responseBlazeP1Ns
-      viewsQuery.query(id, blaze1, project.ref, construct, SparqlNTriples)(anon).rejectedWith[AuthorizationFailed]
-      viewsQuery.query(id, es, project.ref, construct, SparqlNTriples)(bob).rejected shouldEqual
+      viewsQuery.query(id, blaze1, project.ref, construct, SparqlNTriples)(using anon).rejectedWith[AuthorizationFailed]
+      viewsQuery.query(id, es, project.ref, construct, SparqlNTriples)(using bob).rejected shouldEqual
         ProjectionNotFound(id, es, project.ref, SparqlProjectionType)
     }
   }

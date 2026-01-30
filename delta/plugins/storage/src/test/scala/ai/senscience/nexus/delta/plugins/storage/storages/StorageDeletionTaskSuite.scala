@@ -15,11 +15,11 @@ import fs2.io.file.Files
 
 class StorageDeletionTaskSuite extends NexusSuite with FileDataHelpers with StorageFixtures {
 
-  implicit private val uuidf: UUIDF = UUIDF.random
+  private given UUIDF = UUIDF.random
 
   test("Delete content from local storage") {
     val diskOps                                 = DiskFileOperations.mk
-    implicit val subject: Subject               = Anonymous
+    given Subject                               = Anonymous
     val project                                 = ProjectRef.unsafe("org", "proj")
     val data                                    = streamData("file content")
     val uploading                               = DiskUploadingFile(project, diskVal.volume, DigestAlgorithm.default, "trace", data)

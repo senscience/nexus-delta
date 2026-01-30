@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.`application/sparql-results+json`
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlResults.{Bindings, Head}
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
@@ -119,7 +119,7 @@ object SparqlResults {
     Decoder.instance { hc => default(hc).orElse(askResultDecoder(hc)) }
   }
 
-  implicit def sparqlResultsMarshaller(implicit ordering: JsonKeyOrdering): ToEntityMarshaller[SparqlResults] =
+  given JsonKeyOrdering => ToEntityMarshaller[SparqlResults] =
     RdfMarshalling.customContentTypeJsonMarshaller(`application/sparql-results+json`).compose(_.asJson)
 
 }

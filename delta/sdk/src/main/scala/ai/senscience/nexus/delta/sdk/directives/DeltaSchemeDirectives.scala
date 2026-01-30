@@ -81,10 +81,10 @@ final class DeltaSchemeDirectives(
   /**
     * Extract the ''type'' query parameter(s) as Iri
     */
-  def types(implicit projectRef: ProjectRef): Directive1[IriFilter] =
+  def types(projectRef: ProjectRef): Directive1[IriFilter] =
     onSuccess(fetchContext(projectRef).attempt.unsafeToFuture()).flatMap {
       case Right(projectContext) =>
-        implicit val pc: ProjectContext = projectContext
+        given ProjectContext = projectContext
         parameter("type".as[IriVocab].*).map[IriFilter](t =>
           IriFilter.fromSet(t.toSet.map((iriVocab: IriVocab) => iriVocab.value))
         )

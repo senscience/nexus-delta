@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.plugins.storage.storages.model.AbsolutePath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.instances.*
+import ai.senscience.nexus.delta.rdf.instances.given
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.configuration.semiauto.*
@@ -76,7 +76,7 @@ object ArchiveReference {
   }
 
   object ResourceReference {
-    implicit val resourceReferenceOrder: Order[ResourceReference] =
+    given resourceReferenceOrder: Order[ResourceReference] =
       Order.by { resourceReference =>
         (resourceReference.ref, resourceReference.project, resourceReference.path, resourceReference.representation)
       }
@@ -99,7 +99,7 @@ object ArchiveReference {
   ) extends FullArchiveReference
 
   object FileReference {
-    implicit val fileReferenceOrder: Order[FileReference] =
+    given fileReferenceOrder: Order[FileReference] =
       Order.by { fileReference =>
         (fileReference.ref, fileReference.project, fileReference.path)
       }
@@ -116,7 +116,7 @@ object ArchiveReference {
   final case class FileSelfReference(value: Uri, path: Option[AbsolutePath]) extends ArchiveReference
 
   object FileSelfReference {
-    implicit val fileSelfReferenceOrder: Order[FileSelfReference] =
+    given fileSelfReferenceOrder: Order[FileSelfReference] =
       Order.by { fileReference =>
         (fileReference.value.toString(), fileReference.path)
       }
@@ -147,7 +147,7 @@ object ArchiveReference {
       path: Option[AbsolutePath]
   ) extends ReferenceInput
 
-  implicit final val referenceInputJsonLdDecoder: JsonLdDecoder[ArchiveReference] = {
+  given JsonLdDecoder[ArchiveReference] = {
     def refOf(resourceId: Iri, tag: Option[UserTag], rev: Option[Int]): ResourceRef =
       (tag, rev) match {
         case (Some(tagLabel), None) => Tag(resourceId, tagLabel)
@@ -160,7 +160,7 @@ object ArchiveReference {
       .addAliasIdType("FileInput", nxv + "File")
       .addAliasIdType("FileSelfInput", nxv + "FileSelf")
 
-    implicit val cfg: Configuration = Configuration.default.copy(context = ctx)
+    given Configuration = Configuration.default.copy(context = ctx)
 
     deriveConfigJsonLdDecoder[ReferenceInput].flatMap {
       case ResourceInput(_, _, Some(_: UserTag), Some(_: Int), _, _, _)                    =>
@@ -186,10 +186,10 @@ object ArchiveReference {
     }
   }
 
-  implicit private[model] val archiveReferenceEncoder: Encoder[ArchiveReference] = {
+  private[model] given Encoder[ArchiveReference] = {
     import io.circe.generic.extras.Configuration
     import io.circe.generic.extras.semiauto.*
-    implicit val cfg: Configuration = Configuration.default
+    given Configuration = Configuration.default
       .withDiscriminator(keywords.tpe)
       .copy(transformConstructorNames = {
         case "ResourceInput" => "Resource"
@@ -232,14 +232,14 @@ object ArchiveReference {
     }
   }
 
-  implicit val fullArchiveReferenceOrder: Order[FullArchiveReference] = Order.from {
+  given fullArchiveReferenceOrder: Order[FullArchiveReference] = Order.from {
     case (_: ResourceReference, _: FileReference)       => -1
     case (r1: ResourceReference, r2: ResourceReference) => ResourceReference.resourceReferenceOrder.compare(r1, r2)
     case (_: FileReference, _: ResourceReference)       => 1
     case (f1: FileReference, f2: FileReference)         => FileReference.fileReferenceOrder.compare(f1, f2)
   }
 
-  implicit val archiveReferenceOrder: Order[ArchiveReference] = Order.from {
+  given Order[ArchiveReference] = Order.from {
     case (f1: FullArchiveReference, f2: FullArchiveReference) => fullArchiveReferenceOrder.compare(f1, f2)
     case (fs1: FileSelfReference, fs2: FileSelfReference)     => FileSelfReference.fileSelfReferenceOrder.compare(fs1, fs2)
     case (_: FileSelfReference, _: FullArchiveReference)      => -1

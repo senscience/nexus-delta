@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.OrganizationSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
@@ -19,6 +18,7 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationRejection}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -60,8 +60,10 @@ final class OrganizationsRoutes(
       )
     }
 
-  private def emitMetadata(statusCode: StatusCode, io: IO[OrganizationResource]): Route =
+  private def emitMetadata(statusCode: StatusCode, io: IO[OrganizationResource]): Route = {
+    import ai.senscience.nexus.delta.sdk.implicits.*
     emit(statusCode, io.mapValue(_.metadata))
+  }
 
   private def emitMetadata(io: IO[OrganizationResource]): Route =
     emitMetadata(StatusCodes.OK, io)
@@ -71,7 +73,8 @@ final class OrganizationsRoutes(
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
       pathPrefix("orgs") {
-        extractCaller { case given Caller =>
+        extractCaller { case caller @ given Caller =>
+          given Subject = caller.subject
           concat(
             // List organizations
             (get & extractHttp4sUri & fromPaginated & orgsSearchParams & sort[Organization] & pathEndOrSingleSlash) {

@@ -25,7 +25,7 @@ final class OrganizationsImpl private (
   override def create(
       label: Label,
       description: Option[String]
-  )(implicit caller: Subject): IO[OrganizationResource] =
+  )(using caller: Subject): IO[OrganizationResource] =
     for {
       resource <- eval(CreateOrganization(label, description, caller)).surround("createOrganization")
       _        <- scopeInitializer
@@ -37,16 +37,16 @@ final class OrganizationsImpl private (
       label: Label,
       description: Option[String],
       rev: Int
-  )(implicit caller: Subject): IO[OrganizationResource] =
+  )(using caller: Subject): IO[OrganizationResource] =
     eval(UpdateOrganization(label, rev, description, caller)).surround("updateOrganization")
 
   override def deprecate(
       label: Label,
       rev: Int
-  )(implicit caller: Subject): IO[OrganizationResource] =
+  )(using caller: Subject): IO[OrganizationResource] =
     eval(DeprecateOrganization(label, rev, caller)).surround("deprecateOrganization")
 
-  override def undeprecate(org: Label, rev: Int)(implicit caller: Subject): IO[OrganizationResource] = {
+  override def undeprecate(org: Label, rev: Int)(using caller: Subject): IO[OrganizationResource] = {
     eval(UndeprecateOrganization(org, rev, caller)).surround("undeprecateOrganization")
   }
 

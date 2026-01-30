@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.error.ServiceError.ResourceNotFound
-import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.indexing.*
+import ai.senscience.nexus.delta.sdk.implicits.given
+import ai.senscience.nexus.delta.sdk.indexing.{given, *}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
@@ -98,8 +98,7 @@ object ProjectionsDirectives extends RdfMarshalling {
       override def indexingErrors(selector: ProjectionSelector)(using Tracer[IO]): Route =
         (fromPaginated & timeRange("instant") & extractHttp4sUri & pathEndOrSingleSlash) {
           (pagination, timeRange, uri) =>
-            implicit val searchJsonLdEncoder: JsonLdEncoder[FailedElemSearchResults] =
-              failedElemSearchJsonLdEncoder(pagination, uri)
+            given JsonLdEncoder[FailedElemSearchResults] = failedElemSearchJsonLdEncoder(pagination, uri)
             emit(searchErrors(selector, pagination, timeRange))
         }
 

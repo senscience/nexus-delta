@@ -89,7 +89,7 @@ object RdfError {
         s"The query '${query.value}' on graph with root node '$rootNode' resulted in a error: '$message'"
       )
 
-  implicit private val config: Configuration = Configuration.default.withDiscriminator(keywords.tpe)
+  private given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
 
-  implicit val rdfErrorEncoder: Encoder.AsObject[RdfError] = deriveConfiguredEncoder[RdfError]
+  given rdfErrorEncoder: Encoder.AsObject[RdfError] = deriveConfiguredEncoder[RdfError]
 }

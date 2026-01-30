@@ -15,7 +15,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 
 class FileSelfSuite extends NexusSuite {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://bbp.epfl.ch", "v1")
+  private given BaseUri = BaseUri.unsafe("http://bbp.epfl.ch", "v1")
 
   private val compactResourceId        = "test-resource"
   private val resourceIri: Iri         = nxv + compactResourceId

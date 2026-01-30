@@ -156,10 +156,10 @@ trait JsonUtils {
     * @param ordering
     *   the sorting strategy
     */
-  def sort(json: Json)(implicit ordering: JsonKeyOrdering): Json = {
+  def sort(json: Json)(using ordering: JsonKeyOrdering): Json = {
 
     def inner(obj: JsonObject): JsonObject =
-      JsonObject.fromIterable(obj.toVector.sortBy(_._1)(ordering).map { case (k, v) => k -> sort(v) })
+      JsonObject.fromIterable(obj.toVector.sortBy(_._1)(using ordering).map { case (k, v) => k -> sort(v) })
 
     json.arrayOrObject[Json](json, arr => Json.fromValues(arr.map(sort)), obj => inner(obj).asJson)
   }

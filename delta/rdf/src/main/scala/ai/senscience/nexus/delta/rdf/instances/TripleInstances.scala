@@ -10,17 +10,15 @@ import java.time.Instant
 
 trait TripleInstances {
   // $COVERAGE-OFF$
-  implicit def createSubjectFromIriOrBNode(value: IriOrBNode): Node = subject(value)
-  implicit def createPredicateFromIri(value: Iri): Node             = predicate(value)
-  implicit def createObjectFromString(value: String): Node          = obj(value)
-  implicit def createObjectFromInt(value: Int): Node                = obj(value)
-  implicit def createObjectFromLong(value: Long): Node              = obj(value)
-  implicit def createObjectFromBoolean(value: Boolean): Node        = obj(value)
-  implicit def createObjectFromDouble(value: Double): Node          = obj(value)
-  implicit def createObjectFromDouble(value: Float): Node           = obj(value)
-  implicit def createObjectFromIri(value: IriOrBNode): Node         = obj(value)
-  implicit def createObjectFromUri(value: Uri): Node                = obj(value)
-  implicit def createObjectFromInstant(value: Instant): Node        = obj(value)
-
+  given createSubjectFromIriOrBNode: Conversion[IriOrBNode, Node] = subject(_)
+  given createPredicateFromIri: Conversion[Iri, Node]             = predicate(_)
+  given createObjectFromString: Conversion[String, Node]          = obj(_)
+  given createObjectFromInt: Conversion[Int, Node]                = obj(_)
+  given createObjectFromLong: Conversion[Long, Node]              = obj(_)
+  given createObjectFromBoolean: Conversion[Boolean, Node]        = obj(_)
+  given createObjectFromDouble: Conversion[Double, Node]          = obj(_)
+  given createObjectFromIri: Conversion[IriOrBNode, Node]         = obj(_)
+  given createObjectFromUri: Conversion[Uri, Node]                = obj(_)
+  given createObjectFromInstant: Conversion[Instant, Node]        = obj(_)
   // $COVERAGE-ON$
 }

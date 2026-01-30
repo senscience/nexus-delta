@@ -6,23 +6,27 @@ import munit.{Assertions, Location}
 
 import scala.concurrent.duration.DurationInt
 
-trait CatsIOValues {
+trait CatsIOValues { self: Assertions =>
 
-  self: Assertions =>
+  extension [A](io: IO[A]) {
 
-  implicit final class CatsIOValuesOps[A](private val io: IO[A]) {
-    def accepted(implicit loc: Location): A =
-      io.attempt.unsafeRunTimed(45.seconds) match {
-        case Some(Right(value)) => value
-        case Some(Left(error))  => fail(s"IO failed with error '$error'")
-        case None               => fail("IO timed out during .accepted call")
+    private def attemptRun =
+      io.attempt
+        .unsafeRunTimed(45.seconds)
+        .getOrElse(
+          fail("IO timed out during .accepted/.failed call")
+        )
+
+    def accepted(using Location): A =
+      attemptRun match {
+        case Left(error)  => fail(s"IO failed with error '$error'")
+        case Right(value) => value
       }
 
-    def failed(implicit loc: Location): Throwable =
-      io.attempt.unsafeRunTimed(45.seconds) match {
-        case Some(Right(value)) => fail(s"IO succeeded with value '$value'")
-        case Some(Left(error))  => error
-        case None               => fail("IO timed out during .failed call")
+    def failed(using Location): Throwable =
+      attemptRun match {
+        case Left(error)  => error
+        case Right(value) => fail(s"IO succeeded with value '$value'")
       }
   }
 }

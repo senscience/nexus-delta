@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{conditionalCache, requestEncoding}
 import ai.senscience.nexus.delta.sdk.directives.Response.Complete
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
-import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.*
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.given
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import io.circe.Encoder
@@ -15,6 +15,7 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
 import org.apache.pekko.http.scaladsl.model.{MediaTypes, StatusCode}
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.stream.Materializer
 import org.typelevel.otel4s.trace.Tracer
 
 sealed trait ResponseToJsonLdDiscardingEntity {
@@ -23,7 +24,7 @@ sealed trait ResponseToJsonLdDiscardingEntity {
 
 object ResponseToJsonLdDiscardingEntity extends DiscardValueInstances {
 
-  private[directives] def apply[A: JsonLdEncoder: Encoder](
+  private[directives] def apply[A: {JsonLdEncoder, Encoder}](
       io: IO[Complete[A]]
   )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLdDiscardingEntity =
     new ResponseToJsonLdDiscardingEntity {
@@ -39,7 +40,7 @@ object ResponseToJsonLdDiscardingEntity extends DiscardValueInstances {
 
       override def apply(statusOverride: Option[StatusCode]): Route =
         extractRequest { request =>
-          extractMaterializer { implicit mat =>
+          extractMaterializer { case given Materializer =>
             request.discardEntityBytes()
             ResponseToJsonLd.fromComplete(io).apply(statusOverride) ~ fallbackAsPlainJson
           }
@@ -49,22 +50,22 @@ object ResponseToJsonLdDiscardingEntity extends DiscardValueInstances {
 
 sealed trait DiscardValueInstances extends DiscardLowPriorityValueInstances {
 
-  implicit def ioValue[A: JsonLdEncoder: Encoder](
-      io: IO[A]
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLdDiscardingEntity =
+  given ioValue: [A: {JsonLdEncoder, Encoder}] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    => Conversion[IO[A], ResponseToJsonLdDiscardingEntity] = { io =>
     ResponseToJsonLdDiscardingEntity(io.map(Complete(OK, Seq.empty, None, _)))
+  }
 
-  implicit def valueWithHttpResponseFields[A: JsonLdEncoder: HttpResponseFields: Encoder](
-      value: A
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLdDiscardingEntity =
-    ResponseToJsonLdDiscardingEntity(IO.pure(Complete(value)))
+  given valueWithHttpResponseFields: [A: {JsonLdEncoder, HttpResponseFields, Encoder}]
+    => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[A, ResponseToJsonLdDiscardingEntity] = {
+    value => ResponseToJsonLdDiscardingEntity(IO.pure(Complete(value)))
+  }
 
 }
 
 sealed trait DiscardLowPriorityValueInstances {
-  implicit def valueWithoutHttpResponseFields[A: JsonLdEncoder: Encoder](
-      value: A
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResponseToJsonLdDiscardingEntity =
-    ResponseToJsonLdDiscardingEntity(IO.pure(Complete(OK, Seq.empty, None, value)))
 
+  given valueWithoutHttpResponseFields: [A: {JsonLdEncoder, Encoder}]
+    => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO]) => Conversion[A, ResponseToJsonLdDiscardingEntity] = {
+    value => ResponseToJsonLdDiscardingEntity(IO.pure(Complete(OK, Seq.empty, None, value)))
+  }
 }

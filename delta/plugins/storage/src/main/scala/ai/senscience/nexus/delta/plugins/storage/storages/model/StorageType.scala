@@ -54,13 +54,13 @@ object StorageType {
     override val iri: Iri         = nxv + toString
   }
 
-  implicit final val storageTypeEncoder: Encoder[StorageType] = Encoder.instance {
+  given Encoder[StorageType] = Encoder.instance {
     case DiskStorage       => Json.fromString("DiskStorage")
     case S3Storage         => Json.fromString("S3Storage")
     case RemoteDiskStorage => Json.fromString("RemoteDiskStorage")
   }
 
-  implicit final val storageTypeDecoder: Decoder[StorageType] = Decoder.decodeString.emap {
+  given Decoder[StorageType] = Decoder.decodeString.emap {
     case "DiskStorage"       => Right(DiskStorage)
     case "S3Storage"         => Right(S3Storage)
     case "RemoteDiskStorage" => Right(RemoteDiskStorage)

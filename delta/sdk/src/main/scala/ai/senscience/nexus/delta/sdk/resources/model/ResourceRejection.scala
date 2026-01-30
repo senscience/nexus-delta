@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.shacl.ValidationReport
-import ai.senscience.nexus.delta.rdf.syntax.jsonObjectOpsSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -238,7 +238,7 @@ object ResourceRejection {
     */
   case object NoSchemaProvided extends ResourceRejection("A schema is required but was not provided.")
 
-  implicit val resourceRejectionEncoder: Encoder.AsObject[ResourceRejection] =
+  given Encoder.AsObject[ResourceRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
@@ -254,10 +254,10 @@ object ResourceRejection {
       }
     }
 
-  implicit val resourceRejectionJsonLdEncoder: JsonLdEncoder[ResourceRejection] =
+  given JsonLdEncoder[ResourceRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit val responseFieldsResources: HttpResponseFields[ResourceRejection] =
+  given HttpResponseFields[ResourceRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)                => StatusCodes.NotFound
       case ResourceNotFound(_, _)                => StatusCodes.NotFound

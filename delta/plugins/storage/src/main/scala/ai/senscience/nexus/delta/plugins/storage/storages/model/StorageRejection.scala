@@ -158,7 +158,7 @@ object StorageRejection {
         s"The provided permissions '${permissions.mkString(",")}' are not defined in the collection of allowed permissions."
       )
 
-  implicit private[plugins] val storageRejectionEncoder: Encoder.AsObject[StorageRejection] =
+  private[plugins] given Encoder.AsObject[StorageRejection] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       val obj = JsonObject(keywords.tpe -> tpe.asJson, "reason" -> r.reason.asJson)
@@ -170,10 +170,10 @@ object StorageRejection {
       }
     }
 
-  implicit final val storageRejectionJsonLdEncoder: JsonLdEncoder[StorageRejection] =
+  given JsonLdEncoder[StorageRejection] =
     JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
 
-  implicit final val storageRejectionHttpResponseFields: HttpResponseFields[StorageRejection] =
+  given HttpResponseFields[StorageRejection] =
     HttpResponseFields {
       case RevisionNotFound(_, _)      => StatusCodes.NotFound
       case StorageNotFound(_, _)       => StatusCodes.NotFound

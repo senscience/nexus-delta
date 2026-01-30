@@ -24,7 +24,5 @@ final case class HttpConfig(
 
 object HttpConfig {
 
-  implicit final val httpConfigReader: ConfigReader[HttpConfig] =
-    deriveReader[HttpConfig]
-
+  given ConfigReader[HttpConfig] = deriveReader[HttpConfig]
 }

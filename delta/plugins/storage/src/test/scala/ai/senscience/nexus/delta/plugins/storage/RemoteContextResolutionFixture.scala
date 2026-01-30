@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.sdk.RemoteContextResolutionFixtures
 
 trait RemoteContextResolutionFixture extends RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
+  given api: JsonLdApi = TitaniumJsonLdApi.strict
 
   given rcr: RemoteContextResolution = loadCoreContexts(
     storageContexts.definition ++ fileContexts.definition

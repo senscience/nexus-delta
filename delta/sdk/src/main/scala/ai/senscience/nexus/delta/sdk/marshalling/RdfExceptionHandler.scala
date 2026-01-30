@@ -50,19 +50,19 @@ object RdfExceptionHandler {
         }
     }
 
-  implicit private val rdfErrorEncoder: Encoder[RdfError] =
+  private given Encoder[RdfError] =
     Encoder.AsObject.instance { r =>
       val tpe = ClassUtils.simpleName(r)
       JsonObject.empty.add(keywords.tpe, tpe.asJson).add("reason", r.reason.asJson)
     }
 
-  implicit private val rdfErrorJsonLdEncoder: JsonLdEncoder[RdfError] =
+  private given JsonLdEncoder[RdfError] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit private val rdfErrorHttpFields: HttpResponseFields[RdfError] =
+  private given HttpResponseFields[RdfError] =
     HttpResponseFields(_ => StatusCodes.InternalServerError)
 
-  implicit private val entityStreamSizeExceptionEncoder: Encoder[EntityStreamSizeException] =
+  private given Encoder[EntityStreamSizeException] =
     Encoder.AsObject.instance { r =>
       val tpe    = "PayloadTooLarge"
       val reason = s"""Incoming payload size (${r.actualSize.getOrElse(
@@ -71,16 +71,16 @@ object RdfExceptionHandler {
       JsonObject(keywords.tpe -> tpe.asJson, "reason" -> reason.asJson)
     }
 
-  implicit private val entityStreamSizeExceptionJsonLdEncoder: JsonLdEncoder[EntityStreamSizeException] =
+  private given JsonLdEncoder[EntityStreamSizeException] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit private val entityStreamSizeExceptionHttpFields: HttpResponseFields[EntityStreamSizeException] =
+  private given HttpResponseFields[EntityStreamSizeException] =
     HttpResponseFields(_ => StatusCodes.ContentTooLarge)
 
   private case object UnexpectedError
   private type UnexpectedError = UnexpectedError.type
 
-  implicit private val unexpectedErrorEncoder: Encoder[UnexpectedError] =
+  private given Encoder[UnexpectedError] =
     Encoder.AsObject.instance { _ =>
       JsonObject(
         keywords.tpe -> "UnexpectedError".asJson,
@@ -88,10 +88,10 @@ object RdfExceptionHandler {
       )
     }
 
-  implicit private val unexpectedErrorJsonLdEncoder: JsonLdEncoder[UnexpectedError] =
+  private given JsonLdEncoder[UnexpectedError] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.error))
 
-  implicit private val unexpectedErrorHttpFields: HttpResponseFields[UnexpectedError] =
+  private given HttpResponseFields[UnexpectedError] =
     HttpResponseFields(_ => StatusCodes.InternalServerError)
 
 }

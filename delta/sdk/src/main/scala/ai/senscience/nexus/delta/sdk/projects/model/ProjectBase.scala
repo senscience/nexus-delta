@@ -12,6 +12,6 @@ final case class ProjectBase(iri: Iri) extends AnyVal {
 
 object ProjectBase {
 
-  implicit final val projectBaseEncoder: Encoder[ProjectBase] = Encoder.encodeString.contramap(_.iri.toString)
-  implicit final val projectBaseDecoder: Decoder[ProjectBase] = Iri.iriDecoder.map(new ProjectBase(_))
+  given Encoder[ProjectBase] = Encoder.encodeString.contramap(_.iri.toString)
+  given Decoder[ProjectBase] = Iri.iriDecoder.map(new ProjectBase(_))
 }

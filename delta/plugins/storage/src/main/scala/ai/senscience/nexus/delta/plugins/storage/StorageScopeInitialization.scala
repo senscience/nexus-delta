@@ -37,7 +37,7 @@ class StorageScopeInitialization(
 
   private val logger = Logger[StorageScopeInitialization]
 
-  implicit private val caller: Caller = serviceAccount.caller
+  private given Caller = serviceAccount.caller
 
   override def onProjectCreation(project: ProjectRef, subject: Identity.Subject): IO[Unit] =
     storages

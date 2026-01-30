@@ -54,15 +54,10 @@ trait Permissions {
     *   the permissions to set
     * @param rev
     *   the last known revision of the resource
-    * @param caller
-    *   a reference to the subject that initiated the action
     * @return
     *   the new resource or a description of why the change was rejected
     */
-  def replace(
-      permissions: Set[Permission],
-      rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource]
+  def replace(permissions: Set[Permission], rev: Int)(using Subject): IO[PermissionsResource]
 
   /**
     * Appends the provided permissions to the current collection of permissions.
@@ -71,15 +66,10 @@ trait Permissions {
     *   the permissions to append
     * @param rev
     *   the last known revision of the resource
-    * @param caller
-    *   a reference to the subject that initiated the action
     * @return
     *   the new resource or a description of why the change was rejected
     */
-  def append(
-      permissions: Set[Permission],
-      rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource]
+  def append(permissions: Set[Permission], rev: Int)(using Subject): IO[PermissionsResource]
 
   /**
     * Subtracts the provided permissions to the current collection of permissions.
@@ -88,27 +78,20 @@ trait Permissions {
     *   the permissions to subtract
     * @param rev
     *   the last known revision of the resource
-    * @param caller
-    *   a reference to the subject that initiated the action
     * @return
     *   the new resource or a description of why the change was rejected
     */
-  def subtract(
-      permissions: Set[Permission],
-      rev: Int
-  )(implicit caller: Subject): IO[PermissionsResource]
+  def subtract(permissions: Set[Permission], rev: Int)(using Subject): IO[PermissionsResource]
 
   /**
     * Removes all but the minimum permissions from the collection of permissions.
     *
     * @param rev
     *   the last known revision of the resource
-    * @param caller
-    *   a reference to the subject that initiated the action
     * @return
     *   the new resource or a description of why the change was rejected
     */
-  def delete(rev: Int)(implicit caller: Subject): IO[PermissionsResource]
+  def delete(rev: Int)(using Subject): IO[PermissionsResource]
 }
 
 object Permissions {
@@ -231,7 +214,7 @@ object Permissions {
       minimum: Set[Permission]
   )(state: PermissionsState, event: PermissionsEvent): PermissionsState = {
 
-    implicit class WithPermissionsState(s: PermissionsState) {
+    extension (s: PermissionsState) {
       def withPermissions(permissions: Set[Permission], instant: Instant, subject: Subject): PermissionsState =
         s match {
           case c if c.rev == 0 => PermissionsState(1, permissions, instant, subject, instant, subject)

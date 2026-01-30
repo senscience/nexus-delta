@@ -8,7 +8,7 @@ import ai.senscience.nexus.tests.config.TestsConfig
   */
 trait HandleBarsFixture {
 
-  def replacements(authenticated: Authenticated, otherReplacements: (String, String)*)(implicit
+  def replacements(authenticated: Authenticated, otherReplacements: (String, String)*)(using
       config: TestsConfig
   ): Seq[(String, String)] =
     Seq(

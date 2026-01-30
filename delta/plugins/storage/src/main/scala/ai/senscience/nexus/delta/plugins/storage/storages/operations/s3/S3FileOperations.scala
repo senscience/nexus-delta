@@ -38,7 +38,7 @@ object S3FileOperations {
 
   private val log = Logger[S3FileOperations]
 
-  def mk(client: S3StorageClient, locationGenerator: S3LocationGenerator)(implicit uuidf: UUIDF): S3FileOperations =
+  def mk(client: S3StorageClient, locationGenerator: S3LocationGenerator)(using uuidf: UUIDF): S3FileOperations =
     new S3FileOperations {
 
       private lazy val saveFile = new S3StorageSaveFile(client, locationGenerator)
@@ -62,9 +62,7 @@ object S3FileOperations {
         }
     }
 
-  private def linkInternal(client: S3StorageClient, bucket: String, path: Uri.Path)(implicit
-      uuidF: UUIDF
-  ): IO[S3FileMetadata] = {
+  private def linkInternal(client: S3StorageClient, bucket: String, path: Uri.Path)(using UUIDF): IO[S3FileMetadata] = {
     for {
       _        <- log.debug(s"Fetching attributes for S3 file. Bucket $bucket at path $path")
       resp     <- client.headObject(bucket, UrlUtils.decodeUriPath(path))
@@ -74,7 +72,7 @@ object S3FileOperations {
     log.error(e)(s"Failed fetching required attributes for S3 file registration. Bucket $bucket and path $path")
   }
 
-  private def mkS3Metadata(path: Uri.Path, resp: HeadObject)(implicit uuidf: UUIDF) =
+  private def mkS3Metadata(path: Uri.Path, resp: HeadObject)(using uuidf: UUIDF) =
     for {
       uuid     <- uuidf()
       filename <- IO.fromOption(path.lastSegment)(InvalidFilePath)

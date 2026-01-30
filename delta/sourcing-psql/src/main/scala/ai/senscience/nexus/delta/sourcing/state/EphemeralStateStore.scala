@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.state
 
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import ai.senscience.nexus.delta.sourcing.{Serializer, Transactors}
@@ -37,9 +37,9 @@ object EphemeralStateStore {
       xas: Transactors
   ): EphemeralStateStore[Id, S] =
     new EphemeralStateStore[Id, S] {
-      implicit val putId: Put[Id]   = serializer.putId
-      implicit val getValue: Get[S] = serializer.getValue
-      implicit val putValue: Put[S] = serializer.putValue
+      private given Put[Id] = serializer.putId
+      private given Get[S]  = serializer.getValue
+      private given Put[S]  = serializer.putValue
 
       override def save(state: S): doobie.ConnectionIO[Unit] = {
         sql"""

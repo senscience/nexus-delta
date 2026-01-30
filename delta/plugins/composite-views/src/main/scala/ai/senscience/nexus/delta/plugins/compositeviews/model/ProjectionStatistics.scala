@@ -19,10 +19,10 @@ final case class ProjectionStatistics(sourceId: Iri, projectionId: Iri, value: P
 
 object ProjectionStatistics {
 
-  implicit val projectionStatisticsOrdering: Ordering[ProjectionStatistics] =
+  given Ordering[ProjectionStatistics] =
     Ordering.by[ProjectionStatistics, String](_.sourceId.toString).orElseBy(_.projectionId.toString)
 
-  implicit val projectionStatisticsEncoder: Encoder.AsObject[ProjectionStatistics] =
+  given Encoder.AsObject[ProjectionStatistics] =
     Encoder.encodeJsonObject.contramapObject { case ProjectionStatistics(source, projection, stats) =>
       JsonObject("sourceId" := source, "projectionId" := projection).deepMerge(stats.asJsonObject)
     }

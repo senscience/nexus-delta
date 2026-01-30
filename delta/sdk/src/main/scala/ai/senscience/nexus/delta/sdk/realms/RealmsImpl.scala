@@ -19,7 +19,7 @@ final class RealmsImpl private (log: RealmsLog)(using Tracer[IO]) extends Realms
   override def create(
       label: Label,
       fields: RealmFields
-  )(implicit caller: Subject): IO[RealmResource] = {
+  )(using caller: Subject): IO[RealmResource] = {
     val command = CreateRealm(label, fields.name, fields.openIdConfig, fields.logo, fields.acceptedAudiences, caller)
     eval(command).surround("createRealm")
   }
@@ -28,13 +28,13 @@ final class RealmsImpl private (log: RealmsLog)(using Tracer[IO]) extends Realms
       label: Label,
       rev: Int,
       fields: RealmFields
-  )(implicit caller: Subject): IO[RealmResource] = {
+  )(using caller: Subject): IO[RealmResource] = {
     val command =
       UpdateRealm(label, rev, fields.name, fields.openIdConfig, fields.logo, fields.acceptedAudiences, caller)
     eval(command).surround("updateRealm")
   }
 
-  override def deprecate(label: Label, rev: Int)(implicit caller: Subject): IO[RealmResource] =
+  override def deprecate(label: Label, rev: Int)(using caller: Subject): IO[RealmResource] =
     eval(DeprecateRealm(label, rev, caller)).surround("deprecateRealm")
 
   private def eval(cmd: RealmCommand): IO[RealmResource] =

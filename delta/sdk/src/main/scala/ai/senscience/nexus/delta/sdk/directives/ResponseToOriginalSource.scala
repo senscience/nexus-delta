@@ -30,9 +30,8 @@ object ResponseToOriginalSource extends RdfMarshalling {
 
   private given JsonValueCodec[Json] = jsonSourceCodec
 
-  implicit private def originalSourceMarshaller(using BaseUri, JsonKeyOrdering): ToEntityMarshaller[OriginalSource] = {
+  given (BaseUri, JsonKeyOrdering) => ToEntityMarshaller[OriginalSource] =
     jsonMarshaller.compose(_.asJson)
-  }
 
   private[directives] def apply(
       io: IO[Complete[OriginalSource]]
@@ -54,8 +53,8 @@ object ResponseToOriginalSource extends RdfMarshalling {
       }
     }
 
-  implicit def ioResponseOriginalPayloadValue(
-      io: IO[OriginalSource]
-  )(using BaseUri, JsonKeyOrdering, Tracer[IO]): ResponseToOriginalSource =
+  given ioResponseOriginalPayloadValue
+      : (BaseUri, JsonKeyOrdering, Tracer[IO]) => Conversion[IO[OriginalSource], ResponseToOriginalSource] = { io =>
     ResponseToOriginalSource(io.map(Complete(_)))
+  }
 }

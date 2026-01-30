@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileState
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceState
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, SelectFilter}
@@ -77,33 +77,35 @@ object GraphAnalyticsStream {
   }
 
   // $COVERAGE-OFF$
-  def apply(elemStreaming: ElemStreaming, xas: Transactors): GraphAnalyticsStream =
-    (project: ProjectRef, start: Offset) => {
+  def apply(elemStreaming: ElemStreaming, xas: Transactors): GraphAnalyticsStream = {
+    (project: ProjectRef, start: Offset) =>
+      {
 
-      // This seems a reasonable value to batch relationship resolution for resources with a lot
-      // of references
-      val relationshipBatch = 500
+        // This seems a reasonable value to batch relationship resolution for resources with a lot
+        // of references
+        val relationshipBatch = 500
 
-      // Decode the json payloads to [[GraphAnalyticsResult]] We only care for resources and files
-      def decode(entityType: EntityType, json: Json): IO[GraphAnalyticsResult] =
-        entityType match {
-          case Files.entityType     =>
-            IO.fromEither(FileState.serializer.codec.decodeJson(json)).map { s =>
-              UpdateByQuery(s.id, s.types)
-            }
-          case Resources.entityType =>
-            IO.fromEither(ResourceState.serializer.codec.decodeJson(json)).flatMap {
-              case state if state.deprecated => deprecatedIndex(state)
-              case state                     =>
-                JsonLdDocument.fromExpanded(state.expanded, findRelationships(project, xas, relationshipBatch)).map {
-                  doc => activeIndex(state, doc)
-                }
-            }
-          case _                    => IO.pure(Noop)
-        }
+        // Decode the json payloads to [[GraphAnalyticsResult]] We only care for resources and files
+        def decode(entityType: EntityType, json: Json): IO[GraphAnalyticsResult] =
+          entityType match {
+            case Files.entityType     =>
+              IO.fromEither(FileState.serializer.codec.decodeJson(json)).map { s =>
+                UpdateByQuery(s.id, s.types)
+              }
+            case Resources.entityType =>
+              IO.fromEither(ResourceState.serializer.codec.decodeJson(json)).flatMap {
+                case state if state.deprecated => deprecatedIndex(state)
+                case state                     =>
+                  JsonLdDocument.fromExpanded(state.expanded, findRelationships(project, xas, relationshipBatch)).map {
+                    doc => activeIndex(state, doc)
+                  }
+              }
+            case _                    => IO.pure(Noop)
+          }
 
-      elemStreaming(Scope(project), start, SelectFilter.latest, decode)
-    }
+        elemStreaming(Scope(project), start, SelectFilter.latest, decode)
+      }
+  }
   // $COVERAGE-ON$
 
   private def deprecatedIndex(state: ResourceState) =

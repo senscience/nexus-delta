@@ -147,9 +147,7 @@ object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions wit
       label: String = genId(),
       id: Iri = nxv + genId(),
       markedForDeletion: Boolean = false
-  ) = {
-    ProjectFixture(deprecated, updatedAt, lastEventTime, org, label, id, markedForDeletion)
-  }
+  ) = ProjectFixture(deprecated, updatedAt, lastEventTime, org, label, id, markedForDeletion)
 
   def genId(length: Int = 15): String =
     genString(length = length, Vector.range('a', 'z') ++ Vector.range('0', '9'))
@@ -176,16 +174,14 @@ object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions wit
     }
   }
 
-  def assertDeleted(result: IO[Boolean])(implicit loc: Location): IO[Unit] = {
-    assertIO[Boolean, Boolean](result, true, "project was not deleted")
-  }
+  def assertDeleted(result: IO[Boolean])(using Location): IO[Unit] =
+    assertIO[Boolean, Boolean](result, true, "Project was not deleted")
 
-  def assertNotDeleted(result: IO[Boolean])(implicit loc: Location): IO[Unit] = {
-    assertIO[Boolean, Boolean](result, false, "project was deleted")
-  }
+  def assertNotDeleted(result: IO[Boolean])(using Location): IO[Unit] =
+    assertIO[Boolean, Boolean](result, false, "Project was deleted")
 
-  val TwoDaysAgo    = Instant.now().minus(Duration.ofDays(2))
-  val ThreeHoursAgo = Instant.now().minus(Duration.ofHours(3))
+  private val TwoDaysAgo    = Instant.now().minus(Duration.ofDays(2))
+  private val ThreeHoursAgo = Instant.now().minus(Duration.ofHours(3))
 
   override def clock: Clock[IO] = implicitly[Clock[IO]]
 

@@ -24,9 +24,8 @@ final case class ProjectStatistics(events: Long, resources: Long, lastEventTime:
 
 object ProjectStatistics {
 
-  implicit val projectStatisticsCodec: Codec[ProjectStatistics] = {
-
-    implicit val config: Configuration = Configuration.default.copy(
+  given Codec[ProjectStatistics] = {
+    given Configuration = Configuration.default.copy(
       transformMemberNames = {
         case "events"        => "eventsCount"
         case "resources"     => "resourcesCount"
@@ -37,8 +36,7 @@ object ProjectStatistics {
     deriveConfiguredCodec[ProjectStatistics]
   }
 
-  implicit val projectStatisticsJsonLdEncoder: JsonLdEncoder[ProjectStatistics] =
-    JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
+  given JsonLdEncoder[ProjectStatistics] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
 
-  implicit val projectStatisticsHttpResponseFields: HttpResponseFields[ProjectStatistics] = HttpResponseFields.defaultOk
+  given HttpResponseFields[ProjectStatistics] = HttpResponseFields.defaultOk
 }

@@ -44,13 +44,11 @@ object Name {
   def unsafe(value: String): Name =
     new Name(value)
 
-  implicit final val nameEncoder: Encoder[Name] =
-    Encoder.encodeString.contramap(_.value)
+  given Encoder[Name] = Encoder.encodeString.contramap(_.value)
 
-  implicit final val nameDecoder: Decoder[Name] =
-    Decoder.decodeString.emap(str => Name(str).leftMap(_.getMessage))
+  given Decoder[Name] = Decoder.decodeString.emap(str => Name(str).leftMap(_.getMessage))
 
-  implicit final val nameConfigReader: ConfigReader[Name] =
+  given ConfigReader[Name] =
     ConfigReader.fromString(str =>
       Name(str).leftMap(err => CannotConvert(str, classOf[Name].getSimpleName, err.getMessage))
     )

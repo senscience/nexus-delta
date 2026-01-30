@@ -18,7 +18,7 @@ final class RealmProvisioning(realms: Realms, config: RealmsProvisioningConfig, 
 
   override def run: IO[ProvisioningAction.Outcome] =
     if config.enabled then {
-      implicit val serviceAccountSubject: Subject = serviceAccount.subject
+      given Subject = serviceAccount.subject
       for {
         _ <- logger.info(s"Realm provisioning is active. Creating ${config.realms.size} realms...")
         _ <- config.realms.toList.traverse { case (label, fields) =>

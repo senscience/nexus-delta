@@ -32,12 +32,12 @@ import scala.concurrent.duration.*
 
 class ArchivesSpec extends CatsEffectSpec with DoobieScalaTestFixture with RemoteContextResolutionFixture {
 
-  private val uuid                  = UUID.randomUUID()
-  implicit private val uuidF: UUIDF = UUIDF.random
+  private val uuid           = UUID.randomUUID()
+  private given uuidF: UUIDF = UUIDF.random
 
-  private val usersRealm: Label       = Label.unsafe("users")
-  private val bob: Subject            = User("bob", usersRealm)
-  implicit private val caller: Caller = Caller(bob)
+  private val usersRealm: Label = Label.unsafe("users")
+  private given bob: Subject    = User("bob", usersRealm)
+  private given caller: Caller  = Caller(bob)
 
   private val am       = ApiMappings("nxv" -> nxv.base, "Person" -> schema.Person)
   private val projBase = iri"http://localhost/base/"
@@ -48,8 +48,8 @@ class ArchivesSpec extends CatsEffectSpec with DoobieScalaTestFixture with Remot
 
   private val cfg      = ArchivePluginConfig(1, EphemeralLogConfig(5.seconds, 5.hours))
   private val download = new ArchiveDownload {
-    override def apply(value: ArchiveValue, project: ProjectRef, ignoreNotFound: Boolean)(implicit
-        caller: Caller
+    override def apply(value: ArchiveValue, project: ProjectRef, ignoreNotFound: Boolean)(using
+        Caller
     ): IO[PekkoSource] =
       IO.pure(Source.empty)
   }

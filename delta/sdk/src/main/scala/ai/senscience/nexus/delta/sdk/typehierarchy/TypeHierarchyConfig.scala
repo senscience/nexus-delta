@@ -7,6 +7,5 @@ import pureconfig.generic.semiauto.deriveReader
 final case class TypeHierarchyConfig(eventLog: EventLogConfig)
 
 object TypeHierarchyConfig {
-  implicit final val typeHierarchyConfigReader: ConfigReader[TypeHierarchyConfig] =
-    deriveReader[TypeHierarchyConfig]
+  given ConfigReader[TypeHierarchyConfig] = deriveReader[TypeHierarchyConfig]
 }

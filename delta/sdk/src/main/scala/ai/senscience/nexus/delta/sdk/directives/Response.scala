@@ -46,7 +46,7 @@ object Response {
   /**
     * A ''value'' that should be rejected
     */
-  final case class Reject[E: JsonLdEncoder: Encoder: HttpResponseFields](error: E)
+  final case class Reject[E: {JsonLdEncoder, Encoder, HttpResponseFields}](error: E)
       extends SDKError
       with Response[E]
       with Rejection {
@@ -70,7 +70,7 @@ object Response {
 
   object Reject {
 
-    implicit final val seqRejectEncoder: Encoder[Seq[Reject[?]]] =
+    given seqRejectEncoder: Encoder[Seq[Reject[?]]] =
       Encoder.instance { rejections =>
         val rejectionsJson = Json.obj("rejections" -> rejections.map(_.jsonValueWithStatus).asJson)
         val tpe            = extractDistinctTypes(rejections) match {
@@ -83,7 +83,7 @@ object Response {
     private def extractDistinctTypes(rejections: Seq[Reject[?]]) =
       rejections.flatMap(_.json.hcursor.get[String](keywords.tpe).toOption).distinct
 
-    implicit final val rejectJsonLdEncoder: JsonLdEncoder[Seq[Reject[?]]] =
+    given rejectJsonLdEncoder: JsonLdEncoder[Seq[Reject[?]]] =
       JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.error))
   }
 }

@@ -31,29 +31,23 @@ final class ProjectsImpl private (
   override def create(
       ref: ProjectRef,
       fields: ProjectFields
-  )(implicit caller: Subject): IO[ProjectResource] =
-    for {
-      resource <- eval(CreateProject(ref, fields, caller)).surround("createProject")
-      _        <- scopeInitializer
-                    .initializeProject(resource.value.ref)
-                    .surround("initializeProject")
-    } yield resource
+  )(using caller: Subject): IO[ProjectResource] =
+    eval(CreateProject(ref, fields, caller)).surround("createProject")
+      <* scopeInitializer.initializeProject(ref).surround("initializeProject")
 
-  override def update(ref: ProjectRef, rev: Int, fields: ProjectFields)(implicit
-      caller: Subject
-  ): IO[ProjectResource] =
+  override def update(ref: ProjectRef, rev: Int, fields: ProjectFields)(using caller: Subject): IO[ProjectResource] =
     eval(UpdateProject(ref, fields, rev, caller)).surround("updateProject")
 
-  override def deprecate(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource] =
+  override def deprecate(ref: ProjectRef, rev: Int)(using caller: Subject): IO[ProjectResource] =
     eval(DeprecateProject(ref, rev, caller)).surround("deprecateProject") <*
       logger.info(s"Project '$ref' has been deprecated.")
 
-  override def undeprecate(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource] = {
+  override def undeprecate(ref: ProjectRef, rev: Int)(using caller: Subject): IO[ProjectResource] = {
     eval(UndeprecateProject(ref, rev, caller)).surround("undeprecateProject") <*
       logger.info(s"Project '$ref' has been undeprecated.")
   }
 
-  override def delete(ref: ProjectRef, rev: Int)(implicit caller: Subject): IO[ProjectResource] =
+  override def delete(ref: ProjectRef, rev: Int)(using caller: Subject): IO[ProjectResource] =
     eval(DeleteProject(ref, rev, caller)).surround("deleteProject") <*
       logger.info(s"Project '$ref' has been marked as deleted.")
 

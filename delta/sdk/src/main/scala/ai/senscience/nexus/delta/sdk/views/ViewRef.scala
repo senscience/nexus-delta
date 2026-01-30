@@ -25,11 +25,11 @@ object ViewRef {
   def unsafe(org: String, project: String, viewId: Iri): ViewRef =
     ViewRef(ProjectRef.unsafe(org, project), viewId)
 
-  implicit final val viewRefEncoder: Codec.AsObject[ViewRef] = deriveCodec[ViewRef]
+  given Codec.AsObject[ViewRef] = deriveCodec[ViewRef]
 
-  implicit final val viewRefJsonLdDecoder: JsonLdDecoder[ViewRef] = deriveDefaultJsonLdDecoder[ViewRef]
+  given JsonLdDecoder[ViewRef] = deriveDefaultJsonLdDecoder[ViewRef]
 
-  implicit final val viewRefOrder: Order[ViewRef] = Order.by { viewRef =>
+  given Order[ViewRef] = Order.by { viewRef =>
     (viewRef.viewId, viewRef.project)
   }
 

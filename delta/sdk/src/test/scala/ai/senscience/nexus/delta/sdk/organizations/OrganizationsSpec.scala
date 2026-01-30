@@ -22,7 +22,7 @@ class OrganizationsSpec extends CatsEffectSpec {
     val (label, uuid, desc, desc2) = (state.label, state.uuid, state.description, Some("other"))
     val subject: User              = User("myuser", label)
 
-    implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+    given UUIDF = UUIDF.fixed(uuid)
 
     "evaluating an incoming command" should {
 

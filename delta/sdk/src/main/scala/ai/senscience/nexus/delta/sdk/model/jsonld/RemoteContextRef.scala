@@ -55,20 +55,18 @@ object RemoteContextRef {
     final case class ResourceContext(id: Iri, project: ProjectRef, rev: Int)
   }
 
-  implicit val coder: Codec.AsObject[RemoteContextRef] = {
-    implicit val configuration: Configuration                             = Serializer.circeConfiguration
-    implicit val resourceContextRefCoder: Codec.AsObject[ResourceContext] = deriveConfiguredCodec[ResourceContext]
+  given Codec.AsObject[RemoteContextRef] = {
+    given Configuration                   = Serializer.circeConfiguration
+    given Codec.AsObject[ResourceContext] = deriveConfiguredCodec[ResourceContext]
     deriveConfiguredCodec[RemoteContextRef]
   }
 
-  implicit final val remoteContextRefsJsonLdEncoder: JsonLdEncoder[Set[RemoteContextRef]] = {
-    implicit val remoteContextsEncoder: Encoder.AsObject[Set[RemoteContextRef]] = Encoder.AsObject.instance {
-      remoteContexts =>
-        JsonObject("remoteContexts" -> Json.arr(remoteContexts.map(_.asJson).toSeq*))
+  given JsonLdEncoder[Set[RemoteContextRef]] = {
+    given Encoder.AsObject[Set[RemoteContextRef]] = Encoder.AsObject.instance { remoteContexts =>
+      JsonObject("remoteContexts" -> Json.arr(remoteContexts.map(_.asJson).toSeq*))
     }
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.remoteContexts))
   }
 
-  implicit val remoteContextRefsHttpResponseFields: HttpResponseFields[Set[RemoteContextRef]] =
-    HttpResponseFields.defaultOk
+  given HttpResponseFields[Set[RemoteContextRef]] = HttpResponseFields.defaultOk
 }

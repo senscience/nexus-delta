@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.syntax.{jsonObjectOpsSyntax, jsonOpsSyntax}
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.OrderingFields
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -77,16 +77,16 @@ object Resolver {
 
   val context: ContextValue = ContextValue(contexts.resolvers)
 
-  implicit def resolverEncoder(implicit baseUri: BaseUri): Encoder.AsObject[Resolver] = {
-    implicit val identityEncoder: Encoder[Identity] = IdentityInstances.identityEncoder
+  given resolverEncoder: BaseUri => Encoder.AsObject[Resolver] = {
+    given Encoder[Identity] = IdentityInstances.identityEncoder
     Encoder.AsObject.instance { r =>
       r.value.asJsonObject.addContext(r.source.topContextValueOrEmpty.excludeRemoteContexts.contextObj)
     }
   }
 
-  implicit def resolverJsonLdEncoder(implicit baseUri: BaseUri): JsonLdEncoder[Resolver] =
+  given resolverJsonLdEncoder: BaseUri => JsonLdEncoder[Resolver] =
     JsonLdEncoder.computeFromCirce(_.id, context)
 
-  implicit val resolverOrderingFields: OrderingFields[Resolver] = OrderingFields.empty
+  given OrderingFields[Resolver] = OrderingFields.empty
 
 }

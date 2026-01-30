@@ -15,10 +15,10 @@ import org.http4s.Uri.Path
 
 object FileOperationsMock {
 
-  def forDisk(implicit uuidf: UUIDF): FileOperations =
+  def forDisk(using UUIDF): FileOperations =
     FileOperations.apply(DiskFileOperations.mk, s3Unimplemented)
 
-  def disabled(implicit uuidf: UUIDF): FileOperations =
+  def disabled(using UUIDF): FileOperations =
     FileOperations.apply(
       DiskFileOperations.mk,
       S3FileOperations.mk(S3StorageClient.disabled, new S3LocationGenerator(Path.empty))

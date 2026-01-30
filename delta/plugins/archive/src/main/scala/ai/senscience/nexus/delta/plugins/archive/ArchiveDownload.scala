@@ -54,14 +54,12 @@ trait ArchiveDownload {
     *   the archive parent project
     * @param ignoreNotFound
     *   do not fail when resource references are not found
-    * @param caller
-    *   the caller to be used for checking for access
     */
   def apply(
       value: ArchiveValue,
       project: ProjectRef,
       ignoreNotFound: Boolean
-  )(implicit caller: Caller): IO[PekkoSource]
+  )(using Caller): IO[PekkoSource]
 
 }
 
@@ -90,22 +88,18 @@ object ArchiveDownload {
       fetchResource: (ResourceRef, ProjectRef) => IO[Option[JsonLdContent[?]]],
       fetchFileContent: (ResourceRef, ProjectRef, Caller) => IO[FileResponse],
       fileSelf: FileSelf
-  )(implicit
-      sort: JsonKeyOrdering,
-      baseUri: BaseUri,
-      rcr: RemoteContextResolution
-  ): ArchiveDownload =
+  )(using JsonKeyOrdering, BaseUri, RemoteContextResolution): ArchiveDownload =
     new ArchiveDownload {
 
-      implicit private val api: JsonLdApi = TitaniumJsonLdApi.lenient
-      private val printer                 = Printer.spaces2.copy(dropNullValues = true)
-      private val sourcePrinter           = Printer.spaces2.copy(dropNullValues = false)
+      private given JsonLdApi   = TitaniumJsonLdApi.lenient
+      private val printer       = Printer.spaces2.copy(dropNullValues = true)
+      private val sourcePrinter = Printer.spaces2.copy(dropNullValues = false)
 
       override def apply(
           value: ArchiveValue,
           project: ProjectRef,
           ignoreNotFound: Boolean
-      )(implicit caller: Caller): IO[PekkoSource] = {
+      )(using Caller): IO[PekkoSource] = {
         for {
           references  <- value.resources.toList.traverse(toFullReference)
           _           <- checkResourcePermissions(references, project)
@@ -134,7 +128,7 @@ object ArchiveDownload {
           references: List[FullArchiveReference],
           project: ProjectRef,
           ignoreNotFound: Boolean
-      )(implicit caller: Caller) = {
+      )(using Caller) = {
         references
           .traverseFilter {
             case ref: FileReference     => fileEntry(ref, project, ignoreNotFound)
@@ -145,7 +139,7 @@ object ArchiveDownload {
       }
 
       private def sortWith(list: List[(ArchiveMetadata, IO[PekkoSource])]): List[(ArchiveMetadata, IO[PekkoSource])] =
-        list.sortBy { case (entry, _) => entry }(Zip.ordering)
+        list.sortBy { case (entry, _) => entry }(using Zip.ordering)
 
       private def asSourceList(
           list: List[(ArchiveMetadata, IO[PekkoSource])]
@@ -157,7 +151,7 @@ object ArchiveDownload {
       private def checkResourcePermissions(
           refs: List[FullArchiveReference],
           project: ProjectRef
-      )(implicit caller: Caller): IO[Unit] =
+      )(using Caller): IO[Unit] =
         aclCheck
           .mapFilterOrRaise(
             refs,
@@ -171,9 +165,7 @@ object ArchiveDownload {
           ref: FileReference,
           project: ProjectRef,
           ignoreNotFound: Boolean
-      )(implicit
-          caller: Caller
-      ): IO[Option[(ArchiveMetadata, IO[PekkoSource])]] = {
+      )(using caller: Caller): IO[Option[(ArchiveMetadata, IO[PekkoSource])]] = {
         val refProject = ref.project.getOrElse(project)
         // the required permissions are checked for each file content fetch
         val entry      = fetchFileContent(ref.ref, refProject, caller)
@@ -238,7 +230,7 @@ object ArchiveDownload {
           value: JsonLdContent[A],
           repr: ResourceRepresentation
       ): IO[ByteString] = {
-        implicit val encoder: JsonLdEncoder[A] = value.encoder
+        given JsonLdEncoder[A] = value.encoder
         repr match {
           case SourceJson          => IO.pure(ByteString(prettyPrintSource(value.source)))
           case AnnotatedSourceJson =>
@@ -265,15 +257,15 @@ object ArchiveDownload {
         }
     }
 
-  def apply(aclCheck: AclCheck, shifts: ResourceShifts, files: Files, fileSelf: FileSelf)(implicit
-      sort: JsonKeyOrdering,
-      baseUri: BaseUri,
-      rcr: RemoteContextResolution
+  def apply(aclCheck: AclCheck, shifts: ResourceShifts, files: Files, fileSelf: FileSelf)(using
+      JsonKeyOrdering,
+      BaseUri,
+      RemoteContextResolution
   ): ArchiveDownload =
     ArchiveDownload(
       aclCheck,
       shifts.fetch,
-      (id: ResourceRef, project: ProjectRef, caller: Caller) => files.fetchContent(FileId(id, project))(caller),
+      (id: ResourceRef, project: ProjectRef, caller: Caller) => files.fetchContent(FileId(id, project))(using caller),
       fileSelf
     )
 

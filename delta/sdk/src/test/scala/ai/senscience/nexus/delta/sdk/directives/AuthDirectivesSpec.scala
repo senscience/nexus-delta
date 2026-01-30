@@ -34,11 +34,11 @@ class AuthDirectivesSpec
     with CatsIOValues
     with RemoteContextResolutionFixtures {
 
-  implicit val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private given RemoteContextResolution = loadCoreContexts(Set.empty)
 
-  implicit private val jsonKeys: JsonKeyOrdering =
+  private given JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys = List("@context", "@id", "@type", "reason", "details"))
 
   val user: Subject = User("alice", Label.unsafe("wonderland"))
@@ -67,7 +67,7 @@ class AuthDirectivesSpec
   private val callerRoute: Route =
     handleExceptions(RdfExceptionHandler.apply) {
       path("user") {
-        directives.extractCaller { implicit caller =>
+        directives.extractCaller { caller =>
           get {
             caller match {
               case Anonymous             => complete("anonymous")
@@ -87,8 +87,8 @@ class AuthDirectivesSpec
   private val authorizationRoute: Route =
     handleExceptions(authExceptionHandler) {
       path("user") {
-        directives.extractCaller { implicit caller =>
-          directives.authorizeFor(AclAddress.Root, permission).apply {
+        directives.extractCaller { caller =>
+          directives.authorizeFor(AclAddress.Root, permission)(using caller).apply {
             get {
               caller match {
                 case Anonymous             => complete("anonymous")

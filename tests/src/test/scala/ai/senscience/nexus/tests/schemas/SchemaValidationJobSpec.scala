@@ -82,6 +82,7 @@ final class SchemaValidationJobSpec extends BaseIntegrationSpec {
         json"""
         {
         "@context": "https://bluebrain.github.io/nexus/contexts/statistics.json",
+        "@type" : "ViewStatistics",
         "delayInSeconds": 0,
         "discardedEvents": 2,
         "evaluatedEvents": 1,

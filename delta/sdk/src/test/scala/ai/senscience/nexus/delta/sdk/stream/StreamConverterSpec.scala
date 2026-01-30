@@ -34,7 +34,7 @@ import scala.concurrent.duration.*
 import scala.util.*
 
 object StreamConverterSpec {
-  implicit class AwaitHelper[A](f: Future[A]) {
+  extension [A](f: Future[A]) {
     def await: A = Await.result(f, 3.seconds)
   }
 

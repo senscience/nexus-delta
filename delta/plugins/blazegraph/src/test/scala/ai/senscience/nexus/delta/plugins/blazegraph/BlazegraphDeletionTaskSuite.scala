@@ -12,7 +12,7 @@ import cats.effect.{IO, Ref}
 
 class BlazegraphDeletionTaskSuite extends NexusSuite {
 
-  implicit private val subject: Subject = Anonymous
+  private given Subject = Anonymous
 
   private val project     = ProjectRef.unsafe("org", "proj")
   private val indexingRev = 1

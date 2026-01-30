@@ -18,7 +18,7 @@ object AggregationResult {
   private val total        = "total"
   private val aggregations = "aggregations"
 
-  implicit val aggregationResultEncoder: Encoder[AggregationResult] =
+  given Encoder[AggregationResult] =
     Encoder.instance[AggregationResult] { agg =>
       Json.obj(
         total        := agg.total,

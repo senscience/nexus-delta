@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{*, given}
 import ai.senscience.nexus.delta.sdk.model.ResourceAccess
 import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.projects.{FetchContext, FetchContextDummy}
@@ -34,10 +34,11 @@ import java.util.UUID
 
 class ElasticSearchViewsRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture with DoobieScalaTestFixture {
 
-  override given rcr: RemoteContextResolution = loadCoreContexts(contexts.definition)
-  private val uuid: UUID                      = UUID.randomUUID()
-  private given UUIDF                         = UUIDF.fixed(uuid)
-  private given FusionConfig                  = fusionConfig
+  override def extraContexts: RemoteContextResolution = loadCoreContexts(contexts.definition)
+
+  private val uuid: UUID     = UUID.randomUUID()
+  private given UUIDF        = UUIDF.fixed(uuid)
+  private given FusionConfig = fusionConfig
 
   private val myId         = nxv + "myid"
   private val myIdEncoded  = encodeUriPath(myId.toString)

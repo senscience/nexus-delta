@@ -128,13 +128,13 @@ object CreateProjects {
   final case class Repeat(file: String, times: Int)
 
   object Repeat {
-    implicit val repeatReader: ConfigReader[Repeat] = deriveReader[Repeat]
+    given ConfigReader[Repeat] = deriveReader[Repeat]
   }
 
   final case class ResourceConfig(prefixPath: Path, files: List[String], repeat: Option[Repeat])
 
   object ResourceConfig {
-    implicit val contextConfigReader: ConfigReader[ResourceConfig] = deriveReader[ResourceConfig]
+    given ConfigReader[ResourceConfig] = deriveReader[ResourceConfig]
   }
 
   final case class BenchmarkConfig(
@@ -147,7 +147,7 @@ object CreateProjects {
   )
 
   object BenchmarkConfig {
-    implicit val populateProjectsConfigReaders: ConfigReader[BenchmarkConfig] = deriveReader[BenchmarkConfig]
+    given ConfigReader[BenchmarkConfig] = deriveReader[BenchmarkConfig]
   }
 
 }

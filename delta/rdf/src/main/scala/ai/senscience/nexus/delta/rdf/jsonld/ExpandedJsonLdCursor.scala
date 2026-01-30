@@ -53,19 +53,19 @@ final class ExpandedJsonLdCursor private (value: ACursor) {
     }
 
   /**
-    * Attempt to decode the current cursor using the implicitly available [[JsonLdDecoder]]
+    * Attempt to decode the current cursor using the available [[JsonLdDecoder]]
     */
-  def get[A](implicit decoder: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
+  def get[A](using decoder: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
     decoder(this)
 
   /**
-    * Attempt to decode the current cursor using the implicitly available [[JsonLdDecoder]] and if the focus did not
-    * succeed return the passed ''default''
+    * Attempt to decode the current cursor using the available [[JsonLdDecoder]] and if the focus did not succeed return
+    * the passed ''default''
     *
     * @param default
     *   the value returned when the focus did not succed on the current cursor
     */
-  def getOrElse[A](default: => A)(implicit decoder: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
+  def getOrElse[A](default: => A)(using decoder: JsonLdDecoder[A]): Either[JsonLdDecoderError, A] =
     if succeeded then decoder(this) else Right(default)
 
   /**
@@ -93,20 +93,20 @@ final class ExpandedJsonLdCursor private (value: ACursor) {
   /**
     * Gets the @value field as a String and then attempts to convert it to [[A]] using the function ''toValue''
     */
-  def getValue[A](toValue: String => Option[A])(implicit A: ClassTag[A]): Either[DecodingFailure, A] =
+  def getValue[A](toValue: String => Option[A])(using A: ClassTag[A]): Either[DecodingFailure, A] =
     get[String](keywords.value).flatMap { str =>
       toValue(str).toRight(
         ParsingFailure(A.simpleName, str, DownField(keywords.value) :: DownArray :: history)
       )
     }
 
-  private[jsonld] def get[A: Decoder](key: String)(implicit A: ClassTag[A]): Either[DecodingFailure, A] =
+  private[jsonld] def get[A: Decoder](key: String)(using A: ClassTag[A]): Either[DecodingFailure, A] =
     value.downArray.get[Option[A]](key).leftMap(err => ParsingFailure(A.simpleName, err.history)).flatMap {
       case Some(s) => Right(s)
       case None    => Left(KeyMissingFailure(key, history))
     }
 
-  private[jsonld] def getOr[A: Decoder: ClassTag](
+  private[jsonld] def getOr[A: {Decoder, ClassTag}](
       key: String,
       toValue: String => Option[A]
   ): Either[DecodingFailure, A] =

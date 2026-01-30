@@ -1,23 +1,25 @@
 package ai.senscience.nexus.delta.rdf.jsonld
 
-import ai.senscience.nexus.delta.rdf.{Fixtures, IriOrBNode}
+import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.{*, given}
 import ai.senscience.nexus.delta.rdf.jsonld.JsonLdEncoderSuite.Permissions
+import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.testkit.mu.{NexusSuite, StringAssertions}
 import io.circe.syntax.*
 import io.circe.{Encoder, JsonObject}
 
-class JsonLdEncoderSuite extends NexusSuite with Fixtures with StringAssertions {
+class JsonLdEncoderSuite extends NexusSuite with StringAssertions {
 
   private val permissions        = Permissions(Set("read", "write", "execute"))
   private val permissionsContext = json"""{ "@context": {"permissions": "${nxv + "permissions"}"} }"""
 
-  implicit override val remoteResolution: RemoteContextResolution =
+  given JsonLdApi                                 = TitaniumJsonLdApi.strict
+  given remoteResolution: RemoteContextResolution =
     RemoteContextResolution.fixed(contexts.permissions -> permissionsContext.topContextValueOrEmpty)
 
   test("return a compacted Json-LD format") {
@@ -80,10 +82,10 @@ object JsonLdEncoderSuite {
   final case class Permissions(permissions: Set[String])
 
   object Permissions {
-    implicit private val permissionsEncoder: Encoder.AsObject[Permissions] =
+    given Encoder.AsObject[Permissions] =
       Encoder.AsObject.instance(p => JsonObject.empty.add("permissions", p.permissions.asJson))
 
-    implicit final val permissionsJsonLdEncoder: JsonLdEncoder[Permissions] =
+    given JsonLdEncoder[Permissions] =
       JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.permissions))
   }
 }

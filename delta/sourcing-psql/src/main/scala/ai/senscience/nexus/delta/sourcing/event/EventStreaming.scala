@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.event
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
@@ -30,7 +30,7 @@ object EventStreaming {
       offset: Offset,
       config: QueryConfig,
       xas: Transactors
-  )(implicit md: MultiDecoder[A]): ElemStream[A] =
+  )(using MultiDecoder[A]): ElemStream[A] =
     streamA(
       offset,
       offset => scopedEvents(types, scope, offset, config),
@@ -61,7 +61,7 @@ object EventStreaming {
       query: Offset => Query0[Elem[Json]],
       xas: Transactors,
       cfg: QueryConfig
-  )(implicit md: MultiDecoder[A]): ElemStream[A] =
+  )(using md: MultiDecoder[A]): ElemStream[A] =
     streamFA(start, query, xas, cfg, (tpe, json) => IO.pure(md.decodeJson(tpe, json).toOption))
 
   /**

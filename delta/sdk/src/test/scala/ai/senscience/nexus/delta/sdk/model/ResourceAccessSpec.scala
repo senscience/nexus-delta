@@ -9,7 +9,7 @@ import org.http4s.syntax.literals.uri
 
 class ResourceAccessSpec extends BaseSpec {
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   "ResourceAccess" should {
     val projectRef = ProjectRef.unsafe("myorg", "myproject")

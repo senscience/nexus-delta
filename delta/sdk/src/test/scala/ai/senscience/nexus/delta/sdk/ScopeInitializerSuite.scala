@@ -16,7 +16,7 @@ import java.time.Instant
 
 class ScopeInitializerSuite extends NexusSuite {
 
-  implicit private val subject: Subject = User("myuser", Label.unsafe("myrealm"))
+  private given subject: Subject = User("myuser", Label.unsafe("myrealm"))
 
   private val fail = new ScopeInitialization {
     override def onOrganizationCreation(organization: Organization, subject: Subject): IO[Unit] =

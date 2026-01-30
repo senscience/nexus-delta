@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -46,7 +46,8 @@ final class MainIndexRoutes(
     }
 
   private def views = pathPrefix("views") {
-    extractCaller { case given Caller =>
+    extractCaller { caller =>
+      given Caller = caller
       projectRef { project =>
         val authorizeRead  = authorizeFor(project, Read)
         val authorizeWrite = authorizeFor(project, Write)
@@ -76,7 +77,7 @@ final class MainIndexRoutes(
                   },
                   // Remove an main indexing offset (restart the view)
                   (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(projection, fromOffset)
+                    projectionDirectives.scheduleRestart(projection, fromOffset)(using caller)
                   }
                 )
               }
@@ -103,12 +104,12 @@ final class MainIndexRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("main") & pathPrefix("reindex")) {
-      extractCaller { case given Caller =>
-        val authorizeRootWrite = authorizeFor(Root, Write)
+      extractCaller { caller =>
+        val authorizeRootWrite = authorizeFor(Root, Write)(using caller)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
             StatusCodes.Accepted,
-            restartScheduler.run(offset).start.void
+            restartScheduler.run(offset)(using caller).start.void
           )
         }
       }

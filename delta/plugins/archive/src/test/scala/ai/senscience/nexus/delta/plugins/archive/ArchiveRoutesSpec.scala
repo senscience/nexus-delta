@@ -25,7 +25,7 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.implicits.{given, *}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
@@ -58,10 +58,10 @@ import scala.concurrent.duration.*
 
 class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with StorageFixtures with ArchiveHelpers {
 
-  private val uuid                          = UUID.fromString("8249ba90-7cc6-4de5-93a1-802c04200dcc")
-  implicit private val uuidF: StatefulUUIDF = UUIDF.stateful(uuid).accepted
+  private val uuid                   = UUID.fromString("8249ba90-7cc6-4de5-93a1-802c04200dcc")
+  private given uuidF: StatefulUUIDF = UUIDF.stateful(uuid).accepted
 
-  implicit override def rcr: RemoteContextResolution = RemoteContextResolutionFixture.rcr
+  override def extraContexts: RemoteContextResolution = RemoteContextResolutionFixture.rcr
 
   private val readAll      = User("readAll", Label.unsafe("realm"))
   private val noFileAccess = User("noFileAccess", Label.unsafe("realm"))
@@ -70,7 +70,7 @@ class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with S
     ProjectGen.project("org", "proj", base = nxv.base, mappings = ApiMappings("file" -> schemas.files))
   private val projectRef = project.ref
 
-  implicit private val jsonKeyOrdering: JsonKeyOrdering =
+  private given JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
@@ -288,7 +288,7 @@ class ArchiveRoutesSpec extends BaseRouteSpec with DoobieScalaTestFixture with S
       Get(s"/v1/archives/$projectRef/$uuid?ignoreNotFound=true") ~> as(readAll) ~> acceptZip ~> routes ~> check {
         status shouldEqual StatusCodes.OK
         header[`Content-Type`].value.value() shouldEqual `application/zip`.value
-        val result = fromZip(responseEntity.dataBytes)(materializer, executor)
+        val result = fromZip(responseEntity.dataBytes)(using materializer, executor)
 
         result.keySet shouldEqual Set(
           s"${project.ref}/file/file.txt",

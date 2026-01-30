@@ -17,10 +17,12 @@ import org.typelevel.otel4s.trace.Tracer
 
 trait RouteFixtures extends RemoteContextResolutionFixtures {
 
-  implicit val api: JsonLdApi = TitaniumJsonLdApi.strict
-  private given Tracer[IO]    = Tracer.noop[IO]
+  given api: JsonLdApi     = TitaniumJsonLdApi.strict
+  private given Tracer[IO] = Tracer.noop[IO]
 
-  implicit def rcr: RemoteContextResolution =
+  def extraContexts: RemoteContextResolution = RemoteContextResolution.never
+
+  given rcr: RemoteContextResolution =
     loadCoreContexts(
       acls.contexts.definition ++
         identities.contexts.definition ++
@@ -31,19 +33,19 @@ trait RouteFixtures extends RemoteContextResolutionFixtures {
         resolvers.contexts.definition ++
         schemas.contexts.definition ++
         typehierarchy.contexts.definition
-    )
+    ).merge(extraContexts)
 
-  implicit val ordering: JsonKeyOrdering =
+  given ordering: JsonKeyOrdering =
     JsonKeyOrdering.default(topKeys =
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
 
-  implicit val baseUri: BaseUri                   = BaseUri.unsafe("http://localhost", "v1")
-  implicit val paginationConfig: PaginationConfig = PaginationConfig(5, 10, 5)
-  implicit val f: FusionConfig                    =
+  given baseUri: BaseUri                   = BaseUri.unsafe("http://localhost", "v1")
+  given paginationConfig: PaginationConfig = PaginationConfig(5, 10, 5)
+  given f: FusionConfig                    =
     FusionConfig(uri"https://bbp.epfl.ch/nexus/web/", enableRedirects = true, uri"https://bbp.epfl.ch")
-  implicit val rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
-  implicit val exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
+  given rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
+  given exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
 
   val realm: Label = Label.unsafe("wonderland")
   val alice: User  = User("alice", realm)

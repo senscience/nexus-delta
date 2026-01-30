@@ -54,7 +54,7 @@ final class CompositeViews private (
     * @param value
     *   the view configuration
     */
-  def create(id: IdSegment, project: ProjectRef, value: CompositeViewFields)(implicit
+  def create(id: IdSegment, project: ProjectRef, value: CompositeViewFields)(using
       subject: Subject,
       baseUri: BaseUri
   ): IO[ViewResource] = {
@@ -76,7 +76,7 @@ final class CompositeViews private (
     * @param caller
     *   the caller that initiated the action
     */
-  def create(project: ProjectRef, source: Json)(implicit caller: Caller): IO[ViewResource] = {
+  def create(project: ProjectRef, source: Json)(using caller: Caller): IO[ViewResource] = {
     for {
       pc           <- fetchContext.onCreate(project)
       (iri, value) <- sourceDecoder(project, pc, source)
@@ -92,10 +92,8 @@ final class CompositeViews private (
     *   the parent project of the view
     * @param source
     *   the json representation of the view
-    * @param caller
-    *   the caller that initiated the action
     */
-  def create(id: IdSegment, project: ProjectRef, source: Json)(implicit caller: Caller): IO[ViewResource] = {
+  def create(id: IdSegment, project: ProjectRef, source: Json)(using caller: Caller): IO[ViewResource] = {
     for {
       pc        <- fetchContext.onCreate(project)
       iri       <- expandIri(id, pc)
@@ -115,18 +113,13 @@ final class CompositeViews private (
     *   the current view revision
     * @param value
     *   the new view configuration
-    * @param subject
-    *   the subject that initiated the action
     */
   def update(
       id: IdSegment,
       project: ProjectRef,
       rev: Int,
       value: CompositeViewFields
-  )(implicit
-      subject: Subject,
-      baseUri: BaseUri
-  ): IO[ViewResource] = {
+  )(using subject: Subject, baseUri: BaseUri): IO[ViewResource] = {
     for {
       pc    <- fetchContext.onModify(project)
       iri   <- expandIri(id, pc)
@@ -146,10 +139,8 @@ final class CompositeViews private (
     *   the current view revision
     * @param source
     *   the new view configuration in json representation
-    * @param caller
-    *   the caller that initiated the action
     */
-  def update(id: IdSegment, project: ProjectRef, rev: Int, source: Json)(implicit caller: Caller): IO[ViewResource] = {
+  def update(id: IdSegment, project: ProjectRef, rev: Int, source: Json)(using caller: Caller): IO[ViewResource] = {
     for {
       pc        <- fetchContext.onModify(project)
       iri       <- expandIri(id, pc)
@@ -174,7 +165,7 @@ final class CompositeViews private (
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       pc  <- fetchContext.onModify(project)
       iri <- expandIri(id, pc)
@@ -198,7 +189,7 @@ final class CompositeViews private (
       id: IdSegment,
       project: ProjectRef,
       rev: Int
-  )(implicit subject: Subject): IO[ViewResource] = {
+  )(using subject: Subject): IO[ViewResource] = {
     for {
       pc  <- fetchContext.onModify(project)
       iri <- expandIri(id, pc)
@@ -218,7 +209,7 @@ final class CompositeViews private (
     * @param subject
     *   the subject that initiated the action
     */
-  private[compositeviews] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(implicit
+  private[compositeviews] def internalDeprecate(id: Iri, project: ProjectRef, rev: Int)(using
       subject: Subject
   ): IO[Unit] =
     eval(DeprecateCompositeView(id, project, rev, subject)).void
@@ -395,7 +386,7 @@ object CompositeViews {
         for {
           t     <- clock.realTimeInstant
           u     <- uuidF()
-          value <- CompositeViewFactory.create(c.value)(c.projectBase, uuidF)
+          value <- CompositeViewFactory.create(c.value)(using c.projectBase, uuidF)
           _     <- validate(u, value)
         } yield CompositeViewCreated(c.id, c.project, u, value, c.source, 1, t, c.subject)
       case Some(_) => IO.raiseError(ViewAlreadyExists(c.id, c.project))
@@ -412,7 +403,7 @@ object CompositeViews {
         val newRev         = s.rev + 1
         val newIndexingRev = IndexingRev(newRev)
         for {
-          value <- CompositeViewFactory.update(c.value, s.value, newIndexingRev)(c.projectBase, uuidF)
+          value <- CompositeViewFactory.update(c.value, s.value, newIndexingRev)(using c.projectBase, uuidF)
           _     <- validate(s.uuid, value)
           t     <- clock.realTimeInstant
         } yield CompositeViewUpdated(c.id, c.project, s.uuid, value, c.source, newRev, t, c.subject)

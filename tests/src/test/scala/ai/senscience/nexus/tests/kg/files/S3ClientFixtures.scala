@@ -52,10 +52,10 @@ trait S3ClientFixtures {
       .map(_._1)
   }
 
-  def createBucket(bucketName: String)(implicit s3Client: S3AsyncClientOp[IO]): IO[Unit] =
+  def createBucket(bucketName: String)(using s3Client: S3AsyncClientOp[IO]): IO[Unit] =
     s3Client.createBucket(CreateBucketRequest.builder.bucket(bucketName).build).void
 
-  def putFile(bucket: String, key: String, content: String)(implicit s3Client: S3AsyncClientOp[IO]): IO[String] = {
+  def putFile(bucket: String, key: String, content: String)(using s3Client: S3AsyncClientOp[IO]): IO[String] = {
     val s3                                   = S3.create(s3Client)
     val charset                              = StandardCharsets.UTF_8
     val contentBytes                         = content.getBytes(charset)
@@ -68,7 +68,7 @@ trait S3ClientFixtures {
     Stream.fromIterator[IO](contentBytes.iterator, 16).through(uploadPipe).compile.drain.as(sha256Base64Encoded)
   }
 
-  def uploadLogoFileToS3(bucket: String, key: String)(implicit s3Client: S3AsyncClientOp[IO]): IO[PutObjectResponse] =
+  def uploadLogoFileToS3(bucket: String, key: String)(using s3Client: S3AsyncClientOp[IO]): IO[PutObjectResponse] =
     s3Client.putObject(
       PutObjectRequest.builder
         .bucket(bucket)
@@ -79,7 +79,7 @@ trait S3ClientFixtures {
       Paths.get(getClass.getResource("/kg/files/nexus-logo.png").toURI)
     )
 
-  def cleanupBucket(bucket: String)(implicit s3Client: S3AsyncClientOp[IO]): IO[Unit] =
+  def cleanupBucket(bucket: String)(using s3Client: S3AsyncClientOp[IO]): IO[Unit] =
     for {
       resp   <- s3Client.listObjects(ListObjectsRequest.builder.bucket(bucket).build)
       objects = resp.contents.asScala.toList

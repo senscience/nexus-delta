@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.resolvers.Resolvers
@@ -167,7 +167,7 @@ object ResolverEvent {
     Serializer.dropNulls()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[ResolverEvent] = new SseEncoder[ResolverEvent] {
+  def sseEncoder(using base: BaseUri): SseEncoder[ResolverEvent] = new SseEncoder[ResolverEvent] {
 
     override val databaseDecoder: Decoder[ResolverEvent] = serializer.codec
 
@@ -176,8 +176,8 @@ object ResolverEvent {
     override val selectors: Set[Label] = Set(Label.unsafe("resolvers"))
 
     override val sseEncoder: Encoder.AsObject[ResolverEvent] = {
-      val context                                               = ContextValue(contexts.metadata, contexts.resolvers)
-      implicit val config: Configuration                        = Configuration.default
+      val context                  = ContextValue(contexts.metadata, contexts.resolvers)
+      given Configuration          = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => nxv.resolverId.prefix
@@ -188,8 +188,8 @@ object ResolverEvent {
           case "subject" => nxv.eventSubject.prefix
           case other     => other
         })
-      implicit val subjectEncoder: Encoder[Subject]             = IriEncoder.jsonEncoder[Subject]
-      implicit val resolverValueEncoder: Encoder[ResolverValue] = Encoder.instance[ResolverValue](_ => Json.Null)
+      given Encoder[Subject]       = IriEncoder.jsonEncoder[Subject]
+      given Encoder[ResolverValue] = Encoder.instance[ResolverValue](_ => Json.Null)
       Encoder.encodeJsonObject.contramapObject { event =>
         deriveConfiguredEncoder[ResolverEvent]
           .encodeObject(event)

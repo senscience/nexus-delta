@@ -2,17 +2,18 @@ package ai.senscience.nexus.testkit.mu
 
 import munit.Assertions.fail
 import munit.Suite
+import munit.Location
 
 trait EitherValues {
   self: Suite =>
 
-  implicit class EitherValuesOps[L, R](either: Either[L, R]) {
-    def rightValue(implicit loc: munit.Location): R = either match {
+  extension [L, R](either: Either[L, R]) {
+    def rightValue(using Location): R = either match {
       case Right(value) => value
       case Left(value)  => fail(s"Expected Right but got Left($value)")
     }
 
-    def leftValue(implicit loc: munit.Location): L = either match {
+    def leftValue(using Location): L = either match {
       case Left(value)  => value
       case Right(value) => fail(s"Expected Left but got Right($value)")
     }

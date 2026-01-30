@@ -27,8 +27,8 @@ class ElasticSearchViewSTMSpec extends CatsEffectSpec {
 
   "An ElasticSearch STM" when {
 
-    val uuid                  = UUID.randomUUID()
-    implicit val uuidF: UUIDF = UUIDF.fixed(uuid)
+    val uuid    = UUID.randomUUID()
+    given UUIDF = UUIDF.fixed(uuid)
 
     val epoch       = Instant.EPOCH
     val epochPlus10 = Instant.EPOCH.plusMillis(10L)

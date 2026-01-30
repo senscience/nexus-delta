@@ -107,9 +107,9 @@ object ResourceResolutionReport {
     override def success: Boolean = true
   }
 
-  implicit private val config: Configuration = Configuration.default
+  private given Configuration = Configuration.default
 
-  implicit val resolverReportEncoder: Encoder.AsObject[ResolverReport] = {
+  given Encoder.AsObject[ResolverReport] = {
     Encoder.AsObject.instance { r =>
       JsonObject(
         "resolverId" -> r.resolverId.asJson,
@@ -131,17 +131,17 @@ object ResourceResolutionReport {
     }
   }
 
-  implicit val resourceResolutionReportEncoder: Encoder.AsObject[ResourceResolutionReport] =
+  given Encoder.AsObject[ResourceResolutionReport] =
     deriveConfiguredEncoder[ResourceResolutionReport]
 
-  implicit final val resolverReportJsonLdEncoder: JsonLdEncoder[ResolverReport] =
+  given JsonLdEncoder[ResolverReport] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.resolvers))
 
-  implicit val resolverReportHttpResponseFields: HttpResponseFields[ResolverReport] = HttpResponseFields.defaultOk
+  given HttpResponseFields[ResolverReport] = HttpResponseFields.defaultOk
 
-  implicit final val resourceResolutionReportJsonLdEncoder: JsonLdEncoder[ResourceResolutionReport] =
+  given JsonLdEncoder[ResourceResolutionReport] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.resolvers))
 
-  implicit val resourceResolutionReportHttpResponseFields: HttpResponseFields[ResourceResolutionReport] =
+  given HttpResponseFields[ResourceResolutionReport] =
     HttpResponseFields.defaultOk
 }

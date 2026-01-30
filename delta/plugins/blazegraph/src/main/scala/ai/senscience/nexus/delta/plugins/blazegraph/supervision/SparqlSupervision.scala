@@ -36,7 +36,7 @@ object SparqlSupervision {
   object SparqlNamespaceTriples {
     val empty: SparqlNamespaceTriples = SparqlNamespaceTriples(0L, Map.empty, Map.empty)
 
-    implicit val sparqlNamespaceTriplesMonoid: Monoid[SparqlNamespaceTriples] = new Monoid[SparqlNamespaceTriples] {
+    given Monoid[SparqlNamespaceTriples] = new Monoid[SparqlNamespaceTriples] {
       override def empty: SparqlNamespaceTriples = SparqlNamespaceTriples.empty
 
       override def combine(x: SparqlNamespaceTriples, y: SparqlNamespaceTriples): SparqlNamespaceTriples =
@@ -47,7 +47,7 @@ object SparqlSupervision {
         )
     }
 
-    implicit final val sparqlNamespacesEncoder: Encoder[SparqlNamespaceTriples] = Encoder.AsObject.instance { value =>
+    given Encoder[SparqlNamespaceTriples] = Encoder.AsObject.instance { value =>
       val assigned = value.assigned.toVector.sortBy(_._1.toString).map { case (view, count) =>
         Json.obj("project" := view.project, "view" := view.viewId, "count" := count)
       }

@@ -26,13 +26,11 @@ object Tags {
 
   def apply(maybeTag: Option[UserTag], rev: Int): Tags = maybeTag.fold(empty)(t => apply(t -> rev))
 
-  implicit val tagsDecoder: Decoder[Tags]          =
-    Decoder.decodeMap[UserTag, Int].map(Tags(_))
-  implicit val tagsEncoder: Encoder.AsObject[Tags] =
-    Encoder.encodeMap[UserTag, Int].contramapObject(_.value)
+  given Decoder[Tags]          = Decoder.decodeMap[UserTag, Int].map(Tags(_))
+  given Encoder.AsObject[Tags] = Encoder.encodeMap[UserTag, Int].contramapObject(_.value)
 
-  implicit final val tagsJsonLdEncoder: JsonLdEncoder[Tags] = {
-    implicit val tagsEncoder: Encoder.AsObject[Tags] = Encoder.AsObject.instance { tags =>
+  given JsonLdEncoder[Tags] = {
+    given Encoder.AsObject[Tags] = Encoder.AsObject.instance { tags =>
       JsonObject.apply(
         "tags" -> Json.fromValues(tags.value.map { case (tag, rev) =>
           Json.obj("tag" -> tag.asJson, "rev" -> rev.asJson)

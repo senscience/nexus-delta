@@ -252,7 +252,7 @@ object CompositeViewDef {
       closeBranch: (CompositeBranch, ProjectionProgress) => Operation
   ): IO[ElemStream[Unit]] = {
     // We override the default implementation in FS2 (where it appends the two streams)
-    implicit val semigroup: Semigroup[ElemStream[Unit]] = (x: ElemStream[Unit], y: ElemStream[Unit]) => x.merge(y)
+    given Semigroup[ElemStream[Unit]] = (x: ElemStream[Unit], y: ElemStream[Unit]) => x.merge(y)
 
     val sources = NonEmptyChain.fromNonEmptyList(view.value.sources.toNel.map(_._2))
     val targets = NonEmptyChain.fromNonEmptyList(view.value.projections.toNel.map(_._2))
@@ -385,7 +385,7 @@ object CompositeViewDef {
 
     val start: RebuildCondition = RebuildCondition(diffOffset = false, noRemaining = false)
 
-    implicit val rebuildConditionSemigroup: Semigroup[RebuildCondition] = (x: RebuildCondition, y: RebuildCondition) =>
+    given Semigroup[RebuildCondition] = (x: RebuildCondition, y: RebuildCondition) =>
       RebuildCondition(x.diffOffset || y.diffOffset, x.noRemaining && y.noRemaining)
   }
 

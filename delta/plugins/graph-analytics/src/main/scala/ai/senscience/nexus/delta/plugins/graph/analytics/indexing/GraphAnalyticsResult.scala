@@ -84,7 +84,7 @@ object GraphAnalyticsResult {
     ) =
       new Index(project, id, remoteContexts, rev, true, types, createdAt, createdBy, updatedAt, updatedBy, None)
 
-    implicit val encoder: Encoder[Index] = Encoder.instance { i =>
+    given Encoder[Index] = Encoder.instance { i =>
       import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
       Json
         .obj(

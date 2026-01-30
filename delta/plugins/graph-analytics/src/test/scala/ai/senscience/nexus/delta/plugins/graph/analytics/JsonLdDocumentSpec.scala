@@ -14,9 +14,9 @@ import io.circe.syntax.EncoderOps
 class JsonLdDocumentSpec extends CatsEffectSpec with ContextFixtures with CirceEq {
 
   "A JsonLdDocument" should {
-    implicit val jsonLdApi: JsonLdApi = TitaniumJsonLdApi.lenient
-    val input                         = jsonContentOf("reconstructed-cell.json")
-    val expanded                      = ExpandedJsonLd(input).accepted
+    given JsonLdApi = TitaniumJsonLdApi.lenient
+    val input       = jsonContentOf("reconstructed-cell.json")
+    val expanded    = ExpandedJsonLd(input).accepted
 
     "be generated from expanded Json resource" in {
       val nodeRef1                                  = iri"http://api.brain-map.org/api/v2/data/Structure/733"

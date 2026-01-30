@@ -22,6 +22,5 @@ final case class RealmsConfig(
 )
 
 object RealmsConfig {
-  implicit final val realmsConfigReader: ConfigReader[RealmsConfig] =
-    deriveReader[RealmsConfig]
+  given ConfigReader[RealmsConfig] = deriveReader[RealmsConfig]
 }

@@ -19,7 +19,7 @@ import io.circe.{Json, JsonObject}
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`text/html`
 import org.apache.pekko.http.scaladsl.model.headers.*
 import org.apache.pekko.http.scaladsl.model.{HttpResponse, MediaRange, StatusCodes}
-import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers.stringUnmarshaller
 import org.apache.pekko.util.ByteString
 import org.scalatest.Assertion
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
@@ -739,7 +739,7 @@ class ResourcesSpec extends BaseIntegrationSpec {
         .value
         .uri
         .toString() shouldEqual s"https://bbp.epfl.ch/nexus/web/$project1/resources/test-resource:1"
-    }(PredefinedFromEntityUnmarshallers.stringUnmarshaller)
+    }(using stringUnmarshaller)
   }
 
   "refreshing a resource" should {

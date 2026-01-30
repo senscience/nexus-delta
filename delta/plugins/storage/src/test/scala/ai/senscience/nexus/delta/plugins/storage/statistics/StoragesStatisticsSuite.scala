@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.plugins.storage.statistics.StoragesStatisticsSu
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesStatistics
 import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageStatEntry
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.syntax.iriStringContextSyntax
+import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.{Created, Deprecated, ProjectScopedMetric, TagDeleted, Tagged, Updated}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}

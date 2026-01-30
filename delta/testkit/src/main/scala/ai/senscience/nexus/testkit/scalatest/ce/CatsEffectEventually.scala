@@ -1,7 +1,6 @@
 package ai.senscience.nexus.testkit.scalatest.ce
 
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig.MaximumCumulativeDelayConfig
-import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectEventually.logger
 import cats.effect.IO
@@ -13,7 +12,7 @@ import org.scalatest.time.Span
 import retry.RetryDetails.NextStep
 
 trait CatsEffectEventually { self: Assertions =>
-  implicit def ioRetrying[T]: Retrying[IO[T]] = new Retrying[IO[T]] {
+  given ioRetrying: [T] => Retrying[IO[T]] = new Retrying[IO[T]] {
     override def retry(timeout: Span, interval: Span, pos: Position)(fun: => IO[T]): IO[T] = {
       val strategy = RetryStrategy(
         MaximumCumulativeDelayConfig(timeout, interval),
@@ -28,11 +27,9 @@ trait CatsEffectEventually { self: Assertions =>
             )
           }
       )
-      fun
-        .retry(strategy)
-        .adaptError { case e: AssertionError =>
-          fail(s"assertion failed after retrying with eventually: ${e.getMessage}", e)
-        }
+      RetryStrategy.use(fun, strategy).adaptError { case e: AssertionError =>
+        fail(s"Assertion failed after retrying with eventually: ${e.getMessage}", e)
+      }
     }
   }
 }

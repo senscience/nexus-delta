@@ -28,10 +28,10 @@ abstract class SparqlClientSuite extends NexusSuite with SparqlClientSetup.Fixtu
 
   def client: SparqlClient
 
-  implicit private val baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
+  private given baseUri: BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
-  implicit private val api: JsonLdApi               = TitaniumJsonLdApi.strict
-  implicit private val rcr: RemoteContextResolution = RemoteContextResolution.never
+  private given api: JsonLdApi               = TitaniumJsonLdApi.strict
+  private given rcr: RemoteContextResolution = RemoteContextResolution.never
 
   private def jsonToNtriples(json: Json) = ExpandedJsonLd(json).flatMap(_.toGraph).flatMap(_.toNTriples)
 

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState
 import ai.senscience.nexus.delta.sourcing.PullRequest.PullRequestState.PullRequestActive
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.EntityDependency.{DependsOn, ReferencedBy}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -28,7 +28,7 @@ class EntityDependencyStoreSuite extends NexusSuite with Doobie.Fixture {
 
   private val queryConfig = QueryConfig(10, RefreshStrategy.Stop)
 
-  implicit val pullRequestDecoder: Decoder[PullRequestState] = PullRequestState.serializer.codec
+  private given Decoder[PullRequestState] = PullRequestState.serializer.codec
 
   private lazy val stateStore = ScopedStateStore(
     PullRequest.entityType,

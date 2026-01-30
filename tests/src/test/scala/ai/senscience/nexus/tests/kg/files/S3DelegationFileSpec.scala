@@ -28,7 +28,7 @@ class S3DelegationFileSpec extends BaseIntegrationSpec with S3ClientFixtures {
   private val projectRef = s"$orgId/$projId"
   private val storageId  = "https://bluebrain.github.io/nexus/vocabulary/defaultS3Storage"
 
-  implicit private val s3Client: S3AsyncClientOp[IO] = createS3Client.accepted
+  private given S3AsyncClientOp[IO] = createS3Client.accepted
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -123,7 +123,7 @@ class S3DelegationFileSpec extends BaseIntegrationSpec with S3ClientFixtures {
       val originalFile      = FileInput(fileId, filename, ContentTypes.`text/plain(UTF-8)`, "test")
       val delegationPayload = Json.obj("filename" := updatedFilename, "mediaType" := "image/png")
       for {
-        _               <- deltaClient.uploadFile(projectRef, "defaultS3Storage", originalFile, None) { expectCreated }(Coyote)
+        _               <- deltaClient.uploadFile(projectRef, "defaultS3Storage", originalFile, None) { expectCreated }(using Coyote)
         delegationUrl    = s"${delegateUriWithId(fileId)}&rev=1&tag=delegated"
         jwsPayload      <- deltaClient.putAndReturn[Json](delegationUrl, delegationPayload, Coyote) { expectOk }
         delegateResponse = parseDelegationResponse(jwsPayload)
@@ -177,8 +177,8 @@ object S3DelegationFileSpec {
   final case class TargetLocation(storageId: String, path: String, bucket: String)
   final case class DelegationResponse(id: String, project: String, targetLocation: TargetLocation)
   object DelegationResponse {
-    implicit val targetLocationDecoder: Decoder[TargetLocation]         = deriveDecoder
-    implicit val delegationResponseDecoder: Decoder[DelegationResponse] = deriveDecoder
+    given Decoder[TargetLocation]     = deriveDecoder
+    given Decoder[DelegationResponse] = deriveDecoder
   }
 
 }

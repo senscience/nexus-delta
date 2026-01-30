@@ -15,8 +15,7 @@ case class FileCustomMetadata(
 
 object FileCustomMetadata {
 
-  implicit val fileUploadMetadataDecoder: Codec[FileCustomMetadata] =
-    deriveCodec[FileCustomMetadata]
+  given Codec[FileCustomMetadata] = deriveCodec[FileCustomMetadata]
 
   val empty: FileCustomMetadata = FileCustomMetadata(None, None, None)
 

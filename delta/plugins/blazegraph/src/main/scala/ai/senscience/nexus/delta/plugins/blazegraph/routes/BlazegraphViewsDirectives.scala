@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.*
+import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.given
 import ai.senscience.nexus.delta.sdk.utils.HeadersUtils
 import ai.senscience.nexus.pekko.marshalling.RdfMediaTypes.*
 import cats.effect.IO

@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.deletion.model
 
 import ai.senscience.nexus.delta.sdk.deletion.model.ProjectDeletionReport.Stage
-import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import cats.syntax.all.*
@@ -44,8 +44,7 @@ object ProjectDeletionReport {
     deriveConfiguredCodec[ProjectDeletionReport]
   }
 
-  implicit val projectDeletionGet: Get[ProjectDeletionReport] =
-    Get[Json].temap(_.as[ProjectDeletionReport].leftMap(_.message))
+  given Get[ProjectDeletionReport] = Get[Json].temap(_.as[ProjectDeletionReport].leftMap(_.message))
 
   /**
     * Stage of deletion
@@ -65,8 +64,8 @@ object ProjectDeletionReport {
 
     def apply(name: String, log: String): Stage = Stage(name, Vector(log))
 
-    implicit val stageEncoder: Codec[Stage] = {
-      implicit val config: Configuration = Configuration.default
+    given Codec[Stage] = {
+      given Configuration = Configuration.default
       deriveConfiguredCodec[Stage]
     }
   }

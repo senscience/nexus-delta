@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.sdk.instances.*
+import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.sse.SseEncoder
@@ -236,7 +236,7 @@ object BlazegraphViewEvent {
     Serializer.dropNulls()
   }
 
-  def sseEncoder(implicit base: BaseUri): SseEncoder[BlazegraphViewEvent] = new SseEncoder[BlazegraphViewEvent] {
+  def sseEncoder(using base: BaseUri): SseEncoder[BlazegraphViewEvent] = new SseEncoder[BlazegraphViewEvent] {
     override val databaseDecoder: Decoder[BlazegraphViewEvent] = serializer.codec
 
     override def entityType: EntityType = BlazegraphViews.entityType
@@ -244,8 +244,8 @@ object BlazegraphViewEvent {
     override val selectors: Set[Label] = Set(Label.unsafe("views"))
 
     override val sseEncoder: Encoder.AsObject[BlazegraphViewEvent] = {
-      val context                                                 = ContextValue(Vocabulary.contexts.metadata, contexts.blazegraph)
-      implicit val config: Configuration                          = Configuration.default
+      val context                        = ContextValue(Vocabulary.contexts.metadata, contexts.blazegraph)
+      given Configuration                = Configuration.default
         .withDiscriminator(keywords.tpe)
         .copy(transformMemberNames = {
           case "id"      => "_viewId"
@@ -257,10 +257,9 @@ object BlazegraphViewEvent {
           case "uuid"    => "_uuid"
           case other     => other
         })
-      implicit val subjectEncoder: Encoder[Subject]               = IriEncoder.jsonEncoder[Subject]
-      implicit val viewValueEncoder: Encoder[BlazegraphViewValue] =
-        Encoder.instance[BlazegraphViewValue](_ => Json.Null)
-      implicit val viewTpeEncoder: Encoder[BlazegraphViewType]    = Encoder.instance[BlazegraphViewType](_ => Json.Null)
+      given Encoder[Subject]             = IriEncoder.jsonEncoder[Subject]
+      given Encoder[BlazegraphViewValue] = Encoder.instance[BlazegraphViewValue](_ => Json.Null)
+      given Encoder[BlazegraphViewType]  = Encoder.instance[BlazegraphViewType](_ => Json.Null)
 
       Encoder.encodeJsonObject.contramapObject { event =>
         deriveConfiguredEncoder[BlazegraphViewEvent]

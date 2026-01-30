@@ -115,7 +115,7 @@ object AclEvent {
   ) extends AclEvent
 
   val serializer: Serializer[AclAddress, AclEvent] = {
-    import Acl.Database.*
+    import Acl.Database.given
     import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
     given Configuration            = Serializer.circeConfiguration
     given Codec.AsObject[AclEvent] = Codec.AsObject.from(

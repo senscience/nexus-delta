@@ -42,28 +42,27 @@ object Offset {
 
   def at(value: Long): Offset = At(value)
 
-  implicit val offsetOrder: Order[Offset] = Order.from {
+  given offsetOrder: Order[Offset] = Order.from {
     case (Start, Start) => 0
     case (Start, At(_)) => -1
     case (At(_), Start) => 1
     case (At(x), At(y)) => Order.compare(x, y)
   }
 
-  implicit final val offsetCodec: Codec[Offset] = {
-    implicit val configuration: Configuration =
-      Configuration.default.withDiscriminator(keywords.tpe)
+  given offsetCodec: Codec[Offset] = {
+    given Configuration = Configuration.default.withDiscriminator(keywords.tpe)
     deriveConfiguredCodec[Offset]
   }
 
-  implicit final val offsetGet: Get[Offset] = Get[Long].map(from)
-  implicit final val offsetPut: Put[Offset] = Put[Long].contramap(_.value)
+  given offsetGet: Get[Offset] = Get[Long].map(from)
+  given offsetPut: Put[Offset] = Put[Long].contramap(_.value)
 
-  implicit val offsetFragmentEncoder: FragmentEncoder[Offset] = FragmentEncoder.instance {
+  given offsetFragmentEncoder: FragmentEncoder[Offset] = FragmentEncoder.instance {
     case Start     => None
     case At(value) => Some(fr"ordering > $value")
   }
 
-  implicit val offsetJsonLdEncoder: JsonLdEncoder[Offset] =
+  given offsetJsonLdEncoder: JsonLdEncoder[Offset] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.offset))
 
 }

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream.pipes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.rdfs
 import ai.senscience.nexus.delta.rdf.graph.Graph
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.given
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sourcing.stream.pipes.DataConstructQuery.DataConstructQueryConfig
 import ai.senscience.nexus.testkit.mu.NexusSuite

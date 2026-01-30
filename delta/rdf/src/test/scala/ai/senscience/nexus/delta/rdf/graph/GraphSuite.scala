@@ -1,12 +1,12 @@
 package ai.senscience.nexus.delta.rdf.graph
 
-import ai.senscience.nexus.delta.rdf.Fixtures.*
+import ai.senscience.nexus.delta.rdf.Fixtures.{given, *}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
 import ai.senscience.nexus.delta.rdf.RdfError.{ConversionError, UnexpectedJsonLd}
 import ai.senscience.nexus.delta.rdf.Triple.{obj, predicate, subject, Triple}
 import ai.senscience.nexus.delta.rdf.Vocabulary.schema
 import ai.senscience.nexus.delta.rdf.graph.Graph.rdfType
-import ai.senscience.nexus.delta.rdf.implicits.*
+import ai.senscience.nexus.delta.rdf.implicits.{given, *}
 import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.{ContextEmpty, ContextObject}
 import ai.senscience.nexus.delta.rdf.jsonld.context.Contexts
@@ -26,17 +26,17 @@ class GraphSuite
     with JsonAssertions {
 
   private def loadGraphFromExpanded(removeId: Boolean = false) = {
-    val id = Option.unless(removeId)("id" -> iri)
+    val id = Option.unless(removeId)("id" -> johnDoeIri)
     graphFromJson("expanded.json", id.toSeq*)
   }
 
   private def loadNamedGraphFromExpanded = graphFromJson("graph/expanded-multiple-roots-namedgraph.json")
 
-  private def loadNquads = nquads(iri, "nquads.nq")
+  private def loadNquads = nquads(johnDoeIri, "nquads.nq")
 
   private val context = Contexts.value
 
-  private val iriSubject = subject(iri)
+  private val iriSubject = subject(johnDoeIri)
   private val name       = predicate(schema.name)
   private val birthDate  = predicate(schema + "birthDate")
   private val deprecated = predicate(schema + "deprecated")
@@ -180,7 +180,7 @@ class GraphSuite
       graph             <- loadGraphFromExpanded()
       bnode              = addressBNode(graph)
       expandedDot       <- graph.toDot()
-      expectedExpanded  <- loadExpandedDot(bnode, iri.toString)
+      expectedExpanded  <- loadExpandedDot(bnode, johnDoeIri.toString)
       compactedDot      <- graph.toDot(context)
       expectedCompacted <- loadCompactedDot(bnode, "john-doé")
     } yield {
