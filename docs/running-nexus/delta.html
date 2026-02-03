@@ -287,11 +287,10 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li>Allocate more resources to Delta</li>
 </ul>
 <p><strong>Memory and garbage collection:</strong> Delta will use the available RAM in 2 ways, JVM heap and the file system cache so like Elasticsearch, the JVM garbage collection frequency and duration are also important to monitor.</p><div class="callout note "><div class="callout-title">Note</div>
-<p>JVM and host metrics (including those related to the heap) are collected by <a href="https://kamon.io/" title="Kamon">Kamon</a></p></div>
+<p>JVM and host metrics (including those related to the heap) are collected by <a href="https://opentelemetry.io/" title="OpenTelemetry">OpenTelemetry</a></p></div>
 <p><strong>Storage:</strong> The different types of storage (local, S3) need to be monitored for availability/performance/utilization</p>
-<p><strong>Metrics:</strong> Nexus Delta relies on <a href="https://kamon.io/" title="Kamon">Kamon</a> to also collect metrics about the execution of most operations (fetching a resource, query Blazegraph, etc&hellip;)</p>
-<p>To enable Kamon in Delta, the <code>KAMON_ENABLED</code> env variable must be set to true.</p>
-<p>To monitor Nexus write activity like resource and file creation/updates, a dashboard is available in the <a href="https://github.com/senscience/nexus-delta/blob/master/kibana/event-metrics/general.ndjson" title="Nexus repo">Nexus repo</a>.</p>
+<p><strong>Metrics:</strong> Nexus Delta relies on <a href="https://opentelemetry.io/" title="OpenTelemetry">OpenTelemetry</a> to also collect metrics about the execution of most operations (fetching a resource, query Blazegraph, etc&hellip;)</p>
+<p>For more details, see the <a href="configuration/index.html#monitoring-and-observability">monitoring section</a></p>
 <p><strong>Logs:</strong> Nexus Delta relies on <a href="https://logback.qos.ch/" title="Logback">Logback</a> for logs which one of the popular logging frameworks on the JVM.</p>
 <p>Logback provides:</p>
 <ul>

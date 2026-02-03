@@ -321,8 +321,8 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <pre class="prettyprint"><button class="snippet-button copy-snippet" title="Copy snippet to clipboard">copy</button><a class="snippet-button go-to-source" href="https://github.com/senscience/nexus-delta/tree/master/delta/plugins/test-plugin/src/main/scala/ai/senscience/nexus/delta/testplugin/TestPluginRoutes.scala" target="_blank" title="Go to snippet source">source</a><code class="language-scala">package ai.senscience.nexus.delta.testplugin
 
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 
 class TestPluginRoutes(baseUri: BaseUri) {
   def routes: Route =
@@ -380,7 +380,7 @@ case class TestPluginDef() extends PluginDef {
 <p>Delta uses <a href="https://izumi.7mind.io/distage/basics.html#quick-start" title="distage library" target="_blank" rel="noopener noreferrer">distage library</a> for dependency injection. Each plugin must define <code>ModuleDef</code> to create instances of its own classes. All the dependencies provided by <code>ModuleDef</code>s defined in <a href="https://github.com/senscience/nexus-delta/tree/master/delta/app/src/main/scala/ai/senscience/nexus/delta/wiring" title="Delta modules" target="_blank" rel="noopener noreferrer">Delta modules</a>, as well as other plugins can be used here.</p>
 <p>The plugin can also define instances of following traits/classes, which will be used in Delta:</p>
 <ul>
-  <li><a href="https://github.com/senscience/nexus-delta/blob/master/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/PriorityRoute.scala" title="PriorityRoute" target="_blank" rel="noopener noreferrer">PriorityRoute</a> - allows the plugin to define <a href="https://doc.akka.io/libraries/akka-http/current/routing-dsl/index.html" title="Akka HTTP Route" target="_blank" rel="noopener noreferrer">Akka HTTP Route</a> with priority. The priority is used by Delta to prioritize route evaluation</li>
+  <li><a href="https://github.com/senscience/nexus-delta/blob/master/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/PriorityRoute.scala" title="PriorityRoute" target="_blank" rel="noopener noreferrer">PriorityRoute</a> - allows the plugin to define <a href="https://pekko.apache.org/docs/pekko-http/current/routing-dsl/index.html" title="Pekko HTTP Route" target="_blank" rel="noopener noreferrer">Pekko HTTP Route</a> with priority. The priority is used by Delta to prioritize route evaluation</li>
   <li><a href="https://github.com/senscience/nexus-delta/blob/master/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/ScopeInitialization.scala" title="ScopeInitialization" target="_blank" rel="noopener noreferrer">ScopeInitialization</a> - allows the plugin to define hooks which will be run on organization and project creation.</li>
   <li><a href="https://github.com/senscience/nexus-delta/blob/master/delta/sourcing-psql/src/main/scala/ai/senscience/nexus/delta/sourcing/ScopedEntityDefinition.scala" title="ScopedEntityDefinition" target="_blank" rel="noopener noreferrer">ScopedEntityDefinition</a> - allows to define the required information to be able to handle a custom scoped entity</li>
   <li><a href="https://github.com/senscience/nexus-delta/blob/master/delta/sourcing-psql/src/main/scala/ai/senscience/nexus/delta/sourcing/Serializer.scala" title="Serializer" target="_blank" rel="noopener noreferrer">Serializer</a> - allows to define how to serialize and deserialize an event / a state to database</li>

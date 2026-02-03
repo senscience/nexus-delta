@@ -11,7 +11,6 @@ services:
     environment:
       DELTA_PLUGINS: "/opt/docker/plugins/"
       DELTA_EXTERNAL_CONF: "/config/delta.conf"
-      KAMON_ENABLED: "false"
     entrypoint:
       - '/bin/bash'
       - '-c'
@@ -24,7 +23,7 @@ services:
           memory: 1024M
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:9.0.1"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:9.2.1"
     environment:
       discovery.type: "single-node"
       bootstrap.memory_lock: "true"
@@ -44,7 +43,7 @@ services:
           memory: 512M
 
   postgres:
-    image: library/postgres:17.6
+    image: library/postgres:18.1
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"

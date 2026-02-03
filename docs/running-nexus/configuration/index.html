@@ -250,6 +250,7 @@ senscience/nexus-delta
     <ul>
       <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-configuration" class="header">Elasticsearch configuration</a></li>
     </ul></li>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#configured-indexing" class="header">Configured indexing</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#fusion-configuration" class="header">Fusion configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#projections-configuration" class="header">Projections configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#plugins-configuration" class="header">Plugins configuration</a>
@@ -268,13 +269,8 @@ senscience/nexus-delta
       </ul></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#archive-plugin-configuration" class="header">Archive plugin configuration</a></li>
     </ul></li>
-    <li><a href="../../../docs/running-nexus/configuration/index.html#monitoring" class="header">Monitoring</a>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#monitoring-and-observability" class="header">Monitoring and observability</a>
     <ul>
-      <li><a href="../../../docs/running-nexus/configuration/index.html#kamon" class="header">Kamon</a>
-      <ul>
-        <li><a href="../../../docs/running-nexus/configuration/index.html#instrumentation" class="header">Instrumentation</a></li>
-        <li><a href="../../../docs/running-nexus/configuration/index.html#reporters" class="header">Reporters</a></li>
-      </ul></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#opentelemetry" class="header">OpenTelemetry</a>
       <ul>
         <li><a href="../../../docs/running-nexus/configuration/index.html#logs" class="header">Logs</a></li>
@@ -316,6 +312,7 @@ senscience/nexus-delta
     <ul>
       <li><a href="../../../docs/running-nexus/configuration/index.html#elasticsearch-configuration" class="header">Elasticsearch configuration</a></li>
     </ul></li>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#configured-indexing" class="header">Configured indexing</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#fusion-configuration" class="header">Fusion configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#projections-configuration" class="header">Projections configuration</a></li>
     <li><a href="../../../docs/running-nexus/configuration/index.html#plugins-configuration" class="header">Plugins configuration</a>
@@ -334,13 +331,8 @@ senscience/nexus-delta
       </ul></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#archive-plugin-configuration" class="header">Archive plugin configuration</a></li>
     </ul></li>
-    <li><a href="../../../docs/running-nexus/configuration/index.html#monitoring" class="header">Monitoring</a>
+    <li><a href="../../../docs/running-nexus/configuration/index.html#monitoring-and-observability" class="header">Monitoring and observability</a>
     <ul>
-      <li><a href="../../../docs/running-nexus/configuration/index.html#kamon" class="header">Kamon</a>
-      <ul>
-        <li><a href="../../../docs/running-nexus/configuration/index.html#instrumentation" class="header">Instrumentation</a></li>
-        <li><a href="../../../docs/running-nexus/configuration/index.html#reporters" class="header">Reporters</a></li>
-      </ul></li>
       <li><a href="../../../docs/running-nexus/configuration/index.html#opentelemetry" class="header">OpenTelemetry</a>
       <ul>
         <li><a href="../../../docs/running-nexus/configuration/index.html#logs" class="header">Logs</a></li>
@@ -375,7 +367,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>In order to successfully run Nexus Delta there is a minimum set of configuration flags that need to be specified</p>
 <h2><a href="#http-configuration" name="http-configuration" class="anchor"><span class="anchor-link"></span></a>Http configuration</h2>
 <p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L11" title="The `http` section" target="_blank" rel="noopener noreferrer">The <code>http</code> section</a> of the configuration defines the binding address and port where the service will be listening.</p>
-<p>The configuration flag <code>akka.http.server.parsing.max-content-length</code> can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.</p>
+<p>The configuration flag <code>pekko.http.server.parsing.max-content-length</code> can be used to control the maximum payload size allowed for Nexus Delta resources. This value applies to all posted resources except for files.</p>
 <h2><a href="#postgres-configuration" name="postgres-configuration" class="anchor"><span class="anchor-link"></span></a>Postgres configuration</h2>
 <h3><a href="#database-pool" name="database-pool" class="anchor"><span class="anchor-link"></span></a>Database pool</h3>
 <p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L23" title="The `database` section" target="_blank" rel="noopener noreferrer">The <code>database</code> section</a> of the configuration defines the postgres specific configuration. As Nexus Delta uses three separate pools (&lsquo;read&rsquo;, &lsquo;write&rsquo;, &lsquo;streaming&rsquo;), it is recommended to set the host, port, database name, username, and password via the <code>app.defaults.database</code> field, as it will apply to all pools. It is however possible to accommodate more advanced setups by configuring each pool separately by changing its respective <code>app.database.{read|write|streaming}</code> fields. </p>
@@ -476,6 +468,42 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
   <li><code>app.elasticsearch.credentials.username</code> and <code>app.elasticsearch.credentials.password</code> to allow to access to a secured Elasticsearch cluster. The user provided should have the privileges to create/delete indices and read/index from them.</li>
 </ul>
 <p>Please refer to the <a href="https://www.elastic.co/docs/deploy-manage/security" title="Elasticsearch configuration">Elasticsearch configuration</a> which describes the different steps to achieve this.</p>
+<h2><a href="#configured-indexing" name="configured-indexing" class="anchor"><span class="anchor-link"></span></a>Configured indexing</h2>
+<p>While main indexing provides a generic way to index all resources, it focuses on the common denominator which is Nexus metadata and full-text search in order to power the listing endpoints (and those are then used by tools like Fusion).</p>
+<p>Custom elasticsearch views can be a solution but they need to be created for every project and if there are many of them, they will consume a lot of shards in Elasticsearch which can only provided a limited amount.</p>
+<p>When there is a large amount of projects with common resource types, configured indexing is a better solution: * The indexing is configured by resource type we want to be indexed * Custom fields can be indexed via Elasticsearch mappings/settings provided at runtime * The consumption of shards is low as they depend on the number of resource types to index and not on the number of projects.</p>
+<p>An example of configuration can be:</p>
+<pre class="prettyprint"><code class="language-hocon">app {
+   elasticsearch {
+     configured-indexing {
+       # Disabled by default
+       enabled = true
+       values = [
+         {
+           # Indexing person type
+           index = &quot;person&quot;
+           mapping = /config/configured/mapping-person.json
+           # Settings is optional
+           settings = /config/configured/settings-person.json
+           types = [&quot;https://schema.org/Person&quot;]
+         },
+         {
+           # Indexing creative work type
+           index = &quot;creative-work&quot;
+           mapping = /config/configured/mapping-creative-work.json
+           types = [&quot;https://schema.org/CreativeWork&quot;]
+         },
+         {
+           # Indexing role type
+           index = &quot;role&quot;
+           mapping = /config/configured/mapping-role.json
+           types = [&quot;https://schema.org/Role&quot;]
+         }
+       ]
+     }
+   }  
+}
+</code></pre>
 <h2><a href="#fusion-configuration" name="fusion-configuration" class="anchor"><span class="anchor-link"></span></a>Fusion configuration</h2>
 <p>When fetching a resource, Nexus Delta allows to return a redirection to its representation in Fusion by providing <code>text/html</code> in the <code>Accept</code> header.</p>
 <p><a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L40" title="The `fusion` section" target="_blank" rel="noopener noreferrer">The <code>fusion</code> section</a> of the configuration defines the fusion configuration.</p>
@@ -563,25 +591,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>To generate such a key in the correct format follow these steps: 1. Generate RSA key: <code>openssl genrsa -out private_key.pem 2048</code> 2. Convert to PKCS#8 format: <code>openssl pkcs8 -topk8 -inform PEM -outform PEM -in private_key.pem -out private_key_pkcs8.pem -nocrypt</code> 3. Remove line breaks, copy secret: <code>cat private_key_pkcs8.pem | tr -d &#39;\n&#39; | pbcopy</code></p>
 <h3><a href="#archive-plugin-configuration" name="archive-plugin-configuration" class="anchor"><span class="anchor-link"></span></a>Archive plugin configuration</h3>
 <p>The archive plugin configuration can be found <a href="https://github.com/senscience/nexus-delta/blob/master/delta/plugins/archive/src/main/resources/archive.conf" title="here" target="_blank" rel="noopener noreferrer">here</a>.</p>
-<h2><a href="#monitoring" name="monitoring" class="anchor"><span class="anchor-link"></span></a>Monitoring</h2>
-<h3><a href="#kamon" name="kamon" class="anchor"><span class="anchor-link"></span></a>Kamon</h3>
-<p>For monitoring, Nexus Delta relies on <a href="https://kamon.io/" title="Kamon" target="_blank" rel="noopener noreferrer">Kamon</a>.</p>
-<p>Kamon can be disabled by passing the environment variable <code>KAMON_ENABLED</code> set to <code>false</code>.</p>
-<p>Delta configuration for Kamon is provided <a href="https://github.com/senscience/nexus-delta/blob/master/delta/app/src/main/resources/app.conf#L391" title="in the `monitoring` section" target="_blank" rel="noopener noreferrer">in the <code>monitoring</code> section</a>. For a more complete description on the different options available, please look at the Kamon website.</p>
-<h4><a href="#instrumentation" name="instrumentation" class="anchor"><span class="anchor-link"></span></a>Instrumentation</h4>
-<p>Delta provides the Kamon instrumentation for:</p>
-<ul>
-  <li><a href="https://kamon.io/docs/v1/instrumentation/executors/" title="Executors" target="_blank" rel="noopener noreferrer">Executors</a></li>
-  <li><a href="https://kamon.io/docs/v1/instrumentation/futures/" title="Scala futures" target="_blank" rel="noopener noreferrer">Scala futures</a></li>
-  <li><a href="https://kamon.io/docs/v1/instrumentation/logback/" title="Logback" target="_blank" rel="noopener noreferrer">Logback</a></li>
-  <li><a href="https://kamon.io/docs/v1/instrumentation/system-metrics/" title="System metrics" target="_blank" rel="noopener noreferrer">System metrics</a></li>
-</ul>
-<h4><a href="#reporters" name="reporters" class="anchor"><span class="anchor-link"></span></a>Reporters</h4>
-<p>Kamon reporters are also available for:</p>
-<ul>
-  <li><a href="https://kamon.io/docs/v1/reporters/jaeger/" title="Jaeger" target="_blank" rel="noopener noreferrer">Jaeger</a></li>
-  <li><a href="https://kamon.io/docs/v1/reporters/prometheus/" title="Prometheus" target="_blank" rel="noopener noreferrer">Prometheus</a></li>
-</ul>
+<h2><a href="#monitoring-and-observability" name="monitoring-and-observability" class="anchor"><span class="anchor-link"></span></a>Monitoring and observability</h2>
 <h3><a href="#opentelemetry" name="opentelemetry" class="anchor"><span class="anchor-link"></span></a>OpenTelemetry</h3>
 <p>Since 1.12, Nexus also allows to use OpenTelemetry via otel4s where some configuration tips are provided <a href="https://typelevel.org/otel4s/sdk/configuration.html" title="here">here</a>.</p>
 <p>OpenTelemetry is disabled by default and can be enabled by setting the system property <code>otel.sdk.disabled</code> or the environment variable <code>OTEL_SDK_DISABLED</code> to false.</p>

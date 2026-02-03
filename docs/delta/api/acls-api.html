@@ -300,7 +300,7 @@ the latest release is available <a href="https://senscience.github.io/nexus-delt
 <p>An ACL defines the applications&rsquo; data access restriction using the following three parameters:</p>
 <ul>
   <li>permission: the value used to limit a client (user, group) access to resources.</li>
-  <li>identity: a client identity reference, e.g. a certain user, a group, an anonymous user or someone who is authenticated to a certain realm.</li>
+  <li>identity: a client identity reference, e.g. a certain user, a role, a group, an anonymous user  or someone who is authenticated to a certain realm.</li>
   <li>path: the location where to apply the restrictions. Examples of paths are: <code>/</code>, <code>/myorg</code> or <code>/myorg/myproject</code></li>
 </ul><div class="callout note tip"><div class="callout-title">Authorization notes</div>
 <p>When modifying ACLs, the caller must have <code>acls/write</code> permissions on the path where the ACLs are being modified or its ancestors.</p>
