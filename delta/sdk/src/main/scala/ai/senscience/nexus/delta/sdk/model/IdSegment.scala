@@ -37,6 +37,8 @@ object IdSegment {
   final def apply(string: String): IdSegment =
     Iri.reference(string).fold[IdSegment](_ => StringSegment(string), IriSegment(_))
 
+  final def apply(iri: Iri): IdSegment = IriSegment(iri)
+
   /**
     * A segment that holds a free form string (which can expand into an Iri)
     */
