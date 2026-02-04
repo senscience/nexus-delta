@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.plugins.storage.storages.model
 import ai.senscience.nexus.delta.plugins.storage.storages.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.{Decoder, Encoder}
 
@@ -32,7 +31,5 @@ object StorageStatEntry {
         files <- aggregations.downField("filesCount").get[Long]("value")
       } yield StorageStatEntry(files, size)
     }
-
-  given HttpResponseFields[StorageStatEntry] = HttpResponseFields.defaultOk
 
 }

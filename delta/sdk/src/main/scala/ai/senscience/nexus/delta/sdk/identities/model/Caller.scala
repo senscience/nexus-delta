@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.implicits.{*, given}
 import ai.senscience.nexus.delta.sdk.instances.IdentityInstances
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -45,7 +44,5 @@ object Caller {
 
   private val context                    = ContextValue(contexts.metadata, contexts.identities)
   given BaseUri => JsonLdEncoder[Caller] = JsonLdEncoder.computeFromCirce(context)
-
-  given HttpResponseFields[Caller] = HttpResponseFields.defaultOk
 
 }

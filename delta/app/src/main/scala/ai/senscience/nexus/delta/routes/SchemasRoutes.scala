@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDire
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults

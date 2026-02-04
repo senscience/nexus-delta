@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.projectdeletion.model
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import io.circe.{Encoder, Json, JsonObject}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
@@ -51,8 +50,6 @@ object ProjectDeletionConfig {
 
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.projectDeletion))
   }
-
-  given HttpResponseFields[ProjectDeletionConfig] = HttpResponseFields.defaultOk
 
   given ConfigReader[ProjectDeletionConfig] =
     deriveReader[ProjectDeletionConfig].emap { cfg =>

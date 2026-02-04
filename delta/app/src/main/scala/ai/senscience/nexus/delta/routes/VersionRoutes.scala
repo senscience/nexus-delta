@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, Name}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.version
 import cats.effect.IO
@@ -92,8 +92,6 @@ object VersionRoutes {
 
     given JsonLdEncoder[VersionBundle] =
       JsonLdEncoder.computeFromCirce(ContextValue(Vocabulary.contexts.version))
-
-    given HttpResponseFields[VersionBundle] = HttpResponseFields.defaultOk
   }
 
   /**

@@ -8,7 +8,6 @@ package object instances
     extends CredentialsInstances
     with Fs2Instances
     with Http4sResponseSyntax
-    with HttpResponseFieldsInstances
     with IdentityInstances
     with IriInstances
     with ProjectRefInstances

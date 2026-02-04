@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.sdk.projects.model
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
@@ -37,6 +36,4 @@ object ProjectStatistics {
   }
 
   given JsonLdEncoder[ProjectStatistics] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.statistics))
-
-  given HttpResponseFields[ProjectStatistics] = HttpResponseFields.defaultOk
 }

@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDire
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.marshalling.{HttpResponseFields, RdfMarshalling}
+import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
@@ -182,7 +182,7 @@ final class ResolversRoutes(
   )(using BaseUri, Caller): Route =
     authorizeFor(project, Permissions.resources.read).apply {
       exceptionHandler(enableRejects = false) {
-        def emitResult[R: {JsonLdEncoder, HttpResponseFields}](io: IO[MultiResolutionResult[R]]) = {
+        def emitResult[R: JsonLdEncoder](io: IO[MultiResolutionResult[R]]) = {
           output match {
             case ResolvedResourceOutputType.Report          => emit(io.map(_.report))
             case ResolvedResourceOutputType.JsonLd          => emit(io.map(_.value.jsonLdValue))

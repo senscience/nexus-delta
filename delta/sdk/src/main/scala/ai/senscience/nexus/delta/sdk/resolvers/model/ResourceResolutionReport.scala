@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResourceResolutionReport.ResolverReport
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import io.circe.generic.extras.Configuration
@@ -137,11 +136,6 @@ object ResourceResolutionReport {
   given JsonLdEncoder[ResolverReport] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.resolvers))
 
-  given HttpResponseFields[ResolverReport] = HttpResponseFields.defaultOk
-
   given JsonLdEncoder[ResourceResolutionReport] =
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.resolvers))
-
-  given HttpResponseFields[ResourceResolutionReport] =
-    HttpResponseFields.defaultOk
 }
