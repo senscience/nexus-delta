@@ -24,15 +24,19 @@
       "id" : "{{username}}",
       "createdTimestamp" : 1578311988958,
       "username" : "{{username}}",
+      "firstName" : "{{username}}",
+      "lastName" : "Test",
+      "email" : "{{username}}@senscience.ai",
       "enabled" : true,
       "credentials":[
         {
           "type":"password",
-          "value":"{{password}}"
+          "value":"{{password}}",
+          "temporary": false
         }
       ],
       "totp" : false,
-      "emailVerified" : false,
+      "emailVerified" : true,
       "disableableCredentialTypes" : [ ],
       "requiredActions" : [ ],
       "realmRoles" : [ "offline_access", "uma_authorization" ],
