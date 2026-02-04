@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.{CompactedJsonLd, ExpandedJsonLd}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.ResourceF.*
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.search.{SearchResults, SortList}
@@ -80,9 +79,6 @@ object IdResolution {
             case MultipleResults(searchResults) => searchJsonLdEncoder.compact(searchResults)
           }
       }
-
-    given HttpResponseFields[ResolutionResult] = HttpResponseFields.defaultOk
-
   }
 
   def apply(

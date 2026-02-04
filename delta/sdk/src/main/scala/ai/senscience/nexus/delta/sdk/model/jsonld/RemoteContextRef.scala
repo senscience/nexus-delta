@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContext.StaticContext
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef.ProjectRemoteContextRef.ResourceContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution.ProjectRemoteContext
 import ai.senscience.nexus.delta.sourcing.Serializer
@@ -67,6 +66,4 @@ object RemoteContextRef {
     }
     JsonLdEncoder.computeFromCirce(id = BNode.random, ctx = ContextValue(contexts.remoteContexts))
   }
-
-  given HttpResponseFields[Set[RemoteContextRef]] = HttpResponseFields.defaultOk
 }

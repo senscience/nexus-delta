@@ -196,6 +196,11 @@ sealed trait ValueInstances extends LowPriorityValueInstances {
 
 sealed trait LowPriorityValueInstances {
 
+  given ioValueWithoutHttpResponseFields: [A: JsonLdEncoder] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+    => Conversion[IO[A], ResponseToJsonLd] = { io =>
+    ResponseToJsonLd.fromComplete(io.map(value => Complete(OK, Seq.empty, None, value)))
+  }
+
   given valueWithoutHttpResponseFields: [A: JsonLdEncoder] => (RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     => Conversion[A, ResponseToJsonLd] = { value =>
     ResponseToJsonLd.fromComplete(IO.pure(Complete(OK, Seq.empty, None, value)))

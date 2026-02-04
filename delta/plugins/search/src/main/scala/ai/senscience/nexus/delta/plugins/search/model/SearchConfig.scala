@@ -14,7 +14,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue.ContextObject
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.Defaults
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label, ProjectRef}
 import cats.effect.IO
 import cats.syntax.all.*
@@ -44,8 +43,6 @@ object SearchConfig {
 
   given Encoder[NamedSuite]       = Encoder[JsonObject].contramap(s => JsonObject("projects" := s.suite, "name" := s.name))
   given JsonLdEncoder[NamedSuite] = JsonLdEncoder.computeFromCirce(ContextValue(contexts.suites))
-
-  given HttpResponseFields[NamedSuite] = HttpResponseFields.defaultOk
 
   /**
     * Converts a [[Config]] into an [[SearchConfig]]

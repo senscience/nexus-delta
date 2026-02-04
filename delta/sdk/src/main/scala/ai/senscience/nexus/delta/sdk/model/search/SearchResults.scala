@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, nxv}
 import ai.senscience.nexus.delta.rdf.instances.given
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.UnscoredResultEntry
 import cats.Functor
@@ -204,6 +203,4 @@ object SearchResults {
     uri.copy(scheme = baseUri.scheme, authority = baseUri.authority)
 
   def empty[A]: SearchResults[A] = UnscoredSearchResults(0L, Seq.empty)
-
-  given searchResultsHttpResponseFields: [A] => HttpResponseFields[SearchResults[A]] = HttpResponseFields.defaultOk
 }

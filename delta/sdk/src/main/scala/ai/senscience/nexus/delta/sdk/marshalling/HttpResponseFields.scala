@@ -68,9 +68,5 @@ object HttpResponseFields {
       override def headersFrom(value: A): Seq[HttpHeader] = Seq.empty
       override def entityTag(value: A): Option[String]    = Some(f(value))
     }
-
-  def defaultOk[A]: HttpResponseFields[A] = HttpResponseFields { _ => StatusCodes.OK }
-
-  given HttpResponseFields[Unit] = defaultOk[Unit]
 }
 // $COVERAGE-ON$

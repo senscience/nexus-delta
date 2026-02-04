@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.sdk.marshalling.HttpResponseFields
 import cats.data.NonEmptyMap
 import io.circe.Encoder
 import io.circe.generic.extras.Configuration
@@ -52,7 +51,5 @@ object CompositeIndexingDescription {
 
   given JsonLdEncoder[CompositeIndexingDescription] =
     JsonLdEncoder.computeFromCirce(ContextValue(contexts.offset).merge(ContextValue(contexts.statistics)))
-
-  given HttpResponseFields[CompositeIndexingDescription] = HttpResponseFields.defaultOk
 
 }
