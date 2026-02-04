@@ -22,7 +22,8 @@ trait EitherAssertions { self: Assertions =>
       either match {
         case Left(T(_)) => ()
         case Left(l)    =>
-          val message = s"Wrong left type caught, expected: '${T.runtimeClass.getName}', actual: '${l.getClass.getName}'"
+          val message =
+            s"Wrong left type caught, expected: '${T.runtimeClass.getName}', actual: '${l.getClass.getName}'"
           fail(withClue(clue, message))
         case Right(_)   => fail(withClue(clue, "Right caught, expected a left"))
       }
