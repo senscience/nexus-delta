@@ -309,7 +309,7 @@ final class CompositeViews private (
     elem.mapValue { v => CompositeViewDef(v) }
 
   private def eval(cmd: CompositeViewCommand): IO[ViewResource] =
-    log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
+    log.evaluate(cmd.project, cmd.id, cmd).map(_.state.toResource)
 
 }
 

@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
+import ai.senscience.nexus.delta.sourcing.GlobalEventLog.EvaluationResult
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.event.Event.GlobalEvent
 import ai.senscience.nexus.delta.sourcing.event.GlobalEventStore
@@ -56,7 +57,7 @@ trait GlobalEventLog[Id, S <: GlobalState, Command, E <: GlobalEvent, Rejection 
     *   the newly generated state and appended event if the command was evaluated successfully, or the rejection of the
     *   __command__ otherwise
     */
-  def evaluate(id: Id, command: Command): IO[(E, S)]
+  def evaluate(id: Id, command: Command): IO[EvaluationResult[E, S]]
 
   /**
     * Tests the evaluation the argument __command__ in the context of entity identified by __id__, without applying any
@@ -70,7 +71,7 @@ trait GlobalEventLog[Id, S <: GlobalState, Command, E <: GlobalEvent, Rejection 
     *   the state and event that would be generated in if the command was tested for evaluation successfully, or the
     *   rejection of the __command__ in otherwise
     */
-  def dryRun(id: Id, command: Command): IO[(E, S)]
+  def dryRun(id: Id, command: Command): IO[EvaluationResult[E, S]]
 
   /**
     * Delete both states and events for the given id
@@ -97,6 +98,8 @@ trait GlobalEventLog[Id, S <: GlobalState, Command, E <: GlobalEvent, Rejection 
 }
 
 object GlobalEventLog {
+
+  type EvaluationResult[E <: GlobalEvent, S <: GlobalState] = (event: E, state: S)
 
   def apply[Id, S <: GlobalState, Command, E <: GlobalEvent, Rejection <: Throwable](
       definition: GlobalEntityDefinition[Id, S, Command, E, Rejection],

@@ -129,7 +129,7 @@ final class ResolversImpl private (
     ).surround("listResolvers")
 
   private def eval(cmd: ResolverCommand): IO[ResolverResource] =
-    log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
+    log.evaluate(cmd.project, cmd.id, cmd).map(_.state.toResource)
 }
 
 object ResolversImpl {

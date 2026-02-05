@@ -313,7 +313,7 @@ final class BlazegraphViews(
     ).surround("listBlazegraphViews")
 
   private def eval(cmd: BlazegraphViewCommand): IO[ViewResource] =
-    log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
+    log.evaluate(cmd.project, cmd.id, cmd).map(_.state.toResource)
 }
 
 object BlazegraphViews {

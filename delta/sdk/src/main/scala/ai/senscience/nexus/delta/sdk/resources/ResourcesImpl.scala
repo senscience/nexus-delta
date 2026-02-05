@@ -197,7 +197,7 @@ final class ResourcesImpl private (
   private def eval(cmd: ResourceCommand): IO[DataResource] =
     log
       .evaluate(cmd.project, cmd.id, cmd)
-      .map(_._2.toResource)
+      .map(_.state.toResource)
       .recoverWith { case NoChangeDetected(currentState) =>
         val message =
           s"""Command ${cmd.getClass.getSimpleName} from '${cmd.subject}' did not result in any change on resource '${cmd.id}'

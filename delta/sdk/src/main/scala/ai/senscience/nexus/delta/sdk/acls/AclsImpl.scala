@@ -101,7 +101,7 @@ final class AclsImpl private (
   override def delete(address: AclAddress, rev: Int)(using caller: Subject): IO[AclResource] =
     eval(DeleteAcl(address, rev, caller)).surround("deleteAcls")
 
-  private def eval(cmd: AclCommand): IO[AclResource] = log.evaluate(cmd.address, cmd).map(_._2.toResource)
+  private def eval(cmd: AclCommand): IO[AclResource] = log.evaluate(cmd.address, cmd).map(_.state.toResource)
 
   override def purge(acl: AclAddress): IO[Unit] = log.delete(acl)
 }
