@@ -110,7 +110,7 @@ class ScopedEventLogSuite extends NexusSuite with Doobie.Fixture {
       _        <- EntityDependencyStore.decodeDirectDependencies(proj, id, xas).assertEquals(List.empty)
       // Create state for id2
       state1Id2 = state1.copy(id = id2)
-      _        <- eventLog.evaluate(proj, id2, Create(id2, proj)).map(_._2).assertEquals(state1Id2)
+      _        <- eventLog.evaluate(proj, id2, Create(id2, proj)).map(_.state).assertEquals(state1Id2)
       _        <- eventLog.stateOr(proj, id2, NotFound).assertEquals(state1Id2)
       _        <- EntityDependencyStore.decodeDirectDependencies(proj, id, xas).assertEquals(List(state1Id2))
     } yield ()

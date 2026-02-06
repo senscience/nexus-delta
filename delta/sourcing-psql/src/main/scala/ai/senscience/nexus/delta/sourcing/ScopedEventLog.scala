@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.sourcing
 import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.sourcing.EvaluationError.EvaluationTagFailure
 import ai.senscience.nexus.delta.sourcing.ScopedEntityDefinition.Tagger
+import ai.senscience.nexus.delta.sourcing.ScopedEventLog.EvaluationResult
 import ai.senscience.nexus.delta.sourcing.config.EventLogConfig
 import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.event.ScopedEventStore
@@ -50,7 +51,7 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
     *   the newly generated state and appended event if the command was evaluated successfully, or the rejection of the
     *   __command__ otherwise
     */
-  def evaluate(project: ProjectRef, id: Id, command: Command): IO[(E, S)]
+  def evaluate(project: ProjectRef, id: Id, command: Command): IO[EvaluationResult[E, S]]
 
   /**
     * Tests the evaluation the argument __command__ in the context of entity identified by __id__, without applying any
@@ -66,7 +67,7 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
     *   the state and event that would be generated in if the command was tested for evaluation successfully, or the
     *   rejection of the __command__ in otherwise
     */
-  def dryRun(project: ProjectRef, id: Id, command: Command): IO[(E, S)]
+  def dryRun(project: ProjectRef, id: Id, command: Command): IO[EvaluationResult[E, S]]
 
   /**
     * Deletes the entity identified by __id__
@@ -83,6 +84,8 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
 object ScopedEventLog {
 
   private val noop: ConnectionIO[Unit] = doobie.free.connection.unit
+
+  type EvaluationResult[E <: ScopedEvent, S <: ScopedState] = (event: E, state: S)
 
   def apply[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection <: Throwable](
       definition: ScopedEntityDefinition[Id, S, Command, E, Rejection],

@@ -138,11 +138,11 @@ final class SchemasImpl private (
   private def eval(cmd: SchemaCommand) =
     log
       .evaluate(cmd.project, cmd.id, cmd)
-      .map(_._2.toResource)
+      .map(_.state.toResource)
       .surround("evalSchemaCommand")
 
   private def dryRun(cmd: SchemaCommand) =
-    log.dryRun(cmd.project, cmd.id, cmd).map(_._2.toResource)
+    log.dryRun(cmd.project, cmd.id, cmd).map(_.state.toResource)
 
   private def resolveImports(id: Iri, projectRef: ProjectRef, expanded: ExpandedJsonLd)(using Caller) =
     schemaImports.resolve(id, projectRef, expanded.addType(nxv.Schema))

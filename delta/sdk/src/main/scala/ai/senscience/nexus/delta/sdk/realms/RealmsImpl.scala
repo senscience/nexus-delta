@@ -38,7 +38,7 @@ final class RealmsImpl private (log: RealmsLog)(using Tracer[IO]) extends Realms
     eval(DeprecateRealm(label, rev, caller)).surround("deprecateRealm")
 
   private def eval(cmd: RealmCommand): IO[RealmResource] =
-    log.evaluate(cmd.label, cmd).map(_._2.toResource)
+    log.evaluate(cmd.label, cmd).map(_.state.toResource)
 
   override def fetch(label: Label): IO[RealmResource] =
     log

@@ -295,9 +295,7 @@ final class Storages private (
     }.void
 
   private def eval(cmd: StorageCommand): IO[StorageResource] =
-    log.evaluate(cmd.project, cmd.id, cmd).map { case (_, state) =>
-      state.toResource
-    }
+    log.evaluate(cmd.project, cmd.id, cmd).map(_.state.toResource)
 }
 
 object Storages {

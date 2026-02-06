@@ -60,7 +60,7 @@ final class OrganizationsImpl private (
       .surround("fetchOrganizationAt")
 
   private def eval(cmd: OrganizationCommand): IO[OrganizationResource] =
-    log.evaluate(cmd.label, cmd).map(_._2.toResource)
+    log.evaluate(cmd.label, cmd).map(_.state.toResource)
 
   override def list(
       pagination: Pagination.FromPagination,

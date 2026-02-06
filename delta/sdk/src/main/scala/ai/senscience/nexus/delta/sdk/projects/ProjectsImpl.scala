@@ -84,7 +84,7 @@ final class ProjectsImpl private (
   override def states(offset: Offset): SuccessElemStream[ProjectState] = log.states(Scope.root, offset)
 
   private def eval(cmd: ProjectCommand): IO[ProjectResource] =
-    log.evaluate(cmd.ref, cmd.ref, cmd).map(_._2.toResource(defaultApiMappings))
+    log.evaluate(cmd.ref, cmd.ref, cmd).map(_.state.toResource(defaultApiMappings))
 
 }
 

@@ -329,7 +329,7 @@ final class ElasticSearchViews private (
   private def eval(cmd: ElasticSearchViewCommand): IO[ViewResource] =
     log
       .evaluate(cmd.project, cmd.id, cmd)
-      .map(_._2.toResource(defaultViewDef))
+      .map(_.state.toResource(defaultViewDef))
 
   private def expandWithContext(
       fetchCtx: ProjectRef => IO[ProjectContext],

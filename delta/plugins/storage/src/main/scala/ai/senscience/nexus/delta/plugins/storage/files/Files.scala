@@ -368,7 +368,8 @@ final class Files(
     }
   }
 
-  private def eval(cmd: FileCommand): IO[FileResource] = FilesLog.eval(log)(cmd)
+  private def eval(cmd: FileCommand): IO[FileResource] =
+    log.evaluate(cmd.project, cmd.id, cmd).map(_.state.toResource)
 
   private def test(cmd: FileCommand) = log.dryRun(cmd.project, cmd.id, cmd)
 
@@ -403,11 +404,6 @@ object Files {
   type FilesLog = ScopedEventLog[Iri, FileState, FileCommand, FileEvent, FileRejection]
 
   def expandStorageIri(segment: IdSegment, pc: ProjectContext): IO[Iri] = Storages.expandIri(segment, pc)
-
-  object FilesLog {
-    def eval(log: FilesLog)(cmd: FileCommand): IO[FileResource] =
-      log.evaluate(cmd.project, cmd.id, cmd).map(_._2.toResource)
-  }
 
   private[files] def next(
       state: Option[FileState],
