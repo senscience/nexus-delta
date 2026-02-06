@@ -15,7 +15,7 @@ import com.apicatalog.jsonld.document.JsonDocument
 import com.apicatalog.jsonld.loader.DocumentLoader
 import com.apicatalog.jsonld.processor.ProcessingRuntime
 import com.apicatalog.jsonld.uri.UriValidationPolicy
-import com.apicatalog.jsonld.{JsonLd, JsonLdError, JsonLdErrorCode, JsonLdOptions as TitaniumJsonLdOptions, JsonLdVersion}
+import com.apicatalog.jsonld.{JsonLd, JsonLdError, JsonLdErrorCode, JsonLdOptions as TitaniumJsonLdOptions}
 import io.circe.jakartajson.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
@@ -24,8 +24,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.jena.irix.IRIxResolver
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.RIOT
-import org.apache.jena.riot.lang.TitaniumConverter
 import org.apache.jena.riot.system.*
+import org.apache.jena.riot.system.jsonld.{JenaToTitanium, TitaniumToJena}
 import org.apache.jena.sparql.core.DatasetGraph
 
 import java.net.URI
@@ -108,14 +108,11 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig, opts: JsonLdOptions) exte
         config.extraChecks,
         config.strict
       )
+      val document     = circeToDocument(input)
       val dataset      = DatasetFactory.create().asDatasetGraph()
       val output       = StreamRDFLib.dataset(dataset)
-      val consumer     = TitaniumConverter(output, profile)
-      JsonLd
-        .toRdf(circeToDocument(input))
-        .options(toOpts(TitaniumDocumentLoader.empty))
-        .provide(consumer)
-
+      val options      = toOpts(TitaniumDocumentLoader.empty)
+      TitaniumToJena.convert(document, options, output, profile)
       dataset
     }
 
@@ -126,12 +123,8 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig, opts: JsonLdOptions) exte
       input: DatasetGraph
   ): IO[Seq[JsonObject]] = {
     def fromRdf = {
-      val consumer  = JsonLd
-        .fromRdf()
-        .options(toOpts(TitaniumDocumentLoader.empty))
-        .mode(JsonLdVersion.V1_1)
-      TitaniumConverter.transform(input, consumer)
-      val jsonArray = jakartaJsonToCirce(consumer.toJsonLd)
+      val opts      = toOpts(TitaniumDocumentLoader.empty)
+      val jsonArray = jakartaJsonToCirce(JenaToTitanium.convert(input, opts))
       toSeqJsonObjectOrErr(jsonArray)
     }
 

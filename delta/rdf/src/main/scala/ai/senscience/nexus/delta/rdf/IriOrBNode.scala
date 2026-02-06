@@ -5,13 +5,12 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.{BNode, Iri}
 import cats.Order
 import cats.syntax.all.*
 import io.circe.*
-import org.apache.jena.iri.{IRI, IRIFactory}
+import org.apache.jena.rfc3986.IRI3986
 import org.http4s.{Query, Uri}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 
 import java.util.UUID
-import scala.annotation.tailrec
 
 /**
   * Represents an [[Iri]] or a [[BNode]]
@@ -56,7 +55,7 @@ object IriOrBNode {
     * @param value
     *   the underlying Jena [[IRI]]
     */
-  final case class Iri private (private val value: IRI) extends IriOrBNode {
+  final case class Iri private (val value: IRI3986) extends IriOrBNode {
 
     /**
       * Extract the query parameters as key and values
@@ -67,7 +66,7 @@ object IriOrBNode {
     /**
       * Extract the query parameters as String
       */
-    def rawQuery(): String = Option(value.getRawQuery).getOrElse("")
+    def rawQuery(): String = Option(value.query()).getOrElse("")
 
     /**
       * Removes each encounter of the passed query parameter keys from the current Iri query parameters
@@ -89,19 +88,19 @@ object IriOrBNode {
       * Override the current query parameters with the passed ones
       */
     def queryParams(query: Query): Iri =
-      if Option(value.getRawAuthority).nonEmpty then {
+      if Option(value.authority()).nonEmpty then {
         Iri.unsafe(
-          scheme = Option(value.getScheme),
-          userInfo = Option(value.getRawUserinfo),
-          host = Option(value.getRawHost),
-          port = Option.when(value.getPort > 0)(value.getPort),
-          path = Option(value.getRawPath),
+          scheme = Option(value.scheme()),
+          userInfo = Option(value.userInfo()),
+          host = Option(value.host()),
+          port = Option(value.port()),
+          path = Option(value.path()),
           query = Option.when(query.nonEmpty)(query.toString()),
-          fragment = Option(value.getRawFragment)
+          fragment = Option(value.fragment())
         )
       } else {
         Iri.unsafe(
-          scheme = Option(value.getScheme),
+          scheme = Option(value.scheme()),
           path = path,
           query = Option.when(query.nonEmpty)(query.toString()),
           fragment = fragment
@@ -110,12 +109,9 @@ object IriOrBNode {
 
     /**
       * Is valid according to the IRI rfc
-      *
-      * @param includeWarnings
-      *   If true then warnings are reported as well as errors.
       */
-    def isValid(includeWarnings: Boolean): Boolean =
-      value.hasViolation(includeWarnings)
+    def isValid: Boolean =
+      value.hasViolations
 
     /**
       * Defines if the iri is suitable for a usage in RDF.
@@ -124,7 +120,7 @@ object IriOrBNode {
       *   true if this IRI has a scheme specified, false otherwise
       */
     def isReference: Boolean =
-      value.isRootless || value.getScheme != null
+      value.isRootless || value.scheme() != null
 
     /**
       * Is this Iri a relative reference without a scheme specified.
@@ -182,7 +178,7 @@ object IriOrBNode {
       * @return
       *   the IRI scheme
       */
-    def scheme: Option[String] = Option(value.getScheme)
+    def scheme: Option[String] = Option(value.scheme())
 
     override lazy val toString: String = value.toString
 
@@ -214,37 +210,24 @@ object IriOrBNode {
       * @return
       *   the Iri path, if present
       */
-    def path: Option[String] =
-      Option(value.getRawPath)
+    def path: Option[String] = Option(value.path())
 
     /**
       * @return
       *   the last Iri path segment, if present
       */
-    def lastSegment: Option[String] = {
-
-      @tailrec
-      def inner(rest: String): Option[String] = {
-        val idx = rest.lastIndexOf("/")
-        if idx == -1 then None
-        else if idx < rest.length - 1 then Some(rest.substring(idx + 1))
-        else inner(rest.dropRight(1))
-      }
-
-      Option(value.getRawPath).flatMap(inner)
-    }
+    def lastSegment: Option[String] =
+      value.pathSegments().lastOption
 
     /**
       * @return
       *   the Iri fragment, if present
       */
     def fragment: Option[String] =
-      Option(value.getRawFragment)
+      Option(value.fragment())
   }
 
   object Iri {
-
-    private val iriFactory = IRIFactory.iriImplementation()
 
     /**
       * Construct an [[Iri]] safely.
@@ -254,7 +237,7 @@ object IriOrBNode {
       */
     def apply(string: String): Either[String, Iri] = {
       val iri = unsafe(string)
-      Option.when(!iri.isValid(includeWarnings = true))(iri).toRight(s"'$string' is not an IRI")
+      Option.when(!iri.isValid)(iri).toRight(s"'$string' is not an IRI")
     }
 
     /**
@@ -279,7 +262,7 @@ object IriOrBNode {
         scheme: Option[String],
         userInfo: Option[String],
         host: Option[String],
-        port: Option[Int],
+        port: Option[String],
         path: Option[String],
         query: Option[String],
         fragment: Option[String]
@@ -335,7 +318,7 @@ object IriOrBNode {
       * Construct an IRI without checking the validity of the format.
       */
     def unsafe(string: String): Iri =
-      new Iri(iriFactory.create(string))
+      new Iri(IRI3986.createAny(string))
 
     given iriDecoder: Decoder[Iri] = Decoder.decodeString.emap(apply)
     given iriEncoder: Encoder[Iri] = Encoder.encodeString.contramap(_.toString)

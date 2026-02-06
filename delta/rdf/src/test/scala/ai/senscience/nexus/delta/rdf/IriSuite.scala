@@ -16,7 +16,7 @@ class IriSuite extends NexusSuite {
 
   test("Fails to construct") {
     Iri.reference("abc").assertLeft()
-    Iri.apply("a:*#").assertLeft()
+    Iri.apply("a: #").assertLeft()
   }
 
   test("Is a reference") {
