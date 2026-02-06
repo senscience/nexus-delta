@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sdk.model
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
+import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase}
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 
@@ -35,7 +36,9 @@ object IdSegment {
     * Construct an [[IdSegment]] from the passed ''string''
     */
   final def apply(string: String): IdSegment =
-    Iri.reference(string).fold[IdSegment](_ => StringSegment(string), IriSegment(_))
+    if string.split("://").length == 2 then
+      Iri.reference(string).fold[IdSegment](_ => StringSegment(string), IriSegment(_))
+    else StringSegment(string)
 
   final def apply(iri: Iri): IdSegment = IriSegment(iri)
 
