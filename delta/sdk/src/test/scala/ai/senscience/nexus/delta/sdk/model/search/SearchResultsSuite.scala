@@ -2,44 +2,44 @@ package ai.senscience.nexus.delta.sdk.model.search
 
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
-import ai.senscience.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.functor.*
 
-class SearchResultsSpec extends BaseSpec {
+class SearchResultsSuite extends NexusSuite {
 
-  "Scored search results" should {
+  {
     val entries       = List(ScoredResultEntry(1f, 1), ScoredResultEntry(2f, 2))
     val searchResults = ScoredSearchResults(entries.length.toLong, 2f, entries)
 
-    "map over its value" in {
+    test("Scored search results should map over its value") {
       val expectedEntries       = List(ScoredResultEntry(1f, 2), ScoredResultEntry(2f, 3))
       val expectedSearchResults = ScoredSearchResults(entries.length.toLong, 2f, expectedEntries)
-      searchResults.map(_ + 1) shouldEqual expectedSearchResults
-      (searchResults: SearchResults[Int]).map(_ + 1) shouldEqual expectedSearchResults
+      assertEquals(searchResults.map(_ + 1), expectedSearchResults)
+      assertEquals((searchResults: SearchResults[Int]).map(_ + 1), expectedSearchResults)
     }
 
-    "replace its values" in {
+    test("Scored search results should replace its values") {
       val expectedEntries       = List(ScoredResultEntry(10f, "2"))
       val expectedSearchResults = ScoredSearchResults(expectedEntries.length.toLong, 2f, expectedEntries)
-      searchResults.copyWith(expectedEntries) shouldEqual expectedSearchResults
+      assertEquals(searchResults.copyWith(expectedEntries), expectedSearchResults)
     }
   }
 
-  "Unscored search results" should {
+  {
     val entries       = List(UnscoredResultEntry(1), UnscoredResultEntry(2))
     val searchResults = UnscoredSearchResults(entries.length.toLong, entries)
 
-    "map over its value" in {
+    test("Unscored search results should map over its value") {
       val expectedEntries       = List(UnscoredResultEntry(2), UnscoredResultEntry(3))
       val expectedSearchResults = UnscoredSearchResults(entries.length.toLong, expectedEntries)
-      searchResults.map(_ + 1) shouldEqual expectedSearchResults
-      (searchResults: SearchResults[Int]).map(_ + 1) shouldEqual expectedSearchResults
+      assertEquals(searchResults.map(_ + 1), expectedSearchResults)
+      assertEquals((searchResults: SearchResults[Int]).map(_ + 1), expectedSearchResults)
     }
 
-    "replace its values" in {
+    test("Unscored search results should replace its values") {
       val expectedEntries       = List(UnscoredResultEntry("2"))
       val expectedSearchResults = UnscoredSearchResults(expectedEntries.length.toLong, expectedEntries)
-      searchResults.copyWith(expectedEntries) shouldEqual expectedSearchResults
+      assertEquals(searchResults.copyWith(expectedEntries), expectedSearchResults)
     }
   }
 
