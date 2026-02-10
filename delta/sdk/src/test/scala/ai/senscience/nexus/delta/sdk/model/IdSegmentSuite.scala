@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schema, schemas}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase}
 import ai.senscience.nexus.delta.sdk.syntax.*
-import ai.senscience.nexus.testkit.scalatest.BaseSpec
+import ai.senscience.nexus.testkit.mu.NexusSuite
 
-class IdSegmentSpec extends BaseSpec {
+class IdSegmentSuite extends NexusSuite {
 
   private val am   = ApiMappings(
     "nxv"      -> nxv.base,
@@ -17,7 +17,7 @@ class IdSegmentSpec extends BaseSpec {
   )
   private val base = ProjectBase(nxv.base)
 
-  "An string segment" should {
+  test("A string segment should be converted to an Iri") {
     val list =
       List(
         "data:other"         -> (schemas + "other"),
@@ -27,20 +27,16 @@ class IdSegmentSpec extends BaseSpec {
         "other"              -> (nxv + "other"),
         "http://example.com" -> iri"http://example.com"
       )
-
-    "be converted to an Iri" in {
-      forAll(list) { case (string, iri) =>
-        StringSegment(string).toIri(am, base).value shouldEqual iri
-      }
+    list.foreach { case (string, iri) =>
+      assertEquals(StringSegment(string).toIri(am, base), Some(iri))
     }
-
-    "failed to be converted to an Iri" in {
-      StringSegment("#a?!*#").toIri(am, base) shouldEqual None
-    }
-
   }
 
-  "An Iri segment" should {
+  test("A string segment should fail to be converted to an Iri") {
+    assertEquals(StringSegment("#a?!*#").toIri(am, base), None)
+  }
+
+  test("An Iri segment should be converted to an Iri") {
     val list =
       List(
         nxv + "other"           -> (nxv + "other"),
@@ -49,11 +45,8 @@ class IdSegmentSpec extends BaseSpec {
         iri"http://example.com" -> iri"http://example.com",
         iri"data:other"         -> (schemas + "other")
       )
-
-    "be converted to an Iri" in {
-      forAll(list) { case (iri, expected) =>
-        IriSegment(iri).toIri(am, base).value shouldEqual expected
-      }
+    list.foreach { case (iri, expected) =>
+      assertEquals(IriSegment(iri).toIri(am, base), Some(expected))
     }
   }
 }
