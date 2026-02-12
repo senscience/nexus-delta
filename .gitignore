@@ -56,12 +56,3 @@ project/.bloop
 ehthumbs.db
 Thumbs.db
 
-# Blazegraph generated files #
-##############################
-bigdata.jnl
-blazegraph.jnl
-rules.log
-
-# Rust
-**/*.rs.bk
-Cargo.lock
