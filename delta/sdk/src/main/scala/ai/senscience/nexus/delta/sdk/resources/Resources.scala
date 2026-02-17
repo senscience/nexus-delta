@@ -395,38 +395,34 @@ object Resources {
       }
     }
 
-    def stateWhereResourceExists(c: ModifyCommand) = {
-      state match {
-        case None                      =>
-          IO.raiseError(ResourceNotFound(c.id, c.project))
-        case Some(s) if s.rev != c.rev =>
-          IO.raiseError(IncorrectRev(c.rev, s.rev))
-        case Some(s)                   =>
-          IO.pure(s)
+    def stateWhereResourceExists(c: ResourceCommand) =
+      (state, c.revOpt) match {
+        case (None, _)                            => IO.raiseError(ResourceNotFound(c.id, c.project))
+        case (Some(s), Some(rev)) if s.rev != rev => IO.raiseError(IncorrectRev(rev, s.rev))
+        case (Some(s), _)                         => IO.pure(s)
       }
-    }
 
-    def stateWhereResourceIsEditable(c: ModifyCommand) = {
+    def stateWhereResourceIsEditable(c: ResourceCommand) = {
       stateWhereResourceExists(c).flatMap { s =>
         IO.raiseWhen(s.deprecated)(ResourceIsDeprecated(c.id)).as(s)
       }
     }
 
-    def stateWhereTagExistsOnResource(c: ModifyCommand, tag: UserTag) = {
+    def stateWhereTagExistsOnResource(c: ResourceCommand, tag: UserTag) = {
       stateWhereResourceExists(c).flatMap { s =>
         raiseWhenDifferentSchema(c, s) >>
           IO.raiseWhen(!s.tags.contains(tag))(TagNotFound(tag)).as(s)
       }
     }
 
-    def stateWhereRevisionExists(c: ModifyCommand, targetRev: Int) = {
+    def stateWhereRevisionExists(c: ResourceCommand, targetRev: Int) = {
       stateWhereResourceExists(c).flatMap { s =>
         raiseWhenDifferentSchema(c, s) >>
           IO.raiseWhen(targetRev <= 0 || targetRev > s.rev)(RevisionNotFound(targetRev, s.rev)).as(s)
       }
     }
 
-    def raiseWhenDifferentSchema(c: ModifyCommand, s: ResourceState) =
+    def raiseWhenDifferentSchema(c: ResourceCommand, s: ResourceState) =
       IO.raiseWhen(c.schemaOpt.exists(cur => cur.iri != s.schema.iri))(
         UnexpectedResourceSchema(s.id, c.schemaOpt.get, s.schema)
       )
@@ -585,7 +581,7 @@ object Resources {
       onUniqueViolation = (id: Iri, c: ResourceCommand) =>
         c match {
           case c: CreateResource => ResourceAlreadyExists(id, c.project)
-          case c                 => IncorrectRev(c.rev, c.rev + 1)
+          case c                 => ResourceHasBeenUpdated
         }
     )
 }

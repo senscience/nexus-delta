@@ -132,13 +132,13 @@ class ResourcesSuite extends NexusSuite with ValidateResourceFixture with Resour
     val current       = ResourceGen.currentState(projectRef, jsonld, unconstrainedRef)
     val updatedJsonLd =
       jsonld.copy(remoteContexts = remoteContexts + StaticContextRef(iri"https://senscience.ai/another-context"))
-    eval(Some(current), RefreshResource(projectRef, projectContext, None, updatedJsonLd, 1, caller))
+    eval(Some(current), RefreshResource(projectRef, projectContext, None, updatedJsonLd, caller))
       .assertEquals(ResourceRefreshed(projectRef, unconstrainedRev, projectRef, updatedJsonLd, 2, epoch, subject))
   }
 
   test("RefreshResource is rejected with NoChangeDetected") {
     val current = ResourceGen.currentState(projectRef, jsonld, unconstrainedRef)
-    eval(Some(current), RefreshResource(projectRef, projectContext, None, jsonld, 1, caller))
+    eval(Some(current), RefreshResource(projectRef, projectContext, None, jsonld, caller))
       .interceptEquals(NoChangeDetected(current))
   }
 

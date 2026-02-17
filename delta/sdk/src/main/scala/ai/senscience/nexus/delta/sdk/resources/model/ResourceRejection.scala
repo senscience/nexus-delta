@@ -187,8 +187,8 @@ object ResourceRejection {
     *   the resource identifier
     * @param schema
     *   the resource provided schema
-    * @param details
-    *   the SHACL engine errors
+    * @param cause
+    *   the SHACL engine error
     */
   final case class ResourceShaclEngineRejection(id: Iri, schema: ResourceRef, cause: Throwable)
       extends ResourceRejection(
@@ -212,7 +212,7 @@ object ResourceRejection {
 
   /**
     * Rejection returned when a subject intends to perform an operation on the current resource, but either provided an
-    * incorrect revision or a concurrent update won over this attempt.
+    * incorrect revision.
     *
     * @param provided
     *   the provided revision
@@ -220,9 +220,13 @@ object ResourceRejection {
     *   the expected revision
     */
   final case class IncorrectRev(provided: Int, expected: Int)
-      extends ResourceRejection(
-        s"Incorrect revision '$provided' provided, expected '$expected', the resource may have been updated since last seen."
-      )
+      extends ResourceRejection(s"Incorrect revision '$provided' provided, expected '$expected'.")
+
+  /**
+    * Rejection returned when a subject intends to perform an operation on the current resource, but a concurrent update
+    * won over this attempt.
+    */
+  case object ResourceHasBeenUpdated extends ResourceRejection("The resource has been updated since last seen.")
 
   /**
     * Rejection returned when attempting to create/update a resource with a deprecated schema.
@@ -266,6 +270,7 @@ object ResourceRejection {
       case ResourceShaclEngineRejection(_, _, _) => StatusCodes.InternalServerError
       case ResourceAlreadyExists(_, _)           => StatusCodes.Conflict
       case IncorrectRev(_, _)                    => StatusCodes.Conflict
+      case ResourceHasBeenUpdated                => StatusCodes.Conflict
       case _                                     => StatusCodes.BadRequest
     }
 }

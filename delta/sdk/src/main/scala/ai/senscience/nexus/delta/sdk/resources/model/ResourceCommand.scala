@@ -29,7 +29,13 @@ sealed trait ResourceCommand extends Product with Serializable {
     * @return
     *   the last known revision of the resource
     */
-  def rev: Int
+  def revOpt: Option[Int]
+
+  /**
+    * @return
+    *   the optional schema of the resource. A None value ignores the schema from this command
+    */
+  def schemaOpt: Option[ResourceRef]
 
   /**
     * @return
@@ -40,19 +46,6 @@ sealed trait ResourceCommand extends Product with Serializable {
 }
 
 object ResourceCommand {
-
-  sealed trait ModifyCommand {
-    def id: Iri
-    def project: ProjectRef
-    def schemaOpt: Option[ResourceRef]
-    def rev: Int
-  }
-
-  /** A [[ModifyCommand]] to use when the schema is not optional */
-  trait ModifyCommandWithSchema extends ModifyCommand {
-    def schemaRef: ResourceRef
-    def schemaOpt: Option[ResourceRef] = Some(schemaRef)
-  }
 
   /**
     * Command that signals the intent to create a new resource.
@@ -81,7 +74,9 @@ object ResourceCommand {
 
     override def id: Iri = jsonld.id
 
-    override def rev: Int = 0
+    override def revOpt: Option[Int] = None
+
+    override def schemaOpt: Option[ResourceRef] = Some(schema)
 
     def subject: Subject = caller.subject
   }
@@ -112,10 +107,11 @@ object ResourceCommand {
       rev: Int,
       caller: Caller,
       tag: Option[UserTag]
-  ) extends ResourceCommand
-      with ModifyCommand {
+  ) extends ResourceCommand {
 
     override def id: Iri = jsonld.id
+
+    override def revOpt: Option[Int] = Some(rev)
 
     def subject: Subject = caller.subject
   }
@@ -129,8 +125,6 @@ object ResourceCommand {
     *   the optional schema of the resource. A None value ignores the schema from this command
     * @param jsonld
     *   the jsonld representation of the resource
-    * @param rev
-    *   the last known revision of the resource
     * @param caller
     *   the subject which created this event
     */
@@ -139,12 +133,12 @@ object ResourceCommand {
       projectContext: ProjectContext,
       schemaOpt: Option[ResourceRef],
       jsonld: JsonLdAssembly,
-      rev: Int,
       caller: Caller
-  ) extends ResourceCommand
-      with ModifyCommand {
-
+  ) extends ResourceCommand {
     override def id: Iri = jsonld.id
+
+    override def revOpt: Option[Int] = None
+
     def subject: Subject = caller.subject
   }
 
@@ -159,8 +153,6 @@ object ResourceCommand {
     *   the current context of the project
     * @param schemaRef
     *   schema of the resource
-    * @param rev
-    *   last known revision of the resource
     * @param caller
     *   subject which created this event
     */
@@ -169,10 +161,13 @@ object ResourceCommand {
       project: ProjectRef,
       projectContext: ProjectContext,
       schemaRef: ResourceRef,
-      rev: Int,
       caller: Caller
-  ) extends ResourceCommand
-      with ModifyCommandWithSchema {
+  ) extends ResourceCommand {
+
+    override def schemaOpt: Option[ResourceRef] = Some(schemaRef)
+
+    override def revOpt: Option[Int] = None
+
     def subject: Subject = caller.subject
   }
 
@@ -202,8 +197,9 @@ object ResourceCommand {
       tag: UserTag,
       rev: Int,
       subject: Subject
-  ) extends ResourceCommand
-      with ModifyCommand
+  ) extends ResourceCommand {
+    override def revOpt: Option[Int] = Some(rev)
+  }
 
   /**
     * Command that signals the intent to delete a tag from an existing resource.
@@ -228,8 +224,9 @@ object ResourceCommand {
       tag: UserTag,
       rev: Int,
       subject: Subject
-  ) extends ResourceCommand
-      with ModifyCommand
+  ) extends ResourceCommand {
+    override def revOpt: Option[Int] = Some(rev)
+  }
 
   /**
     * Command that signals the intent to deprecate a resource.
@@ -251,8 +248,9 @@ object ResourceCommand {
       schemaOpt: Option[ResourceRef],
       rev: Int,
       subject: Subject
-  ) extends ResourceCommand
-      with ModifyCommand
+  ) extends ResourceCommand {
+    override def revOpt: Option[Int] = Some(rev)
+  }
 
   /**
     * Command that signals the intent to undeprecate a resource.
@@ -274,6 +272,7 @@ object ResourceCommand {
       schemaOpt: Option[ResourceRef],
       rev: Int,
       subject: Subject
-  ) extends ResourceCommand
-      with ModifyCommand
+  ) extends ResourceCommand {
+    override def revOpt: Option[Int] = Some(rev)
+  }
 }

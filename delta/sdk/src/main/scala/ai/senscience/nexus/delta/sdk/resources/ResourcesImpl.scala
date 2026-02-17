@@ -86,8 +86,7 @@ final class ResourcesImpl private (
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
       schemaRef             <- IO.fromEither(expandResourceRef(schema, projectContext))
-      resource              <- log.stateOr(projectRef, iri, ResourceNotFound(iri, projectRef))
-      res                   <- eval(UpdateResourceSchema(iri, projectRef, projectContext, schemaRef, resource.rev, caller))
+      res                   <- eval(UpdateResourceSchema(iri, projectRef, projectContext, schemaRef, caller))
     } yield res
   }.surround("updateResourceSchema")
 
@@ -101,7 +100,7 @@ final class ResourcesImpl private (
       schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
       resource              <- log.stateOr(projectRef, iri, ResourceNotFound(iri, projectRef))
       jsonld                <- sourceParser(projectRef, projectContext, iri, resource.source)
-      res                   <- eval(RefreshResource(projectRef, projectContext, schemaRefOpt, jsonld, resource.rev, caller))
+      res                   <- eval(RefreshResource(projectRef, projectContext, schemaRefOpt, jsonld, caller))
     } yield res
   }.surround("refreshResource")
 
