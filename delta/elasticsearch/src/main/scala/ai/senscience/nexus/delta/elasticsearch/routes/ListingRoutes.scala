@@ -26,7 +26,10 @@ import cats.effect.unsafe.implicits.*
 import cats.effect.IO
 import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.javadsl.server.Rejections.validationRejection
 import org.typelevel.otel4s.trace.Tracer
+
+import scala.util.{Failure, Success}
 
 class ListingRoutes(
     identities: Identities,
@@ -43,7 +46,10 @@ class ListingRoutes(
   import schemeDirectives.*
 
   private def resourceRef(idSegment: IdSegmentRef)(using pc: ProjectContext): Directive1[ResourceRef] =
-    onSuccess(Resources.expandIri(idSegment, pc).unsafeToFuture())
+    onComplete(Resources.expandIri(idSegment, pc).unsafeToFuture()).flatMap {
+      case Success(ref) => provide(ref)
+      case Failure(err) => reject(validationRejection(err.getMessage))
+    }
 
   def routes: Route =
     handleExceptions(ElasticSearchExceptionHandler.apply) {

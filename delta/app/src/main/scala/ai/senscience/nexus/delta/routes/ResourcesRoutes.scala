@@ -17,7 +17,7 @@ import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete as Delete, read as Read, write as Write}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceRejection}
@@ -110,8 +110,8 @@ final class ResourcesRoutes(
                   }
                 }
               },
-              (idSegmentRef & indexingMode) { (schema, mode) =>
-                val schemaOpt = underscoreToOption(schema)
+              (idSegment & indexingMode) { (schema, mode) =>
+                val schemaOpt = underscoreToOption(schema).map(IdSegmentRef(_))
                 concat(
                   // Create a resource with schema but without id segment
                   (pathEndOrSingleSlash & post & noRev & resourceEntity & tagParam) { (source, tag) =>

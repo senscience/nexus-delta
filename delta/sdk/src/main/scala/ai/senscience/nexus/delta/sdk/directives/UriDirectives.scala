@@ -217,12 +217,6 @@ trait UriDirectives extends QueryParamsUnmarshalling {
       case other              => Some(other)
     }
 
-  def underscoreToOption(segment: IdSegmentRef): Option[IdSegmentRef] =
-    segment.value match {
-      case StringSegment("_") => None
-      case _                  => Some(segment)
-    }
-
   /**
     * Extracts pagination specific query params ''from'' and ''size'' or use defaults.
     */

@@ -14,7 +14,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment.IriSegment
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.write as Write
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
@@ -59,10 +59,10 @@ final class ResourcesTrialRoutes(
     pathPrefix("resources") {
       extractCaller { case given Caller =>
         projectRef { project =>
-          (idSegmentRef & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
+          (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
             routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/validate") {
               authorizeFor(project, Write).apply {
-                val schemaOpt = underscoreToOption(schema)
+                val schemaOpt = underscoreToOption(schema).map(IdSegmentRef(_))
                 emit(resourcesTrial.validate(id, project, schemaOpt))
               }
             }
