@@ -653,7 +653,7 @@ class ResourcesImplSuite
 
   test("Fetching a resource succeeds") {
     givenATaggedResource() { id =>
-      (None, Some(IdSegment(unconstrained))).traverse { schema =>
+      (None, Some(IdSegmentRef(unconstrained))).traverse { schema =>
         resources
           .fetch(id, projectRef, schema)
           .map(r => (r.rev, r.value.tags))
@@ -665,7 +665,7 @@ class ResourcesImplSuite
   test("Fetching a resource succeeds by tag") {
     givenATaggedResource() { id =>
       val segment = nxvSegment(id)
-      (None, Some(IdSegment(unconstrained))).traverse { schema =>
+      (None, Some(IdSegmentRef(unconstrained))).traverse { schema =>
         resources
           .fetch(IdSegmentRef(segment, tag), projectRef, schema)
           .map(_.rev)
@@ -677,7 +677,7 @@ class ResourcesImplSuite
   test("Fetching a resource succeeds by rev") {
     givenAResource() { id =>
       resources.update(id, projectRef, None, 1, sourceWithoutId.deepMerge(json"""{"number": 1}"""), None) >>
-        (None, Some(IdSegment(unconstrained))).traverse { schema =>
+        (None, Some(IdSegmentRef(unconstrained))).traverse { schema =>
           resources.fetch(IdSegmentRef(id, 1), projectRef, schema).map(_.rev).assertEquals(1, s"for schema $schema")
         }
     }
@@ -686,7 +686,7 @@ class ResourcesImplSuite
   test("Fetching a resource fails if tag does not exist") {
     val otherTag = UserTag.unsafe("other")
     givenAResource() { id =>
-      (None, Some(IdSegment(unconstrained))).traverse { schema =>
+      (None, Some(IdSegmentRef(unconstrained))).traverse { schema =>
         resources.fetch(IdSegmentRef(id, otherTag), projectRef, schema).interceptEquals(TagNotFound(otherTag))
       }
     }
@@ -694,7 +694,7 @@ class ResourcesImplSuite
 
   test("Fetching a resource fails if revision does not exist") {
     givenAResource() { id =>
-      (None, Some(IdSegment(unconstrained))).traverse { schema =>
+      (None, Some(IdSegmentRef(unconstrained))).traverse { schema =>
         resources
           .fetch(IdSegmentRef(id, 5), projectRef, schema)
           .interceptEquals(
@@ -810,12 +810,12 @@ class ResourcesImplSuite
       resources.deprecate(id, projectRef, Some(schemaRef.iri), 1).map(_.deprecated).assertEquals(true) >> assertion(id)
     }
 
-  private def assertDeprecated(id: IdSegment, projectRef: ProjectRef, schema: Option[IdSegment])(using
+  private def assertDeprecated(id: IdSegment, projectRef: ProjectRef, schema: Option[IdSegmentRef])(using
       Location
   ): IO[Unit] =
     resources.fetch(id, projectRef, schema).map(_.deprecated).assertEquals(true)
 
-  private def assertActive(id: IdSegment, projectRef: ProjectRef, schema: Option[IdSegment] = None)(using
+  private def assertActive(id: IdSegment, projectRef: ProjectRef, schema: Option[IdSegmentRef] = None)(using
       Location
   ): IO[Unit] =
     resources.fetch(id, projectRef, schema).map(_.deprecated).assertEquals(false)

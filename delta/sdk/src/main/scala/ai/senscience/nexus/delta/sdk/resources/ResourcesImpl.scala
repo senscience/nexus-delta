@@ -11,7 +11,7 @@ import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, expandResourceRef, ResourceLog}
+import ai.senscience.nexus.delta.sdk.resources.Resources.{expandIri, ResourceLog}
 import ai.senscience.nexus.delta.sdk.resources.ResourcesImpl.{logger, ResourcesLog}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.{NoChangeDetected, ResourceNotFound}
@@ -35,13 +35,13 @@ final class ResourcesImpl private (
 
   override def create(
       projectRef: ProjectRef,
-      schema: IdSegment,
+      schema: IdSegmentRef,
       source: Json,
       tag: Option[UserTag]
   )(using caller: Caller): IO[DataResource] = {
     for {
       projectContext <- fetchContext.onCreate(projectRef)
-      schemeRef      <- IO.fromEither(expandResourceRef(schema, projectContext))
+      schemeRef      <- expandIri(schema, projectContext)
       jsonld         <- sourceParser(projectRef, projectContext, source)
       res            <- eval(CreateResource(projectRef, projectContext, schemeRef, jsonld, caller, tag))
     } yield res
@@ -50,13 +50,13 @@ final class ResourcesImpl private (
   override def create(
       id: IdSegment,
       projectRef: ProjectRef,
-      schema: IdSegment,
+      schema: IdSegmentRef,
       source: Json,
       tag: Option[UserTag]
   )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onCreate, projectRef, id)
-      schemeRef             <- IO.fromEither(expandResourceRef(schema, projectContext))
+      schemeRef             <- expandIri(schema, projectContext)
       jsonld                <- sourceParser(projectRef, projectContext, iri, source)
       res                   <- eval(CreateResource(projectRef, projectContext, schemeRef, jsonld, caller, tag))
     } yield res
@@ -65,14 +65,14 @@ final class ResourcesImpl private (
   override def update(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int,
       source: Json,
       tag: Option[UserTag]
   )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemeRefOpt          <- expandIri(schemaOpt, projectContext)
       jsonld                <- sourceParser(projectRef, projectContext, iri, source)
       res                   <- eval(UpdateResource(projectRef, projectContext, schemeRefOpt, jsonld, rev, caller, tag))
     } yield res
@@ -81,11 +81,11 @@ final class ResourcesImpl private (
   override def updateAttachedSchema(
       id: IdSegment,
       projectRef: ProjectRef,
-      schema: IdSegment
+      schema: IdSegmentRef
   )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemaRef             <- IO.fromEither(expandResourceRef(schema, projectContext))
+      schemaRef             <- expandIri(schema, projectContext)
       res                   <- eval(UpdateResourceSchema(iri, projectRef, projectContext, schemaRef, caller))
     } yield res
   }.surround("updateResourceSchema")
@@ -93,11 +93,11 @@ final class ResourcesImpl private (
   override def refresh(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   )(using caller: Caller): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemaRefOpt          <- expandIri(schemaOpt, projectContext)
       resource              <- log.stateOr(projectRef, iri, ResourceNotFound(iri, projectRef))
       jsonld                <- sourceParser(projectRef, projectContext, iri, resource.source)
       res                   <- eval(RefreshResource(projectRef, projectContext, schemaRefOpt, jsonld, caller))
@@ -107,39 +107,39 @@ final class ResourcesImpl private (
   override def tag(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       tag: UserTag,
       tagRev: Int,
       rev: Int
   )(using caller: Subject): IO[DataResource] =
     (for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemeRefOpt          <- expandIri(schemaOpt, projectContext)
       res                   <- eval(TagResource(iri, projectRef, schemeRefOpt, tagRev, tag, rev, caller))
     } yield res).surround("tagResource")
 
   override def deleteTag(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       tag: UserTag,
       rev: Int
   )(using caller: Subject): IO[DataResource] =
     (for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemeRefOpt          <- expandIri(schemaOpt, projectContext)
       res                   <- eval(DeleteResourceTag(iri, projectRef, schemeRefOpt, tag, rev, caller))
     } yield res).surround("deleteResourceTag")
 
   override def deprecate(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int
   )(using caller: Subject): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemeRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemeRefOpt          <- expandIri(schemaOpt, projectContext)
       res                   <- eval(DeprecateResource(iri, projectRef, schemeRefOpt, rev, caller))
     } yield res
   }.surround("deprecateResource")
@@ -147,12 +147,12 @@ final class ResourcesImpl private (
   override def undeprecate(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int
   )(using caller: Subject): IO[DataResource] = {
     for {
       (iri, projectContext) <- expandWithContext(fetchContext.onModify, projectRef, id)
-      schemaRefOpt          <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+      schemaRefOpt          <- expandIri(schemaOpt, projectContext)
       res                   <- eval(UndeprecateResource(iri, projectRef, schemaRefOpt, rev, caller))
     } yield res
   }.surround("undeprecateResource")
@@ -168,11 +168,11 @@ final class ResourcesImpl private (
   def fetchState(
       id: IdSegmentRef,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   ): IO[ResourceState] = {
     for {
       (iri, pc)    <- expandWithContext(fetchContext.onRead, projectRef, id.value)
-      schemaRefOpt <- IO.fromEither(expandResourceRef(schemaOpt, pc))
+      schemaRefOpt <- expandIri(schemaOpt, pc)
       state        <- FetchResource(log).stateOrNotFound(id, iri, projectRef)
       _            <- IO.raiseWhen(schemaRefOpt.exists(_.iri != state.schema.iri))(notFound(iri, projectRef))
     } yield state
@@ -183,7 +183,7 @@ final class ResourcesImpl private (
   override def fetch(
       id: IdSegmentRef,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   ): IO[DataResource] = fetchState(id, projectRef, schemaOpt).map(_.toResource)
 
   private def expandWithContext(

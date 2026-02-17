@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext}
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
 import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase}
-import ai.senscience.nexus.delta.sourcing.model.ResourceRef
 
 /**
   * A segment from the positional API that should be an Id
@@ -28,9 +27,8 @@ sealed trait IdSegment extends Product with Serializable { self =>
 
 object IdSegment {
 
-  given Conversion[Iri, IdSegment]         = IriSegment(_)
-  given Conversion[ResourceRef, IdSegment] = ref => IriSegment(ref.original)
-  given Conversion[String, IdSegment]      = StringSegment(_)
+  given Conversion[Iri, IdSegment]    = IriSegment(_)
+  given Conversion[String, IdSegment] = StringSegment(_)
 
   /**
     * Construct an [[IdSegment]] from the passed ''string''

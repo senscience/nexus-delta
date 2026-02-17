@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment.{IriSegment, StringSegment}
-import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.{IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.resources.*
 import ai.senscience.nexus.delta.sdk.resources.ValidationResult.*
@@ -62,7 +62,7 @@ class ResourcesTrialRoutesSpec extends BaseRouteSpec with ResourceInstanceFixtur
   private val expectedError = ReservedResourceId(nxv + "invalid")
 
   private val resourcesTrial = new ResourcesTrial {
-    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using
+    override def generate(project: ProjectRef, schema: IdSegmentRef, source: NexusSource)(using
         Caller
     ): IO[ResourceGenerationResult] =
       generate(source, None)
@@ -81,18 +81,19 @@ class ResourcesTrialRoutesSpec extends BaseRouteSpec with ResourceInstanceFixtur
         }
       }
 
-    override def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using
+    override def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegmentRef])(using
         Caller
     ): IO[ValidationResult] =
       (id.value, schemaOpt) match {
         // Returns a validated result for myId when no schema is provided
-        case (StringSegment("myId") | IriSegment(`myId`), None)                                =>
+        case (StringSegment("myId") | IriSegment(`myId`), None) =>
           IO.pure(Validated(projectRef, ResourceRef.Revision(schemaId, defaultSchemaRevision), defaultReport))
         // Returns no validation result for myId for `schemas.resources`
-        case (StringSegment("myId") | IriSegment(`myId`), Some(IriSegment(schemas.resources))) =>
+        case (StringSegment("myId") | IriSegment(`myId`), Some(schema))
+            if schema.value == IriSegment(schemas.resources) =>
           IO.pure(NoValidation(projectRef))
-        case (IriSegment(iri), None)                                                           => IO.raiseError(ResourceNotFound(iri, project))
-        case _                                                                                 => IO.raiseError(new IllegalStateException("Should not happen !"))
+        case (IriSegment(iri), None)                            => IO.raiseError(ResourceNotFound(iri, project))
+        case _                                                  => IO.raiseError(new IllegalStateException("Should not happen !"))
       }
   }
 

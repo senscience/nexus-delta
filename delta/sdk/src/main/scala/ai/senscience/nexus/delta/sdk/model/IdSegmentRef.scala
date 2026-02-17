@@ -39,9 +39,10 @@ sealed trait IdSegmentRef extends Product with Serializable { self =>
 
 object IdSegmentRef {
 
-  given Conversion[IdSegment, IdSegmentRef] = apply(_)
-  given Conversion[Iri, IdSegmentRef]       = Latest(_)
-  given Conversion[String, IdSegmentRef]    = Latest(_)
+  given Conversion[IdSegment, IdSegmentRef]   = apply(_)
+  given Conversion[ResourceRef, IdSegmentRef] = apply(_)
+  given Conversion[Iri, IdSegmentRef]         = Latest(_)
+  given Conversion[String, IdSegmentRef]      = Latest(_)
 
   def apply(id: IdSegment): IdSegmentRef                               = Latest(id)
   def apply(id: IdSegment, rev: Int): IdSegmentRef                     = Revision(id, rev)
