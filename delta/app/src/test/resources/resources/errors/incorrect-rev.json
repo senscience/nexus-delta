@@ -3,5 +3,5 @@
   "@type": "IncorrectRev",
   "provided": {{provided}},
   "expected": {{expected}},
-  "reason": "Incorrect revision '{{provided}}' provided, expected '{{expected}}', the resource may have been updated since last seen."
+  "reason": "Incorrect revision '{{provided}}' provided, expected '{{expected}}'."
 }
