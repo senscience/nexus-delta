@@ -9,12 +9,9 @@ import ai.senscience.nexus.delta.sdk.marshalling.{JsonLdFormat, QueryParamsUnmar
 import ai.senscience.nexus.delta.sdk.model.IdSegment.StringSegment
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef, ResourceF}
-import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
-import ai.senscience.nexus.delta.sdk.resources.Resources
-import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.InvalidResourceId
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import cats.syntax.all.*
 import io.circe.Json
@@ -143,12 +140,6 @@ trait UriDirectives extends QueryParamsUnmarshalling {
       }
     }
 
-  def resourceRef(idSegment: IdSegment)(using pc: ProjectContext): Directive1[ResourceRef] =
-    Resources.expandResourceRef(idSegment, pc.apiMappings, pc.base, InvalidResourceId(_)) match {
-      case Right(resourceRef) => provide(resourceRef)
-      case Left(err)          => reject(validationRejection(err.getMessage))
-    }
-
   /**
     * Consumes a path Segment and parse it into a [[UserTag]]
     */
@@ -224,6 +215,12 @@ trait UriDirectives extends QueryParamsUnmarshalling {
     segment match {
       case StringSegment("_") => None
       case other              => Some(other)
+    }
+
+  def underscoreToOption(segment: IdSegmentRef): Option[IdSegmentRef] =
+    segment.value match {
+      case StringSegment("_") => None
+      case _                  => Some(segment)
     }
 
   /**

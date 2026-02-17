@@ -75,12 +75,12 @@ class ListingRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture {
   "list at project level" in {
     aclCheck.append(AclAddress.Root, Anonymous -> Set(esPermissions.read)).accepted
 
-    val endpoints: Seq[(String, IdSegment)] = List(
-      "/v1/views/myorg/myproject"                    -> elasticSearchSchema,
-      "/v1/resources/myorg/myproject/schema"         -> "schema",
-      s"/v1/resources/myorg/myproject/$myId2Encoded" -> myId2
+    val endpoints: Seq[String] = List(
+      "/v1/views/myorg/myproject",
+      "/v1/resources/myorg/myproject/schema",
+      s"/v1/resources/myorg/myproject/$myId2Encoded"
     )
-    forAll(endpoints) { case (endpoint, _) =>
+    forAll(endpoints) { endpoint =>
       Get(s"$endpoint?from=0&size=5&q=something") ~> routes ~> check {
         response.status shouldEqual StatusCodes.OK
         response.asJson shouldEqual

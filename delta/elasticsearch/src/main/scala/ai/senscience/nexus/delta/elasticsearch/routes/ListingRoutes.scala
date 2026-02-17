@@ -19,8 +19,10 @@ import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResul
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources
 import ai.senscience.nexus.delta.sdk.projects.ProjectScopeResolver
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
+import ai.senscience.nexus.delta.sdk.resources.Resources
 import ai.senscience.nexus.delta.sourcing.Scope
-import ai.senscience.nexus.delta.sourcing.model.Label
+import ai.senscience.nexus.delta.sourcing.model.{Label, ResourceRef}
+import cats.effect.unsafe.implicits.*
 import cats.effect.IO
 import io.circe.JsonObject
 import org.apache.pekko.http.scaladsl.server.*
@@ -39,6 +41,9 @@ class ListingRoutes(
     with RdfMarshalling {
 
   import schemeDirectives.*
+
+  private def resourceRef(idSegment: IdSegmentRef)(using pc: ProjectContext): Directive1[ResourceRef] =
+    onSuccess(Resources.expandIri(idSegment, pc).unsafeToFuture())
 
   def routes: Route =
     handleExceptions(ElasticSearchExceptionHandler.apply) {

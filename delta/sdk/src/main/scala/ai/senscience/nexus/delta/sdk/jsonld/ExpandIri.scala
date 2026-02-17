@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectContext
 import ai.senscience.nexus.delta.sourcing.model.ResourceRef
+import cats.syntax.all.*
 import cats.effect.IO
 
 final class ExpandIri[R <: Rejection](val onError: String => R) extends AnyVal {
@@ -38,4 +39,7 @@ final class ExpandIri[R <: Rejection](val onError: String => R) extends AnyVal {
         }
       }
     )(onError(segment.value.asString))
+
+  def apply(segmentOpt: Option[IdSegmentRef], projectContext: ProjectContext): IO[Option[ResourceRef]] =
+    segmentOpt.flatTraverse(apply(_, projectContext).map(_.some))
 }

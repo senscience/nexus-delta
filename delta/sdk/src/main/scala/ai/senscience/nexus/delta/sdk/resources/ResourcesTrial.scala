@@ -5,10 +5,10 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdAssembly
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdSourceProcessor.JsonLdSourceResolvingParser
-import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
+import ai.senscience.nexus.delta.sdk.model.IdSegmentRef
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
-import ai.senscience.nexus.delta.sdk.resources.Resources.expandResourceRef
+import ai.senscience.nexus.delta.sdk.resources.Resources.expandIri
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceState}
 import ai.senscience.nexus.delta.sdk.{DataResource, SchemaResource}
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tags}
@@ -30,7 +30,9 @@ trait ResourcesTrial {
     * @param source
     *   the original json payload
     */
-  def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using Caller): IO[ResourceGenerationResult]
+  def generate(project: ProjectRef, schema: IdSegmentRef, source: NexusSource)(using
+      Caller
+  ): IO[ResourceGenerationResult]
 
   /**
     * Generates the resource and validate it against the provided schema
@@ -57,7 +59,9 @@ trait ResourcesTrial {
     *   the optional identifier that will be expanded to the schema reference to validate the resource. A None value
     *   uses the currently available resource schema reference.
     */
-  def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using Caller): IO[ValidationResult]
+  def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegmentRef])(using
+      Caller
+  ): IO[ValidationResult]
 }
 
 object ResourcesTrial {
@@ -71,12 +75,12 @@ object ResourcesTrial {
 
     private val sourceParser = JsonLdSourceResolvingParser(contextResolution, uuidF)
 
-    override def generate(project: ProjectRef, schema: IdSegment, source: NexusSource)(using
+    override def generate(project: ProjectRef, schema: IdSegmentRef, source: NexusSource)(using
         caller: Caller
     ): IO[ResourceGenerationResult] = {
       for {
         projectContext <- fetchContext.onRead(project)
-        schemaRef      <- IO.fromEither(Resources.expandResourceRef(schema, projectContext))
+        schemaRef      <- Resources.expandIri(schema, projectContext)
         jsonld         <- sourceParser(project, projectContext, source.value)
         schemaClaim     = SchemaClaim.onCreate(project, schemaRef, caller)
         validation     <- validateResource(jsonld, schemaClaim, projectContext.enforceSchema)
@@ -99,12 +103,12 @@ object ResourcesTrial {
       ResourceGenerationResult(Some(schema), attempt)
     }
 
-    def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegment])(using
+    def validate(id: IdSegmentRef, project: ProjectRef, schemaOpt: Option[IdSegmentRef])(using
         caller: Caller
     ): IO[ValidationResult] = {
       for {
         projectContext <- fetchContext.onRead(project)
-        schemaRefOpt   <- IO.fromEither(expandResourceRef(schemaOpt, projectContext))
+        schemaRefOpt   <- expandIri(schemaOpt, projectContext)
         resource       <- fetchResource(id, project)
         jsonld         <- resource.toAssembly
         schemaClaim     = SchemaClaim.onUpdate(project, schemaRefOpt, resource.schema, caller)

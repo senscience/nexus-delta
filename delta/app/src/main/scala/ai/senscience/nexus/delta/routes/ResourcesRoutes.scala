@@ -110,7 +110,7 @@ final class ResourcesRoutes(
                   }
                 }
               },
-              (idSegment & indexingMode) { (schema, mode) =>
+              (idSegmentRef & indexingMode) { (schema, mode) =>
                 val schemaOpt = underscoreToOption(schema)
                 concat(
                   // Create a resource with schema but without id segment

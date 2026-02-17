@@ -1,13 +1,12 @@
 package ai.senscience.nexus.delta.sdk.resources
 
-import ai.senscience.nexus.delta.kernel.error.Rejection
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
 import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.jsonld.{ExpandIri, JsonLdAssembly}
 import ai.senscience.nexus.delta.sdk.model.*
-import ai.senscience.nexus.delta.sdk.projects.model.{ApiMappings, ProjectBase, ProjectContext}
+import ai.senscience.nexus.delta.sdk.projects.model.ApiMappings
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceCommand.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceEvent.*
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
@@ -40,7 +39,7 @@ trait Resources {
     */
   def create(
       projectRef: ProjectRef,
-      schema: IdSegment,
+      schema: IdSegmentRef,
       source: Json,
       tag: Option[UserTag]
   )(using Caller): IO[DataResource]
@@ -60,7 +59,7 @@ trait Resources {
   def create(
       id: IdSegment,
       projectRef: ProjectRef,
-      schema: IdSegment,
+      schema: IdSegmentRef,
       source: Json,
       tag: Option[UserTag]
   )(using Caller): IO[DataResource]
@@ -83,7 +82,7 @@ trait Resources {
   def update(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int,
       source: Json,
       tag: Option[UserTag]
@@ -102,7 +101,7 @@ trait Resources {
   def updateAttachedSchema(
       id: IdSegment,
       projectRef: ProjectRef,
-      schema: IdSegment
+      schema: IdSegmentRef
   )(using Caller): IO[DataResource]
 
   /**
@@ -120,7 +119,7 @@ trait Resources {
   def refresh(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   )(using Caller): IO[DataResource]
 
   /**
@@ -143,7 +142,7 @@ trait Resources {
   def tag(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       tag: UserTag,
       tagRev: Int,
       rev: Int
@@ -167,7 +166,7 @@ trait Resources {
   def deleteTag(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       tag: UserTag,
       rev: Int
   )(using Subject): IO[DataResource]
@@ -188,7 +187,7 @@ trait Resources {
   def deprecate(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int
   )(using Subject): IO[DataResource]
 
@@ -208,7 +207,7 @@ trait Resources {
   def undeprecate(
       id: IdSegment,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment],
+      schemaOpt: Option[IdSegmentRef],
       rev: Int
   )(using Subject): IO[DataResource]
 
@@ -235,7 +234,7 @@ trait Resources {
   def fetchState(
       id: IdSegmentRef,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   ): IO[ResourceState]
 
   /**
@@ -252,7 +251,7 @@ trait Resources {
   def fetch(
       id: IdSegmentRef,
       projectRef: ProjectRef,
-      schemaOpt: Option[IdSegment]
+      schemaOpt: Option[IdSegmentRef]
   ): IO[DataResource]
 
   /**
@@ -293,29 +292,6 @@ object Resources {
     * The default resource API mappings
     */
   val mappings: ApiMappings = ApiMappings("_" -> schemas.resources, "resource" -> schemas.resources, "nxv" -> nxv.base)
-
-  /**
-    * Expands the segment to a [[ResourceRef]]
-    */
-  def expandResourceRef(segment: IdSegment, context: ProjectContext): Either[Rejection, ResourceRef] =
-    expandResourceRef(segment, context.apiMappings, context.base, InvalidResourceId(_))
-
-  /**
-    * Expands the segment to a [[ResourceRef]] if defined
-    */
-  def expandResourceRef(
-      segmentOpt: Option[IdSegment],
-      context: ProjectContext
-  ): Either[Rejection, Option[ResourceRef]] =
-    segmentOpt.flatTraverse(expandResourceRef(_, context).map(_.some))
-
-  def expandResourceRef(
-      segment: IdSegment,
-      mappings: ApiMappings,
-      base: ProjectBase,
-      notFound: String => Rejection
-  ): Either[Rejection, ResourceRef] =
-    segment.toIri(mappings, base).map(ResourceRef(_)).toRight(notFound(segment.asString))
 
   private[delta] def next(state: Option[ResourceState], event: ResourceEvent): Option[ResourceState] = {
     // format: off

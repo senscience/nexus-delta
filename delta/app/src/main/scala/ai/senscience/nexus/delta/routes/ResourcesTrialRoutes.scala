@@ -59,7 +59,7 @@ final class ResourcesTrialRoutes(
     pathPrefix("resources") {
       extractCaller { case given Caller =>
         projectRef { project =>
-          (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
+          (idSegmentRef & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
             routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/validate") {
               authorizeFor(project, Write).apply {
                 val schemaOpt = underscoreToOption(schema)
