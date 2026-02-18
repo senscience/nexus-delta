@@ -115,7 +115,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
     (
         graphStream: GraphResourceStream,
         pipeChainCompiler: PipeChainCompiler,
-        healthCheck: SparqlHealthCheck,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
         baseUri: BaseUri,
@@ -124,7 +123,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
       SparqlProjectionLifeCycle(
         graphStream,
         pipeChainCompiler,
-        healthCheck,
         client,
         config.retryStrategy,
         config.batch
