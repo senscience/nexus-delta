@@ -14,5 +14,5 @@ test
 
 To run just some tests:
 ```sbtshell
-testOnly *RemoteStorageSpec
+testOnly *ResourcesSpec
 ```

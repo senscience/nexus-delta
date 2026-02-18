@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.plugins.storage.files.model.FileRejection.{Dige
 import ai.senscience.nexus.delta.plugins.storage.files.model.{FileAttributes, MediaType}
 import ai.senscience.nexus.delta.plugins.storage.storages.StorageFixtures
 import ai.senscience.nexus.delta.plugins.storage.storages.model.DigestAlgorithm
-import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.{DiskStorage as DiskStorageType, RemoteDiskStorage as RemoteStorageType}
+import ai.senscience.nexus.delta.plugins.storage.storages.model.StorageType.{DiskStorage as DiskStorageType, S3Storage}
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.Identity.User
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
@@ -61,7 +61,7 @@ class FilesStmSpec extends CatsEffectSpec with FileFixtures with StorageFixtures
       "create a new event from a UpdateFile command" in {
         val updateCmd = UpdateFile(id, projectRef, storageRef, DiskStorageType, attributes, 1, alice, None)
         val current   =
-          FileGen.state(id, projectRef, s3StorageRef, attributes.copy(bytes = 1), RemoteStorageType)
+          FileGen.state(id, projectRef, s3StorageRef, attributes.copy(bytes = 1), S3Storage)
 
         evaluate(clock)(Some(current), updateCmd).accepted shouldEqual
           FileUpdated(id, projectRef, storageRef, DiskStorageType, attributes, 2, epoch, alice, None)

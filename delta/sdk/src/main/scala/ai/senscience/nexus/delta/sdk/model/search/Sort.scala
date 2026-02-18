@@ -36,29 +36,25 @@ object Sort {
   /**
     * Enumeration type for all possible ordering
     */
-  sealed trait OrderType extends Product with Serializable
-
-  object OrderType {
+  enum OrderType(symbol: String) {
+    override def toString: String = symbol
 
     /**
       * Descending ordering
       */
-    case object Desc extends OrderType {
-      override def toString: String = "-"
-    }
+    case Desc extends OrderType("-")
 
     /**
       * Ascending ordering
       */
-    case object Asc extends OrderType {
-      override def toString: String = ""
-    }
+    case Asc extends OrderType("")
+  }
+
+  object OrderType {
 
     given Encoder[OrderType] = Encoder.encodeString.contramap {
       case Desc => "desc"
       case Asc  => "asc"
     }
-
   }
-
 }

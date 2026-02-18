@@ -14,13 +14,13 @@ trait ProvisioningAction {
 
 object ProvisioningAction {
 
-  sealed trait Outcome
+  enum Outcome {
+    case Success
 
-  object Outcome {
-    case object Success  extends Outcome
-    case object Skipped  extends Outcome
-    case object Disabled extends Outcome
-    case object Error    extends Outcome
+    case Skipped
+
+    case Disabled
+
+    case Error
   }
-
 }

@@ -7,30 +7,21 @@ import io.circe.{Decoder, Encoder, Json}
 /**
   * Enumeration of resolver types
   */
-sealed trait ResolverType extends Product with Serializable {
-
-  /**
-    * The JSON-LD types for the given resolver type
-    * @return
-    */
-  def types: Set[Iri]
-}
-
-object ResolverType {
+enum ResolverType(tpe: Iri) {
+  def types: Set[Iri] = Set(nxv.Resolver, tpe)
 
   /**
     * Resolver within a same project
     */
-  case object InProject extends ResolverType {
-    override def types: Set[Iri] = Set(nxv.Resolver, nxv.InProject)
-  }
+  case InProject extends ResolverType(nxv.InProject)
 
   /**
     * Resolver across multiple projects
     */
-  case object CrossProject extends ResolverType {
-    override def types: Set[Iri] = Set(nxv.Resolver, nxv.CrossProject)
-  }
+  case CrossProject extends ResolverType(nxv.CrossProject)
+}
+
+object ResolverType {
 
   given Encoder[ResolverType] = Encoder.instance {
     case InProject    => Json.fromString("InProject")

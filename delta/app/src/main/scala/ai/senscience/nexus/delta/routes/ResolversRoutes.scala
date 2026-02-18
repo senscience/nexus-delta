@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, schemas}
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.routes.ResolutionType.{AllResolversInProject, SingleResolver}
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
@@ -22,6 +21,7 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resolvers.{read as Read, write as Write}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
 import ai.senscience.nexus.delta.sdk.resolvers.model.{MultiResolutionResult, Resolver, ResolverRejection}
+import ai.senscience.nexus.delta.routes.ResolversRoutes.*
 import ai.senscience.nexus.delta.sdk.resolvers.{MultiResolution, Resolvers}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -148,21 +148,13 @@ final class ResolversRoutes(
                   },
                   // Fetch a resource using a resolver
                   (get & idSegmentRef) { resourceIdRef =>
+                    val resType = resolutionType(resolver)
                     concat(
-                      (pathEndOrSingleSlash & parameter("showReport".as[Boolean].withDefault(default = false))) {
-                        showReport =>
-                          val outputType =
-                            if showReport then ResolvedResourceOutputType.Report else ResolvedResourceOutputType.JsonLd
-                          resolveResource(resourceIdRef, project, resolutionType(resolver), outputType)
+                      (pathEndOrSingleSlash & reportOutputType) { outputType =>
+                        resolveResource(resourceIdRef, project, resType, outputType)
                       },
-                      (pathPrefix("source") & pathEndOrSingleSlash & annotateSource) { annotate =>
-                        resolveResource(
-                          resourceIdRef,
-                          project,
-                          resolutionType(resolver),
-                          if annotate then ResolvedResourceOutputType.AnnotatedSource
-                          else ResolvedResourceOutputType.Source
-                        )
+                      (pathPrefix("source") & pathEndOrSingleSlash & sourceOutputType) { outputType =>
+                        resolveResource(resourceIdRef, project, resType, outputType)
                       }
                     )
                   }
@@ -173,6 +165,16 @@ final class ResolversRoutes(
         }
       }
     }
+
+  private def reportOutputType = parameter("showReport".as[Boolean].withDefault(default = false)).map {
+    case true  => ResolvedResourceOutputType.Report
+    case false => ResolvedResourceOutputType.JsonLd
+  }
+
+  private def sourceOutputType = annotateSource.map {
+    case true  => ResolvedResourceOutputType.AnnotatedSource
+    case false => ResolvedResourceOutputType.Source
+  }
 
   private def resolveResource(
       resource: IdSegmentRef,
@@ -193,35 +195,33 @@ final class ResolversRoutes(
         }
 
         resolutionType match {
-          case ResolutionType.AllResolversInProject => emitResult(multiResolution(resource, project))
-          case SingleResolver(resolver)             => emitResult(multiResolution(resource, project, resolver))
+          case ResolutionType.AllResolversInProject    => emitResult(multiResolution(resource, project))
+          case ResolutionType.SingleResolver(resolver) => emitResult(multiResolution(resource, project, resolver))
         }
       }
     }
 
   private def resolutionType(segment: IdSegment): ResolutionType = {
     underscoreToOption(segment) match {
-      case Some(resolver) => SingleResolver(resolver)
-      case None           => AllResolversInProject
+      case Some(resolver) => ResolutionType.SingleResolver(resolver)
+      case None           => ResolutionType.AllResolversInProject
     }
   }
 }
 
-sealed trait ResolutionType
-object ResolutionType {
-  case object AllResolversInProject        extends ResolutionType
-  case class SingleResolver(id: IdSegment) extends ResolutionType
-}
-
-sealed trait ResolvedResourceOutputType
-object ResolvedResourceOutputType {
-  case object Report          extends ResolvedResourceOutputType
-  case object JsonLd          extends ResolvedResourceOutputType
-  case object Source          extends ResolvedResourceOutputType
-  case object AnnotatedSource extends ResolvedResourceOutputType
-}
-
 object ResolversRoutes {
+
+  private enum ResolutionType {
+    case AllResolversInProject
+    case SingleResolver(id: IdSegment)
+  }
+
+  private enum ResolvedResourceOutputType {
+    case Report
+    case JsonLd
+    case Source
+    case AnnotatedSource
+  }
 
   /**
     * @return
