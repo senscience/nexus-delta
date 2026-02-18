@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, SparqlCoordinator, SparqlHealthCheck, SparqlProjectionLifeCycle, SparqlRestartScheduler}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, SparqlCoordinator, SparqlProjectionLifeCycle, SparqlRestartScheduler}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewEvent}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
@@ -101,14 +101,6 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   make[CurrentActiveViews].from { (views: BlazegraphViews) =>
     CurrentActiveViews(views)
-  }
-
-  make[SparqlHealthCheck].fromEffect {
-    (
-        client: SparqlClient @Id("sparql-indexing-client"),
-        supervisor: Supervisor
-    ) =>
-      SparqlHealthCheck(client, supervisor)
   }
 
   make[SparqlProjectionLifeCycle].from {
