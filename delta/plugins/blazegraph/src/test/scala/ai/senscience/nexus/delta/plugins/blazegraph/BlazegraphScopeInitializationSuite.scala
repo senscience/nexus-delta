@@ -13,17 +13,16 @@ import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, Defaults}
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.{IriFilter, Label}
-import ai.senscience.nexus.delta.sourcing.postgres.DoobieScalaTestFixture
-import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
+import ai.senscience.nexus.delta.sourcing.postgres.Doobie
+import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
+import munit.AnyFixture
 
 import java.util.UUID
 
-class BlazegraphScopeInitializationSpec
-    extends CatsEffectSpec
-    with DoobieScalaTestFixture
-    with ConfigFixtures
-    with Fixtures {
+class BlazegraphScopeInitializationSuite extends NexusSuite with Doobie.Fixture with ConfigFixtures with Fixtures {
+
+  override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
   private val uuid    = UUID.randomUUID()
   private given UUIDF = UUIDF.fixed(uuid)
@@ -49,7 +48,7 @@ class BlazegraphScopeInitializationSpec
     _ => IO.unit,
     eventLogConfig,
     prefix,
-    xas,
+    doobie(),
     clock
   ).accepted
 
@@ -57,33 +56,32 @@ class BlazegraphScopeInitializationSpec
   private val defaultViewDescription = "defaultDescription"
   private val defaults               = Defaults(defaultViewName, defaultViewDescription)
 
-  "A BlazegraphScopeInitialization" should {
-    lazy val init = new BlazegraphScopeInitialization(views, sa, defaults)
+  private lazy val init = new BlazegraphScopeInitialization(views, sa, defaults)
 
-    "create a default SparqlView on newly created project" in {
-      views.fetch(defaultViewId, project.ref).rejectedWith[ViewNotFound]
-      init.onProjectCreation(project.ref, bob).accepted
-      val resource = views.fetch(defaultViewId, project.ref).accepted
-      resource.value match {
-        case v: IndexingBlazegraphView  =>
-          v.resourceSchemas shouldBe IriFilter.None
-          v.resourceTypes shouldBe IriFilter.None
-          v.resourceTag shouldEqual None
-          v.includeDeprecated shouldEqual true
-          v.includeMetadata shouldEqual true
-          v.permission shouldEqual permissions.query
-          v.name should contain(defaultViewName)
-          v.description should contain(defaultViewDescription)
-        case _: AggregateBlazegraphView => fail("Expected an IndexingBlazegraphView to be created")
+  test("Create a default SparqlView on newly created project") {
+    views.fetch(defaultViewId, project.ref).intercept[ViewNotFound] >>
+      init.onProjectCreation(project.ref, bob) >>
+      views.fetch(defaultViewId, project.ref).map { r =>
+        r.value match {
+          case v: IndexingBlazegraphView  =>
+            assertEquals(v.resourceSchemas, IriFilter.None)
+            assertEquals(v.resourceTypes, IriFilter.None)
+            assertEquals(v.resourceTag, None)
+            assertEquals(v.includeDeprecated, true)
+            assertEquals(v.includeMetadata, true)
+            assertEquals(v.permission, permissions.query)
+            assertEquals(v.name, Some(defaultViewName))
+            assertEquals(v.description, Some(defaultViewDescription))
+          case _: AggregateBlazegraphView => fail("Expected an IndexingBlazegraphView to be created")
+        }
+        assertEquals(r.rev, 1)
+        assertEquals(r.createdBy, sa.caller.subject)
       }
-      resource.rev shouldEqual 1L
-      resource.createdBy shouldEqual sa.caller.subject
-    }
+  }
 
-    "not create a default SparqlView if one already exists" in {
-      views.fetch(defaultViewId, project.ref).accepted.rev shouldEqual 1L
-      init.onProjectCreation(project.ref, bob).accepted
-      views.fetch(defaultViewId, project.ref).accepted.rev shouldEqual 1L
-    }
+  test("Not create a default SparqlView if one already exists") {
+    views.fetch(defaultViewId, project.ref).map(_.rev).assertEquals(1) >>
+      init.onProjectCreation(project.ref, bob) >>
+      views.fetch(defaultViewId, project.ref).map(_.rev).assertEquals(1)
   }
 }
