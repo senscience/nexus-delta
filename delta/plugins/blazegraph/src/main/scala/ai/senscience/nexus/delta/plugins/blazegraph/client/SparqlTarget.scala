@@ -3,13 +3,12 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 import pureconfig.ConfigReader
 import pureconfig.error.FailureReason
 
-sealed trait SparqlTarget
+enum SparqlTarget {
+  case Blazegraph
+  case Rdf4j
+}
 
 object SparqlTarget {
-
-  case object Blazegraph extends SparqlTarget
-
-  case object Rdf4j extends SparqlTarget
 
   given ConfigReader[SparqlTarget] = ConfigReader.stringConfigReader.emap {
     case "blazegraph" => Right(Blazegraph)

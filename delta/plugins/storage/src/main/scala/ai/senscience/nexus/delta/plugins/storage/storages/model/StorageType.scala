@@ -8,18 +8,20 @@ import io.circe.{Decoder, Encoder, Json}
 /**
   * Enumeration of Storage types.
   */
-sealed trait StorageType extends Product with Serializable {
+enum StorageType(suffix: String) {
+  override val toString: String = suffix
+  def iri: Iri                  = nxv + toString
+  def types: Set[Iri]           = Set(nxvStorage, iri)
 
   /**
-    * @return
-    *   the type id
+    * A local disk storage type.
     */
-  def iri: Iri
+  case DiskStorage extends StorageType("DiskStorage")
 
   /**
-    * The JSON-LD types for the given storage type
+    * An S3 compatible storage type.
     */
-  def types: Set[Iri] = Set(nxvStorage, iri)
+  case S3Storage extends StorageType("S3Storage")
 }
 
 object StorageType {
@@ -27,42 +29,15 @@ object StorageType {
   def apply(iri: Iri): Either[String, StorageType] =
     if iri == DiskStorage.iri then Right(DiskStorage)
     else if iri == S3Storage.iri then Right(S3Storage)
-    else if iri == RemoteDiskStorage.iri then Right(RemoteDiskStorage)
     else Left(s"iri '$iri' does not match a StorageType")
 
-  /**
-    * A local disk storage type.
-    */
-  case object DiskStorage extends StorageType {
-    override val toString: String = "DiskStorage"
-    override val iri: Iri         = nxv + toString
-  }
-
-  /**
-    * An S3 compatible storage type.
-    */
-  case object S3Storage extends StorageType {
-    override val toString: String = "S3Storage"
-    override val iri: Iri         = nxv + toString
-  }
-
-  /**
-    * A remote disk storage type.
-    */
-  case object RemoteDiskStorage extends StorageType {
-    override val toString: String = "RemoteDiskStorage"
-    override val iri: Iri         = nxv + toString
-  }
-
   given Encoder[StorageType] = Encoder.instance {
-    case DiskStorage       => Json.fromString("DiskStorage")
-    case S3Storage         => Json.fromString("S3Storage")
-    case RemoteDiskStorage => Json.fromString("RemoteDiskStorage")
+    case DiskStorage => Json.fromString("DiskStorage")
+    case S3Storage   => Json.fromString("S3Storage")
   }
 
   given Decoder[StorageType] = Decoder.decodeString.emap {
-    case "DiskStorage"       => Right(DiskStorage)
-    case "S3Storage"         => Right(S3Storage)
-    case "RemoteDiskStorage" => Right(RemoteDiskStorage)
+    case "DiskStorage" => Right(DiskStorage)
+    case "S3Storage"   => Right(S3Storage)
   }
 }

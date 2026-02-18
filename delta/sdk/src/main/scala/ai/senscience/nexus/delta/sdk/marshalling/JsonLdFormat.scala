@@ -3,17 +3,15 @@ package ai.senscience.nexus.delta.sdk.marshalling
 /**
   * Enumeration of allowed Json-LD output formats on the service
   */
-sealed trait JsonLdFormat extends Product with Serializable
-
-object JsonLdFormat {
+enum JsonLdFormat {
 
   /**
     * Expanded JSON-LD output format as defined in https://www.w3.org/TR/json-ld-api/#expansion-algorithms
     */
-  case object Expanded extends JsonLdFormat
+  case Expanded
 
   /**
     * Compacted JSON-LD output format as defined in https://www.w3.org/TR/json-ld-api/#compaction-algorithms
     */
-  case object Compacted extends JsonLdFormat
+  case Compacted
 }

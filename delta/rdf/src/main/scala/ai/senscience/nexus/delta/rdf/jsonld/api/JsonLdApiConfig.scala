@@ -16,24 +16,21 @@ final case class JsonLdApiConfig(strict: Boolean, extraChecks: Boolean, errorHan
 
 object JsonLdApiConfig {
 
-  sealed trait ErrorHandling
-
-  object ErrorHandling {
+  enum ErrorHandling {
 
     /**
       * Keep the default error handler, errors will throw exception but only log warnings
       */
-    case object Default extends ErrorHandling
+    case Default
 
     /**
       * Error handler that will throw exceptions for both errors and warnings
       */
-    case object Strict extends ErrorHandling
+    case Strict
 
     /**
       * Error handler that will throw exceptions for errors but do nothing about warnings
       */
-    case object NoWarning extends ErrorHandling
-
+    case NoWarning
   }
 }

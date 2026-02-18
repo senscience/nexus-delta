@@ -7,41 +7,23 @@ import io.circe.{Decoder, Encoder, Json}
 /**
   * Enumeration of Blazegraph view types.
   */
-sealed trait BlazegraphViewType extends Product with Serializable {
-
-  /**
-    * @return
-    *   the type id
-    */
-  def tpe: Iri
-
-  /**
-    * @return
-    *   RDF types of the view
-    */
-  def types: Set[Iri] = Set(tpe, nxv + "View")
-
-}
-
-object BlazegraphViewType {
+enum BlazegraphViewType(suffix: String) {
+  override val toString: String = suffix
+  def tpe: Iri                  = nxv + toString
+  def types: Set[Iri]           = Set(tpe, nxv + "View")
 
   /**
     * Blazegraph view that indexes resources as triples.
     */
-  case object IndexingBlazegraphView extends BlazegraphViewType {
-    override val toString: String = "SparqlView"
-
-    override def tpe: Iri = nxv + toString
-  }
+  case IndexingBlazegraphView extends BlazegraphViewType("SparqlView")
 
   /**
     * Blazegraph view that delegates queries to a collections of existing Blazegraph views based on access.
     */
-  case object AggregateBlazegraphView extends BlazegraphViewType {
-    override val toString: String = "AggregateSparqlView"
+  case AggregateBlazegraphView extends BlazegraphViewType("AggregateSparqlView")
+}
 
-    override def tpe: Iri = nxv + toString
-  }
+object BlazegraphViewType {
 
   given Encoder[BlazegraphViewType] = Encoder.instance {
     case IndexingBlazegraphView  => Json.fromString("BlazegraphView")
