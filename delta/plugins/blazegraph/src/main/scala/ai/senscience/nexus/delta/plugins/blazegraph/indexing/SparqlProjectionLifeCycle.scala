@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, PipeChainCompiler}
 import cats.effect.IO
-import fs2.Stream
 import org.typelevel.otel4s.trace.Tracer
 
 trait SparqlProjectionLifeCycle {
@@ -28,7 +27,6 @@ object SparqlProjectionLifeCycle {
   def apply(
       graphStream: GraphResourceStream,
       pipeChainCompiler: PipeChainCompiler,
-      sparqlHealthCheck: SparqlHealthCheck,
       client: SparqlClient,
       retryStrategy: RetryStrategyConfig,
       batchConfig: BatchConfig
@@ -43,10 +41,9 @@ object SparqlProjectionLifeCycle {
       )
 
     override def init(view: ActiveViewDef): IO[Unit] =
-      Stream.never.interruptWhen(sparqlHealthCheck.healthy).compile.drain >>
-        client.createNamespace(view.namespace).void.onError { case e =>
-          logger.error(e)(s"Namespace for view '${view.ref}' could not be created.")
-        }
+      client.createNamespace(view.namespace).void.onError { case e =>
+        logger.error(e)(s"Namespace for view '${view.ref}' could not be created.")
+      }
 
     private def sink(view: ActiveViewDef) = SparqlSink(client, retryStrategy, batchConfig, view.namespace)
 
