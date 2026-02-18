@@ -41,9 +41,9 @@ object SparqlProjectionLifeCycle {
       )
 
     override def init(view: ActiveViewDef): IO[Unit] =
-        client.createNamespace(view.namespace).void.onError { case e =>
-          logger.error(e)(s"Namespace for view '${view.ref}' could not be created.")
-        }
+      client.createNamespace(view.namespace).void.onError { case e =>
+        logger.error(e)(s"Namespace for view '${view.ref}' could not be created.")
+      }
 
     private def sink(view: ActiveViewDef) = SparqlSink(client, retryStrategy, batchConfig, view.namespace)
 
