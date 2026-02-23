@@ -8,6 +8,7 @@ import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
+import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -128,14 +129,14 @@ object Projection {
       halt        <- Deferred[IO, Unit]
       progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
       progressRef <- Ref[IO].of(progress)
-      stream       = projection.streamF
-                       .apply(progress.offset)
-                       .interruptWhen(halt.get.attempt)
-                       .onFinalizeCaseWeak {
-                         case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
-                         case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
-                         case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
-                       }
+      stream       = (
+                       Stream.eval(init) >>
+                         projection.streamF.apply(progress.offset).interruptWhen(halt.get.attempt)
+                     ).onFinalizeCaseWeak {
+                       case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
+                       case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
+                       case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
+                     }
       persisted    =
         stream
           .through(
@@ -148,7 +149,7 @@ object Projection {
           .compile
           .drain
       // update status to Running at the beginning and to Completed at the end if it's still running
-      task         = init >> status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
+      task         = status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
                        if s.isRunning then ExecutionStatus.Completed else s
                      )
       fiber       <- task.start

@@ -56,6 +56,21 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       _       <- started.get.assertEquals(true).eventually
     } yield ()
 
+  private def assertInitCrash(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(using Location) = {
+    val expectedException = new IllegalStateException("The init task crashed unexpectedly.")
+    for {
+      started       <- Ref.of[IO, Boolean](false)
+      alreadyFailed <- Ref.of[IO, Boolean](false)
+      initFailedOnce = alreadyFailed.get.flatMap {
+                         case true  => IO.unit
+                         case false => alreadyFailed.set(true) >> IO.raiseError(expectedException)
+                       }
+      compiled       = CompiledProjection.fromStream(metadata, strategy, evalStream(started.set(true)))
+      _             <- sv.run(compiled, initFailedOnce)
+      _             <- started.get.assertEquals(true).eventually
+    } yield ()
+  }
+
   private def assertCrash(metadata: ProjectionMetadata, strategy: ExecutionStrategy)(using Location) = {
     val expectedException = new IllegalStateException("The stream crashed unexpectedly.")
     for {
@@ -226,6 +241,10 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       _ <- assertCrash(runnableByNode1, TransientSingleNode)
       _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
     } yield ()
+  }
+  test("Should restart a projection when init fails") {
+    assertInitCrash(runnableByNode1, TransientSingleNode) >>
+      sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
   }
 
   test("Destroy a failing projection") {
