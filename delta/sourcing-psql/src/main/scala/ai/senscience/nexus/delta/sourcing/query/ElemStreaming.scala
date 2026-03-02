@@ -4,13 +4,12 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus.{Ongoing, Suspended}
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState, QueryStatus}
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
-import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.{Delayed, OutOfPassivation, Passivated}
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{logQuery, stateFilter, typesSqlArray}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
@@ -179,48 +178,46 @@ final class ElemStreaming(
       query: Offset => Query0[Elem[A]],
       refresh: RefreshOrStop
   ): ElemStream[A] = {
+    val emptyChunk = Chunk.empty[Elem[A]]
 
     def onRefresh(queryStatus: QueryStatus): IO[Option[(ElemChunk[A], QueryStatus)]] =
-      refresh.run(queryStatus.refreshOutcome).map {
-        case RefreshOutcome.Stopped         => None
-        case other: RefreshOutcome.Continue =>
-          Some(Chunk.empty[Elem[A]] -> Suspended(queryStatus.uuid, queryStatus.offset, other))
+      refresh.run.map {
+        case RefreshOutcome.Stopped           => None
+        case outcome: RefreshOutcome.Continue =>
+          Some(emptyChunk -> Suspended(queryStatus.uuid, queryStatus.offset, outcome))
       }
 
     def execQuery(queryStatus: QueryStatus) =
       ongoingQueries.tryRun(queryStatus)(
         (queryStatus: QueryStatus) =>
           query(queryStatus.offset)
-            .to[List]
+            .to[Vector]
             .transact(xas.streaming)
             .flatMap { elems =>
               elems.lastOption.fold(onRefresh(queryStatus)) { last =>
-                IO.pure(Some((dropDuplicates(elems), Ongoing(queryStatus.uuid, last.offset))))
+                IO.some((dropDuplicates(elems), Ongoing(queryStatus.uuid, last.offset)))
               }
             },
         (queryStatus: QueryStatus) =>
           IO.sleep(queryConfig.delay) >>
-            IO.some(Chunk.empty[Elem[A]] -> queryStatus)
+            IO.some(emptyChunk -> queryStatus)
       )
 
     Stream.eval(uuidF()).flatMap { uuid =>
+      val init = Ongoing(uuid, start)
       Stream
-        .unfoldChunkEval[IO, QueryStatus, Elem[A]](Ongoing(uuid, start)) {
-          case ongoing: Ongoing                                          =>
+        .unfoldChunkEval[IO, QueryStatus, Elem[A]](init) {
+          case ongoing: Ongoing              =>
             execQuery(ongoing)
-          case status @ QueryStatus.Suspended(uuid, _, Delayed)          =>
-            execQuery(status)
-          case status @ QueryStatus.Suspended(uuid, _, OutOfPassivation) =>
-            execQuery(status)
-          case status @ QueryStatus.Suspended(uuid, _, Passivated)       =>
-            onRefresh(status)
+          case status: QueryStatus.Suspended =>
+            status.outcome.action >> execQuery(status)
         }
-        .onFinalizeCase(logQuery(query(start)))
+        .onFinalizeCase(logQuery(query(start))(_) >> ongoingQueries.clean(init))
     }
   }
 
   // Looks for duplicates and keep the last occurrence
-  private def dropDuplicates[A](elems: List[Elem[A]]): ElemChunk[A] = {
+  private def dropDuplicates[A](elems: Vector[Elem[A]]): ElemChunk[A] = {
     val (_, buffer) = elems.foldRight((Set.empty[(ProjectRef, Iri)], new ListBuffer[Elem[A]])) {
       case (elem, (seen, buffer)) =>
         val key = (elem.project, elem.id)
@@ -264,8 +261,6 @@ object ElemStreaming {
     def uuid: UUID
 
     def offset: Offset
-
-    def refreshOutcome: Option[RefreshOutcome.Continue]
   }
 
   object QueryStatus {
@@ -274,7 +269,6 @@ object ElemStreaming {
       * Streaming query currently running because there is still data to index and the ongoing set allowed it to run
       */
     final case class Ongoing(uuid: UUID, offset: Offset) extends QueryStatus {
-      override def refreshOutcome: Option[RefreshOutcome.Continue] = None
 
       def suspended(reason: RefreshOutcome.Continue) = Suspended(uuid, offset, reason)
     }
@@ -282,9 +276,7 @@ object ElemStreaming {
     /**
       * Streaming query currently suspended, waiting for more data and or an available slot in the ongoing set
       */
-    final case class Suspended(uuid: UUID, offset: Offset, reason: RefreshOutcome.Continue) extends QueryStatus {
-      def refreshOutcome: Option[RefreshOutcome.Continue] = Some(reason)
-    }
+    final case class Suspended(uuid: UUID, offset: Offset, outcome: RefreshOutcome.Continue) extends QueryStatus
   }
 
   /**

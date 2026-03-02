@@ -5,6 +5,8 @@ import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus.Ongoing
 import ai.senscience.nexus.delta.sourcing.query.OngoingQueries.Execute
 import ai.senscience.nexus.delta.sourcing.query.OngoingQueriesSuite.{QueryAttempt, RunSet, WaitSet}
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
+import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.Reason.Passivated
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
@@ -24,7 +26,7 @@ class OngoingQueriesSuite extends NexusSuite {
 
     val next =
       if continue then Some(("Next", queryStatus))
-      else Some(("Next", queryStatus.suspended(RefreshOrStop.RefreshOutcome.Passivated)))
+      else Some(("Next", queryStatus.suspended(RefreshOutcome.Continue(IO.sleep(10.millis), Passivated))))
 
     def ifRunnable(q: QueryStatus) = waiting.delete(q) >> running.add(q) >> io.as(next)
 

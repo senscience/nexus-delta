@@ -13,8 +13,7 @@ trait ProjectionMetrics {
 
 object ProjectionMetrics {
 
-  private val moduleKey             = AttributeKey[String]("nexus.module")
-  private val projectionResourceKey = AttributeKey[String]("nexus.projections.resource")
+  private val moduleKey = AttributeKey[String]("nexus.module")
 
   case object Disabled extends ProjectionMetrics {
     override def recordProgress(metadata: ProjectionMetadata, progress: ProjectionProgress): IO[Unit] = IO.unit
@@ -24,20 +23,17 @@ object ProjectionMetrics {
 
     override def recordProgress(metadata: ProjectionMetadata, progress: ProjectionProgress): IO[Unit] = {
       val attributes = makeAttributes(metadata)
-      metrics.processedGauge
+      metrics.processed
         .record(progress.processed, attributes) >>
-        metrics.discardedGauge
+        metrics.discarded
           .record(progress.discarded, attributes) >>
-        metrics.failedGauge
+        metrics.failed
           .record(progress.failed, attributes)
     }
 
     private def makeAttributes(metadata: ProjectionMetadata) = {
       val attributes = Attributes.newBuilder
       attributes += Attribute(moduleKey, metadata.module)
-      attributes ++= metadata.resourceId.map { id =>
-        Attribute(projectionResourceKey, id.toString)
-      }
       attributes.result()
     }
   }

@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.clock.MutableClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
+import cats.syntax.all.*
 import munit.{AnyFixture, Location}
 
 import java.time.Instant
@@ -13,6 +14,9 @@ class ProjectActivityMapSuite extends NexusSuite with MutableClock.Fixture {
   override def munitFixtures: Seq[AnyFixture[?]] = List(mutableClockFixture)
 
   private lazy val mutableClock: MutableClock = mutableClockFixture()
+
+  private def assertSignal(activity: ProjectActivityMap, project: ProjectRef, expected: Boolean)(using Location) =
+    activity.signal(project).flatMap(_.traverse(_.get.assertEquals(expected)))
 
   test("Should init and update the signals accordingly") {
     val now              = Instant.now()
@@ -33,18 +37,18 @@ class ProjectActivityMapSuite extends NexusSuite with MutableClock.Fixture {
       activity <- ProjectActivityMap(mutableClock, inactiveInterval)
       _        <- mutableClock.set(now.minusSeconds(5L))
       _        <- activity.newValues(init)
-      _        <- activity.contains(project1).assertEquals(false)
-      _        <- activity.contains(project2).assertEquals(true)
-      _        <- activity.contains(project3).assertEquals(true)
-      _        <- activity.contains(project4).assertEquals(false)
+      _        <- assertSignal(activity, project1, false)
+      _        <- assertSignal(activity, project2, true)
+      _        <- assertSignal(activity, project3, true)
+      _        <- assertSignal(activity, project4, false)
       _        <- mutableClock.set(now)
       updates   = List(project4 -> now.minusSeconds(2L), project1 -> now)
       _        <- activity.newValues(updates)
-      _        <- activity.evictInactiveProjects
-      _        <- activity.contains(project1).assertEquals(true)
-      _        <- activity.contains(project2).assertEquals(false)
-      _        <- activity.contains(project3).assertEquals(true)
-      _        <- activity.contains(project4).assertEquals(true)
+      _        <- activity.refresh
+      _        <- assertSignal(activity, project1, true)
+      _        <- assertSignal(activity, project2, false)
+      _        <- assertSignal(activity, project3, true)
+      _        <- assertSignal(activity, project4, true)
     } yield ()
   }
 

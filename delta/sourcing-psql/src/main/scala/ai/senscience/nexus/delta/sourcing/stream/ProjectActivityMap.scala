@@ -1,9 +1,11 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.stream.ProjectActivityMap.Activity
 import cats.effect.std.AtomicCell
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
+import fs2.concurrent.SignallingRef
 import org.typelevel.otel4s.metrics.{Gauge, Meter}
 
 import java.time.Instant
@@ -12,8 +14,8 @@ import scala.concurrent.duration.FiniteDuration
 /**
   * Keeps track of a list of project signals based on given values
   */
-final class ProjectActivityMap(
-    activeProjects: AtomicCell[IO, Map[ProjectRef, Instant]],
+final class ProjectActivityMap private (
+    activitiesCell: AtomicCell[IO, Map[ProjectRef, Activity]],
     clock: Clock[IO],
     inactiveInterval: FiniteDuration,
     activeProjectsGauge: Gauge[IO, Long]
@@ -22,18 +24,19 @@ final class ProjectActivityMap(
   /**
     * Return the signal for the given project
     */
-  def contains(project: ProjectRef): IO[Boolean] =
-    activeProjects.get.map(_.contains(project))
+  def signal(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] =
+    activitiesCell.get.map(_.get(project).map(_.signal))
 
-  def evictInactiveProjects: IO[Unit] =
+  def refresh: IO[Unit] =
     inactivityThreshold.flatMap { inactivityInstant =>
-      activeProjects.evalUpdate { projects =>
-        val active = projects.filter { case (_, lastUpdate) =>
-          lastUpdate.isAfter(inactivityInstant)
+      activitiesCell.evalUpdate { activities =>
+        val (active, inactive) = activities.partition { case (_, activity) =>
+          activity.updatedAt.isAfter(inactivityInstant)
         }
-        activeProjectsGauge
-          .record(active.size)
-          .as(active)
+        inactive.parUnorderedTraverse { _.signal.set(false) } >>
+          activeProjectsGauge
+            .record(active.size)
+            .as(active ++ inactive)
       }
     }
 
@@ -44,8 +47,8 @@ final class ProjectActivityMap(
     updates.traverse { case (project, lastInstant) =>
       inactivityThreshold.flatMap { inactivityInstant =>
         val isActive = lastInstant.isAfter(inactivityInstant)
-        IO.whenA(isActive) {
-          activeProjects.update(_.updated(project, lastInstant))
+        SignallingRef[IO, Boolean](isActive).map(Activity(lastInstant, _)).flatMap { activity =>
+          activitiesCell.update(_.updated(project, activity))
         }
       }
     }.void
@@ -56,9 +59,11 @@ final class ProjectActivityMap(
 
 object ProjectActivityMap {
 
+  final private case class Activity(updatedAt: Instant, signal: SignallingRef[IO, Boolean])
+
   def apply(clock: Clock[IO], inactiveInterval: FiniteDuration)(using Meter[IO]): IO[ProjectActivityMap] =
     for {
-      values              <- AtomicCell[IO].of(Map.empty[ProjectRef, Instant])
+      values              <- AtomicCell[IO].of(Map.empty[ProjectRef, Activity])
       activeProjectsGauge <- Meter[IO]
                                .gauge[Long]("nexus.indexing.projects.active.gauge")
                                .withDescription("Gauge of active projects.")

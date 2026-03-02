@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.config
 
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sdk.instances.given
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
@@ -47,6 +48,7 @@ final case class ElasticSearchViewsConfig(
     credentials: Option[BasicCredentials],
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
+    retryStrategy: RetryStrategyConfig,
     batch: BatchConfig,
     prefix: String,
     mainIndex: MainIndexConfig,

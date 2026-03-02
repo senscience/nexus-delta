@@ -142,7 +142,8 @@ object ElasticSearchCoordinator {
         graphStream,
         pipeChainCompiler,
         supervisor,
-        (v: ActiveViewDef) => ElasticSearchSink.states(client, config.batch, v.index, Refresh.False),
+        (v: ActiveViewDef) =>
+          ElasticSearchSink.states(client, config.retryStrategy, config.batch, v.index, Refresh.False),
         (v: ActiveViewDef) =>
           client
             .createIndex(v.index, v.indexDef)

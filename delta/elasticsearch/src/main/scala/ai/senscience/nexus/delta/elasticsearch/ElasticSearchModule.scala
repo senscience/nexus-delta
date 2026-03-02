@@ -188,7 +188,14 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         config: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      MainIndexingProjectionFactory(mainDocumentStream, client, mainIndex, config.batch, config.indexingEnabled)(using
+      MainIndexingProjectionFactory(
+        mainDocumentStream,
+        client,
+        mainIndex,
+        config.batch,
+        config.retryStrategy,
+        config.indexingEnabled
+      )(using
         tracer
       ).toSet
   }
