@@ -201,7 +201,7 @@ object CompositeSink {
   )(using RemoteContextResolution, Tracer[IO]): ElasticSearchProjection => CompositeSink = { target =>
     given JsonLdApi = TitaniumJsonLdApi.lenient(JsonLdOptions.AlwaysEmbed)
 
-    val esSink = ElasticSearchSink.states(esClient, batchConfig, index, Refresh.False)
+    val esSink = ElasticSearchSink.states(esClient, retryStrategyConfig, batchConfig, index, Refresh.False)
 
     compositeSink(
       sparqlClient,

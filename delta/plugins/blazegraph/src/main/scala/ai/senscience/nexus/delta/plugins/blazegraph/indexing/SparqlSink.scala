@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.SparqlWriteError
+import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlConnectError, SparqlTimeoutError, SparqlWriteError}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, SparqlWriteQuery}
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.SparqlSink.{logger, SparqlBulk}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
@@ -88,8 +88,10 @@ object SparqlSink {
     val retryStrategy = RetryStrategy(
       retryStrategyConfig,
       {
-        case _: SparqlWriteError => true
-        case e                   => HttpConnectivityError.test(e)
+        case _: SparqlWriteError   => true
+        case _: SparqlTimeoutError => true
+        case _: SparqlConnectError => true
+        case e                     => HttpConnectivityError.test(e)
       },
       RetryStrategy.logError(logger, "sinking")(_, _)
     )

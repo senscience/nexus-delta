@@ -21,6 +21,8 @@ trait OngoingQueries {
 
   def contains(uuid: UUID): IO[Boolean]
 
+  def clean(queryStatus: QueryStatus): IO[Unit]
+
 }
 
 object OngoingQueries {
@@ -30,6 +32,8 @@ object OngoingQueries {
   type Execute[A] = QueryStatus => IO[Option[(A, QueryStatus)]]
 
   case object Noop extends OngoingQueries {
+
+    override def clean(queryStatus: QueryStatus): IO[Unit] = IO.unit
 
     override def tryRun[A](status: QueryStatus)(onRun: Execute[A], onWait: Execute[A]): IO[Option[(A, QueryStatus)]] =
       onRun(status)
@@ -46,7 +50,7 @@ object OngoingQueries {
     (ongoingSet, ongoingQueriesGauge).mapN { case (values, gauge) =>
       new OngoingQueries {
 
-        private def clean(queryStatus: QueryStatus) =
+        def clean(queryStatus: QueryStatus): IO[Unit] =
           values.updateAndGet(_ - queryStatus.uuid).flatMap { set => gauge.record(set.size) }
 
         override def tryRun[A](
@@ -56,12 +60,12 @@ object OngoingQueries {
             .evalModify { set =>
               if set.contains(status.uuid) || set.size < maxOngoing then
                 logger
-                  .trace(s"Query '${status.uuid}' can be run and is registered.")
+                  .debug(s"Query '${status.uuid}' can be run and is registered.")
                   .as((set + status.uuid, true))
                   .flatTap { case (set, _) => gauge.record(set.size) }
               else
                 logger
-                  .trace(s"Query '${status.uuid}' can't be run for the moment as there is no capacity (${set.size}).")
+                  .debug(s"Query '${status.uuid}' can't be run for the moment as there is no capacity (${set.size}).")
                   .as((set, false))
             }
             .flatMap {

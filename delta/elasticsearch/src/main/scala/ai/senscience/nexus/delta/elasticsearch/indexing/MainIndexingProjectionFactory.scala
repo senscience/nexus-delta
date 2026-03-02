@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
 import ai.senscience.nexus.delta.sdk.stream.MainDocumentStream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -20,6 +21,7 @@ object MainIndexingProjectionFactory {
       client: ElasticSearchClient,
       mainIndex: MainIndexDef,
       batch: BatchConfig,
+      retryStrategy: RetryStrategyConfig,
       indexingEnabled: Boolean
   )(using Tracer[IO]): Option[ProjectProjectionFactory] =
     Option.when(indexingEnabled) {
@@ -40,7 +42,7 @@ object MainIndexingProjectionFactory {
               ExecutionStrategy.PersistentSingleNode,
               Source(mainDocumentStream.continuous(project, _)),
               mainIndexingPipeline,
-              ElasticSearchSink.mainIndexing(client, batch, targetIndex, Refresh.False)
+              ElasticSearchSink.mainIndexing(client, retryStrategy, batch, targetIndex, Refresh.False)
             )
           )
       }

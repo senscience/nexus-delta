@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.testkit.clock.MutableClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
+import cats.syntax.traverse.*
 import fs2.Stream
 import munit.{AnyFixture, Location}
 
@@ -16,6 +17,9 @@ class ProjectActivitySuite extends NexusSuite with MutableClock.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(mutableClockFixture)
   private lazy val mutableClock: MutableClock    = mutableClockFixture()
+
+  private def assertSignal(activity: ProjectActivity, project: ProjectRef, expected: Boolean)(using Location) =
+    activity(project).flatMap(_.traverse(_.get.assertEquals(expected)))
 
   test("Project activity should be updated when the stream is processed") {
     val now              = Instant.now()
@@ -40,10 +44,10 @@ class ProjectActivitySuite extends NexusSuite with MutableClock.Fixture {
       projectActivity = ProjectActivity(activityMap)
       activityPipe    = ProjectActivity.activityPipe(activityMap)
       _              <- stream.through(activityPipe).compile.drain
-      _              <- projectActivity(project1).assertEquals(true)
-      _              <- projectActivity(project2).assertEquals(false)
-      _              <- projectActivity(project3).assertEquals(true)
-      _              <- projectActivity(project4).assertEquals(false)
+      _              <- assertSignal(projectActivity, project1, true)
+      _              <- assertSignal(projectActivity, project2, false)
+      _              <- assertSignal(projectActivity, project3, true)
+      _              <- assertSignal(projectActivity, project4, false)
     } yield ()
   }
 

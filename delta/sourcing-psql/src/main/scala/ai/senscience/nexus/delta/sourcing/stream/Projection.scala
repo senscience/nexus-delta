@@ -132,7 +132,7 @@ object Projection {
       stream       = (
                        Stream.eval(init) >>
                          projection.streamF.apply(progress.offset).interruptWhen(halt.get.attempt)
-                     ).onFinalizeCaseWeak {
+                     ).onFinalizeCase {
                        case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
                        case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
                        case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
