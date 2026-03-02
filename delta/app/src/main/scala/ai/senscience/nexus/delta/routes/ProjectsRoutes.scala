@@ -27,6 +27,7 @@ import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.data.OptionT
 import cats.effect.IO
+import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
 import io.circe.Decoder
 import org.apache.pekko.http.scaladsl.model.*
@@ -52,17 +53,19 @@ final class ProjectsRoutes(
     with CirceUnmarshalling {
 
   private def projectsSearchParams(org: Option[Label])(using Caller): Directive1[ProjectSearchParams] = {
-    (searchParams & parameter("label".?)).tmap { case (deprecated, rev, createdBy, updatedBy, label) =>
-      val filter = projectScopeResolver.access(org.fold(Scope.root)(Scope.Org(_)), ReadProjects).memoize
-      ProjectSearchParams(
-        org,
-        deprecated,
-        rev,
-        createdBy,
-        updatedBy,
-        label,
-        proj => filter.flatMap(_.map(_.grant(proj.ref)))
-      )
+    (searchParams & parameter("label".?)).tflatMap { case (deprecated, rev, createdBy, updatedBy, label) =>
+      onSuccess(projectScopeResolver.access(org.fold(Scope.root)(Scope.Org(_)), ReadProjects).unsafeToFuture()).map {
+        permissionAccess =>
+          ProjectSearchParams(
+            org,
+            deprecated,
+            rev,
+            createdBy,
+            updatedBy,
+            label,
+            proj => IO.pure(permissionAccess.grant(proj.ref))
+          )
+      }
     }
   }
 
