@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.{IndexLabel, QueryBuilder, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchClientSetup, NexusElasticsearchSuite}
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
@@ -23,7 +24,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
   override def munitFixtures: Seq[AnyFixture[?]] = List(esClient)
 
   private def createSink(index: IndexLabel) =
-    ElasticSearchSink.states(client, BatchConfig(2, 50.millis), index, Refresh.True)
+    ElasticSearchSink.states(client, RetryStrategyConfig.AlwaysGiveUp, BatchConfig(2, 50.millis), index, Refresh.True)
 
   private val membersEntity = EntityType("members")
   private val index         = IndexLabel.unsafe("test_members")
@@ -127,7 +128,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
     val charlie_2 = (nxv + "charlie", json"""{"name": "Charlie M.", "age": 35 }""")
 
     val chunk = asChunk(List(charlie, rose, charlie_2))
-    val sink  = ElasticSearchSink.states(client, BatchConfig(2, 50.millis), index, Refresh.True)
+    val sink  = createSink(index)
 
     for {
       _ <- client.createIndex(index, indexDef).assertEquals(true)
@@ -146,7 +147,7 @@ class ElasticSearchSinkSuite extends NexusElasticsearchSuite with ElasticSearchC
 
     val chunk = Chunk.concat(List(indexingChunk, deleteChunk))
 
-    val sink = ElasticSearchSink.states(client, BatchConfig(2, 50.millis), index, Refresh.True)
+    val sink = createSink(index)
 
     for {
       _ <- client.createIndex(index, indexDef).assertEquals(true)

@@ -2,6 +2,10 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
+import ai.senscience.nexus.delta.elasticsearch.indexing.ElasticSearchSink.logger
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticSearchConnectError, ElasticSearchTimeoutError}
+import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
@@ -30,6 +34,7 @@ import shapeless3.typeable.Typeable
   */
 final class ElasticSearchSink private (
     client: ElasticSearchClient,
+    retryStrategyConfig: RetryStrategyConfig,
     override val batchConfig: BatchConfig,
     index: IndexLabel,
     idScheme: ElemDocumentIdScheme,
@@ -40,6 +45,16 @@ final class ElasticSearchSink private (
   override type In = Json
 
   override def inType: Typeable[Json] = Typeable[Json]
+
+  private val retryStrategy = RetryStrategy(
+    retryStrategyConfig,
+    {
+      case _: ElasticSearchConnectError => true
+      case _: ElasticSearchTimeoutError => true
+      case e                            => HttpConnectivityError.test(e)
+    },
+    RetryStrategy.logError(logger, "sinking")(_, _)
+  )
 
   override def apply(elements: ElemChunk[Json]): IO[ElemChunk[Unit]] = {
     val actions = elements.foldLeft(Vector.empty[ElasticSearchAction]) {
@@ -55,6 +70,7 @@ final class ElasticSearchSink private (
     if actions.nonEmpty then {
       client
         .bulk(actions, refresh)
+        .retry(retryStrategy)
         .map(MarkElems(_, elements, idScheme))
         .surround("elasticSearchSink")
     } else {
@@ -64,6 +80,8 @@ final class ElasticSearchSink private (
 }
 
 object ElasticSearchSink {
+
+  private val logger = Logger[ElasticSearchSink]
 
   /**
     * @param client
@@ -79,12 +97,14 @@ object ElasticSearchSink {
     */
   def states(
       client: ElasticSearchClient,
+      retryStrategyConfig: RetryStrategyConfig,
       batchConfig: BatchConfig,
       index: IndexLabel,
       refresh: Refresh
   )(using Tracer[IO]): ElasticSearchSink =
     new ElasticSearchSink(
       client,
+      retryStrategyConfig,
       batchConfig,
       index,
       ElemDocumentIdScheme.ById,
@@ -104,12 +124,14 @@ object ElasticSearchSink {
     */
   def mainIndexing(
       client: ElasticSearchClient,
+      retryStrategyConfig: RetryStrategyConfig,
       batchConfig: BatchConfig,
       index: IndexLabel,
       refresh: Refresh
   )(using Tracer[IO]): ElasticSearchSink =
     new ElasticSearchSink(
       client,
+      retryStrategyConfig,
       batchConfig,
       index,
       ElemDocumentIdScheme.ByProject,

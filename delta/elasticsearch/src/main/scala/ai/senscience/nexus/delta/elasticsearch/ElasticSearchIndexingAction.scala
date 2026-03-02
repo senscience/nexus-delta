@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.ElasticSearchIndexingAction.logge
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
 import ai.senscience.nexus.delta.elasticsearch.indexing.{CurrentActiveViews, ElasticSearchSink, IndexingViewDef}
-import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategyConfig}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.{GraphResourceEncoder, ResourceShifts}
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
@@ -72,12 +72,13 @@ object ElasticSearchIndexingAction {
       timeout: FiniteDuration,
       syncIndexingRefresh: Refresh
   )(using RemoteContextResolution, Tracer[IO]): ElasticSearchIndexingAction = {
-    val batchConfig = BatchConfig.individual
+    val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
+    val batchConfig   = BatchConfig.individual
     new ElasticSearchIndexingAction(
       shifts,
       currentViews,
       pipeChainCompiler,
-      (v: ActiveViewDef) => ElasticSearchSink.states(client, batchConfig, v.index, syncIndexingRefresh),
+      (v: ActiveViewDef) => ElasticSearchSink.states(client, retryStrategy, batchConfig, v.index, syncIndexingRefresh),
       timeout
     )
   }

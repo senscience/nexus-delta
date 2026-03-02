@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStream
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import cats.effect.{Clock, IO}
+import fs2.concurrent.SignallingRef
 import fs2.{Pipe, Stream}
 import org.typelevel.otel4s.metrics.Meter
 
@@ -16,17 +17,17 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
   */
 trait ProjectActivity {
 
-  def apply(project: ProjectRef): IO[Boolean]
+  def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]]
 
 }
 
 object ProjectActivity {
 
-  val noop: ProjectActivity = (_: ProjectRef) => IO.pure(false)
+  val noop: ProjectActivity = (_: ProjectRef) => IO.none
 
-  private def evictStream(signals: ProjectActivityMap) =
+  private def refreshStream(signals: ProjectActivityMap) =
     Stream.awakeEvery[IO](1.second).evalTap { _ =>
-      signals.evictInactiveProjects
+      signals.refresh
     }
 
   private[stream] def activityPipe(activityMap: ProjectActivityMap): Pipe[IO, ProjectLastUpdate, ProjectLastUpdate] =
@@ -39,7 +40,7 @@ object ProjectActivity {
         )
       }
       .unchunks
-      .concurrently(evictStream(activityMap))
+      .concurrently(refreshStream(activityMap))
 
   private val projectionMetadata: ProjectionMetadata =
     ProjectionMetadata("system", "project-activity", None, None)
@@ -65,5 +66,5 @@ object ProjectActivity {
     } yield apply(activityMap)
 
   def apply(activityMap: ProjectActivityMap): ProjectActivity =
-    (project: ProjectRef) => activityMap.contains(project)
+    (project: ProjectRef) => activityMap.signal(project)
 }

@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.config.MainIndexConfig
 import ai.senscience.nexus.delta.elasticsearch.indexing.MainIndexingProjectionFactory.mainIndexingPipeline
+import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sdk.indexing.MainDocument
 import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.indexing.sync.{SyncIndexingOutcome, SyncIndexingRunner}
@@ -48,10 +49,11 @@ object MainIndexingAction {
       timeout: FiniteDuration,
       syncIndexingRefresh: Refresh
   )(using Tracer[IO]): MainIndexingAction = {
-    val batchConfig = BatchConfig.individual
+    val retryStrategy = RetryStrategyConfig.AlwaysGiveUp
+    val batchConfig   = BatchConfig.individual
     new MainIndexingAction(
       encoder,
-      ElasticSearchSink.mainIndexing(client, batchConfig, config.index, syncIndexingRefresh),
+      ElasticSearchSink.mainIndexing(client, retryStrategy, batchConfig, config.index, syncIndexingRefresh),
       timeout
     )
   }
