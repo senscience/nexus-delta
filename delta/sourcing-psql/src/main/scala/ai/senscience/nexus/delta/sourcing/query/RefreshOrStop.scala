@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig.{DelayConfig, P
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
 import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.*
-import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome.Reason.Delayed
 import ai.senscience.nexus.delta.sourcing.stream.ProjectActivity
 import cats.effect.IO
 import fs2.Stream
@@ -25,39 +24,35 @@ object RefreshOrStop {
   sealed trait RefreshOutcome
 
   object RefreshOutcome {
-    enum Reason {
-      case Delayed
-      case NoSignal
-      case DelayedPassivation
-      case Passivated
-    }
-
-    case object Stopped                                         extends RefreshOutcome
-    final case class Continue(action: IO[Unit], reason: Reason) extends RefreshOutcome
+    case object Stopped            extends RefreshOutcome
+    sealed trait Continue          extends RefreshOutcome
+    case object Delayed            extends Continue
+    case object NoSignal           extends Continue
+    case object DelayedPassivation extends Continue
+    case object Passivated         extends Continue
   }
 
-  private val logger = Logger[RefreshOrStop]
+  private val logger = Logger[RefreshOrStop.type]
 
   def apply(scope: Scope, config: ElemQueryConfig, projectActivity: ProjectActivity): RefreshOrStop =
     new RefreshOrStop {
       override def run: IO[RefreshOutcome] = {
         (config, scope) match {
           case (_: StopConfig, _)                             => IO.pure(Stopped)
-          case (d: DelayConfig, _)                            => IO.pure(Continue(IO.sleep(d.delay), Delayed))
+          case (d: DelayConfig, _)                            => IO.sleep(d.delay).as(Delayed)
           case (w: PassivationConfig, Scope.Project(project)) =>
-            projectActivity(project).flatMap {
+            projectActivity.apply(project).flatMap {
               case Some(signal) =>
                 signal.get.flatMap {
                   case true  =>
-                    logger
-                      .debug(s"Project '$project' is active, continue after ${w.delay}")
-                      .as(Continue(IO.sleep(w.delay), Reason.DelayedPassivation))
-                  case false => IO.pure(Continue(passivate(project, signal), Reason.Passivated))
+                    logger.debug(s"Project '$project' is active, continue after ${w.delay}") >>
+                      IO.sleep(w.delay).as(DelayedPassivation)
+                  case false => passivate(project, signal)
                 }
               case None         =>
-                logger
-                  .debug(s"No signal has been found for project '$project', continue after ${w.delay}")
-                  .as(Continue(IO.sleep(w.delay), Reason.NoSignal))
+                logger.debug(s"No signal has been found for project '$project', continue after ${w.delay}") >> IO
+                  .sleep(w.delay)
+                  .as(NoSignal)
             }
           case (c, s)                                         =>
             // Passivation is only available at the project scope
@@ -71,6 +66,6 @@ object RefreshOrStop {
       _        <- logger.info(s"Project '$project' is inactive, pausing until some activity is seen again.")
       duration <- Stream.never[IO].interruptWhen(signal).compile.drain.timed.map(_._1.toCoarsest)
       _        <- logger.info(s"Project '$project' is active again after `$duration`, querying will resume.")
-    } yield ()
+    } yield Passivated
 
 }

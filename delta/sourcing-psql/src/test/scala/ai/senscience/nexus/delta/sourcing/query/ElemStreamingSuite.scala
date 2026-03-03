@@ -1,6 +1,5 @@
 package ai.senscience.nexus.delta.sourcing.query
 
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
@@ -36,13 +35,12 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(doobie)
 
-  private given UUIDF = UUIDF.random
-  private val qc      = QueryConfig(2, RefreshStrategy.Stop)
+  private val qc = QueryConfig(2, RefreshStrategy.Stop)
 
   private lazy val xas            = doobie()
   private val entityTypeFilter    = EntityTypeFilter.include(PullRequest.entityType, Release.entityType)
-  private val stopConfig          = StopConfig(20, 2, 50.millis)
-  private lazy val elemStreaming  = ElemStreaming.stopping(xas, OngoingQueries.Noop, entityTypeFilter, stopConfig)
+  private val stopConfig          = StopConfig(2, 50.millis)
+  private lazy val elemStreaming  = ElemStreaming.stopping(xas, entityTypeFilter, stopConfig)
   private lazy val tombstoneStore = new StateTombstoneStore(xas)
 
   private lazy val prStore = ScopedStateStore[Iri, PullRequestState](
@@ -178,8 +176,8 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
       SuccessElem(PullRequest.entityType, id4, project1, epoch, Offset.at(17L), id4, rev)
     )
 
-    iri.compile.toList.assertEquals(expected)
-    void.compile.toList.flatTap(IO.println(_)).assertEquals(expected.map(_.void))
+    iri.compile.toList.assertEquals(expected) >>
+      void.compile.toList.assertEquals(expected.map(_.void))
   }
 
   test(s"Running a stream on states with tag '${customTag.value}' on project 1 from offset 11") {
@@ -191,8 +189,8 @@ class ElemStreamingSuite extends NexusSuite with Doobie.Fixture {
       SuccessElem(PullRequest.entityType, id4, project1, epoch, Offset.at(17L), id4, rev)
     )
 
-    iri.compile.toList.assertEquals(expected)
-    void.compile.toList.assertEquals(expected.map(_.void))
+    iri.compile.toList.assertEquals(expected) >>
+      void.compile.toList.assertEquals(expected.map(_.void))
   }
 
   test("Running a stream on latest states on project 1 from the beginning with an incomplete decode function") {

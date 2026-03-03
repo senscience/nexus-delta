@@ -59,7 +59,7 @@ private class SupervisorStorage private (
 object SupervisorStorage {
 
   def apply(): IO[SupervisorStorage] =
-    (AtomicCell[IO].of(Map.empty[String, Supervised]), Channel.bounded[IO, String](2_000)).mapN {
+    (AtomicCell[IO].of(Map.empty[String, Supervised]), Channel.unbounded[IO, String]).mapN {
       new SupervisorStorage(_, _)
     }
 

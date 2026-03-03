@@ -165,14 +165,15 @@ object Supervisor {
     }
 
     private def startSupervised(projection: CompiledProjection, init: IO[Unit]): IO[Option[Supervised]] = {
-      val metadata = projection.metadata
-      val strategy = projection.executionStrategy
+      val metadata      = projection.metadata
+      val strategy      = projection.executionStrategy
+      val retryStrategy = createRetryStrategy(cfg, metadata, "init")
       if !strategy.shouldRun(metadata.name, cfg.cluster) then
         log.debug(s"Ignoring '${metadata.fullName}' with strategy '$strategy'.").as(None)
       else {
         for {
           _         <- log.info(s"Starting '${metadata.fullName}' with strategy '$strategy'.")
-          controlIO  = startProjection(init, projection).map { p =>
+          controlIO  = init.retry(retryStrategy) >> startProjection(projection).map { p =>
                          Control(
                            p.executionStatus,
                            p.currentProgress,
@@ -185,7 +186,7 @@ object Supervisor {
       }
     }
 
-    private def startProjection(init: IO[Unit], projection: CompiledProjection): IO[Projection] =
+    private def startProjection(projection: CompiledProjection): IO[Projection] =
       projection.executionStrategy match {
         case PersistentSingleNode            =>
           def saveProgressWithMetrics(progress: ProjectionProgress) =
@@ -193,7 +194,6 @@ object Supervisor {
               metrics.recordProgress(projection.metadata, progress)
           Projection(
             projection,
-            init,
             projections.progress(projection.metadata.name),
             saveProgressWithMetrics,
             projectionErrors.saveFailedElems(projection.metadata, _),
@@ -202,7 +202,6 @@ object Supervisor {
         case TransientSingleNode | EveryNode =>
           Projection(
             projection,
-            init,
             IO.none,
             metrics.recordProgress(projection.metadata, _),
             projectionErrors.saveFailedElems(projection.metadata, _),

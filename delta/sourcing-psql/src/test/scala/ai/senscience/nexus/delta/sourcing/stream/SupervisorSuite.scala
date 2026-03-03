@@ -244,7 +244,10 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   }
   test("Should restart a projection when init fails") {
     assertInitCrash(runnableByNode1, TransientSingleNode) >>
-      sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
+      sv.describe(runnableByNode1.name)
+        .map(_.map(_.status))
+        .assertEquals(Some(ExecutionStatus.Completed))
+        .eventually
   }
 
   test("Destroy a failing projection") {

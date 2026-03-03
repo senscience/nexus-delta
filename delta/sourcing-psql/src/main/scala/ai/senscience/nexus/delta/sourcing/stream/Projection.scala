@@ -8,7 +8,6 @@ import cats.effect.*
 import cats.effect.kernel.Resource.ExitCase
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
-import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -114,25 +113,12 @@ object Projection {
       saveFailedElems: List[FailedElem] => IO[Unit],
       registerFailing: String => IO[Unit]
   )(using batch: BatchConfig): IO[Projection] =
-    apply(projection, IO.unit, fetchProgress, saveProgress, saveFailedElems, registerFailing)
-
-  def apply(
-      projection: CompiledProjection,
-      init: IO[Unit],
-      fetchProgress: IO[Option[ProjectionProgress]],
-      saveProgress: ProjectionProgress => IO[Unit],
-      saveFailedElems: List[FailedElem] => IO[Unit],
-      registerFailing: String => IO[Unit]
-  )(using batch: BatchConfig): IO[Projection] =
     for {
       status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
       halt        <- Deferred[IO, Unit]
       progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
       progressRef <- Ref[IO].of(progress)
-      stream       = (
-                       Stream.eval(init) >>
-                         projection.streamF.apply(progress.offset).interruptWhen(halt.get.attempt)
-                     ).onFinalizeCase {
+      stream       = projection.streamF.apply(progress.offset).interruptWhen(halt.get.attempt).onFinalizeCase {
                        case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
                        case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
                        case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
