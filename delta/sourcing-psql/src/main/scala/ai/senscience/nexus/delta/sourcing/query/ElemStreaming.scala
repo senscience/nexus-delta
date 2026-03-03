@@ -1,15 +1,12 @@
 package ai.senscience.nexus.delta.sourcing.query
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.QueryStatus.{Ongoing, Suspended}
-import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState, QueryStatus}
-import ai.senscience.nexus.delta.sourcing.query.RefreshOrStop.RefreshOutcome
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState}
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{logQuery, stateFilter, typesSqlArray}
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
@@ -23,7 +20,6 @@ import fs2.{Chunk, Stream}
 import io.circe.Json
 
 import java.time.Instant
-import java.util.UUID
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -32,18 +28,17 @@ import scala.collection.mutable.ListBuffer
   */
 final class ElemStreaming(
     xas: Transactors,
-    ongoingQueries: OngoingQueries,
     entityTypeFilter: EntityTypeFilter,
     queryConfig: ElemQueryConfig,
     projectActivity: ProjectActivity
-)(using uuidF: UUIDF) {
+) {
 
   private val batchSize = queryConfig.batchSize
 
   /**
     * The stopping alternative for this elem streaming
     */
-  def stopping: ElemStreaming = ElemStreaming.stopping(xas, ongoingQueries, entityTypeFilter, queryConfig)
+  def stopping: ElemStreaming = ElemStreaming.stopping(xas, entityTypeFilter, queryConfig)
 
   /**
     * Get information about the remaining elements to stream
@@ -178,42 +173,18 @@ final class ElemStreaming(
       query: Offset => Query0[Elem[A]],
       refresh: RefreshOrStop
   ): ElemStream[A] = {
-    val emptyChunk = Chunk.empty[Elem[A]]
-
-    def onRefresh(queryStatus: QueryStatus): IO[Option[(ElemChunk[A], QueryStatus)]] =
-      refresh.run.map {
-        case RefreshOutcome.Stopped           => None
-        case outcome: RefreshOutcome.Continue =>
-          Some(emptyChunk -> Suspended(queryStatus.uuid, queryStatus.offset, outcome))
-      }
-
-    def execQuery(queryStatus: QueryStatus) =
-      ongoingQueries.tryRun(queryStatus)(
-        (queryStatus: QueryStatus) =>
-          query(queryStatus.offset)
-            .to[Vector]
-            .transact(xas.streaming)
-            .flatMap { elems =>
-              elems.lastOption.fold(onRefresh(queryStatus)) { last =>
-                IO.some((dropDuplicates(elems), Ongoing(queryStatus.uuid, last.offset)))
-              }
-            },
-        (queryStatus: QueryStatus) =>
-          IO.sleep(queryConfig.delay) >>
-            IO.some(emptyChunk -> queryStatus)
-      )
-
-    Stream.eval(uuidF()).flatMap { uuid =>
-      val init = Ongoing(uuid, start)
-      Stream
-        .unfoldChunkEval[IO, QueryStatus, Elem[A]](init) {
-          case ongoing: Ongoing              =>
-            execQuery(ongoing)
-          case status: QueryStatus.Suspended =>
-            status.outcome.action >> execQuery(status)
-        }
-        .onFinalizeCase(logQuery(query(start))(_) >> ongoingQueries.clean(init))
+    def onRefresh(offset: Offset): IO[Option[(ElemChunk[A], Offset)]] = refresh.run.map { result =>
+      Option.when(result != RefreshOrStop.RefreshOutcome.Stopped)(Chunk.empty[Elem[A]] -> offset)
     }
+    Stream
+      .unfoldChunkEval[IO, Offset, Elem[A]](start) { offset =>
+        query(offset).to[Vector].transact(xas.streaming).flatMap { elems =>
+          elems.lastOption.fold(onRefresh(offset)) { last =>
+            IO.pure(Some((dropDuplicates(elems), last.offset)))
+          }
+        }
+      }
+      .onFinalizeCase(logQuery(query(start)))
   }
 
   // Looks for duplicates and keep the last occurrence
@@ -254,42 +225,15 @@ object ElemStreaming {
   private val newState = "newState"
 
   /**
-    * Query status of a streaming query
-    */
-  sealed trait QueryStatus {
-
-    def uuid: UUID
-
-    def offset: Offset
-  }
-
-  object QueryStatus {
-
-    /**
-      * Streaming query currently running because there is still data to index and the ongoing set allowed it to run
-      */
-    final case class Ongoing(uuid: UUID, offset: Offset) extends QueryStatus {
-
-      def suspended(reason: RefreshOutcome.Continue) = Suspended(uuid, offset, reason)
-    }
-
-    /**
-      * Streaming query currently suspended, waiting for more data and or an available slot in the ongoing set
-      */
-    final case class Suspended(uuid: UUID, offset: Offset, outcome: RefreshOutcome.Continue) extends QueryStatus
-  }
-
-  /**
     * Constructs an elem streaming with a stopping strategy
     */
   def stopping(
       xas: Transactors,
-      ongoingSet: OngoingQueries,
       entityTypeFilter: EntityTypeFilter,
       config: ElemQueryConfig
-  )(using UUIDF): ElemStreaming = {
-    val eqc      = ElemQueryConfig.StopConfig(config.maxOngoing, config.batchSize, config.delay)
+  ): ElemStreaming = {
+    val eqc      = ElemQueryConfig.StopConfig(config.batchSize, config.delay)
     val activity = ProjectActivity.noop
-    new ElemStreaming(xas, ongoingSet, entityTypeFilter, eqc, activity)
+    new ElemStreaming(xas, entityTypeFilter, eqc, activity)
   }
 }

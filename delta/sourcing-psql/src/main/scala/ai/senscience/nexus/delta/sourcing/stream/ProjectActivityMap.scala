@@ -33,7 +33,8 @@ final class ProjectActivityMap private (
         val (active, inactive) = activities.partition { case (_, activity) =>
           activity.updatedAt.isAfter(inactivityInstant)
         }
-        inactive.parUnorderedTraverse { _.signal.set(false) } >>
+        active.parUnorderedTraverse { _.signal.set(true) } >>
+          inactive.parUnorderedTraverse { _.signal.set(false) } >>
           activeProjectsGauge
             .record(active.size)
             .as(active ++ inactive)
@@ -44,14 +45,21 @@ final class ProjectActivityMap private (
     * Push updates for values and recompute the signals for all values with the new predicate
     */
   def newValues(updates: Seq[(ProjectRef, Instant)]): IO[Unit] =
-    updates.traverse { case (project, lastInstant) =>
-      inactivityThreshold.flatMap { inactivityInstant =>
-        val isActive = lastInstant.isAfter(inactivityInstant)
-        SignallingRef[IO, Boolean](isActive).map(Activity(lastInstant, _)).flatMap { activity =>
-          activitiesCell.update(_.updated(project, activity))
+    inactivityThreshold.flatMap { inactivityInstant =>
+      activitiesCell.evalUpdate { activities =>
+        updates.foldLeftM(activities) { case (acc, (project, lastInstant)) =>
+          val isActive = lastInstant.isAfter(inactivityInstant)
+          acc.get(project) match {
+            case Some(existing) =>
+              existing.signal.set(isActive).as(acc.updated(project, existing.copy(updatedAt = lastInstant)))
+            case None           =>
+              SignallingRef[IO, Boolean](isActive).map { signal =>
+                acc.updated(project, Activity(lastInstant, signal))
+              }
+          }
         }
       }
-    }.void
+    }
 
   private def inactivityThreshold =
     clock.realTimeInstant.map(_.minusSeconds(inactiveInterval.toSeconds))

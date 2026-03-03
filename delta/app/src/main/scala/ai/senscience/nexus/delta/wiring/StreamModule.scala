@@ -1,13 +1,12 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.config.BuildInfo
-import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.sdk.ResourceShifts
 import ai.senscience.nexus.delta.sdk.stream.{AnnotatedSourceStream, GraphResourceStream}
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.*
-import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, EntityTypeFilter, OngoingQueries}
+import ai.senscience.nexus.delta.sourcing.query.{ElemStreaming, EntityTypeFilter}
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
@@ -29,24 +28,14 @@ object StreamModule extends ModuleDef {
     EntityTypeFilter.include(entityTypes)
   }
 
-  make[ElemStreaming].fromEffect {
+  make[ElemStreaming].from {
     (
         xas: Transactors,
         entityTypeFilter: EntityTypeFilter,
         queryConfig: ElemQueryConfig,
-        projectActivity: ProjectActivity,
-        uuidF: UUIDF,
-        otel: OtelJava[IO]
+        projectActivity: ProjectActivity
     ) =>
-      otel.meterProvider
-        .meter("ai.senscience.nexus.delta.indexing")
-        .withVersion(BuildInfo.version)
-        .get
-        .flatMap { meter =>
-          OngoingQueries(queryConfig.maxOngoing)(using meter).map { ongoingQueries =>
-            new ElemStreaming(xas, ongoingQueries, entityTypeFilter, queryConfig, projectActivity)(using uuidF)
-          }
-        }
+      new ElemStreaming(xas, entityTypeFilter, queryConfig, projectActivity)
   }
 
   make[GraphResourceStream].from { (elemStreaming: ElemStreaming, shifts: ResourceShifts) =>

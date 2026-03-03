@@ -24,7 +24,8 @@ final class SupervisorCheck(supervisorStorage: SupervisorStorage, cfg: Projectio
         val retryStrategy = createRetryStrategy(cfg, metadata, "running")
         logger.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
           restartProjection(supervised)
-            .retry(retryStrategy)
+            .retry(retryStrategy) <*
+          logger.info(s"The projection '${metadata.fullName}' has been restarted.")
       case status                            =>
         logger
           .warn(s"The projection '${metadata.fullName}' was flagged as failed but it was $status")
