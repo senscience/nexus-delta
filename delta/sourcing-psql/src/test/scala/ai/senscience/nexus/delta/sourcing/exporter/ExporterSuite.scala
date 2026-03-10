@@ -29,7 +29,17 @@ class ExporterSuite extends NexusSuite with Doobie.Fixture with TempDirectory.Fi
     doobieInject(PullRequest.eventStore(_, queryConfig, allEvents*), Exporter(exporterConfig, _))
   override def munitFixtures: Seq[AnyFixture[?]] = List(tempDirectory, doobieFixture)
 
-  private lazy val exporterConfig   = ExportConfig(5, 4, 3, exportDirectory)
+  private lazy val exporterConfig   =
+    ExportConfig(
+      5,
+      4,
+      3,
+      exportDirectory,
+      ExportConfig.NQuadsExportConfig(
+        exportDirectory / "nquads",
+        org.http4s.Uri.unsafeFromString("http://localhost/v1/resources")
+      )
+    )
   private lazy val (_, _, exporter) = doobieFixture()
   private lazy val exportDirectory  = tempDirectory()
 

@@ -8,10 +8,11 @@ import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesExporter}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportConfig, Exporter}
-import cats.effect.IO
+import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
 
@@ -26,17 +27,29 @@ object ExportModule extends NexusModuleDef {
     Exporter(config, xas)
   }
 
+  make[ResourcesExporter].fromEffect {
+    (
+        config: ExportConfig,
+        resources: Resources,
+        clock: Clock[IO],
+        baseUri: BaseUri,
+        cr: RemoteContextResolution @Id("aggregate")
+    ) =>
+      ResourcesExporter(resources, clock, config.nquads)(using baseUri, cr)
+  }
+
   make[ExportRoutes].from {
     (
         baseUri: BaseUri,
         identities: Identities,
         aclCheck: AclCheck,
         exporter: Exporter,
+        resourcesExporter: ResourcesExporter,
         cr: RemoteContextResolution @Id("aggregate"),
         ordering: JsonKeyOrdering,
         tracer: Tracer[IO] @Id("export")
     ) =>
-      new ExportRoutes(identities, aclCheck, exporter)(using baseUri)(using cr, ordering, tracer)
+      new ExportRoutes(identities, aclCheck, exporter, resourcesExporter)(using baseUri)(using cr, ordering, tracer)
   }
 
   many[PriorityRoute].add { (route: ExportRoutes) =>
