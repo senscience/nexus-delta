@@ -43,9 +43,12 @@ class ExportRoutes(
               }
             } ~
               pathPrefix("resources") {
-                (post & projectRef & pathEndOrSingleSlash) { project =>
-                  emit(StatusCodes.Accepted, resourcesExporter.exportProject(project).start.void)
-                }
+                (post & pathEndOrSingleSlash) {
+                  emit(StatusCodes.Accepted, resourcesExporter.exportAll.start.void)
+                } ~
+                  (post & projectRef & pathEndOrSingleSlash) { project =>
+                    emit(StatusCodes.Accepted, resourcesExporter.exportProject(project).start.void)
+                  }
               }
           }
         }

@@ -13,8 +13,10 @@ import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.file.TempDirectory
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{Deferred, IO}
+import cats.effect.kernel.Resource
 import fs2.Stream
 import fs2.io.file.{Files, Path}
+import munit.catseffect.IOFixture
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.{Lang, RDFParser}
 import org.http4s.Uri
@@ -25,10 +27,6 @@ import scala.jdk.CollectionConverters.*
 class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory.Fixture with FixedClock {
 
   given BaseUri = BaseUri.unsafe("http://localhost", "v1")
-
-  override def munitFixtures: Seq[munit.AnyFixture[?]] = List(tempDirectory)
-
-  private lazy val exportDirectory = tempDirectory()
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")
@@ -80,13 +78,26 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
     Stream.emits(elems)
   }
 
-  private lazy val config = NQuadsExportConfig(exportDirectory, Uri.unsafeFromString("http://localhost/v1/resources"))
+  private val projectStream = Stream.emits(List(project1, project2))
+
+  private val exporter: IOFixture[ResourcesExporter] = ResourceSuiteLocalFixture(
+    "exporter",
+    Resource.eval(
+      IO.defer {
+        val config = NQuadsExportConfig(tempDirectory(), Uri.unsafeFromString("http://localhost/v1/resources"))
+        ResourcesExporter(resourceStream, projectStream, clock, config)
+      }
+    )
+  )
+
+  override def munitFixtures: Seq[munit.AnyFixture[?]] = List(tempDirectory, exporter)
+
+  private lazy val exportDirectory = tempDirectory()
 
   test("Export resources for a project as valid N-Quads parseable by Jena") {
     for {
-      exporter <- ResourcesExporter(resourceStream, clock, config)
-      path     <- exporter.exportProject(project1)
-      content  <- Files[IO].readUtf8(path).compile.string
+      path    <- exporter().exportProject(project1)
+      content <- Files[IO].readUtf8(path).compile.string
     } yield {
       val dataset = DatasetFactory.create()
       RDFParser.create().fromString(content).lang(Lang.NQUADS).parse(dataset)
@@ -104,20 +115,15 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
   }
 
   test("Export creates file at the expected path") {
-    for {
-      exporter <- ResourcesExporter(resourceStream, clock, config)
-      path     <- exporter.exportProject(project1)
-    } yield {
-      val expected = exportDirectory / "org" / "proj1.nq"
-      assertEquals(path, expected)
-    }
+    exporter()
+      .exportProject(project1)
+      .assertEquals(exportDirectory / "org" / "proj1.nq")
   }
 
   test("Export resources for a different project produces separate file") {
     for {
-      exporter <- ResourcesExporter(resourceStream, clock, config)
-      path1    <- exporter.exportProject(project1)
-      path2    <- exporter.exportProject(project2)
+      path1    <- exporter().exportProject(project1)
+      path2    <- exporter().exportProject(project2)
       content1 <- Files[IO].readUtf8(path1).compile.string
       content2 <- Files[IO].readUtf8(path2).compile.string
     } yield {
@@ -130,9 +136,8 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
   test("Export for a project with no resources produces an empty file") {
     val emptyProject = ProjectRef.unsafe("org", "empty")
     for {
-      exporter <- ResourcesExporter(resourceStream, clock, config)
-      path     <- exporter.exportProject(emptyProject)
-      content  <- Files[IO].readUtf8(path).compile.string
+      path    <- exporter().exportProject(emptyProject)
+      content <- Files[IO].readUtf8(path).compile.string
     } yield {
       assert(content.isEmpty, s"Expected empty file but got: $content")
     }
@@ -157,9 +162,11 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
       Stream.emits(elems)
     }
 
+    val config = NQuadsExportConfig(exportDirectory, Uri.unsafeFromString("http://localhost/v1/resources"))
+
     // Clock returns EPOCH, so resources at afterExport should be excluded
     for {
-      cutoffExporter <- ResourcesExporter(streamWithFutureResource, clock, config)
+      cutoffExporter <- ResourcesExporter(streamWithFutureResource, projectStream, clock, config)
       path           <- cutoffExporter.exportProject(project1)
       content        <- Files[IO].readUtf8(path).compile.string
     } yield {
@@ -179,11 +186,20 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
     }
   }
 
+  test("Export all projects in parallel") {
+    val expected = Set(exportDirectory / "org" / "proj1.nq", exportDirectory / "org" / "proj2.nq")
+    exporter().exportAll
+      .map(_.toSet)
+      .assertEquals(expected)
+  }
+
   test("Reject concurrent export for the same project") {
+    val config = NQuadsExportConfig(exportDirectory, Uri.unsafeFromString("http://localhost/v1/resources"))
     for {
       gate     <- Deferred[IO, Unit]
       exporter <- ResourcesExporter(
                     (project, offset) => fs2.Stream.eval(gate.get) >> resourceStream(project, offset),
+                    projectStream,
                     clock,
                     config
                   )

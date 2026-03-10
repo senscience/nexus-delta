@@ -17,7 +17,7 @@ final case class ExportConfig(
 
 object ExportConfig {
 
-  final case class NQuadsExportConfig(target: Path, graphBaseUri: Uri)
+  final case class NQuadsExportConfig(target: Path, graphBaseUri: Uri, maxConcurrency: Int = 5)
 
   object NQuadsExportConfig {
     given ConfigReader[NQuadsExportConfig] = {
