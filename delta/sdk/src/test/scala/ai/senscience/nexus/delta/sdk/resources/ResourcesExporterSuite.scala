@@ -175,7 +175,7 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
         !subjects.contains(id3.toString),
         s"Resource created after export start should be excluded, got: $subjects"
       )
-      assert(subjects.contains(id1.toString), s"Resource created before export start should be included")
+      assert(subjects.contains(id1.toString), "Resource created before export start should be included")
     }
   }
 
