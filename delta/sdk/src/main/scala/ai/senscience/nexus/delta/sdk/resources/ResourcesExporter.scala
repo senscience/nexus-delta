@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import cats.effect.{Clock, IO, Ref, Resource}
 import fs2.io.file.{Files, Path}
+import fs2.Stream
 
 import java.time.Instant
 
@@ -33,6 +34,14 @@ trait ResourcesExporter {
     *   the path to the exported file
     */
   def exportProject(project: ProjectRef): IO[Path]
+
+  /**
+    * Export resources for all projects as N-Quads, processing up to `maxConcurrency` projects in parallel.
+    *
+    * @return
+    *   the list of exported file paths
+    */
+  def exportAll: IO[List[Path]]
 }
 
 object ResourcesExporter {
@@ -45,19 +54,23 @@ object ResourcesExporter {
 
   type ResourceStream = (ProjectRef, Offset) => SuccessElemStream[DataResource]
 
+  type ProjectStream = Stream[IO, ProjectRef]
+
   given JsonLdApi = TitaniumJsonLdApi.lenient
 
-  def apply(resources: Resources, clock: Clock[IO], config: NQuadsExportConfig)(using
+  def apply(resources: Resources, projectStream: ProjectStream, clock: Clock[IO], config: NQuadsExportConfig)(using
       BaseUri,
       RemoteContextResolution
   ): IO[ResourcesExporter] =
     apply(
       resources.currentStates(_, _).map(_.mapValue(_.toResource)),
+      projectStream,
       clock,
       config
     )
 
-  def apply(resourceStream: ResourceStream, clock: Clock[IO], config: NQuadsExportConfig)(using
+  def apply(resourceStream: ResourceStream, projectStream: ProjectStream, clock: Clock[IO], config: NQuadsExportConfig)(
+      using
       BaseUri,
       RemoteContextResolution
   ): IO[ResourcesExporter] =
@@ -80,6 +93,12 @@ object ResourcesExporter {
 
         override def exportProject(project: ProjectRef): IO[Path] =
           Resource.make(acquire(project))(_ => release(project)).use(_ => doExport(project))
+
+        override def exportAll: IO[List[Path]] =
+          projectStream
+            .parEvalMap(config.maxConcurrency)(exportProject)
+            .compile
+            .toList
 
         private def doExport(project: ProjectRef): IO[Path] = {
           val outputFile = config.target / s"${project.organization}" / s"${project.project}.nq"

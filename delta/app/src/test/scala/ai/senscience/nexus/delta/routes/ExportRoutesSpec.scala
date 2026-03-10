@@ -20,6 +20,7 @@ class ExportRoutesSpec extends BaseRouteSpec {
 
   private val exportTrigger         = Ref.unsafe[IO, Boolean](false)
   private val resourceExportTrigger = Ref.unsafe[IO, Option[ProjectRef]](None)
+  private val exportAllTrigger      = Ref.unsafe[IO, Boolean](false)
 
   private val aclCheck = AclSimpleCheck((alice, Root, Set(Permissions.exporter.run))).accepted
 
@@ -31,6 +32,9 @@ class ExportRoutesSpec extends BaseRouteSpec {
   private val resourcesExporter = new ResourcesExporter {
     override def exportProject(project: ProjectRef): IO[Path] =
       resourceExportTrigger.set(Some(project)).as(Path(s"target/${project.project}.nq"))
+
+    override def exportAll: IO[List[Path]] =
+      exportAllTrigger.set(true).as(List(Path("target/proj1.nq"), Path("target/proj2.nq")))
   }
 
   private lazy val routes = Route.seal(
@@ -72,6 +76,20 @@ class ExportRoutesSpec extends BaseRouteSpec {
       Post("/v1/export/resources/org/proj") ~> as(alice) ~> routes ~> check {
         response.status shouldEqual StatusCodes.Accepted
         resourceExportTrigger.get.accepted shouldEqual Some(ProjectRef.unsafe("org", "proj"))
+      }
+    }
+
+    "fail exporting all resources without the 'export/run' permission" in {
+      Post("/v1/export/resources") ~> routes ~> check {
+        response.shouldBeForbidden
+        exportAllTrigger.get.accepted shouldEqual false
+      }
+    }
+
+    "trigger an export of all projects" in {
+      Post("/v1/export/resources") ~> as(alice) ~> routes ~> check {
+        response.status shouldEqual StatusCodes.Accepted
+        exportAllTrigger.get.accepted shouldEqual true
       }
     }
   }

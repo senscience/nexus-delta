@@ -8,9 +8,10 @@ import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesExporter}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
-import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportConfig, Exporter}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
@@ -31,11 +32,12 @@ object ExportModule extends NexusModuleDef {
     (
         config: ExportConfig,
         resources: Resources,
+        projects: Projects,
         clock: Clock[IO],
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate")
     ) =>
-      ResourcesExporter(resources, clock, config.nquads)(using baseUri, cr)
+      ResourcesExporter(resources, projects.currentRefs(Scope.root), clock, config.nquads)(using baseUri, cr)
   }
 
   make[ExportRoutes].from {
