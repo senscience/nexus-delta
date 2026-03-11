@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.projections
 
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -22,11 +23,12 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
 
   private val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
 
+  private val project1 = ProjectRef.unsafe("org", "proj1")
+  private val project2 = ProjectRef.unsafe("org", "proj2")
+
   test("Save, fetch, update and fetch again and delete and fetch one last time") {
-    val project1            = ProjectRef.unsafe("org", "proj1")
     val lastProject1        = ProjectLastUpdate(project1, Instant.EPOCH, Offset.at(42L))
     val lastProject1Updated = ProjectLastUpdate(project1, now.minusSeconds(5L), Offset.at(66L))
-    val project2            = ProjectRef.unsafe("org", "proj2")
     val lastProject2        = ProjectLastUpdate(project2, now.minusSeconds(2L), Offset.at(123L))
 
     for {
@@ -45,6 +47,50 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
       _                    <- store.delete(project1)
       expectedAfterDeletion = List(lastProject2)
       _                    <- stream(offset42).assertList(expectedAfterDeletion)
+    } yield ()
+  }
+
+  test("Stream all projects with Anytime") {
+    val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
+    val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
+
+    for {
+      _ <- store.save(List(lastProject1, lastProject2))
+      _ <- stream.projects(TimeRange.Anytime).assertList(List(project1, project2))
+    } yield ()
+  }
+
+  test("Stream projects updated after a given instant") {
+    val cutoff       = now.minusSeconds(8L)
+    val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
+    val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
+
+    for {
+      _ <- store.save(List(lastProject1, lastProject2))
+      _ <- stream.projects(TimeRange.After(cutoff)).assertList(List(project2))
+    } yield ()
+  }
+
+  test("Stream projects updated before a given instant") {
+    val cutoff       = now.minusSeconds(8L)
+    val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
+    val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
+
+    for {
+      _ <- store.save(List(lastProject1, lastProject2))
+      _ <- stream.projects(TimeRange.Before(cutoff)).assertList(List(project1))
+    } yield ()
+  }
+
+  test("Stream projects updated between two instants") {
+    val start        = now.minusSeconds(12L)
+    val end          = now.minusSeconds(3L)
+    val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
+    val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(1L), Offset.at(2L))
+
+    for {
+      _ <- store.save(List(lastProject1, lastProject2))
+      _ <- stream.projects(TimeRange.Between.unsafe(start, end)).assertList(List(project1))
     } yield ()
   }
 

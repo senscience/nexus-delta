@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
@@ -14,13 +15,15 @@ import fs2.io.file.Path
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
+import java.time.Instant
+
 class ExportRoutesSpec extends BaseRouteSpec {
 
   private val identities = IdentitiesDummy.fromUsers(alice)
 
   private val exportTrigger         = Ref.unsafe[IO, Boolean](false)
   private val resourceExportTrigger = Ref.unsafe[IO, Option[ProjectRef]](None)
-  private val exportAllTrigger      = Ref.unsafe[IO, Boolean](false)
+  private val exportAllTrigger      = Ref.unsafe[IO, Option[TimeRange]](None)
 
   private val aclCheck = AclSimpleCheck((alice, Root, Set(Permissions.exporter.run))).accepted
 
@@ -33,8 +36,8 @@ class ExportRoutesSpec extends BaseRouteSpec {
     override def exportProject(project: ProjectRef): IO[Path] =
       resourceExportTrigger.set(Some(project)).as(Path(s"target/${project.project}.nq"))
 
-    override def exportAll: IO[List[Path]] =
-      exportAllTrigger.set(true).as(List(Path("target/proj1.nq"), Path("target/proj2.nq")))
+    override def exportAll(timeRange: TimeRange): IO[List[Path]] =
+      exportAllTrigger.set(Some(timeRange)).as(List(Path("target/proj1.nq"), Path("target/proj2.nq")))
   }
 
   private lazy val routes = Route.seal(
@@ -82,14 +85,22 @@ class ExportRoutesSpec extends BaseRouteSpec {
     "fail exporting all resources without the 'export/run' permission" in {
       Post("/v1/export/resources") ~> routes ~> check {
         response.shouldBeForbidden
-        exportAllTrigger.get.accepted shouldEqual false
+        exportAllTrigger.get.accepted shouldEqual None
       }
     }
 
     "trigger an export of all projects" in {
       Post("/v1/export/resources") ~> as(alice) ~> routes ~> check {
         response.status shouldEqual StatusCodes.Accepted
-        exportAllTrigger.get.accepted shouldEqual true
+        exportAllTrigger.get.accepted shouldEqual Some(TimeRange.Anytime)
+      }
+    }
+
+    "trigger an export of projects updated within a time range" in {
+      exportAllTrigger.set(None).accepted
+      Post("/v1/export/resources?updatedAt=2024-06-01T00:00:00Z..*") ~> as(alice) ~> routes ~> check {
+        response.status shouldEqual StatusCodes.Accepted
+        exportAllTrigger.get.accepted shouldEqual Some(TimeRange.After(Instant.parse("2024-06-01T00:00:00Z")))
       }
     }
   }

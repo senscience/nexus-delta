@@ -8,11 +8,11 @@ import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesExporter}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
-import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
+import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportConfig, Exporter}
+import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStream
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -32,12 +32,12 @@ object ExportModule extends NexusModuleDef {
     (
         config: ExportConfig,
         resources: Resources,
-        projects: Projects,
+        projectLastUpdateStream: ProjectLastUpdateStream,
         clock: Clock[IO],
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate")
     ) =>
-      ResourcesExporter(resources, projects.currentRefs(Scope.root), clock, config.nquads)(using baseUri, cr)
+      ResourcesExporter(resources, projectLastUpdateStream.projects, clock, config.nquads)(using baseUri, cr)
   }
 
   make[ExportRoutes].from {
