@@ -43,8 +43,8 @@ class ExportRoutes(
               }
             } ~
               pathPrefix("resources") {
-                (post & pathEndOrSingleSlash) {
-                  emit(StatusCodes.Accepted, resourcesExporter.exportAll.start.void)
+                (post & pathEndOrSingleSlash & updatedAt) { timeRange =>
+                  emit(StatusCodes.Accepted, resourcesExporter.exportAll(timeRange).start.void)
                 } ~
                   (post & projectRef & pathEndOrSingleSlash) { project =>
                     emit(StatusCodes.Accepted, resourcesExporter.exportProject(project).start.void)

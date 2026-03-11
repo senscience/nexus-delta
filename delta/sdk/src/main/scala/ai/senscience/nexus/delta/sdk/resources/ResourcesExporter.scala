@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.sdk.resources
 
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
@@ -38,10 +39,12 @@ trait ResourcesExporter {
   /**
     * Export resources for all projects as N-Quads, processing up to `maxConcurrency` projects in parallel.
     *
+    * @param timeRange
+    *   time range to filter projects by their last update time
     * @return
     *   the list of exported file paths
     */
-  def exportAll: IO[List[Path]]
+  def exportAll(timeRange: TimeRange = TimeRange.Anytime): IO[List[Path]]
 }
 
 object ResourcesExporter {
@@ -54,7 +57,7 @@ object ResourcesExporter {
 
   type ResourceStream = (ProjectRef, Offset) => SuccessElemStream[DataResource]
 
-  type ProjectStream = Stream[IO, ProjectRef]
+  type ProjectStream = TimeRange => Stream[IO, ProjectRef]
 
   given JsonLdApi = TitaniumJsonLdApi.lenient
 
@@ -94,8 +97,8 @@ object ResourcesExporter {
         override def exportProject(project: ProjectRef): IO[Path] =
           Resource.make(acquire(project))(_ => release(project)).use(_ => doExport(project))
 
-        override def exportAll: IO[List[Path]] =
-          projectStream
+        override def exportAll(timeRange: TimeRange): IO[List[Path]] =
+          projectStream(timeRange)
             .parEvalMap(config.maxConcurrency)(exportProject)
             .compile
             .toList

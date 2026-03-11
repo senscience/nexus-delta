@@ -1,9 +1,10 @@
 package ai.senscience.nexus.delta.sdk.resources
 
+import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.model.BaseUri
-import ai.senscience.nexus.delta.sdk.resources.ResourcesExporter.{ExportAlreadyRunning, ResourceStream}
+import ai.senscience.nexus.delta.sdk.resources.ResourcesExporter.{ExportAlreadyRunning, ProjectStream, ResourceStream}
 import ai.senscience.nexus.delta.sdk.utils.Fixtures
 import ai.senscience.nexus.delta.sourcing.exporter.ExportConfig.NQuadsExportConfig
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -78,7 +79,7 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
     Stream.emits(elems)
   }
 
-  private val projectStream = Stream.emits(List(project1, project2))
+  private val projectStream: ProjectStream = _ => Stream.emits(List(project1, project2))
 
   private val exporter: IOFixture[ResourcesExporter] = ResourceSuiteLocalFixture(
     "exporter",
@@ -188,9 +189,26 @@ class ResourcesExporterSuite extends NexusSuite with Fixtures with TempDirectory
 
   test("Export all projects in parallel") {
     val expected = Set(exportDirectory / "org" / "proj1.nq", exportDirectory / "org" / "proj2.nq")
-    exporter().exportAll
+    exporter()
+      .exportAll()
       .map(_.toSet)
       .assertEquals(expected)
+  }
+
+  test("Export only projects updated after a given date") {
+    val cutoff                        = Instant.parse("2024-06-01T00:00:00Z")
+    val afterRange                    = TimeRange.After(cutoff)
+    val filteredStream: ProjectStream = {
+      case `afterRange` => Stream.emit(project1)
+      case _            => Stream.emits(List(project1, project2))
+    }
+    val config                        = NQuadsExportConfig(exportDirectory, Uri.unsafeFromString("http://localhost/v1/resources"))
+    for {
+      exp   <- ResourcesExporter(resourceStream, filteredStream, clock, config)
+      paths <- exp.exportAll(afterRange)
+    } yield {
+      assertEquals(paths.map(_.fileName.toString), List("proj1.nq"))
+    }
   }
 
   test("Reject concurrent export for the same project") {
