@@ -788,6 +788,8 @@ lazy val compilation = {
     Compile / packageDoc / publishArtifact := !isSnapshot.value,
     Compile / doc / scalacOptions         ++= Seq("-no-link-warnings"),
     Compile / doc / javacOptions           := Seq("-source", javaSpecificationVersion.value),
+    // Workaround for scaladoc error during publishing
+    Compile / packageDoc / publishArtifact := false,
     autoAPIMappings                        := true,
     apiMappings                            += {
       val scalaDocUrl = s"http://scala-lang.org/api/${scalaVersion.value}/"
