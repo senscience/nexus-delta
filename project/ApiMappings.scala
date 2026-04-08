@@ -31,7 +31,7 @@ object ApiMappings {
     @SuppressWarnings(Array("OptionGet"))
     def findJar(nameBeginsWith: String): File = {
       classpath
-        .find { attributed: Attributed[java.io.File] => (attributed.data ** s"$nameBeginsWith*.jar").get.nonEmpty }
+        .find { attributed => (attributed.data ** s"$nameBeginsWith*.jar").get.nonEmpty }
         .get
         .data // fail hard if not found
     }

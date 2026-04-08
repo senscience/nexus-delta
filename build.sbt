@@ -19,18 +19,18 @@ scalafmt: {
 val scalaCompilerVersion     = "3.8.2"
 val typelevelScalafixVersion = "0.5.0"
 
-val awsSdkVersion              = "2.42.4"
+val awsSdkVersion              = "2.42.30"
 val caffeineVersion            = "3.2.3"
-val catsEffectVersion          = "3.6.3"
+val catsEffectVersion          = "3.7.0"
 val catsRetryVersion           = "4.0.0"
 val catsVersion                = "2.13.0"
 val circeVersion               = "0.14.15"
 val circeOpticsVersion         = "0.15.1"
 val circeExtrasVersions        = "0.14.5-RC1"
 val classgraphVersion          = "4.8.184"
-val distageVersion             = "1.2.24"
-val doobieVersion              = "1.0.0-RC11"
-val fs2Version                 = "3.12.2"
+val distageVersion             = "1.2.25"
+val doobieVersion              = "1.0.0-RC12"
+val fs2Version                 = "3.13.0"
 val fs2AwsVersion              = "6.4.0"
 val gatlingVersion             = "3.15.0"
 val glassFishJakartaVersion    = "2.0.1"
@@ -40,26 +40,26 @@ val http4sVersion              = "0.23.33"
 val http4sXMLVersion           = "0.24.0"
 val jenaVersion                = "6.0.0"
 val jsonIterVersion            = "2.38.9"
-val log4catsVersion            = "2.7.1"
+val log4catsVersion            = "2.8.0"
 val logbackVersion             = "1.5.32"
 val magnoliaVersion            = "1.3.18"
-val munitVersion               = "1.2.3"
-val munitCatsEffectVersion     = "2.1.0"
-val nimbusJoseJwtVersion       = "10.8"
-val otelVersion                = "1.59.0"
-val otel4sVersion              = "0.15.1"
-val otel4sDoobieVersion        = "0.11.0"
-val otelInstrumentationVersion = "2.25.0-alpha"
-val pekkoVersion               = "1.4.0"
-val pekkoConnectorsVersion     = "1.2.0"
+val munitVersion               = "1.2.4"
+val munitCatsEffectVersion     = "2.2.0"
+val nimbusJoseJwtVersion       = "10.9"
+val otelVersion                = "1.60.1"
+val otel4sVersion              = "0.15.2"
+val otel4sDoobieVersion        = "0.12.0"
+val otelInstrumentationVersion = "2.26.1-alpha"
+val pekkoVersion               = "1.5.0"
+val pekkoConnectorsVersion     = "1.3.0"
 val pekkoHttpVersion           = "1.3.0"
 val postgresJdbcVersion        = "42.7.10"
 val pureconfigVersion          = "0.17.10"
-val scalaTestVersion           = "3.2.19"
+val scalaTestVersion           = "3.2.20"
 val scalaXmlVersion            = "2.4.0"
 val shapeless3Version          = "3.5.0"
 val titaniumJsonLdVersion      = "1.7.0"
-val testContainersVersion      = "2.0.3"
+val testContainersVersion      = "2.0.4"
 val testContainersScalaVersion = "0.44.1"
 
 lazy val awsSdk             = "software.amazon.awssdk"        % "s3"                   % awsSdkVersion
@@ -139,11 +139,12 @@ lazy val otel4sDoobie  = "io.github.arturaz" %% "otel4s-doobie"                 
 lazy val otelAutoconfigure = "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
 lazy val otelExporterOtlp  = "io.opentelemetry" % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
 lazy val otelDependencies  = Seq(
-  "io.opentelemetry.instrumentation" % "opentelemetry-hikaricp-3.0"            % otelInstrumentationVersion,
-  "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0"    % otelInstrumentationVersion,
-  "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"         % otelInstrumentationVersion,
-  "io.opentelemetry.instrumentation" % "opentelemetry-runtime-telemetry-java8" % otelInstrumentationVersion,
-  "org.typelevel"                   %% "otel4s-instrumentation-metrics"        % otel4sVersion
+  "io.opentelemetry.instrumentation" % "opentelemetry-jdbc"                 % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-hikaricp-3.0"         % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0" % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"      % otelInstrumentationVersion,
+  "io.opentelemetry.instrumentation" % "opentelemetry-runtime-telemetry"    % otelInstrumentationVersion,
+  "org.typelevel"                   %% "otel4s-instrumentation-metrics"     % otel4sVersion
 )
 
 lazy val pekkoHttp        = "org.apache.pekko" %% "pekko-http"         % pekkoHttpVersion

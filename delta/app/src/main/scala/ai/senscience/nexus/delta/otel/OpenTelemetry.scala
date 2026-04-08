@@ -6,14 +6,12 @@ import cats.effect.unsafe.IORuntime
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
-import io.opentelemetry.instrumentation.runtimemetrics.java8.*
+import io.opentelemetry.instrumentation.runtimetelemetry.RuntimeTelemetry
 import org.typelevel.otel4s.context.LocalProvider
 import org.typelevel.otel4s.instrumentation.ce.IORuntimeMetrics
 import org.typelevel.otel4s.metrics.MeterProvider
 import org.typelevel.otel4s.oteljava.OtelJava
 import org.typelevel.otel4s.oteljava.context.{Context, IOLocalContextStorage}
-
-import scala.jdk.CollectionConverters.*
 
 /**
   * Initialize OpenTelemetry with the description config but relying mostly on autoconfiguration
@@ -57,25 +55,15 @@ object OpenTelemetry {
         .evalTap { _ =>
           logger.info("OpenTelemetry is enabled.")
         }
-        .flatTap(registerJVMMetrics)
+        .flatTap(registerRuntimeTelemetry)
         .flatTap(registerCatsEffectMetrics(_, runtime))
         .evalTap(registerLogback)
     }
   }
 
-  private def registerJVMMetrics(otel: OtelJava[IO]) = {
-    val openTelemetry = otel.underlying
-    val acquire       = IO.delay {
-      List
-        .newBuilder[AutoCloseable]
-        .addAll(MemoryPools.registerObservers(openTelemetry).asScala)
-        .addAll(Classes.registerObservers(openTelemetry).asScala)
-        .addAll(Cpu.registerObservers(openTelemetry).asScala)
-        .addAll(Threads.registerObservers(openTelemetry).asScala)
-        .addAll(GarbageCollector.registerObservers(openTelemetry, true).asScala)
-        .result()
-    }
-    Resource.make(acquire)(r => IO.delay(r.foreach(_.close()))).void
+  private def registerRuntimeTelemetry(otel: OtelJava[IO]) = {
+    val acquire = IO.delay { RuntimeTelemetry.create(otel.underlying) }
+    Resource.make(acquire)(rt => IO.delay(rt.close()))
   }
 
   private def registerCatsEffectMetrics(otel: OtelJava[IO], runtime: IORuntime) = {

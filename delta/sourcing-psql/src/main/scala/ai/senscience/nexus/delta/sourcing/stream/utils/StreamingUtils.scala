@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream.utils
 
-import cats.effect.std.Hotswap
+import cats.effect.std.NonEmptyHotswap
 import cats.effect.{IO, Resource}
 import fs2.io.file.*
 import fs2.{text, Pipe, Pull, Stream}
@@ -18,7 +18,7 @@ object StreamingUtils {
   def ndjson[A: Encoder]: Pipe[IO, A, String] =
     _.map(_.asJson.noSpaces).intersperse(lineSeparator).append(newLine)
 
-  def readLines(path: Path) =
+  def readLines(path: Path): Stream[IO, String] =
     Files[IO].readUtf8Lines(path).filter(_.nonEmpty)
 
   /**
@@ -41,7 +41,7 @@ object StreamingUtils {
       Files[IO].writeCursorFromFileHandle(file, flags.contains(Flag.Append))
 
     def go(
-        fileHotswap: Hotswap[IO, FileHandle[IO]],
+        fileHotswap: NonEmptyHotswap[IO, FileHandle[IO]],
         cursor: WriteCursor[IO],
         acc: Int,
         s: Stream[IO, String]
@@ -57,7 +57,7 @@ object StreamingUtils {
                 .eval {
                   fileHotswap
                     .swap(openNewFile)
-                    .flatMap(newCursor)
+                    .flatMap(_ => fileHotswap.get.use(newCursor))
                 }
                 .flatMap(nc => go(fileHotswap, nc, 0, tl))
             else go(fileHotswap, nc, newAcc, tl)
@@ -68,9 +68,9 @@ object StreamingUtils {
 
     in =>
       Stream
-        .resource(Hotswap(openNewFile))
-        .flatMap { case (fileHotswap, fileHandle) =>
-          Stream.eval(newCursor(fileHandle)).flatMap { cursor =>
+        .resource(NonEmptyHotswap(openNewFile))
+        .flatMap { fileHotswap =>
+          Stream.eval(fileHotswap.get.use(newCursor)).flatMap { cursor =>
             go(fileHotswap, cursor, 0, in).stream.drain
           }
         }
