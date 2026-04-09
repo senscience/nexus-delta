@@ -55,6 +55,7 @@ val pekkoConnectorsVersion     = "1.3.0"
 val pekkoHttpVersion           = "1.3.0"
 val postgresJdbcVersion        = "42.7.10"
 val pureconfigVersion          = "0.17.10"
+val scalacCompatVersion        = "0.1.4"
 val scalaTestVersion           = "3.2.20"
 val scalaXmlVersion            = "2.4.0"
 val shapeless3Version          = "3.5.0"
@@ -99,6 +100,8 @@ lazy val fs2Aws = Seq(
     ExclusionRule(organization = "co.fs2", name = "fs2-io_3")
   )
 }
+
+lazy val scalacCompat = "org.typelevel" %% "scalac-compat-annotation" % scalacCompatVersion
 
 lazy val gatling = Seq(
   "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion % "test,it",
@@ -791,6 +794,8 @@ lazy val compilation = {
     Compile / doc / javacOptions           := Seq("-source", javaSpecificationVersion.value),
     // Workaround for scaladoc error during publishing
     Compile / packageDoc / publishArtifact := false,
+    // scalac-compat-annotation is needed on the classpath for scaladoc to resolve @nowarn213 in fs2 TASTy files
+    libraryDependencies                    += scalacCompat % Provided,
     autoAPIMappings                        := true,
     apiMappings                            += {
       val scalaDocUrl = s"http://scala-lang.org/api/${scalaVersion.value}/"
