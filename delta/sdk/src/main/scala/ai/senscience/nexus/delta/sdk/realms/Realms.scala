@@ -117,11 +117,11 @@ object Realms {
     // format: off
     def created(e: RealmCreated): Option[RealmState] =
       Option.when(state.isEmpty) {
-        RealmState(e.label, e.rev, deprecated = false, e.name, e.openIdConfig, e.issuer, e.keys, e.grantTypes, e.logo, e.acceptedAudiences, e.authorizationEndpoint, e.tokenEndpoint, e.userInfoEndpoint, e.revocationEndpoint, e.endSessionEndpoint, e.instant, e.subject, e.instant, e.subject)
+        RealmState(e.label, e.rev, deprecated = false, e.name, e.openIdConfig, e.issuer, e.grantTypes, e.logo, e.acceptedAudiences, e.authorizationEndpoint, e.tokenEndpoint, e.userInfoEndpoint, e.revocationEndpoint, e.endSessionEndpoint, e.instant, e.subject, e.instant, e.subject)
       }
 
     def updated(e: RealmUpdated): Option[RealmState] = state.map { s =>
-      RealmState(e.label, e.rev, deprecated = false, e.name, e.openIdConfig, e.issuer, e.keys, e.grantTypes, e.logo, e.acceptedAudiences, e.authorizationEndpoint, e.tokenEndpoint, e.userInfoEndpoint, e.revocationEndpoint, e.endSessionEndpoint, s.createdAt, s.createdBy, e.instant, e.subject)
+      RealmState(e.label, e.rev, deprecated = false, e.name, e.openIdConfig, e.issuer, e.grantTypes, e.logo, e.acceptedAudiences, e.authorizationEndpoint, e.tokenEndpoint, e.userInfoEndpoint, e.revocationEndpoint, e.endSessionEndpoint, s.createdAt, s.createdBy, e.instant, e.subject)
     }
 
     def deprecated(e: RealmDeprecated): Option[RealmState] = state.map {

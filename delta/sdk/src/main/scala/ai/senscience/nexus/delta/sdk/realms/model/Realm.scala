@@ -40,8 +40,6 @@ import org.http4s.Uri
   *   an optional revocation endpoint
   * @param endSessionEndpoint
   *   an optional end session endpoint
-  * @param keys
-  *   the set of JWK keys as specified by rfc 7517 (https://tools.ietf.org/html/rfc7517)
   */
 final case class Realm(
     label: Label,
@@ -55,8 +53,7 @@ final case class Realm(
     tokenEndpoint: Uri,
     userInfoEndpoint: Uri,
     revocationEndpoint: Option[Uri],
-    endSessionEndpoint: Option[Uri],
-    keys: Set[Json]
+    endSessionEndpoint: Option[Uri]
 ) {
 
   /**
@@ -91,10 +88,7 @@ object Realm {
     case other                   => other
   })
 
-  given Encoder.AsObject[Realm] =
-    deriveConfiguredEncoder[Realm].mapJsonObject(
-      _.remove("keys")
-    )
+  given Encoder.AsObject[Realm] = deriveConfiguredEncoder[Realm]
 
   val context: ContextValue  = ContextValue(contexts.realms)
   given JsonLdEncoder[Realm] = JsonLdEncoder.computeFromCirce(context)
