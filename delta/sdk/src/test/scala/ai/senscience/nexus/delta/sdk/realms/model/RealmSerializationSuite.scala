@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.sdk.realms.model.RealmEvent.{RealmCreated, Real
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
-import io.circe.Json
 import org.http4s.Uri
 import org.http4s.syntax.literals.uri
 
@@ -23,7 +22,6 @@ class RealmSerializationSuite extends SerializationSuite {
   val subject: Subject                       = User("username", realm)
   val openIdConfig: Uri                      = uri"http://localhost:8080/.wellknown"
   val issuer: String                         = "http://localhost:8080/issuer"
-  val keys: Set[Json]                        = Set(Json.obj("k" -> Json.fromString(issuer)))
   val grantTypes: Set[GrantType]             =
     Set(AuthorizationCode, Implicit, Password, ClientCredentials, DeviceCode, RefreshToken)
   val logo: Uri                              = uri"http://localhost:8080/logo.png"
@@ -41,7 +39,6 @@ class RealmSerializationSuite extends SerializationSuite {
       name = name,
       openIdConfig = openIdConfig,
       issuer = issuer,
-      keys = keys,
       grantTypes = grantTypes,
       logo = Some(logo),
       acceptedAudiences = Some(acceptedAudiences),
@@ -59,7 +56,6 @@ class RealmSerializationSuite extends SerializationSuite {
       name = name,
       openIdConfig = openIdConfig,
       issuer = issuer,
-      keys = keys,
       grantTypes = grantTypes,
       logo = Some(logo),
       acceptedAudiences = Some(acceptedAudiences),
@@ -96,7 +92,6 @@ class RealmSerializationSuite extends SerializationSuite {
     deprecated = false,
     openIdConfig = openIdConfig,
     issuer = issuer,
-    keys = keys,
     grantTypes = grantTypes,
     logo = Some(logo),
     acceptedAudiences = Some(acceptedAudiences),
@@ -119,6 +114,25 @@ class RealmSerializationSuite extends SerializationSuite {
 
   test("Correctly deserialize an RealmState") {
     assertEquals(RealmState.serializer.codec.decodeJson(jsonState), Right(state))
+  }
+
+  private val legacyKeysJson = io.circe.Json.arr(io.circe.Json.obj("k" -> io.circe.Json.fromString(issuer)))
+
+  test("Decode legacy RealmCreated events that still carry the obsolete 'keys' field") {
+    val legacy   = jsonContentOf("realms/database/realm-created.json").mapObject(_.add("keys", legacyKeysJson))
+    val expected = realmMapping.collectFirst { case (e: RealmCreated, _) => e }.get
+    assertEquals(RealmEvent.serializer.codec.decodeJson(legacy), Right(expected))
+  }
+
+  test("Decode legacy RealmUpdated events that still carry the obsolete 'keys' field") {
+    val legacy   = jsonContentOf("realms/database/realm-updated.json").mapObject(_.add("keys", legacyKeysJson))
+    val expected = realmMapping.collectFirst { case (e: RealmUpdated, _) => e }.get
+    assertEquals(RealmEvent.serializer.codec.decodeJson(legacy), Right(expected))
+  }
+
+  test("Decode a legacy RealmState that still carries the obsolete 'keys' field") {
+    val legacy = jsonState.mapObject(_.add("keys", legacyKeysJson))
+    assertEquals(RealmState.serializer.codec.decodeJson(legacy), Right(state))
   }
 
 }

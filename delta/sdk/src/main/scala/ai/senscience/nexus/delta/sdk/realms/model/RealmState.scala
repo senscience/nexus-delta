@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
 import cats.data.NonEmptySet
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
-import io.circe.{Codec, Json}
+import io.circe.Codec
 import org.http4s.Uri
 
 import java.time.Instant
@@ -31,8 +31,6 @@ import java.time.Instant
   *   the openid configuration address
   * @param issuer
   *   the issuer identifier
-  * @param keys
-  *   the collection of JWK keys in json format
   * @param grantTypes
   *   the supported oauth2 grant types
   * @param logo
@@ -65,7 +63,6 @@ final case class RealmState(
     name: Name,
     openIdConfig: Uri,
     issuer: String,
-    keys: Set[Json],
     grantTypes: Set[GrantType],
     logo: Option[Uri],
     acceptedAudiences: Option[NonEmptySet[String]],
@@ -114,8 +111,7 @@ final case class RealmState(
       tokenEndpoint = tokenEndpoint,
       userInfoEndpoint = userInfoEndpoint,
       revocationEndpoint = revocationEndpoint,
-      endSessionEndpoint = endSessionEndpoint,
-      keys = keys
+      endSessionEndpoint = endSessionEndpoint
     )
 
   /**

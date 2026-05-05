@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.data.NonEmptySet
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
-import io.circe.{Codec, Json}
+import io.circe.Codec
 import org.http4s.Uri
 
 import java.time.Instant
@@ -48,8 +48,6 @@ object RealmEvent {
     *   the address of the openid configuration
     * @param issuer
     *   the issuer identifier
-    * @param keys
-    *   the collection of keys
     * @param grantTypes
     *   the types of OAuth2 grants supported
     * @param logo
@@ -77,7 +75,6 @@ object RealmEvent {
       name: Name,
       openIdConfig: Uri,
       issuer: String,
-      keys: Set[Json],
       grantTypes: Set[GrantType],
       logo: Option[Uri],
       acceptedAudiences: Option[NonEmptySet[String]],
@@ -108,7 +105,6 @@ object RealmEvent {
         name,
         openIdConfig,
         wk.issuer,
-        wk.keys,
         wk.grantTypes,
         logo,
         acceptedAudiences,
@@ -136,8 +132,6 @@ object RealmEvent {
     *   the address of the openid configuration
     * @param issuer
     *   the issuer identifier
-    * @param keys
-    *   the collection of keys
     * @param grantTypes
     *   the types of OAuth2 grants supported
     * @param logo
@@ -165,7 +159,6 @@ object RealmEvent {
       name: Name,
       openIdConfig: Uri,
       issuer: String,
-      keys: Set[Json],
       grantTypes: Set[GrantType],
       logo: Option[Uri],
       acceptedAudiences: Option[NonEmptySet[String]],
@@ -197,7 +190,6 @@ object RealmEvent {
         name,
         openIdConfig,
         wk.issuer,
-        wk.keys,
         wk.grantTypes,
         logo,
         acceptedAudiences,
