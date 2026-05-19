@@ -1,0 +1,35 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 30
+  batch:
+    # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor
+    send_batch_size: 50
+
+exporters:
+  azuremonitor:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/azuremonitorexporter/README.md
+    connection_string: "CHANGE_ME"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [azuremonitor]
+    metrics:
+      receivers: [otlp]
+      exporters: [azuremonitor]
+
+  telemetry:
+    logs:
+      level: debug

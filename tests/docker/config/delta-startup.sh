@@ -3,5 +3,4 @@
 ln -sf /opt/docker/plugins/disabled/project-deletion.jar /opt/docker/plugins/project-deletion.jar &&
 /opt/docker/bin/delta-app -Xmx4G \
   -Dotel.service.name=nexus-delta \
-  -Dotel.exporter.otlp.protocol=http/protobuf \
-  -Dotel.exporter.otlp.endpoint=http://otel-lgtm:4318/
+  -Dotel.exporter.otlp.protocol=http/protobuf
