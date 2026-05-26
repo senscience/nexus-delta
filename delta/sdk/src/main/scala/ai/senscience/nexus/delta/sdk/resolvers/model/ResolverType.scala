@@ -31,6 +31,7 @@ object ResolverType {
   given Decoder[ResolverType] = Decoder.decodeString.emap {
     case "InProject"    => Right(InProject)
     case "CrossProject" => Right(CrossProject)
+    case value          => Left(s"Value '$value' is invalid. It must be one of ('InProject', 'CrossProject')")
   }
 
 }
