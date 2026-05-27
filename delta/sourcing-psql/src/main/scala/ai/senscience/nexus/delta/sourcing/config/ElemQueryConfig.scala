@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.config
 
 import pureconfig.ConfigReader
+import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.deriveReader
 
 import scala.concurrent.duration.FiniteDuration
@@ -56,6 +57,13 @@ object ElemQueryConfig {
                     case "stop"        => stopConfigReader.from(obj)
                     case "delay"       => delayConfigReader.from(obj)
                     case "passivation" => waitForProjectUpdateReader.from(obj)
+                    case other         =>
+                      val reason = CannotConvert(
+                        other,
+                        "string",
+                        "'type' value must be one of ('stop', 'delay', 'passivation')"
+                      )
+                      obj.failed(reason)
                   }
       } yield config
     }

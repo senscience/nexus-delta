@@ -39,5 +39,6 @@ object StorageType {
   given Decoder[StorageType] = Decoder.decodeString.emap {
     case "DiskStorage" => Right(DiskStorage)
     case "S3Storage"   => Right(S3Storage)
+    case value         => Left(s"Value '$value' is invalid. It must be one of ('DiskStorage', 'S3Storage')")
   }
 }

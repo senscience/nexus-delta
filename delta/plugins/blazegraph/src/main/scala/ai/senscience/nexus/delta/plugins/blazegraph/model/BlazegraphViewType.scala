@@ -33,5 +33,6 @@ object BlazegraphViewType {
   given Decoder[BlazegraphViewType] = Decoder.decodeString.emap {
     case "BlazegraphView"          => Right(IndexingBlazegraphView)
     case "AggregateBlazegraphView" => Right(AggregateBlazegraphView)
+    case value                     => Left(s"Value '$value' is invalid. It must be one of ('BlazegraphView', 'AggregateBlazegraphView')")
   }
 }
