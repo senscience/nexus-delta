@@ -393,13 +393,11 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     } yield ()
   }
 
-  private def start(view: ActiveViewDef) = {
-    for {
-      compiled <- CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections)
-      _        <- spaces.init(view)
-      _        <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit, _ => IO.unit)(using batchConfig)
-    } yield compiled
-  }
+  private def start(view: ActiveViewDef) =
+    CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections).flatTap {
+      compiled =>
+        spaces.init(view) >> Projection.transient(compiled)(using batchConfig).use_
+    }
 
   private val resultMuse: Json     = jsonContentOf("indexing/result_muse.json")
   private val resultRedHot: Json   = jsonContentOf("indexing/result_red_hot.json")

@@ -26,6 +26,13 @@ sealed trait ExecutionStatus extends Product with Serializable {
     *   true if the status is [[ExecutionStatus.Running]], false otherwise
     */
   def isRunning: Boolean = false
+
+  /**
+    * @return
+    *   true if the status is terminal ([[ExecutionStatus.Stopped]], [[ExecutionStatus.Completed]] or
+    *   [[ExecutionStatus.Failed]]), false otherwise
+    */
+  def isTerminal: Boolean = false
 }
 
 object ExecutionStatus {
@@ -46,20 +53,25 @@ object ExecutionStatus {
     * Status for projections that have stopped.
     */
   case object Stopped extends ExecutionStatus {
-    override def isStopped: Boolean = true
+    override def isStopped: Boolean  = true
+    override def isTerminal: Boolean = true
   }
 
   /**
     * Status for projections that have completed.
     */
-  case object Completed extends ExecutionStatus
+  case object Completed extends ExecutionStatus {
+    override def isTerminal: Boolean = true
+  }
 
   /**
     * Status for projections that have failed.
     * @param th
     *   the error that failed the projection
     */
-  final case class Failed(th: Throwable) extends ExecutionStatus
+  final case class Failed(th: Throwable) extends ExecutionStatus {
+    override def isTerminal: Boolean = true
+  }
 
   given Encoder[ExecutionStatus] =
     Encoder.instance[ExecutionStatus] {

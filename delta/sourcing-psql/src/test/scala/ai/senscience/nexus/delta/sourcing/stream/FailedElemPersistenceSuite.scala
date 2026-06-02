@@ -58,11 +58,10 @@ class FailedElemPersistenceSuite extends NexusSuite {
   private def runProjectionAndSaveErrors(compiled: CompiledProjection, expectedErrors: Int)(using location: Location) =
     for {
       failedElems <- IO.ref(List.empty[FailedElem])
-      projection  <- {
-        def saveErrors(errors: List[FailedElem]) = failedElems.update(_ ++ errors)
-        Projection.apply(compiled, IO.none, _ => IO.unit, saveErrors, _ => IO.unit)
-      }
-      _           <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
+      saveErrors   = (errors: List[FailedElem]) => failedElems.update(_ ++ errors)
+      _           <- Projection.transient(compiled, saveErrors).use { projection =>
+                       projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
+                     }
       _           <- failedElems.get.map(_.size).assertEquals(expectedErrors)
     } yield ()
 

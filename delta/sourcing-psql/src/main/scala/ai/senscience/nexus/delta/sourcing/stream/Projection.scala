@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
 import ai.senscience.nexus.delta.sourcing.stream.Projection.logger
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.*
-import cats.effect.kernel.Resource.ExitCase
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 
@@ -17,9 +16,9 @@ import scala.concurrent.duration.FiniteDuration
   * @param name
   *   the name of the projection
   * @param status
-  *   the projection execution status
-  * @param halt
-  *   a deferred to stop the projection
+  *   the projection execution status; transitioning to [[ExecutionStatus.Stopped]] interrupts the underlying stream
+  * @param progress
+  *   the current projection progress
   * @param fiber
   *   the projection fiber
   */
@@ -27,20 +26,17 @@ final class Projection private[stream] (
     val name: String,
     status: SignallingRef[IO, ExecutionStatus],
     progress: Ref[IO, ProjectionProgress],
-    halt: Deferred[IO, Unit],
-    fiber: Ref[IO, Fiber[IO, Throwable, Unit]]
+    fiber: Fiber[IO, Throwable, Unit]
 ) {
 
   /**
     * @return
     *   the current execution status of this projection
     */
-  def executionStatus: IO[ExecutionStatus] =
-    status.get
+  def executionStatus: IO[ExecutionStatus] = status.get
 
   /**
     * Return the current progress for this projection
-    * @return
     */
   def currentProgress: IO[ProjectionProgress] = progress.get
 
@@ -48,32 +44,20 @@ final class Projection private[stream] (
     * Wait for the projection to complete within the defined timeout
     * @param timeout
     *   the maximum time expected for the projection to complete
-    * @return
     */
 
   def waitForCompletion(timeout: FiniteDuration): IO[ExecutionStatus] =
     status
-      .waitUntil(statusMeansStopped)
+      .waitUntil(_.isTerminal)
       .timeoutTo(timeout, logger.error(s"Timeout waiting for completion on projection $name")) >> executionStatus
-
-  private def statusMeansStopped(executionStatus: ExecutionStatus): Boolean = {
-    executionStatus match {
-      case ExecutionStatus.Completed => true
-      case ExecutionStatus.Failed(_) => true
-      case ExecutionStatus.Stopped   => true
-      case _                         => false
-    }
-  }
 
   /**
     * Stops the projection. Has no effect if the projection is already stopped.
     */
-  def stop(): IO[Unit] =
+  def stop: IO[Unit] =
     for {
-      f <- fiber.get
       _ <- status.set(ExecutionStatus.Stopped)
-      _ <- halt.complete(())
-      _ <- f.join
+      _ <- fiber.join
     } yield ()
 }
 
@@ -95,10 +79,7 @@ object Projection {
       case (acc, _)                                                  => (acc, None)
     }.groupWithin(batch.maxElements, batch.maxInterval)
       .evalTap { chunk =>
-        val errors = chunk.foldLeft(List.empty[FailedElem]) { case (acc, (_, failed)) =>
-          acc ++ failed
-        }
-
+        val errors = chunk.toList.flatMap(_._2)
         chunk.last.traverse { case (newProgress, _) =>
           saveProgress(newProgress) >>
             IO.whenA(errors.nonEmpty)(saveFailedElems(errors))
@@ -112,34 +93,49 @@ object Projection {
       saveProgress: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit],
       registerFailing: String => IO[Unit]
-  )(using batch: BatchConfig): IO[Projection] =
-    for {
-      status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
-      halt        <- Deferred[IO, Unit]
-      progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
-      progressRef <- Ref[IO].of(progress)
-      stream       = projection.streamF.apply(progress.offset).interruptWhen(halt.get.attempt).onFinalizeCase {
-                       case ExitCase.Errored(th) => status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
-                       case ExitCase.Succeeded   => IO.unit // streams stopped through a signal still finish as Completed
-                       case ExitCase.Canceled    => IO.unit // the status is updated by the logic that cancels the stream
-                     }
-      persisted    =
-        stream
-          .through(
-            persist(
-              progress,
-              (progress: ProjectionProgress) => progressRef.set(progress) >> saveProgress(progress),
-              saveFailedElems
+  )(using batch: BatchConfig): Resource[IO, Projection] =
+    Resource.make(
+      for {
+        status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
+        progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
+        progressRef <- Ref[IO].of(progress)
+        stream       = projection.streamF.apply(progress.offset).interruptWhen(status.map(_.isStopped))
+        persisted    =
+          stream
+            .through(
+              persist(
+                progress,
+                (newProgress: ProjectionProgress) => progressRef.set(newProgress) >> saveProgress(newProgress),
+                saveFailedElems
+              )
             )
-          )
-          .compile
-          .drain
-      // update status to Running at the beginning and to Completed at the end if it's still running
-      task         = status.update(_ => ExecutionStatus.Running) >> persisted >> status.update(s =>
-                       if s.isRunning then ExecutionStatus.Completed else s
-                     )
-      fiber       <- task.start
-      fiberRef    <- Ref[IO].of(fiber)
-    } yield new Projection(projection.metadata.name, status, progressRef, halt, fiberRef)
+            .compile
+            .drain
+        task         = (status.set(ExecutionStatus.Running) >> persisted).guaranteeCase {
+                         case Outcome.Succeeded(_) =>
+                           status.update(s => if s.isRunning then ExecutionStatus.Completed else s)
+                         case Outcome.Errored(th)  =>
+                           status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
+                         case Outcome.Canceled()   =>
+                           IO.unit // status set by whoever cancelled
+                       }
+        fiber       <- task.start
+      } yield new Projection(projection.metadata.name, status, progressRef, fiber)
+    )(_.stop)
+
+  /**
+    * Creates a transient [[Projection]]: no progress is fetched or persisted, and failures are not registered for
+    * supervision. Intended for tests and short-lived in-memory streams.
+    *
+    * @param compiled
+    *   the compiled projection to run
+    * @param saveFailedElems
+    *   sink for failed elements (defaults to a no-op)
+    */
+  def transient(
+      compiled: CompiledProjection,
+      saveFailedElems: List[FailedElem] => IO[Unit] = _ => IO.unit
+  )(using BatchConfig): Resource[IO, Projection] =
+    apply(compiled, IO.none, _ => IO.unit, saveFailedElems, _ => IO.unit)
 
 }

@@ -173,12 +173,8 @@ object Supervisor {
       else {
         for {
           _         <- log.info(s"Starting '${metadata.fullName}' with strategy '$strategy'.")
-          controlIO  = init.retry(retryStrategy) >> startProjection(projection).map { p =>
-                         Control(
-                           p.executionStatus,
-                           p.currentProgress,
-                           p.stop()
-                         )
+          controlIO  = startProjection(projection).preAllocate(init.retry(retryStrategy)).allocated.map {
+                         case (p, release) => Control(p.executionStatus, p.currentProgress, release)
                        }
           control   <- controlIO
           supervised = Supervised(metadata, projection.executionStrategy, 0, controlIO, control)
@@ -186,7 +182,7 @@ object Supervisor {
       }
     }
 
-    private def startProjection(projection: CompiledProjection): IO[Projection] =
+    private def startProjection(projection: CompiledProjection): Resource[IO, Projection] =
       projection.executionStrategy match {
         case PersistentSingleNode            =>
           def saveProgressWithMetrics(progress: ProjectionProgress) =
