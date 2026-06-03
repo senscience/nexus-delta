@@ -198,28 +198,21 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
       rev
     )
 
-    val expectedProgress: ProjectionProgress = ProjectionProgress(
-      Offset.at(4L),
-      Instant.EPOCH,
-      processed = 4,
-      discarded = 2,
-      failed = 1
-    )
+    val expectedMetadata = ProjectionMetadata(ElasticSearchViews.entityType.value, v.projection, projectRef, id)
+    val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, processed = 4, discarded = 2, failed = 1)
 
     for {
-      compiled   <- IndexingViewDef.compile(
-                      v,
-                      _ => Operation.merge(FilterDeprecated.withConfig(()), FilterByType.withConfig(filterByTypeConfig)),
-                      GraphResourceStream.unsafeFromStream(PullRequestStream.generate(projectRef)),
-                      sink
-                    )
-      _           = assertEquals(
-                      compiled.metadata,
-                      ProjectionMetadata(ElasticSearchViews.entityType.value, v.projection, Some(projectRef), Some(id))
-                    )
-      projection <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit, _ => IO.unit)
-      _          <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
-      _          <- projection.currentProgress.assertEquals(expectedProgress)
+      compiled <- IndexingViewDef.compile(
+                    v,
+                    _ => Operation.merge(FilterDeprecated.withConfig(()), FilterByType.withConfig(filterByTypeConfig)),
+                    GraphResourceStream.unsafeFromStream(PullRequestStream.generate(projectRef)),
+                    sink
+                  )
+      _         = assertEquals(compiled.metadata, expectedMetadata)
+      _        <- Projection.transient(compiled).use { projection =>
+                    projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually >>
+                      projection.currentProgress.assertEquals(expectedProgress)
+                  }
     } yield ()
   }
 

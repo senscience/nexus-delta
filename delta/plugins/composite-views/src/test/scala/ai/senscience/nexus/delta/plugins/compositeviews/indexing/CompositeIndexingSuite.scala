@@ -393,13 +393,13 @@ abstract class CompositeIndexingSuite(sinkConfig: SinkConfig, query: SparqlConst
     } yield ()
   }
 
-  private def start(view: ActiveViewDef) = {
-    for {
-      compiled <- CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections)
-      _        <- spaces.init(view)
-      _        <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit, _ => IO.unit)(using batchConfig)
-    } yield compiled
-  }
+  private def start(view: ActiveViewDef) =
+    CompositeViewDef.compile(view, sinks, PipeChainCompiler(defaultPipes), compositeStream, projections).flatTap {
+      compiled =>
+        // .allocated.void deliberately leaks the release so the projection keeps running for the rest of the test;
+        // .use_ would acquire and immediately release, killing the projection before it processes anything.
+        spaces.init(view) >> Projection.transient(compiled)(using batchConfig).allocated.void
+    }
 
   private val resultMuse: Json     = jsonContentOf("indexing/result_muse.json")
   private val resultRedHot: Json   = jsonContentOf("indexing/result_red_hot.json")

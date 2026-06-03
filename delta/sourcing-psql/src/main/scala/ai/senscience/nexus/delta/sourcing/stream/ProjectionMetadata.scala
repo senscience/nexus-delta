@@ -36,5 +36,8 @@ object ProjectionMetadata {
     */
   def apply(module: String, name: String): ProjectionMetadata = ProjectionMetadata(module, name, None, None)
 
+  def apply(module: String, name: String, project: ProjectRef, resourceId: Iri): ProjectionMetadata =
+    ProjectionMetadata(module, name, Some(project), Some(resourceId))
+
   given Encoder[ProjectionMetadata] = deriveEncoder
 }
