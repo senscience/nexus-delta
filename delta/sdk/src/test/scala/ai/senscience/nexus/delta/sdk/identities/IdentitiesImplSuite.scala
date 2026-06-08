@@ -83,12 +83,7 @@ class IdentitiesImplSuite extends NexusSuite {
 
   private val gitlab = RealmGen.realm(gitlabOpenId, gitlabWk)
 
-  private val findRealmByIssuer: FetchRealmByIssuer = {
-    case githubLabel.value  => IO.some(github)
-    case githubLabel2.value => IO.some(github2)
-    case gitlabLabel.value  => IO.some(gitlab)
-    case _                  => IO.none
-  }
+  private def resolvedRealm(realm: Realm, jwks: JWKSet): ResolvedRealm = ResolvedRealm(realm, jwks)
 
   private val fetchRemoteGroups: FetchRemoteGroups =
     (userEndpoint: Uri, token: ParsedToken) =>
@@ -97,13 +92,20 @@ class IdentitiesImplSuite extends NexusSuite {
         case _                       => IO.raiseError(GetGroupsFromOidcError(token.subject, token.issuer))
       }
 
-  private val staticJwks: FetchJwks = new FetchJwks {
-    private val jwks                               = jwkSetFor(rsaKey)
-    override def apply(realm: Realm): IO[JWKSet]   = IO.pure(jwks)
-    override def refresh(realm: Realm): IO[JWKSet] = IO.pure(jwks)
+  private val staticResolver: RealmResolver = new RealmResolver {
+    private val jwks = jwkSetFor(rsaKey)
+
+    override def apply(issuer: String): IO[Option[ResolvedRealm]] = issuer match {
+      case githubLabel.value  => IO.some(resolvedRealm(github, jwks))
+      case githubLabel2.value => IO.some(resolvedRealm(github2, jwks))
+      case gitlabLabel.value  => IO.some(resolvedRealm(gitlab, jwks))
+      case _                  => IO.none
+    }
+
+    override def refresh(resolved: ResolvedRealm): IO[ResolvedRealm] = IO.pure(resolved)
   }
 
-  private val identities = new IdentitiesImpl(findRealmByIssuer, staticJwks, fetchRemoteGroups)
+  private val identities = new IdentitiesImpl(staticResolver, fetchRemoteGroups)
 
   private val auth   = Authenticated(githubLabel)
   private val group1 = Group("group1", githubLabel)
@@ -328,18 +330,22 @@ class IdentitiesImplSuite extends NexusSuite {
     )
 
     for {
-      callCounts  <- Ref[IO].of((0, 0))
-      rotatingJwks = new FetchJwks {
-                       override def apply(realm: Realm): IO[JWKSet]   =
-                         callCounts.update { case (a, r) => (a + 1, r) }.as(jwkSetFor(rsaKey))
-                       override def refresh(realm: Realm): IO[JWKSet] =
-                         callCounts.update { case (a, r) => (a, r + 1) }.as(jwkSetFor(rsaKey, rotatedKey))
-                     }
-      retryingId   = new IdentitiesImpl(findRealmByIssuer, rotatingJwks, fetchRemoteGroups)
-      user         = User("Robert", githubLabel)
-      expected     = Caller(user, Set(user, Anonymous, auth, group1, group2))
-      _           <- retryingId.exchange(token).assertEquals(expected)
-      _           <- callCounts.get.assertEquals((1, 1))
+      callCounts      <- Ref[IO].of((0, 0))
+      rotatingResolver = new RealmResolver {
+                           override def apply(issuer: String): IO[Option[ResolvedRealm]]    =
+                             callCounts
+                               .update { case (a, r) => (a + 1, r) }
+                               .as(Some(resolvedRealm(github, jwkSetFor(rsaKey))))
+                           override def refresh(resolved: ResolvedRealm): IO[ResolvedRealm] =
+                             callCounts
+                               .update { case (a, r) => (a, r + 1) }
+                               .as(resolved.copy(jwks = jwkSetFor(rsaKey, rotatedKey)))
+                         }
+      retryingId       = new IdentitiesImpl(rotatingResolver, fetchRemoteGroups)
+      user             = User("Robert", githubLabel)
+      expected         = Caller(user, Set(user, Anonymous, auth, group1, group2))
+      _               <- retryingId.exchange(token).assertEquals(expected)
+      _               <- callCounts.get.assertEquals((1, 1))
     } yield ()
   }
 
@@ -354,11 +360,13 @@ class IdentitiesImplSuite extends NexusSuite {
 
     for {
       refreshCount <- Ref[IO].of(0)
-      stuckJwks     = new FetchJwks {
-                        override def apply(realm: Realm): IO[JWKSet]   = IO.pure(jwkSetFor(rsaKey))
-                        override def refresh(realm: Realm): IO[JWKSet] = refreshCount.update(_ + 1).as(jwkSetFor(rsaKey))
+      stuckResolver = new RealmResolver {
+                        override def apply(issuer: String): IO[Option[ResolvedRealm]]    =
+                          IO.some(resolvedRealm(github, jwkSetFor(rsaKey)))
+                        override def refresh(resolved: ResolvedRealm): IO[ResolvedRealm] =
+                          refreshCount.update(_ + 1).as(resolved.copy(jwks = jwkSetFor(rsaKey)))
                       }
-      retryingId    = new IdentitiesImpl(findRealmByIssuer, stuckJwks, fetchRemoteGroups)
+      retryingId    = new IdentitiesImpl(stuckResolver, fetchRemoteGroups)
       _            <- retryingId.exchange(token).intercept[InvalidAccessToken]
       _            <- refreshCount.get.assertEquals(1)
     } yield ()
