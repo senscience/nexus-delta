@@ -16,7 +16,7 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.{Deferred, IO}
 import cats.effect.kernel.Resource
 import fs2.Stream
-import fs2.io.file.{Files, Path}
+import fs2.io.file.Files
 import munit.catseffect.IOFixture
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.{Lang, RDFParser}
