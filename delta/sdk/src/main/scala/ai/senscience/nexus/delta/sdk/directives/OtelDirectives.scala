@@ -18,6 +18,7 @@ import org.typelevel.otel4s.trace.*
 import org.typelevel.otel4s.{Attribute, Attributes}
 
 import java.util.Locale
+import scala.annotation.nowarn
 import scala.concurrent.Future
 
 object OtelDirectives {
@@ -35,7 +36,8 @@ object OtelDirectives {
     }
 
   def extractParentSpanContext: Directive1[Option[SpanContext]] =
-    extractRequest.map(_.attribute(parentSpanContextKey))
+    // `attribute` relies on a JavaMapping implicit that Scala 3.10 will no longer resolve; revisit at that bump.
+    extractRequest.map(_.attribute(parentSpanContextKey): @nowarn("cat=deprecation"))
 
   def routeSpan(route: String)(using Tracer[IO]): Directive0 = {
     extractRequest.flatMap { request =>

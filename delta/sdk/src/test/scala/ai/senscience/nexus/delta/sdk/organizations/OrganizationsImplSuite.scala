@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.generators.OrganizationGen.{organization, r
 import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.OrganizationSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
-import ai.senscience.nexus.delta.sdk.model.search.SearchResults.UnscoredSearchResults
 import ai.senscience.nexus.delta.sdk.organizations.model.Organization
 import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.{ConfigFixtures, OrganizationResource, ScopeInitializer}
