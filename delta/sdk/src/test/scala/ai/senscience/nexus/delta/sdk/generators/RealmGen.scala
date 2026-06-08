@@ -29,7 +29,6 @@ object RealmGen {
       Name.unsafe(s"${wk.issuer}-name"),
       openIdConfig,
       wk.issuer,
-      wk.keys,
       wk.grantTypes,
       logo,
       acceptedAudiences,
@@ -62,8 +61,7 @@ object RealmGen {
       wk.tokenEndpoint,
       wk.userInfoEndpoint,
       wk.revocationEndpoint,
-      wk.endSessionEndpoint,
-      wk.keys
+      wk.endSessionEndpoint
     )
 
   def resourceFor(
@@ -75,7 +73,7 @@ object RealmGen {
     val wk = model.WellKnown(
       realm.issuer,
       realm.grantTypes,
-      realm.keys,
+      Set.empty,
       realm.authorizationEndpoint,
       realm.tokenEndpoint,
       realm.userInfoEndpoint,

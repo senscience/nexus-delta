@@ -33,5 +33,6 @@ object ElasticSearchViewType {
   given Decoder[ElasticSearchViewType] = Decoder.decodeString.emap {
     case "ElasticSearchView"          => Right(ElasticSearch)
     case "AggregateElasticSearchView" => Right(AggregateElasticSearch)
+    case value                        => Left(s"Value '$value' is invalid. It must be one of ('ElasticSearch', 'AggregateElasticSearchView')")
   }
 }

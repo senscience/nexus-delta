@@ -105,7 +105,7 @@ $ curl http://localhost/v1/version | jq
   "delta": "1.11.0",
   "dependencies": {
     "blazegraph": "2.1.6-SNAPSHOT",
-    "elasticsearch": "9.3.0",
+    "elasticsearch": "9.4.2",
     "postgres": "17.6"
   },
   "environment": "dev",
@@ -250,7 +250,7 @@ While different approaches are possible depending on how and where Nexus is depl
 * @link:[Prometheus](https://prometheus.io/) which is a open-source tool for monitoring
 * @link:[Blackbox](https://github.com/prometheus/blackbox_exporter) can be used to probe endpoints over http
 * @link:[Alert Manager](https://github.com/prometheus/alertmanager) for alerts
-* @link:[Grafana](https://grafana.com/grafana/) for visualization
+* @link:[Grafana](https://grafana.com/products/cloud/grafana/) for visualization
 * @link:[Filebeats](https://www.elastic.co/beats/filebeat), @link:[Elasticsearch](https://www.elastic.co/elasticsearch) and @link:[Kibana](https://www.elastic.co/kibana) to collect and visualize Delta logs
 
 Prometheus has been the historical solution for monitoring Nexus at BBP for its popularity and its versatility as it allows to

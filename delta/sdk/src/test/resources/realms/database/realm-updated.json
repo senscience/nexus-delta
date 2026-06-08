@@ -4,11 +4,6 @@
   "name": "name",
   "openIdConfig": "http://localhost:8080/.wellknown",
   "issuer": "http://localhost:8080/issuer",
-  "keys": [
-    {
-      "k": "http://localhost:8080/issuer"
-    }
-  ],
   "grantTypes": [
     "deviceCode",
     "password",

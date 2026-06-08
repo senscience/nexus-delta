@@ -10,6 +10,7 @@ on:
       - 'build.sbt'
       - 'project/**'
       - '.github/workflows/ci-delta-static-analysis.yml'
+      - '.scalafmt.conf'
 jobs:
   run:
     if: github.event_name == 'pull_request'

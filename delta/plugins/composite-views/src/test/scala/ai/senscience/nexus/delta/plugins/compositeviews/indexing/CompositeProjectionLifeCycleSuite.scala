@@ -58,12 +58,13 @@ class CompositeProjectionLifeCycleSuite extends NexusSuite with CompositeViewsFi
                           (_, _) => IO.unit
                         )
       compiled       <- lifecycle.build(view)
-      projection     <- Projection(compiled, IO.none, _ => IO.unit, _ => IO.unit, _ => IO.unit)
-      _              <- projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually
-      // Asserting hooks
-      _              <- triggeredHooks.get.assertEquals(hooks).eventually
-      // If no hook have been provided then we expect to fall back on indexing
-      _              <- indexing.get.assertEquals(Option.when(hooks.isEmpty)(view.ref))
+      _              <- Projection.transient(compiled).use { projection =>
+                          projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually >>
+                            // Asserting hooks
+                            triggeredHooks.get.assertEquals(hooks).eventually >>
+                            // If no hook have been provided then we expect to fall back on indexing
+                            indexing.get.assertEquals(Option.when(hooks.isEmpty)(view.ref))
+                        }
     } yield ()
 
   test("Fall back to indexing when no hook is matched by the view") {
