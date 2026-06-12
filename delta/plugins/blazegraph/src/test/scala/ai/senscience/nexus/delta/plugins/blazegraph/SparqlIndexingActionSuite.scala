@@ -33,12 +33,12 @@ class SparqlIndexingActionSuite extends NexusSuite with Fixtures {
     val selectFilter = if withTag then SelectFilter.tag(UserTag.unsafe("tag")) else SelectFilter.latest
     ActiveViewDef(
       ViewRef(project, id),
-      projection = id.toString,
       selectFilter,
       pipeChain,
       namespace = suffix,
       indexingRev,
-      currentRev
+      currentRev,
+      java.util.UUID.randomUUID()
     )
   }
 

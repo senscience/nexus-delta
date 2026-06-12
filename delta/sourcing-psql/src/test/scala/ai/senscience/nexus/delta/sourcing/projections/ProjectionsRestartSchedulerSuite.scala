@@ -32,7 +32,6 @@ final class ProjectionsRestartSchedulerSuite extends NexusSuite with Doobie.Fixt
 
     val projectionStream = Stream
       .iterable(List(greaterOffset, smallerOffset, noOffset))
-      .map(_.name)
       .covary[IO]
 
     def progress(offset: Offset) = ProjectionProgress(offset, Instant.now(), offset.value, 0L, 0L)
@@ -41,7 +40,7 @@ final class ProjectionsRestartSchedulerSuite extends NexusSuite with Doobie.Fixt
       _              <- projections.save(greaterOffset, progress(fromOffset))
       _              <- projections.save(smallerOffset, progress(Offset.at(41L)))
       _              <- restartScheduler.run(projectionStream, fromOffset)
-      expectedRestart = ProjectionRestart(greaterOffset.name, fromOffset, Instant.EPOCH, subject)
+      expectedRestart = ProjectionRestart(greaterOffset, fromOffset, Instant.EPOCH, subject)
       _              <- projections
                           .restarts(Offset.start)
                           .map(_._2)

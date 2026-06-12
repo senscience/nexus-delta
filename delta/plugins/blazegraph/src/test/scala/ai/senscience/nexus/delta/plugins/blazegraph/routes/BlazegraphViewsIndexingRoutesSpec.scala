@@ -22,12 +22,12 @@ class BlazegraphViewsIndexingRoutesSpec extends BlazegraphViewRoutesFixtures {
   private val myId         = nxv + "myid"
   private val indexingView = ActiveViewDef(
     ViewRef(projectRef, myId),
-    "projection",
     SelectFilter.latest,
     None,
     "namespace",
     1,
-    1
+    1,
+    java.util.UUID.randomUUID()
   )
 
   private def fetchView: FetchIndexingView =

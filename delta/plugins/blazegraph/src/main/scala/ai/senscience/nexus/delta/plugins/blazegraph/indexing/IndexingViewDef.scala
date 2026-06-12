@@ -13,6 +13,8 @@ import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 
+import java.util.UUID
+
 /**
   * Definition of a Blazegraph view to build a projection
   */
@@ -31,13 +33,17 @@ object IndexingViewDef {
     */
   final case class ActiveViewDef(
       ref: ViewRef,
-      projection: String,
       selectFilter: SelectFilter,
       pipeChain: Option[PipeChain],
       namespace: String,
       indexingRev: Int,
-      rev: Int
+      rev: Int,
+      uuid: UUID
   ) extends IndexingViewDef {
+
+    /** Derived from the view identity and indexing revision; the supervisor and cleanup rebuild it the same way. */
+    val projection: String = BlazegraphViews.projectionName(ref.project, ref.viewId, indexingRev)
+
     def projectionMetadata: ProjectionMetadata =
       ProjectionMetadata(
         BlazegraphViews.entityType.value,
@@ -48,9 +54,11 @@ object IndexingViewDef {
   }
 
   /**
-    * Deprecated view to be cleaned up and removed from the supervisor
+    * Deprecated view to be cleaned up and removed from the supervisor. Carries the base values (uuid + indexing
+    * revision) needed to derive its namespace/projection, so cleanup never needs to look them up — this covers the
+    * immutable default view, which is never recorded in the running store.
     */
-  final case class DeprecatedViewDef(ref: ViewRef) extends IndexingViewDef
+  final case class DeprecatedViewDef(ref: ViewRef, uuid: UUID, indexingRev: Int) extends IndexingViewDef
 
   def apply(
       state: BlazegraphViewState,
@@ -59,17 +67,19 @@ object IndexingViewDef {
     state.value.asIndexingValue.map { indexing =>
       if state.deprecated then
         DeprecatedViewDef(
-          ViewRef(state.project, state.id)
+          ViewRef(state.project, state.id),
+          state.uuid,
+          state.indexingRev
         )
       else
         ActiveViewDef(
           ViewRef(state.project, state.id),
-          BlazegraphViews.projectionName(state),
           indexing.selectFilter,
           indexing.pipeChain,
           BlazegraphViews.namespace(state.uuid, state.indexingRev, prefix),
           state.indexingRev,
-          state.rev
+          state.rev,
+          state.uuid
         )
     }
 

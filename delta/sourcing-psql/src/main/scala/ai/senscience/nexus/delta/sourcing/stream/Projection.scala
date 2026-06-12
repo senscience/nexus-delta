@@ -92,7 +92,7 @@ object Projection {
       fetchProgress: IO[Option[ProjectionProgress]],
       saveProgress: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit],
-      registerFailing: String => IO[Unit]
+      listener: ProjectionOutcomeListener
   )(using batch: BatchConfig): Resource[IO, Projection] =
     Resource.make(
       for {
@@ -113,9 +113,13 @@ object Projection {
             .drain
         task         = (status.set(ExecutionStatus.Running) >> persisted).guaranteeCase {
                          case Outcome.Succeeded(_) =>
-                           status.update(s => if s.isRunning then ExecutionStatus.Completed else s)
+                           status.update(s => if s.isRunning then ExecutionStatus.Completed else s) >>
+                             progressRef.get.flatMap { finalProgress =>
+                               val didWork = finalProgress.offset.value > progress.offset.value
+                               listener.onCompletion(projection.metadata, didWork)
+                             }
                          case Outcome.Errored(th)  =>
-                           status.update(_.failed(th)) >> registerFailing(projection.metadata.name)
+                           status.update(_.failed(th)) >> listener.onFailure(projection.metadata, th)
                          case Outcome.Canceled()   =>
                            IO.unit // status set by whoever cancelled
                        }
@@ -124,8 +128,8 @@ object Projection {
     )(_.stop)
 
   /**
-    * Creates a transient [[Projection]]: no progress is fetched or persisted, and failures are not registered for
-    * supervision. Intended for tests and short-lived in-memory streams.
+    * Creates a transient [[Projection]]: no progress is fetched or persisted, and listener notifications are
+    * suppressed. Intended for tests and short-lived in-memory streams.
     *
     * @param compiled
     *   the compiled projection to run
@@ -136,6 +140,6 @@ object Projection {
       compiled: CompiledProjection,
       saveFailedElems: List[FailedElem] => IO[Unit] = _ => IO.unit
   )(using BatchConfig): Resource[IO, Projection] =
-    apply(compiled, IO.none, _ => IO.unit, saveFailedElems, _ => IO.unit)
+    apply(compiled, IO.none, _ => IO.unit, saveFailedElems, ProjectionOutcomeListener.noop)
 
 }

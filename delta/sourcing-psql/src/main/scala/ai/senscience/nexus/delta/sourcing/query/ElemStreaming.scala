@@ -41,6 +41,12 @@ final class ElemStreaming(
   def stopping: ElemStreaming = ElemStreaming.stopping(xas, entityTypeFilter, queryConfig)
 
   /**
+    * The non-passivating (delayed) alternative for this elem streaming. The stream stays continuous but pauses for a
+    * fixed delay between queries instead of passivating, so it never terminates when its project becomes inactive.
+    */
+  def delayed: ElemStreaming = ElemStreaming.delayed(xas, entityTypeFilter, queryConfig)
+
+  /**
     * Get information about the remaining elements to stream
     * @param scope
     *   the scope for the query
@@ -174,7 +180,7 @@ final class ElemStreaming(
       refresh: RefreshOrStop
   ): ElemStream[A] = {
     def onRefresh(offset: Offset): IO[Option[(ElemChunk[A], Offset)]] = refresh.run.map { result =>
-      Option.when(result != RefreshOrStop.RefreshOutcome.Stopped)(Chunk.empty[Elem[A]] -> offset)
+      Option.unless(result.isTerminal)(Chunk.empty[Elem[A]] -> offset)
     }
     Stream
       .unfoldChunkEval[IO, Offset, Elem[A]](start) { offset =>
@@ -233,6 +239,20 @@ object ElemStreaming {
       config: ElemQueryConfig
   ): ElemStreaming = {
     val eqc      = ElemQueryConfig.StopConfig(config.batchSize, config.delay)
+    val activity = ProjectActivity.noop
+    new ElemStreaming(xas, entityTypeFilter, eqc, activity)
+  }
+
+  /**
+    * Constructs an elem streaming with a delay strategy: the stream stays continuous but pauses for a fixed delay
+    * between queries rather than passivating, so it never terminates when its project becomes inactive.
+    */
+  def delayed(
+      xas: Transactors,
+      entityTypeFilter: EntityTypeFilter,
+      config: ElemQueryConfig
+  ): ElemStreaming = {
+    val eqc      = ElemQueryConfig.DelayConfig(config.batchSize, config.delay)
     val activity = ProjectActivity.noop
     new ElemStreaming(xas, entityTypeFilter, eqc, activity)
   }

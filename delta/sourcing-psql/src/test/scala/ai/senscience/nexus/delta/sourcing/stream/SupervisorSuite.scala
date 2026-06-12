@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
-import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.{Completed, Running, Stopped}
+import ai.senscience.nexus.delta.sourcing.stream.ExecutionStatus.Running
+import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionTermination
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
-import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSuite.UnstableDestroy
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
@@ -27,12 +27,15 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor3_1)
 
-  private lazy val (sv, projections, _) = unapply(supervisor3_1())
+  private lazy val setup       = supervisor3_1()
+  private lazy val sv          = setup.supervisor
+  private lazy val projections = setup.projections
+  private lazy val terminalLog = setup.terminalLog
   // name1 should run on the node with index 1 in a 3-node cluster
-  private val runnableByNode1           = ProjectionMetadata("test", "name1", None, None)
+  private val runnableByNode1  = ProjectionMetadata("test", "name1", None, None)
   // name2 should NOT run on the node with index 1 of a 3-node cluster
-  private val ignoredByNode1            = ProjectionMetadata("test", "name2", None, None)
-  private val random                    = ProjectionMetadata("test", "name3", None, None)
+  private val ignoredByNode1   = ProjectionMetadata("test", "name2", None, None)
+  private val random           = ProjectionMetadata("test", "name3", None, None)
 
   private val project = ProjectRef.unsafe("org", "proj")
 
@@ -87,12 +90,20 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     } yield ()
   }
 
-  private def assertDestroy(metadata: ProjectionMetadata, onDestroy: IO[Unit])(using Location) =
+  private def assertDestroy(
+      metadata: ProjectionMetadata,
+      strategy: ExecutionStrategy,
+      onDestroy: IO[Unit]
+  )(using Location) = {
+    // The CompiledProjection passed to `destroy` is only consulted for its metadata and execution strategy;
+    // a no-op stream is sufficient.
+    val compiled = CompiledProjection.noop(metadata, strategy)
     for {
-      _ <- sv.destroy(metadata.name, onDestroy).assertEquals(Some(Stopped))
+      _ <- sv.destroy(compiled, onDestroy).map(_.map(_.isTerminal)).assertEquals(Some(true))
       _ <- sv.describe(metadata.name).assertEquals(None).eventually
       _ <- projections.progress(metadata.name).assertEquals(None)
     } yield ()
+  }
 
   private def assertDescribe(
       metadata: ProjectionMetadata,
@@ -122,6 +133,18 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   private def assertSavedProgress(metadata: ProjectionMetadata, progress: ProjectionProgress)(using loc: Location) =
     projections.progress(metadata.name).assertEquals(Some(progress))
 
+  /** Returns the [[ProjectionTermination.Completed]] row for `name`, if any. */
+  private def findCompleted(name: String): IO[Option[ProjectionTermination.Completed]] =
+    terminalLog.stream.compile.toList.map { events =>
+      events.collectFirst { case c: ProjectionTermination.Completed if c.metadata.name == name => c }
+    }
+
+  /** Returns the [[ProjectionTermination.Failed]] row for `name`, if any. */
+  private def findFailed(name: String): IO[Option[ProjectionTermination.Failed]] =
+    terminalLog.stream.compile.toList.map { events =>
+      events.collectFirst { case f: ProjectionTermination.Failed if f.metadata.name == name => f }
+    }
+
   test("Watching restart projection restarts should be running") {
     assertWatchRestarts(Offset.Start, 0, 0)
   }
@@ -148,7 +171,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
 
   test("Do nothing when attempting to restart a projection when it is meant to run on another node") {
     for {
-      _ <- projections.scheduleRestart(ignoredByNode1.name, Offset.start)
+      _ <- projections.scheduleRestart(ignoredByNode1, Offset.start)
       _ <- assertWatchRestarts(Offset.at(1L), 1, 1)
       _ <- assertAbsent(ignoredByNode1)
       // The restart has not been acknowledged and can be read by another node
@@ -157,12 +180,13 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   }
 
   test("Destroy an ignored projection") {
-    sv.destroy(ignoredByNode1.name).assertEquals(None)
+    val compiled = CompiledProjection.noop(ignoredByNode1, TransientSingleNode)
+    sv.destroy(compiled).assertEquals(None)
   }
 
   test("Do nothing when attempting to restart a projection when it is unknown") {
     for {
-      _ <- projections.scheduleRestart("xxx", Offset.start)
+      _ <- projections.scheduleRestart(ProjectionMetadata("test", "xxx"), Offset.start)
       _ <- assertWatchRestarts(Offset.at(2L), 2, 2)
       _ <- assertAbsent(ignoredByNode1)
       // The restart has not been acknowledged and can be read by another node
@@ -171,94 +195,109 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
   }
 
   test("Destroy an unknown projection") {
-    sv.destroy("""xxx""").assertEquals(None)
+    val unknown  = ProjectionMetadata("test", "xxx", None, None)
+    val compiled = CompiledProjection.noop(unknown, TransientSingleNode)
+    sv.destroy(compiled).assertEquals(None)
   }
 
   test("Run a projection when it is meant to run on every node") {
     for {
       _ <- startProjection(random, EveryNode)
-      // The projection should have been running successfully and made progress
-      _ <- assertDescribe(random, EveryNode, 0, Completed, expectedProgress)
+      // The projection should have completed and been evicted from supervision
+      _ <- assertAbsent(random).eventually
       // As it runs on every node, it is implicitly transient so no progress has been saved to database
       _ <- assertNoSavedProgress(random)
     } yield ()
   }
 
-  test("Destroy a projection running on every node") {
-    assertDestroy(random, IO.unit)
-  }
-
   test("Run a transient projection when it is meant to run on this node") {
     for {
       _ <- startProjection(runnableByNode1, TransientSingleNode)
-      // The projection should have been running successfully and made progress
-      _ <- assertDescribe(runnableByNode1, TransientSingleNode, 0, Completed, expectedProgress)
+      // The projection should have completed and been evicted from supervision
+      _ <- assertAbsent(runnableByNode1).eventually
       // As it is transient, no progress has been saved to database
       _ <- assertNoSavedProgress(runnableByNode1)
+      // A completion termination has been recorded
+      _ <- findCompleted(runnableByNode1.name).map(_.map(_.occurrences)).assertEquals(Some(1L))
     } yield ()
   }
 
   test("Destroy a registered transient projection") {
-    assertDestroy(runnableByNode1, IO.unit)
+    assertDestroy(runnableByNode1, TransientSingleNode, IO.unit)
   }
 
   test("Run a persistent projection when it is meant to run on this node") {
     for {
       _ <- startProjection(runnableByNode1, PersistentSingleNode)
-      // The projection should have been running successfully and made progress
-      _ <- assertDescribe(runnableByNode1, PersistentSingleNode, 0, Completed, expectedProgress)
-      // As it is persistent, progress has also been saved to database
+      // The projection should have completed and been evicted from supervision
+      _ <- assertAbsent(runnableByNode1).eventually
+      // As it is persistent, progress has been saved to database and is preserved across eviction
       _ <- assertSavedProgress(runnableByNode1, expectedProgress)
+      // The completion termination row is upserted (same key as the transient run above)
+      _ <- findCompleted(runnableByNode1.name).map(_.map(_.occurrences)).assertEquals(Some(2L))
     } yield ()
   }
 
-  test("Restart a given projection when it is meant to run on this node") {
-    val expectedProgress = ProjectionProgress(Offset.at(20L), Instant.EPOCH, 20, 0, 0)
+  test("Re-running a persistent projection with no new data does not record a termination") {
+    // Persisted offset is 20 from the prior run. Re-running with the same range produces zero new elements
+    // (every elem is filtered by the persist pipe), so `didWork = false` and the listener does not write.
     for {
-      _ <- projections.scheduleRestart(runnableByNode1.name, Offset.start)
-      _ <- assertWatchRestarts(Offset.at(3L), 3, 2)
-      _ <- assertDescribe(
-             runnableByNode1,
-             PersistentSingleNode,
-             // The number of restarts has been incremented
-             restarts = 1,
-             Completed,
-             expectedProgress
-           )
-      // As it is persistent, progress has also been saved to database
+      _ <- startProjection(runnableByNode1, PersistentSingleNode)
+      _ <- assertAbsent(runnableByNode1).eventually
       _ <- assertSavedProgress(runnableByNode1, expectedProgress)
-      // The restart has been acknowledged and now longer comes up
+      // occurrences remains at 2, not 3
+      _ <- findCompleted(runnableByNode1.name).map(_.map(_.occurrences)).assertEquals(Some(2L))
+    } yield ()
+  }
+
+  test("Resume an evicted projection on the responsible node instead of dropping the restart") {
+    // After the prior persistent-projection test completed, the projection has been evicted from supervision.
+    // On the responsible node the restart resets the offset and broadcasts an activation (so coordinators can resume
+    // it) and the record is acknowledged — it is processed (not dropped, hence discarded stays at 2).
+    val expectedProgress = ProjectionProgress(Offset.start, Instant.EPOCH, 0, 0, 0)
+    for {
+      _ <- projections.scheduleRestart(runnableByNode1, Offset.start)
+      _ <- assertWatchRestarts(Offset.at(3L), 3, 2)
+      _ <- assertAbsent(runnableByNode1)
+      _ <- assertSavedProgress(runnableByNode1, expectedProgress)
       _ <- projections.restarts(Offset.at(2L)).assertEmpty
     } yield ()
   }
 
   test("Destroy a registered persistent projection") {
-    assertDestroy(runnableByNode1, IO.unit)
+    assertDestroy(runnableByNode1, PersistentSingleNode, IO.unit)
   }
 
   test("Should restart a failing projection") {
+    val expectedErrorClass = classOf[IllegalStateException].getName
     for {
       _ <- assertCrash(runnableByNode1, TransientSingleNode)
       _ <- sv.describe(runnableByNode1.name).map(_.map(_.restarts)).assertEquals(Some(1)).eventually
+      // The failure has been recorded with its error class
+      _ <- findFailed(runnableByNode1.name).map(_.map(_.errorClass)).assertEquals(Some(expectedErrorClass)).eventually
     } yield ()
   }
+
   test("Should restart a projection when init fails") {
-    assertInitCrash(runnableByNode1, TransientSingleNode) >>
-      sv.describe(runnableByNode1.name)
-        .map(_.map(_.status))
-        .assertEquals(Some(ExecutionStatus.Completed))
-        .eventually
+    // After the init retry succeeds, the stream completes and the projection is evicted from supervision
+    for {
+      _ <- assertInitCrash(runnableByNode1, TransientSingleNode)
+      _ <- assertAbsent(runnableByNode1).eventually
+      // The completion termination row is upserted again (occurrences = 3)
+      _ <- findCompleted(runnableByNode1.name).map(_.map(_.occurrences)).assertEquals(Some(3L))
+    } yield ()
   }
 
   test("Destroy a failing projection") {
-    assertDestroy(runnableByNode1, IO.unit)
+    assertDestroy(runnableByNode1, TransientSingleNode, IO.unit)
   }
 
   test("Obtain the correct running projections") {
     val watchRestartProgress = ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 2, 0)
-    val runnableProgress     = ProjectionProgress(Offset.at(20L), Instant.EPOCH, 20, 0, 0)
     for {
       _ <- startProjection(runnableByNode1, PersistentSingleNode)
+      // The persistent projection completes and is evicted from supervision, leaving only the long-running
+      // EveryNode system projection.
       _ <- sv.getRunningProjections
              .assertEquals(
                List(
@@ -268,13 +307,6 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
                    restarts = 0,
                    Running,
                    progress = watchRestartProgress
-                 ),
-                 SupervisedDescription(
-                   runnableByNode1,
-                   PersistentSingleNode,
-                   0,
-                   Completed,
-                   runnableProgress
                  )
                )
              )
@@ -288,7 +320,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       _               <- startProjection(projection, EveryNode)
       // Destroy the projection with a destroy method that fails and eventually succeeds
       unstableDestroy <- UnstableDestroy()
-      _               <- assertDestroy(projection, unstableDestroy.attempt)
+      _               <- assertDestroy(projection, EveryNode, unstableDestroy.attempt)
       _               <- unstableDestroy.isCompleted.assertEquals(true, "The destroy method should have completed")
     } yield ()
   }
@@ -298,7 +330,7 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     val alwaysFail = IO.raiseError(new IllegalStateException("Fail !"))
     for {
       _ <- startProjection(projection, EveryNode)
-      _ <- assertDestroy(projection, alwaysFail)
+      _ <- assertDestroy(projection, EveryNode, alwaysFail)
     } yield ()
   }
 }

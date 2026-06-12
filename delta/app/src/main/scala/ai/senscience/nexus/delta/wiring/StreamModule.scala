@@ -61,13 +61,24 @@ object StreamModule extends ModuleDef {
     ProjectionErrors(xas, cfg.query, clock)
   }
 
+  make[ProjectionTerminalStore].from { (xas: Transactors, cfg: ProjectionConfig) =>
+    ProjectionTerminalStore(xas, cfg.query)
+  }
+
   make[ProjectionMetrics].fromEffect { (otel: OtelJava[IO]) =>
     ProjectionMetrics(BuildInfo.version)(using otel.meterProvider)
   }
 
   make[Supervisor].fromResource {
-    (projections: Projections, projectionErrors: ProjectionErrors, cfg: ProjectionConfig, metrics: ProjectionMetrics) =>
-      Supervisor(projections, projectionErrors, cfg, metrics)
+    (
+        projections: Projections,
+        projectionErrors: ProjectionErrors,
+        terminalLog: ProjectionTerminalStore,
+        cfg: ProjectionConfig,
+        metrics: ProjectionMetrics,
+        clock: Clock[IO]
+    ) =>
+      Supervisor(projections, projectionErrors, terminalLog, cfg, metrics, clock)
   }
 
   make[ProjectionsRestartScheduler].from { (projections: Projections) =>
@@ -89,12 +100,17 @@ object StreamModule extends ModuleDef {
       ProjectLastUpdateWrites(supervisor, store, xas, config.batch)
   }
 
+  make[ProjectionActivations].fromEffect {
+    ProjectionActivations()
+  }
+
   make[ProjectActivity].fromEffect {
     (
         supervisor: Supervisor,
         stream: ProjectLastUpdateStream,
         clock: Clock[IO],
         config: ProjectLastUpdateConfig,
+        activations: ProjectionActivations,
         otel: OtelJava[IO]
     ) =>
       otel.meterProvider
@@ -102,8 +118,13 @@ object StreamModule extends ModuleDef {
         .withVersion(BuildInfo.version)
         .get
         .flatMap { meter =>
-          ProjectActivity(supervisor, stream, clock, config.inactiveInterval)(using meter)
+          ProjectActivity(supervisor, stream, clock, config.inactiveInterval, activations)(using meter)
         }
+  }
+
+  make[WatchRestarts].fromEffect {
+    (supervisor: Supervisor, projections: Projections, activations: ProjectionActivations) =>
+      WatchRestarts(supervisor, projections, activations)
   }
 
   make[PurgeProjectionCoordinator].fromEffect {

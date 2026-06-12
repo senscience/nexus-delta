@@ -72,7 +72,7 @@ class BlazegraphViewsIndexingRoutes(
                   },
                   // Remove a blazegraph view offset (restart the view)
                   (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(view.projection, fromOffset)
+                    projectionDirectives.scheduleRestart(view.projectionMetadata, fromOffset)
                   }
                 )
               }

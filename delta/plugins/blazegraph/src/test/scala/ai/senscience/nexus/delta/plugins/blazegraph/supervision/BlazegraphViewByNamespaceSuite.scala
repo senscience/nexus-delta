@@ -19,12 +19,12 @@ class BlazegraphViewByNamespaceSuite extends NexusSuite {
       val id = nxv + suffix
       ActiveViewDef(
         ViewRef(project, id),
-        projection = id.toString,
         SelectFilter.latest,
         None,
         namespace = suffix,
         indexingRev,
-        rev
+        rev,
+        java.util.UUID.randomUUID()
       )
     }
 

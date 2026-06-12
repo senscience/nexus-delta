@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionTerminalStore, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
 import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
@@ -18,9 +18,12 @@ import scala.concurrent.duration.*
   * Supervises the execution of projections based on a defined [[ExecutionStrategy]] that describes whether projections
   * should be executed on all the nodes or a single node and whether offsets should be persisted.
   *
-  * It monitors and restarts automatically projections that have stopped or failed.
+  * It monitors and restarts automatically projections that have failed.
   *
-  * Projections that completed naturally are not restarted or cleaned up such that the status can be read.
+  * Projections that complete naturally (including via passivation) are evicted from supervision so they do not pile up
+  * in memory. Persisted progress and recorded errors are preserved so the projection can be resumed later via [[run]].
+  * `describe` returns `None` for evicted projections; callers requiring completion status for completed projections
+  * should consult the `Projections` module which holds persisted progress.
   *
   * When the supervisor is stopped, all running projections are also stopped.
   */
@@ -50,30 +53,27 @@ trait Supervisor {
 
   /**
     * Restart the given projection from the given offset
-    * @param name
-    *   the name of the projection
     */
-  def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]]
+  def resetForRestart(name: String, offset: Offset): IO[Boolean]
 
   /**
-    * Stops the projection with the provided `name` and removes it from supervision. It performs a noop if the
-    * projection does not exist or it is not running on the current node. It executes the provided finalizer after the
-    * projection is stopped.
-    * @param name
-    *   the name of the projection
+    * Stops the supervised projection and removes it from supervision. It performs a noop if the projection is not
+    * supervised on the current node and the current node would not have owned it (per its
+    * [[ExecutionStrategy.shouldRun]]). It executes the provided finalizer after the projection is stopped.
+    * @param projection
+    *   the projection to destroy
     * @param clear
     *   the task to be executed after the projection is destroyed
     */
-  def destroy(name: String, clear: IO[Unit]): IO[Option[ExecutionStatus]]
+  def destroy(projection: CompiledProjection, clear: IO[Unit]): IO[Option[ExecutionStatus]]
 
   /**
-    * Stops the projection with the provided `name` and removes it from supervision. It performs a noop if the
-    * projection does not exist or it is not running on the current node. It executes the provided finalizer after the
-    * projection is stopped.
-    * @param name
-    *   the name of the projection
+    * Stops the supervised projection and removes it from supervision. See [[destroy(projection,clear)]] for the full
+    * behavior.
+    * @param projection
+    *   the projection to destroy
     */
-  def destroy(name: String): IO[Option[ExecutionStatus]] = destroy(name, IO.unit)
+  def destroy(projection: CompiledProjection): IO[Option[ExecutionStatus]] = destroy(projection, IO.unit)
 
   /**
     * Returns the status of the projection with the provided `name`, if a projection with such name exists.
@@ -113,25 +113,29 @@ object Supervisor {
   def apply(
       projections: Projections,
       projectionErrors: ProjectionErrors,
+      terminalLog: ProjectionTerminalStore,
       cfg: ProjectionConfig,
-      metrics: ProjectionMetrics
+      metrics: ProjectionMetrics,
+      clock: Clock[IO]
   ): Resource[IO, Supervisor] = {
     for {
       _                 <- Resource.eval(log.info("Starting Delta supervisor"))
       supervisorStorage <- Resource.eval(SupervisorStorage())
-      _                 <- SupervisorCheck(supervisorStorage, cfg)
+      listener          <- Resource.eval(ProjectionOutcomeListener(terminalLog, clock))
+      _                 <- SupervisorCheck(supervisorStorage, listener, cfg)
       supervisor        <-
-        Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, metrics)))(_.stop)
-      _                 <- Resource.eval(WatchRestarts(supervisor, projections))
+        Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, listener, metrics)))(
+          _.stop
+        )
       _                 <- Resource.eval(log.info("Delta supervisor is up"))
     } yield supervisor
   }
 
-  private[stream] def createRetryStrategy(cfg: ProjectionConfig, metadata: ProjectionMetadata, action: String) =
+  private[stream] def createRetryStrategy(cfg: ProjectionConfig, projectionLabel: String, action: String) =
     RetryStrategy.retryOnNonFatal(
       cfg.retry,
       log,
-      s"$action projection '${metadata.fullName}''"
+      s"$action projection '$projectionLabel''"
     )
 
   private[stream] def restartProjection(supervised: Supervised): IO[Supervised] =
@@ -144,6 +148,7 @@ object Supervisor {
       projectionErrors: ProjectionErrors,
       cfg: ProjectionConfig,
       supervisorStorage: SupervisorStorage,
+      listener: ProjectionOutcomeListener,
       metrics: ProjectionMetrics
   ) extends Supervisor {
 
@@ -167,7 +172,7 @@ object Supervisor {
     private def startSupervised(projection: CompiledProjection, init: IO[Unit]): IO[Option[Supervised]] = {
       val metadata      = projection.metadata
       val strategy      = projection.executionStrategy
-      val retryStrategy = createRetryStrategy(cfg, metadata, "init")
+      val retryStrategy = createRetryStrategy(cfg, metadata.fullName, "init")
       if !strategy.shouldRun(metadata.name, cfg.cluster) then
         log.debug(s"Ignoring '${metadata.fullName}' with strategy '$strategy'.").as(None)
       else {
@@ -193,7 +198,7 @@ object Supervisor {
             projections.progress(projection.metadata.name),
             saveProgressWithMetrics,
             projectionErrors.saveFailedElems(projection.metadata, _),
-            supervisorStorage.sendFailing
+            listener
           )
         case TransientSingleNode | EveryNode =>
           Projection(
@@ -201,43 +206,40 @@ object Supervisor {
             IO.none,
             metrics.recordProgress(projection.metadata, _),
             projectionErrors.saveFailedElems(projection.metadata, _),
-            supervisorStorage.sendFailing
+            listener
           )
       }
 
-    override def restart(name: String, offset: Offset): IO[Option[ExecutionStatus]] =
-      supervisorStorage
-        .update(name) { supervised =>
-          val metadata = supervised.metadata
-          for {
-            _         <- log.info(s"Restarting '${metadata.fullName}' at offset ${offset.value}...")
-            _         <- stopProjection(supervised)
-            _         <- IO.whenA(supervised.executionStrategy == PersistentSingleNode)(
-                           projections.reset(metadata.name, offset)
-                         )
-            restarted <- Supervisor.restartProjection(supervised)
-          } yield restarted
-        }
-        .flatMap(_.traverse(_.control.status))
+    override def resetForRestart(name: String, offset: Offset): IO[Boolean] = {
+      val responsible = PersistentSingleNode.shouldRun(name, cfg.cluster)
+      supervisorStorage.delete(name)(stopProjection) >>
+        IO.whenA(responsible)(projections.reset(name, offset)).as(responsible)
+    }
 
-    override def destroy(name: String, onDestroy: IO[Unit]): IO[Option[ExecutionStatus]] =
-      supervisorStorage.delete(name) { supervised =>
-        val metadata      = supervised.metadata
-        val retryStrategy = createRetryStrategy(cfg, metadata, "destroying")
-        for {
-          _      <- log.info(s"Destroying '${metadata.fullName}'...")
-          _      <- stopProjection(supervised)
-          _      <- IO.whenA(supervised.executionStrategy == PersistentSingleNode)(projections.delete(name))
-          _      <- projectionErrors.deleteEntriesForProjection(name)
-          _      <- onDestroy
-                      .retry(retryStrategy)
-                      .handleError(_ => ())
-          status <- supervised.control.status
-                      .iterateUntil(e => e == ExecutionStatus.Completed || e == ExecutionStatus.Stopped)
-                      .timeout(3.seconds)
-                      .recover { case _: TimeoutException => ExecutionStatus.Stopped }
-        } yield status
-      }
+    override def destroy(projection: CompiledProjection, onDestroy: IO[Unit]): IO[Option[ExecutionStatus]] = {
+      val metadata      = projection.metadata
+      val name          = metadata.name
+      val retryStrategy = createRetryStrategy(cfg, metadata.fullName, "destroying")
+      val runCleanup    =
+        IO.whenA(projection.executionStrategy == PersistentSingleNode)(projections.delete(name)) >>
+          projectionErrors.deleteEntriesForProjection(name) >>
+          onDestroy.retry(retryStrategy).handleError(_ => ())
+      supervisorStorage
+        .delete(name) { supervised =>
+          log.info(s"Destroying '${metadata.fullName}'...") >>
+            stopProjection(supervised) >>
+            supervised.control.status
+              .iterateUntil(e => e == ExecutionStatus.Completed || e == ExecutionStatus.Stopped)
+              .timeout(3.seconds)
+              .recover { case _: TimeoutException => ExecutionStatus.Stopped }
+        }
+        .flatMap { status =>
+          if projection.executionStrategy.shouldRun(name, cfg.cluster) then {
+            IO.whenA(status.isEmpty)(log.info(s"Destroying unsupervised projection '${metadata.fullName}'...")) >>
+              runCleanup.as(status.orElse(Some(ExecutionStatus.Stopped)))
+          } else IO.pure(status)
+        }
+    }
 
     private def stopProjection(supervised: Supervised) =
       supervised.control.stop.handleErrorWith { e =>

@@ -35,14 +35,14 @@ class ElasticSearchIndexingActionSuite extends NexusSuite with Fixtures {
     val selectFilter = if withTag then SelectFilter.tag(UserTag.unsafe("tag")) else SelectFilter.latest
     ActiveViewDef(
       ViewRef(project, id),
-      projection = id.toString,
       pipeChain,
       selectFilter,
       index = IndexLabel.unsafe(suffix),
       ElasticsearchIndexDef.empty,
       None,
       indexingRev,
-      rev
+      rev,
+      java.util.UUID.randomUUID()
     )
   }
 

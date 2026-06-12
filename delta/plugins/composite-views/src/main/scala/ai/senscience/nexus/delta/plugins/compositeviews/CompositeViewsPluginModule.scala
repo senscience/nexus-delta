@@ -31,6 +31,7 @@ import ai.senscience.nexus.delta.sdk.stream.GraphResourceStream
 import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
@@ -167,7 +168,13 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
   }
 
   make[CompositeGraphStream].from {
-    (local: GraphResourceStream, deltaClient: DeltaClient, metadataPredicates: MetadataPredicates) =>
+    (
+        elemStreaming: ElemStreaming,
+        shifts: ResourceShifts,
+        deltaClient: DeltaClient,
+        metadataPredicates: MetadataPredicates
+    ) =>
+      val local = GraphResourceStream(elemStreaming.delayed, shifts)
       CompositeGraphStream(local, new RemoteGraphStream(deltaClient, metadataPredicates))
   }
 

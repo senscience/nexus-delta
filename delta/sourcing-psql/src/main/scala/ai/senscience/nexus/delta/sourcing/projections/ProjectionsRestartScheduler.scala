@@ -2,23 +2,22 @@ package ai.senscience.nexus.delta.sourcing.projections
 
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.IO
 import fs2.Stream
 
 trait ProjectionsRestartScheduler {
 
-  def run(projectionStream: Stream[IO, String], fromOffset: Offset)(using Subject): IO[Unit]
+  def run(projectionStream: Stream[IO, ProjectionMetadata], fromOffset: Offset)(using Subject): IO[Unit]
 
 }
 
 object ProjectionsRestartScheduler {
 
   def apply(projections: Projections): ProjectionsRestartScheduler = new ProjectionsRestartScheduler {
-    override def run(projectionStream: Stream[IO, String], fromOffset: Offset)(using Subject): IO[Unit] =
+    override def run(projectionStream: Stream[IO, ProjectionMetadata], fromOffset: Offset)(using Subject): IO[Unit] =
       projectionStream
-        .evalMap { projectionName =>
-          projections.scheduleRestart(projectionName, fromOffset)
-        }
+        .evalMap(projections.scheduleRestart(_, fromOffset))
         .compile
         .drain
   }

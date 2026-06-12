@@ -22,6 +22,7 @@ import ai.senscience.nexus.delta.sourcing.projections.ProjectionSelector.{Name, 
 import ai.senscience.nexus.delta.sourcing.projections.model.IndexingStatus
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionSelector, Projections}
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.IO
 import cats.syntax.all.*
 import org.apache.pekko.http.scaladsl.server.Directives.*
@@ -37,7 +38,7 @@ trait ProjectionsDirectives {
 
   def offset(projectionName: String)(using Tracer[IO]): Route
 
-  def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route
+  def scheduleRestart(metadata: ProjectionMetadata, offset: Offset)(using Subject, Tracer[IO]): Route
 
   def indexingStatus(project: ProjectRef, selectFilter: SelectFilter, projectionName: String, onCompleted: IO[Unit])(
       using Tracer[IO]
@@ -71,8 +72,8 @@ object ProjectionsDirectives extends RdfMarshalling {
 
       override def offset(projectionName: String)(using Tracer[IO]): Route = emit(projections.offset(projectionName))
 
-      override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
-        emit(projections.scheduleRestart(projectionName, offset).as(offset))
+      override def scheduleRestart(metadata: ProjectionMetadata, offset: Offset)(using Subject, Tracer[IO]): Route =
+        emit(projections.scheduleRestart(metadata, offset).as(offset))
 
       override def indexingStatus(
           project: ProjectRef,
@@ -125,7 +126,7 @@ object ProjectionsDirectives extends RdfMarshalling {
 
     override def offset(projectionName: String)(using Tracer[IO]): Route = complete("offset")
 
-    override def scheduleRestart(projectionName: String, offset: Offset)(using Subject, Tracer[IO]): Route =
+    override def scheduleRestart(metadata: ProjectionMetadata, offset: Offset)(using Subject, Tracer[IO]): Route =
       complete("schedule-restart")
 
     override def indexingStatus(

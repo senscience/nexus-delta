@@ -77,12 +77,12 @@ class IndexingViewDefSuite extends NexusSuite {
       Some(
         ActiveViewDef(
           viewRef,
-          s"blazegraph-$projectRef-$id-$indexingRev",
           indexing.selectFilter,
           indexing.pipeChain,
           namespace,
           indexingRev,
-          currentRev
+          currentRev,
+          uuid
         )
       )
     )
@@ -91,7 +91,7 @@ class IndexingViewDefSuite extends NexusSuite {
   test("Build an deprecated view def") {
     assertEquals(
       IndexingViewDef(state(indexing).copy(deprecated = true), prefix),
-      Some(DeprecatedViewDef(viewRef))
+      Some(DeprecatedViewDef(viewRef, uuid, indexingRev))
     )
   }
 
@@ -105,12 +105,12 @@ class IndexingViewDefSuite extends NexusSuite {
   test("Fail if the pipe chain does not compile") {
     val v = ActiveViewDef(
       viewRef,
-      s"blazegraph-$projectRef-$id-1",
       indexing.selectFilter,
       Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
       namespace,
       indexingRev,
-      currentRev
+      currentRev,
+      uuid
     )
 
     val expectedError = CouldNotFindTypedPipeErr(PipeRef.unsafe("xxx"), "xxx")
@@ -129,12 +129,12 @@ class IndexingViewDefSuite extends NexusSuite {
   test("Success and be able to process the different elements") {
     val v = ActiveViewDef(
       viewRef,
-      s"blazegraph-$projectRef-$id-1",
       indexing.selectFilter,
       Some(PipeChain(FilterDeprecated())),
       namespace,
       indexingRev,
-      currentRev
+      currentRev,
+      uuid
     )
 
     val expectedMetadata = ProjectionMetadata(BlazegraphViews.entityType.value, v.projection, projectRef, id)

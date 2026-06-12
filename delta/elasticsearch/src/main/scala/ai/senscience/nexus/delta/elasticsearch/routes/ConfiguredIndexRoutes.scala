@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.elasticsearch.indexing.{configuredIndexingId, configuredIndexingProjection}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{configuredIndexingId, configuredIndexingProjection, configuredIndexingProjectionMetadata}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.query.ConfiguredIndexQuery
@@ -85,7 +85,10 @@ final class ConfiguredIndexRoutes(
                         },
                         // Remove an configured index offset (restart it)
                         (delete & authorizeWrite & offset("from")) { fromOffset =>
-                          projectionDirectives.scheduleRestart(projection, fromOffset)(using caller.subject)
+                          projectionDirectives.scheduleRestart(
+                            configuredIndexingProjectionMetadata(project),
+                            fromOffset
+                          )(using caller.subject)
                         }
                       )
                     }

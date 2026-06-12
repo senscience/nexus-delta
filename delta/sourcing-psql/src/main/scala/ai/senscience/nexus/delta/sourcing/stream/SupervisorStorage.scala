@@ -2,9 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import cats.effect.IO
 import cats.effect.std.AtomicCell
-import cats.syntax.all.*
 import fs2.Stream
-import fs2.concurrent.Channel
 
 /**
   * The supervisor storage to keep the references of the running projections.
@@ -12,8 +10,7 @@ import fs2.concurrent.Channel
   *   https://typelevel.org/cats-effect/docs/std/atomic-cell
   */
 private class SupervisorStorage private (
-    running: AtomicCell[IO, Map[String, Supervised]],
-    failing: Channel[IO, String]
+    running: AtomicCell[IO, Map[String, Supervised]]
 ) {
 
   def get(projectionName: String): IO[Option[Supervised]] =
@@ -22,8 +19,6 @@ private class SupervisorStorage private (
   def values: Stream[IO, Supervised] = Stream.eval(running.get).flatMap { map =>
     Stream.iterable(map.values)
   }
-
-  def failingStream: Stream[IO, String] = failing.stream
 
   def update(projectionName: String)(f: Supervised => IO[Supervised]): IO[Option[Supervised]] =
     running.evalModify { map =>
@@ -52,15 +47,10 @@ private class SupervisorStorage private (
           IO.pure((map, None))
       }
     }
-
-  def sendFailing(projectionName: String): IO[Unit] = failing.send(projectionName).void
 }
 
 object SupervisorStorage {
 
   def apply(): IO[SupervisorStorage] =
-    (AtomicCell[IO].of(Map.empty[String, Supervised]), Channel.unbounded[IO, String]).mapN {
-      new SupervisorStorage(_, _)
-    }
-
+    AtomicCell[IO].of(Map.empty[String, Supervised]).map(new SupervisorStorage(_))
 }

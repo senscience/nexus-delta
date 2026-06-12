@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.sourcing.implicits.pgDecoderGetT
 import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.offset.Offset
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import doobie.Get
 import io.circe.{Codec, Encoder}
 import io.circe.generic.extras.Configuration
@@ -14,8 +15,8 @@ import java.time.Instant
 
 /**
   * Intent to restart a given projection by a user
-  * @param name
-  *   the name of the projection to restart
+  * @param metadata
+  *   the metadata of the projection to restart
   * @param fromOffset
   *   the offset to restart from
   * @param instant
@@ -23,7 +24,7 @@ import java.time.Instant
   * @param subject
   *   the user
   */
-final case class ProjectionRestart(name: String, fromOffset: Offset, instant: Instant, subject: Subject)
+final case class ProjectionRestart(metadata: ProjectionMetadata, fromOffset: Offset, instant: Instant, subject: Subject)
 
 object ProjectionRestart {
 

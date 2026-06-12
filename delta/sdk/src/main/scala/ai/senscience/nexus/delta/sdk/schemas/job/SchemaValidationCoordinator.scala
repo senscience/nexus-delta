@@ -42,7 +42,7 @@ object SchemaValidationCoordinator {
         for {
           _        <- logger.info(s"Starting validation of resources for project '$project'")
           compiled <- compile(project)
-          _        <- supervisor.destroy(compiled.metadata.name)
+          _        <- supervisor.destroy(compiled)
           _        <- supervisor.run(compiled)
         } yield ()
       }

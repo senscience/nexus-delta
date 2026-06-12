@@ -1,12 +1,15 @@
 package ai.senscience.nexus.delta.routes
 
+import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsRestartScheduler
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
-import ai.senscience.nexus.delta.sourcing.model.Identity.User
+import ai.senscience.nexus.delta.sourcing.model.Identity.{Subject, User}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
+import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.apache.pekko.http.scaladsl.server.Route
 
@@ -19,11 +22,16 @@ class EventMetricsRoutesSpec extends BaseRouteSpec {
     (supervisor, AclAddress.Root, Set(supervision.read, projects.write))
   )
 
+  private val restartScheduler = new EventMetricsRestartScheduler {
+    override def run(fromOffset: Offset)(using Subject): IO[Unit] = IO.unit
+  }
+
   private lazy val routes = Route.seal(
     new EventMetricsRoutes(
       identities,
       aclCheck,
-      ProjectionsDirectives.testEcho
+      ProjectionsDirectives.testEcho,
+      restartScheduler
     ).routes
   )
 
@@ -75,7 +83,6 @@ class EventMetricsRoutesSpec extends BaseRouteSpec {
   "Succeed to restart indexing if the user has access" in {
     Delete("/v1/event-metrics/offset") ~> as(supervisor) ~> routes ~> check {
       response.status shouldEqual StatusCodes.OK
-      response.asString shouldEqual "schedule-restart"
     }
   }
 

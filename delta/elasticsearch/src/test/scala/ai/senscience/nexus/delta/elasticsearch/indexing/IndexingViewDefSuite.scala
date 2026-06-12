@@ -104,14 +104,14 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
       Some(
         ActiveViewDef(
           viewRef,
-          s"elasticsearch-$projectRef-$id-${indexingRev.value}",
           indexingCustom.pipeChain,
           indexingCustom.selectFilter,
           IndexLabel.fromView("prefix", uuid, indexingRev),
           ElasticsearchIndexDef(customMapping, Some(customSettings)),
           indexingCustom.context,
           indexingRev,
-          rev
+          rev,
+          uuid
         )
       )
     )
@@ -123,14 +123,14 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
       Some(
         ActiveViewDef(
           viewRef,
-          s"elasticsearch-$projectRef-$id-${indexingRev.value}",
           indexingDefault.pipeChain,
           indexingDefault.selectFilter,
           IndexLabel.fromView("prefix", uuid, indexingRev),
           defaultIndexDef.value,
           indexingDefault.context,
           indexingRev,
-          rev
+          rev,
+          uuid
         )
       )
     )
@@ -157,14 +157,14 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
   test("Fail if the pipe chain does not compile") {
     val v = ActiveViewDef(
       viewRef,
-      s"elasticsearch-$projectRef-$id-$indexingRev",
       Some(PipeChain(PipeRef.unsafe("xxx") -> ExpandedJsonLd.empty)),
       indexingDefault.selectFilter,
       IndexLabel.fromView("prefix", uuid, indexingRev),
       defaultIndexDef.value,
       indexingDefault.context,
       indexingRev,
-      rev
+      rev,
+      uuid
     )
 
     val expectedError = CouldNotFindTypedPipeErr(PipeRef.unsafe("xxx"), "xxx")
@@ -188,14 +188,14 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
   test("Success and be able to process the different elements") {
     val v = ActiveViewDef(
       viewRef,
-      s"elasticsearch-$projectRef-$id-$indexingRev",
       Some(PipeChain(FilterDeprecated())),
       indexingDefault.selectFilter,
       IndexLabel.fromView("prefix", uuid, indexingRev),
       defaultIndexDef.value,
       indexingDefault.context,
       indexingRev,
-      rev
+      rev,
+      uuid
     )
 
     val expectedMetadata = ProjectionMetadata(ElasticSearchViews.entityType.value, v.projection, projectRef, id)

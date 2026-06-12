@@ -46,7 +46,7 @@ object EventsModule extends NexusModuleDef {
       )(using jo)
   }
 
-  make[SseElemStream].from { (elemStreaming: ElemStreaming) => SseElemStream(elemStreaming) }
+  make[SseElemStream].from { (elemStreaming: ElemStreaming) => SseElemStream(elemStreaming.delayed) }
 
   make[EventsRoutes].from {
     (

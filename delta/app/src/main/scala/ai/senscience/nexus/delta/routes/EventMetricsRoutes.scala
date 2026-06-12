@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsProjection
+import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetricsProjection, EventMetricsRestartScheduler}
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
+import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
@@ -19,8 +21,9 @@ import org.typelevel.otel4s.trace.Tracer
 final class EventMetricsRoutes(
     identities: Identities,
     aclCheck: AclCheck,
-    projectionsDirectives: ProjectionsDirectives
-)(using baseUri: BaseUri)(using Tracer[IO])
+    projectionsDirectives: ProjectionsDirectives,
+    eventMetricsRestartScheduler: EventMetricsRestartScheduler
+)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with RdfMarshalling {
@@ -48,7 +51,7 @@ final class EventMetricsRoutes(
                   },
                   // Delete the event metrics project offset (restart it)
                   (delete & offset("from")) { fromOffset =>
-                    projectionsDirectives.scheduleRestart(projectionName, fromOffset)
+                    emit(eventMetricsRestartScheduler.run(fromOffset).as(fromOffset))
                   }
                 )
               }

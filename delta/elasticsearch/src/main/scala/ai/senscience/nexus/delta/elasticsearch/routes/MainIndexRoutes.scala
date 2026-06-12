@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
-import ai.senscience.nexus.delta.elasticsearch.indexing.{mainIndexingId, mainIndexingProjection, MainRestartScheduler}
+import ai.senscience.nexus.delta.elasticsearch.indexing.{mainIndexingId, mainIndexingProjection, mainIndexingProjectionMetadata, MainRestartScheduler}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.model.{defaultViewId, permissions}
 import ai.senscience.nexus.delta.elasticsearch.query.MainIndexQuery
@@ -77,7 +77,9 @@ final class MainIndexRoutes(
                   },
                   // Remove an main indexing offset (restart the view)
                   (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(projection, fromOffset)(using caller)
+                    projectionDirectives.scheduleRestart(mainIndexingProjectionMetadata(project), fromOffset)(using
+                      caller
+                    )
                   }
                 )
               }
