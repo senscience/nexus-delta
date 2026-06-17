@@ -7,7 +7,7 @@ import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
 import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
-import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
+import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import cats.effect.*
 import cats.syntax.all.*
 
@@ -121,12 +121,13 @@ object Supervisor {
       cfg: ProjectionConfig,
       metrics: ProjectionMetrics
   ): Resource[IO, Supervisor] = {
+    val flowBuilder = ProjectionFlow.Builder(projections, projectionErrors, metrics)(using cfg.batch)
     for {
       _                 <- Resource.eval(log.info("Starting Delta supervisor"))
       supervisorStorage <- SupervisorStorage(metrics)
       _                 <- SupervisorCheck(supervisorStorage, listener, cfg)
       supervisor        <-
-        Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, listener, metrics)))(
+        Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, listener, flowBuilder)))(
           _.stop
         )
       _                 <- Resource.eval(log.info("Delta supervisor is up"))
@@ -151,11 +152,8 @@ object Supervisor {
       cfg: ProjectionConfig,
       supervisorStorage: SupervisorStorage,
       listener: ProjectionOutcomeListener,
-      metrics: ProjectionMetrics
+      flowBuilder: ProjectionFlow.Builder
   ) extends Supervisor {
-
-    // To persist progress and errors
-    private given BatchConfig = cfg.batch
 
     override def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]] = {
       val metadata = projection.metadata
@@ -191,27 +189,13 @@ object Supervisor {
       }
     }
 
-    private def startProjection(projection: CompiledProjection): Resource[IO, Projection] =
-      projection.executionStrategy match {
-        case PersistentSingleNode            =>
-          Projection(
-            projection,
-            projections.progress(projection.metadata.name),
-            projections.save(projection.metadata, _),
-            metrics.recordProgress(projection.metadata, _),
-            projectionErrors.saveFailedElems(projection.metadata, _),
-            listener
-          )
-        case TransientSingleNode | EveryNode =>
-          Projection(
-            projection,
-            IO.none,
-            _ => IO.unit,
-            metrics.recordProgress(projection.metadata, _),
-            projectionErrors.saveFailedElems(projection.metadata, _),
-            listener
-          )
+    private def startProjection(projection: CompiledProjection): Resource[IO, Projection] = {
+      val flow = projection.executionStrategy match {
+        case PersistentSingleNode            => flowBuilder.persisted(projection.metadata)
+        case TransientSingleNode | EveryNode => flowBuilder.transient(projection.metadata)
       }
+      Projection(projection, flow, listener)
+    }
 
     override def resetForRestart(name: String, offset: Offset): IO[Boolean] = {
       val responsible = PersistentSingleNode.shouldRun(name, cfg.cluster)
