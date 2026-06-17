@@ -1,5 +1,6 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import cats.effect.IO
 import fs2.Stream
 import fs2.concurrent.Topic
@@ -34,15 +35,18 @@ object ProjectionActivations {
   }
 
   /**
-    * Constructs a [[ProjectionActivations]] backed by an unbounded FS2 topic.
+    * Constructs a [[ProjectionActivations]] backed by an unbounded FS2 topic, recording each published activation.
     */
-  def apply(): IO[ProjectionActivations] =
+  def apply(metrics: ProjectionMetrics): IO[ProjectionActivations] =
     Topic[IO, ProjectionActivation].map { topic =>
       new ProjectionActivations {
         override def publish(activation: ProjectionActivation): IO[Unit] =
-          topic.publish1(activation).void
+          metrics.recordActivation(activation) >> topic.publish1(activation).void
 
         override def events: Stream[IO, ProjectionActivation] = topic.subscribeUnbounded
       }
     }
+
+  /** Constructs a [[ProjectionActivations]] without metrics. Intended for tests. */
+  def apply(): IO[ProjectionActivations] = apply(ProjectionMetrics.Disabled)
 }

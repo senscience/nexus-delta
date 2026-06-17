@@ -67,6 +67,14 @@ object Projection {
 
   private def testOffset(elem: Elem[?], progress: ProjectionProgress) = elem.offset.value > progress.offset.value
 
+  /** The number of elems newly processed/discarded/failed between two cumulative progress snapshots. */
+  private def progressDelta(previous: ProjectionProgress, current: ProjectionProgress): ProjectionProgress =
+    current.copy(
+      processed = current.processed - previous.processed,
+      discarded = current.discarded - previous.discarded,
+      failed = current.failed - previous.failed
+    )
+
   def persist[A](
       progress: ProjectionProgress,
       saveProgress: ProjectionProgress => IO[Unit],
@@ -91,6 +99,7 @@ object Projection {
       projection: CompiledProjection,
       fetchProgress: IO[Option[ProjectionProgress]],
       saveProgress: ProjectionProgress => IO[Unit],
+      recordMetrics: ProjectionProgress => IO[Unit],
       saveFailedElems: List[FailedElem] => IO[Unit],
       listener: ProjectionOutcomeListener
   )(using batch: BatchConfig): Resource[IO, Projection] =
@@ -105,7 +114,10 @@ object Projection {
             .through(
               persist(
                 progress,
-                (newProgress: ProjectionProgress) => progressRef.set(newProgress) >> saveProgress(newProgress),
+                (newProgress: ProjectionProgress) =>
+                  progressRef.getAndSet(newProgress).flatMap { previous =>
+                    recordMetrics(progressDelta(previous, newProgress))
+                  } >> saveProgress(newProgress),
                 saveFailedElems
               )
             )
@@ -115,7 +127,7 @@ object Projection {
                          case Outcome.Succeeded(_) =>
                            status.update(s => if s.isRunning then ExecutionStatus.Completed else s) >>
                              progressRef.get.flatMap { finalProgress =>
-                               val didWork = finalProgress.offset.value > progress.offset.value
+                               val didWork = finalProgress.offset > progress.offset
                                listener.onCompletion(projection.metadata, didWork)
                              }
                          case Outcome.Errored(th)  =>
@@ -140,6 +152,6 @@ object Projection {
       compiled: CompiledProjection,
       saveFailedElems: List[FailedElem] => IO[Unit] = _ => IO.unit
   )(using BatchConfig): Resource[IO, Projection] =
-    apply(compiled, IO.none, _ => IO.unit, saveFailedElems, ProjectionOutcomeListener.noop)
+    apply(compiled, IO.none, _ => IO.unit, _ => IO.unit, saveFailedElems, ProjectionOutcomeListener.noop)
 
 }

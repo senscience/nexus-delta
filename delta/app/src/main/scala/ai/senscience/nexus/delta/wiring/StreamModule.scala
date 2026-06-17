@@ -69,16 +69,20 @@ object StreamModule extends ModuleDef {
     ProjectionMetrics(BuildInfo.version)(using otel.meterProvider)
   }
 
+  make[ProjectionOutcomeListener].fromEffect {
+    (terminalLog: ProjectionTerminalStore, clock: Clock[IO], metrics: ProjectionMetrics) =>
+      ProjectionOutcomeListener(terminalLog, clock, metrics)
+  }
+
   make[Supervisor].fromResource {
     (
         projections: Projections,
         projectionErrors: ProjectionErrors,
-        terminalLog: ProjectionTerminalStore,
+        listener: ProjectionOutcomeListener,
         cfg: ProjectionConfig,
-        metrics: ProjectionMetrics,
-        clock: Clock[IO]
+        metrics: ProjectionMetrics
     ) =>
-      Supervisor(projections, projectionErrors, terminalLog, cfg, metrics, clock)
+      Supervisor(projections, projectionErrors, listener, cfg, metrics)
   }
 
   make[ProjectionsRestartScheduler].from { (projections: Projections) =>
@@ -100,8 +104,8 @@ object StreamModule extends ModuleDef {
       ProjectLastUpdateWrites(supervisor, store, xas, config.batch)
   }
 
-  make[ProjectionActivations].fromEffect {
-    ProjectionActivations()
+  make[ProjectionActivations].fromEffect { (metrics: ProjectionMetrics) =>
+    ProjectionActivations(metrics)
   }
 
   make[ProjectActivity].fromEffect {

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionTerminalStore, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.ExecutionStrategy.{EveryNode, PersistentSingleNode, TransientSingleNode}
 import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
@@ -109,21 +109,21 @@ object Supervisor {
     *   the projections module
     * @param projectionErrors
     *   the projections error module
+    * @param listener
+    *   receives terminal-state notifications from running projections
     * @param cfg
     *   the projection configuration
     */
   def apply(
       projections: Projections,
       projectionErrors: ProjectionErrors,
-      terminalLog: ProjectionTerminalStore,
+      listener: ProjectionOutcomeListener,
       cfg: ProjectionConfig,
-      metrics: ProjectionMetrics,
-      clock: Clock[IO]
+      metrics: ProjectionMetrics
   ): Resource[IO, Supervisor] = {
     for {
       _                 <- Resource.eval(log.info("Starting Delta supervisor"))
-      supervisorStorage <- Resource.eval(SupervisorStorage())
-      listener          <- Resource.eval(ProjectionOutcomeListener(terminalLog, clock))
+      supervisorStorage <- SupervisorStorage(metrics)
       _                 <- SupervisorCheck(supervisorStorage, listener, cfg)
       supervisor        <-
         Resource.make(IO.pure(new Impl(projections, projectionErrors, cfg, supervisorStorage, listener, metrics)))(
@@ -194,13 +194,11 @@ object Supervisor {
     private def startProjection(projection: CompiledProjection): Resource[IO, Projection] =
       projection.executionStrategy match {
         case PersistentSingleNode            =>
-          def saveProgressWithMetrics(progress: ProjectionProgress) =
-            projections.save(projection.metadata, progress) >>
-              metrics.recordProgress(projection.metadata, progress)
           Projection(
             projection,
             projections.progress(projection.metadata.name),
-            saveProgressWithMetrics,
+            projections.save(projection.metadata, _),
+            metrics.recordProgress(projection.metadata, _),
             projectionErrors.saveFailedElems(projection.metadata, _),
             listener
           )
@@ -208,6 +206,7 @@ object Supervisor {
           Projection(
             projection,
             IO.none,
+            _ => IO.unit,
             metrics.recordProgress(projection.metadata, _),
             projectionErrors.saveFailedElems(projection.metadata, _),
             listener

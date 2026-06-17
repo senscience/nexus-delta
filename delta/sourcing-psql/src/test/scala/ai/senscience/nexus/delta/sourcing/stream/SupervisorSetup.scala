@@ -51,7 +51,8 @@ object SupervisorSetup {
       val terminalLog      = ProjectionTerminalStore(xas, config.query)
       for {
         activations <- Resource.eval(ProjectionActivations())
-        supervisor  <- Supervisor(projections, projectionErrors, terminalLog, config, ProjectionMetrics.Disabled, clock)
+        listener    <- Resource.eval(ProjectionOutcomeListener(terminalLog, clock, ProjectionMetrics.Disabled))
+        supervisor  <- Supervisor(projections, projectionErrors, listener, config, ProjectionMetrics.Disabled)
         _           <- Resource.eval(WatchRestarts(supervisor, projections, activations))
       } yield SupervisorSetup(supervisor, projections, projectionErrors, terminalLog, activations)
     }
