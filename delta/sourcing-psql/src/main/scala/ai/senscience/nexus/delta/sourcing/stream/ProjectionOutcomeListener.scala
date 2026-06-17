@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics.TerminationOutcome
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionTerminalStore
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionOutcomeListener.Outcome
 import cats.effect.{Clock, IO}
@@ -61,15 +63,21 @@ object ProjectionOutcomeListener {
     override def outcomes: Stream[IO, Outcome]                                          = Stream.empty
   }
 
-  def apply(store: ProjectionTerminalStore, clock: Clock[IO]): IO[ProjectionOutcomeListener] =
+  def apply(
+      store: ProjectionTerminalStore,
+      clock: Clock[IO],
+      metrics: ProjectionMetrics
+  ): IO[ProjectionOutcomeListener] =
     Channel.unbounded[IO, Outcome].map { channel =>
       new ProjectionOutcomeListener {
         override def onFailure(metadata: ProjectionMetadata, error: Throwable): IO[Unit] =
-          clock.realTimeInstant.flatMap(store.recordFailure(metadata, error, _)) >>
+          metrics.recordTermination(metadata, TerminationOutcome.Failed) >>
+            clock.realTimeInstant.flatMap(store.recordFailure(metadata, error, _)) >>
             channel.send(Outcome.Failed(metadata.name)).void
 
         override def onCompletion(metadata: ProjectionMetadata, didWork: Boolean): IO[Unit] =
-          IO.whenA(didWork)(clock.realTimeInstant.flatMap(store.recordCompletion(metadata, _))) >>
+          metrics.recordTermination(metadata, TerminationOutcome.Completed) >>
+            IO.whenA(didWork)(clock.realTimeInstant.flatMap(store.recordCompletion(metadata, _))) >>
             channel.send(Outcome.Completed(metadata.name)).void
 
         override def outcomes: Stream[IO, Outcome] = channel.stream

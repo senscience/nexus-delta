@@ -1,7 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
-import cats.effect.IO
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import cats.effect.std.AtomicCell
+import cats.effect.{IO, Resource}
 import fs2.Stream
 
 /**
@@ -19,6 +20,10 @@ private class SupervisorStorage private (
   def values: Stream[IO, Supervised] = Stream.eval(running.get).flatMap { map =>
     Stream.iterable(map.values)
   }
+
+  /** Snapshot of the metadata of the currently supervised projections. */
+  def runningMetadata: IO[List[ProjectionMetadata]] =
+    running.get.map(_.values.toList.map(_.metadata))
 
   def update(projectionName: String)(f: Supervised => IO[Supervised]): IO[Option[Supervised]] =
     running.evalModify { map =>
@@ -51,6 +56,13 @@ private class SupervisorStorage private (
 
 object SupervisorStorage {
 
-  def apply(): IO[SupervisorStorage] =
-    AtomicCell[IO].of(Map.empty[String, Supervised]).map(new SupervisorStorage(_))
+  /**
+    * Creates the storage and registers an observable gauge reporting the number of supervised projections per module.
+    */
+  def apply(metrics: ProjectionMetrics): Resource[IO, SupervisorStorage] =
+    for {
+      running <- Resource.eval(AtomicCell[IO].of(Map.empty[String, Supervised]))
+      storage  = new SupervisorStorage(running)
+      _       <- metrics.monitorRunning(storage.runningMetadata)
+    } yield storage
 }
