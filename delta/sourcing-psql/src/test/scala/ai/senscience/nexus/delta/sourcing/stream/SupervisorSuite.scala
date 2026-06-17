@@ -278,6 +278,12 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
     } yield ()
   }
 
+  test("Destroy the still-running failed projection") {
+    // The restart test above leaves the projection running (its stream never completes), so it must be destroyed
+    // before the name can be reused: `run` is idempotent and would otherwise ignore a re-run while the old one is up.
+    assertDestroy(runnableByNode1, TransientSingleNode, IO.unit)
+  }
+
   test("Should restart a projection when init fails") {
     // After the init retry succeeds, the stream completes and the projection is evicted from supervision
     for {
@@ -286,10 +292,6 @@ class SupervisorSuite extends NexusSuite with SupervisorSetup.Fixture with Doobi
       // The completion termination row is upserted again (occurrences = 3)
       _ <- findCompleted(runnableByNode1.name).map(_.map(_.occurrences)).assertEquals(Some(3L))
     } yield ()
-  }
-
-  test("Destroy a failing projection") {
-    assertDestroy(runnableByNode1, TransientSingleNode, IO.unit)
   }
 
   test("Obtain the correct running projections") {

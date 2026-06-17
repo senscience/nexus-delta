@@ -54,10 +54,8 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
     val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
     val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
 
-    for {
-      _ <- store.save(List(lastProject1, lastProject2))
-      _ <- stream.projects(TimeRange.Anytime).assertList(List(project1, project2))
-    } yield ()
+    store.save(List(lastProject1, lastProject2)) >>
+      stream.apply(TimeRange.Anytime).assert(lastProject1, lastProject2)
   }
 
   test("Stream projects updated after a given instant") {
@@ -65,10 +63,8 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
     val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
     val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
 
-    for {
-      _ <- store.save(List(lastProject1, lastProject2))
-      _ <- stream.projects(TimeRange.After(cutoff)).assertList(List(project2))
-    } yield ()
+    store.save(List(lastProject1, lastProject2)) >>
+      stream.apply(TimeRange.After(cutoff)).assert(lastProject2)
   }
 
   test("Stream projects updated before a given instant") {
@@ -76,10 +72,8 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
     val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
     val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(5L), Offset.at(2L))
 
-    for {
-      _ <- store.save(List(lastProject1, lastProject2))
-      _ <- stream.projects(TimeRange.Before(cutoff)).assertList(List(project1))
-    } yield ()
+    store.save(List(lastProject1, lastProject2)) >>
+      stream.apply(TimeRange.Before(cutoff)).assert(lastProject1)
   }
 
   test("Stream projects updated between two instants") {
@@ -88,10 +82,8 @@ class ProjectLastUpdateStoreSuite extends NexusSuite with Doobie.Fixture {
     val lastProject1 = ProjectLastUpdate(project1, now.minusSeconds(10L), Offset.at(1L))
     val lastProject2 = ProjectLastUpdate(project2, now.minusSeconds(1L), Offset.at(2L))
 
-    for {
-      _ <- store.save(List(lastProject1, lastProject2))
-      _ <- stream.projects(TimeRange.Between.unsafe(start, end)).assertList(List(project1))
-    } yield ()
+    store.save(List(lastProject1, lastProject2)) >>
+      stream.apply(TimeRange.Between.unsafe(start, end)).assert(lastProject1)
   }
 
 }

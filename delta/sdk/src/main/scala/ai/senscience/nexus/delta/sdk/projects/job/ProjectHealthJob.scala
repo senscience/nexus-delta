@@ -34,7 +34,7 @@ object ProjectHealthJob extends ProjectHealthJob {
             run(projects.currentRefs(Scope.Root), projectHealer) >>
             logger.info("Nexus automatic healing has completed.")
         }
-        case false => logger.info("Nexus automatic project healingi is disabled.")
+        case false => logger.info("Nexus automatic project healing is disabled.")
       }
       .as(ProjectHealthJob)
 }

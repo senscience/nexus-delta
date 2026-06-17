@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.configured.{ConfiguredElasticSink, ConfiguredIndexingConfig}
-import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
+import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionLifecycle
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.stream.AnnotatedSourceStream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -13,7 +13,7 @@ import cats.effect.IO
 import cats.syntax.all.*
 import org.typelevel.otel4s.trace.Tracer
 
-object ConfiguredIndexingProjectionFactory {
+object ConfiguredIndexingProjectionLifecycle {
 
   def apply(
       annotatedSourceStream: AnnotatedSourceStream,
@@ -21,7 +21,7 @@ object ConfiguredIndexingProjectionFactory {
       configuredIndexing: ConfiguredIndexingConfig,
       batch: BatchConfig,
       indexingEnabled: Boolean
-  )(using BaseUri, Tracer[IO]): Option[ProjectProjectionFactory] = {
+  )(using BaseUri, Tracer[IO]): Option[ProjectProjectionLifecycle] = {
     (indexingEnabled, configuredIndexing) match {
       case (false, _)                                    => None
       case (_, ConfiguredIndexingConfig.Disabled)        => None
@@ -36,8 +36,10 @@ object ConfiguredIndexingProjectionFactory {
       client: ElasticSearchClient,
       config: ConfiguredIndexingConfig.Enabled,
       batch: BatchConfig
-  )(using BaseUri, Tracer[IO]): ProjectProjectionFactory =
-    new ProjectProjectionFactory {
+  )(using BaseUri, Tracer[IO]): ProjectProjectionLifecycle =
+    new ProjectProjectionLifecycle {
+
+      def module: String = configuredIndexingModule
 
       override def bootstrap: IO[Unit] =
         config.indices.parUnorderedTraverse { configuredIndex =>

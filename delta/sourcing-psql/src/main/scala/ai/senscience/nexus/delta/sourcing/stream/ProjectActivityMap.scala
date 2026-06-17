@@ -36,14 +36,13 @@ final class ProjectActivityMap private (
     activeCell.get.map(_.keys.toList)
 
   /**
-    * Drops the projects that have become inactive since the last computation. Always returns an empty set, as a refresh
-    * can only age projects out, never bring them back to active.
+    * Drops the projects that have become inactive since the last computation.
     */
-  def refresh: IO[Set[ProjectRef]] =
+  def refresh: IO[Unit] =
     inactivityThreshold.flatMap { threshold =>
-      activeCell.evalModify { active =>
+      activeCell.evalUpdate { active =>
         val next = active.filter { case (_, updatedAt) => updatedAt.isAfter(threshold) }
-        activeProjectsGauge.record(next.size.toLong).as((next, Set.empty[ProjectRef]))
+        activeProjectsGauge.record(next.size.toLong).as(next)
       }
     }
 

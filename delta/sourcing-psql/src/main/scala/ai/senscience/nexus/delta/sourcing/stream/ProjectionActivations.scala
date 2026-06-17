@@ -39,8 +39,10 @@ object ProjectionActivations {
   def apply(): IO[ProjectionActivations] =
     Topic[IO, ProjectionActivation].map { topic =>
       new ProjectionActivations {
-        override def publish(activation: ProjectionActivation): IO[Unit] = topic.publish1(activation).void
-        override def events: Stream[IO, ProjectionActivation]            = topic.subscribe(Int.MaxValue)
+        override def publish(activation: ProjectionActivation): IO[Unit] =
+          topic.publish1(activation).void
+
+        override def events: Stream[IO, ProjectionActivation] = topic.subscribeUnbounded
       }
     }
 }

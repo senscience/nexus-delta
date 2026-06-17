@@ -59,15 +59,21 @@ class ProjectActivitySuite extends NexusSuite with MutableClock.Fixture {
     val project1 = ProjectRef.unsafe("org", "project1")
     val project2 = ProjectRef.unsafe("org", "project2")
 
-    val stubStream = new ProjectLastUpdateStream {
-      override def apply(offset: Offset): Stream[IO, ProjectLastUpdate]   = Stream.empty
-      override def projects(timeRange: TimeRange): Stream[IO, ProjectRef] = Stream(project1, project2)
+    val stream = new ProjectLastUpdateStream {
+      override def apply(offset: Offset): Stream[IO, ProjectLastUpdate]       = Stream.empty
+      // Emulates the store's `TimeRange.After(threshold)` query: it only yields projects updated within the
+      // inactivity window, so their last-update instants are more recent than `now - inactiveInterval`.
+      override def apply(timeRange: TimeRange): Stream[IO, ProjectLastUpdate] =
+        Stream(
+          ProjectLastUpdate(project1, now.minusSeconds(4L), Offset.at(35L)),
+          ProjectLastUpdate(project2, now.minusSeconds(2L), Offset.at(42L))
+        )
     }
 
     for {
       activityMap <- ProjectActivityMap(mutableClock, inactiveInterval)
       _           <- mutableClock.set(now)
-      _           <- ProjectActivity.seedActiveProjects(stubStream, activityMap, mutableClock, inactiveInterval)
+      _           <- ProjectActivity.seedActiveProjects(stream, activityMap, mutableClock, inactiveInterval)
       _           <- activityMap.activeProjects.map(_.toSet).assertEquals(Set(project1, project2))
     } yield ()
   }

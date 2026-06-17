@@ -13,7 +13,7 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
-import ai.senscience.nexus.delta.sdk.indexing.{ProjectDefCoordinator, ProjectProjectionFactory}
+import ai.senscience.nexus.delta.sdk.indexing.{ProjectDefCoordinator, ProjectDefResumer, ProjectProjectionLifecycle}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.organizations.FetchActiveOrganization
 import ai.senscience.nexus.delta.sdk.projects.*
@@ -24,7 +24,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -76,14 +76,18 @@ object ProjectsModule extends NexusModuleDef {
       )
   }
 
+  make[ProjectDefResumer].from { (projectActivity: ProjectActivity, activations: ProjectionActivations) =>
+    ProjectDefResumer(projectActivity, activations)
+  }
+
   make[ProjectDefCoordinator].fromEffect {
     (
         supervisor: Supervisor,
         projects: Projects,
-        projectActivity: ProjectActivity,
-        projectionFactories: Set[ProjectProjectionFactory]
+        resumer: ProjectDefResumer,
+        projectionLifecycles: Set[ProjectProjectionLifecycle]
     ) =>
-      ProjectDefCoordinator(supervisor, projects, projectActivity, projectionFactories)
+      ProjectDefCoordinator(supervisor, projects, resumer, projectionLifecycles)
   }
 
   make[ProjectScopeResolver].from { (projects: Projects, flattenedAclStore: FlattenedAclStore) =>

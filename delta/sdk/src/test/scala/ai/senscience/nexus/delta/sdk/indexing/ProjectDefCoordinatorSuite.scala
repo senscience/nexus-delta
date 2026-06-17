@@ -36,7 +36,10 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
   private val resumeSignal    = SignallingRef[IO, Boolean](false).unsafeRunSync()
   // project1 and project2 are active; project3 is not.
   private val projectActivity = ControllableProjectActivity(project1, project2).unsafeRunSync()
-  // Counts onInit invocations per project; lets the revival test assert restart deterministically (there is no store).
+  // The activations topic the resumer reacts to; the tests publish project/projection activations to it.
+  private val activations     = ProjectionActivations().unsafeRunSync()
+  private val resumer         = ProjectDefResumer(projectActivity, activations)
+  // Counts onInit invocations per project; lets the resume test assert restart deterministically (there is no store).
   private val initInvocations = InvocationCounter[ProjectRef]()
 
   private val entityType = EntityType("test")
@@ -49,7 +52,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   // Streams 3 project states (incl. an inactive project) until the signal is set, then re-emits project1 and marks
   // project2 for deletion. Trailing `Stream.never` keeps the coordinator alive so the `handleActivations` subscriber
-  // (registered via `concurrently`) stays alive for the revival test.
+  // (registered via `concurrently`) stays alive for the resume test.
   private def projectStream: SuccessElemStream[ProjectDef] =
     Stream(
       projectElem(project1, markedForDeletion = false, 1L),
@@ -80,7 +83,9 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
         )
       )
 
-  private val projectProjectionFactory = new ProjectProjectionFactory {
+  private val projectProjectionFactory = new ProjectProjectionLifecycle {
+    override def module: String = "main-indexing"
+
     override def bootstrap: IO[Unit] = IO.unit
 
     override def name(project: ProjectRef): String = projectionName(project)
@@ -111,7 +116,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
     sv.describe(ProjectDefCoordinator.metadata.name).map(_.map(_.progress)).assertEquals(Some(expected)).eventually
 
   test("Start the coordinator") {
-    ProjectDefCoordinator(sv, _ => projectStream, projectActivity, Set(projectProjectionFactory)) >>
+    ProjectDefCoordinator(sv, _ => projectStream, resumer, Set(projectProjectionFactory)) >>
       assertCoordinatorProgress(ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 0))
   }
 
@@ -138,11 +143,36 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
     projections.progress(projectionName(project1)).assertEquals(Some(expectedProgress))
   }
 
-  test(s"Publishing a project activation revives the evicted '$project1' projection") {
+  test(s"Publishing a project activation resumes the evicted '$project1' projection") {
     for {
       before <- initInvocations.count(project1)
-      _      <- projectActivity.publishActivation(project1)
+      _      <- activations.publish(ProjectionActivation.ForProject(project1))
       _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
+    } yield ()
+  }
+
+  test(s"Publishing a single-projection activation for the factory's module resumes '$project1'") {
+    val metadata =
+      ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
+    for {
+      before <- initInvocations.count(project1)
+      _      <- activations.publish(ProjectionActivation.ForProjection(metadata))
+      _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
+    } yield ()
+  }
+
+  test("A single-projection activation for another module is ignored") {
+    val otherModule = ProjectionMetadata("elasticsearch", "es-view", Some(project1), Some(nxv + "view"))
+    val sameModule  =
+      ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
+    for {
+      before <- initInvocations.count(project1)
+      // The other-module activation must be ignored. Publishing it before a matching one means that, once the matching
+      // resume is observed, the ignored one has already been processed (single ordered consumer), so the count rose by
+      // exactly one — proving the other-module activation resumed nothing.
+      _      <- activations.publish(ProjectionActivation.ForProjection(otherModule))
+      _      <- activations.publish(ProjectionActivation.ForProjection(sameModule))
+      _      <- initInvocations.count(project1).assertEquals(before + 1).eventually
     } yield ()
   }
 

@@ -12,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
+import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionLifecycle
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -49,14 +49,14 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
     GraphAnalyticsStream(elemStreaming, xas)
   }
 
-  many[ProjectProjectionFactory].addSet {
+  many[ProjectProjectionLifecycle].addSet {
     (
         analyticsStream: GraphAnalyticsStream,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: GraphAnalyticsConfig,
         tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
-      GraphAnalyticsIndexFactory(analyticsStream, client, config)(using tracer).toSet
+      GraphAnalyticsProjectionLifecycle(analyticsStream, client, config)(using tracer).toSet
   }
 
   many[ProjectDeletionTask].add {

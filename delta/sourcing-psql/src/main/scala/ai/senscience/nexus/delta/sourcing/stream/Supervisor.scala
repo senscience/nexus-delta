@@ -30,8 +30,10 @@ import scala.concurrent.duration.*
 trait Supervisor {
 
   /**
-    * Supervises the execution of the provided `projection`. A second call to this method with a projection with the
-    * same name will cause the current projection to be stopped and replaced by the new one.
+    * Supervises the execution of the provided `projection`. The call is idempotent: if a projection with the same name
+    * is already supervised it is left running and the request is ignored (the `init` task is not run). To have a
+    * different projection take over, either supervise it under a new name or remove the current one first via
+    * [[destroy]] / [[resetForRestart]].
     * @param projection
     *   the projection to supervise
     * @param init
@@ -42,8 +44,8 @@ trait Supervisor {
   def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]]
 
   /**
-    * Supervises the execution of the provided `projection`. A second call to this method with a projection with the
-    * same name will cause the current projection to be stopped and replaced by the new one.
+    * Supervises the execution of the provided `projection`. The call is idempotent: if a projection with the same name
+    * is already supervised it is left running and the request is ignored.
     * @param projection
     *   the projection to supervise
     * @see
@@ -159,12 +161,14 @@ object Supervisor {
       val metadata = projection.metadata
       supervisorStorage
         .updateWith(metadata.name) {
-          case Some(existing) =>
-            // if a projection with the same name already exists remove from the map and stop it, it will
-            // be re-created
-            log.info(s"Stopping existing projection '${metadata.fullName}'") >>
-              existing.control.stop >> startSupervised(projection, init)
-          case None           => startSupervised(projection, init)
+          case existing @ Some(_) =>
+            // A projection with the same name is already supervised: keep it running and ignore the request (`init` is
+            // not run). Replacing a live projection in place is never required: a changed view definition gets a new,
+            // revision-keyed name (the old revision is destroyed separately) and a user restart removes the entry via
+            // `resetForRestart` before resuming. Being idempotent here means overlapping triggers — a state-stream
+            // replay and an activation — collapse to a single start instead of needlessly stopping and restarting it.
+            log.debug(s"'${metadata.fullName}' is already supervised, ignoring the request to run it.").as(existing)
+          case None               => startSupervised(projection, init)
         }
         .flatMap(_.traverse(_.control.status))
     }

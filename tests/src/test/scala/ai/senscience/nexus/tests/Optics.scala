@@ -188,6 +188,11 @@ object Optics {
       * Getting the projects related to the running projections
       */
     val allProjects = root.projections.each.metadata.project
+
+    /**
+      * Getting the names of the running projections
+      */
+    val allNames = root.projections.each.metadata.name
   }
 
 }

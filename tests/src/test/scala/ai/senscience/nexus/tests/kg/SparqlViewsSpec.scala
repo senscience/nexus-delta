@@ -26,6 +26,15 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
 
   val idBase = "https://test.bbp.epfl.ch/"
 
+  /** Base IRI shared by the patched-cell instance fixtures. */
+  private val patchedCellBase = "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/"
+
+  /** The `@id` declared in a resource payload. */
+  private def resourceId(payload: Json): String = `@id`.getOption(payload).value
+
+  /** The local part of a patched-cell resource `@id`, used to build `patchedcell:<suffix>` paths. */
+  private def patchedCellId(payload: Json): String = resourceId(payload).stripPrefix(patchedCellBase)
+
   override def beforeAll(): Unit = {
     super.beforeAll()
     val setPermissions = for {
@@ -41,25 +50,15 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
 
     (setPermissions >> createProjects).accepted
 
-    // wait until in project resolver is created
-    eventually {
-      deltaClient.get[Json](s"/resolvers/$project1", ScoobyDoo) { (json, response) =>
-        response.status shouldEqual StatusCodes.OK
-        _total.getOption(json).value shouldEqual 1L
-      }
-    }
-
     ()
   }
 
   "creating the view" should {
     "create a context" in {
       val payload = jsonContentOf("kg/views/context.json")
-
       projects.parTraverse { project =>
-        deltaClient.put[Json](s"/resources/$project/resource/test-resource:context", payload, ScoobyDoo) {
-          expectCreated
-        }
+        val endpoint = s"/resources/$project/resource/test-resource:context"
+        deltaClient.put[Json](endpoint, payload, ScoobyDoo) { expectCreated }
       }
     }
 
@@ -115,8 +114,7 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "post instances" in {
       (1 to 8).toList.parTraverse { i =>
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val id           = `@id`.getOption(payload).value
-        val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
+        val unprefixedId = patchedCellId(payload)
         val projectId    = if i > 5 then project2 else project1
         val indexingMode = if i % 2 == 0 then "sync" else "async"
         val targetUrl    = s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode"
@@ -124,18 +122,11 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       }
     }
 
-    "wait until all instances are indexed in default view of project 2" in eventually {
-      deltaClient.get[Json](s"/resources/$project2/resource", ScoobyDoo) { (json, response) =>
-        response.status shouldEqual StatusCodes.OK
-        _total.getOption(json).value shouldEqual 4
-      }
-    }
-
     "all have a completed indexing status" in eventually {
       val expected = json"""{"status": "Completed"}"""
       (1 to 5).toList.parTraverse { i =>
         val payload   = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val encodedId = UrlUtils.encodeUriPath(`@id`.getOption(payload).value)
+        val encodedId = UrlUtils.encodeUriPath(resourceId(payload))
         deltaClient.get[Json](s"/views/$project1/graph/status/$encodedId", ScoobyDoo) { (json, response) =>
           response.status shouldEqual StatusCodes.OK
           json shouldEqual expected
@@ -154,34 +145,34 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       """.stripMargin
 
     "search instances in SPARQL endpoint in project 1" in eventually {
-      deltaClient.sparqlQuery[Json](s"/views/$project1/nxv:defaultSparqlIndex/sparql", query, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json shouldEqual jsonContentOf("kg/views/sparql-search-response.json")
+      val endpoint = s"/views/$project1/nxv:defaultSparqlIndex/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json shouldEqual jsonContentOf("kg/views/sparql-search-response.json")
       }
     }
 
     "search instances in SPARQL endpoint in project 2" in eventually {
-      deltaClient.sparqlQuery[Json](s"/views/$project2/nxv:defaultSparqlIndex/sparql", query, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json shouldEqual jsonContentOf("kg/views/sparql-search-response-2.json")
+      val endpoint = s"/views/$project2/nxv:defaultSparqlIndex/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json shouldEqual jsonContentOf("kg/views/sparql-search-response-2.json")
       }
     }
 
     "search instances in AggregateSparqlView when logged" in {
-      deltaClient.sparqlQuery[Json](s"/views/$project2/test-resource:agg-cell-view/sparql", query, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json should equalIgnoreArrayOrder(jsonContentOf("kg/views/sparql-search-response-aggregated.json"))
+      val endpoint = s"/views/$project2/test-resource:agg-cell-view/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json should equalIgnoreArrayOrder(jsonContentOf("kg/views/sparql-search-response-aggregated.json"))
       }
     }
 
     "search instances in AggregateSparqlView as anonymous" in {
-      deltaClient.sparqlQuery[Json](s"/views/$project2/test-resource:agg-cell-view/sparql", query, Anonymous) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json should equalIgnoreArrayOrder(jsonContentOf("kg/views/sparql-search-response-2.json"))
+      val endpoint = s"/views/$project2/test-resource:agg-cell-view/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, Anonymous) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json should equalIgnoreArrayOrder(jsonContentOf("kg/views/sparql-search-response-2.json"))
       }
     }
 
@@ -200,10 +191,10 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     }
 
     "get no instances in SPARQL endpoint in project 1 with cell-view" in {
-      deltaClient.sparqlQuery[Json](s"/views/$project1/test-resource:cell-view/sparql", query, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json shouldEqual jsonContentOf("kg/views/sparql-search-response-empty.json")
+      val endpoint = s"/views/$project1/test-resource:cell-view/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json shouldEqual jsonContentOf("kg/views/sparql-search-response-empty.json")
       }
     }
 
@@ -211,12 +202,9 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       val tagPayload = json"""{ "rev": 1, "tag": "one"}"""
       (1 to 5).toList.parTraverse { i =>
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val id           = `@id`.getOption(payload).value
-        val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-        deltaClient
-          .post[Json](s"/resources/$project1/resource/patchedcell:$unprefixedId/tags?rev=1", tagPayload, ScoobyDoo) {
-            expectCreated
-          }
+        val unprefixedId = patchedCellId(payload)
+        val endpoint     = s"/resources/$project1/resource/patchedcell:$unprefixedId/tags?rev=1"
+        deltaClient.post[Json](endpoint, tagPayload, ScoobyDoo) { expectCreated }
       }
     }
 
@@ -227,30 +215,29 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
       }
     }
 
-    val byTagQuery =
-      """
-        |prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
-        |
-        |select ?s where {
-        |  ?s nxv:tags "one"
-        |}
-        |order by ?s
-      """.stripMargin
-
     "search by tag in SPARQL endpoint in project 1 with default view" in eventually {
-      deltaClient.sparqlQuery[Json](s"/views/$project1/nxv:defaultSparqlIndex/sparql", byTagQuery, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json shouldEqual jsonContentOf("kg/views/sparql-search-response-tagged.json")
+      val byTagQuery =
+        """
+          |prefix nxv: <https://bluebrain.github.io/nexus/vocabulary/>
+          |
+          |select ?s where {
+          |  ?s nxv:tags "one"
+          |}
+          |order by ?s
+        """.stripMargin
+      val endpoint   = s"/views/$project1/nxv:defaultSparqlIndex/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, byTagQuery, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json shouldEqual jsonContentOf("kg/views/sparql-search-response-tagged.json")
       }
     }
 
     "search instances in SPARQL endpoint in project 1 with custom SparqlView after tags added" in {
+      val endpoint = s"/views/$project1/test-resource:cell-view/sparql"
       eventually {
-        deltaClient.sparqlQuery[Json](s"/views/$project1/test-resource:cell-view/sparql", query, ScoobyDoo) {
-          (json, response) =>
-            response.status shouldEqual StatusCodes.OK
-            json shouldEqual jsonContentOf("kg/views/sparql-search-response.json")
+        deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+          response.status shouldEqual StatusCodes.OK
+          json shouldEqual jsonContentOf("kg/views/sparql-search-response.json")
         }
       }
     }
@@ -258,38 +245,31 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
     "delete tags" in {
       (1 to 5).toList.parTraverse { i =>
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val id           = `@id`.getOption(payload).value
-        val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-        deltaClient.delete[Json](s"/resources/$project1/resource/patchedcell:$unprefixedId/tags/one?rev=2", ScoobyDoo) {
-          expectOk
-        }
+        val unprefixedId = patchedCellId(payload)
+        val endpoint     = s"/resources/$project1/resource/patchedcell:$unprefixedId/tags/one?rev=2"
+        deltaClient.delete[Json](endpoint, ScoobyDoo) { expectOk }
       }
     }
 
     "search instances in SPARQL endpoint in project 1 with custom SparqlView after tags are deleted" in eventually {
-      deltaClient.sparqlQuery[Json](s"/views/$project1/test-resource:cell-view/sparql", query, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          json shouldEqual jsonContentOf("kg/views/sparql-search-response-empty.json")
+      val endpoint = s"/views/$project1/test-resource:cell-view/sparql"
+      deltaClient.sparqlQuery[Json](endpoint, query, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        json shouldEqual jsonContentOf("kg/views/sparql-search-response-empty.json")
       }
     }
 
     "remove @type on a resource" in {
-      val payload      = filterKey("@type")(jsonContentOf("kg/views/instances/instance1.json"))
-      val id           = `@id`.getOption(payload).value
-      val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-
-      deltaClient.put[Json](
-        s"/resources/$project1/_/patchedcell:$unprefixedId?rev=3",
-        filterKey("@id")(payload),
-        ScoobyDoo
-      ) { expectOk }
+      val payload          = filterKey("@type")(jsonContentOf("kg/views/instances/instance1.json"))
+      val payloadWithoutId = filterKey("@id")(payload)
+      val unprefixedId     = patchedCellId(payload)
+      val endpoint         = s"/resources/$project1/_/patchedcell:$unprefixedId?rev=3"
+      deltaClient.put[Json](endpoint, payloadWithoutId, ScoobyDoo) { expectOk }
     }
 
     "deprecate a resource" in {
-      val payload      = filterKey("@type")(jsonContentOf("kg/views/instances/instance2.json"))
-      val id           = payload.asObject.value("@id").value.asString.value
-      val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
+      val payload      = jsonContentOf("kg/views/instances/instance2.json")
+      val unprefixedId = patchedCellId(payload)
       deltaClient.delete[Json](s"/resources/$project1/_/patchedcell:$unprefixedId?rev=3", ScoobyDoo) { expectOk }
     }
 
@@ -316,9 +296,10 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
 
     "reindex a resource after view undeprecation" in {
       givenADeprecatedView { view =>
-        postResource { resource =>
-          undeprecate(view) >> eventually { assertMatchId(view, resource) }
-        }
+        val resource = genId()
+        postResource(resource, indexing = "sync") >>
+          undeprecate(view) >>
+          assertResourceIndexed(view, resource)
       }
     }
 
@@ -338,21 +319,46 @@ class SparqlViewsSpec extends BaseIntegrationSpec {
 
     def undeprecate(view: String, rev: Int = 2): IO[Assertion] =
       deltaClient.putEmptyBody[Json](s"/views/$project1/$view/undeprecate?rev=$rev", ScoobyDoo) { expectOk }
+  }
 
-    def postResource(test: String => IO[Assertion]): IO[Assertion] = {
-      val id = genId()
-      deltaClient.post[Json](s"/resources/$project1/_?indexing=sync", json"""{"@id": "$idBase$id"}""", ScoobyDoo) {
-        expectCreated
-      } >> test(id)
+  "Resuming view indexing after passivation" should {
+
+    "index a new resource in a custom and the default Sparql view once they have passivated and been evicted" in {
+      val viewId      = genId()
+      val resourceId  = genId()
+      val viewPayload = jsonContentOf("kg/views/sparql-view-index-all.json", "withTag" -> false)
+      for {
+        _   <- deltaClient.put[Json](s"/views/$project1/$viewId", viewPayload, ScoobyDoo)(expectCreated)
+        _   <- waitUntilProjectionRunning(viewId)
+        _   <- waitUntilProjectionRunning("defaultSparqlIndex")
+        _   <- waitUntilProjectionEvicted(viewId)
+        _   <- waitUntilProjectionEvicted("defaultSparqlIndex")
+        // A single new resource bumps the project's activity, which must resume both projections so they index again.
+        _   <- postResource(resourceId)
+        _   <- assertResourceIndexed(viewId, resourceId)
+        res <- assertResourceIndexed("nxv:defaultSparqlIndex", resourceId)
+      } yield res
     }
 
-    def assertMatchId(view: String, id: String): IO[Assertion] = {
-      val query =
-        s"""
-           |SELECT (COUNT(*) as ?count)
-           |WHERE { <$idBase$id> ?p ?o }
-      """.stripMargin
+    // Projection names are `blazegraph-$project-$viewIri-$rev`, so matching on project1 + the fragment pins the check to
+    // this project's view (and excludes the never-passivating default composite view).
+    def waitUntilProjectionRunning(fragment: String): IO[Assertion] =
+      eventually(adminDsl.assertProjectionRunning(project1, fragment))
 
+    def waitUntilProjectionEvicted(fragment: String): IO[Assertion] =
+      eventually(adminDsl.assertProjectionEvicted(project1, fragment))
+  }
+
+  /** Creates a minimal resource in project1 with the given id, using the given indexing mode (async by default). */
+  private def postResource(id: String, indexing: String = "async"): IO[Assertion] =
+    deltaClient.post[Json](s"/resources/$project1/_?indexing=$indexing", json"""{"@id": "$idBase$id"}""", ScoobyDoo)(
+      expectCreated
+    )
+
+  /** Polls the given view's Sparql endpoint until the resource with the given id has been indexed. */
+  private def assertResourceIndexed(view: String, id: String): IO[Assertion] = {
+    val query = s"""SELECT (COUNT(*) as ?count) WHERE { <$idBase$id> ?p ?o }""".stripMargin
+    eventually {
       deltaClient.sparqlQuery[Json](s"/views/$project1/$view/sparql", query, ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         sparql.countResult(json).value should be > 0

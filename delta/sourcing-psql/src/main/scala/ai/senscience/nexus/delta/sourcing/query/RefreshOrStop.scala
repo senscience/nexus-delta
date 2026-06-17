@@ -56,7 +56,7 @@ object RefreshOrStop {
                   IO.sleep(w.delay).as(DelayedPassivation)
               case false =>
                 logger
-                  .info(s"Project '$project' is inactive, stopping projection until activity resumes.")
+                  .debug(s"Project '$project' is inactive, stopping projection until activity resumes.")
                   .as(Passivated)
             }
           case (c, s)                                         =>

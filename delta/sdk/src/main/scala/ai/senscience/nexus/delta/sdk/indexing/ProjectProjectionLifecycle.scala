@@ -4,7 +4,9 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.CompiledProjection
 import cats.effect.IO
 
-trait ProjectProjectionFactory {
+trait ProjectProjectionLifecycle {
+
+  def module: String
 
   def bootstrap: IO[Unit]
 
@@ -13,4 +15,5 @@ trait ProjectProjectionFactory {
   def onInit(project: ProjectRef): IO[Unit]
 
   def compile(project: ProjectRef): IO[CompiledProjection]
+
 }

@@ -22,7 +22,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionFactory, SyncIndexingAction}
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionLifecycle, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
@@ -198,7 +198,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainDocumentStream(elemStreaming, mainDocumentEncoder)
   }
 
-  many[ProjectProjectionFactory].addSet {
+  many[ProjectProjectionLifecycle].addSet {
     (
         mainDocumentStream: MainDocumentStream,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
@@ -206,7 +206,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         config: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      MainIndexingProjectionFactory(
+      MainIndexingProjectionLifecycle(
         mainDocumentStream,
         client,
         mainIndex,
@@ -222,7 +222,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ConfiguredIndexingConfig.load(config)
   }
 
-  many[ProjectProjectionFactory].addSet {
+  many[ProjectProjectionLifecycle].addSet {
     (
         annotatedSourceStream: AnnotatedSourceStream,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
@@ -231,7 +231,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      ConfiguredIndexingProjectionFactory(
+      ConfiguredIndexingProjectionLifecycle(
         annotatedSourceStream,
         client,
         configuredConfig,

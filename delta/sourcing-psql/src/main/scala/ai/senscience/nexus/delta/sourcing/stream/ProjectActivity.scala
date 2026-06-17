@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
+import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.search.TimeRange
+import ai.senscience.nexus.delta.kernel.utils.CollectionUtils.quote
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStream
@@ -38,16 +40,16 @@ trait ProjectActivity {
 
 object ProjectActivity {
 
+  private val logger = Logger[ProjectActivity]
+
   val noop: ProjectActivity = new ProjectActivity {
     override def isActive(project: ProjectRef): IO[Boolean] = IO.pure(false)
     override def activations: Stream[IO, ProjectRef]        = Stream.empty
     override def activeProjects: IO[List[ProjectRef]]       = IO.pure(List.empty)
   }
 
-  private def refreshStream(signals: ProjectActivityMap, activations: ProjectionActivations) =
-    Stream.awakeEvery[IO](1.second).evalTap { _ =>
-      signals.refresh.flatMap(publish(activations, _))
-    }
+  private def refreshStream(projectActivityMap: ProjectActivityMap) =
+    Stream.awakeEvery[IO](1.second).evalTap { _ => projectActivityMap.refresh }
 
   private[stream] def activityPipe(
       activityMap: ProjectActivityMap,
@@ -55,15 +57,18 @@ object ProjectActivity {
   ): Pipe[IO, ProjectLastUpdate, ProjectLastUpdate] =
     _.groupWithin(100, 100.millis)
       .evalTap { chunk =>
-        activityMap
-          .newValues(chunk.map { plu => plu.project -> plu.lastInstant }.asSeq)
-          .flatMap(publish(activations, _))
+        IO.whenA(chunk.nonEmpty)(logger.info(s"New activity for: ${quote(chunk.map(_.project))}")) >>
+          activityMap.activeProjects.flatTap { projects => logger.info(s"Active projects: ${quote(projects)}") } >>
+          activityMap
+            .newValues(chunk.map { plu => plu.project -> plu.lastInstant }.asSeq)
+            .flatMap(publish(activations, _))
       }
       .unchunks
-      .concurrently(refreshStream(activityMap, activations))
+      .concurrently(refreshStream(activityMap))
 
   private def publish(activations: ProjectionActivations, projects: Set[ProjectRef]): IO[Unit] =
-    projects.toList.traverse_(project => activations.publish(ProjectionActivation.ForProject(project)))
+    IO.whenA(projects.nonEmpty)(logger.info(s"New active projects: ${quote(projects)}")) >>
+      projects.toList.traverse(project => activations.publish(ProjectionActivation.ForProject(project))).void
 
   /**
     * Populates the activity map with the projects that are currently active (updated within the inactivity window),
@@ -78,11 +83,10 @@ object ProjectActivity {
   ): IO[Unit] =
     clock.realTimeInstant.flatMap { now =>
       val threshold = now.minusSeconds(inactiveInterval.toSeconds)
-      stream
-        .projects(TimeRange.After(threshold))
-        .compile
-        .toList
-        .flatMap { projects => activityMap.newValues(projects.map(_ -> now)).void }
+      stream.apply(TimeRange.After(threshold)).compile.toList.flatMap { lastActiveProjects =>
+        logger.info(s"${lastActiveProjects.size} projects are active at startup.") >>
+          activityMap.newValues(lastActiveProjects.map { plu => plu.project -> plu.lastInstant }).void
+      }
     }
 
   private val projectionMetadata: ProjectionMetadata =
@@ -114,7 +118,7 @@ object ProjectActivity {
     new ProjectActivity {
       override def isActive(project: ProjectRef): IO[Boolean] = activityMap.isActive(project)
       override def activations: Stream[IO, ProjectRef]        =
-        projectionActivations.events.collect { case ProjectionActivation.ForProject(project) => project }
+        projectionActivations.events.debug().collect { case ProjectionActivation.ForProject(project) => project }
       override def activeProjects: IO[List[ProjectRef]]       = activityMap.activeProjects
     }
 }

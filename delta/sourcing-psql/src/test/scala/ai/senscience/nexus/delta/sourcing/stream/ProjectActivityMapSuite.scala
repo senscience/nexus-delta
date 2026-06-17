@@ -109,8 +109,7 @@ class ProjectActivityMapSuite extends NexusSuite with MutableClock.Fixture {
       _        <- IO(assertEquals(second, Set(project)))
       // Advance the clock so the existing fresh instant becomes inactive; refresh flips to inactive (no transition)
       _        <- mutableClock.set(now.plusSeconds(10L))
-      third    <- activity.refresh
-      _        <- IO(assertEquals(third, Set.empty[ProjectRef]))
+      _        <- activity.refresh
       // Bump back to fresh — transition again
       fourth   <- activity.newValues(List(project -> now.plusSeconds(10L)))
       _        <- IO(assertEquals(fourth, Set(project)))

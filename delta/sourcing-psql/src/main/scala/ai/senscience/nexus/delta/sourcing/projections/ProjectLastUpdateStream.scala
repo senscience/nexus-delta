@@ -3,7 +3,6 @@ package ai.senscience.nexus.delta.sourcing.projections
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
@@ -22,7 +21,7 @@ trait ProjectLastUpdateStream {
   /**
     * Stream projects filtered by their last update time
     */
-  def projects(timeRange: TimeRange): Stream[IO, ProjectRef]
+  def apply(timeRange: TimeRange): Stream[IO, ProjectLastUpdate]
 
 }
 
@@ -44,17 +43,16 @@ object ProjectLastUpdateStream {
           xas
         )
 
-      override def projects(timeRange: TimeRange): Stream[IO, ProjectRef] = {
+      override def apply(timeRange: TimeRange): Stream[IO, ProjectLastUpdate] = {
         val condition = timeRange match {
           case TimeRange.After(value)        => fr"WHERE last_instant > $value"
           case TimeRange.Before(value)       => fr"WHERE last_instant < $value"
           case TimeRange.Between(start, end) => fr"WHERE last_instant > $start AND last_instant < $end"
           case TimeRange.Anytime             => fr""
         }
-        (sql"SELECT org, project FROM project_last_updates " ++ condition ++ fr" ORDER BY org, project")
-          .query[(Label, Label)]
+        (sql"SELECT * FROM project_last_updates " ++ condition ++ fr" ORDER BY org, project")
+          .query[ProjectLastUpdate]
           .stream
-          .map { case (org, project) => ProjectRef(org, project) }
           .transact(xas.read)
       }
     }

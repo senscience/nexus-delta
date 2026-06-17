@@ -37,7 +37,10 @@ object ExportModule extends NexusModuleDef {
         baseUri: BaseUri,
         cr: RemoteContextResolution @Id("aggregate")
     ) =>
-      ResourcesExporter(resources, projectLastUpdateStream.projects, clock, config.nquads)(using baseUri, cr)
+      ResourcesExporter(resources, projectLastUpdateStream.apply(_).map(_.project), clock, config.nquads)(using
+        baseUri,
+        cr
+      )
   }
 
   make[ExportRoutes].from {

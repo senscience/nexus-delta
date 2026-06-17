@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.tests.HttpClient
-import ai.senscience.nexus.tests.Identity.Authenticated
+import ai.senscience.nexus.tests.Identity.{Authenticated, ServiceAccount}
 import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.config.TestsConfig
 import cats.effect.IO
@@ -205,5 +205,29 @@ class AdminDsl(cl: HttpClient, config: TestsConfig)
         }
     } yield result
   }
+
+  /**
+    * Asserts that a projection of `project` whose name references `fragment` is currently supervised (running). The
+    * supervision endpoint lists projections across all projects, so the match is scoped to both `project` and
+    * `fragment`. Wrap in `eventually` to wait for a projection to start.
+    */
+  def assertProjectionRunning(project: String, fragment: String): IO[Assertion] =
+    assertProjectionSupervised(project, fragment, running = true)
+
+  /**
+    * Asserts that no projection of `project` whose name references `fragment` is supervised, i.e. it has been evicted
+    * (e.g. after passivation). Wrap in `eventually` to wait for the eviction.
+    */
+  def assertProjectionEvicted(project: String, fragment: String): IO[Assertion] =
+    assertProjectionSupervised(project, fragment, running = false)
+
+  private def assertProjectionSupervised(project: String, fragment: String, running: Boolean): IO[Assertion] =
+    cl.get[Json]("/supervision/projections", ServiceAccount) { (json, response) =>
+      response.status shouldEqual StatusCodes.OK
+      val isRunning = supervision.allNames.string
+        .getAll(json)
+        .exists(name => name.contains(project) && name.contains(fragment))
+      isRunning shouldEqual running
+    }
 
 }

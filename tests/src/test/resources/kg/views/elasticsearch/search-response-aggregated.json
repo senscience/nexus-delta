@@ -9,7 +9,6 @@
     "hits": [
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/8b00acf8-e849-431b-8abc-a69e46b9c824",
-        "_index": "{{index1}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/8b00acf8-e849-431b-8abc-a69e46b9c824",
           "@type": "Cell",
@@ -28,7 +27,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/010b8ecb-21ac-4987-8faa-91f1274e656d",
-        "_index": "{{index2}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/010b8ecb-21ac-4987-8faa-91f1274e656d",
           "@type": "Cell",
@@ -47,7 +45,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/04e5f081-26fb-49ea-9d38-da7ef49d9e9f",
-        "_index": "{{index3}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/04e5f081-26fb-49ea-9d38-da7ef49d9e9f",
           "@type": "Cell",
@@ -66,7 +63,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/08825325-0a84-4924-839b-baabcd9bdbb8",
-        "_index": "{{index4}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/08825325-0a84-4924-839b-baabcd9bdbb8",
           "@type": "Cell",
@@ -85,7 +81,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/048bf2a9-c3e4-4401-bb1e-61f5fcacb85b",
-        "_index": "{{index5}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/048bf2a9-c3e4-4401-bb1e-61f5fcacb85b",
           "@type": "Cell",
@@ -104,7 +99,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/03e9025f-35ab-42ca-ac4a-5da2701b93f3",
-        "_index": "{{index6}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/03e9025f-35ab-42ca-ac4a-5da2701b93f3",
           "@type": "Cell",
@@ -123,7 +117,6 @@
       },
       {
         "_id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/e8174786-2f26-4559-b2fd-569aa9f1834d",
-        "_index": "{{index7}}",
         "_source": {
           "@id": "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/e8174786-2f26-4559-b2fd-569aa9f1834d",
           "@type": "Cell",

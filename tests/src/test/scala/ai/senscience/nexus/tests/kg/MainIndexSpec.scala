@@ -4,14 +4,16 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.listing._results
-import ai.senscience.nexus.tests.Optics.{_total, hitProjects}
+import ai.senscience.nexus.tests.Optics.{_total, hitProjects, totalHits}
 import ai.senscience.nexus.tests.StatisticsAssertions.expectStats
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import ai.senscience.nexus.tests.resources.SimpleResource
+import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.scalatest.Assertion
 
 class MainIndexSpec extends BaseIntegrationSpec {
 
@@ -111,4 +113,36 @@ class MainIndexSpec extends BaseIntegrationSpec {
       }
     }
   }
+
+  "Resuming main indexing after passivation" should {
+
+    "index a new resource once the project's main indexing has passivated and been evicted" in {
+      val newId = genId()
+      for {
+        payload <- SimpleResource.sourcePayload(5)
+        // Wait until the main-indexing projection has been idle long enough to passivate and be evicted (it no longer
+        // appears in the supervision endpoint). We match on the project plus the `main-indexing` fragment rather than
+        // the project alone, because its default composite view never passivates and so always keeps it listed.
+        _       <- waitUntilProjectionEvicted(ref11, "main-indexing")
+        // Creating a new resource must resume the projection so it indexes again.
+        _       <- deltaClient.put[Json](s"/resources/$ref11/_/$newId", payload, Bob)(expectCreated)
+        // The project started with 2 indexed resources; the resumed projection should bring the count to 3.
+        result  <- assertMainIndexHits(ref11, 3)
+      } yield result
+    }
+  }
+
+  /** Polls the supervision endpoint until `project`'s projection referenced by `fragment` has been evicted. */
+  private def waitUntilProjectionEvicted(project: String, fragment: String): IO[Assertion] =
+    eventually(adminDsl.assertProjectionEvicted(project, fragment))
+
+  /** Polls the main index of the given project until a match-all search returns exactly `expected` hits. */
+  private def assertMainIndexHits(ref: String, expected: Int): IO[Assertion] =
+    eventually {
+      deltaClient.post[Json](s"/views/$ref/$defaultViewsId/_search", json"""{"query": { "match_all": {} } }""", Bob) {
+        (json, response) =>
+          response.status shouldEqual StatusCodes.OK
+          totalHits.getOption(json).value shouldEqual expected
+      }
+    }
 }
