@@ -115,6 +115,11 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
   private def assertCoordinatorProgress(expected: ProjectionProgress)(using Location) =
     sv.describe(ProjectDefCoordinator.metadata.name).map(_.map(_.progress)).assertEquals(Some(expected)).eventually
 
+  // A resumable projection must be absent from supervision before an activation can (re)start it: `supervisor.run` is
+  // idempotent, so publishing while it is still running would be a no-op and would not re-run `onInit`.
+  private def assertEvicted(project: ProjectRef)(using Location) =
+    sv.describe(projectionName(project)).assertEquals(None).eventually
+
   test("Start the coordinator") {
     ProjectDefCoordinator(sv, _ => projectStream, resumer, Set(projectProjectionFactory)) >>
       assertCoordinatorProgress(ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 0))
@@ -145,6 +150,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   test(s"Publishing a project activation resumes the evicted '$project1' projection") {
     for {
+      _      <- assertEvicted(project1)
       before <- initInvocations.count(project1)
       _      <- activations.publish(ProjectionActivation.ForProject(project1))
       _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
@@ -155,6 +161,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
     val metadata =
       ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
     for {
+      _      <- assertEvicted(project1)
       before <- initInvocations.count(project1)
       _      <- activations.publish(ProjectionActivation.ForProjection(metadata))
       _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
@@ -166,6 +173,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
     val sameModule  =
       ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
     for {
+      _      <- assertEvicted(project1)
       before <- initInvocations.count(project1)
       // The other-module activation must be ignored. Publishing it before a matching one means that, once the matching
       // resume is observed, the ignored one has already been processed (single ordered consumer), so the count rose by
