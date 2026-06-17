@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
 import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
-import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, ProjectionTerminalStore, Projections}
 import ai.senscience.nexus.delta.sourcing.query.{EntityTypeFilter, RefreshStrategy}
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig.ClusterConfig
 import ai.senscience.nexus.delta.sourcing.stream.config.{BatchConfig, ProjectionConfig}
@@ -15,7 +15,13 @@ import munit.catseffect.IOFixture
 
 import scala.concurrent.duration.*
 
-final case class SupervisorSetup(supervisor: Supervisor, projections: Projections, projectionErrors: ProjectionErrors)
+final case class SupervisorSetup(
+    supervisor: Supervisor,
+    projections: Projections,
+    projectionErrors: ProjectionErrors,
+    terminalLog: ProjectionTerminalStore,
+    activations: ProjectionActivations
+)
 
 object SupervisorSetup {
 
@@ -42,8 +48,12 @@ object SupervisorSetup {
     Doobie.resourceDefault.flatMap { xas =>
       val projections      = Projections(xas, EntityTypeFilter.All, config.query, clock)
       val projectionErrors = ProjectionErrors(xas, config.query, clock)
-      Supervisor(projections, projectionErrors, config, ProjectionMetrics.Disabled)
-        .map(s => SupervisorSetup(s, projections, projectionErrors))
+      val terminalLog      = ProjectionTerminalStore(xas, config.query)
+      for {
+        activations <- Resource.eval(ProjectionActivations())
+        supervisor  <- Supervisor(projections, projectionErrors, terminalLog, config, ProjectionMetrics.Disabled, clock)
+        _           <- Resource.eval(WatchRestarts(supervisor, projections, activations))
+      } yield SupervisorSetup(supervisor, projections, projectionErrors, terminalLog, activations)
     }
 
   trait Fixture { self: NexusSuite & FixedClock =>

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClient
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
-import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, SparqlCoordinator, SparqlProjectionLifeCycle, SparqlRestartScheduler}
+import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{CurrentActiveViews, SparqlCoordinator, SparqlProjectionLifeCycle, SparqlProjectionResumer, SparqlRestartScheduler, SparqlRunningStore}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.{contexts, BlazegraphViewEvent}
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
@@ -32,7 +32,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectActivity, ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -103,12 +103,17 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
     CurrentActiveViews(views)
   }
 
+  make[SparqlRunningStore].from { (xas: Transactors) =>
+    SparqlRunningStore(xas)
+  }
+
   make[SparqlProjectionLifeCycle].from {
     (
         graphStream: GraphResourceStream,
         pipeChainCompiler: PipeChainCompiler,
         client: SparqlClient @Id("sparql-indexing-client"),
         config: BlazegraphViewsConfig,
+        store: SparqlRunningStore,
         baseUri: BaseUri,
         tracer: Tracer[IO] @Id("sparql-indexing")
     ) =>
@@ -117,8 +122,15 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         pipeChainCompiler,
         client,
         config.retryStrategy,
-        config.batch
+        config.batch,
+        config.prefix,
+        store
       )(using baseUri, tracer)
+  }
+
+  make[SparqlProjectionResumer].from {
+    (currentActiveViews: CurrentActiveViews, projectActivity: ProjectActivity, activations: ProjectionActivations) =>
+      SparqlProjectionResumer(currentActiveViews, projectActivity, activations)
   }
 
   make[SparqlCoordinator].fromEffect {
@@ -126,12 +138,14 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         views: BlazegraphViews,
         projectionLifeCycle: SparqlProjectionLifeCycle,
         supervisor: Supervisor,
+        resumer: SparqlProjectionResumer,
         config: BlazegraphViewsConfig
     ) =>
       SparqlCoordinator(
         views,
         projectionLifeCycle,
         supervisor,
+        resumer,
         config.indexingEnabled
       )
   }

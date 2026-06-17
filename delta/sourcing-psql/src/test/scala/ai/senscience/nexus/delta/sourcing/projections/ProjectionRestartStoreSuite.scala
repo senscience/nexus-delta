@@ -6,6 +6,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart
 import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import munit.AnyFixture
 
@@ -19,8 +20,9 @@ class ProjectionRestartStoreSuite extends NexusSuite with Doobie.Fixture with Do
 
   private lazy val store = new ProjectionRestartStore(xas, QueryConfig(10, RefreshStrategy.Stop))
 
-  private val pr1 = ProjectionRestart("proj1", Offset.start, Instant.EPOCH, Anonymous)
-  private val pr2 = ProjectionRestart("proj2", Offset.start, Instant.EPOCH.plusSeconds(5L), Anonymous)
+  private val pr1 = ProjectionRestart(ProjectionMetadata("test", "proj1"), Offset.start, Instant.EPOCH, Anonymous)
+  private val pr2 =
+    ProjectionRestart(ProjectionMetadata("test", "proj2"), Offset.start, Instant.EPOCH.plusSeconds(5L), Anonymous)
 
   test("Save a projection restart") {
     store.save(pr1).assert

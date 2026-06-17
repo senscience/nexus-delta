@@ -5,18 +5,20 @@ import ai.senscience.nexus.delta.plugins.graph.analytics.GraphAnalytics.{index, 
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.*
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
+import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionLifecycle
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Source}
 import cats.effect.IO
 import org.typelevel.otel4s.trace.Tracer
 
-object GraphAnalyticsIndexFactory {
+object GraphAnalyticsProjectionLifecycle {
 
   final val id = nxv + "graph-analytics"
 
+  val graphAnalyticsModule: String = "ga"
+
   private def analyticsMetadata(project: ProjectRef) = ProjectionMetadata(
-    "ga",
+    graphAnalyticsModule,
     projectionName(project),
     Some(project),
     Some(id)
@@ -26,9 +28,12 @@ object GraphAnalyticsIndexFactory {
       analyticsStream: GraphAnalyticsStream,
       client: ElasticSearchClient,
       config: GraphAnalyticsConfig
-  )(using Tracer[IO]): Option[ProjectProjectionFactory] =
+  )(using Tracer[IO]): Option[ProjectProjectionLifecycle] =
     Option.when(config.indexingEnabled) {
-      new ProjectProjectionFactory {
+      new ProjectProjectionLifecycle {
+
+        override def module: String = graphAnalyticsModule
+
         override def bootstrap: IO[Unit] = scriptContent.flatMap { script =>
           client.createScript(updateRelationshipsScriptId, script)
         }

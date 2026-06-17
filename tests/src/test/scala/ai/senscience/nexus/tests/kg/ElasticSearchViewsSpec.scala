@@ -8,7 +8,6 @@ import ai.senscience.nexus.tests.Optics.*
 import ai.senscience.nexus.tests.StatisticsAssertions.{expectEmptyStats, expectStats}
 import ai.senscience.nexus.tests.iam.types.Permission.{Organizations, Views}
 import cats.effect.IO
-import cats.effect.unsafe.implicits.*
 import cats.implicits.*
 import io.circe.{ACursor, Json}
 import org.apache.pekko.http.scaladsl.model.StatusCodes
@@ -25,6 +24,21 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
 
   private val projects = List(project1, project2)
 
+  /** Base IRI shared by the patched-cell instance fixtures. */
+  private val patchedCellBase = "https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/"
+
+  /** The `@id` declared in a resource payload. */
+  private def resourceId(payload: Json): String = `@id`.getOption(payload).value
+
+  /** The local part of a patched-cell resource `@id`, used to build `patchedcell:<suffix>` paths. */
+  private def patchedCellId(payload: Json): String = resourceId(payload).stripPrefix(patchedCellBase)
+
+  /**
+    * Strips the non-deterministic parts from an Elasticsearch `_search` response so it can be compared to a fixture:
+    * the `took` timing and each hit's `_index` (whose name embeds a uuid and revision).
+    */
+  private val filterSearchMetadata: Json => Json = filterNestedKeys("took", "_index")
+
   override def beforeAll(): Unit = {
     super.beforeAll()
     val setup = for {
@@ -36,68 +50,51 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     } yield succeed
 
     setup.accepted
-    eventually {
-      deltaClient.get[Json](s"/resolvers/$project1", ScoobyDoo) { (json, response) =>
-        response.status shouldEqual StatusCodes.OK
-        _total.getOption(json).value shouldEqual 1L
-      }
-    }
     ()
   }
 
   "creating the view" should {
     "create a context" in {
+      val payload = jsonContentOf("kg/views/context.json")
       projects.parTraverse { project =>
-        deltaClient.put[Json](
-          s"/resources/$project/resource/test-resource:context",
-          jsonContentOf("kg/views/context.json"),
-          ScoobyDoo
-        ) { expectCreated }
+        val endpoint = s"/resources/$project/resource/test-resource:context"
+        deltaClient.put[Json](endpoint, payload, ScoobyDoo) { expectCreated }
       }
     }
 
     "create elasticsearch views with legacy fields and its pipeline equivalent" in {
       List(project1 -> "kg/views/elasticsearch/legacy-fields.json", project2 -> "kg/views/elasticsearch/pipeline.json")
         .parTraverse { case (project, file) =>
-          deltaClient
-            .put[Json](s"/views/$project/test-resource:cell-view", jsonContentOf(file, "withTag" -> false), ScoobyDoo) {
-              expectCreated
-            }
+          val endpoint = s"/views/$project/test-resource:cell-view"
+          val payload  = jsonContentOf(file, "withTag" -> false)
+          deltaClient.put[Json](endpoint, payload, ScoobyDoo) { expectCreated }
         }
     }
 
     "create elasticsearch views filtering on tag with legacy fields and its pipeline equivalent" in {
       List(project1 -> "kg/views/elasticsearch/legacy-fields.json", project2 -> "kg/views/elasticsearch/pipeline.json")
         .parTraverse { case (project, file) =>
-          deltaClient.put[Json](
-            s"/views/$project/test-resource:cell-view-tagged",
-            jsonContentOf(file, "withTag" -> true),
-            ScoobyDoo
-          ) { expectCreated }
+          val endpoint = s"/views/$project/test-resource:cell-view-tagged"
+          val payload  = jsonContentOf(file, "withTag" -> true)
+          deltaClient.put[Json](endpoint, payload, ScoobyDoo) { expectCreated }
         }
     }
 
     "fail to create a view with an invalid mapping" in {
-      val invalidMapping            =
-        json"""{"mapping": "fail"}"""
-      val payloadWithInvalidMapping = json"""{ "@type": "ElasticSearchView", "mapping": $invalidMapping }"""
-      deltaClient.put[Json](s"/views/$project1/invalid", payloadWithInvalidMapping, ScoobyDoo) { expectBadRequest }
+      val invalidMapping = json"""{"mapping": "fail"}"""
+      val invalidPayload = json"""{ "@type": "ElasticSearchView", "mapping": $invalidMapping }"""
+      deltaClient.put[Json](s"/views/$project1/invalid", invalidPayload, ScoobyDoo) { expectBadRequest }
     }
 
     "fail to create a view with invalid settings" in {
-      val invalidSettings            =
-        json"""{"analysis": "fail"}"""
-      val payloadWithInvalidSettings =
-        json"""{ "@type": "ElasticSearchView", "mapping": { }, "settings": $invalidSettings }"""
-      deltaClient.put[Json](s"/views/$project1/invalid", payloadWithInvalidSettings, ScoobyDoo) { expectBadRequest }
+      val invalidSettings = json"""{"analysis": "fail"}"""
+      val invalidPayload  = json"""{ "@type": "ElasticSearchView", "mapping": { }, "settings": $invalidSettings }"""
+      deltaClient.put[Json](s"/views/$project1/invalid", invalidPayload, ScoobyDoo) { expectBadRequest }
     }
 
     "create people view in project 2" in {
-      deltaClient.put[Json](
-        s"/views/$project2/test-resource:people",
-        jsonContentOf("kg/views/elasticsearch/people-view.json"),
-        ScoobyDoo
-      ) { expectCreated }
+      val payload = jsonContentOf("kg/views/elasticsearch/people-view.json")
+      deltaClient.put[Json](s"/views/$project2/test-resource:people", payload, ScoobyDoo) { expectCreated }
     }
 
     "get the created elasticsearch views" in {
@@ -114,7 +111,6 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
               "project" -> project
             )*
           )
-
           filterMetadataKeys(json) should equalIgnoreArrayOrder(expected)
         }
       }
@@ -153,26 +149,17 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     "post instances" in {
       (1 to 8).toList.parTraverse { i =>
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val id           = `@id`.getOption(payload).value
-        val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
+        val unprefixedId = patchedCellId(payload)
         val projectId    = if i > 5 then project2 else project1
         val indexingMode = if i % 2 == 0 then "sync" else "async"
-
-        deltaClient.put[Json](
-          s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode",
-          payload,
-          ScoobyDoo
-        ) { expectCreated }
+        val endpoint     = s"/resources/$projectId/resource/patchedcell:$unprefixedId?indexing=$indexingMode"
+        deltaClient.put[Json](endpoint, payload, ScoobyDoo) { expectCreated }
       }
     }
 
     "post instance without id" in {
       val payload = jsonContentOf("kg/views/instances/instance9.json")
-      deltaClient.post[Json](
-        s"/resources/$project2/resource?indexing=sync",
-        payload,
-        ScoobyDoo
-      ) { expectCreated }
+      deltaClient.post[Json](s"/resources/$project2/resource?indexing=sync", payload, ScoobyDoo) { expectCreated }
     }
 
     "wait until all instances are indexed in default view of project 2" in eventually {
@@ -186,11 +173,11 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
       val expected = json"""{"status": "Completed"}"""
       (1 to 5).toList.parTraverse { i =>
         val payload   = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val encodedId = UrlUtils.encodeUriPath(`@id`.getOption(payload).value)
-        deltaClient.get[Json](s"/views/$project1/test-resource:cell-view/status/$encodedId", ScoobyDoo) {
-          (json, response) =>
-            response.status shouldEqual StatusCodes.OK
-            json shouldEqual expected
+        val encodedId = UrlUtils.encodeUriPath(resourceId(payload))
+        val endpoint  = s"/views/$project1/test-resource:cell-view/status/$encodedId"
+        deltaClient.get[Json](endpoint, ScoobyDoo) { (json, response) =>
+          response.status shouldEqual StatusCodes.OK
+          json shouldEqual expected
         }
       }
     }
@@ -199,9 +186,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
 
     "return 400 with bad query instances on main and custom views" in {
       List("test-resource:cell-view", "documents").traverse { view =>
-        deltaClient.post[Json](s"/views/$project1/$view/_search", invalidElasticQuery, ScoobyDoo) {
-          expectBadRequest
-        }
+        deltaClient.post[Json](s"/views/$project1/$view/_search", invalidElasticQuery, ScoobyDoo) { expectBadRequest }
       }
     }
 
@@ -210,84 +195,72 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     val matchAll         = json"""{ "query": { "match_all": {} } }""".deepMerge(sort)
 
     "search instances on project 1 in cell-view" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view/_search", sortedMatchCells, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val index = hits(0)._index.string.getOption(json).value
-          filterKey("took")(json) shouldEqual
-            jsonContentOf("kg/views/elasticsearch/search-response.json", "index" -> index)
-
-          deltaClient
-            .post[Json](s"/views/$project1/test-resource:cell-view/_search", matchAll, ScoobyDoo) { (json2, _) =>
-              filterKey("took")(json2) shouldEqual filterKey("took")(json)
-            }
-            .unsafeRunSync()
-      }
+      val endpoint = s"/views/$project1/test-resource:cell-view/_search"
+      for {
+        sorted <- deltaClient.postAndReturn[Json](endpoint, sortedMatchCells, ScoobyDoo) { (json, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                    filterSearchMetadata(json) shouldEqual jsonContentOf("kg/views/elasticsearch/search-response.json")
+                  }
+        all    <- deltaClient.postAndReturn[Json](endpoint, matchAll, ScoobyDoo) { (_, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                  }
+      } yield filterSearchMetadata(all) shouldEqual filterSearchMetadata(sorted)
     }
 
     "get no instance in cell-view-tagged in project1 as nothing is tagged yet" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view-tagged/_search", matchAll, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          totalHits.getOption(json).value shouldEqual 0
+      val endpoint = s"/views/$project1/test-resource:cell-view-tagged/_search"
+      deltaClient.post[Json](endpoint, matchAll, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        totalHits.getOption(json).value shouldEqual 0
       }
     }
 
     "search cell instances on project 2" in eventually {
-      deltaClient.post[Json](s"/views/$project2/test-resource:cell-view/_search", sortedMatchCells, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val index = hits(0)._index.string.getOption(json).value
-          filterKey("took")(json) shouldEqual
-            jsonContentOf("kg/views/elasticsearch/search-response-2.json", "index" -> index)
-
-          deltaClient
-            .post[Json](s"/views/$project2/test-resource:cell-view/_search", matchAll, ScoobyDoo) { (json2, _) =>
-              filterKey("took")(json2) shouldEqual filterKey("took")(json)
-            }
-            .unsafeRunSync()
-      }
+      val endpoint = s"/views/$project2/test-resource:cell-view/_search"
+      for {
+        sorted <- deltaClient.postAndReturn[Json](endpoint, sortedMatchCells, ScoobyDoo) { (json, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                    filterSearchMetadata(json) shouldEqual jsonContentOf(
+                      "kg/views/elasticsearch/search-response-2.json"
+                    )
+                  }
+        all    <- deltaClient.postAndReturn[Json](endpoint, matchAll, ScoobyDoo) { (_, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                  }
+      } yield filterSearchMetadata(all) shouldEqual filterSearchMetadata(sorted)
     }
 
     "the person resource created with no id in payload should have the default id in _source" in eventually {
-      deltaClient.post[Json](s"/views/$project2/test-resource:people/_search", matchAll, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val id       = hits(0)._id.string.getOption(json)
-          val sourceId = hits(0)._source.`@id`.string.getOption(json)
-          sourceId shouldEqual id
+      val endpoint = s"/views/$project2/test-resource:people/_search"
+      deltaClient.post[Json](endpoint, matchAll, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        val id       = hits(0)._id.string.getOption(json)
+        val sourceId = hits(0)._source.`@id`.string.getOption(json)
+        sourceId shouldEqual id
       }
     }
 
     "get no instance is indexed in cell-view-tagged in project2 as nothing is tagged yet" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view-tagged/_search", matchAll, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          totalHits.getOption(json).value shouldEqual 0
+      val endpoint = s"/views/$project1/test-resource:cell-view-tagged/_search"
+      deltaClient.post[Json](endpoint, matchAll, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        totalHits.getOption(json).value shouldEqual 0
       }
     }
 
     "search instances on project AggregatedElasticSearchView when logged" in eventually {
-      deltaClient.post[Json](
-        s"/views/$project2/test-resource:agg-cell-view/_search",
-        sortedMatchCells,
-        ScoobyDoo
-      ) { (json, response) =>
+      val endpoint = s"/views/$project2/test-resource:agg-cell-view/_search"
+      deltaClient.post[Json](endpoint, sortedMatchCells, ScoobyDoo) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        val indexes   = hits.each._index.string.getAll(json)
-        val toReplace = indexes.zipWithIndex.map { case (value, i) => s"index${i + 1}" -> value }
-        filterKey("took")(json) shouldEqual
-          jsonContentOf("kg/views/elasticsearch/search-response-aggregated.json", toReplace*)
+        filterSearchMetadata(json) shouldEqual jsonContentOf("kg/views/elasticsearch/search-response-aggregated.json")
       }
     }
 
     "search instances on project AggregatedElasticSearchView as anonymous" in eventually {
-      deltaClient.post[Json](s"/views/$project2/test-resource:agg-cell-view/_search", sortedMatchCells, Anonymous) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val index = hits(0)._index.string.getOption(json).value
-          filterKey("took")(json) shouldEqual
-            jsonContentOf("kg/views/elasticsearch/search-response-2.json", "index" -> index)
+      val endpoint = s"/views/$project2/test-resource:agg-cell-view/_search"
+      deltaClient.post[Json](endpoint, sortedMatchCells, Anonymous) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        filterSearchMetadata(json) shouldEqual jsonContentOf("kg/views/elasticsearch/search-response-2.json")
       }
     }
 
@@ -299,94 +272,82 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     }
 
     "fetch statistics for cell-view-tagged" in eventually {
-      deltaClient.get[Json](s"/views/$project1/test-resource:cell-view-tagged/statistics", ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          expectEmptyStats(json)
+      val endpoint = s"/views/$project1/test-resource:cell-view-tagged/statistics"
+      deltaClient.get[Json](endpoint, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        expectEmptyStats(json)
       }
     }
 
     "tag resources" in {
       (1 to 5).toList.parTraverse { i =>
         val payload      = jsonContentOf(s"kg/views/instances/instance$i.json")
-        val id           = `@id`.getOption(payload).value
-        val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-        deltaClient.post[Json](
-          s"/resources/$project1/resource/patchedcell:$unprefixedId/tags?rev=1",
-          Json.obj("rev" -> Json.fromInt(1), "tag" -> Json.fromString("one")),
-          ScoobyDoo
-        ) { expectCreated }
+        val unprefixedId = patchedCellId(payload)
+        val endpoint     = s"/resources/$project1/resource/patchedcell:$unprefixedId/tags?rev=1"
+        val tagPayload   = Json.obj("rev" -> Json.fromInt(1), "tag" -> Json.fromString("one"))
+        deltaClient.post[Json](endpoint, tagPayload, ScoobyDoo) { expectCreated }
       }
     }
 
     "get newly tagged instances in cell-view-tagged in project1" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view-tagged/_search", matchAll, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val total = totalHits.getOption(json).value
-          total shouldEqual 5
+      val endpoint = s"/views/$project1/test-resource:cell-view-tagged/_search"
+      deltaClient.post[Json](endpoint, matchAll, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        val total = totalHits.getOption(json).value
+        total shouldEqual 5
       }
     }
 
     "get updated statistics for cell-view-tagged" in eventually {
-      deltaClient.get[Json](s"/views/$project1/test-resource:cell-view-tagged/statistics", ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          expectStats(json)(5, 5, 5, 0, 0, 0)
+      val endpoint = s"/views/$project1/test-resource:cell-view-tagged/statistics"
+      deltaClient.get[Json](endpoint, ScoobyDoo) { (json, response) =>
+        response.status shouldEqual StatusCodes.OK
+        expectStats(json)(5, 5, 5, 0, 0, 0)
       }
     }
 
     "remove @type on a resource" in {
-      val payload      = filterKey("@type")(jsonContentOf("kg/views/instances/instance1.json"))
-      val id           = `@id`.getOption(payload).value
-      val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-
-      deltaClient.put[Json](
-        s"/resources/$project1/_/patchedcell:$unprefixedId?rev=2",
-        filterKey("@id")(payload),
-        ScoobyDoo
-      ) { expectOk }
+      val payload          = filterKey("@type")(jsonContentOf("kg/views/instances/instance1.json"))
+      val payloadWithoutId = filterKey("@id")(payload)
+      val unprefixedId     = patchedCellId(payload)
+      val endpoint         = s"/resources/$project1/_/patchedcell:$unprefixedId?rev=2"
+      deltaClient.put[Json](endpoint, payloadWithoutId, ScoobyDoo) { expectOk }
     }
 
     "search instances on project 1 after removed @type" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view/_search", sortedMatchCells, ScoobyDoo) {
-        (json, response) =>
-          response.status shouldEqual StatusCodes.OK
-          val index = hits(0)._index.string.getOption(json).value
-          filterKey("took")(json) shouldEqual
-            jsonContentOf("kg/views/elasticsearch/search-response-no-type.json", "index" -> index)
-
-          deltaClient
-            .post[Json](s"/views/$project1/test-resource:cell-view/_search", matchAll, ScoobyDoo) { (json2, _) =>
-              filterKey("took")(json2) shouldEqual filterKey("took")(json)
-            }
-            .unsafeRunSync()
-      }
+      val endpoint = s"/views/$project1/test-resource:cell-view/_search"
+      for {
+        sorted <- deltaClient.postAndReturn[Json](endpoint, sortedMatchCells, ScoobyDoo) { (json, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                    filterSearchMetadata(json) shouldEqual jsonContentOf(
+                      "kg/views/elasticsearch/search-response-no-type.json"
+                    )
+                  }
+        all    <- deltaClient.postAndReturn[Json](endpoint, matchAll, ScoobyDoo) { (_, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                  }
+      } yield filterSearchMetadata(all) shouldEqual filterSearchMetadata(sorted)
     }
 
     "deprecate a resource" in {
       val payload      = filterKey("@type")(jsonContentOf("kg/views/instances/instance2.json"))
-      val id           = payload.asObject.value("@id").value.asString.value
-      val unprefixedId = id.stripPrefix("https://bbp.epfl.ch/nexus/v0/data/bbp/experiment/patchedcell/v0.1.0/")
-      deltaClient.delete[Json](s"/resources/$project1/_/patchedcell:$unprefixedId?rev=2", ScoobyDoo) {
-        expectOk
-      }
+      val unprefixedId = patchedCellId(payload)
+      deltaClient.delete[Json](s"/resources/$project1/_/patchedcell:$unprefixedId?rev=2", ScoobyDoo) { expectOk }
     }
 
     "search instances on project 1 after deprecated" in eventually {
-      deltaClient.post[Json](s"/views/$project1/test-resource:cell-view/_search", sortedMatchCells, ScoobyDoo) {
-        (json, result) =>
-          result.status shouldEqual StatusCodes.OK
-          val index = hits(0)._index.string.getOption(json).value
-          filterKey("took")(json) shouldEqual
-            jsonContentOf("kg/views/elasticsearch/search-response-no-deprecated.json", "index" -> index)
-
-          deltaClient
-            .post[Json](s"/views/$project1/test-resource:cell-view/_search", matchAll, ScoobyDoo) { (json2, _) =>
-              filterKey("took")(json2) shouldEqual filterKey("took")(json)
-            }
-            .unsafeRunSync()
-      }
+      val endpoint = s"/views/$project1/test-resource:cell-view/_search"
+      for {
+        sorted <- deltaClient.postAndReturn[Json](endpoint, sortedMatchCells, ScoobyDoo) { (json, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                    filterSearchMetadata(json) shouldEqual jsonContentOf(
+                      "kg/views/elasticsearch/search-response-no-deprecated.json"
+                    )
+                  }
+        all    <- deltaClient.postAndReturn[Json](endpoint, matchAll, ScoobyDoo) { (_, response) =>
+                    response.status shouldEqual StatusCodes.OK
+                  }
+      } yield filterSearchMetadata(all) shouldEqual filterSearchMetadata(sorted)
     }
 
     "restart the view indexing" in eventually {
@@ -444,8 +405,24 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     "reindex a resource after a view is undeprecated" in {
       givenADeprecatedView { view =>
         givenAPersonResource { person =>
-          undeprecate(view) >> eventually { assertMatchId(view, person) }
+          undeprecate(view) >> assertMatchId(view, person)
         }
+      }
+    }
+  }
+
+  "Resuming view indexing after passivation" should {
+
+    "index a new resource in a custom Elasticsearch view once it has passivated and been evicted" in {
+      val payload = jsonContentOf("kg/resources/person.json")
+      givenAView { view =>
+        val personId = genId()
+        for {
+          _   <- waitUntilProjectionRunning(view)
+          _   <- waitUntilProjectionEvicted(view)
+          _   <- deltaClient.put[Json](s"/resources/$project1/_/$personId", payload, ScoobyDoo)(expectCreated)
+          res <- assertMatchId(view, personId)
+        } yield res
       }
     }
   }
@@ -477,13 +454,23 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
     deltaClient.putEmptyBody[Json](s"/views/$project1/$view/undeprecate?rev=$rev", ScoobyDoo) { expectOk }
 
   def assertMatchId(view: String, id: String): IO[Assertion] =
-    deltaClient
-      .post[Json](
-        s"/views/$project1/$view/_search",
-        json"""{ "query": { "match": { "@id": "$id" } } }""",
-        ScoobyDoo
-      ) { (json, response) =>
-        response.status shouldEqual StatusCodes.OK
-        totalHits.getOption(json).value shouldEqual 1
-      }
+    eventually {
+      deltaClient
+        .post[Json](
+          s"/views/$project1/$view/_search",
+          json"""{ "query": { "match": { "@id": "$id" } } }""",
+          ScoobyDoo
+        ) { (json, response) =>
+          response.status shouldEqual StatusCodes.OK
+          totalHits.getOption(json).value shouldEqual 1
+        }
+    }
+
+  // Projection names are `elasticsearch-$project-$viewIri-$rev`, so matching on project1 + the fragment pins the check
+  // to this project's custom view.
+  def waitUntilProjectionRunning(fragment: String): IO[Assertion] =
+    eventually(adminDsl.assertProjectionRunning(project1, fragment))
+
+  def waitUntilProjectionEvicted(fragment: String): IO[Assertion] =
+    eventually(adminDsl.assertProjectionEvicted(project1, fragment))
 }

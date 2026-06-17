@@ -73,7 +73,7 @@ trait Projections {
   /**
     * Schedules a restart for the given projection at the given offset
     */
-  def scheduleRestart(projectionName: String, fromOffset: Offset)(using subject: Subject): IO[Unit]
+  def scheduleRestart(metadata: ProjectionMetadata, fromOffset: Offset)(using subject: Subject): IO[Unit]
 
   /**
     * Get scheduled projection restarts from a given offset
@@ -150,15 +150,15 @@ object Projections {
 
       override def delete(name: String): IO[Unit] = projectionStore.delete(name)
 
-      override def scheduleRestart(projectionName: String, fromOffset: Offset)(using subject: Subject): IO[Unit] =
-        offset(projectionName).flatMap {
+      override def scheduleRestart(metadata: ProjectionMetadata, fromOffset: Offset)(using subject: Subject): IO[Unit] =
+        offset(metadata.name).flatMap {
           case currentOffset if currentOffset >= fromOffset =>
-            logger.debug(s"'$projectionName' has a greater offset, scheduling a restart...") >>
+            logger.debug(s"'${metadata.name}' has a greater offset, scheduling a restart...") >>
               clock.realTimeInstant.flatMap { now =>
-                projectionRestartStore.save(ProjectionRestart(projectionName, fromOffset, now, subject))
+                projectionRestartStore.save(ProjectionRestart(metadata, fromOffset, now, subject))
               }
           case _                                            =>
-            logger.debug(s"'$projectionName' has a smaller offset, skipping...")
+            logger.debug(s"'${metadata.name}' has a smaller offset, skipping...")
         }
 
       override def restarts(offset: Offset): Stream[IO, (Offset, ProjectionRestart)] =

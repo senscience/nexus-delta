@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
 import ai.senscience.nexus.delta.sourcing.stream.*
+import ai.senscience.nexus.testkit.InvocationCounter
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
 import cats.effect.IO
@@ -27,28 +28,41 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   private lazy val (sv, projections, _) = unapply(supervisor())
 
-  private val project1   = ProjectRef.unsafe("org", "proj1")
-  private val project1Id = Projects.encodeId(project1)
+  private val project1 = ProjectRef.unsafe("org", "proj1")
+  private val project2 = ProjectRef.unsafe("org", "proj2")
+  // An inactive project: the coordinator should not start its projections from the state stream.
+  private val project3 = ProjectRef.unsafe("org", "proj3")
 
-  private val project2   = ProjectRef.unsafe("org", "proj2")
-  private val project2Id = Projects.encodeId(project1)
-
-  private val resumeSignal = SignallingRef[IO, Boolean](false).unsafeRunSync()
+  private val resumeSignal    = SignallingRef[IO, Boolean](false).unsafeRunSync()
+  // project1 and project2 are active; project3 is not.
+  private val projectActivity = ControllableProjectActivity(project1, project2).unsafeRunSync()
+  // The activations topic the resumer reacts to; the tests publish project/projection activations to it.
+  private val activations     = ProjectionActivations().unsafeRunSync()
+  private val resumer         = ProjectDefResumer(projectActivity, activations)
+  // Counts onInit invocations per project; lets the resume test assert restart deterministically (there is no store).
+  private val initInvocations = InvocationCounter[ProjectRef]()
 
   private val entityType = EntityType("test")
 
   private def success[A](entityType: EntityType, project: ProjectRef, id: Iri, value: A, offset: Long): SuccessElem[A] =
     SuccessElem(tpe = entityType, id, project, Instant.EPOCH, Offset.at(offset), value, 1)
 
+  private def projectElem(project: ProjectRef, markedForDeletion: Boolean, offset: Long): SuccessElem[ProjectDef] =
+    success(Projects.entityType, project, Projects.encodeId(project), ProjectDef(project, markedForDeletion), offset)
+
+  // Streams 3 project states (incl. an inactive project) until the signal is set, then re-emits project1 and marks
+  // project2 for deletion. Trailing `Stream.never` keeps the coordinator alive so the `handleActivations` subscriber
+  // (registered via `concurrently`) stays alive for the resume test.
   private def projectStream: SuccessElemStream[ProjectDef] =
     Stream(
-      success(Projects.entityType, project1, project1Id, ProjectDef(project1, markedForDeletion = false), 1L),
-      success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = false), 2L)
+      projectElem(project1, markedForDeletion = false, 1L),
+      projectElem(project2, markedForDeletion = false, 2L),
+      projectElem(project3, markedForDeletion = false, 3L)
     ) ++ Stream.never[IO].interruptWhen(resumeSignal) ++
       Stream(
-        success(Projects.entityType, project1, project1Id, ProjectDef(project1, markedForDeletion = false), 3L),
-        success(Projects.entityType, project2, project2Id, ProjectDef(project2, markedForDeletion = true), 4L)
-      )
+        projectElem(project1, markedForDeletion = false, 4L),
+        projectElem(project2, markedForDeletion = true, 5L)
+      ) ++ Stream.never[IO]
 
   private def projectionName(project: ProjectRef): String = s"project-$project"
 
@@ -69,12 +83,14 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
         )
       )
 
-  private val projectProjectionFactory = new ProjectProjectionFactory {
+  private val projectProjectionFactory = new ProjectProjectionLifecycle {
+    override def module: String = "main-indexing"
+
     override def bootstrap: IO[Unit] = IO.unit
 
     override def name(project: ProjectRef): String = projectionName(project)
 
-    override def onInit(project: ProjectRef): IO[Unit] = IO.unit
+    override def onInit(project: ProjectRef): IO[Unit] = initInvocations.increment(project)
 
     override def compile(project: ProjectRef): IO[CompiledProjection] = IO.pure(
       CompiledProjection.fromStream(
@@ -92,54 +108,84 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   private val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 1, 1)
 
-  private def assertCompleted(project: ProjectRef)(using Location) = {
-    val name = projectionName(project)
-    sv.describe(name)
-      .map(_.map(_.status))
-      .assertEquals(Some(ExecutionStatus.Completed))
-      .eventually
-  }
+  // Completed projections are evicted from supervision; persisted progress is the canonical signal.
+  private def assertCompleted(project: ProjectRef)(using Location) =
+    projections.progress(projectionName(project)).assertEquals(Some(expectedProgress)).eventually
 
   private def assertCoordinatorProgress(expected: ProjectionProgress)(using Location) =
-    sv.describe(ProjectDefCoordinator.metadata.name)
-      .map(_.map(_.progress))
-      .assertEquals(Some(expected))
-      .eventually
+    sv.describe(ProjectDefCoordinator.metadata.name).map(_.map(_.progress)).assertEquals(Some(expected)).eventually
+
+  // A resumable projection must be absent from supervision before an activation can (re)start it: `supervisor.run` is
+  // idempotent, so publishing while it is still running would be a no-op and would not re-run `onInit`.
+  private def assertEvicted(project: ProjectRef)(using Location) =
+    sv.describe(projectionName(project)).assertEquals(None).eventually
 
   test("Start the coordinator") {
-    ProjectDefCoordinator(sv, _ => projectStream, Set(projectProjectionFactory)) >>
-      assertCoordinatorProgress(ProjectionProgress(Offset.at(2L), Instant.EPOCH, 2, 0, 0))
+    ProjectDefCoordinator(sv, _ => projectStream, resumer, Set(projectProjectionFactory)) >>
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 0))
   }
 
   test(s"Projection for '$project1' processed all items and completed") {
-    assertCompleted(project1) >>
-      projections.progress(projectionName(project1)).assertEquals(Some(expectedProgress))
+    assertCompleted(project1)
   }
 
   test(s"Projection for '$project2' processed all items and completed too") {
-    assertCompleted(project2) >>
-      projections.progress(projectionName(project2)).assertEquals(Some(expectedProgress))
+    assertCompleted(project2)
+  }
+
+  test(s"Projection for the inactive '$project3' should not be started") {
+    projections.progress(projectionName(project3)).assertEquals(None) >>
+      initInvocations.count(project3).assertEquals(0)
   }
 
   test("Resume the stream of projects") {
     resumeSignal.set(true) >>
-      assertCoordinatorProgress(ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 0, 0))
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(5L), Instant.EPOCH, 5, 0, 0))
   }
 
-  test(s"Projection for '$project1' should not be restarted by the new project state.") {
-    val name = projectionName(project1)
+  test(s"Projection for '$project1' should not be restarted by the new project state") {
+    // The previous projection completed and was evicted; the re-emitted state must not change its persisted progress.
+    projections.progress(projectionName(project1)).assertEquals(Some(expectedProgress))
+  }
+
+  test(s"Publishing a project activation resumes the evicted '$project1' projection") {
     for {
-      _ <- sv.describe(name).map(_.map(_.restarts)).assertEquals(Some(0)).eventually
-      _ <- projections.progress(name).assertEquals(Some(expectedProgress))
+      _      <- assertEvicted(project1)
+      before <- initInvocations.count(project1)
+      _      <- activations.publish(ProjectionActivation.ForProject(project1))
+      _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
     } yield ()
   }
 
-  test(s"'$project2' is marked for deletion, the associated projection should be destroyed.") {
-    val name = projectionName(project2)
+  test(s"Publishing a single-projection activation for the factory's module resumes '$project1'") {
+    val metadata =
+      ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
     for {
-      _ <- sv.describe(name).assertEquals(None).eventually
-      _ <- projections.progress(name).assertEquals(None)
+      _      <- assertEvicted(project1)
+      before <- initInvocations.count(project1)
+      _      <- activations.publish(ProjectionActivation.ForProjection(metadata))
+      _      <- initInvocations.count(project1).map(_ > before).assertEquals(true).eventually
     } yield ()
+  }
+
+  test("A single-projection activation for another module is ignored") {
+    val otherModule = ProjectionMetadata("elasticsearch", "es-view", Some(project1), Some(nxv + "view"))
+    val sameModule  =
+      ProjectionMetadata("main-indexing", projectionName(project1), Some(project1), Some(nxv + "projection"))
+    for {
+      _      <- assertEvicted(project1)
+      before <- initInvocations.count(project1)
+      // The other-module activation must be ignored. Publishing it before a matching one means that, once the matching
+      // resume is observed, the ignored one has already been processed (single ordered consumer), so the count rose by
+      // exactly one — proving the other-module activation resumed nothing.
+      _      <- activations.publish(ProjectionActivation.ForProjection(otherModule))
+      _      <- activations.publish(ProjectionActivation.ForProjection(sameModule))
+      _      <- initInvocations.count(project1).assertEquals(before + 1).eventually
+    } yield ()
+  }
+
+  test(s"'$project2' is marked for deletion, the associated projection should be destroyed") {
+    projections.progress(projectionName(project2)).assertEquals(None)
   }
 
 }

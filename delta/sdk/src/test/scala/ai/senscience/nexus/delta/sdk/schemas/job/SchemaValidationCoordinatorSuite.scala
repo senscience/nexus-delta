@@ -118,7 +118,8 @@ class SchemaValidationCoordinatorSuite
                            // Invalid resource - dropped
                            createResource(invalidResourceId, deprecated = false, schemaId)
                          )
-      _               <- waitProjectionCompletion(sv, projectionName)
+      // The projection is evicted from supervision as soon as it completes, so we wait on the persisted progress
+      // (which survives eviction) rather than on the in-supervision Completed status.
       expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 2, 1)
       _               <- assertProgress(projections, projectionName)(expectedProgress)
       _               <- projectionErrors

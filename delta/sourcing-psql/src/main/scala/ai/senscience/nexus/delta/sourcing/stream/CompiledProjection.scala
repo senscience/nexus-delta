@@ -23,6 +23,13 @@ final case class CompiledProjection private (
 object CompiledProjection {
 
   /**
+    * Creates a projection that does nothing. Useful to drive a projection's lifecycle (e.g. its destruction) without
+    * running any work.
+    */
+  def noop(metadata: ProjectionMetadata, executionStrategy: ExecutionStrategy): CompiledProjection =
+    fromStream(metadata, executionStrategy, _ => Stream.empty[IO])
+
+  /**
     * Creates a projection from a provided task
     */
   def fromTask(metadata: ProjectionMetadata, executionStrategy: ExecutionStrategy, io: IO[Unit]): CompiledProjection =

@@ -23,12 +23,12 @@ class BlazegraphDeletionTaskSuite extends NexusSuite {
 
   private def activeView(ref: ViewRef) = ActiveViewDef(
     ref,
-    projection = ref.viewId.toString,
     SelectFilter.latest,
     None,
     namespace = "view2",
     indexingRev,
-    rev
+    rev,
+    java.util.UUID.randomUUID()
   )
 
   private val currentViews = CurrentActiveViews(activeView(active1), activeView(active2))

@@ -29,7 +29,7 @@ final class ProjectLastUpdatesSink(
 
   override def apply(elements: ElemChunk[Unit]): IO[ElemChunk[Unit]] = {
     val updates = computeUpdates(elements)
-    logger.debug(s"Last updates have been computed for projects: ${quote(updates.keySet)}") >>
+    logger.info(s"Last updates have been computed for projects: ${quote(updates.keySet)}") >>
       store.save(updates.values.toList).as(elements)
   }
 

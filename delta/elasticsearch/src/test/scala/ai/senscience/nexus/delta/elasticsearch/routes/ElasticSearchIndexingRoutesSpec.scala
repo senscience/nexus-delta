@@ -24,14 +24,14 @@ class ElasticSearchIndexingRoutesSpec extends BaseRouteSpec with ElasticSearchAc
   private val myId         = nxv + "myid"
   private val indexingView = ActiveViewDef(
     ViewRef(projectRef, myId),
-    "projection",
     None,
     SelectFilter.latest,
     IndexLabel.unsafe("index"),
     ElasticsearchIndexDef.empty,
     None,
     IndexingRev.init,
-    1
+    1,
+    java.util.UUID.randomUUID()
   )
 
   private def fetchView: FetchIndexingView =

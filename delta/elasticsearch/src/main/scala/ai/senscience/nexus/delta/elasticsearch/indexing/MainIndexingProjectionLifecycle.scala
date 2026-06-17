@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchClient, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
-import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionFactory
+import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionLifecycle
 import ai.senscience.nexus.delta.sdk.stream.MainDocumentStream
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
@@ -12,7 +12,7 @@ import cats.data.NonEmptyChain
 import cats.effect.IO
 import org.typelevel.otel4s.trace.Tracer
 
-object MainIndexingProjectionFactory {
+object MainIndexingProjectionLifecycle {
 
   val mainIndexingPipeline: NonEmptyChain[Operation] = NonEmptyChain.one(MainDocumentToJson)
 
@@ -23,10 +23,13 @@ object MainIndexingProjectionFactory {
       batch: BatchConfig,
       retryStrategy: RetryStrategyConfig,
       indexingEnabled: Boolean
-  )(using Tracer[IO]): Option[ProjectProjectionFactory] =
+  )(using Tracer[IO]): Option[ProjectProjectionLifecycle] =
     Option.when(indexingEnabled) {
-      new ProjectProjectionFactory {
-        private val targetIndex          = mainIndex.name
+      new ProjectProjectionLifecycle {
+        private val targetIndex = mainIndex.name
+
+        override def module: String = mainIndexingModule
+
         override def bootstrap: IO[Unit] =
           client.createIndex(targetIndex, mainIndex.indexDef).void
 

@@ -1,5 +1,7 @@
 package ai.senscience.nexus.delta.kernel.utils
 
+import fs2.Chunk
+
 object CollectionUtils {
 
   /**
@@ -12,5 +14,7 @@ object CollectionUtils {
     *   `CollectionUtils.quote(List(1, 2, 3)) = "'1','2','3'"`
     */
   def quote(iterable: Iterable[?]): String = iterable.mkString("'", "','", "'")
+
+  def quote(chunk: Chunk[?]): String = quote(chunk.toList)
 
 }

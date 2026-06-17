@@ -2,16 +2,27 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.syntax.*
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionOutcomeListener.Outcome
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor.{createRetryStrategy, restartProjection}
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorCheck.logger
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import cats.effect.{Deferred, IO, Resource}
 
-final class SupervisorCheck(supervisorStorage: SupervisorStorage, cfg: ProjectionConfig, halt: Deferred[IO, Unit]) {
+final class SupervisorCheck(
+    supervisorStorage: SupervisorStorage,
+    listener: ProjectionOutcomeListener,
+    cfg: ProjectionConfig,
+    halt: Deferred[IO, Unit]
+) {
   def run: IO[Unit] =
-    supervisorStorage.failingStream
-      .evalMap { projectionName =>
-        supervisorStorage.update(projectionName)(heal).void
+    listener.outcomes
+      .evalMap {
+        case Outcome.Failed(name)    =>
+          supervisorStorage.update(name)(heal).void
+        case Outcome.Completed(name) =>
+          supervisorStorage.delete(name) { s =>
+            logger.info(s"Evicting completed projection '${s.metadata.name}' from supervision.")
+          }
       }
       .interruptWhen(halt.get.attempt)
       .compile
@@ -21,7 +32,7 @@ final class SupervisorCheck(supervisorStorage: SupervisorStorage, cfg: Projectio
     val metadata = supervised.metadata
     supervised.control.status.flatMap {
       case ExecutionStatus.Failed(throwable) =>
-        val retryStrategy = createRetryStrategy(cfg, metadata, "running")
+        val retryStrategy = createRetryStrategy(cfg, metadata.fullName, "running")
         logger.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>
           restartProjection(supervised)
             .retry(retryStrategy) <*
@@ -40,13 +51,17 @@ object SupervisorCheck {
 
   private val logger = Logger[SupervisorCheck]
 
-  def apply(supervisorStorage: SupervisorStorage, cfg: ProjectionConfig): Resource[IO, SupervisorCheck] = {
+  def apply(
+      supervisorStorage: SupervisorStorage,
+      listener: ProjectionOutcomeListener,
+      cfg: ProjectionConfig
+  ): Resource[IO, SupervisorCheck] = {
     Resource
       .make(
         logger.info("Starting supervisor check task") >>
           Deferred[IO, Unit]
             .map { halt =>
-              new SupervisorCheck(supervisorStorage, cfg, halt)
+              new SupervisorCheck(supervisorStorage, listener, cfg, halt)
             }
             .flatMap { s =>
               s.run.start.map(s -> _)

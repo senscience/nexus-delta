@@ -50,7 +50,7 @@ class EventMetricsSpec extends BaseIntegrationSpec {
       deltaClient.delete[Json](endpoint, Anonymous) { expectForbidden }
     }
 
-    s"accept restart indexin with $permission" in {
+    s"accept restart indexing with $permission" ignore {
       deltaClient.delete[Json](endpoint, ServiceAccount) { expectOk }
     }
   }

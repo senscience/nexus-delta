@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.elasticsearch.config.{ElasticSearchViewsConfig,
 import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexingConfig
 import ai.senscience.nexus.delta.elasticsearch.context.ElasticSearchContext
 import ai.senscience.nexus.delta.elasticsearch.deletion.{ConfiguredIndexDeletionTask, ElasticSearchDeletionTask, EventMetricsDeletionTask, MainIndexDeletionTask}
-import ai.senscience.nexus.delta.elasticsearch.indexing.*
+import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticProjectionResumer, *}
 import ai.senscience.nexus.delta.elasticsearch.main.MainIndexDef
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetrics, EventMetricsProjection, MetricsIndexDef}
 import ai.senscience.nexus.delta.elasticsearch.model.{contexts, ElasticSearchViewEvent}
@@ -22,7 +22,7 @@ import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
 import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionFactory, SyncIndexingAction}
+import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionLifecycle, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.metrics.ScopedEventMetricEncoder
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
@@ -37,7 +37,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectActivity, ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
@@ -147,25 +147,43 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       ElasticsearchRestartScheduler(currentActiveViews, restartScheduler)
   }
 
-  make[ElasticSearchCoordinator].fromEffect {
+  make[ElasticSearchRunningStore].from { (xas: Transactors) =>
+    ElasticSearchRunningStore(xas)
+  }
+
+  make[ElasticProjectionLifecycle].from {
     (
-        views: ElasticSearchViews,
         graphStream: GraphResourceStream,
         pipeChainCompiler: PipeChainCompiler,
-        supervisor: Supervisor,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
         config: ElasticSearchViewsConfig,
+        store: ElasticSearchRunningStore,
         cr: RemoteContextResolution @Id("aggregate"),
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
+      ElasticProjectionLifecycle(graphStream, pipeChainCompiler, client, config, store)(using cr, tracer)
+  }
+
+  make[ElasticProjectionResumer].from {
+    (currentActiveViews: CurrentActiveViews, projectActivity: ProjectActivity, activations: ProjectionActivations) =>
+      ElasticProjectionResumer(currentActiveViews, projectActivity, activations)
+  }
+
+  make[ElasticSearchCoordinator].fromEffect {
+    (
+        views: ElasticSearchViews,
+        projectionLifeCycle: ElasticProjectionLifecycle,
+        supervisor: Supervisor,
+        resumer: ElasticProjectionResumer,
+        config: ElasticSearchViewsConfig
+    ) =>
       ElasticSearchCoordinator(
         views,
-        graphStream,
-        pipeChainCompiler,
+        projectionLifeCycle,
         supervisor,
-        client,
-        config
-      )(using cr, tracer)
+        resumer,
+        config.indexingEnabled
+      )
   }
 
   make[MainRestartScheduler].from { (projects: Projects, restartScheduler: ProjectionsRestartScheduler) =>
@@ -180,7 +198,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     MainDocumentStream(elemStreaming, mainDocumentEncoder)
   }
 
-  many[ProjectProjectionFactory].addSet {
+  many[ProjectProjectionLifecycle].addSet {
     (
         mainDocumentStream: MainDocumentStream,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
@@ -188,7 +206,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         config: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      MainIndexingProjectionFactory(
+      MainIndexingProjectionLifecycle(
         mainDocumentStream,
         client,
         mainIndex,
@@ -204,7 +222,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
     ConfiguredIndexingConfig.load(config)
   }
 
-  many[ProjectProjectionFactory].addSet {
+  many[ProjectProjectionLifecycle].addSet {
     (
         annotatedSourceStream: AnnotatedSourceStream,
         client: ElasticSearchClient @Id("elasticsearch-indexing-client"),
@@ -213,7 +231,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         baseUri: BaseUri,
         tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
-      ConfiguredIndexingProjectionFactory(
+      ConfiguredIndexingProjectionLifecycle(
         annotatedSourceStream,
         client,
         configuredConfig,

@@ -20,6 +20,8 @@ import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.syntax.all.*
 
+import java.util.UUID
+
 /**
   * Definition of a view to build a projection
   */
@@ -40,15 +42,17 @@ object IndexingViewDef {
     */
   final case class ActiveViewDef(
       ref: ViewRef,
-      projection: String,
       pipeChain: Option[PipeChain],
       selectFilter: SelectFilter,
       index: IndexLabel,
       indexDef: ElasticsearchIndexDef,
       context: Option[ContextObject],
       indexingRev: IndexingRev,
-      rev: Int
+      rev: Int,
+      uuid: UUID
   ) extends IndexingViewDef {
+
+    val projection: String = ElasticSearchViews.projectionName(ref.project, ref.viewId, indexingRev)
 
     def projectionMetadata: ProjectionMetadata =
       ProjectionMetadata(
@@ -77,14 +81,14 @@ object IndexingViewDef {
       else
         ActiveViewDef(
           ViewRef(state.project, state.id),
-          ElasticSearchViews.projectionName(state),
           indexing.pipeChain,
           indexing.selectFilter,
           ElasticSearchViews.index(state.uuid, state.indexingRev, prefix),
           defaultDef.fallbackUnless(indexing.mapping, indexing.settings),
           indexing.context,
           state.indexingRev,
-          state.rev
+          state.rev,
+          state.uuid
         )
 
     }

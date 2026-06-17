@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.client.IndexLabel
+import ai.senscience.nexus.delta.elasticsearch.indexing.ElasticSearchRunningStore.ElasticRunningView
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.{ActiveViewDef, DeprecatedViewDef}
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, Fixtures}
@@ -15,20 +16,19 @@ import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.SupervisorSetup.unapply
-import ai.senscience.nexus.testkit.CirceLiteral
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
-import cats.effect.IO
+import cats.effect.{IO, Ref}
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import io.circe.Json
 import munit.AnyFixture
 
 import java.time.Instant
-import scala.collection.mutable.Set as MutableSet
+import java.util.UUID
 import scala.concurrent.duration.*
 
-class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture with CirceLiteral with Fixtures {
+class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture with Fixtures {
 
   override def munitFixtures: Seq[AnyFixture[?]] = List(supervisor)
 
@@ -36,130 +36,68 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
 
   private val indexingRev = IndexingRev.init
   private val rev         = 2
+  private val uuid        = UUID.randomUUID()
 
   private lazy val (sv, projections, projectionErrors) = unapply(supervisor())
   private val project                                  = ProjectRef.unsafe("org", "proj")
-  private val id1                                      = nxv + "view1"
   private val indexDef                                 = ElasticsearchIndexDef.empty
 
-  private val view1 = ActiveViewDef(
-    ViewRef(project, id1),
-    projection = id1.toString,
-    None,
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view1"),
-    indexDef,
-    None,
-    indexingRev,
-    rev
-  )
+  private def activeView(
+      ref: ViewRef,
+      index: String,
+      revision: IndexingRev = indexingRev,
+      pipeChain: Option[PipeChain] = None
+  ): ActiveViewDef =
+    ActiveViewDef(ref, pipeChain, SelectFilter.latest, IndexLabel.unsafe(index), indexDef, None, revision, rev, uuid)
+
+  private val id1   = nxv + "view1"
+  private val view1 = activeView(ViewRef(project, id1), "view1")
 
   private val id2   = nxv + "view2"
-  private val view2 = ActiveViewDef(
-    ViewRef(project, id2),
-    projection = id2.toString,
-    None,
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view2"),
-    indexDef,
-    None,
-    indexingRev,
-    rev
-  )
+  private val view2 = activeView(ViewRef(project, id2), "view2")
 
   private val id3         = nxv + "view3"
   private val unknownPipe = PipeRef.unsafe("xxx")
-  private val view3       = ActiveViewDef(
-    ViewRef(project, id3),
-    projection = id3.toString,
-    Some(PipeChain(unknownPipe -> ExpandedJsonLd.empty)),
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view3"),
-    indexDef,
-    None,
-    indexingRev,
-    rev
-  )
+  private val view3       =
+    activeView(ViewRef(project, id3), "view3", pipeChain = Some(PipeChain(unknownPipe -> ExpandedJsonLd.empty)))
+
+  // A view whose project is inactive: the coordinator should not start it.
+  private val inactiveProject = ProjectRef.unsafe("org", "inactive")
+  private val id4             = nxv + "view4"
+  private val inactiveView    = activeView(ViewRef(inactiveProject, id4), "view4")
 
   private val deprecatedView1 = DeprecatedViewDef(
     ViewRef(project, id1)
   )
-  private val updatedView2    = ActiveViewDef(
-    ViewRef(project, id2),
-    projection = id2.toString + "_2",
-    None,
-    SelectFilter.latest,
-    index = IndexLabel.unsafe("view2_2"),
-    indexDef,
-    None,
-    indexingRev,
-    rev
-  )
-  private val resumeSignal    = SignallingRef[IO, Boolean](false).unsafeRunSync()
+  // A reindex bumps the indexing revision (keeping the same view uuid); this drives the projection name and index.
+  private val updatedRev      = IndexingRev(2)
+  private val updatedView2    = activeView(ViewRef(project, id2), "view2_2", revision = updatedRev)
 
-  // Streams 3 elements until signal is set to true, then 1 updated view and 1 deprecated view
-  private def viewStream: SuccessElemStream[IndexingViewDef] =
-    Stream(
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = view1.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(1L),
-        value = view1,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = view2.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(2L),
-        value = view2,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = view3.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(3L),
-        value = view3,
-        rev = 1
-      )
-    ) ++ Stream.never[IO].interruptWhen(resumeSignal) ++ Stream(
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = deprecatedView1.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(4L),
-        value = deprecatedView1,
-        rev = 1
-      ),
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = updatedView2.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(5L),
-        value = updatedView2,
-        rev = 1
-      ),
-      // Elem at offset 6 represents a view update that does not require reindexing
-      SuccessElem(
-        tpe = ElasticSearchViews.entityType,
-        id = updatedView2.ref.viewId,
-        project = project,
-        instant = Instant.EPOCH,
-        offset = Offset.at(6L),
-        value = updatedView2,
-        rev = 1
-      )
+  private val resumeSignal = SignallingRef[IO, Boolean](false).unsafeRunSync()
+  private val resumeStream = Stream.never[IO].interruptWhen(resumeSignal)
+
+  private def viewAsElem(view: IndexingViewDef, offset: Long): SuccessElem[IndexingViewDef] =
+    SuccessElem(
+      tpe = ElasticSearchViews.entityType,
+      id = view.ref.viewId,
+      project = view.ref.project,
+      instant = Instant.EPOCH,
+      offset = Offset.at(offset),
+      value = view,
+      rev = 1
     )
 
-  private val createdIndices                           = MutableSet.empty[IndexLabel]
-  private val deletedIndices                           = MutableSet.empty[IndexLabel]
+  // Streams 4 elements (incl. a view on an inactive project) until the signal is set, then 1 deprecated and 1 updated view
+  private def viewStream: SuccessElemStream[IndexingViewDef] =
+    Stream(viewAsElem(view1, 1L), viewAsElem(view2, 2L), viewAsElem(view3, 3L), viewAsElem(inactiveView, 4L)) ++
+      resumeStream ++
+      Stream(
+        viewAsElem(deprecatedView1, 5L),
+        viewAsElem(updatedView2, 6L),
+        // Offset 7 represents a view update that does not require reindexing
+        viewAsElem(updatedView2, 7L)
+      ) ++ Stream.never[IO]
+
   private val expectedViewProgress: ProjectionProgress = ProjectionProgress(
     Offset.at(4L),
     Instant.EPOCH,
@@ -168,141 +106,125 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
     failed = 1
   )
 
+  private val graphStream = GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project))
+  // The running store the test lifecycle records into; the coordinator no longer sees it directly. We assert init/destroy
+  // ran via the store contents (a recorded row means init ran; its absence means it was never started or was destroyed).
+  private val store       = ElasticSearchRunningStore.inMemory
+  private val lifecycle   = new ElasticProjectionLifecycle {
+    override def compile(view: ActiveViewDef): IO[CompiledProjection] =
+      IndexingViewDef.compile(view, PipeChainCompiler.alwaysFail, graphStream, new NoopSink[Json])
+    override def init(view: ActiveViewDef): IO[Unit]                  =
+      store.save(ElasticRunningView(view.ref, view.indexingRev, view.uuid))
+    override def recorded(ref: ViewRef): IO[List[ElasticRunningView]] =
+      store.list(ref)
+    override def destroy(view: ElasticRunningView): IO[Unit]          =
+      store.delete(view.ref, view.indexingRev)
+  }
+
+  private def isRecorded(view: ActiveViewDef): IO[Boolean] =
+    store.list(view.ref).map(_.contains(ElasticRunningView(view.ref, view.indexingRev, view.uuid)))
+
+  private def assertRecorded(view: ActiveViewDef)(using munit.Location): IO[Unit]    = isRecorded(view).assertEquals(true)
+  private def assertNotRecorded(view: ActiveViewDef)(using munit.Location): IO[Unit] =
+    isRecorded(view).assertEquals(false)
+
+  private def fetchIndexingErrors(metadata: ProjectionMetadata) =
+    projectionErrors.failedElemEntries(metadata.name, Offset.start).compile.toList
+
+  private def fetchCoordinatorProgress =
+    sv.describe(ElasticSearchCoordinator.metadata.name).map(_.map(_.progress))
+
+  // Tracks that the coordinator started the resume stream; `isActive` answers from the active projects above.
+  private val resumerStarted                    = Ref.unsafe[IO, Boolean](false)
+  private val resumer: ElasticProjectionResumer = new ProjectionResumer[ActiveViewDef] {
+    override def isActive(p: ProjectRef): IO[Boolean]                     = IO.pure(p == project)
+    override def run(resume: ActiveViewDef => IO[Unit]): Stream[IO, Unit] =
+      Stream.exec(resumerStarted.set(true)) ++ Stream.never[IO]
+  }
+
   test("Start the coordinator") {
-    for {
-      _ <- ElasticSearchCoordinator(
-             (_: Offset) => viewStream,
-             GraphResourceStream.unsafeFromStream(PullRequestStream.generate(project)),
-             PipeChainCompiler.alwaysFail,
-             sv,
-             (_: ActiveViewDef) => new NoopSink[Json],
-             (v: ActiveViewDef) => IO.delay(createdIndices.add(v.index)).void,
-             (v: ActiveViewDef) => IO.delay(deletedIndices.add(v.index)).void
-           )
-      _ <- sv.describe(ElasticSearchCoordinator.metadata.name)
-             .map(_.map(_.progress))
-             .assertEquals(Some(ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 1)))
-             .eventually
-    } yield ()
+    val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 0, 1)
+    ElasticSearchCoordinator((_: Offset) => viewStream, lifecycle, sv, resumer) >>
+      resumerStarted.get.assertEquals(true).eventually >>
+      fetchCoordinatorProgress.assertEquals(Some(expectedProgress)).eventually
   }
 
   test("View 1 processed all items and completed") {
-    for {
-      _ <- sv.describe(view1.projection)
-             .map(_.map(_.status))
-             .assertEquals(Some(ExecutionStatus.Completed))
-             .eventually
-      _ <- projections.progress(view1.projection).assertEquals(Some(expectedViewProgress))
-      _  = assert(createdIndices.contains(view1.index), s"The index for '${view1.ref.viewId}' should have been created.")
-    } yield ()
+    projections.progress(view1.projection).assertEquals(Some(expectedViewProgress)).eventually >>
+      assertRecorded(view1)
   }
 
   test("View 2 processed all items and completed too") {
-    for {
-      _ <- sv.describe(view2.projection)
-             .map(_.map(_.status))
-             .assertEquals(Some(ExecutionStatus.Completed))
-             .eventually
-      _ <- projections.progress(view2.projection).assertEquals(Some(expectedViewProgress))
-      _  = assert(createdIndices.contains(view2.index), s"The index for '${view2.ref.viewId}' should have been created.")
-    } yield ()
+    projections.progress(view2.projection).assertEquals(Some(expectedViewProgress)).eventually >>
+      assertRecorded(view2)
   }
 
   test("View 3 is invalid so it should not be started") {
-    for {
-      _ <- sv.describe(view3.projection).assertEquals(None)
-      _ <- projections.progress(view3.projection).assertEquals(None)
-      _  = assert(
-             !createdIndices.contains(view3.index),
-             s"The index for '${view3.ref.viewId}' should not have been created."
-           )
-    } yield ()
+    projections.progress(view3.projection).assertEquals(None) >>
+      assertNotRecorded(view3)
+  }
+
+  test("The view on an inactive project should not be started") {
+    projections.progress(inactiveView.projection).assertEquals(None) >>
+      assertNotRecorded(inactiveView)
   }
 
   test("There is one error for the coordinator projection before the signal") {
-    for {
-      entries <- projectionErrors.failedElemEntries(ElasticSearchCoordinator.metadata.name, Offset.start).compile.toList
-      r        = entries.assertOneElem
-      _        = assertEquals(r.failedElemData.id, id3)
-    } yield ()
+    fetchIndexingErrors(ElasticSearchCoordinator.metadata).map { entries =>
+      val r = entries.assertOneElem
+      assertEquals(r.failedElemData.id, id3)
+    }
   }
 
   test("There is one error for view 1") {
-    for {
-      entries <- projectionErrors.failedElemEntries(view1.projection, Offset.start).compile.toList
-      r        = entries.assertOneElem
-      _        = assertEquals(r.failedElemData.id, nxv + "failed")
-      _        = assertEquals(r.failedElemData.entityType, PullRequest.entityType)
-      _        = assertEquals(r.failedElemData.offset, Offset.At(4))
-    } yield ()
+    fetchIndexingErrors(view1.projectionMetadata).map { entries =>
+      val r = entries.assertOneElem
+      assertEquals(r.failedElemData.id, nxv + "failed")
+      assertEquals(r.failedElemData.entityType, PullRequest.entityType)
+      assertEquals(r.failedElemData.offset, Offset.At(4))
+    }
   }
 
   test("There is one error for view 2") {
-    for {
-      entries <- projectionErrors.failedElemEntries(view2.projection, Offset.start).compile.toList
-      _        = entries.assertOneElem
-    } yield ()
+    fetchIndexingErrors(view2.projectionMetadata).map(_.assertOneElem)
   }
 
   test("There are no errors for view 3") {
-    for {
-      entries <- projectionErrors.failedElemEntries(view3.projection, Offset.start).compile.toList
-      _        = entries.assertEmpty()
-    } yield ()
+    fetchIndexingErrors(view3.projectionMetadata).map(_.assertEmpty())
   }
 
   test("Resume the stream of view") {
-    for {
-      _ <- resumeSignal.set(true)
-      _ <- sv.describe(ElasticSearchCoordinator.metadata.name)
-             .map(_.map(_.progress))
-             .assertEquals(Some(ProjectionProgress(Offset.at(6L), Instant.EPOCH, 6, 0, 1)))
-             .eventually
-    } yield ()
+    val expectedProgress = ProjectionProgress(Offset.at(7L), Instant.EPOCH, 7, 0, 1)
+    resumeSignal.set(true) >>
+      fetchCoordinatorProgress.assertEquals(Some(expectedProgress)).eventually
   }
 
-  test("View 1 is deprecated so it is stopped, the progress and the index should be deleted.") {
-    for {
-      _ <- sv.describe(view1.projection).assertEquals(None).eventually
-      _ <- projections.progress(view1.projection).assertEquals(None)
-      _  = assert(deletedIndices.contains(view1.index), s"The index for '${view1.ref.viewId}' should have been deleted.")
-    } yield ()
+  test("View 1 is deprecated so it is stopped, the progress and the running record should be deleted.") {
+    projections.progress(view1.projection).assertEquals(None) >>
+      assertNotRecorded(view1)
   }
 
   test(
-    "View 2 is updated so the previous projection should be stopped, the previous progress and the index should be deleted."
+    "View 2 is updated so the previous projection should be stopped, the previous progress and running record deleted."
   ) {
-    for {
-      _ <- sv.describe(view2.projection).assertEquals(None).eventually
-      _ <- projections.progress(view2.projection).assertEquals(None)
-      _  = assert(deletedIndices.contains(view2.index), s"The index for '${view2.ref.viewId}' should have been deleted.")
-    } yield ()
+    projections.progress(view2.projection).assertEquals(None) >>
+      assertNotRecorded(view2)
   }
 
   test("Updated view 2 processed all items and completed") {
-    for {
-      _ <- sv.describe(updatedView2.projection)
-             .map(_.map(_.status))
-             .assertEquals(Some(ExecutionStatus.Completed))
-             .eventually
-      _ <- projections.progress(updatedView2.projection).assertEquals(Some(expectedViewProgress))
-      _  = assert(
-             createdIndices.contains(updatedView2.index),
-             s"The new index for '${updatedView2.ref.viewId}' should have been created."
-           )
-    } yield ()
+    projections.progress(updatedView2.projection).assertEquals(Some(expectedViewProgress)).eventually >>
+      assertRecorded(updatedView2)
   }
 
   test("View 2_2 projection should have one error after failed elem offset 4") {
-    for {
-      entries <- projectionErrors.failedElemEntries(updatedView2.projection, Offset.At(3L)).compile.toList
-      r        = entries.assertOneElem
-      _        = assertEquals(r.failedElemData.id, nxv + "failed")
-    } yield ()
+    fetchIndexingErrors(updatedView2.projectionMetadata).map { entries =>
+      val r = entries.assertOneElem
+      assertEquals(r.failedElemData.id, nxv + "failed")
+    }
   }
 
-  test("Delete indices should not contain view2_2 as it was not restarted") {
-    assert(!deletedIndices.contains(updatedView2.index))
+  test("Updated view 2 is still recorded as the offset 6 update did not require a restart") {
+    assertRecorded(updatedView2)
   }
 
 }

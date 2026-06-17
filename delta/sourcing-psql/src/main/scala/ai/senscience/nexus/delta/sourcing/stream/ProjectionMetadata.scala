@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import io.circe.Encoder
-import io.circe.generic.semiauto.deriveEncoder
+import io.circe.Codec
+import io.circe.generic.semiauto.deriveCodec
 
 /**
   * Defines metadata for a projection
@@ -39,5 +39,5 @@ object ProjectionMetadata {
   def apply(module: String, name: String, project: ProjectRef, resourceId: Iri): ProjectionMetadata =
     ProjectionMetadata(module, name, Some(project), Some(resourceId))
 
-  given Encoder[ProjectionMetadata] = deriveEncoder
+  given Codec[ProjectionMetadata] = deriveCodec
 }

@@ -6,8 +6,7 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.stream.ProjectActivity
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.mu.ce.PatienceConfig
-import cats.effect.{IO, Ref}
-import fs2.concurrent.SignallingRef
+import cats.effect.IO
 
 import scala.concurrent.duration.DurationInt
 
@@ -21,9 +20,11 @@ class RefreshOrStopSuite extends NexusSuite {
   private val delayConfig       = DelayConfig(20, 50.millis)
   private val passivationConfig = PassivationConfig(20, 50.millis)
 
-  private def activity(signal: SignallingRef[IO, Boolean]) =
+  private def activity(active: Boolean) =
     new ProjectActivity {
-      override def apply(project: ProjectRef): IO[Option[SignallingRef[IO, Boolean]]] = IO.some(signal)
+      override def isActive(project: ProjectRef): IO[Boolean] = IO.pure(active)
+      override def activations: fs2.Stream[IO, ProjectRef]    = fs2.Stream.empty
+      override def activeProjects: IO[List[ProjectRef]]       = IO.pure(List.empty)
     }
 
   test("A stop config returns a stop outcome for the different scopes") {
@@ -53,32 +54,26 @@ class RefreshOrStopSuite extends NexusSuite {
     } yield ()
   }
 
-  test("A passivation config returns a no signal outcome when no signal is available") {
-    val expected = RefreshOrStop.RefreshOutcome.NoSignal
+  test("A passivation config returns a delayed passivation outcome when the project is active") {
+    val expected = RefreshOrStop.RefreshOutcome.DelayedPassivation
+    RefreshOrStop(Scope.Project(project), passivationConfig, activity(true)).run.assertEquals(expected)
+  }
+
+  test("A passivation config returns a passivated terminal outcome when the project is inactive") {
+    val expected = RefreshOrStop.RefreshOutcome.Passivated
+    RefreshOrStop(Scope.Project(project), passivationConfig, activity(false)).run.assertEquals(expected)
+  }
+
+  test("An unknown project (no activity tracked) passivates") {
+    val expected = RefreshOrStop.RefreshOutcome.Passivated
     RefreshOrStop(Scope.Project(project), passivationConfig, ProjectActivity.noop).run.assertEquals(expected)
   }
 
-  test("A passivation config returns a delayed passivation outcome when no signal is available") {
-    val expected = RefreshOrStop.RefreshOutcome.DelayedPassivation
-    for {
-      signal         <- SignallingRef.of[IO, Boolean](true)
-      projectActivity = activity(signal)
-      _              <- RefreshOrStop(Scope.Project(project), passivationConfig, projectActivity).run.assertEquals(expected)
-    } yield ()
-  }
-
-  test("A passivation config returns eventually a passivated outcome when a signal gets activated") {
-    val expected = RefreshOrStop.RefreshOutcome.Passivated
-    for {
-      signal         <- SignallingRef.of[IO, Boolean](false)
-      obtained       <- Ref.of[IO, Option[RefreshOrStop.RefreshOutcome]](None)
-      projectActivity = activity(signal)
-      _              <- RefreshOrStop(Scope.Project(project), passivationConfig, projectActivity).run.flatTap { outcome =>
-                          obtained.set(Some(outcome))
-                        }.start
-      _              <- signal.set(true)
-      _              <- obtained.get.assertEquals(Some(expected)).eventually
-    } yield ()
+  test("Passivated is terminal and Continue outcomes are not") {
+    assert(RefreshOrStop.RefreshOutcome.Passivated.isTerminal)
+    assert(RefreshOrStop.RefreshOutcome.Stopped.isTerminal)
+    assert(!RefreshOrStop.RefreshOutcome.Delayed.isTerminal)
+    assert(!RefreshOrStop.RefreshOutcome.DelayedPassivation.isTerminal)
   }
 
 }

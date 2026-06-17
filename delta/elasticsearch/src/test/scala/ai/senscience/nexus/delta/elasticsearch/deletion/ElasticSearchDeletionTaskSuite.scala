@@ -26,14 +26,14 @@ class ElasticSearchDeletionTaskSuite extends NexusSuite with CirceLiteral {
 
   private def activeView(ref: ViewRef) = ActiveViewDef(
     ref,
-    projection = ref.viewId.toString,
     None,
     SelectFilter.latest,
     index = IndexLabel.unsafe("view1"),
     indexDef = ElasticsearchIndexDef.empty,
     None,
     indexingRev,
-    rev
+    rev,
+    java.util.UUID.randomUUID()
   )
 
   private val currentViews = CurrentActiveViews(activeView(active1), activeView(active2))

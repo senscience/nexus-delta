@@ -16,23 +16,27 @@ package object indexing {
 
   val defaultIndexingContext: ContextValue = ContextValue(contexts.elasticsearchIndexing, contexts.indexingMetadata)
 
+  val mainIndexingModule: String = "main-indexing"
+
   val mainIndexingId: IriOrBNode.Iri = nxv + "main-indexing"
 
   def mainIndexingProjection(ref: ProjectRef): String = s"main-indexing-$ref"
 
   def mainIndexingProjectionMetadata(project: ProjectRef): ProjectionMetadata = ProjectionMetadata(
-    "main-indexing",
+    mainIndexingModule,
     mainIndexingProjection(project),
     Some(project),
     Some(mainIndexingId)
   )
+
+  val configuredIndexingModule: String = "configured-indexing"
 
   val configuredIndexingId: IriOrBNode.Iri = nxv + "configured-indexing"
 
   def configuredIndexingProjection(ref: ProjectRef): String = s"configured-indexing-$ref"
 
   def configuredIndexingProjectionMetadata(project: ProjectRef): ProjectionMetadata = ProjectionMetadata(
-    "configured-indexing",
+    configuredIndexingModule,
     configuredIndexingProjection(project),
     Some(project),
     Some(configuredIndexingId)

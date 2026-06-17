@@ -167,8 +167,6 @@ object Optics {
     val _total     = root._total.long
   }
 
-  val projections = root.projections.each
-
   object events {
     val filterFields = filterKeys(Set("_instant", "_updatedAt"))
       .andThen(
@@ -190,6 +188,11 @@ object Optics {
       * Getting the projects related to the running projections
       */
     val allProjects = root.projections.each.metadata.project
+
+    /**
+      * Getting the names of the running projections
+      */
+    val allNames = root.projections.each.metadata.name
   }
 
 }

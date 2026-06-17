@@ -361,9 +361,6 @@ object ElasticSearchViews {
     */
   val mappings: ApiMappings = ApiMappings("view" -> schema.original)
 
-  def projectionName(viewDef: ActiveViewDef): String =
-    projectionName(viewDef.ref.project, viewDef.ref.viewId, viewDef.indexingRev)
-
   def projectionName(state: ElasticSearchViewState): String =
     projectionName(state.project, state.id, state.indexingRev)
 

@@ -1,7 +1,9 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
+import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
+import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsRestartScheduler
 import ai.senscience.nexus.delta.routes.{EventMetricsRoutes, IndexingSupervisionRoutes, SupervisionRoutes}
 import ai.senscience.nexus.delta.sdk.PriorityRoute
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -10,7 +12,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
-import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
+import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
 import ai.senscience.nexus.delta.sourcing.stream.Supervisor
 import cats.effect.IO
 import izumi.distage.model.definition.Id
@@ -68,19 +70,27 @@ object SupervisionModule extends NexusModuleDef {
     PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 
+  make[EventMetricsRestartScheduler].from { (projections: Projections) =>
+    EventMetricsRestartScheduler(projections)
+  }
+
   make[EventMetricsRoutes].from {
     (
         identities: Identities,
         aclCheck: AclCheck,
         projectionsDirectives: ProjectionsDirectives,
+        eventMetricsRestartScheduler: EventMetricsRestartScheduler,
         baseUri: BaseUri,
+        cr: RemoteContextResolution @Id("aggregate"),
+        jo: JsonKeyOrdering,
         tracer: Tracer[IO] @Id("supervision")
     ) =>
       new EventMetricsRoutes(
         identities,
         aclCheck,
-        projectionsDirectives
-      )(using baseUri)(using tracer)
+        projectionsDirectives,
+        eventMetricsRestartScheduler
+      )(using baseUri)(using cr, jo, tracer)
   }
 
   many[PriorityRoute].add { (route: EventMetricsRoutes) =>
