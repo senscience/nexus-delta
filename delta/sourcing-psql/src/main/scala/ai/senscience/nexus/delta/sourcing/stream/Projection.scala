@@ -1,8 +1,9 @@
 package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
+import ai.senscience.nexus.delta.sourcing.otel.ProjectionMetrics
 import ai.senscience.nexus.delta.sourcing.stream.Projection.logger
+import ai.senscience.nexus.delta.sourcing.stream.ProjectionFlow.SaveProjectionErrors
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.*
 import cats.syntax.all.*
@@ -65,77 +66,32 @@ object Projection {
 
   private val logger = Logger[Projection]
 
-  private def testOffset(elem: Elem[?], progress: ProjectionProgress) = elem.offset.value > progress.offset.value
-
-  /** The number of elems newly processed/discarded/failed between two cumulative progress snapshots. */
-  private def progressDelta(previous: ProjectionProgress, current: ProjectionProgress): ProjectionProgress =
-    current.copy(
-      processed = current.processed - previous.processed,
-      discarded = current.discarded - previous.discarded,
-      failed = current.failed - previous.failed
-    )
-
-  def persist[A](
-      progress: ProjectionProgress,
-      saveProgress: ProjectionProgress => IO[Unit],
-      saveFailedElems: List[FailedElem] => IO[Unit]
-  )(using batch: BatchConfig): ElemPipe[A, Unit] =
-    _.mapAccumulate(progress) {
-      case (acc, failed: FailedElem) if testOffset(failed, progress) => (acc + failed, Some(failed))
-      case (acc, failed: FailedElem)                                 => (acc, Some(failed))
-      case (acc, elem) if testOffset(elem, progress)                 => (acc + elem, None)
-      case (acc, _)                                                  => (acc, None)
-    }.groupWithin(batch.maxElements, batch.maxInterval)
-      .evalTap { chunk =>
-        val errors = chunk.toList.flatMap(_._2)
-        chunk.last.traverse { case (newProgress, _) =>
-          saveProgress(newProgress) >>
-            IO.whenA(errors.nonEmpty)(saveFailedElems(errors))
-        }
-      }
-      .drain
-
   def apply(
       projection: CompiledProjection,
-      fetchProgress: IO[Option[ProjectionProgress]],
-      saveProgress: ProjectionProgress => IO[Unit],
-      recordMetrics: ProjectionProgress => IO[Unit],
-      saveFailedElems: List[FailedElem] => IO[Unit],
+      flow: IO[ProjectionFlow],
       listener: ProjectionOutcomeListener
-  )(using batch: BatchConfig): Resource[IO, Projection] =
+  ): Resource[IO, Projection] =
     Resource.make(
       for {
-        status      <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
-        progress    <- fetchProgress.map(_.getOrElse(ProjectionProgress.NoProgress))
-        progressRef <- Ref[IO].of(progress)
-        stream       = projection.streamF.apply(progress.offset).interruptWhen(status.map(_.isStopped))
-        persisted    =
-          stream
-            .through(
-              persist(
-                progress,
-                (newProgress: ProjectionProgress) =>
-                  progressRef.getAndSet(newProgress).flatMap { previous =>
-                    recordMetrics(progressDelta(previous, newProgress))
-                  } >> saveProgress(newProgress),
-                saveFailedElems
-              )
-            )
-            .compile
-            .drain
-        task         = (status.set(ExecutionStatus.Running) >> persisted).guaranteeCase {
-                         case Outcome.Succeeded(_) =>
-                           status.update(s => if s.isRunning then ExecutionStatus.Completed else s) >>
-                             progressRef.get.flatMap { finalProgress =>
-                               val didWork = finalProgress.offset > progress.offset
-                               listener.onCompletion(projection.metadata, didWork)
-                             }
-                         case Outcome.Errored(th)  =>
-                           status.update(_.failed(th)) >> listener.onFailure(projection.metadata, th)
-                         case Outcome.Canceled()   =>
-                           IO.unit // status set by whoever cancelled
-                       }
-        fiber       <- task.start
+        projectionFlow <- flow
+        status         <- SignallingRef[IO, ExecutionStatus](ExecutionStatus.Pending)
+        progress        = projectionFlow.initialProgress
+        progressRef     = projectionFlow.currentProgress
+        stream          = projection.streamF.apply(progress.offset).interruptWhen(status.map(_.isStopped))
+        persisted       = stream.through(projectionFlow.savingPipe).compile.drain
+        task            = (status.set(ExecutionStatus.Running) >> persisted).guaranteeCase {
+                            case Outcome.Succeeded(_) =>
+                              status.update(s => if s.isRunning then ExecutionStatus.Completed else s) >>
+                                progressRef.get.flatMap { finalProgress =>
+                                  val didWork = finalProgress.offset > progress.offset
+                                  listener.onCompletion(projection.metadata, didWork)
+                                }
+                            case Outcome.Errored(th)  =>
+                              status.update(_.failed(th)) >> listener.onFailure(projection.metadata, th)
+                            case Outcome.Canceled()   =>
+                              IO.unit // status set by whoever cancelled
+                          }
+        fiber          <- task.start
       } yield new Projection(projection.metadata.name, status, progressRef, fiber)
     )(_.stop)
 
@@ -150,8 +106,12 @@ object Projection {
     */
   def transient(
       compiled: CompiledProjection,
-      saveFailedElems: List[FailedElem] => IO[Unit] = _ => IO.unit
+      saveFailedElems: SaveProjectionErrors = _ => IO.unit
   )(using BatchConfig): Resource[IO, Projection] =
-    apply(compiled, IO.none, _ => IO.unit, _ => IO.unit, saveFailedElems, ProjectionOutcomeListener.noop)
+    apply(
+      compiled,
+      ProjectionFlow.transient(compiled.metadata, saveFailedElems, ProjectionMetrics.Disabled),
+      ProjectionOutcomeListener.noop
+    )
 
 }
