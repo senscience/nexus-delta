@@ -13,6 +13,7 @@ import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.effect.IO
 import cats.effect.std.Env
+import org.typelevel.otel4s.trace.Tracer
 
 trait EventMetricsProjection
 
@@ -51,7 +52,7 @@ object EventMetricsProjection {
       batchConfig: BatchConfig,
       queryConfig: QueryConfig,
       indexingEnabled: Boolean
-  ): IO[EventMetricsProjection] = if indexingEnabled then {
+  )(using Tracer[IO]): IO[EventMetricsProjection] = if indexingEnabled then {
     val allEntityTypes = metricEncoders.map(_.entityType).toList
 
     given MultiDecoder[ProjectScopedMetric] = MultiDecoder(metricEncoders.map { encoder =>

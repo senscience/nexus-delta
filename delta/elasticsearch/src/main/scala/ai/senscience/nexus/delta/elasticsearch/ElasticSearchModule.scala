@@ -247,7 +247,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         supervisor: Supervisor,
         projections: Projections,
         eventMetrics: EventMetrics,
-        config: ElasticSearchViewsConfig
+        config: ElasticSearchViewsConfig,
+        tracer: Tracer[IO] @Id("elasticsearch-indexing")
     ) =>
       EventMetricsProjection(
         metricEncoders,
@@ -258,7 +259,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         config.batch,
         config.metricsQuery,
         config.indexingEnabled
-      )
+      )(using tracer)
   }
 
   make[ElasticSearchViewsQuery].from {

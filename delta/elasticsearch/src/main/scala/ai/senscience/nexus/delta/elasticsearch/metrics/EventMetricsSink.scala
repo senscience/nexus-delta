@@ -3,18 +3,22 @@ package ai.senscience.nexus.delta.elasticsearch.metrics
 import ai.senscience.nexus.delta.elasticsearch.indexing.ElemDocumentIdScheme.ByEvent
 import ai.senscience.nexus.delta.elasticsearch.indexing.MarkElems
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsSink.empty
+import ai.senscience.nexus.delta.kernel.syntax.*
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sdk.model.metrics.EventMetric.ProjectScopedMetric
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
+import ai.senscience.nexus.delta.sourcing.otel.OtelBatchAttributes
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import cats.syntax.all.*
+import org.typelevel.otel4s.trace.Tracer
 import shapeless3.typeable.Typeable
 
-final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfig: BatchConfig) extends Sink {
+final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfig: BatchConfig)(using Tracer[IO])
+    extends Sink {
 
   override def apply(elements: ElemChunk[ProjectScopedMetric]): IO[ElemChunk[Unit]] = {
     val result = elements.foldLeft(empty) {
@@ -25,10 +29,12 @@ final class EventMetricsSink(eventMetrics: EventMetrics, override val batchConfi
       case (acc, _: FailedElem)                             => acc
     }
 
-    eventMetrics.index(result.bulk).map(MarkElems(_, elements, ByEvent)) <*
-      result.deletes.traverse { case (project, id) =>
-        eventMetrics.deleteByResource(project, id)
-      }
+    OtelBatchAttributes(elements, batchConfig).flatMap { attributes =>
+      (eventMetrics.index(result.bulk).map(MarkElems(_, elements, ByEvent)) <*
+        result.deletes.traverse { case (project, id) =>
+          eventMetrics.deleteByResource(project, id)
+        }).surround("eventMetricsSink", attributes*)
+    }
   }
 
   /**

@@ -7,11 +7,13 @@ import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{E
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sourcing.otel.OtelBatchAttributes
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import io.circe.Json
+import org.typelevel.otel4s.Attribute
 import org.typelevel.otel4s.trace.Tracer
 import shapeless3.typeable.Typeable
 
@@ -68,11 +70,17 @@ final class ElasticSearchSink private (
     }
 
     if actions.nonEmpty then {
-      client
-        .bulk(actions, refresh)
-        .retry(retryStrategy)
-        .map(MarkElems(_, elements, idScheme))
-        .surround("elasticSearchSink")
+      OtelBatchAttributes(elements, batchConfig).flatMap { common =>
+        val attributes = common ++ Seq(
+          Attribute("nexus.elasticsearch.index", index.value),
+          Attribute("nexus.elasticsearch.refresh", refresh.toString)
+        )
+        client
+          .bulk(actions, refresh)
+          .retry(retryStrategy)
+          .map(MarkElems(_, elements, idScheme))
+          .surround("elasticSearchSink", attributes*)
+      }
     } else {
       IO.pure(elements.map(_.void))
     }
