@@ -12,12 +12,12 @@ import ai.senscience.nexus.delta.sourcing.stream.*
 import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.effect.IO
-import doobie.Fragments
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
-import doobie.util.query.Query0
 import fs2.{Chunk, Stream}
 import io.circe.Json
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.query.Query0
 
 import java.time.Instant
 import scala.collection.mutable.ListBuffer

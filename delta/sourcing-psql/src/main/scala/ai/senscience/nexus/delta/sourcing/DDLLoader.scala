@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.syntax.all.*
-import doobie.util.fragment.Fragment
 import io.github.classgraph.ClassGraph
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.fragment.Fragment
 
 import scala.jdk.CollectionConverters.*
 

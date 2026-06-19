@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sdk.projects.model.ProjectStatistics
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.{ProjectRef, Tag}
 import cats.effect.IO
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 import scala.concurrent.duration.*

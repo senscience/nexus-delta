@@ -19,10 +19,10 @@ import ai.senscience.nexus.delta.sourcing.{GlobalEventLog, Transactors}
 import cats.effect.std.Env
 import cats.effect.{Clock, IO}
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import fs2.Stream
-import org.typelevel.otel4s.{Attribute, AttributeKey}
+import org.typelevel.doobie.syntax.all.*
 import org.typelevel.otel4s.trace.Tracer
+import org.typelevel.otel4s.{Attribute, AttributeKey}
 
 final class AclsImpl private (
     log: AclsLog,

@@ -12,8 +12,8 @@ import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.Cause
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStoreSuite.{entityType, SimpleResource}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

@@ -7,10 +7,13 @@ import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import com.zaxxer.hikari.HikariConfig
-import doobie.hikari.HikariTransactor
-import doobie.otel4s.hikari.TelemetryHikariTransactor
-import doobie.util.transactor.Transactor
+import io.opentelemetry.instrumentation.hikaricp.v3_0.HikariTelemetry
+import org.typelevel.doobie.hikari.HikariTransactor
+import org.typelevel.doobie.otel4s.{SpanNamer, TracedTransactor, TracingConfig}
+import org.typelevel.doobie.util.transactor.Transactor
 import org.typelevel.otel4s.oteljava.OtelJava
+import org.typelevel.otel4s.semconv.attributes.DbAttributes
+import org.typelevel.otel4s.trace.TracerProvider
 
 import scala.concurrent.duration.*
 
@@ -70,22 +73,25 @@ object Transactors {
       hikariConfig.setAutoCommit(false)
       hikariConfig.setReadOnly(readOnly)
 
+      // Connection-pool metrics (db.client.connection.*) emitted via the HikariCP OpenTelemetry instrumentation.
+      otelOpt.foreach { otel =>
+        hikariConfig.setMetricsTrackerFactory(HikariTelemetry.create(otel.underlying).createMetricsTrackerFactory())
+      }
+
       val logHandler = Some(QueryLogHandler(poolName, config.slowQueryThreshold))
+      val base       = HikariTransactor.fromHikariConfig[IO](hikariConfig, logHandler)
 
       otelOpt match {
         case Some(otel) =>
-          val otelConfig = config.otel
-          TelemetryHikariTransactor.fromHikariConfig[IO](
-            otel = otel.underlying,
-            config = hikariConfig,
-            logHandler = Some(QueryLogHandler(poolName, config.slowQueryThreshold)),
-            statementInstrumenterEnabled = otelConfig.statementInstrumenterEnabled,
-            statementSanitizationEnabled = otelConfig.statementSanitizationEnabled,
-            captureQueryParameters = otelConfig.captureQueryParameters,
-            transactionInstrumenterEnabled = otelConfig.transactionInstrumenterEnabled
-          )
+          given TracerProvider[IO] = otel.tracerProvider
+          val tracing              = TracingConfig
+            .recommended(DbAttributes.DbSystemNameValue.Postgresql, config.name)
+            .withCaptureQuery(config.otel.queryCapture)
+            .withQueryAnalyzer(DoobieQueryAnalyzer)
+            .withSpanNamer(SpanNamer.fromQueryMetadata.orElse(SpanNamer.fromAttribute(DbAttributes.DbQuerySummary)))
+          base.evalMap(TracedTransactor.create[IO](_, tracing, logHandler))
         case None       =>
-          HikariTransactor.fromHikariConfig(hikariConfig, logHandler)
+          base
       }
     }
 

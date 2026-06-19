@@ -29,7 +29,7 @@ val circeOpticsVersion         = "0.15.1"
 val circeExtrasVersions        = "0.14.5-RC1"
 val classgraphVersion          = "4.8.184"
 val distageVersion             = "1.2.25"
-val doobieVersion              = "1.0.0-RC12"
+val doobieVersion              = "1.0.0-RC13"
 val fs2Version                 = "3.13.0"
 val fs2AwsVersion              = "6.4.0"
 val gatlingVersion             = "3.15.1"
@@ -48,7 +48,6 @@ val munitCatsEffectVersion     = "2.2.0"
 val nimbusJoseJwtVersion       = "10.9.1"
 val otelVersion                = "1.61.0"
 val otel4sVersion              = "1.0.0"
-val otel4sDoobieVersion        = "0.15.0"
 val otelInstrumentationVersion = "2.27.0-alpha"
 val pekkoVersion               = "1.6.0"
 val pekkoConnectorsVersion     = "1.3.0"
@@ -76,12 +75,13 @@ lazy val circeOptics        = "io.circe"                     %% "circe-optics"  
 lazy val circeParser        = "io.circe"                     %% "circe-parser"         % circeVersion
 lazy val classgraph         = "io.github.classgraph"          % "classgraph"           % classgraphVersion
 lazy val distageCore        = "io.7mind.izumi"               %% "distage-core"         % distageVersion
-lazy val doobiePostgres     = "org.tpolecat"                 %% "doobie-postgres"      % doobieVersion
+lazy val doobiePostgres     = "org.typelevel"                %% "doobie-postgres"      % doobieVersion
 lazy val doobie             = Seq(
-  doobiePostgres,
-  "org.tpolecat"  %% "doobie-hikari" % doobieVersion,
-  "com.zaxxer"     % "HikariCP"      % hikariVersion exclude ("org.slf4j", "slf4j-api"),
-  "org.postgresql" % "postgresql"    % postgresJdbcVersion
+  "org.typelevel" %% "doobie-postgres" % doobieVersion,
+  "org.typelevel" %% "doobie-hikari"   % doobieVersion,
+  "org.typelevel" %% "doobie-otel4s"   % doobieVersion,
+  "com.zaxxer"     % "HikariCP"        % hikariVersion exclude ("org.slf4j", "slf4j-api"),
+  "org.postgresql" % "postgresql"      % postgresJdbcVersion
 )
 lazy val fs2                = "co.fs2"                       %% "fs2-core"             % fs2Version
 lazy val fs2io              = "co.fs2"                       %% "fs2-io"               % fs2Version
@@ -134,16 +134,18 @@ lazy val munit           = "org.scalameta"                %% "munit"            
 lazy val munitCatsEffect = "org.typelevel"                %% "munit-cats-effect" % munitCatsEffectVersion
 lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"   % nimbusJoseJwtVersion
 
-lazy val otel4s        = "org.typelevel"     %% "otel4s-oteljava"                 % otel4sVersion
-lazy val otel4sStorage = "org.typelevel"     %% "otel4s-oteljava-context-storage" % otel4sVersion
-lazy val otel4sSemconv = "org.typelevel"     %% "otel4s-semconv"                  % otel4sVersion
-lazy val otel4sDoobie  = "io.github.arturaz" %% "otel4s-doobie"                   % otel4sDoobieVersion
+lazy val otel4s        = "org.typelevel" %% "otel4s-oteljava"                 % otel4sVersion
+lazy val otel4sStorage = "org.typelevel" %% "otel4s-oteljava-context-storage" % otel4sVersion
+lazy val otel4sSemconv = "org.typelevel" %% "otel4s-semconv"                  % otel4sVersion
+
+// OpenTelemetry Java SQL analyzer, used to name doobie DB spans by query summary (e.g. `SELECT public.scoped_states`)
+lazy val otelSqlAnalyzer =
+  "io.opentelemetry.instrumentation" % "opentelemetry-instrumentation-api-incubator" % otelInstrumentationVersion
+lazy val otelHikari = "io.opentelemetry.instrumentation" % "opentelemetry-hikaricp-3.0" % otelInstrumentationVersion
 
 lazy val otelAutoconfigure = "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % otelVersion % Runtime
 lazy val otelExporterOtlp  = "io.opentelemetry" % "opentelemetry-exporter-otlp"               % otelVersion % Runtime
 lazy val otelDependencies  = Seq(
-  "io.opentelemetry.instrumentation" % "opentelemetry-jdbc"                 % otelInstrumentationVersion,
-  "io.opentelemetry.instrumentation" % "opentelemetry-hikaricp-3.0"         % otelInstrumentationVersion,
   "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0" % otelInstrumentationVersion,
   "io.opentelemetry.instrumentation" % "opentelemetry-logback-mdc-1.0"      % otelInstrumentationVersion,
   "io.opentelemetry.instrumentation" % "opentelemetry-runtime-telemetry"    % otelInstrumentationVersion,
@@ -352,7 +354,8 @@ lazy val sourcingPsql = project
     libraryDependencies  ++= Seq(
       classgraph,
       distageCore,
-      otel4sDoobie,
+      otelHikari,
+      otelSqlAnalyzer,
       shapeless3Typeable
     ) ++ doobie,
     coverageFailOnMinimum := false,

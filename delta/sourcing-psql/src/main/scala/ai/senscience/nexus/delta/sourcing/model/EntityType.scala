@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.model
 
-import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder, KeyEncoder}
+import org.typelevel.doobie.{Get, Put}
 
 /**
   * Entity type

@@ -9,12 +9,12 @@ import ai.senscience.nexus.delta.sourcing.stream.utils.StreamingUtils
 import ai.senscience.nexus.delta.sourcing.syntax.*
 import cats.effect.IO
 import cats.effect.std.Semaphore
-import doobie.Fragments
-import doobie.syntax.all.*
-import doobie.util.query.Query0
 import fs2.Stream
 import fs2.io.file.*
 import io.circe.syntax.EncoderOps
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.query.Query0
 
 trait Exporter {
 

@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
-import doobie.syntax.all.*
 import org.http4s.Uri
+import org.typelevel.doobie.syntax.all.*
 
 object OpenIdExists {
 

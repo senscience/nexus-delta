@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import cats.effect.IO
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

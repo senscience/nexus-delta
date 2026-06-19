@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.sourcing.event.Event.GlobalEvent
 import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.state.ProjectionStateSave
 import ai.senscience.nexus.delta.sourcing.state.State.GlobalState
-import doobie.{Get, Put}
+import org.typelevel.doobie.{Get, Put}
 
 /**
   * Defines the required information to be able to handle a global entity

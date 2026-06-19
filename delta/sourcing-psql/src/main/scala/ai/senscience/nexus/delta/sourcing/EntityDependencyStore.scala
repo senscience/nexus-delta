@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sourcing.model.EntityDependency.{DependsOn, Ref
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, Tag}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.syntax.all.*
-import doobie.util.Put
 import io.circe.{Decoder, Json}
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.Put
 
 /**
   * Allows to declare dependencies between entities in the system

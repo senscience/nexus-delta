@@ -5,10 +5,10 @@ import cats.data.NonEmptyList
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import doobie.util.{Get, Put}
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder, Json}
 import org.postgresql.util.PGobject
+import org.typelevel.doobie.util.{Get, Put}
 
 /**
   * Instances to serialize Circe json values into a PostgresSQL jsonb column

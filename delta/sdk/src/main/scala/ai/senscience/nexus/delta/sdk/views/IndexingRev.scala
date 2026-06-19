@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sdk.views
 
-import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder}
+import org.typelevel.doobie.{Get, Put}
 
 /**
   * Indexing revision for a view

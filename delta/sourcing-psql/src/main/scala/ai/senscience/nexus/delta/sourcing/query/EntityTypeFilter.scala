@@ -1,10 +1,10 @@
 package ai.senscience.nexus.delta.sourcing.query
 
-import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
+import ai.senscience.nexus.delta.sourcing.model.EntityType
 import cats.data.NonEmptyList
-import doobie.Fragments
-import doobie.syntax.all.*
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.syntax.all.*
 
 sealed trait EntityTypeFilter
 

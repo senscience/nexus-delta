@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
-import doobie.generic.auto.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.generic.auto.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

@@ -5,9 +5,9 @@ import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog.FailedElemData
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetadata}
-import doobie.*
-import doobie.postgres.implicits.*
 import io.circe.Json
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
 
 import java.time.Instant
 

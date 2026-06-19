@@ -19,9 +19,9 @@ import ai.senscience.nexus.delta.sourcing.stream.SuccessElemStream
 import ai.senscience.nexus.delta.sourcing.tombstone.{EventTombstoneStore, StateTombstoneStore}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 import org.typelevel.otel4s.trace.Tracer
 
 import java.sql.SQLException
@@ -83,7 +83,7 @@ trait ScopedEventLog[Id, S <: ScopedState, Command, E <: ScopedEvent, Rejection 
 
 object ScopedEventLog {
 
-  private val noop: ConnectionIO[Unit] = doobie.free.connection.unit
+  private val noop: ConnectionIO[Unit] = org.typelevel.doobie.free.connection.unit
 
   type EvaluationResult[E <: ScopedEvent, S <: ScopedState] = (event: E, state: S)
 

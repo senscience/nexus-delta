@@ -3,10 +3,10 @@ package ai.senscience.nexus.delta.sourcing.partition
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sourcing.implicits.{jsonbGet, jsonbPut}
 import cats.syntax.all.*
-import doobie.{Get, Put}
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
+import org.typelevel.doobie.{Get, Put}
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.*
 

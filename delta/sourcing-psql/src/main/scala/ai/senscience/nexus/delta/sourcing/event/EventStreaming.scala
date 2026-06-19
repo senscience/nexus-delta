@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.event
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
@@ -12,11 +12,11 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream}
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
-import doobie.Fragments
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
-import doobie.util.query.Query0
 import io.circe.Json
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.query.Query0
 
 import java.time.Instant
 

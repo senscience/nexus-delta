@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.EphemeralStateStore
 import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import cats.effect.IO
-import doobie.syntax.all.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Event log for ephemeral entities that can be controlled through commands;

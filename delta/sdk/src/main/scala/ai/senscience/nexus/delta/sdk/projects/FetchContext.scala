@@ -10,8 +10,8 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.state.ScopedStateGet
 import cats.effect.IO
-import doobie.syntax.all.*
-import doobie.{Get, Put}
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.{Get, Put}
 import org.typelevel.otel4s.trace.Tracer
 
 /**

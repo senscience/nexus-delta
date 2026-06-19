@@ -12,9 +12,9 @@ import ai.senscience.nexus.delta.sourcing.postgres.{PartitionQueries, ScopedEven
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Transactors}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import munit.AnyFixture
 import munit.catseffect.IOFixture
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

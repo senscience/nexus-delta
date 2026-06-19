@@ -1,15 +1,15 @@
 package ai.senscience.nexus.delta.sourcing
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
 import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances.{jsonCodecDropNull, jsonSourceCodec}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
-import doobie.{Get, Put}
 import io.circe.generic.extras.Configuration
 import io.circe.syntax.*
 import io.circe.{Codec, Encoder, Json}
+import org.typelevel.doobie.{Get, Put}
 
 /**
   * Defines how to extract an id from an event/state and how to serialize and deserialize it

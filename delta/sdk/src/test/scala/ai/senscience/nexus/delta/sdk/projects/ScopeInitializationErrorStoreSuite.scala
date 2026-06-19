@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.clock.MutableClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.implicits.*
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

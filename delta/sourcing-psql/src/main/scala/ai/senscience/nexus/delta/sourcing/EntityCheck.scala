@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef, 
 import cats.data.NonEmptySet
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 
 object EntityCheck {
 

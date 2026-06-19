@@ -2,19 +2,19 @@ package ai.senscience.nexus.delta.sourcing.query
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.IriFilter
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.RemainingElems
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.effect.IO
 import cats.effect.kernel.Resource
-import doobie.Fragments
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
-import doobie.util.fragment.Fragment
-import doobie.util.query.Query0
 import fs2.{Chunk, Stream}
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.fragment.Fragment
+import org.typelevel.doobie.util.query.Query0
 
 import java.sql.SQLException
 import java.time.Instant
@@ -134,7 +134,7 @@ object StreamingQuery {
       logger.debug(s"Cancelled the evaluation of query '${query.sql}'.")
   }
 
-  def stateFilter(scope: Scope, offset: Offset, selectFilter: SelectFilter): Option[doobie.Fragment] = {
+  def stateFilter(scope: Scope, offset: Offset, selectFilter: SelectFilter): Option[org.typelevel.doobie.Fragment] = {
     val typeFragment =
       selectFilter.types.asRestrictedTo.map(restriction => fr"value -> 'types' ??| ${typesSqlArray(restriction)}")
     Fragments.andOpt(

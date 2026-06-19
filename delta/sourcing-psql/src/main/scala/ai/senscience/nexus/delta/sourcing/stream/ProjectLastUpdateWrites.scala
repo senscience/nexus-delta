@@ -10,9 +10,9 @@ import ai.senscience.nexus.delta.sourcing.query.{RefreshStrategy, StreamingQuery
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import cats.effect.IO
-import doobie.Fragments
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.Fragments
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

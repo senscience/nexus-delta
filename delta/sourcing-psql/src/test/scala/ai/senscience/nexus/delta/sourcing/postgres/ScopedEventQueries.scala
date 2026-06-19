@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.postgres
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.effect.IO
-import doobie.syntax.all.*
+import org.typelevel.doobie.syntax.all.*
 
 object ScopedEventQueries {
 

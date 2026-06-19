@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sourcing.projections.model
 
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import doobie.Read
-import doobie.postgres.implicits.*
+import org.typelevel.doobie.Read
+import org.typelevel.doobie.postgres.implicits.*
 
 import java.time.Instant
 

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceD
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.sourcing.Transactors
 import cats.effect.IO
-import doobie.syntax.all.*
+import org.typelevel.doobie.syntax.all.*
 
 import scala.concurrent.duration.*
 

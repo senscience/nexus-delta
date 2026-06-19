@@ -3,9 +3,9 @@ package ai.senscience.nexus.delta.sourcing.implicits
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.kernel.search.TimeRange.*
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
-import doobie.util.fragment.Fragment
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.fragment.Fragment
 
 trait TimeRangeInstances {
 

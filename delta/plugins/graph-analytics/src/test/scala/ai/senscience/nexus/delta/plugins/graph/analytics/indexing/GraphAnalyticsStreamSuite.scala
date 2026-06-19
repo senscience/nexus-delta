@@ -13,11 +13,11 @@ import ai.senscience.nexus.delta.sourcing.state.ScopedStateStore
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

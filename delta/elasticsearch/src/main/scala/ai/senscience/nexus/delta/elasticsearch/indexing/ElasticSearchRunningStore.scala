@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.{IO, Ref}
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.util.UUID
 

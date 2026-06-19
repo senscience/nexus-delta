@@ -6,12 +6,12 @@ import ai.senscience.nexus.testkit.mu.NexusSuite
 import ai.senscience.nexus.testkit.postgres.PostgresContainer
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import doobie.Fragment
-import doobie.syntax.all.*
 import munit.Location
 import munit.catseffect.IOFixture
 import munit.catseffect.ResourceFixture.FixtureNotInstantiatedException
 import org.postgresql.util.PSQLException
+import org.typelevel.doobie.Fragment
+import org.typelevel.doobie.syntax.all.*
 
 object Doobie {
 

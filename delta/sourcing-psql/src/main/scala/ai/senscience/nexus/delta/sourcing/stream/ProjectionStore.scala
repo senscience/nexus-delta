@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionStore.ProjectionProgressRow
 import cats.effect.{Clock, IO}
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

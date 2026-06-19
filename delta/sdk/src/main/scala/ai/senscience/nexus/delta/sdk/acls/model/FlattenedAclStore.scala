@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.sourcing.model.{Identity, Label}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Gives another view of acls where they are flattened by address, identity and permission making scans easier
@@ -25,7 +25,7 @@ final class FlattenedAclStore(xas: Transactors) {
   }
 
   def insert(address: AclAddress, acls: Map[Identity, Set[Permission]]): ConnectionIO[Unit] =
-    acls.foldLeft(doobie.free.connection.unit) { case (identityAcc, (identity, permissions)) =>
+    acls.foldLeft(org.typelevel.doobie.free.connection.unit) { case (identityAcc, (identity, permissions)) =>
       permissions.foldLeft(identityAcc) { case (permissionAcc, permission) =>
         permissionAcc >>
           sql"""| INSERT INTO flattened_acls(address, identity, permission)

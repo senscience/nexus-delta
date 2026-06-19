@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing.state
 import ai.senscience.nexus.delta.kernel.error.ThrowableValue
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
@@ -14,11 +14,11 @@ import ai.senscience.nexus.delta.sourcing.stream.{Elem, SuccessElemStream}
 import ai.senscience.nexus.delta.sourcing.{Scope, Serializer, Transactors}
 import cats.effect.IO
 import cats.implicits.*
-import doobie.*
-import doobie.free.connection
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import io.circe.Decoder
+import org.typelevel.doobie.*
+import org.typelevel.doobie.free.connection
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Allows to save/fetch [[ScopedState]] from the database
@@ -139,7 +139,7 @@ object ScopedStateStore {
     private given Put[S]     = serializer.putValue
     private given Decoder[S] = serializer.codec
 
-    override def save(state: S, tag: Tag): doobie.ConnectionIO[Unit] =
+    override def save(state: S, tag: Tag): org.typelevel.doobie.ConnectionIO[Unit] =
       sql"SELECT 1 FROM scoped_states WHERE type = $tpe AND org = ${state.organization} AND project = ${state.project.project}  AND id = ${state.id} AND tag = $tag"
         .query[Int]
         .option

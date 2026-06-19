@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, FailedElem, 
 import cats.effect.IO
 import cats.syntax.all.*
 import cats.{Applicative, Eval, Traverse}
-import doobie.Read
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, Decoder, Encoder}
+import org.typelevel.doobie.Read
 
 import java.time.Instant
 
@@ -220,9 +220,9 @@ object Elem {
 
   object SuccessElem {
     given [Value: Decoder] => Read[SuccessElem[Value]] = {
-      import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
-      import doobie.*
-      import doobie.postgres.implicits.*
+      import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
+      import org.typelevel.doobie.*
+      import org.typelevel.doobie.postgres.implicits.*
       given Get[Value] = pgDecoderGetT[Value]
       Read[(EntityType, Iri, Value, Int, Instant, Long, Label, Label)].map {
         case (tpe, id, value, rev, instant, offset, org, proj) =>
