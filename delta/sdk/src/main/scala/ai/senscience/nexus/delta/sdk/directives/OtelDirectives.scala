@@ -87,8 +87,11 @@ object OtelDirectives {
                 span.addAttributes(responseAttributes(response)) >>
                   IO.whenA(serverError(response))(span.setStatus(StatusCode.Error))
               case Rejected(rejections) =>
-                val description = rejections.map(_.getClass.getSimpleName).mkString(",")
-                span.setStatus(StatusCode.Error, description)
+                // A rejection at this route is pekko backtracking: a sibling/parent route may still handle the request,
+                // and an unrecovered rejection is turned into a 4xx by the top-level RejectionHandler — a client error,
+                // not a server-span failure. Log it for debugging, but don't mark the span as errored. Genuine failures
+                // remain flagged above (5xx responses) and below (unhandled exceptions).
+                logger.debug(s"Route was rejected with: ${rejections.map(_.getClass.getSimpleName).mkString(", ")}")
             } >> span.end
           case Outcome.Errored(e)    =>
             span.addAttributes(

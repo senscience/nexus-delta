@@ -57,8 +57,7 @@ object ProjectActivity {
   ): Pipe[IO, ProjectLastUpdate, ProjectLastUpdate] =
     _.groupWithin(100, 100.millis)
       .evalTap { chunk =>
-        IO.whenA(chunk.nonEmpty)(logger.info(s"New activity for: ${quote(chunk.map(_.project))}")) >>
-          activityMap.activeProjects.flatTap { projects => logger.info(s"Active projects: ${quote(projects)}") } >>
+        activityMap.activeProjects.flatTap { projects => logger.info(s"Active projects: ${quote(projects)}") } >>
           activityMap
             .newValues(chunk.map { plu => plu.project -> plu.lastInstant }.asSeq)
             .flatMap(publish(activations, _))
