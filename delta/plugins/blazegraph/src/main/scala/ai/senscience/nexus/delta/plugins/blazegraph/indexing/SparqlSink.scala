@@ -10,11 +10,13 @@ import ai.senscience.nexus.delta.rdf.RdfError.InvalidIri
 import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sdk.model.BaseUri
+import ai.senscience.nexus.delta.sourcing.otel.OtelBatchAttributes
 import ai.senscience.nexus.delta.sourcing.stream.Operation.Sink
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemChunk}
 import cats.effect.IO
 import org.http4s.Uri
+import org.typelevel.otel4s.Attribute
 import org.typelevel.otel4s.trace.Tracer
 import shapeless3.typeable.Typeable
 
@@ -52,18 +54,21 @@ final class SparqlSink(
     }
 
     if bulk.queries.nonEmpty then
-      client
-        .bulk(namespace, bulk.queries)
-        .retry(retryStrategy)
-        .as(markInvalidIdsAsFailed(elements, bulk.invalidIds))
-        .recoverWith {
-          // Something is wrong with at least one of the elements, Blazegraph does not allow to know which
-          // all of them is marked as failed and we continue
-          case err: SparqlWriteError if err.isClientError =>
-            val allFailed = elements.map { _.failed(err) }
-            logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
-        }
-        .surround("sparqlSink")
+      OtelBatchAttributes(elements, batchConfig).flatMap { common =>
+        val attributes = common :+ Attribute("nexus.sparql.namespace", namespace)
+        client
+          .bulk(namespace, bulk.queries)
+          .retry(retryStrategy)
+          .as(markInvalidIdsAsFailed(elements, bulk.invalidIds))
+          .recoverWith {
+            // Something is wrong with at least one of the elements, Blazegraph does not allow to know which
+            // all of them is marked as failed and we continue
+            case err: SparqlWriteError if err.isClientError =>
+              val allFailed = elements.map { _.failed(err) }
+              logger.error(err)(s"Indexing in sparql namespace $namespace failed").as(allFailed)
+          }
+          .surround("sparqlSink", attributes*)
+      }
     else IO.pure(markInvalidIdsAsFailed(elements, bulk.invalidIds))
   }
 
