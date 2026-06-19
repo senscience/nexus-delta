@@ -1,10 +1,11 @@
 package ai.senscience.nexus.delta.kernel.cache
 
 import cats.effect.IO
-import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
+import cats.effect.unsafe.implicits.global
+import com.github.benmanes.caffeine.cache.{AsyncCache, Caffeine}
 
+import java.util.concurrent.Executor
 import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
 import scala.jdk.DurationConverters.*
 
 /**
@@ -36,18 +37,6 @@ trait LocalCache[K, V] {
   def remove(key: K): IO[Unit]
 
   /**
-    * @return
-    *   all the entries in the store
-    */
-  def entries: IO[Map[K, V]]
-
-  /**
-    * @return
-    *   a vector of all the values in the store
-    */
-  def values: IO[Vector[V]] = entries.map(_.values.toVector)
-
-  /**
     * @param key
     *   the key
     * @return
@@ -56,39 +45,25 @@ trait LocalCache[K, V] {
   def get(key: K): IO[Option[V]]
 
   /**
-    * Fetch the value for the given key and if not, compute the new value, insert it in the store and return it This
-    * operation is not atomic.
+    * Fetch the value for the given key and if not, compute the new value, insert it in the store and return it.
+    * Concurrent lookups for the same missing key are de-duplicated: `op` runs at most once.
     * @param key
     *   the key
     * @param op
     *   the computation yielding the value to associate with `key`, if `key` is previously unbound.
     */
-  def getOrElseUpdate(key: K, op: => IO[V]): IO[V] =
-    get(key).flatMap {
-      case Some(value) => IO.pure(value)
-      case None        =>
-        op.flatMap { newValue =>
-          put(key, newValue).as(newValue)
-        }
-    }
+  def getOrElseUpdate(key: K, op: => IO[V]): IO[V]
 
   /**
     * Fetch the value for the given key and if not, compute the new value, insert it in the store if defined and return
-    * it This operation is not atomic.
+    * it.
     * @param key
     *   the key
     * @param op
     *   the computation yielding the value to associate with `key`, if `key` is previously unbound.
     */
   def getOrElseAttemptUpdate(key: K, op: => IO[Option[V]]): IO[Option[V]] =
-    get(key).flatMap {
-      case Some(value) => IO.pure(Some(value))
-      case None        =>
-        op.flatMap {
-          case Some(newValue) => put(key, newValue).as(Some(newValue))
-          case None           => IO.none
-        }
-    }
+    getOrElseUpdate(key, op.map(_.getOrElse(null.asInstanceOf[V]))).map(Option(_))
 
   /**
     * Tests whether the cache contains the given key.
@@ -108,10 +83,8 @@ object LocalCache {
     */
   final def apply[K, V](): IO[LocalCache[K, V]] =
     IO.delay {
-      val cache: Cache[K, V] =
-        Caffeine
-          .newBuilder()
-          .build[K, V]()
+      val cache: AsyncCache[K, V] =
+        Caffeine.newBuilder().buildAsync[K, V]()
       new LocalCacheImpl(cache)
     }
 
@@ -130,17 +103,17 @@ object LocalCache {
     * @param maxSize
     *   the max number of entries
     * @param expireAfterWrite
-    *   Entries will be removed one the givenduration has elapsed after the entry's creation or the most recent
+    *   Entries will be removed one the given duration has elapsed after the entry's creation or the most recent
     *   replacement of its value.
     */
   final def apply[K, V](maxSize: Long, expireAfterWrite: FiniteDuration = 1.hour): IO[LocalCache[K, V]] =
     IO.delay {
-      val cache: Cache[K, V] =
+      val cache: AsyncCache[K, V] =
         Caffeine
           .newBuilder()
           .expireAfterWrite(expireAfterWrite.toJava)
           .maximumSize(maxSize)
-          .build[K, V]()
+          .buildAsync[K, V]()
       new LocalCacheImpl(cache)
     }
 
@@ -151,17 +124,30 @@ object LocalCache {
 
     override def remove(key: K): IO[Unit] = IO.unit
 
-    override def entries: IO[Map[K, V]] = IO.pure(Map.empty[K, V])
+    override def getOrElseUpdate(key: K, op: => IO[V]): IO[V] = op
   }
 
-  private class LocalCacheImpl[K, V](cache: Cache[K, V]) extends LocalCache[K, V] {
+  private class LocalCacheImpl[K, V](cache: AsyncCache[K, V]) extends LocalCache[K, V] {
 
-    override def put(key: K, value: V): IO[Unit] = IO.delay(cache.put(key, value))
+    // Synchronous view over the async cache: it only exposes entries whose load has completed
+    // successfully (in-flight or failed loads are treated as absent), and never blocks.
+    private val sync = cache.synchronous()
 
-    override def get(key: K): IO[Option[V]] = IO.delay(Option(cache.getIfPresent(key)))
+    override def put(key: K, value: V): IO[Unit] = IO.delay(sync.put(key, value))
 
-    override def remove(key: K): IO[Unit] = IO.delay(cache.invalidate(key))
+    override def get(key: K): IO[Option[V]] = IO.delay(Option(sync.getIfPresent(key)))
 
-    override def entries: IO[Map[K, V]] = IO.delay(cache.asMap().asScala.toMap)
+    override def remove(key: K): IO[Unit] = IO.delay(sync.invalidate(key))
+
+    // Atomic, single-flight load: the first caller installs the in-flight `CompletableFuture` and any
+    // concurrent caller of the same key awaits that same future instead of recomputing `op`. Neither a failed
+    // load nor one completing with `null` (the `None` sentinel used by getOrElseAttemptUpdate) is cached:
+    // Caffeine drops the entry in both cases.
+    override def getOrElseUpdate(key: K, op: => IO[V]): IO[V] =
+      IO.fromCompletableFuture {
+        IO.delay {
+          cache.get(key, (_: K, _: Executor) => op.unsafeToCompletableFuture())
+        }
+      }
   }
 }
