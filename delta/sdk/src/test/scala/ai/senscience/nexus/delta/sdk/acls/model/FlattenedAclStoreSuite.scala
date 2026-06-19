@@ -7,8 +7,8 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 class FlattenedAclStoreSuite extends NexusSuite with Doobie.Fixture {
 

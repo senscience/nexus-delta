@@ -21,11 +21,11 @@ import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.state.{GraphResource, ScopedStateStore}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.KeyOps
 import io.circe.{Codec, Json}
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

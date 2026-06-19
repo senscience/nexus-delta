@@ -14,8 +14,8 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 class AclsImplSuite extends NexusSuite with Doobie.Fixture with AclFixtures with ConfigFixtures {
 

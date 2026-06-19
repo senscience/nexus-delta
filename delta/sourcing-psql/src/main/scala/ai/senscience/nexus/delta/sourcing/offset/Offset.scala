@@ -6,11 +6,11 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
 import cats.Order
-import doobie.*
-import doobie.syntax.all.*
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 
 sealed trait Offset extends Product with Serializable {
 

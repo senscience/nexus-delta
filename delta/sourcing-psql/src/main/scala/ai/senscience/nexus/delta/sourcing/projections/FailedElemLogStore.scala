@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.TimeRange
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.Elem.FailedElem
@@ -12,10 +12,10 @@ import ai.senscience.nexus.delta.sourcing.stream.{FailureReason, ProjectionMetad
 import ai.senscience.nexus.delta.sourcing.{FragmentEncoder, Transactors}
 import cats.effect.{Clock, IO}
 import cats.implicits.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

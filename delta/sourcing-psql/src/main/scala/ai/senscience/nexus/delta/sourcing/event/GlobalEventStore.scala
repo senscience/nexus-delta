@@ -7,10 +7,10 @@ import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.{Serializer, Transactors}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Allows to save and fetch [[GlobalEvent]] s from the database

@@ -3,10 +3,13 @@ package ai.senscience.nexus.delta.sourcing.config
 import ai.senscience.nexus.delta.kernel.Secret
 import ai.senscience.nexus.delta.sourcing.config.DatabaseConfig.{DatabaseAccess, OpentelemetryConfig}
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
+import org.typelevel.doobie.otel4s.QueryCaptureConfig
+import org.typelevel.doobie.otel4s.QueryCaptureConfig.{QueryParametersPolicy, QueryTextPolicy}
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 
 import scala.concurrent.duration.FiniteDuration
+import scala.util.{Failure, Success}
 
 /**
   * Database configuration
@@ -48,27 +51,43 @@ final case class DatabaseConfig(
 object DatabaseConfig {
 
   given ConfigReader[DatabaseConfig] = {
-    given ConfigReader[DatabaseAccess]      = deriveReader[DatabaseAccess]
-    given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
+    given ConfigReader[DatabaseAccess] = deriveReader[DatabaseAccess]
     deriveReader[DatabaseConfig]
   }
 
   final case class DatabaseAccess(host: String, port: Int, poolSize: Int)
 
   final case class OpentelemetryConfig(
-      statementInstrumenterEnabled: Boolean,
-      statementSanitizationEnabled: Boolean,
-      captureQueryParameters: Boolean,
-      transactionInstrumenterEnabled: Boolean
-  )
+      captureQueryText: QueryTextPolicy,
+      captureQueryParameters: Boolean
+  ) {
+
+    /** The doobie-otel4s query-capture configuration derived from this config. */
+    def queryCapture: QueryCaptureConfig =
+      QueryCaptureConfig(
+        captureQueryText,
+        if captureQueryParameters then QueryParametersPolicy.NonBatchOnly else QueryParametersPolicy.None
+      )
+  }
 
   object OpentelemetryConfig {
-    val default = OpentelemetryConfig(
-      statementInstrumenterEnabled = true,
-      statementSanitizationEnabled = true,
-      captureQueryParameters = false,
-      transactionInstrumenterEnabled = false
-    )
+    val default: OpentelemetryConfig =
+      OpentelemetryConfig(QueryTextPolicy.ParameterizedOnly, captureQueryParameters = false)
+
+    given ConfigReader[QueryTextPolicy] =
+      ConfigReader.fromStringTry {
+        case "none"          => Success(QueryTextPolicy.None)
+        case "parameterized" => Success(QueryTextPolicy.ParameterizedOnly)
+        case "always"        => Success(QueryTextPolicy.Always)
+        case other           =>
+          Failure(
+            new IllegalArgumentException(
+              s"Invalid 'capture-query-text' value '$other', expected one of: none, parameterized, always"
+            )
+          )
+      }
+
+    given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
   }
 
 }

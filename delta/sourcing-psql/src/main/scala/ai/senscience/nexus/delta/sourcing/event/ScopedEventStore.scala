@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sourcing.event.Event.ScopedEvent
 import ai.senscience.nexus.delta.sourcing.implicits.given
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import cats.syntax.all.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * A
@@ -55,7 +55,7 @@ object ScopedEventStore {
       private given Get[E]  = serializer.getValue
       private given Put[E]  = serializer.putValue
 
-      override def save(event: E): doobie.ConnectionIO[Unit] =
+      override def save(event: E): org.typelevel.doobie.ConnectionIO[Unit] =
         sql"""
              | INSERT INTO scoped_events (
              |  type,

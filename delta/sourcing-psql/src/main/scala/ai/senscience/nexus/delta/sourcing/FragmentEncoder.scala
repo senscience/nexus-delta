@@ -1,6 +1,6 @@
 package ai.senscience.nexus.delta.sourcing
 
-import doobie.util.fragment.Fragment
+import org.typelevel.doobie.util.fragment.Fragment
 
 /**
   * A type class that provides a conversion from a value of type `A` to a doobie [[Fragment]].

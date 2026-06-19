@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta
 
-import doobie.enumerated.SqlState
-import doobie.postgres.sqlstate
+import org.typelevel.doobie.enumerated.SqlState
+import org.typelevel.doobie.postgres.sqlstate
 
 import java.sql.SQLException
 

@@ -5,8 +5,8 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectLastUpdate
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Keeps track of the last update on a given project

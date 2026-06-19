@@ -7,9 +7,9 @@ import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.{EntityDependencyStore, Transactors}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.ConnectionIO
-import doobie.syntax.all.*
 import io.circe.syntax.EncoderOps
+import org.typelevel.doobie.ConnectionIO
+import org.typelevel.doobie.syntax.all.*
 
 final private[deletion] class ProjectDeletionStore(xas: Transactors, databasePartitioner: DatabasePartitioner) {
 

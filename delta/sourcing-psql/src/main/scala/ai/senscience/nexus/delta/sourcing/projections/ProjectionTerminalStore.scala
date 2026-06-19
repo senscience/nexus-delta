@@ -8,10 +8,10 @@ import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionTermination
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
 import cats.effect.IO
-import doobie.Read
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
+import org.typelevel.doobie.Read
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.delta.sourcing.tombstone.EventTombstoneStore.Value
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 class EventTombstoneStoreSuite extends NexusSuite with Doobie.Fixture {
 

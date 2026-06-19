@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFa
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
 import ai.senscience.nexus.delta.sourcing.model.Label.IllegalLabelFormat
 import cats.implicits.*
-import doobie.Put
-import doobie.syntax.all.*
-import doobie.util.Get
 import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import org.typelevel.doobie.Put
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.Get
 
 import scala.util.matching.Regex
 

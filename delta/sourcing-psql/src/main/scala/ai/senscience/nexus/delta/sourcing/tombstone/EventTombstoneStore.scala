@@ -2,19 +2,19 @@ package ai.senscience.nexus.delta.sourcing.tombstone
 
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, Identity, Label, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.tombstone.EventTombstoneStore.{EventTombstone, Value}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.EncoderOps
 import io.circe.{Codec, Encoder}
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

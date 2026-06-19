@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing.syntax
 
 import ai.senscience.nexus.delta.sourcing.FragmentEncoder
-import doobie.util.fragment.Fragment
+import org.typelevel.doobie.util.fragment.Fragment
 
 /**
   * This package provides syntax via enrichment classes for Doobie

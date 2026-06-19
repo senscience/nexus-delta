@@ -15,8 +15,8 @@ import ai.senscience.nexus.delta.sourcing.query.RefreshStrategy
 import ai.senscience.nexus.delta.sourcing.state.{GlobalStateStore, ProjectionStateSave}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.syntax.all.*
-import doobie.syntax.all.*
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 import scala.concurrent.duration.*
 

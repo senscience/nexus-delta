@@ -4,9 +4,9 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.sourcing.event.Event
 import ai.senscience.nexus.delta.sourcing.state.State
 import cats.effect.IO
-import doobie.util.log
-import doobie.util.log.{LogEvent, LogHandler, Parameters}
 import io.circe.Json
+import org.typelevel.doobie.util.log
+import org.typelevel.doobie.util.log.{LogEvent, LogHandler, Parameters}
 
 import java.sql.SQLException
 import scala.concurrent.duration.FiniteDuration

@@ -16,9 +16,9 @@ import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.syntax.all.*
 import io.circe.Json
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 
 trait GraphAnalyticsStream {
 

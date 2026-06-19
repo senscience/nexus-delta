@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.ConnectionIO
-import doobie.syntax.all.*
-import doobie.util.fragment.Fragment
+import org.typelevel.doobie.ConnectionIO
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.util.fragment.Fragment
 
 /**
   * Allows to initialize, provision and delete projects and orgs according to the underlying partition strategy

@@ -22,11 +22,11 @@ import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore
 import ai.senscience.nexus.delta.sourcing.{PullRequest, Scope, Serializer}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
-import doobie.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.{Codec, DecodingFailure, Json}
 import munit.AnyFixture
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 import scala.concurrent.duration.DurationInt

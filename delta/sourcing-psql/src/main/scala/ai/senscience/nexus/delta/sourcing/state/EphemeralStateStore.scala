@@ -6,9 +6,9 @@ import ai.senscience.nexus.delta.sourcing.state.State.EphemeralState
 import ai.senscience.nexus.delta.sourcing.{Serializer, Transactors}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -41,7 +41,7 @@ object EphemeralStateStore {
       private given Get[S]  = serializer.getValue
       private given Put[S]  = serializer.putValue
 
-      override def save(state: S): doobie.ConnectionIO[Unit] = {
+      override def save(state: S): org.typelevel.doobie.ConnectionIO[Unit] = {
         sql"""
            | INSERT INTO public.ephemeral_states (
            |  type,

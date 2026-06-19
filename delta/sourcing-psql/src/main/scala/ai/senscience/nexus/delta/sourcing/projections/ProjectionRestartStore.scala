@@ -9,10 +9,10 @@ import ai.senscience.nexus.delta.sourcing.projections.ProjectionRestartStore.log
 import ai.senscience.nexus.delta.sourcing.projections.model.ProjectionRestart
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
 import cats.effect.IO
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import fs2.Stream
 import io.circe.syntax.EncoderOps
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

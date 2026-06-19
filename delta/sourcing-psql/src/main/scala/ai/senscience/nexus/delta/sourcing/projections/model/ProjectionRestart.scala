@@ -6,10 +6,10 @@ import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
-import doobie.Get
-import io.circe.{Codec, Encoder}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
+import io.circe.{Codec, Encoder}
+import org.typelevel.doobie.Get
 
 import java.time.Instant
 

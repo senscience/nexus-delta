@@ -14,10 +14,10 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.PurgeProjection
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ProjectionMetadata}
 import cats.effect.IO
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import io.circe.Json
 import io.circe.syntax.EncoderOps
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

@@ -4,12 +4,12 @@ import ai.senscience.nexus.delta.rdf.syntax.*
 import ai.senscience.nexus.delta.sourcing.SerializerSuite.{Bar, Foo}
 import ai.senscience.nexus.delta.sourcing.postgres.Doobie
 import ai.senscience.nexus.testkit.mu.NexusSuite
-import doobie.*
-import doobie.syntax.all.*
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import munit.AnyFixture
+import org.typelevel.doobie.*
+import org.typelevel.doobie.syntax.all.*
 
 class SerializerSuite extends NexusSuite with Doobie.Fixture with Doobie.Assertions {
 

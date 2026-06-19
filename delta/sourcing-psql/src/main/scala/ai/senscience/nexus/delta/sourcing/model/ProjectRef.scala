@@ -8,8 +8,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFa
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import cats.Order
 import cats.syntax.all.*
-import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import org.typelevel.doobie.{Get, Put}
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 

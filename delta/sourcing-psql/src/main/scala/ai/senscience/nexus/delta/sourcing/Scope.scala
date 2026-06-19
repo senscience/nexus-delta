@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.sourcing
 
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
-import doobie.syntax.all.*
+import org.typelevel.doobie.syntax.all.*
 
 /**
   * Allows to filter results when querying the database for scoped entities

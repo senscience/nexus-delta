@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLdCursor
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoder
 import ai.senscience.nexus.delta.rdf.jsonld.decoder.JsonLdDecoderError.ParsingFailure
 import cats.syntax.all.*
-import doobie.{Get, Put}
 import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import org.typelevel.doobie.{Get, Put}
 import pureconfig.ConfigReader
 import pureconfig.configurable.genericMapReader
 import pureconfig.error.CannotConvert

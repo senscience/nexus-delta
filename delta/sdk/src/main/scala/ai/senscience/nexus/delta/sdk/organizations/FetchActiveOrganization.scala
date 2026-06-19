@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.delta.sourcing.state.GlobalStateGet
 import cats.effect.IO
-import doobie.syntax.all.*
-import doobie.{Get, Put}
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.{Get, Put}
 
 trait FetchActiveOrganization {
 

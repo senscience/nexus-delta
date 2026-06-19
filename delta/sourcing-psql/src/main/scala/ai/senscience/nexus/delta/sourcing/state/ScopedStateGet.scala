@@ -2,8 +2,8 @@ package ai.senscience.nexus.delta.sourcing.state
 
 import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
 import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Tag}
-import doobie.syntax.all.*
-import doobie.{ConnectionIO, Get, Put}
+import org.typelevel.doobie.syntax.all.*
+import org.typelevel.doobie.{ConnectionIO, Get, Put}
 
 object ScopedStateGet {
 

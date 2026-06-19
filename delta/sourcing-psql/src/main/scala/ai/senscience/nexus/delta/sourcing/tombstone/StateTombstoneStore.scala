@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.config.PurgeConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
+import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
 import ai.senscience.nexus.delta.sourcing.model.*
 import ai.senscience.nexus.delta.sourcing.state.State.ScopedState
 import ai.senscience.nexus.delta.sourcing.stream.ProjectionMetadata
@@ -12,13 +12,13 @@ import ai.senscience.nexus.delta.sourcing.stream.PurgeProjectionCoordinator.Purg
 import ai.senscience.nexus.delta.sourcing.tombstone.StateTombstoneStore.{logger, Cause, StateTombstone}
 import cats.effect.IO
 import cats.syntax.all.*
-import doobie.*
-import doobie.postgres.implicits.*
-import doobie.syntax.all.*
 import io.circe.Codec
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 import io.circe.syntax.EncoderOps
+import org.typelevel.doobie.*
+import org.typelevel.doobie.postgres.implicits.*
+import org.typelevel.doobie.syntax.all.*
 
 import java.time.Instant
 

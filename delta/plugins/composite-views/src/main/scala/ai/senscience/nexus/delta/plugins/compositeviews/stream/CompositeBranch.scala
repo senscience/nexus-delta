@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.compositeviews.stream
 
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.CompositeBranch.Run
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import doobie.{Get, Put}
+import org.typelevel.doobie.{Get, Put}
 
 /**
   * Defines metadata for a sub projection in a composite view
