@@ -342,15 +342,14 @@ lazy val sourcingPsql = project
   )
   .settings(commonSettings)
   .settings(
-    libraryDependencies  ++= Seq(
+    libraryDependencies ++= Seq(
       classgraph,
       distageCore,
       otelHikari,
       otelSqlAnalyzer,
       shapeless3Typeable
     ) ++ doobie,
-    coverageFailOnMinimum := false,
-    Test / fork           := true
+    Test / fork          := true
   )
 
 lazy val rdf = project
@@ -400,8 +399,7 @@ lazy val elasticsearch = project
     sdk % "compile->compile;test->test"
   )
   .settings(
-    coverageFailOnMinimum := false,
-    Test / fork           := true
+    Test / fork := true
   )
 
 lazy val app = project
@@ -526,7 +524,9 @@ lazy val projectDeletionPlugin = project
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
-    pluginSettings("delta-project-deletion-plugin", "project-deletion.jar", "ai.senscience.nexus.delta.plugins.projectdeletion")
+    pluginSettings("delta-project-deletion-plugin", "project-deletion.jar", "ai.senscience.nexus.delta.plugins.projectdeletion"),
+    // statement coverage is currently below the 65% minimum
+    coverageFailOnMinimum := false
   )
   .dependsOn(
     sdk % "provided;test->test"
@@ -737,7 +737,6 @@ def pluginSettings(moduleId: String, jarName: String, infoPackage: String) = {
   Seq(
     name                       := moduleId,
     moduleName                 := moduleId,
-    coverageFailOnMinimum      := false,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := infoPackage,
     assembly / assemblyJarName := jarName,
