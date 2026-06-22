@@ -240,17 +240,8 @@ lazy val docs = project
     // copy contexts
     makeSite / mappings             ++= {
       def fileSources(base: File): Seq[File] = (base * "*.json").get
-      val contextDirs                        = Seq(
-        (rdf / Compile / resourceDirectory).value / "contexts",
-        (sdk / Compile / resourceDirectory).value / "contexts",
-        (elasticsearch / Compile / resourceDirectory).value / "contexts",
-        (archivePlugin / Compile / resourceDirectory).value / "contexts",
-        (blazegraphPlugin / Compile / resourceDirectory).value / "contexts",
-        (graphAnalyticsPlugin / Compile / resourceDirectory).value / "contexts",
-        (compositeViewsPlugin / Compile / resourceDirectory).value / "contexts",
-        (searchPlugin / Compile / resourceDirectory).value / "contexts",
-        (storagePlugin / Compile / resourceDirectory).value / "contexts"
-      )
+      val contextDirs                        =
+        (Compile / resourceDirectory).all(ScopeFilter(inProjects(contextProjects *))).value.map(_ / "contexts")
       contextDirs.flatMap { dir =>
         fileSources(dir).map(file => file -> s"contexts/${file.getName}")
       }
@@ -260,7 +251,7 @@ lazy val docs = project
 lazy val pekkoMarshalling = project
   .in(file("pekko/marshalling"))
   .settings(name := "pekko-marshalling", moduleName := "pekko-marshalling")
-  .settings(shared, compilation, coverage, release, assertJavaVersion)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       pekkoStream,
@@ -279,7 +270,7 @@ lazy val pekkoMarshalling = project
 lazy val pekkoTestArchive = project
   .in(file("pekko/test-archive"))
   .settings(name := "pekko-test-archive", moduleName := "pekko-test-archive")
-  .settings(shared, compilation, coverage, release, assertJavaVersion)
+  .settings(commonSettings)
   .settings(
     coverageMinimumStmtTotal := 0,
     libraryDependencies     ++= Seq(
@@ -299,7 +290,7 @@ lazy val pekko = project
 lazy val kernel = project
   .in(file("delta/kernel"))
   .settings(name := "delta-kernel", moduleName := "delta-kernel")
-  .settings(shared, compilation, coverage, release, assertJavaVersion)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       caffeine,
@@ -328,7 +319,7 @@ lazy val testkit = project
   .dependsOn(kernel)
   .in(file("delta/testkit"))
   .settings(name := "delta-testkit", moduleName := "delta-testkit")
-  .settings(shared, compilation, coverage, release, assertJavaVersion)
+  .settings(commonSettings)
   .settings(
     coverageMinimumStmtTotal := 0,
     libraryDependencies     ++= Seq(
@@ -349,7 +340,7 @@ lazy val sourcingPsql = project
     name       := "delta-sourcing-psql",
     moduleName := "delta-sourcing-psql"
   )
-  .settings(shared, compilation, assertJavaVersion, coverage, release)
+  .settings(commonSettings)
   .settings(
     libraryDependencies  ++= Seq(
       classgraph,
@@ -365,7 +356,7 @@ lazy val sourcingPsql = project
 lazy val rdf = project
   .in(file("delta/rdf"))
   .dependsOn(kernel, testkit % "test->compile")
-  .settings(shared, compilation, assertJavaVersion, coverage, release)
+  .settings(commonSettings)
   .settings(
     name       := "delta-rdf",
     moduleName := "delta-rdf"
@@ -389,7 +380,7 @@ lazy val sdk = project
     moduleName := "delta-sdk"
   )
   .dependsOn(kernel, pekkoMarshalling, sourcingPsql % "compile->compile;test->test", rdf % "compile->compile;test->test", testkit % "test->compile")
-  .settings(shared, compilation, assertJavaVersion, coverage, release)
+  .settings(commonSettings)
   .settings(
     coverageFailOnMinimum := false,
     libraryDependencies  ++= Seq(
@@ -404,7 +395,7 @@ lazy val sdk = project
 
 lazy val elasticsearch = project
   .in(file("delta/elasticsearch"))
-  .settings(shared, compilation, assertJavaVersion, coverage, release)
+  .settings(commonSettings)
   .dependsOn(
     sdk % "compile->compile;test->test"
   )
@@ -420,7 +411,7 @@ lazy val app = project
     moduleName := "delta-app"
   )
   .enablePlugins(UniversalPlugin, JavaAppPackaging, DockerPlugin, BuildInfoPlugin)
-  .settings(shared, compilation, servicePackaging, assertJavaVersion, otelSettings, coverage, release)
+  .settings(commonSettings, servicePackaging, otelSettings)
   .dependsOn(sdk % "compile->compile;test->test", elasticsearch, testkit % "test->compile")
   .settings(Test / compile := (Test / compile).dependsOn(testPlugin / assembly).value)
   .settings(
@@ -438,57 +429,22 @@ lazy val app = project
     buildInfoPackage      := "ai.senscience.nexus.delta.config",
     Docker / packageName  := "nexus-delta",
     copyPlugins           := {
-      val bgFile              = (blazegraphPlugin / assembly).value
-      val graphAnalyticsFile  = (graphAnalyticsPlugin / assembly).value
-      val storageFile         = (storagePlugin / assembly).value
-      val archiveFile         = (archivePlugin / assembly).value
-      val compositeViewsFile  = (compositeViewsPlugin / assembly).value
-      val searchFile          = (searchPlugin / assembly).value
-      val projectDeletionFile = (projectDeletionPlugin / assembly).value
-      val pluginsTarget       = target.value / "plugins"
+      val pluginFiles   = assembly.all(ScopeFilter(inProjects(pluginProjects *))).value
+      val pluginsTarget = target.value / "plugins"
       IO.createDirectory(pluginsTarget)
-      IO.copy(
-        Set(
-          bgFile              -> (pluginsTarget / bgFile.getName),
-          graphAnalyticsFile  -> (pluginsTarget / graphAnalyticsFile.getName),
-          storageFile         -> (pluginsTarget / storageFile.getName),
-          archiveFile         -> (pluginsTarget / archiveFile.getName),
-          compositeViewsFile  -> (pluginsTarget / compositeViewsFile.getName),
-          searchFile          -> (pluginsTarget / searchFile.getName),
-          projectDeletionFile -> (pluginsTarget / projectDeletionFile.getName)
-        )
-      )
+      IO.copy(pluginFiles.map(file => file -> (pluginsTarget / file.getName)).toSet)
     },
     Test / fork           := true,
-    Test / test           := {
-      val _ = copyPlugins.value
-      (Test / test).value
-    },
-    Test / testOnly       := {
-      val _ = copyPlugins.value
-      (Test / testOnly).evaluated
-    },
-    Test / testQuick      := {
-      val _ = copyPlugins.value
-      (Test / testQuick).evaluated
-    },
+    // Assemble and stage the plugins before any test run, so the app can load them.
+    Test / test           := (Test / test).dependsOn(copyPlugins).value,
+    Test / testOnly       := (Test / testOnly).dependsOn(copyPlugins).evaluated,
+    Test / testQuick      := (Test / testQuick).dependsOn(copyPlugins).evaluated,
     Universal / mappings ++= {
-      val bgFile              = (blazegraphPlugin / assembly).value
-      val graphAnalytics      = (graphAnalyticsPlugin / assembly).value
-      val storageFile         = (storagePlugin / assembly).value
-      val archiveFile         = (archivePlugin / assembly).value
-      val compositeViewsFile  = (compositeViewsPlugin / assembly).value
-      val searchFile          = (searchPlugin / assembly).value
-      val projectDeletionFile = (projectDeletionPlugin / assembly).value
-      Seq(
-        (bgFile, "plugins/" + bgFile.getName),
-        (graphAnalytics, "plugins/" + graphAnalytics.getName),
-        (storageFile, "plugins/" + storageFile.getName),
-        (archiveFile, "plugins/" + archiveFile.getName),
-        (compositeViewsFile, "plugins/" + compositeViewsFile.getName),
-        (searchFile, "plugins/" + searchFile.getName),
-        (projectDeletionFile, "plugins/disabled/" + projectDeletionFile.getName)
-      )
+      // project-deletion ships disabled by default; every other plugin goes straight under plugins/.
+      assembly.all(ScopeFilter(inProjects(pluginProjects *))).value.map { file =>
+        val dir = if (file.getName.contains("project-deletion")) "plugins/disabled/" else "plugins/"
+        file -> (dir + file.getName)
+      }
     }
   )
 
@@ -507,170 +463,117 @@ lazy val testPlugin = project
 lazy val blazegraphPlugin = project
   .in(file("delta/plugins/blazegraph"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(commonSettings, pluginSettings("delta-blazegraph-plugin", "blazegraph.jar", "ai.senscience.nexus.delta.plugins.blazegraph"))
   .dependsOn(
     sdk % "provided;test->test"
-  )
-  .settings(
-    name                       := "delta-blazegraph-plugin",
-    moduleName                 := "delta-blazegraph-plugin",
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.blazegraph",
-    coverageFailOnMinimum      := false,
-    assembly / assemblyJarName := "blazegraph.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-blazegraph-plugin", "plugin"), assembly),
-    Test / fork                := true
   )
 
 lazy val compositeViewsPlugin = project
   .in(file("delta/plugins/composite-views"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(
+    commonSettings,
+    pluginSettings("delta-composite-views-plugin", "composite-views.jar", "ai.senscience.nexus.delta.plugins.compositeviews"),
+    libraryDependencies ++= http4sServerTest
+  )
   .dependsOn(
     sdk              % "provided;test->test",
     elasticsearch    % "provided;test->test",
     blazegraphPlugin % "provided;test->test"
   )
-  .settings(
-    name                       := "delta-composite-views-plugin",
-    moduleName                 := "delta-composite-views-plugin",
-    libraryDependencies       ++= http4sServerTest,
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.compositeviews",
-    coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
-    assembly / assemblyJarName := "composite-views.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-composite-views-plugin", "plugin"), assembly),
-    Test / fork                := true
-  )
 
 lazy val searchPlugin = project
   .in(file("delta/plugins/search"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(commonSettings, pluginSettings("delta-search-plugin", "search.jar", "ai.senscience.nexus.delta.plugins.search"))
   .dependsOn(
     sdk                  % "provided;test->test",
     elasticsearch        % "provided;test->compile;test->test",
     blazegraphPlugin     % "provided;test->compile;test->test",
     compositeViewsPlugin % "provided;test->compile;test->test"
   )
-  .settings(
-    name                       := "delta-search-plugin",
-    moduleName                 := "delta-search-plugin",
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.search",
-    coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
-    assembly / assemblyJarName := "search.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-search-plugin", "plugin"), assembly),
-    Test / fork                := true
-  )
 
 lazy val storagePlugin = project
-  .enablePlugins(BuildInfoPlugin)
   .in(file("delta/plugins/storage"))
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    commonSettings,
+    pluginSettings("delta-storage-plugin", "storage.jar", "ai.senscience.nexus.delta.plugins.storage"),
+    libraryDependencies ++= fs2Aws
+  )
   .dependsOn(
     sdk           % "provided;test->test",
     elasticsearch % "provided;test->compile;test->test",
     testkit       % "test->compile"
   )
-  .settings(
-    name                       := "delta-storage-plugin",
-    moduleName                 := "delta-storage-plugin",
-    libraryDependencies       ++= fs2Aws,
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.storage",
-    coverageFailOnMinimum      := false, // TODO: Remove this line when coverage increases
-    assembly / assemblyJarName := "storage.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-storage-plugin", "plugin"), assembly),
-    Test / fork                := true
-  )
 
 lazy val archivePlugin = project
   .in(file("delta/plugins/archive"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(
+    commonSettings,
+    pluginSettings("delta-archive-plugin", "archive.jar", "ai.senscience.nexus.delta.plugins.archive"),
+    libraryDependencies += pekkoConnectorsFile
+  )
   .dependsOn(
     sdk              % Provided,
     pekkoTestArchive % "test->compile",
     storagePlugin    % "provided;test->test"
   )
-  .settings(
-    name                       := "delta-archive-plugin",
-    moduleName                 := "delta-archive-plugin",
-    libraryDependencies        += pekkoConnectorsFile,
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.archive",
-    coverageFailOnMinimum      := false,
-    assembly / assemblyJarName := "archive.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-archive-plugin", "plugin"), assembly),
-    Test / fork                := true
-  )
 
 lazy val projectDeletionPlugin = project
   .in(file("delta/plugins/project-deletion"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(
+    commonSettings,
+    pluginSettings("delta-project-deletion-plugin", "project-deletion.jar", "ai.senscience.nexus.delta.plugins.projectdeletion")
+  )
   .dependsOn(
     sdk % "provided;test->test"
-  )
-  .settings(
-    name                       := "delta-project-deletion-plugin",
-    moduleName                 := "delta-project-deletion-plugin",
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.projectdeletion",
-    assembly / assemblyJarName := "project-deletion.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-project-deletion-plugin", "plugin"), assembly),
-    Test / fork                := true,
-    coverageFailOnMinimum      := false
   )
 
 lazy val graphAnalyticsPlugin = project
   .in(file("delta/plugins/graph-analytics"))
   .enablePlugins(BuildInfoPlugin)
-  .settings(shared, compilation, assertJavaVersion, discardModuleInfoAssemblySettings, coverage, release)
+  .settings(
+    commonSettings,
+    pluginSettings("delta-graph-analytics-plugin", "graph-analytics.jar", "ai.senscience.nexus.delta.plugins.graph.analytics")
+  )
   .dependsOn(
     sdk           % Provided,
     storagePlugin % "provided;test->test",
     elasticsearch % "provided;test->test"
   )
-  .settings(
-    name                       := "delta-graph-analytics-plugin",
-    moduleName                 := "delta-graph-analytics-plugin",
-    buildInfoKeys              := Seq[BuildInfoKey](version),
-    buildInfoPackage           := "ai.senscience.nexus.delta.plugins.graph.analytics",
-    assembly / assemblyJarName := "graph-analytics.jar",
-    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
-    addArtifact(Artifact("delta-graph-analytics-plugin", "plugin"), assembly),
-    Test / fork                := true,
-    coverageFailOnMinimum      := false
-  )
+
+// Modules publishing JSON-LD contexts to the docs site
+lazy val contextProjects: Seq[ProjectReference] = Seq(
+  rdf,
+  sdk,
+  elasticsearch,
+  archivePlugin,
+  blazegraphPlugin,
+  graphAnalyticsPlugin,
+  compositeViewsPlugin,
+  searchPlugin,
+  storagePlugin
+)
+
+// The deployable plugins, assembled and shipped under the plugins/ directory of the distribution.
+lazy val pluginProjects: Seq[ProjectReference] = Seq(
+  blazegraphPlugin,
+  compositeViewsPlugin,
+  searchPlugin,
+  storagePlugin,
+  archivePlugin,
+  projectDeletionPlugin,
+  graphAnalyticsPlugin
+)
 
 lazy val plugins = project
   .in(file("delta/plugins"))
   .settings(shared, compilation, noPublish)
-  .aggregate(
-    blazegraphPlugin,
-    compositeViewsPlugin,
-    searchPlugin,
-    storagePlugin,
-    archivePlugin,
-    projectDeletionPlugin,
-    testPlugin,
-    graphAnalyticsPlugin
-  )
+  .aggregate(pluginProjects *)
+  .aggregate(testPlugin)
 
 lazy val delta = project
   .in(file("delta"))
@@ -681,7 +584,7 @@ lazy val tests = project
   .in(file("tests"))
   .dependsOn(pekkoMarshalling, testkit, pekkoTestArchive)
   .settings(noPublish)
-  .settings(shared, compilation, coverage, release)
+  .settings(commonSettings)
   .settings(
     name                     := "tests",
     moduleName               := "tests",
@@ -823,6 +726,28 @@ lazy val release = Seq(
   },
   versionScheme                       := Some("strict")
 )
+
+// Settings shared by every published delta module.
+lazy val commonSettings = shared ++ compilation ++ assertJavaVersion ++ coverage ++ release
+
+// Settings shared by every assembled plugin. `moduleId` is the artifact/module name (e.g. delta-blazegraph-plugin),
+// `jarName` the assembled jar (e.g. blazegraph.jar) and `infoPackage` the target package for BuildInfo.
+def pluginSettings(moduleId: String, jarName: String, infoPackage: String) = {
+  val pluginArtifact = Artifact(moduleId, "plugin")
+  Seq(
+    name                       := moduleId,
+    moduleName                 := moduleId,
+    coverageFailOnMinimum      := false,
+    buildInfoKeys              := Seq[BuildInfoKey](version),
+    buildInfoPackage           := infoPackage,
+    assembly / assemblyJarName := jarName,
+    assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
+    assembly / test            := {},
+    Test / fork                := true,
+    artifacts                  += pluginArtifact,
+    packagedArtifacts          := packagedArtifacts.value.updated(pluginArtifact, assembly.value)
+  ) ++ discardModuleInfoAssemblySettings
+}
 
 lazy val servicePackaging = {
   import com.typesafe.sbt.packager.Keys._
