@@ -62,7 +62,12 @@ object Transactors {
       else baseUrl
     }
 
-    def transactor(access: DatabaseAccess, readOnly: Boolean, poolName: String): Resource[IO, Transactor[IO]] = {
+    def transactor(
+        access: DatabaseAccess,
+        readOnly: Boolean,
+        poolName: String,
+        traced: Boolean
+    ): Resource[IO, Transactor[IO]] = {
       val hikariConfig = new HikariConfig()
       hikariConfig.setJdbcUrl(jdbcUrl(access, readOnly))
       hikariConfig.setUsername(config.username)
@@ -82,7 +87,9 @@ object Transactors {
       val base       = HikariTransactor.fromHikariConfig[IO](hikariConfig, logHandler)
 
       otelOpt match {
-        case Some(otel) =>
+        // Statement tracing is enabled for request-driven pools only. The streaming pool runs the continuous
+        // indexing/SSE polls, whose per-query spans are parentless noise and are already covered by projection metrics.
+        case Some(otel) if traced =>
           given TracerProvider[IO] = otel.tracerProvider
           val tracing              = TracingConfig
             .recommended(DbAttributes.DbSystemNameValue.Postgresql, config.name)
@@ -90,14 +97,14 @@ object Transactors {
             .withQueryAnalyzer(DoobieQueryAnalyzer)
             .withSpanNamer(SpanNamer.fromQueryMetadata.orElse(SpanNamer.fromAttribute(DbAttributes.DbQuerySummary)))
           base.evalMap(TracedTransactor.create[IO](_, tracing, logHandler))
-        case None       =>
+        case _                    =>
           base
       }
     }
 
-    val read      = transactor(config.read, readOnly = true, poolName = "ReadPool")
-    val write     = transactor(config.write, readOnly = false, poolName = "WritePool")
-    val streaming = transactor(config.streaming, readOnly = true, poolName = "StreamingPool")
+    val read      = transactor(config.read, readOnly = true, poolName = "ReadPool", traced = true)
+    val write     = transactor(config.write, readOnly = false, poolName = "WritePool", traced = true)
+    val streaming = transactor(config.streaming, readOnly = true, poolName = "StreamingPool", traced = false)
 
     (read, write, streaming)
       .mapN(Transactors(_, _, _))
