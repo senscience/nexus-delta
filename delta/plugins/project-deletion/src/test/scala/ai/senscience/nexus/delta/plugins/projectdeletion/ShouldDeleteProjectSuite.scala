@@ -1,16 +1,10 @@
 package ai.senscience.nexus.delta.plugins.projectdeletion
 
-import ai.senscience.nexus.delta.plugins.projectdeletion.ShouldDeleteProjectSuite.{assertDeleted, assertNotDeleted, configWhere, projectWhere, shouldBeDeleted, ThreeHoursAgo, TwoDaysAgo}
+import ai.senscience.nexus.delta.plugins.projectdeletion.ShouldDeleteProjectSuite.{assertDeleted, assertNotDeleted, candidate, configWhere, shouldBeDeleted, ThreeHoursAgo, TwoDaysAgo}
+import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRunner.ProjectDeletionCandidate
 import ai.senscience.nexus.delta.projectdeletion.ShouldDeleteProject
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
-import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.Vocabulary.{nxv, schemas}
-import ai.senscience.nexus.delta.sdk.ProjectResource
-import ai.senscience.nexus.delta.sdk.generators.ProjectGen
-import ai.senscience.nexus.delta.sdk.model.{ResourceAccess, ResourceF}
-import ai.senscience.nexus.delta.sdk.projects.model.Project
-import ai.senscience.nexus.delta.sourcing.model.Identity.Anonymous
-import ai.senscience.nexus.delta.sourcing.model.ResourceRef
+import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.testkit.Generators
 import ai.senscience.nexus.testkit.clock.FixedClock
 import ai.senscience.nexus.testkit.mu.NexusSuite
@@ -18,7 +12,6 @@ import cats.effect.{Clock, IO}
 import munit.{Assertions, CatsEffectAssertions, Location}
 
 import java.time.{Duration, Instant}
-import scala.collection.mutable
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.matching.Regex
 
@@ -28,7 +21,7 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertDeleted(
       shouldBeDeleted(
         configWhere(deleteDeprecatedProjects = true),
-        projectWhere(deprecated = true)
+        candidate(deprecated = true)
       )
     )
   }
@@ -37,7 +30,7 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(deleteDeprecatedProjects = true),
-        projectWhere(deprecated = false)
+        candidate(deprecated = false)
       )
     )
   }
@@ -46,7 +39,7 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(deleteDeprecatedProjects = false),
-        projectWhere(deprecated = true)
+        candidate(deprecated = true)
       )
     )
   }
@@ -55,7 +48,8 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours),
-        projectWhere(updatedAt = TwoDaysAgo, lastEventTime = TwoDaysAgo)
+        candidate(updatedAt = TwoDaysAgo),
+        lastEventTime = Some(TwoDaysAgo)
       )
     )
   }
@@ -64,7 +58,8 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours),
-        projectWhere(updatedAt = ThreeHoursAgo, lastEventTime = TwoDaysAgo)
+        candidate(updatedAt = ThreeHoursAgo),
+        lastEventTime = Some(TwoDaysAgo)
       )
     )
   }
@@ -73,7 +68,8 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours),
-        projectWhere(updatedAt = TwoDaysAgo, lastEventTime = ThreeHoursAgo)
+        candidate(updatedAt = TwoDaysAgo),
+        lastEventTime = Some(ThreeHoursAgo)
       )
     )
   }
@@ -82,7 +78,8 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours, includedProjects = List("hippocampus.+".r, ".*neuron".r)),
-        projectWhere(updatedAt = ThreeHoursAgo, lastEventTime = ThreeHoursAgo, org = "hippocampus", label = "mouse")
+        candidate(updatedAt = ThreeHoursAgo, org = "hippocampus", label = "mouse"),
+        lastEventTime = Some(ThreeHoursAgo)
       )
     )
   }
@@ -91,7 +88,18 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours, excludedProjects = List("hippocampus.+".r, ".*neuron".r)),
-        projectWhere(updatedAt = ThreeHoursAgo, lastEventTime = ThreeHoursAgo, org = "thalamus", label = "neuron")
+        candidate(updatedAt = ThreeHoursAgo, org = "thalamus", label = "neuron"),
+        lastEventTime = Some(ThreeHoursAgo)
+      )
+    )
+  }
+
+  test("not delete a project idle by update date when its statistics are missing") {
+    assertNotDeleted(
+      shouldBeDeleted(
+        configWhere(idleInterval = 24.hours),
+        candidate(updatedAt = TwoDaysAgo),
+        lastEventTime = None
       )
     )
   }
@@ -100,54 +108,22 @@ class ShouldDeleteProjectSuite extends NexusSuite {
     assertNotDeleted(
       shouldBeDeleted(
         configWhere(idleInterval = 24.hours),
-        projectWhere(updatedAt = TwoDaysAgo, markedForDeletion = true)
+        candidate(updatedAt = TwoDaysAgo, markedForDeletion = true)
       )
     )
   }
 }
 
 object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions with Generators with FixedClock {
-  case class ProjectFixture(
-      deprecated: Boolean,
-      updatedAt: Instant,
-      lastEventTime: Instant,
-      org: String,
-      label: String,
-      id: Iri,
-      markedForDeletion: Boolean
-  ) {
-    val resource = {
-      val project = ProjectGen.project(
-        orgLabel = org,
-        label = label,
-        markedForDeletion = markedForDeletion
-      )
 
-      ResourceF[Project](
-        id = id,
-        access = ResourceAccess.project(project.ref),
-        rev = 0,
-        types = Set.empty,
-        deprecated = deprecated,
-        createdAt = Instant.EPOCH,
-        createdBy = Anonymous,
-        updatedAt = updatedAt,
-        updatedBy = Anonymous,
-        schema = ResourceRef(schemas.resources),
-        value = project
-      )
-    }
-  }
-
-  def projectWhere(
+  def candidate(
       deprecated: Boolean = false,
       updatedAt: Instant = Instant.now(),
-      lastEventTime: Instant = Instant.now(),
       org: String = genId(),
       label: String = genId(),
-      id: Iri = nxv + genId(),
       markedForDeletion: Boolean = false
-  ) = ProjectFixture(deprecated, updatedAt, lastEventTime, org, label, id, markedForDeletion)
+  ): ProjectDeletionCandidate =
+    ProjectDeletionCandidate(ProjectRef.unsafe(org, label), rev = 0, deprecated, markedForDeletion, updatedAt)
 
   def genId(length: Int = 15): String =
     genString(length = length, Vector.range('a', 'z') ++ Vector.range('0', '9'))
@@ -157,7 +133,7 @@ object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions wit
       idleInterval: FiniteDuration = 1.second,
       includedProjects: List[Regex] = List(".*".r),
       excludedProjects: List[Regex] = Nil
-  ): ProjectDeletionConfig = {
+  ): ProjectDeletionConfig =
     ProjectDeletionConfig(
       idleInterval,
       idleCheckPeriod = 1.day,
@@ -165,14 +141,6 @@ object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions wit
       includedProjects,
       excludedProjects
     )
-  }
-
-  def addTo(deletedProjects: mutable.Set[ProjectResource]): ProjectResource => IO[Unit] = { pr =>
-    IO.delay {
-      deletedProjects.add(pr)
-      ()
-    }
-  }
 
   def assertDeleted(result: IO[Boolean])(using Location): IO[Unit] =
     assertIO[Boolean, Boolean](result, true, "Project was not deleted")
@@ -187,14 +155,8 @@ object ShouldDeleteProjectSuite extends Assertions with CatsEffectAssertions wit
 
   def shouldBeDeleted(
       config: ProjectDeletionConfig,
-      project: ProjectFixture
-  ): IO[Boolean] = {
-    val shouldDeleteProject = ShouldDeleteProject(
-      config,
-      lastEventTime = (_, _) => IO.pure(project.lastEventTime),
-      clock
-    )
-
-    shouldDeleteProject(project.resource)
-  }
+      candidate: ProjectDeletionCandidate,
+      lastEventTime: Option[Instant] = Some(Instant.now())
+  ): IO[Boolean] =
+    ShouldDeleteProject(config, _ => IO.pure(lastEventTime), clock)(candidate)
 }

@@ -13,6 +13,7 @@ import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
 
+// $COVERAGE-OFF$
 class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
 
   private given ClasspathResourceLoader = ClasspathResourceLoader.withContext(getClass)
@@ -47,3 +48,4 @@ class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
     ) => ProjectDeletionRunner.start(projects, config, projectStatistics, supervisor, clock)
   }
 }
+// $COVERAGE-ON$

@@ -81,6 +81,8 @@ final class ProjectsImpl private (
   override def currentRefs(scope: Scope): Stream[IO, ProjectRef] =
     log.currentStates(scope, _.project)
 
+  override def currentStates(offset: Offset): SuccessElemStream[ProjectState] = log.currentStates(Scope.root, offset)
+
   override def states(offset: Offset): SuccessElemStream[ProjectState] = log.states(Scope.root, offset)
 
   private def eval(cmd: ProjectCommand): IO[ProjectResource] =

@@ -8,7 +8,8 @@ import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.model.NamespaceProperties
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
-import ai.senscience.nexus.delta.sdk.otel.{OtelTracingClient, SpanDef}
+import ai.senscience.nexus.delta.sdk.otel.SpanDef
+import ai.senscience.nexus.delta.sdk.otel.syntax.*
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
 import cats.effect.std.Mutex
@@ -76,7 +77,7 @@ final class BlazegraphClient(
     val spanDef                    = SpanDef("namespace/<string:namespace>/sparql", attributes.result())
     val headers                    = additionalHeaders.+:(acceptHeader)
     val request                    = POST(queryEndpoint(namespace), headers*).withEntity(UrlForm("query" -> q.value))
-    OtelTracingClient(client, spanDef).expectOr[A](request)(SparqlQueryError(_))
+    client.traced(spanDef).expectOr[A](request)(SparqlQueryError(_))
   }
 
   override def query[R <: SparqlQueryResponse](
@@ -138,7 +139,7 @@ final class BlazegraphClient(
           val propWithNamespace = properties + ("com.bigdata.rdf.sail.namespace", namespace)
           val spanDef           = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
           val request           = POST(findEndpoint(namespace) / "namespace").withEntity(propWithNamespace.toString)
-          OtelTracingClient(client, spanDef).status(request).flatMap {
+          client.tracedRecover(spanDef).status(request).flatMap {
             case Status.Created  => IO.pure(true)
             case Status.Conflict => IO.pure(false)
             case Status.NotFound => IO.pure(false)
@@ -153,7 +154,7 @@ final class BlazegraphClient(
   override def deleteNamespace(namespace: String): IO[Boolean] = {
     val spanDef = SpanDef("namespace/<string:namespace>", withNamespace(namespace), write)
     val request = DELETE(findEndpoint(namespace) / "namespace" / namespace)
-    OtelTracingClient(client, spanDef).status(request).flatMap {
+    client.tracedRecover(spanDef).status(request).flatMap {
       case Status.Ok       => IO.pure(true)
       case Status.NotFound => IO.pure(false)
       case status          => IO.raiseError(SparqlActionError(status, "delete"))
@@ -183,7 +184,7 @@ final class BlazegraphClient(
       val spanDef            = SpanDef("namespace", read)
       val request            = GET(describeEndpoint, accept(SparqlResultsJson.mediaTypes))
       import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
-      OtelTracingClient(client, spanDef).expect[SparqlResults](request).map { response =>
+      client.traced(spanDef).expect[SparqlResults](request).map { response =>
         response.results.bindings.foldLeft(Vector.empty[String]) { case (acc, binding) =>
           val isNamespace   = binding.get("predicate").exists(_.value == namespacePredicate)
           val namespaceName = binding.get("object").map(_.value)
@@ -200,7 +201,7 @@ final class BlazegraphClient(
 
       val spanDef = SpanDef("namespace/<string:namespace>/sparql", withNamespace(namespace), write)
       val request = POST(endpoint, accept(SparqlResultsJson.mediaTypes)).withEntity(form)
-      OtelTracingClient(client, spanDef).expectOr[Unit](request)(SparqlWriteError(_)).void
+      client.traced(spanDef).expectOr[Unit](request)(SparqlWriteError(_)).void
     }
 
   private given EntityDecoder[IO, ServiceDescription] =

@@ -28,6 +28,7 @@ import java.net.{ConnectException, UnknownHostException}
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.FiniteDuration
 import scala.reflect.ClassTag
+import scala.util.chaining.*
 import scala.xml.{Elem, NodeSeq}
 
 trait SparqlQueryClient {
@@ -272,13 +273,10 @@ object SparqlClient {
       .withLogger(logger)
       .build
       .evalMap { client =>
-        val enrichedClient =
-          errorHandler(
-            otelMetricsClient.wrap(
-              BasicAuth(access.credentials)(client),
-              traffic
-            )
-          )
+        val enrichedClient = client
+          .pipe(BasicAuth(access.credentials))
+          .pipe(otelMetricsClient.wrap(_, traffic))
+          .pipe(errorHandler)
         access.target match {
           case SparqlTarget.Blazegraph =>
             // Blazegraph can't handle compressed requests
