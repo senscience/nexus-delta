@@ -55,18 +55,10 @@ object OtelMetricsClient {
 
     private def onSuccess(response: Response[IO], duration: FiniteDuration, reqAttributes: Attributes) = {
       val status        = response.status
+      // A 4xx/5xx is still a completed response (its status is recorded on `requestDuration`); only cancellation and
+      // exceptions count as abnormal terminations.
       val allAttributes = reqAttributes + statusCode(status) ++ errorType(status)
-      Resource.eval {
-        requestDuration.record(
-          secondsFromDuration(duration),
-          allAttributes
-        ) >> IO.unlessA(status.isSuccess) {
-          abnormalTerminations.record(
-            secondsFromDuration(duration),
-            allAttributes
-          )
-        }
-      }
+      Resource.eval(requestDuration.record(secondsFromDuration(duration), allAttributes))
     }
 
     private def registerCancel(start: FiniteDuration) =

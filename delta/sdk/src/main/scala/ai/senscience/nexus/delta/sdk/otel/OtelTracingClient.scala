@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.sdk.otel.OtelHttp4sAttributes.*
 import cats.effect.kernel.Outcome
 import cats.effect.{IO, MonadCancelThrow, Resource}
 import fs2.Stream
-import org.http4s.{Request, Response}
+import org.http4s.{Request, Response, Status}
 import org.http4s.client.Client
 import org.typelevel.otel4s.Attributes
 import org.typelevel.otel4s.semconv.attributes.HttpAttributes
@@ -12,7 +12,15 @@ import org.typelevel.otel4s.trace.{SpanKind, StatusCode, Tracer}
 
 object OtelTracingClient {
 
-  def apply(client: Client[IO], spanDef: SpanDef)(using Tracer[IO]) =
+  /**
+    * Wraps `client` so each request is traced under `spanDef`. Responses whose status is in `allowedStatuses` (e.g. a
+    * 404 the caller interprets itself, or a 409 on a create) are treated as normal outcomes and do not error the span.
+    * Prefer the `client.traced(...)` / `client.tracedRecover(...)` syntax over calling this directly.
+    */
+  def apply(client: Client[IO], spanDef: SpanDef, allowedStatuses: Status*)(using Tracer[IO]): Client[IO] =
+    make(client, spanDef, allowedStatuses.toSet)
+
+  private def make(client: Client[IO], spanDef: SpanDef, allowedStatuses: Set[Status])(using Tracer[IO]): Client[IO] =
     Client[IO] { (request: Request[IO]) =>
       Resource.eval(Tracer[IO].meta.isEnabled).flatMap { enabled =>
         if !enabled then client.run(request)
@@ -23,11 +31,8 @@ object OtelTracingClient {
               poll(client.run(request)).guaranteeCase {
                 case Outcome.Succeeded(fa) =>
                   fa.evalMap { response =>
-                    val respAttributes = responseAttributes(response)
-                    span.addAttributes(respAttributes) >>
-                      IO.unlessA(response.status.isSuccess) {
-                        span.setStatus(StatusCode.Error)
-                      }
+                    span.addAttributes(responseAttributes(response)) >>
+                      IO.whenA(isError(response.status, allowedStatuses))(span.setStatus(StatusCode.Error))
                   }
                 case Outcome.Errored(e)    =>
                   Resource.eval(
@@ -42,6 +47,12 @@ object OtelTracingClient {
         }
       }
     }
+
+  // A client span is errored on 4xx/5xx (per OTel semconv); 2xx/3xx never are. Statuses the caller declared as
+  // allowed (e.g. 404 on an existence check, 409 on a create) are treated as normal and do not error the span.
+  private def isError(status: Status, allowedStatuses: Set[Status]): Boolean =
+    (status.responseClass == Status.ClientError || status.responseClass == Status.ServerError) &&
+      !allowedStatuses.contains(status)
 
   private def requestAttributes(request: Request[IO]): Attributes = {
     val uri        = request.uri

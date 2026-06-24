@@ -131,6 +131,8 @@ trait Projects {
     */
   def currentRefs(scope: Scope): Stream[IO, ProjectRef]
 
+  def currentStates(offset: Offset): SuccessElemStream[ProjectState]
+
   /**
     * Stream project states in a non-finite stream
     */

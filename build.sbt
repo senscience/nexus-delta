@@ -137,6 +137,7 @@ lazy val nimbusJoseJwt   = "com.nimbusds"                  % "nimbus-jose-jwt"  
 lazy val otel4s        = "org.typelevel" %% "otel4s-oteljava"                 % otel4sVersion
 lazy val otel4sStorage = "org.typelevel" %% "otel4s-oteljava-context-storage" % otel4sVersion
 lazy val otel4sSemconv = "org.typelevel" %% "otel4s-semconv"                  % otel4sVersion
+lazy val otel4sTestkit = "org.typelevel" %% "otel4s-oteljava-testkit"         % otel4sVersion
 
 // OpenTelemetry Java SQL analyzer, used to name doobie DB spans by query summary (e.g. `SELECT public.scoped_states`)
 lazy val otelSqlAnalyzer =
@@ -381,14 +382,18 @@ lazy val sdk = project
   .dependsOn(kernel, pekkoMarshalling, sourcingPsql % "compile->compile;test->test", rdf % "compile->compile;test->test", testkit % "test->compile")
   .settings(commonSettings)
   .settings(
-    coverageFailOnMinimum := false,
-    libraryDependencies  ++= Seq(
+    // OTel metric/span recording reads the current context via otel4s' IOLocal-backed context storage, which (like
+    // the Delta app, see Main.scala) requires fiber-context tracking to be enabled in the JVM.
+    Test / fork          := true,
+    Test / javaOptions   += "-Dcats.effect.trackFiberContext=true",
+    libraryDependencies ++= Seq(
       pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_3"),
       scalaXml,
       distageCore,
       pekkoSlf4j       % Test,
       pekkoTestKit     % Test,
-      pekkoHttpTestKit % Test
+      pekkoHttpTestKit % Test,
+      otel4sTestkit    % Test
     ) ++ http4s
   )
 
@@ -524,9 +529,7 @@ lazy val projectDeletionPlugin = project
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
-    pluginSettings("delta-project-deletion-plugin", "project-deletion.jar", "ai.senscience.nexus.delta.plugins.projectdeletion"),
-    // statement coverage is currently below the 65% minimum
-    coverageFailOnMinimum := false
+    pluginSettings("delta-project-deletion-plugin", "project-deletion.jar", "ai.senscience.nexus.delta.plugins.projectdeletion")
   )
   .dependsOn(
     sdk % "provided;test->test"

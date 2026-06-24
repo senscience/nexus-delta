@@ -1,68 +1,55 @@
 package ai.senscience.nexus.delta.projectdeletion
 
+import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRunner.ProjectDeletionCandidate
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
-import ai.senscience.nexus.delta.sdk.ProjectResource
-import cats.Semigroup
-import cats.data.NonEmptyList
 import cats.effect.{Clock, IO}
+import cats.syntax.all.*
 
 import java.time.{Duration, Instant}
 import concurrent.duration.DurationLong
 
 object ShouldDeleteProject {
 
-  private val andSemigroup: Semigroup[Boolean] = (x: Boolean, y: Boolean) => x && y
-  private val orSemigroup: Semigroup[Boolean]  = (x: Boolean, y: Boolean) => x || y
-
   private def diff(left: Instant, right: Instant) =
     Math.abs(left.toEpochMilli - right.toEpochMilli).millis
 
   def apply(
       config: ProjectDeletionConfig,
-      lastEventTime: (ProjectResource, Instant) => IO[Instant],
+      lastEventTime: ProjectDeletionCandidate => IO[Option[Instant]],
       clock: Clock[IO]
-  ): ProjectResource => IO[Boolean] = (pr: ProjectResource) => {
+  ): ProjectDeletionCandidate => IO[Boolean] = (pr: ProjectDeletionCandidate) => {
 
-    def isIncluded(pr: ProjectResource): Boolean =
-      config.includedProjects.exists(regex => regex.matches(pr.value.ref.toString))
+    def isIncluded(pr: ProjectDeletionCandidate): Boolean =
+      config.includedProjects.exists(regex => regex.matches(pr.ref.toString))
 
-    def notExcluded(pr: ProjectResource): Boolean =
-      !config.excludedProjects.exists(regex => regex.matches(pr.value.ref.toString))
+    def notExcluded(pr: ProjectDeletionCandidate): Boolean =
+      !config.excludedProjects.exists(regex => regex.matches(pr.ref.toString))
 
-    def deletableDueToDeprecation(pr: ProjectResource): Boolean =
+    def deletableDueToDeprecation(pr: ProjectDeletionCandidate): Boolean =
       config.deleteDeprecatedProjects && pr.deprecated
 
-    def deletableDueToBeingIdle(pr: ProjectResource): IO[Boolean] = {
-      given Semigroup[Boolean] = andSemigroup
-      for {
-        now  <- clock.realTimeInstant
-        idle <- NonEmptyList.of(IO.pure(projectIsIdle(pr, now)), resourcesAreIdle(pr, now)).reduce
-      } yield {
-        idle
+    def deletableDueToBeingIdle(pr: ProjectDeletionCandidate): IO[Boolean] =
+      clock.realTimeInstant.flatMap { now =>
+        (IO.pure(projectIsIdle(pr, now)), resourcesAreIdle(pr, now)).mapN(_ && _)
       }
-    }
 
-    def projectIsIdle(pr: ProjectResource, now: Instant) =
+    def projectIsIdle(pr: ProjectDeletionCandidate, now: Instant) =
       diff(now, pr.updatedAt).toSeconds > config.idleInterval.toSeconds
 
-    def resourcesAreIdle(pr: ProjectResource, now: Instant): IO[Boolean] =
-      lastEventTime(pr, now).map(_.isBefore(now.minus(Duration.ofMillis(config.idleInterval.toMillis))))
+    // A project with no statistics is treated as not idle (we can't tell it's been inactive long enough).
+    def resourcesAreIdle(pr: ProjectDeletionCandidate, now: Instant): IO[Boolean] =
+      lastEventTime(pr).map(_.exists(_.isBefore(now.minus(Duration.ofMillis(config.idleInterval.toMillis)))))
 
-    def alreadyDeleted(pr: ProjectResource): Boolean = pr.value.markedForDeletion
+    def alreadyDeleted(pr: ProjectDeletionCandidate): Boolean = pr.markedForDeletion
 
-    def worthyOfDeletion(pr: ProjectResource): IO[Boolean] = {
-      given Semigroup[Boolean] = orSemigroup
-      NonEmptyList.of(IO.pure(deletableDueToDeprecation(pr)), deletableDueToBeingIdle(pr)).reduce
-    }
+    def worthyOfDeletion(pr: ProjectDeletionCandidate): IO[Boolean] =
+      (IO.pure(deletableDueToDeprecation(pr)), deletableDueToBeingIdle(pr)).mapN(_ || _)
 
-    given Semigroup[Boolean] = andSemigroup
-    NonEmptyList
-      .of(
-        IO.pure(isIncluded(pr)),
-        IO.pure(notExcluded(pr)),
-        IO.pure(!alreadyDeleted(pr)),
-        worthyOfDeletion(pr)
-      )
-      .reduce
+    (
+      IO.pure(isIncluded(pr)),
+      IO.pure(notExcluded(pr)),
+      IO.pure(!alreadyDeleted(pr)),
+      worthyOfDeletion(pr)
+    ).mapN(_ && _ && _ && _)
   }
 }

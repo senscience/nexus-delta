@@ -16,6 +16,7 @@ import pureconfig.ConfigReader
 
 import scala.reflect.ClassTag
 
+// $COVERAGE-OFF$
 trait NexusModuleDef extends ModuleDef {
 
   final def makeConfig[C: {ClassTag, ConfigReader, Tag}](path: String): MakeDSLUnnamedAfterFrom[C] =
@@ -39,3 +40,4 @@ trait NexusModuleDef extends ModuleDef {
     many[EntityType].named("indexing-types").add(entityType)
 
 }
+// $COVERAGE-ON$

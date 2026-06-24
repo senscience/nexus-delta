@@ -1,72 +1,89 @@
 package ai.senscience.nexus.delta.projectdeletion
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.kernel.search.Pagination
+import ai.senscience.nexus.delta.projectdeletion.ProjectDeletionRunner.{logger, ProjectDeletionCandidate}
 import ai.senscience.nexus.delta.projectdeletion.model.ProjectDeletionConfig
-import ai.senscience.nexus.delta.sdk.ProjectResource
-import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
+import ai.senscience.nexus.delta.sdk.projects.model.ProjectState
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
-import ai.senscience.nexus.delta.sourcing.model.Identity
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
+import ai.senscience.nexus.delta.sourcing.model.{Identity, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.stream.{CompiledProjection, ExecutionStrategy, ProjectionMetadata, Supervisor}
 import cats.effect.{Clock, IO}
-import cats.implicits.*
 import fs2.Stream
 
 import java.time.Instant
 
-class ProjectDeletionRunner(projects: Projects, config: ProjectDeletionConfig, projectStatistics: ProjectsStatistics) {
+/**
+  * Periodically streams the existing projects and deletes the ones that [[ShouldDeleteProject]] selects.
+  */
+class ProjectDeletionRunner(
+    config: ProjectDeletionConfig,
+    candidates: Stream[IO, ProjectDeletionCandidate],
+    fetchLastEventTime: ProjectRef => IO[Option[Instant]],
+    deleteProject: (ProjectRef, Int) => IO[Unit],
+    clock: Clock[IO]
+) {
 
-  private val logger = Logger[ProjectDeletionRunner]
-
-  private def lastEventTime(pr: ProjectResource, now: Instant): IO[Instant] = {
-    projectStatistics
-      .get(pr.value.ref)
-      .map(_.map(_.lastEventTime).getOrElse {
-        logger.error(s"Statistics for project '${pr.value.ref}' were not found")
-        now
-      })
-  }
-
-  private val allProjects: IO[Seq[ProjectResource]] = {
-    projects
-      .list(
-        Pagination.OnePage,
-        ProjectSearchParams(filter = _ => IO.pure(true)),
-        Ordering.by(_.updatedAt) // this is not needed, we are forced to specify an ordering
-      )
-      .map(_.results)
-      .map(_.map(_.source))
-  }
-
-  private def deleteProject(pr: ProjectResource): IO[Unit] = {
-    given Subject = Identity.Anonymous
-    projects
-      .delete(pr.value.ref, pr.rev)
-      .handleErrorWith(e => logger.error(s"Error deleting project from plugin: $e"))
-      .void
-  }
-
-  def projectDeletionPass(clock: Clock[IO]): IO[Unit] = {
-
-    val shouldDeleteProject = ShouldDeleteProject(config, lastEventTime, clock)
-
-    def possiblyDelete(project: ProjectResource): IO[Unit] = {
-      shouldDeleteProject(project).flatMap {
-        case true  => deleteProject(project)
-        case false => IO.unit
-      }
+  private def lastEventTime(candidate: ProjectDeletionCandidate): IO[Option[Instant]] =
+    fetchLastEventTime(candidate.ref).flatTap {
+      case None    => logger.error(s"Statistics for project '${candidate.ref}' were not found")
+      case Some(_) => IO.unit
     }
 
-    allProjects
-      .flatMap(_.traverse(possiblyDelete))
-      .void
+  private def delete(candidate: ProjectDeletionCandidate): IO[Unit] =
+    deleteProject(candidate.ref, candidate.rev)
+      .handleErrorWith(e => logger.error(s"Error deleting project '${candidate.ref}' from plugin: $e"))
+
+  def run: IO[Unit] = {
+    val shouldDeleteProject = ShouldDeleteProject(config, lastEventTime, clock)
+
+    def possiblyDelete(candidate: ProjectDeletionCandidate): IO[Unit] =
+      shouldDeleteProject(candidate).flatMap { bool => IO.whenA(bool)(delete(candidate)) }
+
+    candidates.evalMap(possiblyDelete).compile.drain
   }
 }
 
 object ProjectDeletionRunner {
+
+  private val logger = Logger[ProjectDeletionRunner]
+
+  final case class ProjectDeletionCandidate(
+      ref: ProjectRef,
+      rev: Int,
+      deprecated: Boolean,
+      markedForDeletion: Boolean,
+      updatedAt: Instant
+  )
+
+  object ProjectDeletionCandidate {
+    def fromState(state: ProjectState): ProjectDeletionCandidate =
+      ProjectDeletionCandidate(state.project, state.rev, state.deprecated, state.markedForDeletion, state.updatedAt)
+  }
+
   private val projectionMetadata: ProjectionMetadata =
     ProjectionMetadata("system", "project-automatic-deletion", None, None)
+
+  def apply(
+      projects: Projects,
+      config: ProjectDeletionConfig,
+      projectStatistics: ProjectsStatistics,
+      clock: Clock[IO]
+  ): ProjectDeletionRunner = {
+    val candidates: Stream[IO, ProjectDeletionCandidate] =
+      projects.currentStates(Offset.start).map(elem => ProjectDeletionCandidate.fromState(elem.value))
+
+    val fetchLastEventTime: ProjectRef => IO[Option[Instant]] =
+      ref => projectStatistics.get(ref).map(_.map(_.lastEventTime))
+
+    val deleteProject: (ProjectRef, Int) => IO[Unit] = { (ref, rev) =>
+      given Subject = Identity.Anonymous
+      projects.delete(ref, rev).void
+    }
+
+    new ProjectDeletionRunner(config, candidates, fetchLastEventTime, deleteProject, clock)
+  }
 
   /**
     * Constructs a ProjectDeletionRunner process that is started in the supervisor.
@@ -78,13 +95,9 @@ object ProjectDeletionRunner {
       supervisor: Supervisor,
       clock: Clock[IO]
   ): IO[ProjectDeletionRunner] = {
+    val runner = apply(projects, config, projectStatistics, clock)
 
-    val runner = new ProjectDeletionRunner(projects, config, projectStatistics)
-
-    val continuousStream = Stream
-      .fixedRate[IO](config.idleCheckPeriod)
-      .evalMap(_ => runner.projectDeletionPass(clock))
-      .drain
+    val continuousStream = Stream.fixedRate[IO](config.idleCheckPeriod).evalMap(_ => runner.run).drain
 
     val compiledProjection =
       CompiledProjection.fromStream(projectionMetadata, ExecutionStrategy.TransientSingleNode, _ => continuousStream)
