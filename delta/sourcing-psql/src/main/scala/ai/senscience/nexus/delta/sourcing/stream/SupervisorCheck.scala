@@ -21,7 +21,7 @@ final class SupervisorCheck(
           supervisorStorage.update(name)(heal).void
         case Outcome.Completed(name) =>
           supervisorStorage.delete(name) { s =>
-            logger.info(s"Evicting completed projection '${s.metadata.name}' from supervision.")
+            logger.debug(s"Evicting completed projection '${s.metadata.name}' from supervision.")
           }
       }
       .interruptWhen(halt.get.attempt)

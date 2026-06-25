@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.elasticsearch.ElasticSearchViews
 import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, ProjectionActivations, ProjectionResumer}
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionActivations, ProjectionResumer}
 
 type ElasticProjectionResumer = ProjectionResumer[ActiveViewDef]
 
@@ -14,14 +14,12 @@ object ElasticProjectionResumer {
     */
   def apply(
       currentActiveViews: CurrentActiveViews,
-      projectActivity: ProjectActivity,
       activations: ProjectionActivations
   ): ElasticProjectionResumer =
     ProjectionResumer(
       ElasticSearchViews.entityType.value,
       currentActiveViews.stream,
       currentActiveViews.fetch,
-      projectActivity,
       activations
     )
 

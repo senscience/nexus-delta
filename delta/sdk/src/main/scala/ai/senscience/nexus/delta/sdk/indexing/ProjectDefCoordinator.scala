@@ -60,7 +60,7 @@ object ProjectDefCoordinator {
           case p if p.markedForDeletion =>
             projectionLifecycles.traverse(b => b.compile(p.ref).flatMap(supervisor.destroy)).void
           case p                        =>
-            startIfActive(p.ref)
+            startProjections(p.ref)
         }
       }
       processProjects.concurrently(handleActivations)
@@ -88,22 +88,10 @@ object ProjectDefCoordinator {
         }
         .void
 
-    // Start a project's projections from the state stream only if the project is currently active; otherwise they are
-    // started when it next becomes active (via `handleActivations`). This avoids starting—then passivating—projections
-    // for inactive projects each time the (every-node, offset-0) state stream is replayed.
-    private def startIfActive(project: ProjectRef): IO[Unit] =
-      resumer.isActive(project).flatMap {
-        case true  => startProjections(project)
-        case false => logger.debug(s"Project indexing for '$project' is not started as its project is not active.")
-      }
-
+    // Start a project's projections
     private def startProjections(project: ProjectRef): IO[Unit] =
       projectionLifecycles.traverse_(start(_, project))
 
-    // `supervisor.run` is idempotent: if the projection is already supervised it is left running and the call is a
-    // no-op. So we always call it rather than checking the current state with `describe` — that check would race with
-    // the projection's natural lifecycle. Overlapping triggers (a project-state replay and an activation) thus collapse
-    // to a single start.
     private def start(projectionLifecycle: ProjectProjectionLifecycle, project: ProjectRef): IO[Unit] =
       projectionLifecycle.compile(project).flatMap { compiled =>
         supervisor.run(compiled, projectionLifecycle.onInit(project)).void

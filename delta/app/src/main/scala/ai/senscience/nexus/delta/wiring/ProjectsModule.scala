@@ -24,7 +24,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.partition.DatabasePartitioner
 import ai.senscience.nexus.delta.sourcing.projections.ProjectLastUpdateStore
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, ProjectionActivations, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -76,8 +76,8 @@ object ProjectsModule extends NexusModuleDef {
       )
   }
 
-  make[ProjectDefResumer].from { (projectActivity: ProjectActivity, activations: ProjectionActivations) =>
-    ProjectDefResumer(projectActivity, activations)
+  make[ProjectDefResumer].from { (activations: ProjectionActivations) =>
+    ProjectDefResumer(activations)
   }
 
   make[ProjectDefCoordinator].fromEffect {
