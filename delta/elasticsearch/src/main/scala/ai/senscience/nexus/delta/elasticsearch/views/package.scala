@@ -11,11 +11,12 @@ package object views {
   opaque type DefaultIndexDef = ElasticsearchIndexDef
 
   object DefaultIndexDef {
-    def load()(using loader: ClasspathResourceLoader): IO[DefaultIndexDef] =
+    def load(serverless: Boolean = false)(using loader: ClasspathResourceLoader): IO[DefaultIndexDef] =
       ElasticsearchIndexDef.fromClasspath(
         "defaults/default-mapping.json",
         Some("defaults/default-settings.json"),
-        "number_of_shards" -> 1
+        "number_of_shards" -> 1,
+        "serverless"       -> serverless
       )
 
     def fromJson(mapping: JsonObject, settings: JsonObject): DefaultIndexDef =

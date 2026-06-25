@@ -13,12 +13,15 @@ final case class MainIndexDef(name: IndexLabel, indexDef: ElasticsearchIndexDef)
 
 object MainIndexDef {
 
-  def apply(config: MainIndexConfig)(using loader: ClasspathResourceLoader): IO[MainIndexDef] =
+  def apply(config: MainIndexConfig, serverless: Boolean = false)(using
+      loader: ClasspathResourceLoader
+  ): IO[MainIndexDef] =
     ElasticsearchIndexDef
       .fromClasspath(
         "defaults/default-mapping.json",
         Some("defaults/default-settings.json"),
-        "number_of_shards" -> config.shards
+        "number_of_shards" -> config.shards,
+        "serverless"       -> serverless
       )
       .map(MainIndexDef(config.index, _))
 

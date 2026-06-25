@@ -49,8 +49,8 @@
         "preserve_original": true
       }
     }
-  },
+  }{{#unless serverless}},
   "index": {
     "number_of_shards": {{number_of_shards}}
-  }
+  }{{/unless}}
 }

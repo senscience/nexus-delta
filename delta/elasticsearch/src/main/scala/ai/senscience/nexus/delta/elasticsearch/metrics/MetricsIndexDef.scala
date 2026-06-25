@@ -12,11 +12,12 @@ final case class MetricsIndexDef(name: IndexLabel, indexDef: ElasticsearchIndexD
 
 object MetricsIndexDef {
 
-  def apply(prefix: String)(using loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
+  def apply(prefix: String, serverless: Boolean = false)(using loader: ClasspathResourceLoader): IO[MetricsIndexDef] =
     ElasticsearchIndexDef
       .fromClasspath(
         "metrics/metrics-mapping.json",
-        Some("metrics/metrics-settings.json")
+        Some("metrics/metrics-settings.json"),
+        "serverless" -> serverless
       )
       .map { d => MetricsIndexDef(IndexLabel.unsafe(s"${prefix}_project_metrics"), d) }
 

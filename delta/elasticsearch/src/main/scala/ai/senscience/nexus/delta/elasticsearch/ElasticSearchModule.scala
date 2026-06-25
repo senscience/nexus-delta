@@ -57,14 +57,14 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
   makeTracer("elasticsearch-indexing")
 
   make[MetricsIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) =>
-    MetricsIndexDef(cfg.prefix)
+    MetricsIndexDef(cfg.prefix, cfg.serverless)
   }
 
   make[MainIndexConfig].from { (cfg: ElasticSearchViewsConfig) => cfg.mainIndex }
 
-  make[DefaultIndexDef].fromEffect { DefaultIndexDef.load() }
+  make[DefaultIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) => DefaultIndexDef.load(cfg.serverless) }
 
-  make[MainIndexDef].fromEffect { (cfg: MainIndexConfig) => MainIndexDef(cfg) }
+  make[MainIndexDef].fromEffect { (cfg: ElasticSearchViewsConfig) => MainIndexDef(cfg.mainIndex, cfg.serverless) }
 
   private def buildElasticsearchClient(
       cfg: ElasticSearchViewsConfig,

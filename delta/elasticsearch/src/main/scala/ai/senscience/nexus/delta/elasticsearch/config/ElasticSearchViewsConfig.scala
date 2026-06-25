@@ -42,6 +42,9 @@ import scala.concurrent.duration.*
   *   query configuration for the metrics projection
   * @param indexingEnabled
   *   if false, disables Elasticsearch indexing
+  * @param serverless
+  *   whether the targeted Elasticsearch is a serverless deployment; when true, index settings unsupported on serverless
+  *   (e.g. `number_of_shards`) are omitted
   */
 final case class ElasticSearchViewsConfig(
     base: Uri,
@@ -58,6 +61,7 @@ final case class ElasticSearchViewsConfig(
     maxIndexPathLength: Int,
     metricsQuery: QueryConfig,
     indexingEnabled: Boolean,
+    serverless: Boolean,
     otel: OpentelemetryConfig
 )
 
