@@ -61,11 +61,6 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
   private val view3       =
     activeView(ViewRef(project, id3), "view3", pipeChain = Some(PipeChain(unknownPipe -> ExpandedJsonLd.empty)))
 
-  // A view whose project is inactive: the coordinator should not start it.
-  private val inactiveProject = ProjectRef.unsafe("org", "inactive")
-  private val id4             = nxv + "view4"
-  private val inactiveView    = activeView(ViewRef(inactiveProject, id4), "view4")
-
   private val deprecatedView1 = DeprecatedViewDef(
     ViewRef(project, id1)
   )
@@ -87,9 +82,9 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
       rev = 1
     )
 
-  // Streams 4 elements (incl. a view on an inactive project) until the signal is set, then 1 deprecated and 1 updated view
+  // Streams 3 views until the signal is set, then 1 deprecated and 1 updated view
   private def viewStream: SuccessElemStream[IndexingViewDef] =
-    Stream(viewAsElem(view1, 1L), viewAsElem(view2, 2L), viewAsElem(view3, 3L), viewAsElem(inactiveView, 4L)) ++
+    Stream(viewAsElem(view1, 1L), viewAsElem(view2, 2L), viewAsElem(view3, 3L)) ++
       resumeStream ++
       Stream(
         viewAsElem(deprecatedView1, 5L),
@@ -134,16 +129,15 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
   private def fetchCoordinatorProgress =
     sv.describe(ElasticSearchCoordinator.metadata.name).map(_.map(_.progress))
 
-  // Tracks that the coordinator started the resume stream; `isActive` answers from the active projects above.
+  // Tracks that the coordinator started the resume stream.
   private val resumerStarted                    = Ref.unsafe[IO, Boolean](false)
   private val resumer: ElasticProjectionResumer = new ProjectionResumer[ActiveViewDef] {
-    override def isActive(p: ProjectRef): IO[Boolean]                     = IO.pure(p == project)
     override def run(resume: ActiveViewDef => IO[Unit]): Stream[IO, Unit] =
       Stream.exec(resumerStarted.set(true)) ++ Stream.never[IO]
   }
 
   test("Start the coordinator") {
-    val expectedProgress = ProjectionProgress(Offset.at(4L), Instant.EPOCH, 4, 0, 1)
+    val expectedProgress = ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 1)
     ElasticSearchCoordinator((_: Offset) => viewStream, lifecycle, sv, resumer) >>
       resumerStarted.get.assertEquals(true).eventually >>
       fetchCoordinatorProgress.assertEquals(Some(expectedProgress)).eventually
@@ -162,11 +156,6 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
   test("View 3 is invalid so it should not be started") {
     projections.progress(view3.projection).assertEquals(None) >>
       assertNotRecorded(view3)
-  }
-
-  test("The view on an inactive project should not be started") {
-    projections.progress(inactiveView.projection).assertEquals(None) >>
-      assertNotRecorded(inactiveView)
   }
 
   test("There is one error for the coordinator projection before the signal") {
@@ -194,7 +183,7 @@ class ElasticSearchCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixt
   }
 
   test("Resume the stream of view") {
-    val expectedProgress = ProjectionProgress(Offset.at(7L), Instant.EPOCH, 7, 0, 1)
+    val expectedProgress = ProjectionProgress(Offset.at(7L), Instant.EPOCH, 6, 0, 1)
     resumeSignal.set(true) >>
       fetchCoordinatorProgress.assertEquals(Some(expectedProgress)).eventually
   }

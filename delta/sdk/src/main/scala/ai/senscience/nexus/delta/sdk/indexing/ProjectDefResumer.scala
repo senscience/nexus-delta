@@ -1,19 +1,15 @@
 package ai.senscience.nexus.delta.sdk.indexing
 
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, ProjectionActivation, ProjectionActivations, ProjectionMetadata}
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionActivation, ProjectionActivations, ProjectionMetadata}
 import cats.effect.IO
 import fs2.Stream
 
 /**
   * Resumes a project's projections as activation events come in: a whole-project activation resumes all of the
-  * project's projections, while a single-projection activation resumes only that one. It also exposes project activity
-  * so [[ProjectDefCoordinator]] can gate the initial start of its projections on it.
+  * project's projections, while a single-projection activation resumes only that one.
   */
 trait ProjectDefResumer {
-
-  /** Whether the given project is currently active. */
-  def isActive(project: ProjectRef): IO[Boolean]
 
   /**
     * A never-ending stream that resumes projections as activations are published: `resumeProject` for a whole-project
@@ -24,17 +20,10 @@ trait ProjectDefResumer {
 
 object ProjectDefResumer {
 
-  def apply(projectActivity: ProjectActivity, activations: ProjectionActivations): ProjectDefResumer =
-    new ProjectDefResumer {
-      override def isActive(project: ProjectRef): IO[Boolean] = projectActivity.isActive(project)
-
-      override def run(
-          resumeProject: ProjectRef => IO[Unit],
-          resumeProjection: ProjectionMetadata => IO[Unit]
-      ): Stream[IO, Unit] =
-        activations.events.evalMap {
-          case ProjectionActivation.ForProject(project)     => resumeProject(project)
-          case ProjectionActivation.ForProjection(metadata) => resumeProjection(metadata)
-        }
-    }
+  def apply(activations: ProjectionActivations): ProjectDefResumer =
+    (resumeProject: ProjectRef => IO[Unit], resumeProjection: ProjectionMetadata => IO[Unit]) =>
+      activations.events.evalMap {
+        case ProjectionActivation.ForProject(project)     => resumeProject(project)
+        case ProjectionActivation.ForProjection(metadata) => resumeProjection(metadata)
+      }
 }

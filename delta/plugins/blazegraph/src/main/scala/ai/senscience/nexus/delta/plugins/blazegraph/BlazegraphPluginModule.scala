@@ -32,7 +32,7 @@ import ai.senscience.nexus.delta.sdk.views.ViewsList
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionsRestartScheduler
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectActivity, ProjectionActivations, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -128,9 +128,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
       )(using baseUri, tracer)
   }
 
-  make[SparqlProjectionResumer].from {
-    (currentActiveViews: CurrentActiveViews, projectActivity: ProjectActivity, activations: ProjectionActivations) =>
-      SparqlProjectionResumer(currentActiveViews, projectActivity, activations)
+  make[SparqlProjectionResumer].from { (currentActiveViews: CurrentActiveViews, activations: ProjectionActivations) =>
+    SparqlProjectionResumer(currentActiveViews, activations)
   }
 
   make[SparqlCoordinator].fromEffect {

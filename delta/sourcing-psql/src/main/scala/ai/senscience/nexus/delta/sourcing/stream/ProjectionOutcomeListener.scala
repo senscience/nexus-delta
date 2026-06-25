@@ -76,8 +76,10 @@ object ProjectionOutcomeListener {
             channel.send(Outcome.Failed(metadata.name)).void
 
         override def onCompletion(metadata: ProjectionMetadata, didWork: Boolean): IO[Unit] =
-          metrics.recordTermination(metadata, TerminationOutcome.Completed) >>
-            IO.whenA(didWork)(clock.realTimeInstant.flatMap(store.recordCompletion(metadata, _))) >>
+          IO.whenA(didWork) {
+            metrics.recordTermination(metadata, TerminationOutcome.Completed) >>
+              clock.realTimeInstant.flatMap(store.recordCompletion(metadata, _))
+          } >>
             channel.send(Outcome.Completed(metadata.name)).void
 
         override def outcomes: Stream[IO, Outcome] = channel.stream

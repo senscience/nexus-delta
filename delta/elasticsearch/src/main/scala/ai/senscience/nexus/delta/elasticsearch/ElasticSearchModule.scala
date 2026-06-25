@@ -37,7 +37,7 @@ import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
 import ai.senscience.nexus.delta.sourcing.projections.{Projections, ProjectionsRestartScheduler}
 import ai.senscience.nexus.delta.sourcing.query.ElemStreaming
-import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectActivity, ProjectionActivations, Supervisor}
+import ai.senscience.nexus.delta.sourcing.stream.{PipeChainCompiler, ProjectionActivations, Supervisor}
 import cats.effect.{Clock, IO}
 import com.typesafe.config.Config
 import izumi.distage.model.definition.Id
@@ -164,9 +164,8 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       ElasticProjectionLifecycle(graphStream, pipeChainCompiler, client, config, store)(using cr, tracer)
   }
 
-  make[ElasticProjectionResumer].from {
-    (currentActiveViews: CurrentActiveViews, projectActivity: ProjectActivity, activations: ProjectionActivations) =>
-      ElasticProjectionResumer(currentActiveViews, projectActivity, activations)
+  make[ElasticProjectionResumer].from { (currentActiveViews: CurrentActiveViews, activations: ProjectionActivations) =>
+    ElasticProjectionResumer(currentActiveViews, activations)
   }
 
   make[ElasticSearchCoordinator].fromEffect {

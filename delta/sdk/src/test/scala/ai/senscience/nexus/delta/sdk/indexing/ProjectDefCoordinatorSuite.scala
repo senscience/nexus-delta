@@ -30,15 +30,11 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   private val project1 = ProjectRef.unsafe("org", "proj1")
   private val project2 = ProjectRef.unsafe("org", "proj2")
-  // An inactive project: the coordinator should not start its projections from the state stream.
-  private val project3 = ProjectRef.unsafe("org", "proj3")
 
   private val resumeSignal    = SignallingRef[IO, Boolean](false).unsafeRunSync()
-  // project1 and project2 are active; project3 is not.
-  private val projectActivity = ControllableProjectActivity(project1, project2).unsafeRunSync()
   // The activations topic the resumer reacts to; the tests publish project/projection activations to it.
   private val activations     = ProjectionActivations().unsafeRunSync()
-  private val resumer         = ProjectDefResumer(projectActivity, activations)
+  private val resumer         = ProjectDefResumer(activations)
   // Counts onInit invocations per project; lets the resume test assert restart deterministically (there is no store).
   private val initInvocations = InvocationCounter[ProjectRef]()
 
@@ -50,14 +46,13 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
   private def projectElem(project: ProjectRef, markedForDeletion: Boolean, offset: Long): SuccessElem[ProjectDef] =
     success(Projects.entityType, project, Projects.encodeId(project), ProjectDef(project, markedForDeletion), offset)
 
-  // Streams 3 project states (incl. an inactive project) until the signal is set, then re-emits project1 and marks
-  // project2 for deletion. Trailing `Stream.never` keeps the coordinator alive so the `handleActivations` subscriber
-  // (registered via `concurrently`) stays alive for the resume test.
+  // Streams 2 project states until the signal is set, then re-emits project1 and marks project2 for deletion. Trailing
+  // `Stream.never` keeps the coordinator alive so the `handleActivations` subscriber (registered via `concurrently`)
+  // stays alive for the resume test.
   private def projectStream: SuccessElemStream[ProjectDef] =
     Stream(
       projectElem(project1, markedForDeletion = false, 1L),
-      projectElem(project2, markedForDeletion = false, 2L),
-      projectElem(project3, markedForDeletion = false, 3L)
+      projectElem(project2, markedForDeletion = false, 2L)
     ) ++ Stream.never[IO].interruptWhen(resumeSignal) ++
       Stream(
         projectElem(project1, markedForDeletion = false, 4L),
@@ -122,7 +117,7 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
 
   test("Start the coordinator") {
     ProjectDefCoordinator(sv, _ => projectStream, resumer, Set(projectProjectionFactory)) >>
-      assertCoordinatorProgress(ProjectionProgress(Offset.at(3L), Instant.EPOCH, 3, 0, 0))
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(2L), Instant.EPOCH, 2, 0, 0))
   }
 
   test(s"Projection for '$project1' processed all items and completed") {
@@ -133,14 +128,9 @@ class ProjectDefCoordinatorSuite extends NexusSuite with SupervisorSetup.Fixture
     assertCompleted(project2)
   }
 
-  test(s"Projection for the inactive '$project3' should not be started") {
-    projections.progress(projectionName(project3)).assertEquals(None) >>
-      initInvocations.count(project3).assertEquals(0)
-  }
-
   test("Resume the stream of projects") {
     resumeSignal.set(true) >>
-      assertCoordinatorProgress(ProjectionProgress(Offset.at(5L), Instant.EPOCH, 5, 0, 0))
+      assertCoordinatorProgress(ProjectionProgress(Offset.at(5L), Instant.EPOCH, 4, 0, 0))
   }
 
   test(s"Projection for '$project1' should not be restarted by the new project state") {

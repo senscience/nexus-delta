@@ -65,13 +65,8 @@ object ElasticSearchCoordinator {
             // Clean up any revision other than the current one (old indices/projections); each cleanup self-gates to
             // the node owning that revision.
             _        <- recorded.filterNot(_.indexingRev == active.indexingRev).traverse(cleanup)
-            // Start the current revision unless it is already materialized; only if its project is active.
-            _        <- IO.unlessA(recorded.exists(_.indexingRev == active.indexingRev)) {
-                          resumer.isActive(active.ref.project).flatMap {
-                            case true  => start(active)
-                            case false => logger.debug(s"View '${active.ref}' is not started as its project is not active.")
-                          }
-                        }
+            // Start the current revision unless it is already materialized.
+            _        <- IO.unlessA(recorded.exists(_.indexingRev == active.indexingRev))(start(active))
           } yield ()
         case deprecated: DeprecatedViewDef =>
           // A deprecated view has no surviving projection: clean up all of them.

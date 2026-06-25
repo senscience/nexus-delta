@@ -21,31 +21,22 @@ class ProjectionResumerSuite extends NexusSuite {
   private val active = Map(project -> List("a", "b"), inactive -> List("c"))
   private val byId   = Map((project, id) -> "a", (inactive, id) -> "c")
 
-  // Builds a resumer over String "views" recording the resumed ones into a Ref, with the given active projects.
-  private def setup(activeSet: Set[ProjectRef]) =
+  // Builds a resumer over String "views" recording the resumed ones into a Ref.
+  private def setup =
     for {
-      resumed        <- Ref.of[IO, List[String]](List.empty)
-      activations    <- ProjectionActivations()
-      projectActivity = new ProjectActivity {
-                          override def isActive(p: ProjectRef): IO[Boolean] = IO.pure(activeSet.contains(p))
-                          override def activations: Stream[IO, ProjectRef]  = Stream.empty
-                          override def activeProjects: IO[List[ProjectRef]] = IO.pure(activeSet.toList)
-                        }
-      resumer         = ProjectionResumer[String](
-                          module,
-                          p => Stream.iterable(active.getOrElse(p, List.empty)),
-                          (p, i) => IO.pure(byId.get((p, i))),
-                          projectActivity,
-                          activations
-                        )
+      resumed     <- Ref.of[IO, List[String]](List.empty)
+      activations <- ProjectionActivations()
+      resumer      = ProjectionResumer[String](
+                       module,
+                       p => Stream.iterable(active.getOrElse(p, List.empty)),
+                       (p, i) => IO.pure(byId.get((p, i))),
+                       activations
+                     )
     } yield (resumer, activations, resumed)
 
   // Runs the resumer in the background, gives it a moment to subscribe, publishes, then asserts.
-  private def publishing(activeProjects: Set[ProjectRef])(
-      activation: ProjectionActivation,
-      expected: Set[String]
-  ) =
-    setup(activeProjects).flatMap { case (resumer, activations, resumed) =>
+  private def publishing(activation: ProjectionActivation, expected: Set[String]) =
+    setup.flatMap { case (resumer, activations, resumed) =>
       resumer.run(v => resumed.update(_ :+ v)).compile.drain.background.surround {
         IO.sleep(200.millis) >>
           activations.publish(activation) >>
@@ -54,24 +45,15 @@ class ProjectionResumerSuite extends NexusSuite {
     }
 
   test("ForProject resumes all the active views of the project") {
-    publishing(Set(project))(ProjectionActivation.ForProject(project), Set("a", "b"))
+    publishing(ProjectionActivation.ForProject(project), Set("a", "b"))
   }
 
   test("ForProjection resumes the targeted view regardless of project activity") {
-    publishing(Set.empty)(ProjectionActivation.ForProjection(ProjectionMetadata(module, "a", project, id)), Set("a"))
+    publishing(ProjectionActivation.ForProjection(ProjectionMetadata(module, "a", project, id)), Set("a"))
   }
 
   test("ForProjection of another module is ignored") {
-    publishing(Set(project))(
-      ProjectionActivation.ForProjection(ProjectionMetadata("other", "a", project, id)),
-      Set.empty
-    )
-  }
-
-  test("isActive reflects the underlying project activity") {
-    setup(Set(project)).flatMap { case (resumer, _, _) =>
-      resumer.isActive(project).assertEquals(true) >> resumer.isActive(inactive).assertEquals(false)
-    }
+    publishing(ProjectionActivation.ForProjection(ProjectionMetadata("other", "a", project, id)), Set.empty)
   }
 
 }

@@ -60,8 +60,8 @@ object SparqlCoordinator {
             // Clean up any revision other than the current one (old namespaces/projections); each cleanup self-gates to
             // the node owning that revision.
             _        <- recorded.filterNot(_.indexingRev == active.indexingRev).traverse_(cleanup)
-            // Start the current revision unless it is already materialized; only if its project is active.
-            _        <- IO.unlessA(recorded.exists(_.indexingRev == active.indexingRev))(startIfActive(active))
+            // Start the current revision unless it is already materialized.
+            _        <- IO.unlessA(recorded.exists(_.indexingRev == active.indexingRev))(start(active))
           } yield ()
         case deprecated: DeprecatedViewDef =>
           // A deprecated view has no surviving projection: clean up all of them. The def carries the current revision,
@@ -71,12 +71,6 @@ object SparqlCoordinator {
           projectionLifeCycle.recorded(deprecated.ref).flatMap { recorded =>
             (current :: recorded.filterNot(_.indexingRev == deprecated.indexingRev)).traverse_(cleanup)
           }
-      }
-
-    private def startIfActive(view: ActiveViewDef): IO[Unit] =
-      resumer.isActive(view.ref.project).flatMap {
-        case true  => start(view)
-        case false => logger.debug(s"View '${view.ref}' is not started as its project is not active.")
       }
 
     /** Compiles and runs the view, creating its namespace and recording the running view as part of the init. */

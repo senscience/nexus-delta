@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.indexing
 
 import ai.senscience.nexus.delta.plugins.blazegraph.BlazegraphViews
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.IndexingViewDef.ActiveViewDef
-import ai.senscience.nexus.delta.sourcing.stream.{ProjectActivity, ProjectionActivations, ProjectionResumer}
+import ai.senscience.nexus.delta.sourcing.stream.{ProjectionActivations, ProjectionResumer}
 
 type SparqlProjectionResumer = ProjectionResumer[ActiveViewDef]
 
@@ -14,14 +14,12 @@ object SparqlProjectionResumer {
     */
   def apply(
       currentActiveViews: CurrentActiveViews,
-      projectActivity: ProjectActivity,
       activations: ProjectionActivations
   ): SparqlProjectionResumer =
     ProjectionResumer(
       BlazegraphViews.entityType.value,
       currentActiveViews.stream,
       currentActiveViews.fetch,
-      projectActivity,
       activations
     )
 
