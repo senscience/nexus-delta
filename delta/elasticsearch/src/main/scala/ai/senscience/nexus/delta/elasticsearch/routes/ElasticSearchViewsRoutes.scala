@@ -9,7 +9,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -69,15 +70,13 @@ final class ElasticSearchViewsRoutes(
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
             concat(
-              routeSpan("views/<str:org>/<str:project>") {
-                // Create an elasticsearch view without id segment
-                (post & pathEndOrSingleSlash & noRev & authorizeWrite & jsonEntity) { source =>
-                  emitMetadataOrReject(Created, views.create(project, source))
-                }
+              // Create an elasticsearch view without id segment
+              (post & pathEndOrSingleSlash & noRev & authorizeWrite & jsonEntity) { source =>
+                emitMetadataOrReject(Created, views.create(project, source))
               },
               idSegment { id =>
                 concat(
-                  (routeSpan("views/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
+                  pathEndOrSingleSlash {
                     concat(
                       // Create or update an elasticsearch view
                       (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
@@ -101,38 +100,28 @@ final class ElasticSearchViewsRoutes(
                   },
                   // Undeprecate an elasticsearch view
                   (pathPrefix("undeprecate") & put & authorizeWrite & pathEndOrSingleSlash & revParam) { rev =>
-                    routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") {
-                      emitMetadataOrReject(
-                        views.undeprecate(id, project, rev)
-                      )
-                    }
+                    emitMetadataOrReject(
+                      views.undeprecate(id, project, rev)
+                    )
                   },
                   // Query an elasticsearch view
                   (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-                    routeSpan("views/<str:org>/<str:project>/<str:id>/_search") {
-                      elasticSearchRequest { request =>
-                        emit(viewsQuery.query(id, project, request))
-                      }
+                    elasticSearchRequest { request =>
+                      emit(viewsQuery.query(id, project, request))
                     }
                   },
                   // Create a point in time for the given view
                   (pathPrefix("_pit") & parameter("keep_alive".as[Long]) & post & pathEndOrSingleSlash) { keepAlive =>
-                    routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
-                      val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
-                      emitJson(viewsQuery.createPointInTime(id, project, keepAliveDuration))
-                    }
+                    val keepAliveDuration = Duration(keepAlive, TimeUnit.SECONDS)
+                    emitJson(viewsQuery.createPointInTime(id, project, keepAliveDuration))
                   },
                   // Delete a point in time
                   (pathPrefix("_pit") & entity(as[PointInTime]) & delete & pathEndOrSingleSlash) { pit =>
-                    routeSpan("views/<str:org>/<str:project>/<str:id>/_pit") {
-                      emit(StatusCodes.NoContent, viewsQuery.deletePointInTime(pit))
-                    }
+                    emit(StatusCodes.NoContent, viewsQuery.deletePointInTime(pit))
                   },
                   // Fetch an elasticsearch view original source
                   (pathPrefix("source") & get & authorizeRead & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                    routeSpan("views/<str:org>/<str:project>/<str:id>/source") {
-                      emitSource(views.fetch(id, project))
-                    }
+                    emitSource(views.fetch(id, project))
                   }
                 )
               }
@@ -145,6 +134,18 @@ final class ElasticSearchViewsRoutes(
 }
 
 object ElasticSearchViewsRoutes {
+
+  /** Names the elasticsearch views routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("views" / str("org") / str("project"))(
+      route(str("id"))(
+        route("undeprecate"),
+        route("_search"),
+        route("_pit"),
+        route("source")
+      )
+    )
+  )
 
   /**
     * @return

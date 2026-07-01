@@ -76,8 +76,8 @@ object ArchivePluginModule extends NexusModuleDef {
       new ArchiveRoutes(archives, identities, aclCheck)(using baseUri)(using rcr, jko, tracer)
   }
 
-  many[PriorityRoute].add { (cfg: ArchivePluginConfig, routes: ArchiveRoutes) =>
-    PriorityRoute(cfg.priority, routes.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (cfg: ArchivePluginConfig, routes: ArchiveRoutes) =>
+    RouteEntry(cfg.priority, routes.routes, requiresStrictEntity = true)
   }
 
   many[ApiMappings].add(Archives.mappings)

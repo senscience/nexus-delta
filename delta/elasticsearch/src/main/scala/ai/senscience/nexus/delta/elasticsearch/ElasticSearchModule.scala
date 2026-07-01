@@ -19,7 +19,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionLifecycle, SyncIndexingAction}
@@ -488,7 +488,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
 
   many[ApiMappings].add(ElasticSearchViews.mappings)
 
-  many[PriorityRoute].add {
+  many[RouteEntry].add {
     (
         es: ElasticSearchViewsRoutes,
         query: ListingRoutes,
@@ -500,7 +500,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         schemeDirectives: DeltaSchemeDirectives,
         baseUri: BaseUri
     ) =>
-      PriorityRoute(
+      RouteEntry(
         pluginsMinPriority - 1,
         ElasticSearchViewsRoutesHandler(
           schemeDirectives,
@@ -512,7 +512,18 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
           idResolutionRoute.routes,
           historyRoutes.routes
         )(using baseUri),
-        requiresStrictEntity = true
+        requiresStrictEntity = true,
+        classifier = RouteClassifier.combine(
+          List(
+            ElasticSearchViewsRoutes.classifier,
+            ListingRoutes.classifier,
+            ElasticSearchIndexingRoutes.classifier,
+            MainIndexRoutes.classifier,
+            ConfiguredIndexRoutes.classifier,
+            IdResolutionRoutes.classifier,
+            ElasticSearchHistoryRoutes.classifier
+          )
+        )
       )
   }
 

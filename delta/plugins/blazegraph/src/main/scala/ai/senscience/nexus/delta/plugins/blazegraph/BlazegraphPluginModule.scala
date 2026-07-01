@@ -15,7 +15,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
@@ -259,7 +259,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
 
   many[ApiMappings].add(BlazegraphViews.mappings)
 
-  many[PriorityRoute].add {
+  many[RouteEntry].add {
     (
         bg: BlazegraphViewsRoutes,
         indexing: BlazegraphViewsIndexingRoutes,
@@ -267,7 +267,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         schemeDirectives: DeltaSchemeDirectives,
         baseUri: BaseUri
     ) =>
-      PriorityRoute(
+      RouteEntry(
         priority,
         BlazegraphViewsRoutesHandler(
           schemeDirectives,
@@ -275,7 +275,13 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
           indexing.routes,
           supervision.routes
         )(using baseUri),
-        requiresStrictEntity = true
+        requiresStrictEntity = true,
+        classifier = RouteClassifier.combine(
+          List(
+            BlazegraphViewsRoutes.classifier,
+            BlazegraphViewsIndexingRoutes.classifier
+          )
+        )
       )
   }
 

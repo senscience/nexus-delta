@@ -43,5 +43,5 @@ object OtelPekkoAttributes {
   def urlQuery(query: Uri.Query): Option[Attribute[String]] =
     Option.unless(query.isEmpty)(UrlAttributes.UrlQuery(query.toString))
 
-  def serverError(response: HttpResponse): Boolean = response.status.intValue > 500
+  def serverError(response: HttpResponse): Boolean = response.status.intValue >= 500
 }

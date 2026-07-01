@@ -100,11 +100,12 @@ object AclsModule extends NexusModuleDef {
     new UserPermissionsRoutes(identities, aclCheck)(using baseUri)
   }
 
-  many[PriorityRoute].add { (alcs: AclsRoutes, userPermissions: UserPermissionsRoutes) =>
-    PriorityRoute(
+  many[RouteEntry].add { (alcs: AclsRoutes, userPermissions: UserPermissionsRoutes) =>
+    RouteEntry(
       pluginsMaxPriority + 5,
       RouteConcatenation.concat(alcs.routes, userPermissions.routes),
-      requiresStrictEntity = true
+      requiresStrictEntity = true,
+      classifier = AclsRoutes.classifier
     )
   }
 }

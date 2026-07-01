@@ -8,6 +8,8 @@ import ai.senscience.nexus.delta.sdk.OrganizationResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -133,6 +135,16 @@ final class OrganizationsRoutes(
 }
 
 object OrganizationsRoutes {
+
+  /** Names the organization routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("orgs")(
+      route(str("org"))(
+        route("undeprecate")
+      )
+    )
+  )
+
   final private[routes] case class OrganizationInput(description: Option[String])
 
   private[routes] object OrganizationInput {

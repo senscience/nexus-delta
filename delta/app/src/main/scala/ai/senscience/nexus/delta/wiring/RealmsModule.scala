@@ -64,8 +64,8 @@ object RealmsModule extends NexusModuleDef {
 
   make[Client[IO]].named("realm").fromResource(EmberClientBuilder.default[IO].build)
 
-  many[PriorityRoute].add { (route: RealmsRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 4, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: RealmsRoutes) =>
+    RouteEntry(pluginsMaxPriority + 4, route.routes, requiresStrictEntity = true)
   }
 
 }

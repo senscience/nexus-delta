@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.projectdeletion.model.{contexts, ProjectDeletionConfig}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -34,8 +34,8 @@ class ProjectDeletionModule(priority: Int) extends NexusModuleDef {
     ) => new ProjectDeletionRoutes(config)(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: ProjectDeletionRoutes) =>
-    PriorityRoute(priority, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ProjectDeletionRoutes) =>
+    RouteEntry(priority, route.routes, requiresStrictEntity = true)
   }
 
   make[ProjectDeletionRunner].fromEffect {

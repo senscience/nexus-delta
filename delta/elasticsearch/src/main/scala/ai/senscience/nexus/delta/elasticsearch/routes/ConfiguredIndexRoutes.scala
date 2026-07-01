@@ -9,7 +9,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -53,53 +54,43 @@ final class ConfiguredIndexRoutes(
               pathPrefix("_") {
                 concat(
                   // Fetch statistics for the configured indexing on this current project
-                  routeSpan("index/configured/<str:org>/<str:project>/_/statistics") {
-                    (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-                      projectionDirectives.statistics(project, SelectFilter.latest, projection)
-                    }
+                  (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+                    projectionDirectives.statistics(project, SelectFilter.latest, projection)
                   },
                   // Fetch configured indexing failures
-                  routeSpan("index/configured/<str:org>/<str:project>/_/failures") {
-                    (pathPrefix("failures") & get & authorizeWrite) {
-                      projectionDirectives.indexingErrors(project, configuredIndexingId)
-                    }
+                  (pathPrefix("failures") & get & authorizeWrite) {
+                    projectionDirectives.indexingErrors(project, configuredIndexingId)
                   },
                   // Getting indexing status for a resource in configured indexing
-                  routeSpan("index/configured/<str:org>/<str:project>/_/status") {
-                    (pathPrefix("status") & authorizeRead) {
-                      projectionDirectives.indexingStatus(
-                        project,
-                        SelectFilter.latest,
-                        projection,
-                        configuredQuery.refresh
-                      )
-                    }
+                  (pathPrefix("status") & authorizeRead) {
+                    projectionDirectives.indexingStatus(
+                      project,
+                      SelectFilter.latest,
+                      projection,
+                      configuredQuery.refresh
+                    )
                   },
                   // Manage a main indexing offset
-                  routeSpan("index/configured/<str:org>/<str:project>/_/offset") {
-                    (pathPrefix("offset") & pathEndOrSingleSlash) {
-                      concat(
-                        // Fetch a configured view offset
-                        (get & authorizeRead) {
-                          projectionDirectives.offset(projection)
-                        },
-                        // Remove an configured index offset (restart it)
-                        (delete & authorizeWrite & offset("from")) { fromOffset =>
-                          projectionDirectives.scheduleRestart(
-                            configuredIndexingProjectionMetadata(project),
-                            fromOffset
-                          )(using caller.subject)
-                        }
-                      )
-                    }
+                  (pathPrefix("offset") & pathEndOrSingleSlash) {
+                    concat(
+                      // Fetch a configured view offset
+                      (get & authorizeRead) {
+                        projectionDirectives.offset(projection)
+                      },
+                      // Remove an configured index offset (restart it)
+                      (delete & authorizeWrite & offset("from")) { fromOffset =>
+                        projectionDirectives.scheduleRestart(
+                          configuredIndexingProjectionMetadata(project),
+                          fromOffset
+                        )(using caller.subject)
+                      }
+                    )
                   }
                 )
               },
-              routeSpan("index/configured/<str:org>/<str:project>/<str:target>/_search") {
-                (indexTarget & pathPrefix("_search") & post & pathEndOrSingleSlash) { target =>
-                  (authorizeQuery & elasticSearchRequest) { request =>
-                    emit(configuredQuery.search(project, target, request))
-                  }
+              (indexTarget & pathPrefix("_search") & post & pathEndOrSingleSlash) { target =>
+                (authorizeQuery & elasticSearchRequest) { request =>
+                  emit(configuredQuery.search(project, target, request))
                 }
               }
             )
@@ -107,4 +98,20 @@ final class ConfiguredIndexRoutes(
         }
       }
     }
+}
+
+object ConfiguredIndexRoutes {
+
+  /** Names the configured index routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("index" / "configured" / str("org") / str("project"))(
+      route("_")(
+        route("statistics"),
+        route("failures"),
+        route("status"),
+        route("offset")
+      ),
+      route(str("target") / "_search")
+    )
+  )
 }

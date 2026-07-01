@@ -58,8 +58,8 @@ object EventsModule extends NexusModuleDef {
       new EventsRoutes(identities, aclCheck, sseEventLog)(using baseUri)
   }
 
-  many[PriorityRoute].add { (route: EventsRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 11, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: EventsRoutes) =>
+    RouteEntry(pluginsMaxPriority + 11, route.routes, requiresStrictEntity = true)
   }
 
   make[ElemRoutes].from {
@@ -76,7 +76,7 @@ object EventsModule extends NexusModuleDef {
       new ElemRoutes(identities, aclCheck, sseElemStream, schemeDirectives)(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: ElemRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ElemRoutes) =>
+    RouteEntry(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 }

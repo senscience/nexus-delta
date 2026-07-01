@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -57,7 +57,7 @@ final class PekkoModule(using classLoader: ClassLoader) extends NexusModuleDef {
       .withExposedHeaders(List(Location.name))
   }
 
-  make[Vector[Route]].from { (pluginsRoutes: Set[PriorityRoute]) =>
+  make[Vector[Route]].from { (pluginsRoutes: Set[RouteEntry]) =>
     pluginsRoutes.toVector.sorted.map(_.route)
   }
 

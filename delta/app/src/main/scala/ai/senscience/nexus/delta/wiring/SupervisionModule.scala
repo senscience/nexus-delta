@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsRestartScheduler
 import ai.senscience.nexus.delta.routes.{EventMetricsRoutes, IndexingSupervisionRoutes, SupervisionRoutes}
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -46,8 +46,8 @@ object SupervisionModule extends NexusModuleDef {
       )(using baseUri)(using jo, tracer)
   }
 
-  many[PriorityRoute].add { (route: SupervisionRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: SupervisionRoutes) =>
+    RouteEntry(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 
   make[IndexingSupervisionRoutes].from {
@@ -66,8 +66,8 @@ object SupervisionModule extends NexusModuleDef {
       )(using baseUri)(using jo, tracer)
   }
 
-  many[PriorityRoute].add { (route: IndexingSupervisionRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: IndexingSupervisionRoutes) =>
+    RouteEntry(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 
   make[EventMetricsRestartScheduler].from { (projections: Projections) =>
@@ -93,8 +93,8 @@ object SupervisionModule extends NexusModuleDef {
       )(using baseUri)(using cr, jo, tracer)
   }
 
-  many[PriorityRoute].add { (route: EventMetricsRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: EventMetricsRoutes) =>
+    RouteEntry(pluginsMaxPriority + 12, route.routes, requiresStrictEntity = true)
   }
 
 }

@@ -116,7 +116,12 @@ object ResolversModule extends NexusModuleDef {
 
   many[ApiMappings].add(Resolvers.mappings)
 
-  many[PriorityRoute].add { (route: ResolversRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 9, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ResolversRoutes) =>
+    RouteEntry(
+      pluginsMaxPriority + 9,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = ResolversRoutes.classifier
+    )
   }
 }

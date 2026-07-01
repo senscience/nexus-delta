@@ -10,7 +10,7 @@ import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.multifetch.MultiFetch
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
-import ai.senscience.nexus.delta.sdk.{PriorityRoute, ResourceShifts}
+import ai.senscience.nexus.delta.sdk.{ResourceShifts, RouteEntry}
 import cats.effect.IO
 import izumi.distage.model.definition.Id
 import org.typelevel.otel4s.trace.Tracer
@@ -44,8 +44,13 @@ object MultiFetchModule extends NexusModuleDef {
       new MultiFetchRoutes(identities, aclCheck, multiFetch)(using baseUri)(using rcr, jko, tracer)
   }
 
-  many[PriorityRoute].add { (route: MultiFetchRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 13, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: MultiFetchRoutes) =>
+    RouteEntry(
+      pluginsMaxPriority + 13,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = MultiFetchRoutes.classifier
+    )
   }
 
 }

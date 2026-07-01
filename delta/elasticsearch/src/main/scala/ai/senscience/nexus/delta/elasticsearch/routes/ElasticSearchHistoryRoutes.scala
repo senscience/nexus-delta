@@ -6,7 +6,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emitJson, projectRef}
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.iriSegment
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -35,12 +36,10 @@ class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fet
       pathPrefix("history") {
         pathPrefix("resources") {
           extractCaller { case given Caller =>
-            routeSpan("history/resources/<str:org>/<str:project>/<str:id>") {
-              projectRef.apply { project =>
-                authorizeFor(project, Read).apply {
-                  (get & iriSegment & pathEndOrSingleSlash) { id =>
-                    emitJson(fetchHistory.history(project, id))
-                  }
+            projectRef.apply { project =>
+              authorizeFor(project, Read).apply {
+                (get & iriSegment & pathEndOrSingleSlash) { id =>
+                  emitJson(fetchHistory.history(project, id))
                 }
               }
             }
@@ -48,4 +47,12 @@ class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fet
         }
       }
     }
+}
+
+object ElasticSearchHistoryRoutes {
+
+  /** Names the history routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("history" / "resources" / str("org") / str("project") / str("id"))
+  )
 }

@@ -13,6 +13,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
@@ -171,6 +173,18 @@ final class FilesRoutes(
 }
 
 object FilesRoutes {
+
+  /** Names the file routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("files" / str("org") / str("project"))(
+      route(str("id"))(
+        route("tags")(
+          route(str("tag"))
+        ),
+        route("undeprecate")
+      )
+    )
+  )
 
   // If accept header media range exactly match one of these, we return file metadata,
   // otherwise we return the file content

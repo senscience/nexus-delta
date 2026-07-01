@@ -8,7 +8,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
@@ -107,21 +108,17 @@ final class SchemasRoutes(
             val authorizeWrite = authorizeFor(project, Write)
             concat(
               // List schemas
-              routeSpan("schemas/<str:org>/<str:project>") {
-                (pathEndOrSingleSlash & get & authorizeRead) {
-                  given JsonLdEncoder[SearchResults[ResourceF[Unit]]] = searchResultsJsonLdEncoder(ContextValue.empty)
-                  emit(schemas.list(project).map(_.map(_.void)).widen[SearchResults[ResourceF[Unit]]])
-                }
+              (pathEndOrSingleSlash & get & authorizeRead) {
+                given JsonLdEncoder[SearchResults[ResourceF[Unit]]] = searchResultsJsonLdEncoder(ContextValue.empty)
+                emit(schemas.list(project).map(_.map(_.void)).widen[SearchResults[ResourceF[Unit]]])
               },
               // Create a schema without id segment
-              routeSpan("schemas/<str:org>/<str:project>") {
-                (pathEndOrSingleSlash & post & authorizeWrite & noRev & jsonEntity) { source =>
-                  emitMetadata(Created, schemas.create(project, source))
-                }
+              (pathEndOrSingleSlash & post & authorizeWrite & noRev & jsonEntity) { source =>
+                emitMetadata(Created, schemas.create(project, source))
               },
               idSegment { id =>
                 concat(
-                  (routeSpan("schemas/<str:org>/<str:project>/<str:id>") & pathEndOrSingleSlash) {
+                  pathEndOrSingleSlash {
                     concat(
                       // Create or update a schema
                       (put & authorizeWrite & revParamOpt & jsonEntity) {
@@ -143,43 +140,35 @@ final class SchemasRoutes(
                       }
                     )
                   },
-                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/undeprecate") {
-                    (pathPrefix("undeprecate") & authorizeWrite & put & pathEndOrSingleSlash & revParam) { rev =>
-                      emitMetadataOrReject(schemas.undeprecate(id, project, rev))
-                    }
+                  (pathPrefix("undeprecate") & authorizeWrite & put & pathEndOrSingleSlash & revParam) { rev =>
+                    emitMetadataOrReject(schemas.undeprecate(id, project, rev))
                   },
-                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/refresh") {
-                    (pathPrefix("refresh") & authorizeWrite & put & pathEndOrSingleSlash) {
-                      emitMetadata(schemas.refresh(id, project))
-                    }
+                  (pathPrefix("refresh") & authorizeWrite & put & pathEndOrSingleSlash) {
+                    emitMetadata(schemas.refresh(id, project))
                   },
                   // Fetch a schema original source
-                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/source") {
-                    (pathPrefix("source") & authorizeRead & get & pathEndOrSingleSlash & idSegmentRef(
-                      id
-                    ) & annotateSource) { (id, annotate) =>
-                      emitSource(schemas.fetch(id, project), annotate)
-                    }
+                  (pathPrefix("source") & authorizeRead & get & pathEndOrSingleSlash & idSegmentRef(
+                    id
+                  ) & annotateSource) { (id, annotate) =>
+                    emitSource(schemas.fetch(id, project), annotate)
                   },
-                  routeSpan("schemas/<str:org>/<str:project>/<str:id>/tags") {
-                    pathPrefix("tags") {
-                      concat(
-                        // Fetch a schema tags
-                        (get & idSegmentRef(id) & pathEndOrSingleSlash & authorizeRead) { id =>
-                          emitTags(schemas.fetch(id, project))
-                        },
-                        // Tag a schema
-                        (post & authorizeWrite & revParam & pathEndOrSingleSlash) { rev =>
-                          entity(as[Tag]) { case Tag(tagRev, tag) =>
-                            emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
-                          }
-                        },
-                        // Delete a tag
-                        (tagLabel & delete & revParam & pathEndOrSingleSlash & authorizeWrite) { (tag, rev) =>
-                          emitMetadataOrReject(schemas.deleteTag(id, project, tag, rev))
+                  pathPrefix("tags") {
+                    concat(
+                      // Fetch a schema tags
+                      (get & idSegmentRef(id) & pathEndOrSingleSlash & authorizeRead) { id =>
+                        emitTags(schemas.fetch(id, project))
+                      },
+                      // Tag a schema
+                      (post & authorizeWrite & revParam & pathEndOrSingleSlash) { rev =>
+                        entity(as[Tag]) { case Tag(tagRev, tag) =>
+                          emitMetadata(Created, schemas.tag(id, project, tag, tagRev, rev))
                         }
-                      )
-                    }
+                      },
+                      // Delete a tag
+                      (tagLabel & delete & revParam & pathEndOrSingleSlash & authorizeWrite) { (tag, rev) =>
+                        emitMetadataOrReject(schemas.deleteTag(id, project, tag, rev))
+                      }
+                    )
                   }
                 )
               }
@@ -191,6 +180,18 @@ final class SchemasRoutes(
 }
 
 object SchemasRoutes {
+
+  /** Names the schemas routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("schemas" / str("org") / str("project"))(
+      route(str("id"))(
+        route("undeprecate"),
+        route("refresh"),
+        route("source"),
+        route("tags")
+      )
+    )
+  )
 
   /**
     * @return

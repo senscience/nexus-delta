@@ -6,8 +6,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteClassifier}
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -52,36 +52,32 @@ class BlazegraphViewsIndexingRoutes(
           concat(
             // Fetch a blazegraph view statistics
             (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-              (routeSpan("views/<str:org>/<str:project>/<str:id>/statistics") & authorizeRead) {
+              authorizeRead {
                 projectionDirectives.statistics(project, view.selectFilter, view.projection)
               }
             },
             // Fetch blazegraph view indexing failures
             (pathPrefix("failures") & get) {
-              (routeSpan("views/<str:org>/<str:project>/<str:id>/failures") & authorizeWrite) {
+              authorizeWrite {
                 projectionDirectives.indexingErrors(view.ref)
               }
             },
             // Manage a blazegraph view offset
             (pathPrefix("offset") & pathEndOrSingleSlash) {
-              routeSpan("views/<str:org>/<str:project>/<str:id>/offset") {
-                concat(
-                  // Fetch a blazegraph view offset
-                  (get & authorizeRead) {
-                    projectionDirectives.offset(view.projection)
-                  },
-                  // Remove a blazegraph view offset (restart the view)
-                  (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(view.projectionMetadata, fromOffset)
-                  }
-                )
-              }
+              concat(
+                // Fetch a blazegraph view offset
+                (get & authorizeRead) {
+                  projectionDirectives.offset(view.projection)
+                },
+                // Remove a blazegraph view offset (restart the view)
+                (delete & authorizeWrite & offset("from")) { fromOffset =>
+                  projectionDirectives.scheduleRestart(view.projectionMetadata, fromOffset)
+                }
+              )
             },
             // Getting indexing status for a resource in the given view
-            routeSpan("views/<str:org>/<str:project>/<str:id>/status") {
-              (pathPrefix("status") & authorizeRead) {
-                projectionDirectives.indexingStatus(project, view.selectFilter, view.projection, IO.unit)
-              }
+            (pathPrefix("status") & authorizeRead) {
+              projectionDirectives.indexingStatus(project, view.selectFilter, view.projection, IO.unit)
             }
           )
         }
@@ -104,6 +100,18 @@ class BlazegraphViewsIndexingRoutes(
 }
 
 object BlazegraphViewsIndexingRoutes {
+
+  /** Names the Blazegraph views indexing routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("views" / str("org") / str("project"))(
+      route(str("id"))(
+        route("statistics"),
+        route("failures"),
+        route("offset"),
+        route("status")
+      )
+    )
+  )
 
   /**
     * @return

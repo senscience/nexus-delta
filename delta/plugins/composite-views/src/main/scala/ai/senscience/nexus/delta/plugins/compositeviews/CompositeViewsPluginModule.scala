@@ -298,7 +298,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
 
   many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(using base) }
 
-  many[PriorityRoute].add {
+  many[RouteEntry].add {
     (
         cv: CompositeViewsRoutes,
         indexing: CompositeViewsIndexingRoutes,
@@ -306,7 +306,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         schemeDirectives: DeltaSchemeDirectives,
         baseUri: BaseUri
     ) =>
-      PriorityRoute(
+      RouteEntry(
         priority,
         CompositeViewsRoutesHandler(
           schemeDirectives,

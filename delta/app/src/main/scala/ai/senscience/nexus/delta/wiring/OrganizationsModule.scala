@@ -74,8 +74,13 @@ object OrganizationsModule extends NexusModuleDef {
       )
   }
 
-  many[PriorityRoute].add { (route: OrganizationsRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 6, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: OrganizationsRoutes) =>
+    RouteEntry(
+      pluginsMaxPriority + 6,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = OrganizationsRoutes.classifier
+    )
   }
 
 }

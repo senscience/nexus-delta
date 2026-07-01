@@ -123,8 +123,13 @@ object ResourcesModule extends NexusModuleDef {
 
   many[ApiMappings].add(Resources.mappings)
 
-  many[PriorityRoute].add { (route: ResourcesRoutes) =>
-    PriorityRoute(pluginsMinPriority - 2, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ResourcesRoutes) =>
+    RouteEntry(
+      pluginsMinPriority - 2,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = ResourcesRoutes.classifier
+    )
   }
 
   addIndexingType(Resources.entityType)
