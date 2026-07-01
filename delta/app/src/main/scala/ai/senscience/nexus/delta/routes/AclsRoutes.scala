@@ -13,6 +13,8 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclRejection.AclNotFound
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.{route, str}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -196,6 +198,17 @@ class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using b
 }
 
 object AclsRoutes {
+
+  /**
+    * Names the ACL routes for tracing. The address (`<org>`, `<org>/<project>`, or `*` wildcards) follows the prefix.
+    */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("acls")(
+      route(str("org"))(
+        route(str("project"))
+      )
+    )
+  )
 
   final private[routes] case class ReplaceAcl(acl: AclValues)
   private[routes] object ReplaceAcl {

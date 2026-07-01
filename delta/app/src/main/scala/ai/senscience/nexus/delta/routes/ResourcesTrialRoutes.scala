@@ -9,7 +9,8 @@ import ai.senscience.nexus.delta.sdk.SchemaResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -60,11 +61,9 @@ final class ResourcesTrialRoutes(
       extractCaller { case given Caller =>
         projectRef { project =>
           (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
-            routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/validate") {
-              authorizeFor(project, Write).apply {
-                val schemaOpt = underscoreToOption(schema).map(IdSegmentRef(_))
-                emit(resourcesTrial.validate(id, project, schemaOpt))
-              }
+            authorizeFor(project, Write).apply {
+              val schemaOpt = underscoreToOption(schema).map(IdSegmentRef(_))
+              emit(resourcesTrial.validate(id, project, schemaOpt))
             }
           }
         }
@@ -75,11 +74,9 @@ final class ResourcesTrialRoutes(
     (pathPrefix("trial") & pathPrefix("resources") & post) {
       extractCaller { case given Caller =>
         (projectRef & pathEndOrSingleSlash) { project =>
-          routeSpan("trial/resources/<str:org>/<str:project>") {
-            authorizeFor(project, Write).apply {
-              entity(as[GenerationInput]) { input =>
-                generate(project, input)
-              }
+          authorizeFor(project, Write).apply {
+            entity(as[GenerationInput]) { input =>
+              generate(project, input)
             }
           }
         }
@@ -101,6 +98,12 @@ final class ResourcesTrialRoutes(
 }
 
 object ResourcesTrialRoutes {
+
+  /** Names the resource trial routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("resources" / str("org") / str("project") / str("schema") / str("id") / "validate"),
+    route("trial" / "resources" / str("org") / str("project"))
+  )
 
   private[routes] type GenerateSchema = (ProjectRef, Json, Caller) => IO[SchemaResource]
 

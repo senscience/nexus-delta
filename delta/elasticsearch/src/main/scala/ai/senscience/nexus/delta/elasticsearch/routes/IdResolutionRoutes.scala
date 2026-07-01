@@ -6,7 +6,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -30,11 +31,9 @@ class IdResolutionRoutes(
 
   private def resolutionRoute: Route =
     pathPrefix("resolve") {
-      routeSpan("resolve") {
-        extractCaller { case given Caller =>
-          (get & iriSegment & pathEndOrSingleSlash) { iri =>
-            emit(idResolution.apply(iri))
-          }
+      extractCaller { case given Caller =>
+        (get & iriSegment & pathEndOrSingleSlash) { iri =>
+          emit(idResolution.apply(iri))
         }
       }
     }
@@ -56,4 +55,12 @@ class IdResolutionRoutes(
   private def deltaResolveEndpoint(id: org.http4s.Uri): Uri =
     Uri((baseUri.endpoint / "resolve" / id.toString).toString())
 
+}
+
+object IdResolutionRoutes {
+
+  /** Names the id resolution routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("resolve")
+  )
 }

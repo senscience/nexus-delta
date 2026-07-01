@@ -1,7 +1,7 @@
 package ai.senscience.nexus.delta.plugin
 
 import ai.senscience.nexus.delta.plugin.PluginsLoader.PluginLoaderConfig
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.testkit.scalatest.ce.CatsEffectSpec
 import cats.effect.IO
@@ -23,7 +23,7 @@ class PluginLoaderSpec extends CatsEffectSpec with ScalatestRouteTest {
       val (_, pluginsDef) = PluginsLoader(config).load.accepted
       WiringInitializer(serviceModule, pluginsDef).use { case (_, locator) =>
         IO.delay {
-          val route = locator.get[Set[PriorityRoute]].head
+          val route = locator.get[Set[RouteEntry]].head
           pluginsDef.head.priority shouldEqual 10
           Get("/test-plugin") ~> route.route ~> check {
             responseAs[String] shouldEqual "http://localhost"

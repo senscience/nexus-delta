@@ -75,8 +75,8 @@ class SearchPluginModule(priority: Int) extends NexusModuleDef {
       )
   }
 
-  many[PriorityRoute].add { (route: SearchRoutes) =>
-    PriorityRoute(priority, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: SearchRoutes) =>
+    RouteEntry(priority, route.routes, requiresStrictEntity = true)
   }
 
   many[CompositeProjectionLifeCycle.Hook].add {

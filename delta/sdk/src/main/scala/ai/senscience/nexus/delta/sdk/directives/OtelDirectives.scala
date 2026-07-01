@@ -1,13 +1,15 @@
 package ai.senscience.nexus.delta.sdk.directives
 
 import ai.senscience.nexus.delta.kernel.Logger
+import ai.senscience.nexus.delta.sdk.directives.SpanName.value
 import ai.senscience.nexus.delta.sdk.otel.OtelHeaders
 import ai.senscience.nexus.delta.sdk.otel.OtelPekkoAttributes.*
+import ai.senscience.nexus.delta.sourcing.model.Label
 import cats.effect.IO
 import cats.syntax.all.*
 import cats.effect.kernel.Outcome
 import cats.effect.unsafe.implicits.*
-import org.apache.pekko.http.scaladsl.model.{AttributeKey, HttpHeader, HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.model.{AttributeKey, HttpHeader, HttpRequest, HttpResponse, Uri}
 import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.RouteResult.{Complete, Rejected}
@@ -39,23 +41,38 @@ object OtelDirectives {
     // `attribute` relies on a JavaMapping implicit that Scala 3.10 will no longer resolve; revisit at that bump.
     extractRequest.map(_.attribute(parentSpanContextKey): @nowarn("cat=deprecation"))
 
-  def routeSpan(route: String)(using Tracer[IO]): Directive0 = {
+  /**
+    * A single server span at the root of the route tree, named by the `classifier` (from the request path, with the
+    * base-uri `prefix` stripped first). Sitting above the exception/rejection handlers, it observes the final response,
+    * so a 4xx-mapped domain exception is classified as a client error (span left unset) while genuine 5xx failures are
+    * flagged — matching the OTel semconv for server spans. Paths the classifier does not name are not traced.
+    */
+  def serverSpan(classifier: RouteClassifier, prefix: Option[Label])(using Tracer[IO]): Directive0 =
     extractRequest.flatMap { request =>
-      onSuccess(
-        buildSpan(request, route).unsafeToFuture()
-      ).flatMap {
-        case Some(span) =>
-          // Setting this span as a parent for the downstream operations
-          mapRequest {
-            _.addAttribute(parentSpanContextKey, span.context)
-          } &
-            mapRouteResultFuture { result =>
-              updateSpanOnResult(result, span).unsafeToFuture()
-            }
-        case None       => pass
+      classifier(stripPrefix(request.uri.path, prefix)) match {
+        case None           => pass
+        case Some(spanName) =>
+          onSuccess(buildSpan(request, spanName.value).unsafeToFuture()).flatMap {
+            case Some(span) =>
+              mapRequest(_.addAttribute(parentSpanContextKey, span.context)) &
+                mapRouteResultFuture(result => updateSpanOnResult(result, span).unsafeToFuture())
+            case None       => pass
+          }
       }
     }
-  }
+
+  /** Drops the leading base-uri prefix segment (if present) so the classifier sees the same path the routes do. */
+  private def stripPrefix(path: Uri.Path, prefix: Option[Label]): Uri.Path =
+    prefix match {
+      case Some(label) =>
+        val p = label.value
+        path match {
+          case Uri.Path.Slash(Uri.Path.Segment(`p`, tail)) => tail
+          case Uri.Path.Segment(`p`, tail)                 => tail
+          case other                                       => other
+        }
+      case None        => path
+    }
 
   private def buildSpan(request: HttpRequest, route: String)(using Tracer[IO]) =
     Tracer[IO].meta.isEnabled.flatMap { enabled =>

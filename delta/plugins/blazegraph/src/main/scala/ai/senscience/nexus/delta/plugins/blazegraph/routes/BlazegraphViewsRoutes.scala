@@ -9,8 +9,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContext
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, RouteClassifier}
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -64,51 +64,43 @@ class BlazegraphViewsRoutes(
               val authorizeWrite = authorizeFor(project, Write)
               // Create a view without id segment
               concat(
-                routeSpan("views/<str:org>/<str:project>") {
-                  (pathEndOrSingleSlash & post & authorizeWrite & jsonEntity & noRev) { source =>
-                    emitMetadataOrReject(Created, views.create(project, source))
-                  }
+                (pathEndOrSingleSlash & post & authorizeWrite & jsonEntity & noRev) { source =>
+                  emitMetadataOrReject(Created, views.create(project, source))
                 },
                 idSegment { id =>
                   concat(
                     pathEndOrSingleSlash {
-                      routeSpan("views/<str:org>/<str:project>/<str:id>") {
-                        concat(
-                          (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
-                            case (None, source)      =>
-                              // Create a view with id segment
-                              emitMetadataOrReject(
-                                Created,
-                                views.create(id, project, source)
-                              )
-                            case (Some(rev), source) =>
-                              // Update a view
-                              emitMetadataOrReject(
-                                views.update(id, project, rev, source)
-                              )
-                          },
-                          (delete & authorizeWrite & revParam) { rev =>
-                            // Deprecate a view
-                            emitMetadataOrReject(views.deprecate(id, project, rev))
-                          },
-                          // Fetch a view
-                          (get & idSegmentRef(id)) { id =>
-                            val fetchRoute = authorizeRead { emit(views.fetch(id, project)) }
-                            emitOrFusionRedirect(project, id, fetchRoute)
-                          }
-                        )
-                      }
+                      concat(
+                        (put & authorizeWrite & revParamOpt & pathEndOrSingleSlash & jsonEntity) {
+                          case (None, source)      =>
+                            // Create a view with id segment
+                            emitMetadataOrReject(
+                              Created,
+                              views.create(id, project, source)
+                            )
+                          case (Some(rev), source) =>
+                            // Update a view
+                            emitMetadataOrReject(
+                              views.update(id, project, rev, source)
+                            )
+                        },
+                        (delete & authorizeWrite & revParam) { rev =>
+                          // Deprecate a view
+                          emitMetadataOrReject(views.deprecate(id, project, rev))
+                        },
+                        // Fetch a view
+                        (get & idSegmentRef(id)) { id =>
+                          val fetchRoute = authorizeRead { emit(views.fetch(id, project)) }
+                          emitOrFusionRedirect(project, id, fetchRoute)
+                        }
+                      )
                     },
                     // Undeprecate a blazegraph view
                     (pathPrefix("undeprecate") & put & authorizeWrite & revParam & pathEndOrSingleSlash) { rev =>
-                      routeSpan("views/<str:org>/<str:project>/<str:id>/undeprecate") {
-                        emitMetadataOrReject(views.undeprecate(id, project, rev))
-                      }
+                      emitMetadataOrReject(views.undeprecate(id, project, rev))
                     },
                     // Query a blazegraph view
-                    (pathPrefix("sparql") & pathEndOrSingleSlash & routeSpan(
-                      "views/<str:org>/<str:project>/<str:id>/sparql"
-                    )) {
+                    (pathPrefix("sparql") & pathEndOrSingleSlash) {
                       concat(
                         // Query
                         sparqlQueryResponseType { case (query, responseType) =>
@@ -118,7 +110,7 @@ class BlazegraphViewsRoutes(
                     },
                     // Fetch a view original source
                     (pathPrefix("source") & get & pathEndOrSingleSlash & idSegmentRef(id)) { id =>
-                      (routeSpan("views/<str:org>/<str:project>/<str:id>/source") & authorizeRead) {
+                      authorizeRead {
                         emitSource(views.fetch(id, project))
                       }
                     },
@@ -156,7 +148,7 @@ class BlazegraphViewsRoutes(
       (pathPrefix("incoming") & fromPaginated & pathEndOrSingleSlash & get & extractHttp4sUri) { (pagination, uri) =>
         given JsonLdEncoder[SearchResults[SparqlLink]] =
           searchResultsJsonLdEncoder(metadataContext, pagination, uri)
-        (routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/incoming") & authorizeQuery) {
+        authorizeQuery {
           emit(incomingOutgoingLinks.incoming(id, project, pagination))
         }
       },
@@ -165,7 +157,7 @@ class BlazegraphViewsRoutes(
       )) { (pagination, uri, includeExternal) =>
         given JsonLdEncoder[SearchResults[SparqlLink]] =
           searchResultsJsonLdEncoder(metadataContext, pagination, uri)
-        (routeSpan("resources/<str:org>/<str:project>/<str:schema>/<str:id>/incoming") & authorizeQuery) {
+        authorizeQuery {
           emit(incomingOutgoingLinks.outgoing(id, project, pagination, includeExternal))
         }
       }
@@ -174,6 +166,24 @@ class BlazegraphViewsRoutes(
 }
 
 object BlazegraphViewsRoutes {
+
+  /** Names the Blazegraph views routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("views" / str("org") / str("project"))(
+      route(str("id"))(
+        route("undeprecate"),
+        route("sparql"),
+        route("source")
+      )
+    ),
+    route("resources" / str("org") / str("project"))(
+      route(str("schema"))(
+        route(str("id"))(
+          route("incoming")
+        )
+      )
+    )
+  )
 
   def apply(
       views: BlazegraphViews,

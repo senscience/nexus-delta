@@ -8,6 +8,8 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -210,6 +212,18 @@ final class ResolversRoutes(
 }
 
 object ResolversRoutes {
+
+  /** Names the resolver routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("resolvers" / str("org") / str("project"))(
+      route(str("id"))(
+        route("source"),
+        route(str("resourceId"))(
+          route("source")
+        )
+      )
+    )
+  )
 
   private enum ResolutionType {
     case AllResolversInProject

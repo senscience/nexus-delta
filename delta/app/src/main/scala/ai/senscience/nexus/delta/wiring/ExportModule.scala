@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ExportRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -57,8 +57,8 @@ object ExportModule extends NexusModuleDef {
       new ExportRoutes(identities, aclCheck, exporter, resourcesExporter)(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: ExportRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 1, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ExportRoutes) =>
+    RouteEntry(pluginsMaxPriority + 1, route.routes, requiresStrictEntity = true)
   }
 
 }

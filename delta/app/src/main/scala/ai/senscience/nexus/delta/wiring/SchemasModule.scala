@@ -163,12 +163,17 @@ object SchemasModule extends NexusModuleDef {
 
   many[MetadataContextValue].addEffect(MetadataContextValue.fromFile("contexts/schemas-metadata.json"))
 
-  many[PriorityRoute].add { (route: SchemasRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: SchemasRoutes) =>
+    RouteEntry(
+      pluginsMaxPriority + 8,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = SchemasRoutes.classifier
+    )
   }
 
-  many[PriorityRoute].add { (route: SchemaJobRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: SchemaJobRoutes) =>
+    RouteEntry(pluginsMaxPriority + 8, route.routes, requiresStrictEntity = true)
   }
 
   addIndexingType(Schemas.entityType)

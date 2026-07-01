@@ -4,7 +4,9 @@ import ai.senscience.nexus.delta.config.{HttpConfig, StrictEntity}
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.IOFuture
 import ai.senscience.nexus.delta.otel.OtelPekkoMetrics
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
+import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.serverSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.plugin.Plugin
 import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
@@ -20,6 +22,7 @@ import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RouteResult}
 import org.typelevel.otel4s.metrics.MeterProvider
 import org.typelevel.otel4s.oteljava.OtelJava
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.DurationInt
 
@@ -27,25 +30,31 @@ object BootstrapPekko {
 
   private val logger = Logger[BootstrapPekko.type]
 
-  private def routes(locator: Locator, otelMetrics: OtelPekkoMetrics, clusterConfig: ClusterConfig): Route = {
+  private def routes(locator: Locator, otelMetrics: OtelPekkoMetrics, clusterConfig: ClusterConfig)(using
+      Tracer[IO]
+  ): Route = {
     import org.apache.pekko.http.scaladsl.server.Directives.*
     import sdk.directives.UriDirectives.*
     val nodeHeader = RawHeader("X-Delta-Node", clusterConfig.nodeIndex.toString)
+    val baseUri    = locator.get[BaseUri]
+    val classifier = RouteClassifier.combine(locator.get[Set[RouteEntry]].flatMap(_.classifier))
     otelMetrics.serverMetrics {
       respondWithHeader(nodeHeader) {
         cors(locator.get[CorsSettings]) {
-          handleExceptions(locator.get[ExceptionHandler]) {
-            handleRejections(locator.get[RejectionHandler]) {
-              uriPrefix(locator.get[BaseUri].base) {
-                decodeRequest {
-                  encodeResponse {
-                    val (strict, rest) = locator.get[Set[PriorityRoute]].partition(_.requiresStrictEntity)
-                    concat(
-                      concat(rest.toVector.sortBy(_.priority).map(_.route)*),
-                      locator.get[StrictEntity].apply() {
-                        concat(strict.toVector.sortBy(_.priority).map(_.route)*)
-                      }
-                    )
+          serverSpan(classifier, baseUri.prefix) {
+            handleExceptions(locator.get[ExceptionHandler]) {
+              handleRejections(locator.get[RejectionHandler]) {
+                uriPrefix(locator.get[BaseUri].base) {
+                  decodeRequest {
+                    encodeResponse {
+                      val (strict, rest) = locator.get[Set[RouteEntry]].partition(_.requiresStrictEntity)
+                      concat(
+                        concat(rest.toVector.sortBy(_.priority).map(_.route)*),
+                        locator.get[StrictEntity].apply() {
+                          concat(strict.toVector.sortBy(_.priority).map(_.route)*)
+                        }
+                      )
+                    }
                   }
                 }
               }
@@ -63,7 +72,7 @@ object BootstrapPekko {
     val otel: OtelJava[IO]            = locator.get[OtelJava[IO]]
     given MeterProvider[IO]           = otel.meterProvider
 
-    def startHttpServer(otelMetrics: OtelPekkoMetrics) = IOFuture.defaultCancelable(
+    def startHttpServer(otelMetrics: OtelPekkoMetrics)(using Tracer[IO]) = IOFuture.defaultCancelable(
       IO(
         Http()
           .newServerAt(
@@ -76,10 +85,11 @@ object BootstrapPekko {
 
     val acquire = {
       for {
-        _       <- logger.info("Booting up service....")
-        metrics <- OtelPekkoMetrics()
-        binding <- startHttpServer(metrics)
-        _       <- logger.info(s"Bound to ${binding.localAddress.getHostString}:${binding.localAddress.getPort}")
+        _                <- logger.info("Booting up service....")
+        given Tracer[IO] <- otel.tracerProvider.tracer("ai.senscience.nexus.delta.http").get
+        metrics          <- OtelPekkoMetrics()
+        binding          <- startHttpServer(metrics)
+        _                <- logger.info(s"Bound to ${binding.localAddress.getHostString}:${binding.localAddress.getPort}")
       } yield ()
     }.recoverWith { th =>
       logger.error(th)(

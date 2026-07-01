@@ -300,19 +300,20 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
 
   many[ScopedEventMetricEncoder[?]].add { FileEvent.fileEventMetricEncoder }
 
-  many[PriorityRoute].add { (storagesRoutes: StoragesRoutes) =>
-    PriorityRoute(priority, storagesRoutes.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (storagesRoutes: StoragesRoutes) =>
+    RouteEntry(priority, storagesRoutes.routes, requiresStrictEntity = true)
   }
-  many[PriorityRoute].add {
+  many[RouteEntry].add {
     (
         fileRoutes: FilesRoutes,
         linkFileRoutes: LinkFilesRoutes,
         delegationRoutes: DelegateFilesRoutes
     ) =>
-      PriorityRoute(
+      RouteEntry(
         priority,
         concat(fileRoutes.routes, linkFileRoutes.routes, delegationRoutes.routes),
-        requiresStrictEntity = false
+        requiresStrictEntity = false,
+        classifier = FilesRoutes.classifier
       )
   }
 }

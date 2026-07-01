@@ -90,7 +90,7 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
       )(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: GraphAnalyticsRoutes) =>
-    PriorityRoute(priority, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: GraphAnalyticsRoutes) =>
+    RouteEntry(priority, route.routes, requiresStrictEntity = true)
   }
 }

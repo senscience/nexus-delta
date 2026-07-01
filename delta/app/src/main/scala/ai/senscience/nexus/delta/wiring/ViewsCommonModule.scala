@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.Main.pluginsMinPriority
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ViewsRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
 import ai.senscience.nexus.delta.sdk.identities.Identities
@@ -53,7 +53,7 @@ object ViewsCommonModule extends NexusModuleDef {
       )(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: ViewsRoutes) =>
-    PriorityRoute(pluginsMinPriority - 3, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ViewsRoutes) =>
+    RouteEntry(pluginsMinPriority - 3, route.routes, requiresStrictEntity = true)
   }
 }

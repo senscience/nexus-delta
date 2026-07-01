@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.IdentitiesRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.auth.{AuthTokenProvider, OpenIdAuthService}
 import ai.senscience.nexus.delta.sdk.identities.{contexts, Identities, IdentitiesConfig, IdentitiesImpl}
@@ -53,8 +53,8 @@ object IdentitiesModule extends NexusModuleDef {
 
   }
 
-  many[PriorityRoute].add { (route: IdentitiesRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 2, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: IdentitiesRoutes) =>
+    RouteEntry(pluginsMaxPriority + 2, route.routes, requiresStrictEntity = true)
   }
 
 }

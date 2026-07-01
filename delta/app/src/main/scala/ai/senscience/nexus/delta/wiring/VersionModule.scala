@@ -8,7 +8,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.VersionRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -37,8 +37,8 @@ object VersionModule extends ModuleDef {
       VersionRoutes(identities, aclCheck, plugins, dependencies.toList, description)(using baseUri, cr, ordering)
   }
 
-  many[PriorityRoute].add { (route: VersionRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 1, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: VersionRoutes) =>
+    RouteEntry(pluginsMaxPriority + 1, route.routes, requiresStrictEntity = true)
   }
 
 }

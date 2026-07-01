@@ -7,7 +7,8 @@ import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -88,9 +89,7 @@ final class ProjectsRoutes(
               sort[Project]) { (uri, pagination, params, order) =>
               given JsonLdEncoder[SearchResults[ProjectResource]] =
                 searchResultsJsonLdEncoder(Project.context, pagination, uri)
-              routeSpan("projects") {
-                emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
-              }
+              emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
             },
             projectRef { project =>
               val authorizeCreate        = authorizeFor(project, CreateProjects)
@@ -103,59 +102,53 @@ final class ProjectsRoutes(
                 entity(as[ProjectFields])
               }
               concat(
-                routeSpan("projects/<str:org>/<str:project>") {
-                  concat(
-                    (put & pathEndOrSingleSlash & revParamOpt) {
-                      case None      =>
-                        // Create project
-                        (authorizeCreate & decodeFields) { fields =>
-                          emitMetadata(StatusCodes.Created, projects.create(project, fields))
-                        }
-                      case Some(rev) =>
-                        // Update project
-                        (authorizeWrite & decodeFields) { fields =>
-                          emitMetadata(projects.update(project, rev, fields))
-                        }
-                    },
-                    (get & pathEndOrSingleSlash & revParamOpt) {
-                      case Some(rev) => // Fetch project at specific revision
+                concat(
+                  (put & pathEndOrSingleSlash & revParamOpt) {
+                    case None      =>
+                      // Create project
+                      (authorizeCreate & decodeFields) { fields =>
+                        emitMetadata(StatusCodes.Created, projects.create(project, fields))
+                      }
+                    case Some(rev) =>
+                      // Update project
+                      (authorizeWrite & decodeFields) { fields =>
+                        emitMetadata(projects.update(project, rev, fields))
+                      }
+                  },
+                  (get & pathEndOrSingleSlash & revParamOpt) {
+                    case Some(rev) => // Fetch project at specific revision
+                      authorizeRead {
+                        emit(projects.fetchAt(project, rev))
+                      }
+                    case None      => // Fetch project
+                      emitOrFusionRedirect(
+                        project,
                         authorizeRead {
-                          emit(projects.fetchAt(project, rev))
+                          emit(projects.fetch(project))
                         }
-                      case None      => // Fetch project
-                        emitOrFusionRedirect(
-                          project,
-                          authorizeRead {
-                            emit(projects.fetch(project))
-                          }
-                        )
-                    },
-                    // Deprecate/delete project
-                    (delete & pathEndOrSingleSlash & revParam & parameter("prune".?(false))) {
-                      case (rev, true)  =>
-                        authorizeDelete {
-                          emitMetadata(projects.delete(project, rev))
-                        }
-                      case (rev, false) =>
-                        authorizeWrite {
-                          emitMetadata(projects.deprecate(project, rev))
-                        }
-                    }
-                  )
-                },
-                (pathPrefix("undeprecate") & put & authorizeWrite & revParam) { revision =>
-                  routeSpan("projects/<str:org>/<str:project>/undeprecate") {
-                    emit(projects.undeprecate(project, revision))
+                      )
+                  },
+                  // Deprecate/delete project
+                  (delete & pathEndOrSingleSlash & revParam & parameter("prune".?(false))) {
+                    case (rev, true)  =>
+                      authorizeDelete {
+                        emitMetadata(projects.delete(project, rev))
+                      }
+                    case (rev, false) =>
+                      authorizeWrite {
+                        emitMetadata(projects.deprecate(project, rev))
+                      }
                   }
+                ),
+                (pathPrefix("undeprecate") & put & authorizeWrite & revParam) { revision =>
+                  emit(projects.undeprecate(project, revision))
                 },
                 // Project statistics
                 (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  routeSpan("projects/<str:org>/<str:project>/statistics") {
-                    authorizeReadResources {
-                      emit(
-                        OptionT(projectsStatistics.get(project)).toRight(ProjectNotFound(project)).rethrowT
-                      )
-                    }
+                  authorizeReadResources {
+                    emit(
+                      OptionT(projectsStatistics.get(project)).toRight(ProjectNotFound(project)).rethrowT
+                    )
                   }
                 }
               )
@@ -176,6 +169,16 @@ final class ProjectsRoutes(
 }
 
 object ProjectsRoutes {
+
+  /** Names the project routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("projects")(
+      route(str("org") / str("project"))(
+        route("undeprecate"),
+        route("statistics")
+      )
+    )
+  )
 
   /**
     * @return

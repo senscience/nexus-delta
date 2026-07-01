@@ -8,7 +8,8 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -64,13 +65,13 @@ class ListingRoutes(
             val request = MainIndexRequest(params, page, sort)
             concat(
               // List/aggregate all resources
-              (routeSpan("resources") & pathEndOrSingleSlash) {
+              pathEndOrSingleSlash {
                 concat(
                   aggregate(request, Scope.Root),
                   list(request, Scope.Root)
                 )
               },
-              (routeSpan("resources/<str:org>") & label & pathEndOrSingleSlash) { org =>
+              (label & pathEndOrSingleSlash) { org =>
                 val scope = Scope.Org(org)
                 concat(
                   aggregate(request, scope),
@@ -79,7 +80,7 @@ class ListingRoutes(
               }
             )
           },
-          (routeSpan("resources/<str:org>/<str:project>") & projectRef) { project =>
+          projectRef { project =>
             projectContext(project) { case pc @ given ProjectContext =>
               (get & searchParametersAndSortList(Some(pc)) & paginated) { (params, sort, page) =>
                 val scope = Scope.Project(project)
@@ -188,4 +189,16 @@ class ListingRoutes(
       }
     }
 
+}
+
+object ListingRoutes {
+
+  /** Names the listing routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("resources")(
+      route(str("org"))(
+        route(str("project"))
+      )
+    )
+  )
 }

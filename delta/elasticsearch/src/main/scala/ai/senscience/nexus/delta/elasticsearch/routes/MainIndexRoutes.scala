@@ -10,7 +10,8 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.routeSpan
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
+import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -56,46 +57,36 @@ final class MainIndexRoutes(
         defaultViewSegment {
           concat(
             // Fetch statistics for the main indexing on this current project
-            routeSpan("views/<str:org>/<str:project>/documents/statistics") {
-              (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
-                projectionDirectives.statistics(project, SelectFilter.latest, projection)
-              }
+            (pathPrefix("statistics") & get & pathEndOrSingleSlash & authorizeRead) {
+              projectionDirectives.statistics(project, SelectFilter.latest, projection)
             },
             // Fetch main view indexing failures
-            routeSpan("views/<str:org>/<str:project>/documents/failures") {
-              (pathPrefix("failures") & get & authorizeWrite) {
-                projectionDirectives.indexingErrors(project, mainIndexingId)
-              }
+            (pathPrefix("failures") & get & authorizeWrite) {
+              projectionDirectives.indexingErrors(project, mainIndexingId)
             },
             // Manage a main indexing offset
-            routeSpan("views/<str:org>/<str:project>/documents/offset") {
-              (pathPrefix("offset") & pathEndOrSingleSlash) {
-                concat(
-                  // Fetch an elasticsearch view offset
-                  (get & authorizeRead) {
-                    projectionDirectives.offset(projection)
-                  },
-                  // Remove an main indexing offset (restart the view)
-                  (delete & authorizeWrite & offset("from")) { fromOffset =>
-                    projectionDirectives.scheduleRestart(mainIndexingProjectionMetadata(project), fromOffset)(using
-                      caller
-                    )
-                  }
-                )
-              }
+            (pathPrefix("offset") & pathEndOrSingleSlash) {
+              concat(
+                // Fetch an elasticsearch view offset
+                (get & authorizeRead) {
+                  projectionDirectives.offset(projection)
+                },
+                // Remove an main indexing offset (restart the view)
+                (delete & authorizeWrite & offset("from")) { fromOffset =>
+                  projectionDirectives.scheduleRestart(mainIndexingProjectionMetadata(project), fromOffset)(using
+                    caller
+                  )
+                }
+              )
             },
             // Getting indexing status for a resource in the main view
-            routeSpan("views/<str:org>/<str:project>/documents/status") {
-              (pathPrefix("status") & authorizeRead) {
-                projectionDirectives.indexingStatus(project, SelectFilter.latest, projection, IO.unit)
-              }
+            (pathPrefix("status") & authorizeRead) {
+              projectionDirectives.indexingStatus(project, SelectFilter.latest, projection, IO.unit)
             },
             // Query default indexing for this given project
-            routeSpan("views/<str:org>/<str:project>/documents/_search") {
-              (pathPrefix("_search") & post & pathEndOrSingleSlash) {
-                (authorizeQuery & elasticSearchRequest) { request =>
-                  emit(mainIndexQuery.search(project, request))
-                }
+            (pathPrefix("_search") & post & pathEndOrSingleSlash) {
+              (authorizeQuery & elasticSearchRequest) { request =>
+                emit(mainIndexQuery.search(project, request))
               }
             }
           )
@@ -116,4 +107,18 @@ final class MainIndexRoutes(
         }
       }
     }
+}
+
+object MainIndexRoutes {
+
+  /** Names the main index routes for tracing, mirroring the route tree. */
+  val classifier: RouteClassifier = RouteClassifier(
+    route("views" / str("org") / str("project") / "documents")(
+      route("statistics"),
+      route("failures"),
+      route("offset"),
+      route("status"),
+      route("_search")
+    )
+  )
 }

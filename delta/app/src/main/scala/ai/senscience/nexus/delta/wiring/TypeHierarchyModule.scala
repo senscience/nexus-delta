@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.TypeHierarchyRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -47,8 +47,8 @@ object TypeHierarchyModule extends NexusModuleDef {
       )(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: TypeHierarchyRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 14, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: TypeHierarchyRoutes) =>
+    RouteEntry(pluginsMaxPriority + 14, route.routes, requiresStrictEntity = true)
   }
 
 }

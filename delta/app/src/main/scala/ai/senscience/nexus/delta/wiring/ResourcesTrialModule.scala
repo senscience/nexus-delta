@@ -5,7 +5,7 @@ import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes
-import ai.senscience.nexus.delta.sdk.PriorityRoute
+import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -61,8 +61,13 @@ object ResourcesTrialModule extends ModuleDef {
       )(using baseUri, cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: ResourcesTrialRoutes) =>
-    PriorityRoute(pluginsMinPriority - 1, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: ResourcesTrialRoutes) =>
+    RouteEntry(
+      pluginsMinPriority - 1,
+      route.routes,
+      requiresStrictEntity = true,
+      classifier = ResourcesTrialRoutes.classifier
+    )
   }
 
 }

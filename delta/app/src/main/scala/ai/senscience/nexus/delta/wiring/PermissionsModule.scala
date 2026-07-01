@@ -47,8 +47,8 @@ object PermissionsModule extends NexusModuleDef {
     ) => new PermissionsRoutes(identities, aclCheck, permissions)(using baseUri)(using cr, ordering, tracer)
   }
 
-  many[PriorityRoute].add { (route: PermissionsRoutes) =>
-    PriorityRoute(pluginsMaxPriority + 3, route.routes, requiresStrictEntity = true)
+  many[RouteEntry].add { (route: PermissionsRoutes) =>
+    RouteEntry(pluginsMaxPriority + 3, route.routes, requiresStrictEntity = true)
   }
 }
 // $COVERAGE-ON$
