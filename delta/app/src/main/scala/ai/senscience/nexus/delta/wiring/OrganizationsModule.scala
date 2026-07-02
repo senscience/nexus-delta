@@ -2,13 +2,11 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.OrganizationsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.organizations.*
 import ai.senscience.nexus.delta.sdk.projects.Projects
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -61,15 +59,12 @@ object OrganizationsModule extends NexusModuleDef {
         organizations: Organizations,
         orgDeleter: OrganizationDeleter,
         orgConfig: OrganizationsConfig,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("orgs")
     ) =>
-      new OrganizationsRoutes(identities, aclCheck, organizations, orgDeleter)(using baseUri)(using
+      new OrganizationsRoutes(identities, aclCheck, organizations, orgDeleter)(using
+        ctx,
         orgConfig.pagination,
-        cr,
-        ordering,
         tracer
       )
   }

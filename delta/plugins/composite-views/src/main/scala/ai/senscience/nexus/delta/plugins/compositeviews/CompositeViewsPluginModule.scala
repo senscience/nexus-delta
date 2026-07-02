@@ -13,13 +13,11 @@ import ai.senscience.nexus.delta.plugins.compositeviews.routes.{CompositeSupervi
 import ai.senscience.nexus.delta.plugins.compositeviews.store.CompositeRestartStore
 import ai.senscience.nexus.delta.plugins.compositeviews.stream.{CompositeGraphStream, RemoteGraphStream}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.auth.AuthTokenProvider
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
@@ -244,10 +242,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views: CompositeViews,
         blazegraphQuery: BlazegraphQuery,
         elasticSearchQuery: ElasticSearchQuery,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("composite")
     ) =>
       new CompositeViewsRoutes(
@@ -256,7 +251,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         views,
         blazegraphQuery,
         elasticSearchQuery
-      )(using baseUri, cr, ordering, fusionConfig, tracer)
+      )(using ctx, tracer)
   }
 
   make[CompositeViewsIndexingRoutes].from {
@@ -268,8 +263,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         projections: CompositeProjections,
         projectionsDirectives: ProjectionsDirectives,
         config: CompositeViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("composite")
     ) =>
       new CompositeViewsIndexingRoutes(
@@ -280,7 +274,7 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         CompositeIndexingDetails(projections, graphStream, config.prefix),
         projections,
         projectionsDirectives
-      )(using cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   make[CompositeSupervisionRoutes].from {
@@ -290,10 +284,10 @@ class CompositeViewsPluginModule(priority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         config: CompositeViewsConfig,
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("composite")
     ) =>
-      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(using ordering, tracer)
+      CompositeSupervisionRoutes(views, client, identities, aclCheck, config.prefix)(using ctx, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => CompositeViewEvent.sseEncoder(using base) }

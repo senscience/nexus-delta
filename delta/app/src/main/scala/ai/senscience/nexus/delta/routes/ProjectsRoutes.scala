@@ -1,18 +1,13 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.ProjectSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
@@ -44,14 +39,11 @@ final class ProjectsRoutes(
     projects: Projects,
     projectScopeResolver: ProjectScopeResolver,
     projectsStatistics: ProjectsStatistics
-)(using baseUri: BaseUri, prefixConfig: PrefixConfig)(using
-    PaginationConfig,
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    FusionConfig,
-    Tracer[IO]
-) extends AuthDirectives(identities, aclCheck)
+)(using ctx: RouteContext, prefixConfig: PrefixConfig, paginationConfig: PaginationConfig, tracer: Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private def projectsSearchParams(org: Option[Label])(using Caller): Directive1[ProjectSearchParams] = {
     (searchParams & parameter("label".?)).tflatMap { case (deprecated, rev, createdBy, updatedBy, label) =>
@@ -79,91 +71,89 @@ final class ProjectsRoutes(
     emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
-      pathPrefix("projects") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
-          concat(
-            // List projects
-            (get & pathEndOrSingleSlash & extractHttp4sUri & fromPaginated & projectsSearchParams(None) &
-              sort[Project]) { (uri, pagination, params, order) =>
-              given JsonLdEncoder[SearchResults[ProjectResource]] =
-                searchResultsJsonLdEncoder(Project.context, pagination, uri)
-              emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
-            },
-            projectRef { project =>
-              val authorizeCreate        = authorizeFor(project, CreateProjects)
-              val authorizeWrite         = authorizeFor(project, WriteProjects)
-              val authorizeDelete        = authorizeFor(project, DeleteProjects)
-              val authorizeRead          = authorizeFor(project, ReadProjects)
-              val authorizeReadResources = authorizeFor(project, ReadResources)
-              def decodeFields           = {
-                given Decoder[ProjectFields] = ProjectFields.decoder(project, prefixConfig)
-                entity(as[ProjectFields])
-              }
-              concat(
-                concat(
-                  (put & pathEndOrSingleSlash & revParamOpt) {
-                    case None      =>
-                      // Create project
-                      (authorizeCreate & decodeFields) { fields =>
-                        emitMetadata(StatusCodes.Created, projects.create(project, fields))
-                      }
-                    case Some(rev) =>
-                      // Update project
-                      (authorizeWrite & decodeFields) { fields =>
-                        emitMetadata(projects.update(project, rev, fields))
-                      }
-                  },
-                  (get & pathEndOrSingleSlash & revParamOpt) {
-                    case Some(rev) => // Fetch project at specific revision
-                      authorizeRead {
-                        emit(projects.fetchAt(project, rev))
-                      }
-                    case None      => // Fetch project
-                      emitOrFusionRedirect(
-                        project,
-                        authorizeRead {
-                          emit(projects.fetch(project))
-                        }
-                      )
-                  },
-                  // Deprecate/delete project
-                  (delete & pathEndOrSingleSlash & revParam & parameter("prune".?(false))) {
-                    case (rev, true)  =>
-                      authorizeDelete {
-                        emitMetadata(projects.delete(project, rev))
-                      }
-                    case (rev, false) =>
-                      authorizeWrite {
-                        emitMetadata(projects.deprecate(project, rev))
-                      }
-                  }
-                ),
-                (pathPrefix("undeprecate") & put & authorizeWrite & revParam) { revision =>
-                  emit(projects.undeprecate(project, revision))
-                },
-                // Project statistics
-                (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
-                  authorizeReadResources {
-                    emit(
-                      OptionT(projectsStatistics.get(project)).toRight(ProjectNotFound(project)).rethrowT
-                    )
-                  }
-                }
-              )
-            },
-            // list projects for an organization
-            (get & label & pathEndOrSingleSlash) { org =>
-              (extractHttp4sUri & fromPaginated & projectsSearchParams(Some(org)) & sort[Project]) {
-                (uri, pagination, params, order) =>
-                  given JsonLdEncoder[SearchResults[ProjectResource]] =
-                    searchResultsJsonLdEncoder(Project.context, pagination, uri)
-                  emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
-              }
+    (baseUriPrefix & pathPrefix("projects")) {
+      extractCaller { case caller @ given Caller =>
+        given Subject = caller.subject
+        concat(
+          // List projects
+          (get & pathEndOrSingleSlash & extractHttp4sUri & fromPaginated & projectsSearchParams(None) &
+            sort[Project]) { (uri, pagination, params, order) =>
+            given JsonLdEncoder[SearchResults[ProjectResource]] =
+              searchResultsJsonLdEncoder(Project.context, pagination, uri)
+            emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
+          },
+          projectRef { project =>
+            val authorizeCreate        = authorizeFor(project, CreateProjects)
+            val authorizeWrite         = authorizeFor(project, WriteProjects)
+            val authorizeDelete        = authorizeFor(project, DeleteProjects)
+            val authorizeRead          = authorizeFor(project, ReadProjects)
+            val authorizeReadResources = authorizeFor(project, ReadResources)
+            def decodeFields           = {
+              given Decoder[ProjectFields] = ProjectFields.decoder(project, prefixConfig)
+              entity(as[ProjectFields])
             }
-          )
-        }
+            concat(
+              concat(
+                (put & pathEndOrSingleSlash & revParamOpt) {
+                  case None      =>
+                    // Create project
+                    (authorizeCreate & decodeFields) { fields =>
+                      emitMetadata(StatusCodes.Created, projects.create(project, fields))
+                    }
+                  case Some(rev) =>
+                    // Update project
+                    (authorizeWrite & decodeFields) { fields =>
+                      emitMetadata(projects.update(project, rev, fields))
+                    }
+                },
+                (get & pathEndOrSingleSlash & revParamOpt) {
+                  case Some(rev) => // Fetch project at specific revision
+                    authorizeRead {
+                      emit(projects.fetchAt(project, rev))
+                    }
+                  case None      => // Fetch project
+                    emitOrFusionRedirect(
+                      project,
+                      authorizeRead {
+                        emit(projects.fetch(project))
+                      }
+                    )
+                },
+                // Deprecate/delete project
+                (delete & pathEndOrSingleSlash & revParam & parameter("prune".?(false))) {
+                  case (rev, true)  =>
+                    authorizeDelete {
+                      emitMetadata(projects.delete(project, rev))
+                    }
+                  case (rev, false) =>
+                    authorizeWrite {
+                      emitMetadata(projects.deprecate(project, rev))
+                    }
+                }
+              ),
+              (pathPrefix("undeprecate") & put & authorizeWrite & revParam) { revision =>
+                emit(projects.undeprecate(project, revision))
+              },
+              // Project statistics
+              (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
+                authorizeReadResources {
+                  emit(
+                    OptionT(projectsStatistics.get(project)).toRight(ProjectNotFound(project)).rethrowT
+                  )
+                }
+              }
+            )
+          },
+          // list projects for an organization
+          (get & label & pathEndOrSingleSlash) { org =>
+            (extractHttp4sUri & fromPaginated & projectsSearchParams(Some(org)) & sort[Project]) {
+              (uri, pagination, params, order) =>
+                given JsonLdEncoder[SearchResults[ProjectResource]] =
+                  searchResultsJsonLdEncoder(Project.context, pagination, uri)
+                emit(projects.list(pagination, params, order).widen[SearchResults[ProjectResource]])
+            }
+          }
+        )
       }
     }
 }
@@ -190,15 +180,7 @@ object ProjectsRoutes {
       projects: Projects,
       projectScopeResolver: ProjectScopeResolver,
       projectsStatistics: ProjectsStatistics
-  )(using
-      BaseUri,
-      PaginationConfig,
-      PrefixConfig,
-      RemoteContextResolution,
-      JsonKeyOrdering,
-      FusionConfig,
-      Tracer[IO]
-  ): Route =
+  )(using RouteContext, PrefixConfig, PaginationConfig, Tracer[IO]): Route =
     new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics).routes
 
 }

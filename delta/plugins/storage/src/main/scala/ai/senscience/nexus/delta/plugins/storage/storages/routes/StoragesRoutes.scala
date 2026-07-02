@@ -4,18 +4,16 @@ import ai.senscience.nexus.delta.plugins.storage.storages.*
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes.AccessType
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{given, *}
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
@@ -48,11 +46,12 @@ final class StoragesRoutes(
     storages: Storages,
     storagesStatistics: StoragesStatistics,
     schemeDirectives: DeltaSchemeDirectives
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
+  import ctx.given
   import schemeDirectives.*
 
   private def emitMetadata(statusCode: StatusCode, io: IO[StorageResource]): Route =
@@ -67,7 +66,7 @@ final class StoragesRoutes(
     concat(storageRoutes, storagePermissionRoutes)
 
   private def storageRoutes =
-    (baseUriPrefix(baseUri.prefix) & replaceUri("storages", schemas.storage)) {
+    (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("storages", schemas.storage)) {
       (handleStorageExceptions & pathPrefix("storages")) {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -134,7 +133,7 @@ final class StoragesRoutes(
     }
 
   private def storagePermissionRoutes =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("user") {
         pathPrefix("permissions") {
           projectRef { project =>
@@ -192,7 +191,7 @@ object StoragesRoutes {
       storages: Storages,
       storagesStatistics: StoragesStatistics,
       schemeDirectives: DeltaSchemeDirectives
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new StoragesRoutes(identities, aclCheck, storages, storagesStatistics, schemeDirectives).routes
 
 }

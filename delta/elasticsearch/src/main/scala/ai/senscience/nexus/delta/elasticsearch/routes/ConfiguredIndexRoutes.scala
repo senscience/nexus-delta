@@ -5,13 +5,11 @@ import ai.senscience.nexus.delta.elasticsearch.model.permissions
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.query.ConfiguredIndexQuery
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectives.elasticSearchRequest
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -26,10 +24,12 @@ final class ConfiguredIndexRoutes(
     aclCheck: AclCheck,
     configuredQuery: ConfiguredIndexQuery,
     projectionDirectives: ProjectionsDirectives
-)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
+
+  import ctx.given
 
   def routes: Route =
     handleExceptions(ElasticSearchExceptionHandler.apply) {

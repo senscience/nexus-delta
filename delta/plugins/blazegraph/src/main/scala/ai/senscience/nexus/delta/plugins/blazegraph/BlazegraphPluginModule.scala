@@ -10,13 +10,10 @@ import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks.Queries
 import ai.senscience.nexus.delta.plugins.blazegraph.routes.{BlazegraphViewsIndexingRoutes, BlazegraphViewsRoutes, BlazegraphViewsRoutesHandler, SparqlSupervisionRoutes}
 import ai.senscience.nexus.delta.plugins.blazegraph.supervision.{BlazegraphViewByNamespace, SparqlSupervision}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
@@ -191,11 +188,8 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         views: BlazegraphViews,
         viewsQuery: BlazegraphViewsQuery,
         incomingOutgoingLinks: IncomingOutgoingLinks,
-        baseUri: BaseUri,
         cfg: BlazegraphViewsConfig,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("sparql")
     ) =>
       new BlazegraphViewsRoutes(
@@ -204,7 +198,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         incomingOutgoingLinks,
         identities,
         aclCheck
-      )(using baseUri, cr, ordering, cfg.pagination, fusionConfig, tracer)
+      )(using ctx, cfg.pagination, tracer)
   }
 
   make[BlazegraphViewsIndexingRoutes].from {
@@ -214,8 +208,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         views: BlazegraphViews,
         sparqlRestartScheduler: SparqlRestartScheduler,
         projectionDirectives: ProjectionsDirectives,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("sparql")
     ) =>
       new BlazegraphViewsIndexingRoutes(
@@ -224,7 +217,7 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         identities,
         aclCheck,
         projectionDirectives
-      )(using cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   make[SparqlSupervisionRoutes].from {
@@ -232,10 +225,10 @@ class BlazegraphPluginModule(priority: Int) extends NexusModuleDef {
         sparqlSupervision: SparqlSupervision,
         identities: Identities,
         aclCheck: AclCheck,
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("sparql")
     ) =>
-      new SparqlSupervisionRoutes(sparqlSupervision, identities, aclCheck)(using ordering, tracer)
+      new SparqlSupervisionRoutes(sparqlSupervision, identities, aclCheck)(using ctx, tracer)
   }
 
   make[BlazegraphScopeInitialization].from {

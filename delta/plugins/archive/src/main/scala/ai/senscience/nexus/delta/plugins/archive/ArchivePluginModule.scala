@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
@@ -68,12 +69,10 @@ object ArchivePluginModule extends NexusModuleDef {
         archives: Archives,
         identities: Identities,
         aclCheck: AclCheck,
-        baseUri: BaseUri,
-        rcr: RemoteContextResolution @Id("aggregate"),
-        jko: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("archives")
     ) =>
-      new ArchiveRoutes(archives, identities, aclCheck)(using baseUri)(using rcr, jko, tracer)
+      new ArchiveRoutes(archives, identities, aclCheck)(using ctx, tracer)
   }
 
   many[RouteEntry].add { (cfg: ArchivePluginConfig, routes: ArchiveRoutes) =>

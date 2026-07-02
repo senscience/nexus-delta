@@ -4,14 +4,12 @@ import ai.senscience.nexus.delta.elasticsearch.client.PointInTime
 import ai.senscience.nexus.delta.elasticsearch.model.ViewResource
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.{ElasticSearchViews, ElasticSearchViewsQuery}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -46,11 +44,13 @@ final class ElasticSearchViewsRoutes(
     aclCheck: AclCheck,
     views: ElasticSearchViews,
     viewsQuery: ElasticSearchViewsQuery
-)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with ElasticSearchViewsDirectives
     with RdfMarshalling {
+
+  import ctx.given
 
   private def emitMetadataOrReject(statusCode: StatusCode, io: IO[ViewResource]): Route =
     emit(statusCode, io.mapValue(_.metadata))
@@ -156,7 +156,7 @@ object ElasticSearchViewsRoutes {
       aclCheck: AclCheck,
       views: ElasticSearchViews,
       viewsQuery: ElasticSearchViewsQuery
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new ElasticSearchViewsRoutes(
       identities,
       aclCheck,

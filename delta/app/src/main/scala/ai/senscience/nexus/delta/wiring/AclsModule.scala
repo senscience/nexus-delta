@@ -2,13 +2,12 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{AclsRoutes, UserPermissionsRoutes}
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.*
 import ai.senscience.nexus.delta.sdk.acls.model.FlattenedAclStore
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -63,16 +62,8 @@ object AclsModule extends NexusModuleDef {
   }
 
   make[AclsRoutes].from {
-    (
-        identities: Identities,
-        aclCheck: AclCheck,
-        acls: Acls,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        tracer: Tracer[IO] @Id("acls")
-    ) =>
-      new AclsRoutes(identities, aclCheck, acls)(using baseUri)(using cr, ordering, tracer)
+    (identities: Identities, aclCheck: AclCheck, acls: Acls, ctx: RouteContext, tracer: Tracer[IO] @Id("acls")) =>
+      new AclsRoutes(identities, aclCheck, acls)(using ctx, tracer)
   }
 
   many[ScopeInitialization].addSet {

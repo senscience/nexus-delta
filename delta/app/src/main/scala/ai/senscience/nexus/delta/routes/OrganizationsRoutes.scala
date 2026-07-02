@@ -1,8 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.OrganizationsRoutes.OrganizationInput
 import ai.senscience.nexus.delta.sdk.OrganizationResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
@@ -10,9 +8,9 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.OrganizationSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
@@ -46,9 +44,11 @@ final class OrganizationsRoutes(
     aclCheck: AclCheck,
     organizations: Organizations,
     orgDeleter: OrganizationDeleter
-)(using baseUri: BaseUri)(using PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, paginationConfig: PaginationConfig, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private def orgsSearchParams(using Caller): Directive1[OrganizationSearchParams] =
     (searchParams & parameter("label".?)).tmap { case (deprecated, rev, createdBy, updatedBy, label) =>
@@ -73,7 +73,7 @@ final class OrganizationsRoutes(
   private def orgDescription = entity(as[OrganizationInput]).map(_.description)
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("orgs") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -161,7 +161,7 @@ object OrganizationsRoutes {
       aclCheck: AclCheck,
       organizations: Organizations,
       orgDeleter: OrganizationDeleter
-  )(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
+  )(using RouteContext, PaginationConfig, Tracer[IO]): Route =
     new OrganizationsRoutes(identities, aclCheck, organizations, orgDeleter).routes
 
 }

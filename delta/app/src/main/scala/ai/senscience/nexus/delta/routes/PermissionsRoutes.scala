@@ -1,10 +1,9 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions
 import ai.senscience.nexus.delta.routes.PermissionsRoutes.PatchPermissions.{Append, Replace, Subtract}
 import ai.senscience.nexus.delta.sdk.PermissionsResource
@@ -12,8 +11,9 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.permissions as permissionsPerms
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsRejection}
@@ -39,10 +39,12 @@ import org.typelevel.otel4s.trace.Tracer
   *   verify the acls for users
   */
 final class PermissionsRoutes(identities: Identities, aclCheck: AclCheck, permissions: Permissions)(using
-    baseUri: BaseUri
-)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
-    extends AuthDirectives(identities, aclCheck)
+    ctx: RouteContext,
+    tracer: Tracer[IO]
+) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private given JsonLdEncoder[ResourceF[Unit]] =
     ResourceF.resourceFAJsonLdEncoder(ContextValue(contexts.permissionsMetadata))
@@ -57,7 +59,7 @@ final class PermissionsRoutes(identities: Identities, aclCheck: AclCheck, permis
   private def emitMetadata(io: IO[PermissionsResource]): Route = emit(io.map(_.void))
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
+    (baseUriPrefix(ctx.baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("permissions") {
         extractCaller { case caller =>
           val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)(using caller)
@@ -112,9 +114,7 @@ object PermissionsRoutes {
     *   the [[Route]] for the permission resources
     */
   def apply(identities: Identities, aclCheck: AclCheck, permissions: Permissions)(using
-      BaseUri,
-      RemoteContextResolution,
-      JsonKeyOrdering,
+      RouteContext,
       Tracer[IO]
   ): Route =
     new PermissionsRoutes(identities, aclCheck, permissions).routes

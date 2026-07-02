@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.ConfigFixtures
 import ai.senscience.nexus.delta.sdk.acls.AclSimpleCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.generators.ProjectGen
 import ai.senscience.nexus.delta.sdk.identities.IdentitiesDummy
 import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
@@ -48,6 +49,8 @@ trait BlazegraphViewRoutesFixtures
   given exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
 
   given paginationConfig: PaginationConfig = pagination
+
+  given routeContext: RouteContext = RouteContext(baseUri, rcr, ordering, fusionConfig)
 
   val uuid = UUID.randomUUID()
 

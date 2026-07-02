@@ -1,16 +1,14 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.IndexingSupervisionRoutes.IndexingErrorBundle
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{baseUriPrefix, emitJson, timeRange}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.model.FailedElemLog
 import ai.senscience.nexus.delta.sourcing.projections.ProjectionErrors
@@ -24,12 +22,14 @@ final class IndexingSupervisionRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projectionErrors: ProjectionErrors
-)(using baseUri: BaseUri)(using JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
 
+  import ctx.given
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       (pathPrefix("supervision") & pathPrefix("indexing")) {
         extractCaller { case given Caller =>
           pathPrefix("errors") {

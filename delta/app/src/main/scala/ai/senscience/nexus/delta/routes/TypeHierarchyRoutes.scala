@@ -1,13 +1,11 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.typehierarchy
 import ai.senscience.nexus.delta.sdk.typehierarchy.TypeHierarchy as TypeHierarchyModel
 import ai.senscience.nexus.delta.sdk.typehierarchy.model.{TypeHierarchy, TypeHierarchyRejection}
@@ -22,9 +20,11 @@ final class TypeHierarchyRoutes(
     typeHierarchy: TypeHierarchyModel,
     identities: Identities,
     aclCheck: AclCheck
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private val exceptionHandler = ExceptionHandler { case err: TypeHierarchyRejection =>
     discardEntityAndForceEmit(err)
@@ -33,7 +33,7 @@ final class TypeHierarchyRoutes(
   private val typeHierarchyMapping = entity(as[TypeHierarchy]).map(_.mapping)
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
+    (baseUriPrefix(ctx.baseUri.prefix) & handleExceptions(exceptionHandler)) {
       extractCaller { case caller =>
         val authorizeWrite = authorizeFor(AclAddress.Root, typehierarchy.write)(using caller)
         given Subject      = caller.subject

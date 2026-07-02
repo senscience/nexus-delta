@@ -3,14 +3,13 @@ package ai.senscience.nexus.delta.elasticsearch.routes
 import ai.senscience.nexus.delta.elasticsearch.model.contexts
 import ai.senscience.nexus.delta.elasticsearch.query.{MainIndexQuery, MainIndexRequest}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -39,11 +38,12 @@ class ListingRoutes(
     resourcesToSchemas: ResourceToSchemaMappings,
     schemeDirectives: DeltaSchemeDirectives,
     mainIndexQuery: MainIndexQuery
-)(using BaseUri, PaginationConfig, RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, paginationConfig: PaginationConfig, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with ElasticSearchViewsDirectives
     with RdfMarshalling {
 
+  import ctx.given
   import schemeDirectives.*
 
   private def resourceRef(idSegment: IdSegmentRef)(using pc: ProjectContext): Directive1[ResourceRef] =

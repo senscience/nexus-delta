@@ -5,15 +5,12 @@ import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.
 import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
@@ -25,18 +22,18 @@ class LinkFilesRoutes(
     aclCheck: AclCheck,
     files: Files,
     index: SyncIndexingAction.Execute[File]
-)(using
-    baseUri: BaseUri
-)(using RemoteContextResolution, JsonKeyOrdering, ShowFileLocation, Tracer[IO])
+)(using ctx: RouteContext, showFileLocation: ShowFileLocation, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
   self =>
+
+  import ctx.given
 
   private def onCreationDirective =
     noRev & storageParam & tagParam & indexingMode & pathEndOrSingleSlash & entity(as[FileLinkRequest])
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       (pathPrefix("link" / "files") & handleStorageExceptions) {
         extractCaller { case given Caller =>
           projectRef { project =>

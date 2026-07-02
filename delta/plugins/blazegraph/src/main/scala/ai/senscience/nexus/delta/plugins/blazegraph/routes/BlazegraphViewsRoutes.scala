@@ -5,13 +5,11 @@ import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{query as 
 import ai.senscience.nexus.delta.plugins.blazegraph.query.IncomingOutgoingLinks
 import ai.senscience.nexus.delta.plugins.blazegraph.{BlazegraphViews, BlazegraphViewsQuery}
 import ai.senscience.nexus.delta.rdf.Vocabulary
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, RouteClassifier}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -19,7 +17,7 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -38,12 +36,14 @@ class BlazegraphViewsRoutes(
     incomingOutgoingLinks: IncomingOutgoingLinks,
     identities: Identities,
     aclCheck: AclCheck
-)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, PaginationConfig, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, paginationConfig: PaginationConfig, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with DeltaDirectives
     with RdfMarshalling
     with BlazegraphViewsDirectives {
+
+  import ctx.given
 
   private def emitMetadataOrReject(statusCode: StatusCode, io: IO[ViewResource]): Route =
     emit(statusCode, io.mapValue(_.metadata))
@@ -191,7 +191,7 @@ object BlazegraphViewsRoutes {
       incomingOutgoingLinks: IncomingOutgoingLinks,
       identities: Identities,
       aclCheck: AclCheck
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, PaginationConfig, FusionConfig, Tracer[IO]): Route = {
+  )(using RouteContext, PaginationConfig, Tracer[IO]): Route = {
     new BlazegraphViewsRoutes(
       views,
       viewsQuery,

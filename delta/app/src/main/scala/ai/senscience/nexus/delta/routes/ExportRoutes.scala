@@ -1,14 +1,11 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.resources.ResourcesExporter
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
@@ -23,17 +20,14 @@ class ExportRoutes(
     aclCheck: AclCheck,
     exporter: Exporter,
     resourcesExporter: ResourcesExporter
-)(using
-    baseUri: BaseUri
-)(using
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    Tracer[IO]
-) extends AuthDirectives(identities, aclCheck)
+)(using ctx: RouteContext, tracer: Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
 
+  import ctx.given
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("export") {
         extractCaller { case given Caller =>
           authorizeFor(AclAddress.Root, Permissions.exporter.run).apply {

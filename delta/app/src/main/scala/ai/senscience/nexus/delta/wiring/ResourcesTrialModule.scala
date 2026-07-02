@@ -2,13 +2,11 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMinPriority
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes
 import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.resolvers.ResolverContextResolution
 import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesTrial, ValidateResource}
@@ -48,9 +46,7 @@ object ResourcesTrialModule extends ModuleDef {
         aclCheck: AclCheck,
         schemas: Schemas,
         resourcesTrial: ResourcesTrial,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("resources")
     ) =>
       ResourcesTrialRoutes(
@@ -58,7 +54,7 @@ object ResourcesTrialModule extends ModuleDef {
         aclCheck,
         schemas,
         resourcesTrial
-      )(using baseUri, cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: ResourcesTrialRoutes) =>

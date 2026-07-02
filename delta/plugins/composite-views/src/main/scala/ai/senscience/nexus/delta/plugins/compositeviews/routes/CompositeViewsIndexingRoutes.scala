@@ -8,11 +8,10 @@ import ai.senscience.nexus.delta.plugins.compositeviews.model.{ProjectionOffset,
 import ai.senscience.nexus.delta.plugins.compositeviews.projections.{CompositeIndexingDetails, CompositeProjections}
 import ai.senscience.nexus.delta.plugins.compositeviews.{ExpandId, FetchView}
 import ai.senscience.nexus.delta.rdf.Vocabulary.contexts
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -36,13 +35,15 @@ class CompositeViewsIndexingRoutes(
     details: CompositeIndexingDetails,
     projections: CompositeProjections,
     projectionDirectives: ProjectionsDirectives
-)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with CirceUnmarshalling
     with RdfMarshalling
     with ElasticSearchViewsDirectives
     with BlazegraphViewsDirectives {
+
+  import ctx.given
 
   private given offsetsSearchJsonLdEncoder: JsonLdEncoder[SearchResults[ProjectionOffset]] =
     searchResultsJsonLdEncoder(ContextValue(contexts.offset))
@@ -212,7 +213,7 @@ object CompositeViewsIndexingRoutes {
       statistics: CompositeIndexingDetails,
       projections: CompositeProjections,
       projectionDirectives: ProjectionsDirectives
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new CompositeViewsIndexingRoutes(
       identities,
       aclCheck,

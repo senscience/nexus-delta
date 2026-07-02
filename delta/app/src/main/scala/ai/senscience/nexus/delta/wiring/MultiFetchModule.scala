@@ -1,12 +1,10 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.MultiFetchRoutes
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.multifetch.MultiFetch
 import ai.senscience.nexus.delta.sdk.multifetch.model.MultiFetchRequest
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
@@ -36,12 +34,10 @@ object MultiFetchModule extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         multiFetch: MultiFetch,
-        baseUri: BaseUri,
-        rcr: RemoteContextResolution @Id("aggregate"),
-        jko: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("multi-fetch")
     ) =>
-      new MultiFetchRoutes(identities, aclCheck, multiFetch)(using baseUri)(using rcr, jko, tracer)
+      new MultiFetchRoutes(identities, aclCheck, multiFetch)(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: MultiFetchRoutes) =>

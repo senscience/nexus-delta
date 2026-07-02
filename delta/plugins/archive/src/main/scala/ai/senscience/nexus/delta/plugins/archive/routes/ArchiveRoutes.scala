@@ -4,16 +4,14 @@ import ai.senscience.nexus.delta.plugins.archive.Archives
 import ai.senscience.nexus.delta.plugins.archive.{permissions, ArchiveResource}
 import ai.senscience.nexus.delta.plugins.archive.model.{ArchiveRejection, Zip}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.FileResponse.PekkoSource
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, FileResponse}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, FileResponse, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -37,9 +35,11 @@ class ArchiveRoutes(
     archives: Archives,
     identities: Identities,
     aclCheck: AclCheck
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private val archivesExceptionHandler = handleExceptions {
     ExceptionHandler { case err: ArchiveRejection =>
@@ -48,7 +48,7 @@ class ArchiveRoutes(
   }
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & handleStorageExceptions & archivesExceptionHandler) {
+    (baseUriPrefix(ctx.baseUri.prefix) & handleStorageExceptions & archivesExceptionHandler) {
       pathPrefix("archives") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject

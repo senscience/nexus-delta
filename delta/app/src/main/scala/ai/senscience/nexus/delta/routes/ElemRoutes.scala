@@ -1,13 +1,10 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseElemStream
 import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
@@ -30,14 +27,15 @@ class ElemRoutes(
     aclCheck: AclCheck,
     sseElemStream: SseElemStream,
     schemeDirectives: DeltaSchemeDirectives
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck: AclCheck) {
+  import ctx.given
   import schemeDirectives.*
 
   private val tagParamOrLatest = tagParam.map(_.getOrElse(Latest))
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       extractCaller { case given Caller =>
         lastEventId { offset =>
           pathPrefix("elems") {

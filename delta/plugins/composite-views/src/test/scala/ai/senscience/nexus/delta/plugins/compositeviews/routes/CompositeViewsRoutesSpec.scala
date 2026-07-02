@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.rdf.graph.NTriples
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -41,8 +40,6 @@ class CompositeViewsRoutesSpec
   override def extraContexts: RemoteContextResolution = loadCoreContexts(
     contexts.definition ++ Set(iri"http://music.com/context" -> "indexing/music-context.json")
   )
-
-  private given FusionConfig = fusionConfig
 
   private val viewId  = nxv + uuid.toString
   private val esId    = iri"http://example.com/es-projection"

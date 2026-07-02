@@ -2,11 +2,9 @@ package ai.senscience.nexus.delta.plugins.blazegraph.routes
 
 import ai.senscience.nexus.delta.plugins.blazegraph.indexing.{FetchIndexingView, SparqlRestartScheduler}
 import ai.senscience.nexus.delta.plugins.blazegraph.model.permissions.{read as Read, write as Write}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteClassifier}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -24,12 +22,14 @@ class BlazegraphViewsIndexingRoutes(
     identities: Identities,
     aclCheck: AclCheck,
     projectionDirectives: ProjectionsDirectives
-)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with DeltaDirectives
     with RdfMarshalling
     with BlazegraphViewsDirectives {
+
+  import ctx.given
 
   private def fetchActiveView =
     (projectRef & idSegment).tflatMap { case (project, idSegment) =>
@@ -123,7 +123,7 @@ object BlazegraphViewsIndexingRoutes {
       identities: Identities,
       aclCheck: AclCheck,
       projectionDirectives: ProjectionsDirectives
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): Route = {
+  )(using RouteContext, Tracer[IO]): Route = {
     new BlazegraphViewsIndexingRoutes(
       fetch,
       sparqlRestartScheduler,
