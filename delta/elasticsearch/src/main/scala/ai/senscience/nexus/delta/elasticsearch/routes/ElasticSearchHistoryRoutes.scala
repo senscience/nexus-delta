@@ -1,13 +1,12 @@
 package ai.senscience.nexus.delta.elasticsearch.routes
 
 import ai.senscience.nexus.delta.elasticsearch.metrics.FetchHistory
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emitJson, projectRef}
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.iriSegment
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
@@ -24,11 +23,13 @@ import org.typelevel.otel4s.trace.Tracer
   * Routes allowing to get the history of events for resources
   */
 class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fetchHistory: FetchHistory)(using
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    Tracer[IO]
+    ctx: RouteContext,
+    tracer: Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
+
+  import ctx.given
+
   given Encoder.AsObject[SearchResults[JsonObject]] = searchResultsEncoder(_ => None)
 
   def routes: Route =

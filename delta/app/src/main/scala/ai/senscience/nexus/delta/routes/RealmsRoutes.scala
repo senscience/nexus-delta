@@ -1,16 +1,14 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.RealmResource
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
@@ -25,13 +23,14 @@ import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, Route}
 import org.typelevel.otel4s.trace.Tracer
 
-class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(using baseUri: BaseUri)(using
-    PaginationConfig,
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    Tracer[IO]
+class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(using
+    ctx: RouteContext,
+    paginationConfig: PaginationConfig,
+    tracer: Tracer[IO]
 ) extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling {
+
+  import ctx.given
 
   private val exceptionHandler =
     handleExceptions(
@@ -51,7 +50,7 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(u
   private def emitMetadata(io: IO[RealmResource]): Route = emitMetadata(StatusCodes.OK, io)
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
+    (baseUriPrefix(ctx.baseUri.prefix) & exceptionHandler) {
       pathPrefix("realms") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -104,10 +103,8 @@ object RealmsRoutes {
     *   the [[Route]] for realms
     */
   def apply(identities: Identities, realms: Realms, aclCheck: AclCheck)(using
-      BaseUri,
+      RouteContext,
       PaginationConfig,
-      RemoteContextResolution,
-      JsonKeyOrdering,
       Tracer[IO]
   ): Route =
     new RealmsRoutes(identities, realms, aclCheck).routes

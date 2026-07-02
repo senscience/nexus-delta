@@ -2,13 +2,11 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.PermissionsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.{contexts, Permissions, PermissionsConfig, PermissionsImpl}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -40,11 +38,9 @@ object PermissionsModule extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         permissions: Permissions,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("permissions")
-    ) => new PermissionsRoutes(identities, aclCheck, permissions)(using baseUri)(using cr, ordering, tracer)
+    ) => new PermissionsRoutes(identities, aclCheck, permissions)(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: PermissionsRoutes) =>

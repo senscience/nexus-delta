@@ -1,15 +1,12 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.elasticsearch.metrics.{EventMetricsProjection, EventMetricsRestartScheduler}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -23,15 +20,17 @@ final class EventMetricsRoutes(
     aclCheck: AclCheck,
     projectionsDirectives: ProjectionsDirectives,
     eventMetricsRestartScheduler: EventMetricsRestartScheduler
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with RdfMarshalling {
 
+  import ctx.given
+
   private val projectionName = EventMetricsProjection.projectionMetadata.name
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("event-metrics") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject

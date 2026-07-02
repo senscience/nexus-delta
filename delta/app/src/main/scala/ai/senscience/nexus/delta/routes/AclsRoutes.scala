@@ -1,9 +1,7 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.AclsRoutes.PatchAcl.{Append, Subtract}
 import ai.senscience.nexus.delta.routes.AclsRoutes.{PatchAcl, ReplaceAcl}
 import ai.senscience.nexus.delta.sdk.AclResource
@@ -11,16 +9,14 @@ import ai.senscience.nexus.delta.sdk.acls.model.*
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddressFilter.{AnyOrganization, AnyOrganizationAnyProject, AnyProject}
 import ai.senscience.nexus.delta.sdk.acls.model.AclRejection.AclNotFound
 import ai.senscience.nexus.delta.sdk.acls.{AclCheck, Acls}
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.{route, str}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.{QueryParamsUnmarshalling, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.given
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls as aclsPermissions
@@ -39,13 +35,12 @@ import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.{Directive1, ExceptionHandler, MalformedQueryParamRejection, Route}
 import org.typelevel.otel4s.trace.Tracer
 
-class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using baseUri: BaseUri)(using
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    Tracer[IO]
-) extends AuthDirectives(identities, aclCheck)
+class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using ctx: RouteContext, tracer: Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with QueryParamsUnmarshalling {
+
+  import ctx.given
 
   private val any = "*"
 
@@ -114,7 +109,7 @@ class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using b
   private val ancestorsParam = parameter("ancestors" ? false)
 
   def routes: Route = {
-    (baseUriPrefix(baseUri.prefix) & handleExceptions(exceptionHandler)) {
+    (baseUriPrefix & handleExceptions(exceptionHandler)) {
       pathPrefix("acls") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -234,12 +229,7 @@ object AclsRoutes {
     * @return
     *   the [[Route]] for ACLs
     */
-  def apply(identities: Identities, aclCheck: AclCheck, acls: Acls)(using
-      BaseUri,
-      RemoteContextResolution,
-      JsonKeyOrdering,
-      Tracer[IO]
-  ): AclsRoutes =
+  def apply(identities: Identities, aclCheck: AclCheck, acls: Acls)(using RouteContext, Tracer[IO]): AclsRoutes =
     new AclsRoutes(identities, aclCheck, acls)
 
 }

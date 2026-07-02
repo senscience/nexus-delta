@@ -1,24 +1,22 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.{contexts, schemas}
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resolvers.{read as Read, write as Write}
 import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverNotFound
@@ -53,11 +51,12 @@ final class ResolversRoutes(
     resolvers: Resolvers,
     multiResolution: MultiResolution,
     schemeDirectives: DeltaSchemeDirectives
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
 
+  import ctx.given
   import schemeDirectives.*
 
   private def exceptionHandler(enableRejects: Boolean) =
@@ -95,7 +94,7 @@ final class ResolversRoutes(
     }
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
+    (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
       pathPrefix("resolvers") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -183,7 +182,7 @@ final class ResolversRoutes(
       project: ProjectRef,
       resolutionType: ResolutionType,
       output: ResolvedResourceOutputType
-  )(using BaseUri, Caller): Route =
+  )(using Caller): Route =
     authorizeFor(project, Permissions.resources.read).apply {
       exceptionHandler(enableRejects = false) {
         def emitResult[R: JsonLdEncoder](io: IO[MultiResolutionResult[R]]) = {
@@ -247,7 +246,7 @@ object ResolversRoutes {
       resolvers: Resolvers,
       multiResolution: MultiResolution,
       schemeDirectives: DeltaSchemeDirectives
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new ResolversRoutes(identities, aclCheck, resolvers, multiResolution, schemeDirectives).routes
 
 }

@@ -5,14 +5,12 @@ import ai.senscience.nexus.delta.elasticsearch.indexing.IndexingViewDef.ActiveVi
 import ai.senscience.nexus.delta.elasticsearch.indexing.{ElasticsearchRestartScheduler, FetchIndexingView}
 import ai.senscience.nexus.delta.elasticsearch.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchIndexingRoutes.FetchMapping
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress.Root
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
@@ -35,10 +33,12 @@ final class ElasticSearchIndexingRoutes(
     elasticsearchRestartScheduler: ElasticsearchRestartScheduler,
     projectionDirectives: ProjectionsDirectives,
     fetchMapping: FetchMapping
-)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
+
+  import ctx.given
 
   private def fetchActiveView =
     (projectRef & idSegment).tflatMap { case (project, idSegment) =>
@@ -136,7 +136,7 @@ object ElasticSearchIndexingRoutes {
       elasticsearchRestartScheduler: ElasticsearchRestartScheduler,
       projectionDirectives: ProjectionsDirectives,
       client: ElasticSearchClient
-  )(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ElasticSearchIndexingRoutes =
+  )(using RouteContext, Tracer[IO]): ElasticSearchIndexingRoutes =
     new ElasticSearchIndexingRoutes(
       identities,
       aclCheck,

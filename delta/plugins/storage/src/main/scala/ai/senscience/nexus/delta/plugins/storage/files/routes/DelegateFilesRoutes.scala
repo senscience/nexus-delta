@@ -6,16 +6,14 @@ import ai.senscience.nexus.delta.plugins.storage.files.routes.FileUriDirectives.
 import ai.senscience.nexus.delta.plugins.storage.files.{FileResource, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ResponseToJsonLd}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ResponseToJsonLd, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.jws.JWSPayloadHelper
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment}
+import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
 import ai.senscience.nexus.pekko.marshalling.{CirceMarshalling, CirceUnmarshalling}
@@ -32,13 +30,15 @@ final class DelegateFilesRoutes(
     files: Files,
     jwsPayloadHelper: JWSPayloadHelper,
     index: SyncIndexingAction.Execute[File]
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, ShowFileLocation, Tracer[IO])
+)(using ctx: RouteContext, showFileLocation: ShowFileLocation, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with CirceMarshalling { self =>
 
+  import ctx.given
+
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       (pathPrefix("delegate" / "files") & handleStorageExceptions) {
         extractCaller { case given Caller =>
           concat(

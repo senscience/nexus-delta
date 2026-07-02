@@ -5,15 +5,12 @@ import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.plugins.graph.analytics.config.GraphAnalyticsConfig
 import ai.senscience.nexus.delta.plugins.graph.analytics.indexing.GraphAnalyticsStream
 import ai.senscience.nexus.delta.plugins.graph.analytics.routes.GraphAnalyticsRoutes
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
+import ai.senscience.nexus.delta.sdk.directives.{ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.ProjectProjectionLifecycle
-import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.Transactors
@@ -75,10 +72,8 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         graphAnalytics: GraphAnalytics,
         projectionsDirectives: ProjectionsDirectives,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
         viewsQuery: GraphAnalyticsViewsQuery,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("graph-analytics")
     ) =>
       new GraphAnalyticsRoutes(
@@ -87,7 +82,7 @@ class GraphAnalyticsPluginModule(priority: Int) extends NexusModuleDef {
         graphAnalytics,
         projectionsDirectives,
         viewsQuery
-      )(using baseUri)(using cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: GraphAnalyticsRoutes) =>

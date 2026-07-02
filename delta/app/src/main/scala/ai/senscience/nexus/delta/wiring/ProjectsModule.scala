@@ -2,15 +2,12 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ProjectsRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.FlattenedAclStore
 import ai.senscience.nexus.delta.sdk.deletion.{ProjectDeletionCoordinator, ProjectDeletionTask}
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.{ProjectDefCoordinator, ProjectDefResumer, ProjectProjectionLifecycle}
@@ -156,20 +153,13 @@ object ProjectsModule extends NexusModuleDef {
         projects: Projects,
         projectScopeResolver: ProjectScopeResolver,
         projectsStatistics: ProjectsStatistics,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("projects")
     ) =>
       new ProjectsRoutes(identities, aclCheck, projects, projectScopeResolver, projectsStatistics)(using
-        baseUri,
-        config.prefix
-      )(using
+        ctx,
+        config.prefix,
         config.pagination,
-        cr,
-        ordering,
-        fusionConfig,
         tracer
       )
   }

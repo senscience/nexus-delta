@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.sdk.utils
 import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.marshalling.{RdfExceptionHandler, RdfRejectionHandler}
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -44,6 +45,7 @@ trait RouteFixtures extends RemoteContextResolutionFixtures {
   given paginationConfig: PaginationConfig = PaginationConfig(5, 10, 5)
   given f: FusionConfig                    =
     FusionConfig(uri"https://bbp.epfl.ch/nexus/web/", enableRedirects = true, uri"https://bbp.epfl.ch")
+  given routeContext: RouteContext         = RouteContext(baseUri, rcr, ordering, f)
   given rejectionHandler: RejectionHandler = RdfRejectionHandler.apply
   given exceptionHandler: ExceptionHandler = RdfExceptionHandler.apply
 

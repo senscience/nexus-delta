@@ -2,13 +2,10 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResolversRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.model.*
@@ -81,10 +78,7 @@ object ResolversModule extends NexusModuleDef {
         resolvers: Resolvers,
         schemeDirectives: DeltaSchemeDirectives,
         multiResolution: MultiResolution,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("resolvers")
     ) =>
       new ResolversRoutes(
@@ -93,12 +87,7 @@ object ResolversModule extends NexusModuleDef {
         resolvers,
         multiResolution,
         schemeDirectives
-      )(using baseUri)(using
-        cr,
-        ordering,
-        fusionConfig,
-        tracer
-      )
+      )(using ctx, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => ResolverEvent.sseEncoder(using base) }

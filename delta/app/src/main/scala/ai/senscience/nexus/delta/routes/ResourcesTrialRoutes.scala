@@ -1,8 +1,6 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.SchemaInput.{ExistingSchema, NewSchema}
 import ai.senscience.nexus.delta.routes.ResourcesTrialRoutes.{GenerateSchema, GenerationInput}
 import ai.senscience.nexus.delta.sdk.SchemaResource
@@ -11,11 +9,12 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment.IriSegment
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegment, IdSegmentRef}
+import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.write as Write
 import ai.senscience.nexus.delta.sdk.resources.model.{ResourceGenerationResult, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, ResourcesTrial}
@@ -38,10 +37,12 @@ final class ResourcesTrialRoutes(
     aclCheck: AclCheck,
     generateSchema: GenerateSchema,
     resourcesTrial: ResourcesTrial
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
+
+  import ctx.given
 
   private val exceptionHandler =
     handleExceptions {
@@ -52,7 +53,7 @@ final class ResourcesTrialRoutes(
     }
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & exceptionHandler) {
+    (baseUriPrefix(ctx.baseUri.prefix) & exceptionHandler) {
       concat(validateRoute, generateRoute)
     }
 
@@ -142,7 +143,7 @@ object ResourcesTrialRoutes {
       aclCheck: AclCheck,
       schemas: Schemas,
       resourcesTrial: ResourcesTrial
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, Tracer[IO]): ResourcesTrialRoutes =
+  )(using RouteContext, Tracer[IO]): ResourcesTrialRoutes =
     new ResourcesTrialRoutes(
       identities,
       aclCheck,

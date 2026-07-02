@@ -8,20 +8,16 @@ import ai.senscience.nexus.delta.plugins.storage.files.routes.FilesRoutes.*
 import ai.senscience.nexus.delta.plugins.storage.files.{schemas, FileResource, Files}
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragePluginExceptionHandler.handleStorageExceptions
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.ShowFileLocation
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -54,14 +50,15 @@ final class FilesRoutes(
     files: Files,
     schemeDirectives: DeltaSchemeDirectives,
     index: SyncIndexingAction.Execute[File]
-)(using baseUri: BaseUri)(using ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, showFileLocation: ShowFileLocation, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling { self =>
 
+  import ctx.given
   import schemeDirectives.*
 
   def routes: Route =
-    (baseUriPrefix(baseUri.prefix) & replaceUri("files", schemas.files)) {
+    (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("files", schemas.files)) {
       (handleStorageExceptions & pathPrefix("files")) {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -200,7 +197,7 @@ object FilesRoutes {
       files: Files,
       schemeDirectives: DeltaSchemeDirectives,
       index: SyncIndexingAction.Execute[File]
-  )(using BaseUri, ShowFileLocation, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, ShowFileLocation, Tracer[IO]): Route =
     new FilesRoutes(identities, aclCheck, files, schemeDirectives, index).routes
 
   /**

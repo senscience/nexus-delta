@@ -2,10 +2,10 @@ package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ExportRoutes
 import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.resources.{Resources, ResourcesExporter}
@@ -45,16 +45,14 @@ object ExportModule extends NexusModuleDef {
 
   make[ExportRoutes].from {
     (
-        baseUri: BaseUri,
         identities: Identities,
         aclCheck: AclCheck,
         exporter: Exporter,
         resourcesExporter: ResourcesExporter,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("export")
     ) =>
-      new ExportRoutes(identities, aclCheck, exporter, resourcesExporter)(using baseUri)(using cr, ordering, tracer)
+      new ExportRoutes(identities, aclCheck, exporter, resourcesExporter)(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: ExportRoutes) =>

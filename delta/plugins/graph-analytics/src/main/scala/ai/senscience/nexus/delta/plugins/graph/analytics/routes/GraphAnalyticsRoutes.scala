@@ -5,15 +5,12 @@ import ai.senscience.nexus.delta.elasticsearch.routes.ElasticSearchViewsDirectiv
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.GraphAnalyticsRejection
 import ai.senscience.nexus.delta.plugins.graph.analytics.permissions.query
 import ai.senscience.nexus.delta.plugins.graph.analytics.{GraphAnalytics, GraphAnalyticsViewsQuery}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -30,17 +27,19 @@ class GraphAnalyticsRoutes(
     graphAnalytics: GraphAnalytics,
     projectionsDirectives: ProjectionsDirectives,
     viewsQuery: GraphAnalyticsViewsQuery
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling {
+
+  import ctx.given
 
   private val graphAnalyticsExceptionHandler = ExceptionHandler { case err: GraphAnalyticsRejection =>
     discardEntityAndForceEmit(err)
   }.withFallback(ElasticSearchExceptionHandler.client)
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       handleExceptions(graphAnalyticsExceptionHandler) {
         pathPrefix("graph-analytics") {
           extractCaller { case given Caller =>

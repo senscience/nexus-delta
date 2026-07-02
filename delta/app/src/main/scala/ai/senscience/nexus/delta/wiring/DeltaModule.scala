@@ -10,6 +10,7 @@ import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclProvisioning
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction
@@ -99,6 +100,16 @@ class DeltaModule(config: Config, runtime: IORuntime)(using ClassLoader) extends
       List("@context", "@id", "@type", "reason", "details", "sourceId", "projectionId", "_total", "_results")
     )
   )
+
+  make[RouteContext].from {
+    (
+        baseUri: BaseUri,
+        rcr: RemoteContextResolution @Id("aggregate"),
+        ordering: JsonKeyOrdering,
+        fusion: FusionConfig
+    ) =>
+      RouteContext(baseUri, rcr, ordering, fusion)
+  }
 
   makeConfig[JWSConfig]("app.jws")
   make[JWSPayloadHelper].from { (config: JWSConfig) =>

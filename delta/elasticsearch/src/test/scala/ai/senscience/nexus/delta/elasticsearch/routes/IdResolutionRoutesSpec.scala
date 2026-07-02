@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.elasticsearch.IdResolution.ResolutionResult.Sin
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.utils.BaseRouteSpec
@@ -24,8 +23,6 @@ class IdResolutionRoutesSpec extends BaseRouteSpec with ElasticSearchAclFixture 
   private val successId      = nxv + "success"
   private val jsonResource   = jsonContentOf("resources/resource.json", "id" -> successId)
   private val successContent = ResourceGen.jsonLdContent(successId, projectRef, jsonResource)
-
-  given FusionConfig = fusionConfig
 
   private val idResolution = new IdResolution {
     override def apply(iri: Iri)(using Caller): IO[IdResolution.ResolutionResult] =

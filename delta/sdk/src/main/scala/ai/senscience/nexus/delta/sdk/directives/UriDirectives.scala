@@ -64,6 +64,9 @@ trait UriDirectives extends QueryParamsUnmarshalling {
     }
   }
 
+  def baseUriPrefix(using baseUri: BaseUri): Directive[Unit] =
+    baseUriPrefix(baseUri.prefix)
+
   /**
     * When ''prefix'' exists, consumes the leading slash and the following ''prefix'' value.
     */

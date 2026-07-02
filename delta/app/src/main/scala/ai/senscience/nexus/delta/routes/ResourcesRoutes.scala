@@ -1,9 +1,8 @@
 package ai.senscience.nexus.delta.routes
 
 import ai.senscience.nexus.delta.rdf.Vocabulary.schemas
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
@@ -11,14 +10,14 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, IdSegmentRef, ResourceF}
+import ai.senscience.nexus.delta.sdk.model.{IdSegmentRef, ResourceF}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete as Delete, read as Read, write as Write}
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceRejection}
@@ -49,14 +48,12 @@ final class ResourcesRoutes(
     aclCheck: AclCheck,
     resources: Resources,
     index: SyncIndexingAction.Execute[Resource]
-)(using baseUri: BaseUri)(using
-    RemoteContextResolution,
-    JsonKeyOrdering,
-    FusionConfig,
-    Tracer[IO]
-) extends AuthDirectives(identities, aclCheck)
+)(using ctx: RouteContext, tracer: Tracer[IO])
+    extends AuthDirectives(identities, aclCheck)
     with CirceUnmarshalling
     with RdfMarshalling { self =>
+
+  import ctx.given
 
   private val resourceSchema = schemas.resources
 
@@ -87,7 +84,7 @@ final class ResourcesRoutes(
   private val resourceEntity = entity(as[NexusSource])
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("resources") {
         extractCaller { case caller @ given Caller =>
           given Subject = caller.subject
@@ -282,7 +279,7 @@ object ResourcesRoutes {
       aclCheck: AclCheck,
       resources: Resources,
       index: SyncIndexingAction.Execute[Resource]
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new ResourcesRoutes(identities, aclCheck, resources, index).routes
 
 }

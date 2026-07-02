@@ -1,15 +1,12 @@
 package ai.senscience.nexus.delta.routes
 
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, FileResponse}
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, FileResponse, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.given
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.projects.FetchContext
 import ai.senscience.nexus.delta.sdk.schemas.job.SchemaValidationCoordinator
@@ -36,8 +33,10 @@ class SchemaJobRoutes(
     schemaValidationCoordinator: SchemaValidationCoordinator,
     projections: Projections,
     projectionsErrors: ProjectionErrors
-)(using baseUri: BaseUri)(using RemoteContextResolution, JsonKeyOrdering, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck) {
+
+  import ctx.given
 
   private def projectionName(project: ProjectRef) = SchemaValidationCoordinator.projectionMetadata(project).name
 
@@ -53,7 +52,7 @@ class SchemaJobRoutes(
   }
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("jobs") {
         extractCaller { case given Caller =>
           pathPrefix("schemas") {

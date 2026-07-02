@@ -5,15 +5,11 @@ import ai.senscience.nexus.delta.plugins.blazegraph.routes.BlazegraphViewsDirect
 import ai.senscience.nexus.delta.plugins.compositeviews.model.ViewResource
 import ai.senscience.nexus.delta.plugins.compositeviews.model.permissions.{read as Read, write as Write}
 import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, CompositeViews, ElasticSearchQuery}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -31,12 +27,14 @@ class CompositeViewsRoutes(
     views: CompositeViews,
     blazegraphQuery: BlazegraphQuery,
     elasticSearchQuery: ElasticSearchQuery
-)(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO])
+)(using ctx: RouteContext, tracer: Tracer[IO])
     extends AuthDirectives(identities, aclCheck)
     with DeltaDirectives
     with CirceUnmarshalling
     with ElasticSearchViewsDirectives
     with BlazegraphViewsDirectives {
+
+  import ctx.given
 
   private def emitMetadata(statusCode: StatusCode, io: IO[ViewResource]): Route =
     emit(statusCode, io.mapValue(_.metadata))
@@ -144,7 +142,7 @@ object CompositeViewsRoutes {
       views: CompositeViews,
       blazegraphQuery: BlazegraphQuery,
       elasticSearchQuery: ElasticSearchQuery
-  )(using BaseUri, RemoteContextResolution, JsonKeyOrdering, FusionConfig, Tracer[IO]): Route =
+  )(using RouteContext, Tracer[IO]): Route =
     new CompositeViewsRoutes(
       identities,
       aclCheck,

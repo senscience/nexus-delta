@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.rdf.query.SparqlQuery
 import ai.senscience.nexus.delta.rdf.query.SparqlQuery.SparqlConstructQuery
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, ResourceAccess}
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -48,8 +47,6 @@ class BlazegraphViewsRoutesSpec extends BlazegraphViewRoutesFixtures with Doobie
   private val aggregateViewId = nxv + "aggregate-view"
 
   private val fetchContext = FetchContextDummy(Map(project.ref -> project.context), Set(deprecatedProject.ref))
-
-  private given FusionConfig = fusionConfig
 
   private val selectQuery    = SparqlQuery("SELECT * {?s ?p ?o}")
   private val constructQuery = SparqlConstructQuery("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}").rightValue

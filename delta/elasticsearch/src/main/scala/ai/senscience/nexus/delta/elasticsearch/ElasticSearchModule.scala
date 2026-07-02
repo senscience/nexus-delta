@@ -15,12 +15,10 @@ import ai.senscience.nexus.delta.elasticsearch.views.DefaultIndexDef
 import ai.senscience.nexus.delta.kernel.dependency.ServiceDependency
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier}
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, ProjectionsDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.{MainDocumentEncoder, ProjectProjectionLifecycle, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.*
@@ -304,10 +302,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         views: ElasticSearchViews,
         viewsQuery: ElasticSearchViewsQuery,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       new ElasticSearchViewsRoutes(
@@ -315,13 +310,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck,
         views,
         viewsQuery
-      )(using
-        baseUri,
-        cr,
-        ordering,
-        fusionConfig,
-        tracer
-      )
+      )(using ctx, tracer)
   }
 
   make[MainIndexRoutes].from {
@@ -331,13 +320,11 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         mainIndexQuery: MainIndexQuery,
         restartScheduler: MainRestartScheduler,
         projectionsDirectives: ProjectionsDirectives,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       new MainIndexRoutes(identities, aclCheck, mainIndexQuery, restartScheduler, projectionsDirectives)(using
-        cr,
-        ordering,
+        ctx,
         tracer
       )
   }
@@ -348,11 +335,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         configuredQuery: ConfiguredIndexQuery,
         projectionDirectives: ProjectionsDirectives,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new ConfiguredIndexRoutes(identities, aclCheck, configuredQuery, projectionDirectives)(using cr, ordering, tracer)
+      new ConfiguredIndexRoutes(identities, aclCheck, configuredQuery, projectionDirectives)(using ctx, tracer)
   }
 
   make[ListingRoutes].from {
@@ -362,9 +348,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         projectScopeResolver: ProjectScopeResolver,
         schemeDirectives: DeltaSchemeDirectives,
         mainIndexQuery: MainIndexQuery,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         resourcesToSchemaSet: Set[ResourceToSchemaMappings],
         esConfig: ElasticSearchViewsConfig,
         tracer: Tracer[IO] @Id("elasticsearch")
@@ -377,7 +361,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         resourceToSchema,
         schemeDirectives,
         mainIndexQuery
-      )(using baseUri, esConfig.pagination, cr, ordering, tracer)
+      )(using ctx, esConfig.pagination, tracer)
   }
 
   make[ElasticSearchIndexingRoutes].from {
@@ -388,8 +372,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         restartScheduler: ElasticsearchRestartScheduler,
         client: ElasticSearchClient @Id("elasticsearch-query-client"),
         projectionsDirectives: ProjectionsDirectives,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
       ElasticSearchIndexingRoutes(
@@ -399,7 +382,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         restartScheduler,
         projectionsDirectives,
         client
-      )(using cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   make[IdResolution].from {
@@ -416,17 +399,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         idResolution: IdResolution,
-        ordering: JsonKeyOrdering,
-        rcr: RemoteContextResolution @Id("aggregate"),
-        fusionConfig: FusionConfig,
-        baseUri: BaseUri,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new IdResolutionRoutes(identities, aclCheck, idResolution)(using baseUri, fusionConfig)(using
-        ordering,
-        rcr,
-        tracer
-      )
+      new IdResolutionRoutes(identities, aclCheck, idResolution)(using ctx, tracer)
   }
 
   make[EventMetrics].from {
@@ -439,11 +415,10 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         eventMetrics: EventMetrics,
-        rcr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("elasticsearch")
     ) =>
-      new ElasticSearchHistoryRoutes(identities, aclCheck, eventMetrics)(using rcr, ordering, tracer)
+      new ElasticSearchHistoryRoutes(identities, aclCheck, eventMetrics)(using ctx, tracer)
   }
 
   many[ProjectDeletionTask].add { (currentViews: CurrentActiveViews, views: ElasticSearchViews) =>

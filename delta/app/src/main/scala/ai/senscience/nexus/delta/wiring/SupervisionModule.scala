@@ -1,15 +1,12 @@
 package ai.senscience.nexus.delta.wiring
 
 import ai.senscience.nexus.delta.Main.pluginsMaxPriority
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.elasticsearch.metrics.EventMetricsRestartScheduler
 import ai.senscience.nexus.delta.routes.{EventMetricsRoutes, IndexingSupervisionRoutes, SupervisionRoutes}
 import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
+import ai.senscience.nexus.delta.sdk.directives.{ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
 import ai.senscience.nexus.delta.sdk.wiring.NexusModuleDef
 import ai.senscience.nexus.delta.sourcing.projections.{ProjectionErrors, Projections}
@@ -31,8 +28,7 @@ object SupervisionModule extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         supervisor: Supervisor,
-        baseUri: BaseUri,
-        jo: JsonKeyOrdering,
+        ctx: RouteContext,
         projectsHealth: ProjectsHealth,
         projectHealer: ProjectHealer,
         tracer: Tracer[IO] @Id("supervision")
@@ -43,7 +39,7 @@ object SupervisionModule extends NexusModuleDef {
         supervisor.getRunningProjections,
         projectsHealth,
         projectHealer
-      )(using baseUri)(using jo, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: SupervisionRoutes) =>
@@ -55,15 +51,14 @@ object SupervisionModule extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         projectionErrors: ProjectionErrors,
-        baseUri: BaseUri,
-        jo: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("supervision")
     ) =>
       new IndexingSupervisionRoutes(
         identities,
         aclCheck,
         projectionErrors
-      )(using baseUri)(using jo, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: IndexingSupervisionRoutes) =>
@@ -80,9 +75,7 @@ object SupervisionModule extends NexusModuleDef {
         aclCheck: AclCheck,
         projectionsDirectives: ProjectionsDirectives,
         eventMetricsRestartScheduler: EventMetricsRestartScheduler,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        jo: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("supervision")
     ) =>
       new EventMetricsRoutes(
@@ -90,7 +83,7 @@ object SupervisionModule extends NexusModuleDef {
         aclCheck,
         projectionsDirectives,
         eventMetricsRestartScheduler
-      )(using baseUri)(using cr, jo, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: EventMetricsRoutes) =>

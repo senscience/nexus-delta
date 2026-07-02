@@ -4,18 +4,17 @@ import ai.senscience.nexus.delta.config.DescriptionConfig
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.{PluginDescription, ServiceDescription}
 import ai.senscience.nexus.delta.kernel.dependency.{ComponentDescription, ServiceDependency}
 import ai.senscience.nexus.delta.rdf.Vocabulary
-import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, RemoteContextResolution}
+import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.VersionRoutes.{emtyVersionBundle, VersionBundle}
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
-import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
+import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sdk.model.{BaseUri, Name}
+import ai.senscience.nexus.delta.sdk.model.Name
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.version
 import cats.effect.IO
 import cats.syntax.all.*
@@ -33,12 +32,11 @@ class VersionRoutes(
     plugins: List[PluginDescription],
     dependencies: List[ServiceDependency],
     env: Name
-)(using
-    baseUri: BaseUri,
-    cr: RemoteContextResolution,
-    ordering: JsonKeyOrdering
-) extends AuthDirectives(identities, aclCheck)
+)(using ctx: RouteContext)
+    extends AuthDirectives(identities, aclCheck)
     with RdfMarshalling {
+
+  import ctx.given
 
   given Tracer[IO] = Tracer.noop
 
@@ -48,7 +46,7 @@ class VersionRoutes(
   }
 
   def routes: Route =
-    baseUriPrefix(baseUri.prefix) {
+    baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("version") {
         extractCaller { case given Caller =>
           (get & pathEndOrSingleSlash) {
@@ -103,11 +101,7 @@ object VersionRoutes {
       plugins: List[PluginDescription],
       dependencies: List[ServiceDependency],
       cfg: DescriptionConfig
-  )(using
-      baseUri: BaseUri,
-      cr: RemoteContextResolution,
-      ordering: JsonKeyOrdering
-  ): VersionRoutes = {
+  )(using RouteContext): VersionRoutes = {
     new VersionRoutes(
       identities,
       aclCheck,

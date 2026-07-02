@@ -4,12 +4,11 @@ import ai.senscience.nexus.delta.Main.pluginsMinPriority
 import ai.senscience.nexus.delta.kernel.utils.UUIDF
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ResourcesRoutes
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction.AggregateIndexingAction
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.MainDocumentEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
@@ -103,10 +102,7 @@ object ResourcesModule extends NexusModuleDef {
         aclCheck: AclCheck,
         resources: Resources,
         indexingAction: AggregateIndexingAction,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("resources")
     ) =>
       new ResourcesRoutes(
@@ -114,7 +110,7 @@ object ResourcesModule extends NexusModuleDef {
         aclCheck,
         resources,
         indexingAction(Resources.entityType)(_, _, _)
-      )(using baseUri)(using cr, ordering, fusionConfig, tracer)
+      )(using ctx, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => ResourceEvent.sseEncoder(using base) }

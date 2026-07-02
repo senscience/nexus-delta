@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.ViewsRoutes
 import ai.senscience.nexus.delta.sdk.RouteEntry
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.ProjectionsDirectives
+import ai.senscience.nexus.delta.sdk.directives.{ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.views.ViewsList
@@ -41,16 +41,14 @@ object ViewsCommonModule extends NexusModuleDef {
         identities: Identities,
         aclCheck: AclCheck,
         viewsList: AggregateViewsList,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("views-list")
     ) =>
       new ViewsRoutes(
         identities,
         aclCheck,
         viewsList
-      )(using baseUri)(using cr, ordering, tracer)
+      )(using ctx, tracer)
   }
 
   many[RouteEntry].add { (route: ViewsRoutes) =>

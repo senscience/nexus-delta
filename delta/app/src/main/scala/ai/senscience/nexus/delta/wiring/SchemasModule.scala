@@ -4,12 +4,10 @@ import ai.senscience.nexus.delta.Main.pluginsMaxPriority
 import ai.senscience.nexus.delta.kernel.utils.{ClasspathResourceLoader, UUIDF}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.rdf.shacl.ValidateShacl
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.routes.{SchemaJobRoutes, SchemasRoutes}
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.indexing.MainDocumentEncoder
 import ai.senscience.nexus.delta.sdk.model.*
@@ -116,18 +114,10 @@ object SchemasModule extends NexusModuleDef {
         aclCheck: AclCheck,
         schemas: Schemas,
         schemeDirectives: DeltaSchemeDirectives,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("schemas")
     ) =>
-      new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives)(using baseUri)(using
-        cr,
-        ordering,
-        fusionConfig,
-        tracer
-      )
+      new SchemasRoutes(identities, aclCheck, schemas, schemeDirectives)(using ctx, tracer)
   }
 
   make[SchemaJobRoutes].from {
@@ -138,9 +128,7 @@ object SchemasModule extends NexusModuleDef {
         schemaValidationCoordinator: SchemaValidationCoordinator,
         projections: Projections,
         projectionsErrors: ProjectionErrors,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("schemas")
     ) =>
       new SchemaJobRoutes(
@@ -150,11 +138,7 @@ object SchemasModule extends NexusModuleDef {
         schemaValidationCoordinator,
         projections,
         projectionsErrors
-      )(using baseUri)(using
-        cr,
-        ordering,
-        tracer
-      )
+      )(using ctx, tracer)
   }
 
   many[SseEncoder[?]].add { (base: BaseUri) => SchemaEvent.sseEncoder(using base) }

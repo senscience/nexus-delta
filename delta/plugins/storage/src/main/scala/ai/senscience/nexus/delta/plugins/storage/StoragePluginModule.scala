@@ -16,13 +16,10 @@ import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{S3FileO
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.{FileOperations, LinkFileAction}
 import ai.senscience.nexus.delta.plugins.storage.storages.routes.StoragesRoutes
 import ai.senscience.nexus.delta.plugins.storage.storages.{contexts as storageContext, *}
-import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
-import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.*
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.deletion.ProjectDeletionTask
-import ai.senscience.nexus.delta.sdk.directives.DeltaSchemeDirectives
-import ai.senscience.nexus.delta.sdk.fusion.FusionConfig
+import ai.senscience.nexus.delta.sdk.directives.{DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.ServiceAccount
 import ai.senscience.nexus.delta.sdk.indexing.SyncIndexingAction.AggregateIndexingAction
@@ -125,10 +122,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         storages: Storages,
         storagesStatistics: StoragesStatistics,
         schemeDirectives: DeltaSchemeDirectives,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("storages")
     ) =>
       {
@@ -138,7 +132,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
           storages,
           storagesStatistics,
           schemeDirectives
-        )(using baseUri)(using cr, ordering, fusionConfig, tracer)
+        )(using ctx, tracer)
       }
   }
 
@@ -195,19 +189,12 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         files: Files,
         schemeDirectives: DeltaSchemeDirectives,
         indexingAction: AggregateIndexingAction,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
-        fusionConfig: FusionConfig,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("files")
     ) =>
       new FilesRoutes(identities, aclCheck, files, schemeDirectives, indexingAction(Files.entityType)(_, _, _))(using
-        baseUri
-      )(using
+        ctx,
         showLocation,
-        cr,
-        ordering,
-        fusionConfig,
         tracer
       )
   }
@@ -219,9 +206,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         files: Files,
         indexingAction: AggregateIndexingAction,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         tracer: Tracer[IO] @Id("files")
     ) =>
       new LinkFilesRoutes(
@@ -229,12 +214,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck,
         files,
         indexingAction(Files.entityType)(_, _, _)
-      )(using baseUri)(using
-        cr,
-        ordering,
-        showLocation,
-        tracer
-      )
+      )(using ctx, showLocation, tracer)
   }
 
   make[DelegateFilesRoutes].from {
@@ -244,9 +224,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         aclCheck: AclCheck,
         files: Files,
         indexingAction: AggregateIndexingAction,
-        baseUri: BaseUri,
-        cr: RemoteContextResolution @Id("aggregate"),
-        ordering: JsonKeyOrdering,
+        ctx: RouteContext,
         showLocation: ShowFileLocation,
         tracer: Tracer[IO] @Id("files")
     ) =>
@@ -256,7 +234,7 @@ class StoragePluginModule(priority: Int) extends NexusModuleDef {
         files,
         jwsPayloadHelper,
         indexingAction(Files.entityType)(_, _, _)
-      )(using baseUri)(using cr, ordering, showLocation, tracer)
+      )(using ctx, showLocation, tracer)
   }
 
   addIndexingType(Files.entityType)
