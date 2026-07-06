@@ -3,14 +3,8 @@ include:
   - postgres.yml
   - elasticsearch.yml
   - blazegraph.yml
-  - localstack.yml
+  - seaweedfs.yml
 
-networks:
-  default:
-    ipam:
-      config:
-        # Specify the subnet range for IP address allocation
-        - subnet: 10.0.2.0/24
 services:
   delta:
     depends_on:
@@ -23,7 +17,7 @@ services:
         required: false
       postgres:
         condition: service_started
-      localstack:
+      seaweedfs:
         condition: service_started
     environment:
       - DELTA_PLUGINS
@@ -46,11 +40,6 @@ services:
       interval: 1s
       timeout: 2s
       retries: 60
-    extra_hosts:
-      - "delta:127.0.0.1"
-    dns:
-      # Set the DNS server to be the LocalStack container, for host resolution
-      - 10.0.2.20
 
   delta2:
     depends_on:
@@ -77,9 +66,6 @@ services:
       interval: 1s
       timeout: 2s
       retries: 60
-    dns:
-      # Set the DNS server to be the LocalStack container, for host resolution
-      - 10.0.2.20
 
   delta3:
     depends_on:
@@ -106,9 +92,6 @@ services:
       interval: 1s
       timeout: 2s
       retries: 60
-    dns:
-      # Set the DNS server to be the LocalStack container, for host resolution
-      - 10.0.2.20
 
 #  fusion:
 #    depends_on:

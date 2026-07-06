@@ -1,13 +1,10 @@
 package ai.senscience.nexus.testkit.rd4j
 
+import ai.senscience.nexus.testkit.TestContainers
 import ai.senscience.nexus.testkit.rd4j.RDF4JContainer.ImageName
-import cats.effect.{IO, Resource}
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-
-import scala.concurrent.duration.DurationInt
-import scala.jdk.DurationConverters.ScalaDurationOps
 
 class RDF4JContainer extends GenericContainer[RDF4JContainer](DockerImageName.parse(ImageName)) {
   addExposedPort(8080)
@@ -21,15 +18,7 @@ object RDF4JContainer {
   /**
     * A running RDF4J container wrapped in a Resource. The container will be stopped upon release.
     */
-  def resource(): Resource[IO, RDF4JContainer] = {
-    def createAndStartContainer = {
-      val container = new RDF4JContainer()
-        .withReuse(false)
-        .withStartupTimeout(60.seconds.toJava)
-      container.start()
-      container
-    }
-    Resource.make(IO.delay(createAndStartContainer))(container => IO.delay(container.stop()))
-  }
+  def resource(): TestContainers.ContainerResource =
+    TestContainers.resource(new RDF4JContainer())
 
 }

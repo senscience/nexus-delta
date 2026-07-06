@@ -39,7 +39,7 @@ jobs:
           docker compose \
             -f tests/docker/blazegraph.yml \
             -f tests/docker/elasticsearch.yml \
-            -f tests/docker/localstack.yml \
+            -f tests/docker/seaweedfs.yml \
             -f tests/docker/rdf4j.yml \
             -f tests/docker/postgres.yml pull
       - name: Unit tests

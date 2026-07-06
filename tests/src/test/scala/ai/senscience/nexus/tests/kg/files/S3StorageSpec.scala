@@ -151,10 +151,14 @@ class S3StorageSpec extends StorageSpec with S3ClientFixtures {
   }
 
   private def assertThereIsAFileInS3WithAtLocation(location: String): Assertion = {
+    // Delta prefixes S3 keys with the configured `/myprefix`, so the reported location carries a leading slash.
+    // AWS/LocalStack preserve it in object keys, but SeaweedFS treats keys as paths and normalises the leading
+    // slash away in listings
+    def withoutLeadingSlash(key: String) = key.stripPrefix("/")
     s3Client
       .listObjectsV2(ListObjectsV2Request.builder.bucket(bucket).prefix(s"/myprefix/$projectRef/files").build)
-      .map(_.contents.asScala.map(_.key()))
-      .map(keys => keys should contain(location))
+      .map(_.contents.asScala.map(key => withoutLeadingSlash(key.key())))
+      .map(keys => keys should contain(withoutLeadingSlash(location)))
       .accepted
   }
 

@@ -2,16 +2,16 @@ package ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client
 
 import ai.senscience.nexus.delta.plugins.storage.files.model.MediaType
 import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.S3StorageConfig
-import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, LocalStackS3StorageClient, S3Helpers, S3OperationResult}
+import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.{CopyOptions, S3Helpers, S3OperationResult, S3StorageClientSetup}
 import ai.senscience.nexus.testkit.mu.NexusSuite
 import cats.effect.IO
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.AnyFixture
 
-class S3StorageClientSuite extends NexusSuite with LocalStackS3StorageClient.Fixture with S3Helpers {
+class S3StorageClientSuite extends NexusSuite with S3StorageClientSetup.Fixture with S3Helpers {
 
   private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], _: S3StorageConfig) =
-    localStackS3Client()
+    s3StorageClientFixture()
 
   private given () => S3StorageClient     = s3StorageClient
   private given () => S3AsyncClientOp[IO] = underlying
@@ -25,7 +25,7 @@ class S3StorageClientSuite extends NexusSuite with LocalStackS3StorageClient.Fix
   private val textPlain       = MediaType.`text/plain`
   private val applicationJson = MediaType.`application/json`
 
-  override def munitFixtures: Seq[AnyFixture[?]] = List(localStackS3Client)
+  override def munitFixtures: Seq[AnyFixture[?]] = List(s3StorageClientFixture)
 
   test("Copy a file containing special characters between buckets") {
     givenAnS3Bucket { bucket =>

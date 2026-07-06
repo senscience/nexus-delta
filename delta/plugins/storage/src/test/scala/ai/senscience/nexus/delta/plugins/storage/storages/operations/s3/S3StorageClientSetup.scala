@@ -5,20 +5,18 @@ import ai.senscience.nexus.delta.plugins.storage.storages.StoragesConfig.S3Stora
 import ai.senscience.nexus.delta.plugins.storage.storages.operations.s3.client.S3StorageClient
 import ai.senscience.nexus.delta.plugins.storage.storages.permissions
 import ai.senscience.nexus.testkit.Generators
-import ai.senscience.nexus.testkit.localstack.LocalStackS3
+import ai.senscience.nexus.testkit.s3.SeaweedFS
 import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import io.laserdisc.pure.s3.tagless.S3AsyncClientOp
 import munit.CatsEffectSuite
 import munit.catseffect.IOFixture
 import org.http4s.Uri
-import org.testcontainers.containers.localstack.LocalStackContainer.Service
 import software.amazon.awssdk.services.s3.model.{CreateBucketRequest, CreateBucketResponse, PutObjectRequest, PutObjectResponse}
 
 import java.nio.file.Paths
 
-object LocalStackS3StorageClient {
-  val ServiceType = Service.S3
+object S3StorageClientSetup {
 
   def createBucket(s3Client: S3AsyncClientOp[IO], bucket: String): IO[CreateBucketResponse] =
     s3Client.createBucket(CreateBucketRequest.builder().bucket(bucket).build)
@@ -39,15 +37,13 @@ object LocalStackS3StorageClient {
       defaultBucket: String,
       prefix: String
   ): Resource[IO, (S3StorageClient, S3AsyncClientOp[IO], S3StorageConfig)] =
-    LocalStackS3.localstackS3().flatMap { localstack =>
-      LocalStackS3.fs2ClientFromLocalstack(localstack).map { client =>
-        val creds                  = localstack.staticCredentialsProvider.resolveCredentials()
-        val (accessKey, secretKey) = (creds.accessKeyId(), creds.secretAccessKey())
-        val conf: S3StorageConfig  = S3StorageConfig(
-          defaultEndpoint = Uri.unsafeFromString(localstack.endpointOverride(LocalStackS3.ServiceType).toString),
+    SeaweedFS.resource().flatMap { container =>
+      SeaweedFS.fs2Client(container).map { client =>
+        val conf: S3StorageConfig = S3StorageConfig(
+          defaultEndpoint = Uri.unsafeFromString(SeaweedFS.endpoint(container).toString),
           useDefaultCredentialProvider = false,
-          defaultAccessKey = Secret(accessKey),
-          defaultSecretKey = Secret(secretKey),
+          defaultAccessKey = Secret(SeaweedFS.AccessKey),
+          defaultSecretKey = Secret(SeaweedFS.SecretKey),
           defaultReadPermission = permissions.read,
           defaultWritePermission = permissions.write,
           showLocation = false,
@@ -60,7 +56,7 @@ object LocalStackS3StorageClient {
     }
 
   trait Fixture { self: CatsEffectSuite & Generators =>
-    val localStackS3Client: IOFixture[(S3StorageClient, S3AsyncClientOp[IO], S3StorageConfig)] =
+    val s3StorageClientFixture: IOFixture[(S3StorageClient, S3AsyncClientOp[IO], S3StorageConfig)] =
       ResourceSuiteLocalFixture(
         "s3storageclient",
         s3StorageClientResource(defaultBucket = genString(), prefix = genString())
