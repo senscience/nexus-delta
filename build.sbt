@@ -60,7 +60,6 @@ val scalaXmlVersion            = "2.4.0"
 val shapeless3Version          = "3.6.0"
 val titaniumJsonLdVersion      = "1.7.0"
 val testContainersVersion      = "2.0.5"
-val testContainersScalaVersion = "0.44.1"
 
 lazy val awsSdk             = "software.amazon.awssdk"        % "s3"                   % awsSdkVersion
 lazy val caffeine           = "com.github.ben-manes.caffeine" % "caffeine"             % caffeineVersion
@@ -182,8 +181,6 @@ lazy val scalaXml                      = "org.scala-lang.modules" %% "scala-xml"
 lazy val shapeless3Typeable            = "org.typelevel"          %% "shapeless3-typeable"                % shapeless3Version
 lazy val titaniumJsonLd                = "com.apicatalog"          % "titanium-json-ld"                   % titaniumJsonLdVersion
 lazy val testContainers                = "org.testcontainers"      % "testcontainers"                     % testContainersVersion
-lazy val testContainersScala           = "com.dimafeng"           %% "testcontainers-scala-munit"         % testContainersScalaVersion
-lazy val testContainersScalaLocalStack = "com.dimafeng"           %% "testcontainers-scala-localstack-v2" % testContainersScalaVersion
 
 val javaSpecificationVersion = SettingKey[String](
   "java-specification-version",
@@ -328,9 +325,7 @@ lazy val testkit = project
       munit,
       munitCatsEffect,
       scalaTest,
-      testContainers,
-      testContainersScala,
-      testContainersScalaLocalStack
+      testContainers
     ) ++ doobie ++ fs2Aws
   )
 

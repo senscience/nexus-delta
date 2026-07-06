@@ -26,15 +26,15 @@ class S3FileOperationsSuite
     extends NexusSuite
     with StorageFixtures
     with UUIDFFixtures.Random
-    with LocalStackS3StorageClient.Fixture
+    with S3StorageClientSetup.Fixture
     with S3Helpers {
 
   override def munitIOTimeout: Duration = 120.seconds
 
-  override def munitFixtures: Seq[AnyFixture[?]] = List(localStackS3Client)
+  override def munitFixtures: Seq[AnyFixture[?]] = List(s3StorageClientFixture)
 
   private lazy val (s3StorageClient: S3StorageClient, underlying: S3AsyncClientOp[IO], conf: S3StorageConfig) =
-    localStackS3Client()
+    s3StorageClientFixture()
 
   private given () => S3StorageClient     = s3StorageClient
   private given () => S3AsyncClientOp[IO] = underlying

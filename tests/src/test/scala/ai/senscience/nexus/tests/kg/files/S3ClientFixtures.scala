@@ -27,7 +27,7 @@ trait S3ClientFixtures {
 
   private val s3Config = load[StorageConfig](ConfigFactory.load(), "storage").s3
 
-  private val s3Endpoint: String = "http://localhost:4566"
+  private val s3Endpoint: String = "http://localhost:8333"
 
   val logoFilename: String           = "nexus-logo.png"
   val logoKey: String                = s"some/path/to/$logoFilename"

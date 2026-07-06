@@ -18,6 +18,7 @@ import izumi.distage.planning.solver.PlanVerifier
 import munit.catseffect.IOFixture
 import munit.{AnyFixture, CatsEffectSuite}
 import org.apache.pekko.http.scaladsl.server.Route
+import org.testcontainers.containers.GenericContainer
 
 import java.nio.file.{Files, Paths}
 import scala.concurrent.duration.Duration
@@ -159,7 +160,7 @@ object MainSuite {
   trait Fixture { self: CatsEffectSuite =>
 
     // Overload config via system properties
-    private def initConfig(postgres: PostgresContainer): IO[Map[String, String]] =
+    private def initConfig(postgres: GenericContainer[?]): IO[Map[String, String]] =
       IO.blocking {
         val resourceTypesFile = Files.createTempFile("resource-types", ".json")
         Files.writeString(resourceTypesFile, """["https://neuroshapes.org/Entity"]""")

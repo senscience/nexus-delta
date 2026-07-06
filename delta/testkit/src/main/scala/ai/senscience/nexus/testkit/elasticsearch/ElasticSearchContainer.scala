@@ -1,14 +1,11 @@
 package ai.senscience.nexus.testkit.elasticsearch
 
+import ai.senscience.nexus.testkit.TestContainers
 import ai.senscience.nexus.testkit.elasticsearch.ElasticSearchContainer.Version
-import cats.effect.{IO, Resource}
 import org.http4s.BasicCredentials
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-
-import scala.concurrent.duration.DurationInt
-import scala.jdk.DurationConverters.ScalaDurationOps
 
 class ElasticSearchContainer(password: String)
     extends GenericContainer[ElasticSearchContainer](
@@ -36,14 +33,6 @@ object ElasticSearchContainer {
   /**
     * A running elasticsearch container wrapped in a Resource. The container will be stopped upon release.
     */
-  def resource(): Resource[IO, ElasticSearchContainer] = {
-    def createAndStartContainer = {
-      val container = new ElasticSearchContainer(ElasticSearchPassword)
-        .withReuse(false)
-        .withStartupTimeout(60.seconds.toJava)
-      container.start()
-      container
-    }
-    Resource.make(IO.delay(createAndStartContainer))(container => IO.delay(container.stop()))
-  }
+  def resource(): TestContainers.ContainerResource =
+    TestContainers.resource(new ElasticSearchContainer(ElasticSearchPassword))
 }
