@@ -238,8 +238,8 @@ object Supervisor {
             stopProjection(supervised) >>
             supervised.control.status
               .waitUntil(_.isTerminal)
-              .timeoutTo(3.seconds, log.error(s"Timeout waiting for completion on projection $name")) >> 
-                supervised.control.status.get
+              .timeoutTo(3.seconds, log.error(s"Timeout waiting for completion on projection $name")) >>
+            supervised.control.status.get
         }
         .flatMap { status =>
           if projection.executionStrategy.shouldRun(name, cfg.cluster) then {
