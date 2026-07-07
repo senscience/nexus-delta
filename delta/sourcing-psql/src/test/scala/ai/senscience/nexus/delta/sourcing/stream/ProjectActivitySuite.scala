@@ -40,15 +40,21 @@ class ProjectActivitySuite extends NexusSuite with MutableClock.Fixture {
       )
 
     for {
-      activityMap    <- ProjectActivityMap(mutableClock, inactiveInterval)
       _              <- mutableClock.set(now)
+      activityMap    <- ProjectActivityMap(mutableClock, inactiveInterval)
       projectActivity = ProjectActivity(activityMap, ProjectionActivations.noop)
       activityPipe    = ProjectActivity.activityPipe(activityMap, ProjectionActivations.noop)
       _              <- stream.through(activityPipe).compile.drain
+      // Every reported project is recorded as active; eviction of stale ones is deferred to `refresh`.
+      _              <- assertActive(projectActivity, project1, true)
+      _              <- assertActive(projectActivity, project2, true)
+      _              <- assertActive(projectActivity, project3, true)
+      _              <- assertActive(projectActivity, project4, false)
+      // A refresh evicts the projects outside the inactivity window (project2 at now - 6).
+      _              <- activityMap.refresh
       _              <- assertActive(projectActivity, project1, true)
       _              <- assertActive(projectActivity, project2, false)
       _              <- assertActive(projectActivity, project3, true)
-      _              <- assertActive(projectActivity, project4, false)
     } yield ()
   }
 
@@ -71,8 +77,8 @@ class ProjectActivitySuite extends NexusSuite with MutableClock.Fixture {
     }
 
     for {
-      activityMap <- ProjectActivityMap(mutableClock, inactiveInterval)
       _           <- mutableClock.set(now)
+      activityMap <- ProjectActivityMap(mutableClock, inactiveInterval)
       _           <- ProjectActivity.seedActiveProjects(stream, activityMap, mutableClock, inactiveInterval)
       _           <- activityMap.activeProjects.map(_.toSet).assertEquals(Set(project1, project2))
     } yield ()

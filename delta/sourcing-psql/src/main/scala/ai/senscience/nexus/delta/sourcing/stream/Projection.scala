@@ -25,16 +25,10 @@ import scala.concurrent.duration.FiniteDuration
   */
 final class Projection private[stream] (
     val name: String,
-    status: SignallingRef[IO, ExecutionStatus],
+    val status: SignallingRef[IO, ExecutionStatus],
     progress: Ref[IO, ProjectionProgress],
     fiber: Fiber[IO, Throwable, Unit]
 ) {
-
-  /**
-    * @return
-    *   the current execution status of this projection
-    */
-  def executionStatus: IO[ExecutionStatus] = status.get
 
   /**
     * Return the current progress for this projection
@@ -50,7 +44,7 @@ final class Projection private[stream] (
   def waitForCompletion(timeout: FiniteDuration): IO[ExecutionStatus] =
     status
       .waitUntil(_.isTerminal)
-      .timeoutTo(timeout, logger.error(s"Timeout waiting for completion on projection $name")) >> executionStatus
+      .timeoutTo(timeout, logger.error(s"Timeout waiting for completion on projection $name")) >> status.get
 
   /**
     * Stops the projection. Has no effect if the projection is already stopped.

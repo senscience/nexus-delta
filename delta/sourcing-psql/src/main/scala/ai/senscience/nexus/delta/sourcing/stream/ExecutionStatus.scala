@@ -64,6 +64,10 @@ object ExecutionStatus {
     override def isTerminal: Boolean = true
   }
 
+  case object Evicted extends ExecutionStatus {
+    override def isTerminal: Boolean = true
+  }
+
   /**
     * Status for projections that have failed.
     * @param th
@@ -79,6 +83,7 @@ object ExecutionStatus {
       case Running   => Json.fromString("Running")
       case Stopped   => Json.fromString("Stopped")
       case Completed => Json.fromString("Completed")
+      case Evicted   => Json.fromString("Evicted")
       case Failed(_) => Json.fromString("Failed")
     }
 }

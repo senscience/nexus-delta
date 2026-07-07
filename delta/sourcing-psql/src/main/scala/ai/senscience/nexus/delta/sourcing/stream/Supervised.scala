@@ -2,6 +2,7 @@ package ai.senscience.nexus.delta.sourcing.stream
 
 import ai.senscience.nexus.delta.sourcing.stream.Supervised.Control
 import cats.effect.IO
+import fs2.concurrent.SignallingRef
 
 final case class Supervised(
     metadata: ProjectionMetadata,
@@ -12,7 +13,7 @@ final case class Supervised(
 ) {
   def description: IO[SupervisedDescription] =
     for {
-      status   <- control.status
+      status   <- control.status.get
       progress <- control.progress
     } yield SupervisedDescription(
       metadata,
@@ -24,5 +25,5 @@ final case class Supervised(
 }
 
 object Supervised {
-  final case class Control(status: IO[ExecutionStatus], progress: IO[ProjectionProgress], stop: IO[Unit])
+  final case class Control(status: SignallingRef[IO, ExecutionStatus], progress: IO[ProjectionProgress], stop: IO[Unit])
 }

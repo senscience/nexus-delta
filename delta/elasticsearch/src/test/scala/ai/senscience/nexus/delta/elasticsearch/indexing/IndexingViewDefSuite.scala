@@ -210,7 +210,7 @@ class IndexingViewDefSuite extends NexusSuite with CirceLiteral with Fixtures {
                   )
       _         = assertEquals(compiled.metadata, expectedMetadata)
       _        <- Projection.transient(compiled).use { projection =>
-                    projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually >>
+                    projection.status.get.assertEquals(ExecutionStatus.Completed).eventually >>
                       projection.currentProgress.assertEquals(expectedProgress)
                   }
     } yield ()

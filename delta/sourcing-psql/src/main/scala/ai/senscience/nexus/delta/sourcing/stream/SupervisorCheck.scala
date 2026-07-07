@@ -30,7 +30,7 @@ final class SupervisorCheck(
 
   private def heal(supervised: Supervised) = {
     val metadata = supervised.metadata
-    supervised.control.status.flatMap {
+    supervised.control.status.get.flatMap {
       case ExecutionStatus.Failed(throwable) =>
         val retryStrategy = createRetryStrategy(cfg, metadata.fullName, "running")
         logger.error(throwable)(s"The projection '${metadata.fullName}' failed and will be restarted.") >>

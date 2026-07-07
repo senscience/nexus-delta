@@ -47,7 +47,8 @@ private class SupervisorStorage private (
     running.evalModify { map =>
       map.get(projectionName) match {
         case Some(supervised) =>
-          f(supervised).map { value => (map - projectionName, Some(value)) }
+          f(supervised).map { value => (map - projectionName, Some(value)) } <*
+            supervised.control.status.set(ExecutionStatus.Evicted)
         case None             =>
           IO.pure((map, None))
       }
