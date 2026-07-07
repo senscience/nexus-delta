@@ -2,9 +2,11 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.4.2
     environment:
-      ES_JAVA_OPTS: "-Xmx4G"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
       discovery.type: "single-node"
-      bootstrap.memory_lock: "true"
+      bootstrap.memory_lock: "false"
+      xpack.ml.enabled: "false"
+      xpack.watcher.enabled: "false"
       xpack.security.enabled: "true"
       ingest.geoip.downloader.enabled: "false"
       ELASTIC_PASSWORD: "password"
