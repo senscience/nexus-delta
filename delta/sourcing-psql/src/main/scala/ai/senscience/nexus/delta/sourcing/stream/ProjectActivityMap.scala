@@ -15,14 +15,6 @@ import scala.concurrent.duration.FiniteDuration
   * Keeps track of the projects that have been active lately, keyed by the instant of their last update. Only active
   * projects are retained; inactive ones are dropped.
   *
-  * Activation and eviction use different references on purpose:
-  *   - [[newValues]] (activation) judges a reported update against the most recent activity instant observed (the
-  *     activity "frontier"), not the wall clock. This makes activation robust to reporting latency: a project can never
-  *     fail to become active simply because its activity was reported too late (elem-streaming refresh, batching or
-  *     projection lag).
-  *   - [[refresh]] (eviction) judges the retained projects against the wall clock, so a project that stops receiving
-  *     updates is eventually evicted even when no other activity moves the frontier forward (e.g. a fully idle system).
-  *
   * State-tracking only — the map does not publish events. Both [[newValues]] and [[refresh]] return the set of projects
   * that just transitioned from inactive (or non-existent) to active. Callers can forward that set to a
   * [[ProjectionActivations]].
