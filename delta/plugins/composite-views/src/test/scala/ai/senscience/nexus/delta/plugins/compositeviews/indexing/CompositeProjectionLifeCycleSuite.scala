@@ -59,7 +59,7 @@ class CompositeProjectionLifeCycleSuite extends NexusSuite with CompositeViewsFi
                         )
       compiled       <- lifecycle.build(view)
       _              <- Projection.transient(compiled).use { projection =>
-                          projection.executionStatus.assertEquals(ExecutionStatus.Completed).eventually >>
+                          projection.status.get.assertEquals(ExecutionStatus.Completed).eventually >>
                             // Asserting hooks
                             triggeredHooks.get.assertEquals(hooks).eventually >>
                             // If no hook have been provided then we expect to fall back on indexing

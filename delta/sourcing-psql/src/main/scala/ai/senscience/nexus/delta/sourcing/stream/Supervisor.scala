@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.sourcing.stream.config.ProjectionConfig
 import cats.effect.*
 import cats.syntax.all.*
 
-import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
 
 /**
@@ -30,9 +29,11 @@ import scala.concurrent.duration.*
 trait Supervisor {
 
   /**
-    * Supervises the execution of the provided `projection`. The call is idempotent: if a projection with the same name
-    * is already supervised it is left running and the request is ignored (the `init` task is not run). To have a
-    * different projection take over, either supervise it under a new name or remove the current one first via
+    * Supervises the execution of the provided `projection`. If a projection with the same name is already supervised
+    * and still running, the request is ignored (the `init` task is not run) so overlapping triggers collapse to a
+    * single start. If a same-name projection is still registered but has run to term (completed / stopped / failed and
+    * not yet evicted), it is started afresh, which lets an activation resume a projection that has already completed.
+    * To have a different projection take over, either supervise it under a new name or remove the current one first via
     * [[destroy]] / [[resetForRestart]].
     * @param projection
     *   the projection to supervise
@@ -44,8 +45,9 @@ trait Supervisor {
   def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]]
 
   /**
-    * Supervises the execution of the provided `projection`. The call is idempotent: if a projection with the same name
-    * is already supervised it is left running and the request is ignored.
+    * Supervises the execution of the provided `projection`. If a same-name projection is already supervised and still
+    * running the request is ignored; if it is registered but no longer running it is restarted. See
+    * [[run(projection,init)]] for the full behavior.
     * @param projection
     *   the projection to supervise
     * @see
@@ -157,18 +159,37 @@ object Supervisor {
 
     override def run(projection: CompiledProjection, init: IO[Unit]): IO[Option[ExecutionStatus]] = {
       val metadata = projection.metadata
-      supervisorStorage
-        .updateWith(metadata.name) {
-          case existing @ Some(_) =>
-            // A projection with the same name is already supervised: keep it running and ignore the request (`init` is
-            // not run). Replacing a live projection in place is never required: a changed view definition gets a new,
-            // revision-keyed name (the old revision is destroyed separately) and a user restart removes the entry via
-            // `resetForRestart` before resuming. Being idempotent here means overlapping triggers — a state-stream
-            // replay and an activation — collapse to a single start instead of needlessly stopping and restarting it.
-            log.debug(s"'${metadata.fullName}' is already supervised, ignoring the request to run it.").as(existing)
-          case None               => startSupervised(projection, init)
+
+      def startIfAbsent: IO[Option[Supervised]] =
+        supervisorStorage.updateWith(metadata.name) {
+          case None           => startSupervised(projection, init)
+          case Some(existing) => IO.pure(Some(existing))
         }
-        .flatMap(_.traverse(_.control.status))
+
+      def resumeAfterEviction(existing: Supervised): IO[Option[Supervised]] =
+        log.debug(s"'${metadata.fullName}' has completed; waiting for its eviction before resuming.") >>
+          existing.control.status
+            .waitUntil(_ == ExecutionStatus.Evicted)
+            .timeoutTo(3.seconds, log.error(s"Timeout waiting for the eviction of '${metadata.fullName}'.")) >>
+          startIfAbsent
+
+      supervisorStorage
+        .get(metadata.name)
+        .flatMap {
+          case Some(existing) =>
+            existing.control.status.get.flatMap {
+              case ExecutionStatus.Completed | ExecutionStatus.Evicted =>
+                resumeAfterEviction(existing)
+              case status                                              =>
+                // Running / Pending → live; Failed → owned by the heal loop; Stopped → removed by destroy/reset.
+                log
+                  .debug(s"'${metadata.fullName}' is already supervised ($status), ignoring the request to run it.")
+                  .as(Some(existing))
+            }
+          case None           =>
+            startIfAbsent
+        }
+        .flatMap(_.traverse(_.control.status.get))
     }
 
     private def startSupervised(projection: CompiledProjection, init: IO[Unit]): IO[Option[Supervised]] = {
@@ -181,7 +202,7 @@ object Supervisor {
         for {
           _         <- log.info(s"Starting '${metadata.fullName}' with strategy '$strategy'.")
           controlIO  = startProjection(projection).preAllocate(init.retry(retryStrategy)).allocated.map {
-                         case (p, release) => Control(p.executionStatus, p.currentProgress, release)
+                         case (p, release) => Control(p.status, p.currentProgress, release)
                        }
           control   <- controlIO
           supervised = Supervised(metadata, projection.executionStrategy, 0, controlIO, control)
@@ -216,9 +237,9 @@ object Supervisor {
           log.info(s"Destroying '${metadata.fullName}'...") >>
             stopProjection(supervised) >>
             supervised.control.status
-              .iterateUntil(e => e == ExecutionStatus.Completed || e == ExecutionStatus.Stopped)
-              .timeout(3.seconds)
-              .recover { case _: TimeoutException => ExecutionStatus.Stopped }
+              .waitUntil(_.isTerminal)
+              .timeoutTo(3.seconds, log.error(s"Timeout waiting for completion on projection $name")) >> 
+                supervised.control.status.get
         }
         .flatMap { status =>
           if projection.executionStrategy.shouldRun(name, cfg.cluster) then {
