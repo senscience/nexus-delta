@@ -39,6 +39,28 @@ object ElasticSearchClientError {
         None
       )
 
+  final case class ElasticsearchUnauthorized(override val body: Option[Json])
+      extends ElasticSearchClientError(
+        "Elasticsearch rejected the credentials (401); the configured credentials is missing, invalid or expired.",
+        body
+      )
+
+  object ElasticsearchUnauthorized {
+    def apply(response: Response[IO]): IO[ElasticsearchUnauthorized] =
+      decodeBodyAsJson(response).map(body => ElasticsearchUnauthorized(Some(body)))
+  }
+
+  final case class ElasticsearchForbidden(override val body: Option[Json])
+      extends ElasticSearchClientError(
+        "Elasticsearch denied the request (403); the configured credentials lack the required privileges.",
+        body
+      )
+
+  object ElasticsearchForbidden {
+    def apply(response: Response[IO]): IO[ElasticsearchForbidden] =
+      decodeBodyAsJson(response).map(body => ElasticsearchForbidden(Some(body)))
+  }
+
   final case class ElasticsearchCreateIndexError(status: Status, override val body: Option[Json])
       extends ElasticSearchClientError(
         s"The elasticsearch endpoint responded with a status: $status",
@@ -133,6 +155,9 @@ object ElasticSearchClientError {
       case ElasticsearchQueryError(status, _)       => PekkoStatusCode.int2StatusCode(status.code)
       case ElasticsearchWriteError(status, _)       => PekkoStatusCode.int2StatusCode(status.code)
       case InvalidResourceId(_)                     => StatusCodes.BadRequest
+      // Auth failures are Delta-side misconfiguration, not the caller's fault: never leak ES's 401/403 to the client.
+      case ElasticsearchUnauthorized(_)             => StatusCodes.InternalServerError
+      case ElasticsearchForbidden(_)                => StatusCodes.InternalServerError
       case _                                        => StatusCodes.InternalServerError
     }
 

@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.plugins.blazegraph.client.{SparqlClient, Sparql
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget.{Blazegraph, Rdf4j}
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.plugins.blazegraph.config.SparqlAccess
+import ai.senscience.nexus.delta.kernel.http.client.middleware.HttpAuth
 import ai.senscience.nexus.delta.sdk.otel.OtelMetricsClient
 import ai.senscience.nexus.testkit.blazegraph.BlazegraphContainer
 import ai.senscience.nexus.testkit.rd4j.RDF4JContainer
@@ -21,7 +22,7 @@ object SparqlClientSetup extends Fixtures {
   private given Tracer[IO]  = Tracer.noop[IO]
   private val metricsClient = OtelMetricsClient.noop
   private val queryTimeout  = 10.seconds
-  private val credentials   = None
+  private val credentials   = HttpAuth.Anonymous
   private val otelConfig    = OpentelemetryConfig(captureQueries = false)
 
   private def makeClient(target: SparqlTarget, endpoint: Uri) = {

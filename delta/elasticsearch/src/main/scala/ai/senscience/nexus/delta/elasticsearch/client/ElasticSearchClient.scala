@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.client
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchClient.{*, given}
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.elasticsearch.model.ElasticsearchIndexDef
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError
 import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.*
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
@@ -10,7 +11,7 @@ import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceD
 import ai.senscience.nexus.delta.kernel.http.circe.*
 import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityDecoder.given
 import ai.senscience.nexus.delta.kernel.http.circe.CirceEntityEncoder.given
-import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
+import ai.senscience.nexus.delta.kernel.http.client.middleware.HttpAuth
 import ai.senscience.nexus.delta.kernel.utils.UrlUtils
 import ai.senscience.nexus.delta.sdk.model.search.ResultEntry.{ScoredResultEntry, UnscoredResultEntry}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.{ScoredSearchResults, UnscoredSearchResults}
@@ -28,7 +29,7 @@ import org.http4s.client.dsl.io.*
 import org.http4s.client.middleware.GZip
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.headers.`Content-Type`
-import org.http4s.{BasicCredentials, EntityEncoder, MediaType, Status, Uri}
+import org.http4s.{EntityEncoder, MediaType, Response, Status, Uri}
 import org.typelevel.otel4s.trace.Tracer
 import org.typelevel.otel4s.{Attribute, AttributeKey, Attributes}
 
@@ -120,13 +121,22 @@ final class ElasticSearchClient(client: Client[IO], endpoint: Uri, maxIndexPathL
     * Attempts to create an index recovering gracefully when the index already exists.
     */
   def createIndex(index: IndexLabel, definition: ElasticsearchIndexDef): IO[Boolean] =
-    existsIndex(index).flatMap {
-      case false =>
-        val spanDef = SpanDef("<string:index>", withIndex(index), write)
-        val request = PUT(definition, endpoint / index.value)
-        client.traced(spanDef).expectOr[Json](request)(ElasticsearchCreateIndexError(_)).as(true)
-      case true  => IO.pure(false)
-    }
+    existsIndex(index)
+      .flatMap {
+        case false =>
+          val spanDef = SpanDef("<string:index>", withIndex(index), write)
+          val request = PUT(definition, endpoint / index.value)
+          client.traced(spanDef).expectOr[Json](request)(ElasticsearchCreateIndexError(_)).as(true)
+        case true  => IO.pure(false)
+      }
+      .onError {
+        case e: ElasticSearchClientError =>
+          logger.error(e)(
+            s"Error when creating index '$index'. Elasticsearch responded with: ${e.body.fold("<empty>")(_.noSpaces)}"
+          )
+        case e                           =>
+          logger.error(e)(s"Error when creating index '$index'")
+      }
 
   /**
     * Attempts to create an index template
@@ -444,9 +454,23 @@ object ElasticSearchClient {
       }
     }
 
+  private def authErrorHandler(client: Client[IO]): Client[IO] = {
+    def raise(response: Response[IO], toError: Response[IO] => IO[ElasticSearchClientError]): IO[Response[IO]] =
+      toError(response).flatMap(error => logger.error(error.reason) >> IO.raiseError(error))
+    Client { request =>
+      client.run(request).evalMap { response =>
+        response.status match {
+          case Status.Unauthorized => raise(response, ElasticsearchUnauthorized(_))
+          case Status.Forbidden    => raise(response, ElasticsearchForbidden(_))
+          case _                   => IO.pure(response)
+        }
+      }
+    }
+  }
+
   def apply(
       endpoint: Uri,
-      credentials: Option[BasicCredentials],
+      auth: HttpAuth,
       maxIndexPathLength: Int,
       otelMetricsClient: OtelMetricsClient,
       traffic: String,
@@ -458,9 +482,10 @@ object ElasticSearchClient {
       .build
       .map { client =>
         val enrichedClient = client
-          .pipe(BasicAuth(credentials))
+          .pipe(HttpAuth(auth))
           .pipe(GZip())
           .pipe(otelMetricsClient.wrap(_, traffic))
+          .pipe(authErrorHandler)
           .pipe(errorHandler)
         new ElasticSearchClient(enrichedClient, endpoint, maxIndexPathLength, otel)
       }

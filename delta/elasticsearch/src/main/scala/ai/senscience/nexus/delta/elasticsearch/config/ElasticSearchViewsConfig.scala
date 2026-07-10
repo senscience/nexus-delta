@@ -3,11 +3,11 @@ package ai.senscience.nexus.delta.elasticsearch.config
 import ai.senscience.nexus.delta.elasticsearch.client.Refresh
 import ai.senscience.nexus.delta.elasticsearch.config.ElasticSearchViewsConfig.OpentelemetryConfig
 import ai.senscience.nexus.delta.kernel.RetryStrategyConfig
-import ai.senscience.nexus.delta.sdk.instances.given
+import ai.senscience.nexus.delta.kernel.http.client.middleware.HttpAuth
 import ai.senscience.nexus.delta.sdk.model.search.PaginationConfig
 import ai.senscience.nexus.delta.sourcing.config.{EventLogConfig, QueryConfig}
 import ai.senscience.nexus.delta.sourcing.stream.config.BatchConfig
-import org.http4s.{BasicCredentials, Uri}
+import org.http4s.Uri
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.deriveReader
@@ -48,7 +48,7 @@ import scala.concurrent.duration.*
   */
 final case class ElasticSearchViewsConfig(
     base: Uri,
-    credentials: Option[BasicCredentials],
+    credentials: HttpAuth,
     eventLog: EventLogConfig,
     pagination: PaginationConfig,
     retryStrategy: RetryStrategyConfig,
@@ -87,6 +87,22 @@ object ElasticSearchViewsConfig {
     given ConfigReader[OpentelemetryConfig] = deriveReader[OpentelemetryConfig]
   }
 
+  // Serverless only accepts api-key auth; api-key auth is also valid against self-managed/hosted, so only enforce the
+  // mandatory direction: serverless => api-key.
   given ConfigReader[ElasticSearchViewsConfig] =
-    deriveReader[ElasticSearchViewsConfig]
+    deriveReader[ElasticSearchViewsConfig].emap { cfg =>
+      val usesApiKey = cfg.credentials match {
+        case _: HttpAuth.ApiKey => true
+        case _                  => false
+      }
+      Either.cond(
+        !cfg.serverless || usesApiKey,
+        cfg,
+        CannotConvert(
+          s"serverless = ${cfg.serverless}",
+          classOf[ElasticSearchViewsConfig].getSimpleName,
+          "'serverless = true' requires api-key credentials"
+        )
+      )
+    }
 }
