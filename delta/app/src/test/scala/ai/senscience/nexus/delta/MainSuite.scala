@@ -179,6 +179,7 @@ object MainSuite {
           "app.defaults.database.access.username"        -> PostgresUser,
           "app.default.database.access.password"         -> PostgresPassword,
           "app.elasticsearch.indexing-enabled"           -> "false",
+          "app.elasticsearch.credentials.type"           -> "anonymous",
           // TODO Investigate how to remove this property from the config
           "app.elasticsearch.disable-metrics-projection" -> "true",
           "plugins.graph-analytics.enabled"              -> "true",

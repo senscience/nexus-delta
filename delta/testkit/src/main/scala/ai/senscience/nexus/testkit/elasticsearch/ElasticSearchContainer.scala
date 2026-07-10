@@ -28,9 +28,7 @@ object ElasticSearchContainer {
   private val ElasticSearchUser     = "elastic"
   private val ElasticSearchPassword = "password"
 
-  val credentials: Option[BasicCredentials] = Some(
-    BasicCredentials(ElasticSearchUser, ElasticSearchPassword)
-  )
+  val credentials: BasicCredentials = BasicCredentials(ElasticSearchUser, ElasticSearchPassword)
 
   /**
     * A running elasticsearch container wrapped in a Resource. The container will be stopped upon release.

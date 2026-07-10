@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sdk
 import ai.senscience.nexus.delta.kernel.syntax.{ClassTagSyntax, Http4sResponseSyntax, IOSyntax, OtelSyntax}
 import ai.senscience.nexus.delta.rdf.instances.{TripleInstances, UriInstances}
 import ai.senscience.nexus.delta.rdf.syntax.{IriSyntax, IterableSyntax, JsonLdEncoderSyntax, JsonSyntax, PathSyntax, UriSyntax}
-import ai.senscience.nexus.delta.sdk.instances.{CredentialsInstances, IdentityInstances, IriInstances, ProjectRefInstances}
+import ai.senscience.nexus.delta.sdk.instances.{IdentityInstances, IriInstances, ProjectRefInstances}
 import ai.senscience.nexus.delta.sdk.syntax.{HttpResponseFieldsSyntax, IriEncodingSyntax}
 
 /**
@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.sdk.syntax.{HttpResponseFieldsSyntax, IriEncodi
 package object implicits
     extends TripleInstances
     with UriInstances
-    with CredentialsInstances
     with Http4sResponseSyntax
     with IdentityInstances
     with IriInstances

@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.elasticsearch.indexing
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchAction.{Delete, Index}
 import ai.senscience.nexus.delta.elasticsearch.client.{ElasticSearchAction, ElasticSearchClient, IndexLabel, Refresh}
 import ai.senscience.nexus.delta.elasticsearch.indexing.ElasticSearchSink.logger
-import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticSearchConnectError, ElasticSearchTimeoutError}
+import ai.senscience.nexus.delta.elasticsearch.query.ElasticSearchClientError.{ElasticSearchConnectError, ElasticSearchTimeoutError, ElasticsearchForbidden, ElasticsearchUnauthorized}
 import ai.senscience.nexus.delta.kernel.error.HttpConnectivityError
 import ai.senscience.nexus.delta.kernel.{Logger, RetryStrategy, RetryStrategyConfig}
 import ai.senscience.nexus.delta.sdk.implicits.*
@@ -53,6 +53,8 @@ final class ElasticSearchSink private (
     {
       case _: ElasticSearchConnectError => true
       case _: ElasticSearchTimeoutError => true
+      case _: ElasticsearchUnauthorized => true
+      case _: ElasticsearchForbidden    => true
       case e                            => HttpConnectivityError.test(e)
     },
     RetryStrategy.logError(logger, "sinking")(_, _)

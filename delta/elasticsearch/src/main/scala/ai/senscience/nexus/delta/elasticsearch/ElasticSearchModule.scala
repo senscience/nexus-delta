@@ -68,7 +68,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       cfg: ElasticSearchViewsConfig,
       metricsClient: OtelMetricsClient,
       traffic: String
-  )(using tracer: Tracer[IO]) =
+  )(using tracer: Tracer[IO]) = {
     ElasticSearchClient(
       cfg.base,
       cfg.credentials,
@@ -77,6 +77,7 @@ class ElasticSearchModule(pluginsMinPriority: Int) extends NexusModuleDef {
       traffic,
       cfg.otel
     )
+  }
 
   make[ElasticSearchClient].named("elasticsearch-indexing-client").fromResource {
     (

@@ -2,7 +2,7 @@ package ai.senscience.nexus.delta.plugins.blazegraph.client
 
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.dependency.ComponentDescription.ServiceDescription
-import ai.senscience.nexus.delta.kernel.http.client.middleware.BasicAuth
+import ai.senscience.nexus.delta.kernel.http.client.middleware.HttpAuth
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlClientError.{SparqlConnectError, SparqlTimeoutError, SparqlUnknownHost}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponse.{SparqlJsonLdResponse, SparqlNTriplesResponse, SparqlRdfXmlResponse, SparqlResultsResponse, SparqlXmlResultsResponse}
 import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlQueryResponseType.*
@@ -274,7 +274,7 @@ object SparqlClient {
       .build
       .evalMap { client =>
         val enrichedClient = client
-          .pipe(BasicAuth(access.credentials))
+          .pipe(HttpAuth(access.credentials))
           .pipe(otelMetricsClient.wrap(_, traffic))
           .pipe(errorHandler)
         access.target match {
