@@ -88,6 +88,10 @@ object Optics {
   private val metadataKeys             = Set("_uuid", "_createdAt", "_updatedAt", "_organizationUuid")
   val filterMetadataKeys: Json => Json = filterKeys(metadataKeys)
 
+  // `settings.index` (e.g. number_of_shards) is managed by Elasticsearch and differs between standard and
+  // serverless clusters, so it is dropped before asserting on a view's settings.
+  val filterViewSettingsIndex: Json => Json = root.settings.obj.modify(_.remove("index"))
+
   private val projectKeysToIgnore             = metadataKeys + "_effectiveApiMappings"
   val filterProjectMetadataKeys: Json => Json = filterKeys(projectKeysToIgnore)
 
@@ -109,11 +113,12 @@ object Optics {
 
   val _total = root._total.long
 
-  val hits        = root.hits.hits
-  val totalHits   = root.hits.total.value.int
-  val hitsSource  = hits.each._source.json
-  def hitsIds     = hits.each._source.`@id`.string
-  def hitProjects = hits.each._source._project.string
+  val hits             = root.hits.hits
+  val totalHits        = root.hits.total.value.int
+  val hitsSource       = hits.each._source.json
+  def hitsIds          = hits.each._source.`@id`.string
+  def hitProjects      = hits.each._source._project.string
+  val hitNexusProjects = hits.each._source._nexus._project.string
 
   val location = root._location.string
 

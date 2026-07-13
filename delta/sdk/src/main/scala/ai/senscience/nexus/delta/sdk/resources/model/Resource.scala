@@ -89,10 +89,11 @@ object Resource {
           label = rdfs.label(cursor),
           prefLabel = skos.prefLabel(cursor),
           description = schema.description(cursor),
+          keywords = Map.empty,
           metadata = value.void,
           tags = value.value.tags,
           originalSource = value.value.source,
-          additionalFields = JsonObject.empty
+          additionalMetadata = JsonObject.empty
         )
       }
     }

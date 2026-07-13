@@ -26,8 +26,12 @@
       "@type": {
         "type": "keyword"
       },
-      "_project": {
-        "type": "keyword"
+      "_nexus": {
+        "properties": {
+          "_project": {
+            "type": "keyword"
+          }
+        }
       },
       "brainRegion": {
         "properties": {
@@ -153,9 +157,6 @@
           "type": "path_hierarchy"
         }
       }
-    },
-    "index": {
-      "number_of_shards": 1
     }
   },
   "sourceAsText": false

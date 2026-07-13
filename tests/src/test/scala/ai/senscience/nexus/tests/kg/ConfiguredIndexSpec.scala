@@ -5,7 +5,7 @@ import ai.senscience.nexus.testkit.CirceLiteral.*
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.listing._results
-import ai.senscience.nexus.tests.Optics.{_total, hitProjects, hitsSource, totalHits}
+import ai.senscience.nexus.tests.Optics.{_total, hitNexusProjects, hitsSource, totalHits}
 import ai.senscience.nexus.tests.StatisticsAssertions.expectStats
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
@@ -130,7 +130,7 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
       deltaClient.post[Json](s"/index/configured/$ref11/_/_search", matchAll, Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         totalHits.getOption(json).value shouldEqual 2
-        hitProjects.getAll(json) should contain only ref11
+        hitNexusProjects.getAll(json) should contain only ref11
       }
     }
 
@@ -138,7 +138,7 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
       deltaClient.post[Json](s"/index/configured/$ref12/role/_search", matchAll, Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
         totalHits.getOption(json).value shouldEqual 1
-        hitProjects.getAll(json) should contain only ref12
+        hitNexusProjects.getAll(json) should contain only ref12
       }
     }
   }
@@ -168,9 +168,10 @@ class ConfiguredIndexSpec extends BaseIntegrationSpec {
         deltaClient.post[Json](s"/index/configured/$ref11/person/_search", queryById, Bob) { (json, response) =>
           response.status shouldEqual StatusCodes.OK
           totalHits.getOption(json).value shouldEqual 1
-          val hit = hitsSource.getAll(json).headOption.flatMap(_.asObject).value
+          val hit   = hitsSource.getAll(json).headOption.flatMap(_.asObject).value
+          val nexus = hit("_nexus").flatMap(_.asObject).value
           hit("@id").flatMap(_.asString).value shouldEqual bobId
-          hit("_rev").flatMap(_.asNumber.flatMap(_.toInt)).value shouldEqual 2
+          nexus("_rev").flatMap(_.asNumber.flatMap(_.toInt)).value shouldEqual 2
         }
 
     }

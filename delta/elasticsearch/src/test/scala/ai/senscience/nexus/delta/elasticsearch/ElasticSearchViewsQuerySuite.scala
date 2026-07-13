@@ -17,6 +17,7 @@ import ai.senscience.nexus.delta.sdk.error.ServiceError.AuthorizationFailed
 import ai.senscience.nexus.delta.sdk.generators.{ProjectGen, ResourceGen}
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.MetadataFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
 import ai.senscience.nexus.delta.sdk.projects.FetchContextDummy
@@ -219,7 +220,7 @@ class ElasticSearchViewsQuerySuite
 
   // Match all resources and sort them by created date and date
   private val matchAllSorted           =
-    ElasticSearchRequest(jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }""")
+    ElasticSearchRequest(jobj"""{ "size": 100, "sort": [{ "_nexus._createdAt": "asc" }, { "@id": "asc" }] }""")
   private given Ordering[DataResource] = Ordering.by { r => r.createdAt -> r.id }
 
   /**
@@ -381,7 +382,8 @@ object ElasticSearchViewsQuerySuite {
     }
 
     def asDocument(view: ViewRef)(using BaseUri, RemoteContextResolution, JsonLdApi): IO[Json] =
-      asResourceF(view).toCompactedJsonLd.map(_.json)
+      // Nest the `_`-prefixed metadata under `_nexus` so the documents match the nested default mapping.
+      asResourceF(view).toCompactedJsonLd.map(compacted => MetadataFields.nest(compacted.json))
 
   }
 }

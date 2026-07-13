@@ -30,7 +30,7 @@ class MainIndexDeletionTaskSuite
     val task = new MainIndexDeletionTask(client, index)
 
     def indexAction(id: Int, project: ProjectRef) = {
-      val json = json"""{ "_project": "$project", "number": $id }"""
+      val json = json"""{ "_nexus": { "_project": "$project" }, "number": $id }"""
       ElasticSearchAction.Index(index, id.toString, Some(project.toString), json)
     }
 

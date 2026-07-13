@@ -1,7 +1,10 @@
 {
   "@id": "red_hot_chili_peppers",
-  "_project" : "org/proj2",
   "@type": "Band",
+  "_nexus": {
+    "_project": "org/proj2",
+    "label" : "Red Hot Chilli Peppers"
+  },
   "album": [
     {
       "@id": "blood_sugar_sex_magic",
@@ -20,7 +23,6 @@
     "funk rock",
     "rap rock"
   ],
-  "label" : "Red Hot Chilli Peppers",
   "name": "Red Hot Chilli Peppers",
   "start": 1983
 }

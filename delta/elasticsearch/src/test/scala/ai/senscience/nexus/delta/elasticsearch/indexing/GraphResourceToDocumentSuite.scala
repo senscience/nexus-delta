@@ -1,6 +1,8 @@
 package ai.senscience.nexus.delta.elasticsearch.indexing
 
 import ai.senscience.nexus.delta.rdf.Fixtures
+import ai.senscience.nexus.delta.rdf.IriOrBNode.BNode
+import ai.senscience.nexus.delta.rdf.Triple.{obj, predicate}
 import ai.senscience.nexus.delta.rdf.graph.Graph
 import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.ContextValue
@@ -10,7 +12,8 @@ import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.state.GraphResource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
 import ai.senscience.nexus.testkit.mu.{JsonAssertions, NexusSuite}
-import io.circe.Json
+import io.circe.syntax.KeyOps
+import io.circe.{Json, JsonObject}
 
 import java.time.Instant
 
@@ -22,7 +25,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
   private val rev        = 1
   private val deprecated = false
   private val schema     = ResourceRef(iri"https://schema.org/Person")
-  private val types      = Set(iri"https://schema.org/Resource")
+  private val types      = Set(iri"https://schema.org/Person")
 
   private val expandedJson =
     json"""
@@ -37,7 +40,7 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
 
   private val expanded      = ExpandedJsonLd.expanded(expandedJson).rightValue
   private val graph         = Graph(expanded).accepted
-  private val metadataGraph = graph
+  private val metadataGraph = Graph.empty(id)
 
   private val context = ContextValue.fromFile("contexts/elasticsearch-indexing.json").accepted
 
@@ -114,6 +117,52 @@ class GraphResourceToDocumentSuite extends NexusSuite with Fixtures with JsonAss
 
     for {
       json <- graphResourceToDocument(elem).accepted.toOption
+    } yield json.equalsIgnoreArrayOrder(expectedJson)
+  }
+
+  test("System metadata fields are nested under _nexus") {
+    val projectPredicate = iri"https://bluebrain.github.io/nexus/vocabulary/project"
+    val metadataNode     = BNode.random
+    val metadata         = Graph.empty(metadataNode).add(predicate(projectPredicate), obj("org/project"))
+    val metadataContext  =
+      context.merge(ContextValue.ContextObject(JsonObject("_project" := projectPredicate)))
+    val pipe             = new GraphResourceToDocument(metadataContext, false)
+
+    val source =
+      json"""
+        {
+          "@id": "http://localhost/john-doe",
+          "@type": "https://schema.org/Person",
+          "name": "John Doe"
+        }
+          """
+
+    val graphResource = GraphResource(
+      entityType,
+      project,
+      id,
+      rev,
+      deprecated,
+      schema,
+      types,
+      graph,
+      metadata,
+      source
+    )
+    val elem          = SuccessElem(entityType, id, project, Instant.EPOCH, Offset.start, graphResource, 1)
+
+    val expectedJson =
+      json"""
+        {
+          "@id" : "http://localhost/john-doe",
+          "@type" : "https://schema.org/Person",
+          "name" : "John Doe",
+          "_nexus" : { "_project" : "org/project" }
+        }
+          """
+
+    for {
+      json <- pipe(elem).accepted.toOption
     } yield json.equalsIgnoreArrayOrder(expectedJson)
   }
 

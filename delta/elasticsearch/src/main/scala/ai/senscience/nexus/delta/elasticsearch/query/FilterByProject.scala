@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.elasticsearch.query
 
 import ai.senscience.nexus.delta.elasticsearch.client.ElasticSearchRequest
+import ai.senscience.nexus.delta.sdk.indexing.MetadataFields
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
@@ -10,7 +11,7 @@ object FilterByProject {
     request.mapBody { body =>
       val userQuery = body("query")
       val must      = userQuery.map("must" -> _)
-      val filter    = "filter" -> Json.obj("term" -> Json.obj("_project" := project))
+      val filter    = "filter" -> Json.obj("term" -> Json.obj(MetadataFields.indexField("_project") := project))
       body.add(
         "query",
         Json.obj(

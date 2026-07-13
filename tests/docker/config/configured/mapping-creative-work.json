@@ -1,9 +1,23 @@
 {
   "properties": {
-    "@type": { "type": "keyword" },
-    "@id": { "type": "keyword" },
-    "about": { "type": "keyword" },
-    "datePublished" : { "type": "date" },
-    "_project" : { "type": "keyword" }
+    "@type": {
+      "type": "keyword"
+    },
+    "@id": {
+      "type": "keyword"
+    },
+    "about": {
+      "type": "keyword"
+    },
+    "datePublished": {
+      "type": "date"
+    },
+    "_nexus": {
+      "properties": {
+        "_project": {
+          "type": "keyword"
+        }
+      }
+    }
   }
 }

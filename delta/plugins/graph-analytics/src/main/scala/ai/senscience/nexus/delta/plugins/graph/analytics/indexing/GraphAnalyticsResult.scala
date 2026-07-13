@@ -3,6 +3,7 @@ package ai.senscience.nexus.delta.plugins.graph.analytics.indexing
 import ai.senscience.nexus.delta.plugins.graph.analytics.model.JsonLdDocument
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.sdk.indexing.MetadataFields
 import ai.senscience.nexus.delta.sdk.model.jsonld.RemoteContextRef
 import ai.senscience.nexus.delta.sdk.syntax.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
@@ -88,15 +89,17 @@ object GraphAnalyticsResult {
       import ai.senscience.nexus.delta.sourcing.model.Identity.Database.given
       Json
         .obj(
-          keywords.id      := i.id,
-          "remoteContexts" := i.remoteContexts,
-          "_project"       := i.project,
-          "_rev"           := i.rev,
-          "_deprecated"    := i.deprecated,
-          "_createdAt"     := i.createdAt,
-          "_createdBy"     := i.createdBy,
-          "_updatedAt"     := i.updatedAt,
-          "_updatedBy"     := i.updatedBy
+          keywords.id             := i.id,
+          "remoteContexts"        := i.remoteContexts,
+          MetadataFields.umbrella := Json.obj(
+            "_project"    := i.project,
+            "_rev"        := i.rev,
+            "_deprecated" := i.deprecated,
+            "_createdAt"  := i.createdAt,
+            "_createdBy"  := i.createdBy,
+            "_updatedAt"  := i.updatedAt,
+            "_updatedBy"  := i.updatedBy
+          )
         )
         .addIfNonEmpty(keywords.tpe, i.types)
         .deepMerge(i.value.map(_.asJson).getOrElse(Json.obj()))

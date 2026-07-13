@@ -53,138 +53,49 @@
       "analyzer": "autocomplete",
       "search_analyzer": "autocomplete_search"
     },
-    "_uuid": {
-      "type": "text",
-      "analyzer": "keyword",
-      "fields": {
-        "raw": {
-          "type": "keyword"
-        }
-      }
-    },
-    "_rev": {
-      "type": "long"
-    },
-    "_tags": {
-      "type": "text",
-      "analyzer": "keyword"
-    },
-    "_deprecated": {
-      "type": "boolean"
-    },
-    "_createdAt": {
-      "type": "date",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "nexus"
-        }
-      }
-    },
-    "_updatedAt": {
-      "type": "date",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "nexus"
-        }
-      }
-    },
-    "_createdBy": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "path_hierarchy"
-        }
-      }
-    },
-    "_updatedBy": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "path_hierarchy"
-        }
-      }
-    },
-    "_constrainedBy": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "path_hierarchy"
-        }
-      }
-    },
-    "_project": {
-      "type": "keyword"
-    },
-    "_self": {
-      "type": "keyword"
-    },
-    "_original_source": {
-      "type": "text",
-      "analyzer": "nexus"
-    },
-    "_bytes": {
-      "type": "long"
-    },
-    "_mediaType": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "path_hierarchy"
-        }
-      }
-    },
-    "_location": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "path_hierarchy"
-        }
-      }
-    },
-    "_filename": {
-      "type": "keyword",
-      "fields": {
-        "fulltext": {
-          "type": "text",
-          "analyzer": "nexus"
-        }
-      }
-    },
-    "_digest": {
-      "properties": {
-        "_algorithm": {
-          "type": "keyword",
-          "fields": {
-            "fulltext": {
-              "type": "text",
-              "analyzer": "keyword"
-            }
-          }
-        },
-        "_value": {
-          "type": "keyword"
-        },
-        "_numberOfParts": {
-          "type": "long"
-        }
-      }
-    },
     "_keywords": {
       "type": "flattened"
     },
-    "_storage": {
+    "_nexus": {
       "properties": {
+        "_uuid": {
+          "type": "text",
+          "analyzer": "keyword",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "_rev": {
           "type": "long"
         },
-        "@id": {
+        "_tags": {
+          "type": "text",
+          "analyzer": "keyword"
+        },
+        "_deprecated": {
+          "type": "boolean"
+        },
+        "_createdAt": {
+          "type": "date",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "nexus"
+            }
+          }
+        },
+        "_updatedAt": {
+          "type": "date",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "nexus"
+            }
+          }
+        },
+        "_createdBy": {
           "type": "keyword",
           "fields": {
             "fulltext": {
@@ -193,12 +104,105 @@
             }
           }
         },
-        "@type": {
+        "_updatedBy": {
           "type": "keyword",
           "fields": {
             "fulltext": {
               "type": "text",
               "analyzer": "path_hierarchy"
+            }
+          }
+        },
+        "_constrainedBy": {
+          "type": "keyword",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "path_hierarchy"
+            }
+          }
+        },
+        "_project": {
+          "type": "keyword"
+        },
+        "_self": {
+          "type": "keyword"
+        },
+        "_original_source": {
+          "type": "text",
+          "analyzer": "nexus"
+        },
+        "_bytes": {
+          "type": "long"
+        },
+        "_mediaType": {
+          "type": "keyword",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "path_hierarchy"
+            }
+          }
+        },
+        "_location": {
+          "type": "keyword",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "path_hierarchy"
+            }
+          }
+        },
+        "_filename": {
+          "type": "keyword",
+          "fields": {
+            "fulltext": {
+              "type": "text",
+              "analyzer": "nexus"
+            }
+          }
+        },
+        "_digest": {
+          "properties": {
+            "_algorithm": {
+              "type": "keyword",
+              "fields": {
+                "fulltext": {
+                  "type": "text",
+                  "analyzer": "keyword"
+                }
+              }
+            },
+            "_value": {
+              "type": "keyword"
+            },
+            "_numberOfParts": {
+              "type": "long"
+            }
+          }
+        },
+        "_storage": {
+          "properties": {
+            "_rev": {
+              "type": "long"
+            },
+            "@id": {
+              "type": "keyword",
+              "fields": {
+                "fulltext": {
+                  "type": "text",
+                  "analyzer": "path_hierarchy"
+                }
+              }
+            },
+            "@type": {
+              "type": "keyword",
+              "fields": {
+                "fulltext": {
+                  "type": "text",
+                  "analyzer": "path_hierarchy"
+                }
+              }
             }
           }
         }

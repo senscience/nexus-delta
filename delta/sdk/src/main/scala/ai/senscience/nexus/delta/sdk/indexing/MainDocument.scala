@@ -1,9 +1,10 @@
 package ai.senscience.nexus.delta.sdk.indexing
 
 import ai.senscience.nexus.delta.rdf.implicits.*
-import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
+import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext
+import ai.senscience.nexus.delta.sdk.model.ResourceF.ResourceMetadata
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
-import ai.senscience.nexus.delta.sourcing.model.Tags
+import ai.senscience.nexus.delta.sourcing.model.{Label, Tags}
 import io.circe.syntax.{EncoderOps, KeyOps}
 import io.circe.{Json, JsonObject}
 
@@ -16,26 +17,32 @@ object MainDocument {
       label: Option[String],
       prefLabel: Option[String],
       description: Option[String],
+      keywords: Map[Label, String],
       metadata: ResourceF[Unit],
       tags: Tags,
       originalSource: Json,
-      additionalFields: JsonObject
-  )(using BaseUri) =
-    new MainDocument(
-      additionalFields
-        .deepMerge(metadata.asJsonObject)
-        .deepMerge(
-          JsonObject(
-            "name"             := name,
-            "label"            := label,
-            "prefLabel"        := prefLabel,
-            "description"      := description,
-            "_original_source" := originalSource.removeAllKeys(keywords.context).noSpaces,
-            "_tags"            := Option.when(tags.value.nonEmpty)(tags.value.keys)
-          )
-        )
-        .asJson
-    )
+      additionalMetadata: JsonObject
+  )(using BaseUri): MainDocument = {
+    val keywordsJson = keywords.map { case (k, v) =>
+      k.value -> v.asJson
+    }.toSeq
+
+    val nexusMetadata = JsonObject(
+      "_original_source" := originalSource.removeAllKeys(JsonLdContext.keywords.context).noSpaces,
+      "_tags"            := Option.when(tags.value.nonEmpty)(tags.value.keys)
+    ).deepMerge(ResourceMetadata(metadata).asJsonObject).deepMerge(additionalMetadata)
+
+    val payload = JsonObject(
+      JsonLdContext.keywords.id := metadata.resolvedId,
+      "name"                    := name,
+      "label"                   := label,
+      "prefLabel"               := prefLabel,
+      "description"             := description,
+      "_keywords"               := Json.obj(keywordsJson*),
+      MetadataFields.umbrella   := nexusMetadata
+    ).addIfNonEmpty(JsonLdContext.keywords.tpe, metadata.types)
+    new MainDocument(payload.asJson)
+  }
 
   def unsafe(payload: Json) = new MainDocument(payload)
 
