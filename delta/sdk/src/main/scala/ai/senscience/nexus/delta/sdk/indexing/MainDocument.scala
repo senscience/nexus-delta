@@ -23,9 +23,10 @@ object MainDocument {
       originalSource: Json,
       additionalMetadata: JsonObject
   )(using BaseUri): MainDocument = {
-    val keywordsJson = keywords.map { case (k, v) =>
-      k.value -> v.asJson
-    }.toSeq
+    val keywordsJson = Option.when(keywords.nonEmpty) {
+      val k = keywords.map { case (k, v) => k.value := v }
+      Json.obj(k.toSeq*)
+    }
 
     val nexusMetadata = JsonObject(
       "_original_source" := originalSource.removeAllKeys(JsonLdContext.keywords.context).noSpaces,
@@ -38,7 +39,7 @@ object MainDocument {
       "label"                   := label,
       "prefLabel"               := prefLabel,
       "description"             := description,
-      "_keywords"               := Json.obj(keywordsJson*),
+      "_keywords"               := keywordsJson,
       MetadataFields.umbrella   := nexusMetadata
     ).addIfNonEmpty(JsonLdContext.keywords.tpe, metadata.types)
     new MainDocument(payload.asJson)
