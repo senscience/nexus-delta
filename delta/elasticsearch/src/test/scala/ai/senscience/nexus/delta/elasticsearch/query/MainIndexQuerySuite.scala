@@ -13,16 +13,15 @@ import ai.senscience.nexus.delta.kernel.search.Pagination.FromPagination
 import ai.senscience.nexus.delta.kernel.search.{Pagination, TimeRange}
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
-import ai.senscience.nexus.delta.rdf.jsonld.api.{JsonLdApi, TitaniumJsonLdApi}
 import ai.senscience.nexus.delta.rdf.jsonld.context.RemoteContextResolution
 import ai.senscience.nexus.delta.sdk.DataResource
 import ai.senscience.nexus.delta.sdk.generators.ResourceGen
-import ai.senscience.nexus.delta.sdk.implicits.*
+import ai.senscience.nexus.delta.sdk.indexing.MainDocument
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.*
 import ai.senscience.nexus.delta.sourcing.model.Identity.{Anonymous, Subject, User}
 import ai.senscience.nexus.delta.sourcing.model.Tag.UserTag
-import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef}
+import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef, ResourceRef, Tags}
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.syntax.EncoderOps
@@ -36,8 +35,7 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
 
   private lazy val client = esClient()
 
-  private given JsonLdApi = TitaniumJsonLdApi.strict
-  private given BaseUri   = BaseUri.unsafe("http://localhost", "v1")
+  private given BaseUri = BaseUri.unsafe("http://localhost", "v1")
 
   private def epochPlus(plus: Long) = Instant.EPOCH.plusSeconds(plus)
   private val realm                 = Label.unsafe("myrealm")
@@ -283,7 +281,7 @@ class MainIndexQuerySuite extends NexusElasticsearchSuite with ElasticSearchClie
   }
 
   private val matchAllSorted = ElasticSearchRequest(
-    jobj"""{ "size": 100, "sort": [{ "_createdAt": "asc" }, { "@id": "asc" }] }"""
+    jobj"""{ "size": 100, "sort": [{ "_nexus._createdAt": "asc" }, { "@id": "asc" }] }"""
   )
 
   test(s"Search only among $project1") {
@@ -351,12 +349,21 @@ object MainIndexQuerySuite {
 
     def asDocument(using
         baseUri: BaseUri,
-        rcr: RemoteContextResolution,
-        jsonldApi: JsonLdApi
-    ): IO[Json] = {
-      val tags = Json.obj("_tags" -> tag.toList.asJson)
-      asResourceF.toCompactedJsonLd.map(_.json.deepMerge(tags))
-    }
+        rcr: RemoteContextResolution
+    ): IO[Json] =
+      IO.pure(
+        MainDocument(
+          name = None,
+          label = None,
+          prefLabel = None,
+          description = None,
+          keywords = Map.empty,
+          metadata = asResourceF.void,
+          tags = Tags(tag, rev),
+          originalSource = Json.obj(),
+          additionalMetadata = JsonObject.empty
+        ).payload
+      )
   }
 
   case class Bucket(key: String, doc_count: Int)

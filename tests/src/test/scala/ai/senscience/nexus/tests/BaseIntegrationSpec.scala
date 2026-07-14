@@ -74,7 +74,7 @@ trait BaseIntegrationSpec
     .accepted
 
   val keycloakDsl      = new KeycloakDsl()
-  val elasticsearchDsl = new ElasticsearchDsl()
+  val elasticsearchDsl = new ElasticsearchDsl(config.elasticsearch)
   lazy val sparqlDsl   = new SparqlDsl(isBlazegraph)
 
   val aclDsl                = new AclDsl(deltaClient)

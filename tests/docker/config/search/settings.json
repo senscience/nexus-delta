@@ -57,8 +57,5 @@
         "preserve_original": true
       }
     }
-  },
-  "index": {
-    "number_of_shards": 1
   }
 }

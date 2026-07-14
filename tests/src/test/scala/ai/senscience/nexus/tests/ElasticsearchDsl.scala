@@ -3,18 +3,19 @@ package ai.senscience.nexus.tests
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import ai.senscience.nexus.testkit.CirceLiteral
+import ai.senscience.nexus.tests.config.TestsConfig.ElasticsearchConfig
 import cats.effect.IO
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.model.HttpMethods.{DELETE, GET}
-import org.apache.pekko.http.scaladsl.model.headers.BasicHttpCredentials
-import org.apache.pekko.http.scaladsl.model.{HttpRequest, StatusCode}
+import org.apache.pekko.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, RawHeader}
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, HttpRequest, StatusCode}
 import org.apache.pekko.stream.Materializer
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.ExecutionContext
 
-class ElasticsearchDsl(using
+class ElasticsearchDsl(config: ElasticsearchConfig)(using
     as: ActorSystem,
     materializer: Materializer,
     ec: ExecutionContext
@@ -24,9 +25,14 @@ class ElasticsearchDsl(using
 
   private val logger = Logger[this.type]
 
-  private val elasticUrl    = s"http://${sys.props.getOrElse("elasticsearch-url", "localhost:9200")}"
-  private val elasticClient = HttpClient(elasticUrl)
-  private val credentials   = BasicHttpCredentials("elastic", "password")
+  private val elasticClient = HttpClient(config.base)
+
+  // Serverless clusters authenticate with an API key while a standard cluster relies on basic auth.
+  private val authHeader: HttpHeader =
+    config.apiKey match {
+      case Some(key) => RawHeader("Authorization", s"ApiKey $key")
+      case None      => Authorization(BasicHttpCredentials(config.username, config.password))
+    }
 
   def includes(indices: String*): IO[Assertion] =
     allIndices.map { all =>
@@ -39,14 +45,23 @@ class ElasticsearchDsl(using
     }
 
   def allIndices: IO[List[String]] = {
+    // `_aliases` only lists indices carrying an alias on Elasticsearch Serverless, whereas Delta indices have none;
+    // the resolve index API is used instead in that case as it lists every matching index.
+    val uri =
+      if config.serverless then s"${config.base}/_resolve/index/*"
+      else s"${config.base}/_aliases"
     elasticClient(
-      HttpRequest(
-        method = GET,
-        uri = s"$elasticUrl/_aliases"
-      ).addCredentials(credentials)
+      HttpRequest(method = GET, uri = uri).addHeader(authHeader)
     ).flatMap { res =>
       IO.fromFuture(IO(jsonUnmarshaller(res.entity)))
-        .map(_.asObject.fold(List.empty[String])(_.keys.toList))
+        .map { json =>
+          if config.serverless then
+            json.hcursor
+              .downField("indices")
+              .values
+              .fold(List.empty[String])(_.flatMap(_.hcursor.get[String]("name").toOption).toList)
+          else json.asObject.fold(List.empty[String])(_.keys.toList)
+        }
     }
   }
 
@@ -54,8 +69,8 @@ class ElasticsearchDsl(using
     elasticClient(
       HttpRequest(
         method = DELETE,
-        uri = s"$elasticUrl/delta_*"
-      ).addCredentials(credentials)
+        uri = s"${config.base}/delta_*"
+      ).addHeader(authHeader)
     ).onError { case t =>
       logger.error(t)("Error while deleting elasticsearch indices")
     }.flatMap { res =>

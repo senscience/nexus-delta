@@ -33,11 +33,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
   /** The local part of a patched-cell resource `@id`, used to build `patchedcell:<suffix>` paths. */
   private def patchedCellId(payload: Json): String = resourceId(payload).stripPrefix(patchedCellBase)
 
-  /**
-    * Strips the non-deterministic parts from an Elasticsearch `_search` response so it can be compared to a fixture:
-    * the `took` timing and each hit's `_index` (whose name embeds a uuid and revision).
-    */
-  private val filterSearchMetadata: Json => Json = filterNestedKeys("took", "_index")
+  private val filterSearchMetadata: Json => Json = filterNestedKeys("took", "_index", "_shards")
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -111,7 +107,7 @@ class ElasticSearchViewsSpec extends BaseIntegrationSpec {
               "project" -> project
             )*
           )
-          filterMetadataKeys(json) should equalIgnoreArrayOrder(expected)
+          (filterMetadataKeys andThen filterViewSettingsIndex)(json) should equalIgnoreArrayOrder(expected)
         }
       }
     }

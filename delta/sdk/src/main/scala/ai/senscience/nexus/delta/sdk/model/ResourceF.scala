@@ -116,7 +116,7 @@ object ResourceF {
       case field            => orderingValueFields(field).map(ordering => ordering on (_.value))
     }
 
-  final private case class ResourceMetadata(
+  final case class ResourceMetadata(
       access: ResourceAccess,
       rev: Int,
       deprecated: Boolean,
@@ -127,45 +127,45 @@ object ResourceF {
       schema: ResourceRef
   )
 
-  private object ResourceMetadata {
+  object ResourceMetadata {
 
     def apply(r: ResourceF[?]): ResourceMetadata =
       ResourceMetadata(r.access, r.rev, r.deprecated, r.createdAt, r.createdBy, r.updatedAt, r.updatedBy, r.schema)
-  }
 
-  private given resourceUrisEncoder: BaseUri => Encoder.AsObject[ResourceAccess] =
-    Encoder.AsObject.instance {
-      case global: RootAccess      =>
-        JsonObject("_self" := global.uri)
-      case access: InProjectAccess =>
+    private given resourceUrisEncoder: BaseUri => Encoder.AsObject[ResourceAccess] =
+      Encoder.AsObject.instance {
+        case global: RootAccess      =>
+          JsonObject("_self" := global.uri)
+        case access: InProjectAccess =>
+          JsonObject(
+            "_self"    := access.uri,
+            "_project" := access.project
+          )
+        case global: EphemeralAccess =>
+          JsonObject(
+            "_self"    := global.uri,
+            "_project" := global.project
+          )
+      }
+
+    given metadataEncoder: BaseUri => Encoder.AsObject[ResourceMetadata] = {
+      given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
+      Encoder.AsObject.instance { r =>
         JsonObject(
-          "_self"    := access.uri,
-          "_project" := access.project
-        )
-      case global: EphemeralAccess =>
-        JsonObject(
-          "_self"    := global.uri,
-          "_project" := global.project
-        )
+          "_rev"           := r.rev,
+          "_deprecated"    := r.deprecated,
+          "_createdAt"     := r.createdAt,
+          "_createdBy"     := r.createdBy,
+          "_updatedAt"     := r.updatedAt,
+          "_updatedBy"     := r.updatedBy,
+          "_constrainedBy" := r.schema.iri
+        ).deepMerge(r.access.asJsonObject)
+      }
     }
 
-  private given metadataEncoder: BaseUri => Encoder.AsObject[ResourceMetadata] = {
-    given Encoder[Subject] = IriEncoder.jsonEncoder[Subject]
-    Encoder.AsObject.instance { r =>
-      JsonObject(
-        "_rev"           := r.rev,
-        "_deprecated"    := r.deprecated,
-        "_createdAt"     := r.createdAt,
-        "_createdBy"     := r.createdBy,
-        "_updatedAt"     := r.updatedAt,
-        "_updatedBy"     := r.updatedBy,
-        "_constrainedBy" := r.schema.iri
-      ).deepMerge(r.access.asJsonObject)
-    }
+    given metadataJsonLdEncoder: BaseUri => JsonLdEncoder[ResourceMetadata] =
+      JsonLdEncoder.computeFromCirce(BNode.random, ContextValue(contexts.metadata))
   }
-
-  private given metadataJsonLdEncoder: BaseUri => JsonLdEncoder[ResourceMetadata] =
-    JsonLdEncoder.computeFromCirce(BNode.random, ContextValue(contexts.metadata))
 
   given resourceFEncoderObj: [A: Encoder.AsObject] => (base: BaseUri) => Encoder.AsObject[ResourceF[A]] =
     Encoder.encodeJsonObject.contramapObject { r =>

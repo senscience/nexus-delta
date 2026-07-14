@@ -13,16 +13,18 @@
       "@type": "StaticContextRef"
     }
   ],
-  "_project": "myorg/myproject",
-  "_rev": 1,
-  "_deprecated": false,
-  "_createdAt": "1970-01-01T00:00:00Z",
-  "_createdBy": {
-    "@type": "Anonymous"
-  },
-  "_updatedAt": "1970-01-01T00:00:00Z",
-  "_updatedBy": {
-    "@type": "Anonymous"
+  "_nexus": {
+    "_project": "myorg/myproject",
+    "_rev": 1,
+    "_deprecated": false,
+    "_createdAt": "1970-01-01T00:00:00Z",
+    "_createdBy": {
+      "@type": "Anonymous"
+    },
+    "_updatedAt": "1970-01-01T00:00:00Z",
+    "_updatedBy": {
+      "@type": "Anonymous"
+    }
   },
   "properties": [
     {
@@ -93,8 +95,7 @@
       "@id": "http://localhost/my-brain-region"
     }
   ],
-  "relationships": [
-  ],
+  "relationships": [],
   "references": [
     {
       "path": "https://neuroshapes.org/brainLocation / https://neuroshapes.org/brainRegion",

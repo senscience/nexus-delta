@@ -7,6 +7,7 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.ResourceShift
+import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.indexing.{MainDocument, MainDocumentEncoder}
 import ai.senscience.nexus.delta.sdk.jsonld.JsonLdContent
 import ai.senscience.nexus.delta.sdk.model.{BaseUri, ResourceF}
@@ -14,7 +15,7 @@ import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef, Resourc
 import cats.syntax.all.*
 import io.circe.generic.extras.Configuration
 import io.circe.syntax.*
-import io.circe.{Decoder, Encoder, Json}
+import io.circe.{Decoder, Encoder, Json, JsonObject}
 
 /**
   * A representation of a file information
@@ -43,21 +44,22 @@ final case class File(
 
 object File {
 
+  private def encodeStorage(file: File) =
+    Json.obj(
+      keywords.id  := file.storage.iri,
+      keywords.tpe := file.storageType.iri,
+      "_rev"       := file.storage.rev
+    )
+
   given fileEncoder: (showLocation: ShowFileLocation) => Encoder.AsObject[File] =
     Encoder.encodeJsonObject.contramapObject { file =>
-      val storageType: StorageType                      = file.storageType
-      val storageJson                                   = Json.obj(
-        keywords.id  -> file.storage.iri.asJson,
-        keywords.tpe -> storageType.iri.asJson,
-        "_rev"       -> file.storage.rev.asJson
-      )
       val attrEncoder: Encoder.AsObject[FileAttributes] = FileAttributes.createConfiguredEncoder(
         Configuration.default,
         underscoreFieldsForMetadata = true,
         removePath = true,
-        removeLocation = !showLocation.types.contains(storageType)
+        removeLocation = !showLocation.types.contains(file.storageType)
       )
-      attrEncoder.encodeObject(file.attributes).add("_storage", storageJson)
+      attrEncoder.encodeObject(file.attributes).add("_storage", encodeStorage(file))
     }
 
   given ShowFileLocation => JsonLdEncoder[File] =
@@ -73,7 +75,7 @@ object File {
       value => JsonLdContent(value, value.value.asJson, value.value.tags)
     )
 
-  def mainDocumentEncoder(using BaseUri, ShowFileLocation): MainDocumentEncoder[FileState, File] =
+  def mainDocumentEncoder(using base: BaseUri, showLocation: ShowFileLocation): MainDocumentEncoder[FileState, File] =
     new MainDocumentEncoder[FileState, File] {
       override def entityType: EntityType = Files.entityType
 
@@ -81,17 +83,31 @@ object File {
 
       protected def toResourceF(state: FileState): ResourceF[File] = state.toResource
 
-      override def fromResource(value: ResourceF[File]): MainDocument =
+      override def fromResource(value: ResourceF[File]): MainDocument = {
+        val file          = value.value
+        val attributes    = file.attributes
+        val allowLocation = !showLocation.types.contains(file.storageType)
         MainDocument(
-          name = value.value.attributes.name,
+          name = attributes.name,
           label = None,
           prefLabel = None,
-          description = value.value.attributes.description,
+          description = attributes.description,
+          keywords = attributes.keywords,
           metadata = value.void,
-          tags = value.value.tags,
-          originalSource = value.value.asJson,
-          additionalFields = fileEncoder.encodeObject(value.value)
+          tags = file.tags,
+          originalSource = file.asJson,
+          additionalMetadata = JsonObject(
+            "_uuid"      := attributes.uuid,
+            "_storage"   := encodeStorage(file),
+            "_bytes"     := attributes.bytes,
+            "_mediaType" := attributes.mediaType,
+            "_origin"    := attributes.origin,
+            "_location"  := Option.when(allowLocation)(attributes.location),
+            "_filename"  := attributes.filename,
+            "_digest"    := attributes.digest
+          )
         )
+      }
     }
 
 }

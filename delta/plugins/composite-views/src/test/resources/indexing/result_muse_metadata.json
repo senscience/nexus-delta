@@ -1,7 +1,10 @@
 {
   "@id": "muse",
   "@type": "Band",
-  "_project" : "org/proj",
+  "_nexus": {
+    "_project": "org/proj",
+    "label": "Muse"
+  },
   "album": [
     {
       "@id": "absolution",
@@ -17,7 +20,6 @@
     "progressive rock",
     "electronica"
   ],
-  "label": "Muse",
   "name": "Muse",
   "start": 1994
 }

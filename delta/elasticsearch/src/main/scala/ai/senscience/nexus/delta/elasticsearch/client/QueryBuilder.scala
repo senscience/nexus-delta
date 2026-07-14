@@ -8,12 +8,12 @@ import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.Vocabulary.nxv
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.sdk.implicits.{given, *}
+import ai.senscience.nexus.delta.sdk.indexing.MetadataFields
 import ai.senscience.nexus.delta.sdk.jsonld.IriEncoder
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.search.{Sort, SortList}
 import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
-import io.circe.literal.json
 import io.circe.syntax.*
 import io.circe.{Encoder, Json, JsonObject}
 
@@ -83,9 +83,7 @@ final case class QueryBuilder private[client] (
   }
 
   private def keywordTerms(keywords: KeywordsParam) =
-    keywords.value.map { case (key, value) =>
-      term(s"_keywords.$key", value)
-    }
+    keywords.value.map { case (key, value) => term(s"_keywords.$key", value) }
 
   /**
     * Filters by the passed ''params''
@@ -135,7 +133,7 @@ final case class QueryBuilder private[client] (
 
   private def range(k: String, timeRange: TimeRange): Option[JsonObject] = {
     import TimeRange.*
-    def range(value: Json) = Some(JsonObject("range" -> Json.obj(k -> value)))
+    def range(value: Json) = Some(JsonObject("range" -> Json.obj(MetadataFields.indexField(k) -> value)))
     timeRange match {
       case Anytime             => None
       case Before(value)       => range(Json.obj("lt" := value))
@@ -145,7 +143,7 @@ final case class QueryBuilder private[client] (
   }
 
   private def term[A: Encoder](k: String, value: A): JsonObject =
-    JsonObject("term" -> Json.obj(k := value))
+    JsonObject("term" -> Json.obj(MetadataFields.indexField(k) := value))
 
   /**
     * Defines a multi-match query. If the input [[q]] is an absolute IRI, then the `path_hierarchy` analyzer is used in
@@ -153,10 +151,17 @@ final case class QueryBuilder private[client] (
     */
   private def multiMatch(q: String): JsonObject = {
     val iri      = Iri.reference(q).toOption
+    val fields   = Json.arr(
+      "*".asJson,
+      "*.fulltext".asJson,
+      MetadataFields.indexField("_tags").asJson,
+      MetadataFields.indexField("_original_source").asJson,
+      MetadataFields.indexField("_uuid").asJson
+    )
     val payload  = JsonObject(
       "multi_match" -> Json.obj(
         "query"  := iri.map(_.toString).getOrElse(q),
-        "fields" := json"""[ "*", "*.fulltext", "_tags", "_original_source", "_uuid" ]"""
+        "fields" := fields
       )
     )
     val analyzer = JsonObject(
@@ -183,7 +188,7 @@ final case class QueryBuilder private[client] (
   }
 
   private def termAggregation(name: String, fieldName: String, bucketSize: Int) =
-    name -> Json.obj("terms" -> Json.obj("field" := fieldName, "size" := bucketSize))
+    name -> Json.obj("terms" -> Json.obj("field" := MetadataFields.indexField(fieldName), "size" := bucketSize))
 
   def build: ElasticSearchRequest = ElasticSearchRequest(body, queryParams)
 }

@@ -4,7 +4,7 @@ import ai.senscience.nexus.delta.kernel.utils.UrlUtils.encodeUriPath
 import ai.senscience.nexus.tests.BaseIntegrationSpec
 import ai.senscience.nexus.tests.Identity.listings.{Alice, Bob}
 import ai.senscience.nexus.tests.Optics.listing._results
-import ai.senscience.nexus.tests.Optics.{_total, hitProjects, totalHits}
+import ai.senscience.nexus.tests.Optics.{_total, hitNexusProjects, totalHits}
 import ai.senscience.nexus.tests.StatisticsAssertions.expectStats
 import ai.senscience.nexus.tests.admin.ProjectPayload
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
@@ -109,7 +109,7 @@ class MainIndexSpec extends BaseIntegrationSpec {
     s"get a response with only resources from project '$ref11'" in eventually {
       deltaClient.post[Json](s"/views/$ref11/$defaultViewsId/_search", matchAll, Bob) { (json, response) =>
         response.status shouldEqual StatusCodes.OK
-        hitProjects.getAll(json) should contain only ref11
+        hitNexusProjects.getAll(json) should contain only ref11
       }
     }
   }

@@ -97,8 +97,8 @@ final class GraphAnalyticsSpec extends BaseIntegrationSpec {
       // We ignore fields that are time or project dependent.
       // "relationships" are ignored as its "found" field can sometimes be
       // missing and making the test flaky while not being relevant to what's being tested
-      val filterSource = filterMetadataKeys andThen filterRealmKeys andThen
-        filterKey("_project") andThen filterKey("relationships")
+      val filterSource = filterNestedKeys("_createdAt", "_updatedAt", "_createdBy", "_updatedBy", "_project") andThen
+        filterKey("relationships")
 
       deltaClient.post[Json](s"/graph-analytics/$ref/_search", matchPerson1, Bojack) { (json, response) =>
         response.status shouldEqual StatusCodes.OK

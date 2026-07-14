@@ -88,6 +88,18 @@ class IdResolutionSuite extends NexusSuite with Fixtures {
       .assertEquals(MultipleResults(searchRes))
   }
 
+  test("A type-less resource produces a main document without a null @type") {
+    import ai.senscience.nexus.delta.sdk.indexing.MainDocument
+    import ai.senscience.nexus.delta.sourcing.model.Tags
+    given ai.senscience.nexus.delta.sdk.model.BaseUri = ai.senscience.nexus.delta.sdk.model.BaseUri
+      .unsafe("http://localhost", "v1")
+    val metadata                                      = ResourceGen.resourceFUnit(iri, project1, Set.empty)
+    val document                                      =
+      MainDocument(None, None, None, None, Map.empty, metadata, Tags.empty, Json.obj(), JsonObject.empty)
+    // A `null` `@type` breaks JSON-LD expansion (e.g. when resolving ids); it must be omitted instead.
+    assert(document.payload.asObject.exists(!_.contains("@type")), s"unexpected @type in ${document.payload}")
+  }
+
 }
 
 object IdResolutionSuite {

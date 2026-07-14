@@ -16,7 +16,10 @@ import java.time.Instant
 
 object PullRequestStream {
 
-  def generate(projectRef: ProjectRef): Stream[Pure, Elem[GraphResource]] = {
+  // Suspended so that every subscription rebuilds fresh `GraphResource` instances. Their underlying graphs are mutable,
+  // and the same element can be consumed by several projections; sharing a single instance across them would let one
+  // projection's in-place mutations leak into another.
+  def generate(projectRef: ProjectRef): Stream[Pure, Elem[GraphResource]] = Stream.suspend {
     val base    = iri"http://localhost"
     val instant = Instant.EPOCH
 

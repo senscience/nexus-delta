@@ -48,15 +48,17 @@ class AnnotatedSourceToConfiguredDocumentSuite extends NexusSuite {
             "source": "xxx",
             "@id": "https://senscience.ai/test/id",
             "@type": "https://schema.org/Role",
-            "_project": "senscience/my-project",
-            "_rev": 1,
-            "_deprecated": false,
-            "_createdAt": "1970-01-01T00:00:00Z",
-            "_createdBy": "http://localhost/v1/anonymous",
-            "_updatedAt": "1970-01-01T00:00:00Z",
-            "_updatedBy": "http://localhost/v1/anonymous",
-            "_self": "http://localhost/v1/resources/senscience/my-project/_/https:%2F%2Fsenscience.ai%2Ftest%2Fid",
-            "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/unconstrained.json"
+            "_nexus": {
+              "_project": "senscience/my-project",
+              "_rev": 1,
+              "_deprecated": false,
+              "_createdAt": "1970-01-01T00:00:00Z",
+              "_createdBy": "http://localhost/v1/anonymous",
+              "_updatedAt": "1970-01-01T00:00:00Z",
+              "_updatedBy": "http://localhost/v1/anonymous",
+              "_self": "http://localhost/v1/resources/senscience/my-project/_/https:%2F%2Fsenscience.ai%2Ftest%2Fid",
+              "_constrainedBy": "https://bluebrain.github.io/nexus/schemas/unconstrained.json"
+            }
       }"""
     val expected = ConfiguredIndexDocument(Set(roleType), json)
     annotatedSourceToConfiguredDocument(input).map(_.toOption).assertEquals(Some(expected))

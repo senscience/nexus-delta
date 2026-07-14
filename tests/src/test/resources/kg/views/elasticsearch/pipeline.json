@@ -38,8 +38,12 @@
       "@type": {
         "type": "keyword"
       },
-      "_project": {
-        "type": "keyword"
+      "_nexus": {
+        "properties": {
+          "_project": {
+            "type": "keyword"
+          }
+        }
       },
       "brainRegion": {
         "type": "nested",

@@ -4,6 +4,7 @@ import ai.senscience.nexus.delta.elasticsearch.configured.ConfiguredIndexDocumen
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.rdf.jsonld.context.JsonLdContext.keywords
 import ai.senscience.nexus.delta.rdf.syntax.*
+import ai.senscience.nexus.delta.sdk.indexing.MetadataFields
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sourcing.stream.Elem.SuccessElem
@@ -27,7 +28,7 @@ final class AnnotatedSourceToConfiguredDocument(configuredTypes: Set[Iri])(using
     element.evalMapFilter { annotated =>
       IO.pure(
         Option.when(annotated.resourceF.types.exists(configuredTypes.contains)) {
-          val json = annotated.asJson.removeAllKeys(keywords.context)
+          val json = MetadataFields.nest(annotated.asJson.removeAllKeys(keywords.context))
           ConfiguredIndexDocument(annotated.resourceF.types, json)
         }
       )
