@@ -176,11 +176,11 @@ lazy val pureConfig = Seq(
   "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureconfigVersion
 )
 
-lazy val scalaTest                     = "org.scalatest"          %% "scalatest"                          % scalaTestVersion
-lazy val scalaXml                      = "org.scala-lang.modules" %% "scala-xml"                          % scalaXmlVersion
-lazy val shapeless3Typeable            = "org.typelevel"          %% "shapeless3-typeable"                % shapeless3Version
-lazy val titaniumJsonLd                = "com.apicatalog"          % "titanium-json-ld"                   % titaniumJsonLdVersion
-lazy val testContainers                = "org.testcontainers"      % "testcontainers"                     % testContainersVersion
+lazy val scalaTest          = "org.scalatest"          %% "scalatest"           % scalaTestVersion
+lazy val scalaXml           = "org.scala-lang.modules" %% "scala-xml"           % scalaXmlVersion
+lazy val shapeless3Typeable = "org.typelevel"          %% "shapeless3-typeable" % shapeless3Version
+lazy val titaniumJsonLd     = "com.apicatalog"          % "titanium-json-ld"    % titaniumJsonLdVersion
+lazy val testContainers     = "org.testcontainers"      % "testcontainers"      % testContainersVersion
 
 val javaSpecificationVersion = SettingKey[String](
   "java-specification-version",
