@@ -26,7 +26,7 @@ class SeaweedFSContainer extends GenericContainer[SeaweedFSContainer](DockerImag
 }
 
 object SeaweedFS {
-  val Version: String   = "4.37"
+  val Version: String   = "4.41"
   val ImageName: String = s"chrislusf/seaweedfs:$Version"
   val S3Port: Int       = 8333
 
