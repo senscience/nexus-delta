@@ -3,23 +3,21 @@ package ai.senscience.nexus.delta.sourcing.query
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.ElemQueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{*, given}
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.{EntityType, ProjectRef}
 import ai.senscience.nexus.delta.sourcing.offset.Offset
-import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.{logger, newState}
+import ai.senscience.nexus.delta.sourcing.query.ElemStreaming.logger
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery.{logQuery, stateFilter, typesSqlArray}
 import ai.senscience.nexus.delta.sourcing.stream.*
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.valueRow
 import ai.senscience.nexus.delta.sourcing.{Scope, Transactors}
 import cats.effect.IO
 import doobie.Fragments
-import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import doobie.util.query.Query0
 import fs2.{Chunk, Stream}
 import io.circe.Json
 
-import java.time.Instant
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -72,27 +70,21 @@ final class ElemStreaming(
       selectFilter: SelectFilter
   ): ElemStream[Unit] = {
     val refresh: RefreshOrStop                    = RefreshOrStop(scope, queryConfig, projectActivity)
-    def query(offset: Offset): Query0[Elem[Unit]] = {
-      sql"""((SELECT 'newState', type, id, org, project, instant, ordering, rev
+    def query(offset: Offset): Query0[Elem[Unit]] =
+      sql"""((SELECT $valueRow, type, org, project, id, rev, instant, ordering
            |FROM public.scoped_states
            |${stateEntityFilter(scope, offset, selectFilter)}
            |ORDER BY ordering
            |LIMIT $batchSize)
            |UNION ALL
-           |(SELECT 'tombstone', type, id, org, project, instant, ordering, -1
+           |(SELECT 'tombstone', type, org, project, id, -1, instant, ordering
            |FROM public.scoped_tombstones
            |${tombstoneFilter(scope, offset, selectFilter)}
            |ORDER BY ordering
            |LIMIT $batchSize)
            |ORDER BY ordering)
            |LIMIT $batchSize
-           |""".stripMargin.query[(String, EntityType, Iri, Label, Label, Instant, Long, Int)].map {
-        case (`newState`, entityType, id, org, project, instant, offset, rev) =>
-          SuccessElem(entityType, id, ProjectRef(org, project), instant, Offset.at(offset), (), rev)
-        case (_, entityType, id, org, project, instant, offset, rev)          =>
-          DroppedElem(entityType, id, ProjectRef(org, project), instant, Offset.at(offset), rev)
-      }
-    }
+           |""".stripMargin.query[Elem[Unit]]
     execute[Unit](start, query, refresh)
   }
 
@@ -121,27 +113,21 @@ final class ElemStreaming(
       selectFilter: SelectFilter,
       decodeValue: (EntityType, Json) => IO[A]
   ): ElemStream[A] = {
-    def query(offset: Offset): Query0[Elem[Json]] = {
-      sql"""((SELECT 'newState', type, id, org, project, value, instant, ordering, rev
+    def query(offset: Offset): Query0[Elem[Json]] =
+      sql"""((SELECT $valueRow, type, org, project, id, value, rev, instant, ordering
            |FROM public.scoped_states
            |${stateEntityFilter(scope, offset, selectFilter)}
            |ORDER BY ordering
            |LIMIT $batchSize)
            |UNION ALL
-           |(SELECT 'tombstone', type, id, org, project, null, instant, ordering, -1
+           |(SELECT 'tombstone', type, org, project, id, null, -1, instant, ordering
            |FROM public.scoped_tombstones
            |${tombstoneFilter(scope, offset, selectFilter)}
            |ORDER BY ordering
            |LIMIT $batchSize)
            |ORDER BY ordering)
            |LIMIT $batchSize
-           |""".stripMargin.query[(String, EntityType, Iri, Label, Label, Option[Json], Instant, Long, Int)].map {
-        case (`newState`, entityType, id, org, project, Some(json), instant, offset, rev) =>
-          SuccessElem(entityType, id, ProjectRef(org, project), instant, Offset.at(offset), json, rev)
-        case (_, entityType, id, org, project, _, instant, offset, rev)                   =>
-          DroppedElem(entityType, id, ProjectRef(org, project), instant, Offset.at(offset), rev)
-      }
-    }
+           |""".stripMargin.query[Elem[Json]]
 
     val refresh: RefreshOrStop = RefreshOrStop(scope, queryConfig, projectActivity)
     execute[Json](start, query, refresh)
@@ -221,8 +207,6 @@ final class ElemStreaming(
 object ElemStreaming {
 
   private val logger = Logger[ElemStreaming]
-
-  private val newState = "newState"
 
   /**
     * Constructs an elem streaming with a stopping strategy
