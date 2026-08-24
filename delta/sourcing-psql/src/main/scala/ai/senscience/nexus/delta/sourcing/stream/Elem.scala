@@ -10,8 +10,8 @@ import cats.syntax.all.*
 import cats.{Applicative, Eval, Traverse}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
-import io.circe.{Codec, Decoder, Encoder}
-import org.typelevel.doobie.Read
+import io.circe.{Codec, Decoder, Encoder, Json}
+import org.typelevel.doobie.{Fragment, Read}
 
 import java.time.Instant
 
@@ -159,6 +159,63 @@ sealed trait Elem[+A] extends Product with Serializable {
 }
 
 object Elem {
+
+  private val valueRowLabel = "value"
+
+  /**
+    * Discriminator the queries relying on the [[Read]] instances below must select as their first column for the rows
+    * holding a value, so that they can be told apart from the tombstone ones.
+    */
+  val valueRow: Fragment = Fragment.const0(s"'$valueRowLabel'")
+
+  /**
+    * Reads a row as an [[Elem]] without its value.
+    *
+    * The expected columns are `$valueRow`/`'tombstone'`, type, org, project, id, rev, instant, ordering.
+    */
+  given elemUnitRead: Read[Elem[Unit]] = {
+    import ai.senscience.nexus.delta.sourcing.implicits.given
+    import org.typelevel.doobie.*
+    import org.typelevel.doobie.postgres.implicits.JavaInstantMeta
+    Read[(String, EntityType, Label, Label, Iri, Int, Instant, Offset)].map {
+      case (`valueRowLabel`, tpe, org, project, id, rev, instant, offset) =>
+        SuccessElem(tpe, id, ProjectRef(org, project), instant, offset, (), rev)
+      case (_, tpe, org, project, id, rev, instant, offset)               =>
+        DroppedElem(tpe, id, ProjectRef(org, project), instant, offset, rev)
+    }
+  }
+
+  /**
+    * Reads a row as an [[Elem]] holding its json value.
+    *
+    * A value which cannot be parsed yields a [[FailedElem]] rather than raising: the streams feeding the projections
+    * must survive an unparseable row, otherwise they keep crashing and restarting on the very same offset.
+    *
+    * The expected columns are `$valueRow`/`'tombstone'`, type, org, project, id, value, rev, instant, ordering.
+    */
+  given elemJsonRead: Read[Elem[Json]] = {
+    import ai.senscience.nexus.delta.sourcing.implicits.CirceInstances
+    import ai.senscience.nexus.delta.sourcing.implicits.given
+    import cats.data.NonEmptyList
+    import org.postgresql.util.PGobject
+    import org.typelevel.doobie.*
+    import org.typelevel.doobie.postgres.implicits.JavaInstantMeta
+
+    // Scoped to this instance: a parsing failure must be kept as a value rather than raised while extracting the column
+    given Get[Either[Throwable, Json]] =
+      Get.Advanced
+        .other[PGobject](
+          NonEmptyList.of("jsonb")
+        )
+        .map(o => Either.catchNonFatal(CirceInstances.read(o.getValue)))
+
+    Read[(String, EntityType, Label, Label, Iri, Option[Either[Throwable, Json]], Int, Instant, Offset)].map {
+      case (`valueRowLabel`, tpe, org, project, id, Some(value), rev, instant, offset) =>
+        fromEither(tpe, id, ProjectRef(org, project), instant, offset, value, rev)
+      case (_, tpe, org, project, id, _, rev, instant, offset)                         =>
+        DroppedElem(tpe, id, ProjectRef(org, project), instant, offset, rev)
+    }
+  }
 
   /**
     * Builds an [[Elem]] instance out of an [[Either]]
