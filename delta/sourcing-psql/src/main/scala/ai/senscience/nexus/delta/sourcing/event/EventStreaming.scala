@@ -1,24 +1,20 @@
 package ai.senscience.nexus.delta.sourcing.event
 
 import ai.senscience.nexus.delta.kernel.Logger
-import ai.senscience.nexus.delta.rdf.IriOrBNode.Iri
 import ai.senscience.nexus.delta.sourcing.config.QueryConfig
-import ai.senscience.nexus.delta.sourcing.implicits.{given, *}
-import ai.senscience.nexus.delta.sourcing.model.{EntityType, Label, ProjectRef}
+import ai.senscience.nexus.delta.sourcing.implicits.*
+import ai.senscience.nexus.delta.sourcing.model.EntityType
 import ai.senscience.nexus.delta.sourcing.offset.Offset
 import ai.senscience.nexus.delta.sourcing.query.StreamingQuery
-import ai.senscience.nexus.delta.sourcing.stream.Elem.{DroppedElem, SuccessElem}
+import ai.senscience.nexus.delta.sourcing.stream.Elem.valueRow
 import ai.senscience.nexus.delta.sourcing.stream.{Elem, ElemStream}
 import ai.senscience.nexus.delta.sourcing.{MultiDecoder, Scope, Transactors}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import doobie.Fragments
-import doobie.postgres.implicits.*
 import doobie.syntax.all.*
 import doobie.util.query.Query0
 import io.circe.Json
-
-import java.time.Instant
 
 object EventStreaming {
 
@@ -106,7 +102,7 @@ object EventStreaming {
       offset: Offset,
       cfg: QueryConfig
   ): Query0[Elem[Json]] =
-    fr"""((SELECT 'newEvent', type, org, project, id, value, rev, instant, ordering
+    fr"""((SELECT $valueRow, type, org, project, id, value, rev, instant, ordering
         |FROM public.scoped_events
         |${eventFilter(types, scope, offset)}
         |ORDER BY ordering
@@ -119,12 +115,7 @@ object EventStreaming {
         |LIMIT ${cfg.batchSize})
         |ORDER BY ordering)
         |LIMIT ${cfg.batchSize}
-        |""".stripMargin.query[(String, EntityType, Label, Label, Iri, Option[Json], Int, Instant, Offset)].map {
-      case ("newEvent", entityType, org, project, id, Some(json), rev, instant, offset) =>
-        SuccessElem(entityType, id, ProjectRef(org, project), instant, offset, json, rev)
-      case (_, entityType, org, project, id, _, rev, instant, offset)                   =>
-        DroppedElem(entityType, id, ProjectRef(org, project), instant, offset, rev)
-    }
+        |""".stripMargin.query[Elem[Json]]
 
   private def typesIn(types: List[EntityType]) =
     NonEmptyList.fromList(types).map { types => Fragments.in(fr"type", types) }
