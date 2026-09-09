@@ -348,12 +348,12 @@ object Graph {
       case (Some(_), _: BNode) =>
         IO.raiseError(UnexpectedJsonLd("Expected named graph, but root @id not found"))
       case (Some(_), iri: Iri) =>
-        api.toRdf(expanded.json).map(g => Graph(iri, g))
+        api.toRdf(expanded).map(g => Graph(iri, g))
       case (None, _: BNode)    =>
-        val json = expanded.replaceId(fakeId).json
-        api.toRdf(json).map(g => Graph(expanded.rootId, g).replace(fakeId, expanded.rootId))
+        val withFakeId = expanded.replaceId(fakeId)
+        api.toRdf(withFakeId).map(g => Graph(expanded.rootId, g).replace(fakeId, expanded.rootId))
       case (None, iri: Iri)    =>
-        api.toRdf(expanded.json).map(g => Graph(iri, g))
+        api.toRdf(expanded).map(g => Graph(iri, g))
     }
 
   def apply(graph: Graph): Graph = {

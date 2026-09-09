@@ -1,6 +1,7 @@
 package ai.senscience.nexus.delta.rdf.jsonld.api
 
 import ai.senscience.nexus.delta.rdf.ExplainResult
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.{ContextValue, JsonLdContext, RemoteContextResolution}
 import cats.effect.IO
 import io.circe.{Json, JsonObject}
@@ -35,7 +36,7 @@ trait JsonLdApi {
       frame: Json
   )(using RemoteContextResolution): IO[JsonObject]
 
-  private[rdf] def toRdf(input: Json): IO[DatasetGraph]
+  private[rdf] def toRdf(input: ExpandedJsonLd): IO[DatasetGraph]
 
   private[rdf] def fromRdf(input: DatasetGraph): IO[Seq[JsonObject]]
 
