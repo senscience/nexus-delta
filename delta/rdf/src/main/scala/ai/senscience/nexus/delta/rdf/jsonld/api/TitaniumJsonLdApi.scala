@@ -5,6 +5,7 @@ import ai.senscience.nexus.delta.rdf.RdfError.{ConversionError, RemoteContextErr
 import ai.senscience.nexus.delta.rdf.implicits.*
 import ai.senscience.nexus.delta.rdf.jsonld.api.JsonLdApiConfig.ErrorHandling
 import ai.senscience.nexus.delta.rdf.jsonld.api.TitaniumJsonLdApi.tryExpensiveIO
+import ai.senscience.nexus.delta.rdf.jsonld.ExpandedJsonLd
 import ai.senscience.nexus.delta.rdf.jsonld.context.*
 import ai.senscience.nexus.delta.rdf.{ExplainResult, RdfError}
 import cats.effect.IO
@@ -13,19 +14,19 @@ import com.apicatalog.jsonld.JsonLdOptions.RdfDirection
 import com.apicatalog.jsonld.context.ActiveContext
 import com.apicatalog.jsonld.document.JsonDocument
 import com.apicatalog.jsonld.loader.DocumentLoader
-import com.apicatalog.jsonld.processor.ProcessingRuntime
+import com.apicatalog.jsonld.processor.{ProcessingRuntime, ToRdfProcessor}
 import com.apicatalog.jsonld.uri.UriValidationPolicy
 import com.apicatalog.jsonld.{JsonLd, JsonLdError, JsonLdErrorCode, JsonLdOptions as TitaniumJsonLdOptions}
 import io.circe.jakartajson.*
 import io.circe.syntax.EncoderOps
 import io.circe.{Json, JsonObject}
-import jakarta.json.JsonStructure
+import jakarta.json.{JsonArray as JakartaJsonArray, JsonStructure}
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.jena.irix.IRIxResolver
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.riot.RIOT
 import org.apache.jena.riot.system.*
-import org.apache.jena.riot.system.jsonld.{JenaToTitanium, TitaniumToJena}
+import org.apache.jena.riot.system.jsonld.JenaToTitanium
 import org.apache.jena.sparql.core.DatasetGraph
 
 import java.net.URI
@@ -44,6 +45,17 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig, opts: JsonLdOptions) exte
         throw new JsonLdError(
           JsonLdErrorCode.LOADING_DOCUMENT_FAILED,
           "A json object or a json array were expected to build a document"
+        )
+    }
+
+  /** [[ExpandedJsonLd.json]] is built as a json array, so the cast holds; it is guarded rather than assumed. */
+  private def circeToExpandedArray(expanded: ExpandedJsonLd) =
+    circeToJakarta(expanded.json) match {
+      case array: JakartaJsonArray => array
+      case other                   =>
+        throw new JsonLdError(
+          JsonLdErrorCode.LOADING_DOCUMENT_FAILED,
+          s"An expanded Json-LD document should be a json array, got '${other.getValueType}'"
         )
     }
 
@@ -87,37 +99,41 @@ final class TitaniumJsonLdApi(config: JsonLdApiConfig, opts: JsonLdOptions) exte
       framed  <- tryExpensiveIO(jakartaJsonToCirceObject(JsonLd.frame(obj, ff).options(options).get), "framing")
     } yield framed
 
-  override private[rdf] def toRdf(input: Json): IO[DatasetGraph] = {
-    def toRdf: DatasetGraph = {
-      val iriResolver  = IRIxResolver.create
-        .base(opts.base.map(_.toString).orNull)
-        .resolve(!config.strict)
-        .allowRelative(!config.strict)
-        .build()
-      val errorHandler = config.errorHandling match {
-        case ErrorHandling.Default   => ErrorHandlerFactory.getDefaultErrorHandler
-        case ErrorHandling.Strict    => ErrorHandlerFactory.errorHandlerStrictNoLogging
-        case ErrorHandling.NoWarning => ErrorHandlerFactory.errorHandlerNoWarnings
-      }
-      val profile      = new CDTAwareParserProfile(
-        RiotLib.factoryRDF,
-        errorHandler,
-        iriResolver,
-        PrefixMapFactory.create,
-        RIOT.getContext.copy,
-        config.extraChecks,
-        config.strict
-      )
-      val document     = circeToDocument(input)
-      val dataset      = DatasetFactory.create().asDatasetGraph()
-      val output       = StreamRDFLib.dataset(dataset)
-      val options      = toOpts(TitaniumDocumentLoader.empty)
-      TitaniumToJena.convert(document, options, output, profile)
-      dataset
+  private def parserProfile: ParserProfile = {
+    val iriResolver  = IRIxResolver.create
+      .base(opts.base.map(_.toString).orNull)
+      .resolve(!config.strict)
+      .allowRelative(!config.strict)
+      .build()
+    val errorHandler = config.errorHandling match {
+      case ErrorHandling.Default   => ErrorHandlerFactory.getDefaultErrorHandler
+      case ErrorHandling.Strict    => ErrorHandlerFactory.errorHandlerStrictNoLogging
+      case ErrorHandling.NoWarning => ErrorHandlerFactory.errorHandlerNoWarnings
     }
-
-    tryExpensiveIO(toRdf, "toRdf")
+    new CDTAwareParserProfile(
+      RiotLib.factoryRDF,
+      errorHandler,
+      iriResolver,
+      PrefixMapFactory.create,
+      RIOT.getContext.copy,
+      config.extraChecks,
+      config.strict
+    )
   }
+
+  private def datasetGraph(input: ExpandedJsonLd): DatasetGraph = {
+    val dataset = DatasetFactory.create().asDatasetGraph()
+    val output  = StreamRDFLib.dataset(dataset)
+    ToRdfProcessor.toRdf(
+      new TitaniumQuadConsumer(output, parserProfile),
+      circeToExpandedArray(input),
+      toOpts(TitaniumDocumentLoader.empty)
+    )
+    dataset
+  }
+
+  override private[rdf] def toRdf(input: ExpandedJsonLd): IO[DatasetGraph] =
+    tryExpensiveIO(datasetGraph(input), "toRdf")
 
   override private[rdf] def fromRdf(
       input: DatasetGraph
