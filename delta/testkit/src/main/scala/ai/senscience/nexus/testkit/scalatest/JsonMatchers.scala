@@ -13,7 +13,7 @@ object JsonMatchers {
         actual.contains(expectedValue),
         key,
         expectedValue,
-        actual.orNull
+        actual.getOrElse(ev(null))
       )
     }
 
