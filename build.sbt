@@ -16,7 +16,7 @@ scalafmt: {
 }
  */
 
-val scalaCompilerVersion     = "3.8.4"
+val scalaCompilerVersion     = "3.9.0"
 val typelevelScalafixVersion = "0.5.0"
 
 val awsSdkVersion              = "2.54.5"
