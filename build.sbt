@@ -16,7 +16,7 @@ scalafmt: {
 }
  */
 
-val scalaCompilerVersion     = "3.8.4"
+val scalaCompilerVersion     = "3.9.0"
 val typelevelScalafixVersion = "0.5.0"
 
 val awsSdkVersion              = "2.54.5"
@@ -677,7 +677,18 @@ lazy val compilation = {
     scalaVersion                           := scalaCompilerVersion,
     scalacOptions                          ~= { options: Seq[String] =>
       options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Xfatal-warnings", "-Wnonunit-statement")) ++
-        Seq("-source:future", "-Yretain-trees", "-no-indent", "-Wunused:all", "-Werror")
+        Seq(
+          "-source:future",
+          "-Yretain-trees",
+          "-no-indent",
+          "-Wunused:all",
+          "-Werror",
+          // FIXME: Under `coverage`, Scala 3.9 warns for every value it skips instrumenting as too large (over 3000
+          // tree nodes) and -Werror then fails the build. Our derived serializers and decoders are routinely larger,
+          // and the ceiling is hardcoded in the compiler with no flag to raise it, nor any way to silence it locally.
+          // Demoted to info upstream in scala/scala3#27028, not yet on lts-3.9: drop this once a 3.9.x carries it.
+          "-Wconf:msg=Skipping coverage instrumentation:s"
+        )
     },
     javaSpecificationVersion               := "25",
     javacOptions                          ++= Seq(
