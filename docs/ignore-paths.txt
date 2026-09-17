@@ -24,6 +24,7 @@ http://mouselight.janelia.org/
 http://ml-neuronbrowser.janelia.org
 https://movies.com/movieId/1
 https://link.springer.com/.*
+https://www.oreilly.com/.*
 https://www.sciencedirect.com/.*
 https://shacl.org/.*
 http://www.w3.org/2001/XMLSchema.*
