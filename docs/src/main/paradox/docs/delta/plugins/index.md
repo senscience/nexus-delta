@@ -67,8 +67,8 @@ as well as other plugins can be used here.
 
 The plugin can also define instances of following traits/classes, which will be used in Delta:
 
-  - @link:[PriorityRoute](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/PriorityRoute.scala){ open=new } - allows the plugin to define @link:[Pekko HTTP Route](https://pekko.apache.org/docs/pekko-http/current/routing-dsl/index.html){ open=new } with priority. The priority is used
-    by Delta to prioritize route evaluation
+  - @link:[RouteEntry](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/RouteEntry.scala){ open=new } - allows the plugin to contribute a @link:[Pekko HTTP Route](https://pekko.apache.org/docs/pekko-http/current/routing-dsl/index.html){ open=new } together with its mounting metadata: the priority used
+    by Delta to order route evaluation, whether the route requires a strict entity, and an optional classifier naming its paths for tracing
   - @link:[ScopeInitialization](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/sdk/src/main/scala/ai/senscience/nexus/delta/sdk/ScopeInitialization.scala){ open=new } - allows the plugin to define hooks which will be run on organization and project creation. 
   - @link:[ScopedEntityDefinition](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/sourcing-psql/src/main/scala/ai/senscience/nexus/delta/sourcing/ScopedEntityDefinition.scala){ open=new }  - allows to define the required information to be able to handle a custom scoped entity
   - @link:[Serializer](https://github.com/senscience/nexus-delta/blob/$git.branch$/delta/sourcing-psql/src/main/scala/ai/senscience/nexus/delta/sourcing/Serializer.scala){ open=new }  - allows to define how to serialize and deserialize an event / a state to database
