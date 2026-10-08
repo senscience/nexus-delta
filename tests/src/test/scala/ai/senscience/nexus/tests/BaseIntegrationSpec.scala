@@ -15,7 +15,6 @@ import ai.senscience.nexus.tests.iam.types.Permission
 import ai.senscience.nexus.tests.iam.types.Permission.Organizations
 import ai.senscience.nexus.tests.iam.{AclDsl, PermissionDsl}
 import ai.senscience.nexus.tests.kg.ElasticSearchViewsDsl
-import ai.senscience.nexus.tests.kg.VersionSpec.VersionBundle
 import ai.senscience.nexus.tests.kg.files.StoragesDsl
 import cats.effect.unsafe.implicits.*
 import cats.effect.{IO, Ref}
@@ -66,16 +65,9 @@ trait BaseIntegrationSpec
 
   val deltaClient: HttpClient = HttpClient(deltaUrl)
 
-  lazy val isBlazegraph: Boolean = deltaClient
-    .getJson[VersionBundle]("/version", Identity.ServiceAccount)
-    .map { version =>
-      version.dependencies.blazegraph.isDefined
-    }
-    .accepted
-
   val keycloakDsl      = new KeycloakDsl()
   val elasticsearchDsl = new ElasticsearchDsl(config.elasticsearch)
-  lazy val sparqlDsl   = new SparqlDsl(isBlazegraph)
+  lazy val sparqlDsl   = new SparqlDsl()
 
   val aclDsl                = new AclDsl(deltaClient)
   val permissionDsl         = new PermissionDsl(deltaClient)

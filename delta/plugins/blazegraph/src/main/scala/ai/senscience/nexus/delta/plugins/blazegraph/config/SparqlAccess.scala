@@ -1,7 +1,6 @@
 package ai.senscience.nexus.delta.plugins.blazegraph.config
 
 import ai.senscience.nexus.delta.kernel.http.client.middleware.HttpAuth
-import ai.senscience.nexus.delta.plugins.blazegraph.client.SparqlTarget
 import ai.senscience.nexus.delta.plugins.blazegraph.config.BlazegraphViewsConfig.OpentelemetryConfig
 import cats.data.NonEmptyVector
 import org.http4s.Uri
@@ -15,7 +14,6 @@ import scala.concurrent.duration.Duration
 
 final case class SparqlAccess(
     endpoints: NonEmptyVector[Uri],
-    target: SparqlTarget,
     credentials: HttpAuth,
     queryTimeout: Duration,
     otel: OpentelemetryConfig

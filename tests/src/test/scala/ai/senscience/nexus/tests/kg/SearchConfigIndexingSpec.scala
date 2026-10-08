@@ -10,11 +10,9 @@ import io.circe.Json
 import org.apache.pekko.http.scaladsl.model.StatusCodes
 import org.scalactic.source.Position
 import org.scalatest.Assertion
-import tags.BlazegraphOnly
 
 import java.time.Instant
 
-@BlazegraphOnly
 class SearchConfigIndexingSpec extends BaseIntegrationSpec {
 
   override def slowTest: Boolean = true

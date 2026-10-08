@@ -26,7 +26,6 @@ services:
       - CLUSTER_SIZE
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true
-      - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]
@@ -52,7 +51,6 @@ services:
       - CLUSTER_SIZE
       - NODE_INDEX=1
       - PARTITION_STRATEGY
-      - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]
@@ -78,7 +76,6 @@ services:
       - PARTITION_STRATEGY
       - CLUSTER_SIZE
       - NODE_INDEX=2
-      - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]

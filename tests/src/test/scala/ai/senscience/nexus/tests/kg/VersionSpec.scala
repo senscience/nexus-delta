@@ -26,7 +26,6 @@ object VersionSpec {
 
   final case class DependenciesBundle(
       blazegraph: Option[String],
-      rdf4j: Option[String],
       postgres: String,
       elasticsearch: String
   )
