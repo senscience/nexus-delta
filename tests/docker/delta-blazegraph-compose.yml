@@ -27,7 +27,6 @@ services:
       - OTEL_SDK_DISABLED
       - PARTITION_STRATEGY
       - TABLES_AUTOCREATE=true
-      - SPARQL_TARGET=blazegraph
       - SPARQL_ENDPOINT=http://blazegraph:9999/blazegraph
     image: ghcr.io/senscience/nexus-delta:latest
     entrypoint: ["/config/delta-startup.sh"]

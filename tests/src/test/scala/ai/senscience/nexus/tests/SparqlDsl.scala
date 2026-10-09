@@ -9,14 +9,12 @@ import org.apache.pekko.http.scaladsl.model.HttpRequest
 import org.apache.pekko.http.scaladsl.model.headers.Accept
 import org.scalatest.matchers.should.Matchers
 
-class SparqlDsl(isBlazegraph: Boolean)(using as: ActorSystem) extends CirceUnmarshalling with Matchers {
+class SparqlDsl(using as: ActorSystem) extends CirceUnmarshalling with Matchers {
 
   import as.dispatcher
 
-  private val sparqlUrl      = if isBlazegraph then "http://localhost:9999" else "http://localhost:7070"
-  private val listNamespaces =
-    if isBlazegraph then "/blazegraph/namespace?describe-each-named-graph=false"
-    else "/rdf4j-server/repositories"
+  private val sparqlUrl      = "http://localhost:9999"
+  private val listNamespaces = "/blazegraph/namespace?describe-each-named-graph=false"
   private val sparqlClient   = HttpClient(sparqlUrl)
 
   private def filterNamespaces =
@@ -41,8 +39,7 @@ class SparqlDsl(isBlazegraph: Boolean)(using as: ActorSystem) extends CirceUnmar
     ).flatMap { res =>
       IO.fromFuture(IO(jsonUnmarshaller(res.entity)))
         .map { json =>
-          if isBlazegraph then root.results.bindings.each.filter(filterNamespaces).`object`.value.string.getAll(json)
-          else root.results.bindings.each.id.value.string.getAll(json)
+          root.results.bindings.each.filter(filterNamespaces).`object`.value.string.getAll(json)
         }
     }
   }

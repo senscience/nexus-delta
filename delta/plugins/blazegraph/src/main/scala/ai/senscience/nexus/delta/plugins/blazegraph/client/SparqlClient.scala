@@ -277,14 +277,9 @@ object SparqlClient {
           .pipe(HttpAuth(access.credentials))
           .pipe(otelMetricsClient.wrap(_, traffic))
           .pipe(errorHandler)
-        access.target match {
-          case SparqlTarget.Blazegraph =>
-            // Blazegraph can't handle compressed requests
-            Mutex[IO].map { mutex =>
-              new BlazegraphClient(enrichedClient, access.endpoints, mutex, access.queryTimeout, access.otel)
-            }
-          case SparqlTarget.Rdf4j      =>
-            IO.pure(RDF4JClient.lmdb(enrichedClient, access.endpoints.head))
+        // Blazegraph can't handle compressed requests
+        Mutex[IO].map { mutex =>
+          new BlazegraphClient(enrichedClient, access.endpoints, mutex, access.queryTimeout, access.otel)
         }
       }
 }

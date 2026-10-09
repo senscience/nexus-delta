@@ -8,9 +8,7 @@ import cats.implicits.*
 import io.circe.Json
 import io.circe.optics.JsonPath.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import tags.BlazegraphOnly
 
-@BlazegraphOnly
 class SearchAccessSpec extends BaseIntegrationSpec {
 
   private val orgId    = genId()
