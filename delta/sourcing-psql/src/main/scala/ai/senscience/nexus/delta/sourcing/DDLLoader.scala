@@ -3,7 +3,7 @@ package ai.senscience.nexus.delta.sourcing
 import ai.senscience.nexus.delta.kernel.Logger
 import ai.senscience.nexus.delta.kernel.utils.ClasspathResourceLoader
 import ai.senscience.nexus.delta.sourcing.partition.PartitionStrategy
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.github.classgraph.ClassGraph
 import org.typelevel.doobie.syntax.all.*
@@ -19,15 +19,12 @@ object DDLLoader {
   private val scriptDirectory = "/scripts/postgres/init/"
   private val loader          = ClasspathResourceLoader()
 
-  private def ddls(path: String): IO[List[String]] = IO.delay {
-    new ClassGraph()
-      .acceptPaths(path)
-      .scan()
-      .getResourcesWithExtension("ddl")
-      .getPaths
-      .asScala
-      .toList
-  }
+  private def ddls(path: String): IO[List[String]] =
+    Resource
+      .fromAutoCloseable(IO.blocking(new ClassGraph().enableClasspath().acceptPaths(path).scan()))
+      .use { scanResult =>
+        IO.delay(scanResult.getResourcesWithExtension("ddl").getPaths.asScala.toList)
+      }
 
   private def execDDL(ddl: String, xas: Transactors) =
     loader
