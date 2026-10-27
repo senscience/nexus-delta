@@ -6,7 +6,7 @@ import ai.senscience.nexus.delta.sdk.error.PluginError
 import ai.senscience.nexus.delta.sdk.error.PluginError.{ClassNotFoundError, MultiplePluginDefClassesFound, PluginLoadErrors}
 import ai.senscience.nexus.delta.sdk.plugin.PluginDef
 import cats.data.NonEmptyList
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.github.classgraph.ClassGraph
 
@@ -78,11 +78,11 @@ class PluginsLoader(loaderConfig: PluginLoaderConfig) {
   private def loadPluginDef(jar: File, parent: ClassLoader): IO[Option[(PluginDef, PluginClassLoader)]] =
     for {
       pluginClassLoader <- IO.blocking(new PluginClassLoader(jar.toURI.toURL, parent))
-      pluginDefClasses  <- IO.blocking(loadPluginDefClasses(pluginClassLoader))
+      pluginDefClasses  <- loadPluginDefClasses(pluginClassLoader)
       pluginDef         <- pluginDefClasses match {
                              case pluginDef :: Nil =>
                                IO.delay {
-                                 pluginClassLoader.create[PluginDef](pluginDef.getName)
+                                 pluginClassLoader.create[PluginDef](pluginDef)
                                }.redeemWith(
                                  {
                                    case ex: ClassNotFoundException    => IO.raiseError(ClassNotFoundError(ex.getMessage))
@@ -99,19 +99,17 @@ class PluginsLoader(loaderConfig: PluginLoaderConfig) {
                              case Nil              =>
                                logger.warn(s"Jar file '$jar' does not contain a 'PluginDef' implementation.").as(None)
                              case multiple         =>
-                               IO.raiseError(MultiplePluginDefClassesFound(jar, multiple.map(_.getName).toSet))
+                               IO.raiseError(MultiplePluginDefClassesFound(jar, multiple.toSet))
 
                            }
     } yield pluginDef.map(_ -> pluginClassLoader)
 
-  private def loadPluginDefClasses(loader: ClassLoader) =
-    new ClassGraph()
-      .overrideClassLoaders(loader)
-      .enableAllInfo()
-      .scan()
-      .getClassesImplementing(classOf[PluginDef].getName)
-      .asScala
-      .toList
+  private def loadPluginDefClasses(loader: ClassLoader): IO[List[String]] =
+    Resource
+      .fromAutoCloseable(IO.blocking(new ClassGraph().enableClassLoaders(loader).enableClassInfo().scan()))
+      .use { scanResult =>
+        IO.delay(scanResult.getAllClassesImplementing(classOf[PluginDef]).getNames.asScala.toList)
+      }
 
   private def loadFiles(directory: String): Seq[File] =
     new File(directory)
