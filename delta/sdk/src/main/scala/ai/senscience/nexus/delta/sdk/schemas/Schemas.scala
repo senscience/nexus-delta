@@ -206,7 +206,7 @@ object Schemas {
   /**
     * The default schema API mappings
     */
-  val mappings: ApiMappings = ApiMappings(ArrowAssoc("schema") -> schemas.shacl)
+  val mappings: ApiMappings = ApiMappings("schema" -> schemas.shacl)
 
   private[delta] def next(state: Option[SchemaState], event: SchemaEvent): Option[SchemaState] = {
 

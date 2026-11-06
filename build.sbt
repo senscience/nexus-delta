@@ -16,7 +16,7 @@ scalafmt: {
 }
  */
 
-val scalaCompilerVersion     = "3.9.0"
+val scalaCompilerVersion     = "3.10.0"
 val typelevelScalafixVersion = "0.5.0"
 
 val awsSdkVersion              = "2.57.8"
@@ -683,10 +683,10 @@ lazy val compilation = {
           "-no-indent",
           "-Wunused:all",
           "-Werror",
-          // FIXME: Under `coverage`, Scala 3.9 warns for every value it skips instrumenting as too large (over 3000
+          // FIXME: Under `coverage`, Scala 3.9+ warns for every value it skips instrumenting as too large (over 3000
           // tree nodes) and -Werror then fails the build. Our derived serializers and decoders are routinely larger,
           // and the ceiling is hardcoded in the compiler with no flag to raise it, nor any way to silence it locally.
-          // Demoted to info upstream in scala/scala3#27028, not yet on lts-3.9: drop this once a 3.9.x carries it.
+          // Demoted to info upstream in scala/scala3#27028, still a warning in 3.10.0: drop it once a release has it.
           "-Wconf:msg=Skipping coverage instrumentation:s"
         )
     },

@@ -20,7 +20,6 @@ import org.typelevel.otel4s.trace.*
 import org.typelevel.otel4s.{Attribute, Attributes}
 
 import java.util.Locale
-import scala.annotation.nowarn
 import scala.concurrent.Future
 
 object OtelDirectives {
@@ -38,8 +37,9 @@ object OtelDirectives {
     }
 
   def extractParentSpanContext: Directive1[Option[SpanContext]] =
-    // `attribute` relies on a JavaMapping implicit that Scala 3.10 will no longer resolve; revisit at that bump.
-    extractRequest.map(_.attribute(parentSpanContextKey): @nowarn("cat=deprecation"))
+    // Direct map lookup: `HttpMessage.attribute` needs a `JavaMapping` implicit Scala 3.10 no longer resolves, and
+    // only does this same lookup + cast. The key is the one written by `serverSpan`, so the value is a SpanContext.
+    extractRequest.map(_.attributes.get(parentSpanContextKey).map(_.asInstanceOf[SpanContext]))
 
   /**
     * A single server span at the root of the route tree, named by the `classifier` (from the request path, with the
