@@ -15,6 +15,7 @@ target/
 metals.sbt
 project/.bloop
 .bsp
+.cellar
 
 # IDE
 .settings
