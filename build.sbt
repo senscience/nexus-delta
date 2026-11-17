@@ -79,7 +79,7 @@ lazy val doobie             = Seq(
   "org.typelevel" %% "doobie-postgres" % doobieVersion,
   "org.typelevel" %% "doobie-hikari"   % doobieVersion,
   "org.typelevel" %% "doobie-otel4s"   % doobieVersion,
-  "com.zaxxer"     % "HikariCP"        % hikariVersion exclude ("org.slf4j", "slf4j-api"),
+  ("com.zaxxer"    % "HikariCP"        % hikariVersion).exclude("org.slf4j" % "slf4j-api"),
   "org.postgresql" % "postgresql"      % postgresJdbcVersion
 )
 lazy val fs2                = "co.fs2"                       %% "fs2-core"             % fs2Version
@@ -91,12 +91,12 @@ lazy val fs2Aws = Seq(
   "io.laserdisc" %% "fs2-aws-s3"           % fs2AwsVersion
 ).map {
   _.excludeAll(
-    ExclusionRule(organization = "org.typelevel", name = "cats-kernel_3"),
-    ExclusionRule(organization = "org.typelevel", name = "cats-core_3"),
-    ExclusionRule(organization = "org.typelevel", name = "cats-effect_3"),
-    ExclusionRule(organization = "com.chuusai", name = "shapeless3_3"),
-    ExclusionRule(organization = "co.fs2", name = "fs2-core_3"),
-    ExclusionRule(organization = "co.fs2", name = "fs2-io_3")
+    "org.typelevel" %% "cats-kernel",
+    "org.typelevel" %% "cats-core",
+    "org.typelevel" %% "cats-effect",
+    "com.chuusai"   %% "shapeless3",
+    "co.fs2"        %% "fs2-core",
+    "co.fs2"        %% "fs2-io"
   )
 }
 
@@ -158,15 +158,15 @@ lazy val pekkoHttpCors    = "org.apache.pekko" %% "pekko-http-cors"    % pekkoHt
 lazy val pekkoHttpTestKit = "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpVersion
 lazy val pekkoHttpXml     = "org.apache.pekko" %% "pekko-http-xml"     % pekkoHttpVersion
 
-lazy val pekkoSlf4j          = "org.apache.pekko" %% "pekko-slf4j"           % pekkoVersion
-lazy val pekkoStream         = "org.apache.pekko" %% "pekko-stream"          % pekkoVersion
-lazy val pekkoTestKit        = "org.apache.pekko" %% "pekko-testkit"         % pekkoVersion
-lazy val pekkoConnectorsFile = "org.apache.pekko" %% "pekko-connectors-file" % pekkoConnectorsVersion excludeAll (
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_3")
+lazy val pekkoSlf4j          = "org.apache.pekko"  %% "pekko-slf4j"           % pekkoVersion
+lazy val pekkoStream         = "org.apache.pekko"  %% "pekko-stream"          % pekkoVersion
+lazy val pekkoTestKit        = "org.apache.pekko"  %% "pekko-testkit"         % pekkoVersion
+lazy val pekkoConnectorsFile = ("org.apache.pekko" %% "pekko-connectors-file" % pekkoConnectorsVersion).exclude(
+  "org.apache.pekko" %% "pekko-stream"
 )
-lazy val pekkoConnectorsSse  = "org.apache.pekko" %% "pekko-connectors-sse"  % pekkoConnectorsVersion excludeAll (
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-stream_3"),
-  ExclusionRule(organization = "org.apache.pekko", name = "pekko-http_3")
+lazy val pekkoConnectorsSse  = ("org.apache.pekko" %% "pekko-connectors-sse"  % pekkoConnectorsVersion).excludeAll(
+  "org.apache.pekko" %% "pekko-stream",
+  "org.apache.pekko" %% "pekko-http"
 )
 
 lazy val pureConfig = Seq(
@@ -237,11 +237,12 @@ lazy val docs = project
     previewFixedPort                 := Some(4001),
     // copy contexts
     makeSite / mappings             ++= {
-      def fileSources(base: File): Seq[File] = (base * "*.json").get
+      def fileSources(base: File): Seq[File] = (base * "*.json").get()
+      val converter                          = fileConverter.value
       val contextDirs                        =
         (Compile / resourceDirectory).all(ScopeFilter(inProjects(contextProjects *))).value.map(_ / "contexts")
       contextDirs.flatMap { dir =>
-        fileSources(dir).map(file => file -> s"contexts/${file.getName}")
+        fileSources(dir).map(file => converter.toVirtualFile(file.toPath) -> s"contexts/${file.getName}")
       }
     }
   )
@@ -382,7 +383,7 @@ lazy val sdk = project
     Test / fork          := true,
     Test / javaOptions   += "-Dcats.effect.trackFiberContext=true",
     libraryDependencies ++= Seq(
-      pekkoHttpXml exclude ("org.scala-lang.modules", "scala-xml_3"),
+      pekkoHttpXml.exclude("org.scala-lang.modules" %% "scala-xml"),
       scalaXml,
       distageCore,
       pekkoSlf4j       % Test,
@@ -411,7 +412,7 @@ lazy val app = project
   .enablePlugins(UniversalPlugin, JavaAppPackaging, DockerPlugin, BuildInfoPlugin)
   .settings(commonSettings, servicePackaging, otelSettings)
   .dependsOn(sdk % "compile->compile;test->test", elasticsearch, testkit % "test->compile")
-  .settings(Test / compile := (Test / compile).dependsOn(testPlugin / assembly).value)
+  .settings(Test / compile := Def.uncached((Test / compile).dependsOn(testPlugin / assembly).value))
   .settings(
     libraryDependencies  ++= Seq(
       pekkoHttpCors,
@@ -427,21 +428,24 @@ lazy val app = project
     buildInfoPackage      := "ai.senscience.nexus.delta.config",
     Docker / packageName  := "nexus-delta",
     copyPlugins           := {
-      val pluginFiles   = assembly.all(ScopeFilter(inProjects(pluginProjects *))).value
-      val pluginsTarget = target.value / "plugins"
+      val converter     = fileConverter.value
+      val pluginFiles   = assembly.all(ScopeFilter(inProjects(pluginProjects *))).value.map(converter.toPath(_).toFile)
+      // MainSuite loads the plugins from this module's own target directory
+      val pluginsTarget = baseDirectory.value / "target" / "plugins"
       IO.createDirectory(pluginsTarget)
       IO.copy(pluginFiles.map(file => file -> (pluginsTarget / file.getName)).toSet)
     },
     Test / fork           := true,
     // Assemble and stage the plugins before any test run, so the app can load them.
-    Test / test           := (Test / test).dependsOn(copyPlugins).value,
+    Test / test           := (Test / test).dependsOn(copyPlugins).evaluated,
+    Test / testFull       := Def.uncached((Test / testFull).dependsOn(copyPlugins).value),
     Test / testOnly       := (Test / testOnly).dependsOn(copyPlugins).evaluated,
     Test / testQuick      := (Test / testQuick).dependsOn(copyPlugins).evaluated,
     Universal / mappings ++= {
       // project-deletion ships disabled by default; every other plugin goes straight under plugins/.
       assembly.all(ScopeFilter(inProjects(pluginProjects *))).value.map { file =>
-        val dir = if (file.getName.contains("project-deletion")) "plugins/disabled/" else "plugins/"
-        file -> (dir + file.getName)
+        val dir = if (file.name.contains("project-deletion")) "plugins/disabled/" else "plugins/"
+        file -> (dir + file.name)
       }
     }
   )
@@ -453,7 +457,8 @@ lazy val testPlugin = project
   .settings(
     name                          := "delta-test-plugin",
     moduleName                    := "delta-test-plugin",
-    assembly / assemblyOutputPath := target.value / "delta-test-plugin.jar",
+    // PluginLoaderSpec loads the test plugin from this module's own target directory
+    assembly / assemblyOutputPath := baseDirectory.value / "target" / "delta-test-plugin.jar",
     assembly / assemblyOption     := (assembly / assemblyOption).value.withIncludeScala(false),
     Test / fork                   := true
   )
@@ -645,7 +650,7 @@ lazy val assertJavaVersion =
       val required = VersionNumber(javaSpecificationVersion.value)
       assert(CompatibleJavaVersion(current, required), s"Java '$required' or above required; current '$current'")
     },
-    Compile / compile := (Compile / compile).dependsOn(checkJavaVersion).value
+    Compile / compile := Def.uncached((Compile / compile).dependsOn(checkJavaVersion).value)
   )
 
 lazy val shared = Seq(
@@ -675,7 +680,7 @@ lazy val compilation = {
 
   Seq(
     scalaVersion                           := scalaCompilerVersion,
-    scalacOptions                          ~= { options: Seq[String] =>
+    scalacOptions                          ~= { (options: Seq[String]) =>
       options.filterNot(Set("-Wself-implicit", "-Xlint:infer-any", "-Xfatal-warnings", "-Wnonunit-statement")) ++
         Seq(
           "-source:future",
@@ -685,6 +690,11 @@ lazy val compilation = {
           "-Werror"
         )
     },
+    // sbt 2 runs the suites of a forked JVM in parallel by default, which deadlocks Jena's static initialisation
+    // (JenaSystem.init vs RDFS.<clinit>) and breaks suites sharing fixtures: keep sbt 1's sequential behaviour
+    Test / testForkedParallel              := false,
+    // sbt 2 puts jars on the classpath by default: keep test resources as plain files so suites can resolve their paths
+    Test / exportJars                      := false,
     javaSpecificationVersion               := "25",
     javacOptions                          ++= Seq(
       "-source",
@@ -709,7 +719,7 @@ lazy val compilation = {
     autoAPIMappings                        := true,
     apiMappings                            += {
       val scalaDocUrl = s"http://scala-lang.org/api/${scalaVersion.value}/"
-      ApiMappings.apiMappingFor((Compile / fullClasspath).value)("scala3-library", scalaDocUrl)
+      ApiMappings.apiMappingFor((Compile / fullClasspath).value, fileConverter.value)("scala3-library", scalaDocUrl)
     }
   )
 }
@@ -743,12 +753,13 @@ def pluginSettings(moduleId: String, jarName: String, infoPackage: String) = {
     moduleName                 := moduleId,
     buildInfoKeys              := Seq[BuildInfoKey](version),
     buildInfoPackage           := infoPackage,
-    assembly / assemblyJarName := jarName,
+    // uncached: the cache key is the expression, which is the same `jarName` identifier for every plugin
+    assembly / assemblyJarName := Def.uncached(jarName),
     assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / test            := {},
+    assembly / test / skip     := true,
     Test / fork                := true,
     artifacts                  += pluginArtifact,
-    packagedArtifacts          := packagedArtifacts.value.updated(pluginArtifact, assembly.value)
+    packagedArtifacts          := Def.uncached(packagedArtifacts.value.updated(pluginArtifact, assembly.value))
   ) ++ discardModuleInfoAssemblySettings
 }
 
@@ -780,11 +791,11 @@ ThisBuild / semanticdbEnabled    := true
 ThisBuild / semanticdbVersion    := scalafixSemanticdb.revision
 ThisBuild / scalafixDependencies += "org.typelevel" %% "typelevel-scalafix" % typelevelScalafixVersion
 
-ThisBuild / homepage   := Some(url("https://senscience.github.io/nexus-delta/docs/"))
-ThisBuild / licenses   := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / scmInfo    := Some(ScmInfo(url("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
+ThisBuild / homepage   := Some(uri("https://senscience.github.io/nexus-delta/docs/"))
+ThisBuild / licenses   := Seq("Apache-2.0" -> uri("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo    := Some(ScmInfo(uri("https://github.com/senscience/nexus-delta"), "scm:git:git@github.com:senscience/nexus-delta.git"))
 ThisBuild / developers := List(
-  Developer("imsdu", "Simon Dumas", "noreply@senscience.ai", url("https://www.senscience.ai/"))
+  Developer("imsdu", "Simon Dumas", "noreply@senscience.ai", uri("https://www.senscience.ai/"))
 )
 
 Global / excludeLintKeys        += packageDoc / publishArtifact
@@ -808,7 +819,7 @@ addCommandAlias("static-analysis", staticAnalysis)
 val coreModules = List("kernel", "pekkoMarshalling", "pekkoTestArchive", "rdf", "sdk", "sourcingPsql", "elasticsearch", "testkit")
 
 def runTests(modules: String*) =
-  modules.map(module => s"$module/test").mkString(";")
+  modules.map(module => s"$module/testFull").mkString(";")
 
 def runTestsWithCoverage(modules: String*) =
   "coverage;" +

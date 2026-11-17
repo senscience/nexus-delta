@@ -1,7 +1,7 @@
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.7")
 
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"  % "2.6.2")
-addSbtPlugin("ch.epfl.scala"    % "sbt-scalafix"  % "0.14.9")
+addSbtPlugin("ch.epfl.scala"    % "sbt-scalafix"  % "0.14.10")
 addSbtPlugin("org.scoverage"    % "sbt-scoverage" % "2.4.4")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates"   % "0.7.1")
 
@@ -18,6 +18,4 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.12.1")
 
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.8")
 
-addSbtPlugin("io.gatling" % "gatling-sbt" % "4.19.2")
-
-addDependencyTreePlugin
+addSbtPlugin("io.gatling" % "gatling-sbt" % "4.20.2")
