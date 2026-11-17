@@ -33,13 +33,12 @@ jobs:
       - name: Clean, build Delta image
         run: |
           sbt -Dsbt.color=always -Dsbt.supershell=false \
-            clean \
-            app/Docker/publishLocal
+            "clean; app/Docker/publishLocal"
       - name: Start services
         run: docker compose -f tests/docker/delta-blazegraph-compose.yml up --wait
         timeout-minutes: 2
       - name: Test
-        run: sbt -Dsbt.color=always -Dsbt.supershell=false "project tests" test
+        run: sbt -Dsbt.color=always -Dsbt.supershell=false "project tests; testFull"
       - name: Stop & clean Docker
         if: ${{ always() }}
         run: |

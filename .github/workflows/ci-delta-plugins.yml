@@ -44,5 +44,4 @@ jobs:
       - name: Unit tests
         run: |
           sbt -Dsbt.color=always -Dsbt.supershell=false \
-            clean \
-            plugins-unit-tests-with-coverage
+            "clean; plugins-unit-tests-with-coverage"
