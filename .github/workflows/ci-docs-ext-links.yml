@@ -23,4 +23,4 @@ jobs:
       - name: Setup SBT
         uses: sbt/setup-sbt@v1
       - name: Review
-        run: sbt "project docs" clean scalafmtCheck scalafmtSbtCheck paradox paradoxValidateLinks
+        run: sbt "project docs; clean; scalafmtCheck; scalafmtSbtCheck; paradox; paradoxValidateLinks"
