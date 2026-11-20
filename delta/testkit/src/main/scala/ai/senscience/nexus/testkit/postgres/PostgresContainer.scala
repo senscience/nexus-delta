@@ -6,7 +6,7 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
 class PostgresContainer(user: String, password: String, database: String)
-    extends GenericContainer[PostgresContainer](DockerImageName.parse("library/postgres:18.6")) {
+    extends GenericContainer[PostgresContainer](DockerImageName.parse("library/postgres:18.7")) {
   addEnv("POSTGRES_USER", user)
   addEnv("POSTGRES_PASSWORD", password)
   addEnv("POSTGRES_DB", database)
