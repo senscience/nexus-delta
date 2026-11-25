@@ -11,12 +11,10 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.*
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCodes.Created
@@ -63,9 +61,7 @@ final class ElasticSearchViewsRoutes(
   def routes: Route = {
     handleExceptions(ElasticSearchExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { caller =>
-          given Caller  = caller
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)

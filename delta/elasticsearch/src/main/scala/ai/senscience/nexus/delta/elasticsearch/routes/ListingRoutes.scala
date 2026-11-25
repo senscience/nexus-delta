@@ -59,7 +59,7 @@ class ListingRoutes(
 
   private val genericResourcesRoutes: Route =
     pathPrefix("resources") {
-      extractCaller { case given Caller =>
+      usingCaller {
         concat(
           (searchParametersAndSortList(None) & paginated) { (params, sort, page) =>
             val request = MainIndexRequest(params, page, sort)
@@ -131,7 +131,7 @@ class ListingRoutes(
   private val resourcesListings: Route =
     concat(resourcesToSchemas.value.map { case (Label(resourceSegment), resourceSchema) =>
       pathPrefix(resourceSegment) {
-        extractCaller { case given Caller =>
+        usingCaller {
           concat(
             mainIndexRequest(None, resourceSchema) { request =>
               concat(

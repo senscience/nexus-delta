@@ -11,7 +11,6 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
@@ -44,7 +43,7 @@ final class ConfiguredIndexRoutes(
   private def route =
     pathPrefix("index") {
       pathPrefix("configured") {
-        extractCaller { case caller @ given Caller =>
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
@@ -82,7 +81,7 @@ final class ConfiguredIndexRoutes(
                         projectionDirectives.scheduleRestart(
                           configuredIndexingProjectionMetadata(project),
                           fromOffset
-                        )(using caller.subject)
+                        )
                       }
                     )
                   }

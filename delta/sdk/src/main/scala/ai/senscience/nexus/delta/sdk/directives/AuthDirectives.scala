@@ -9,6 +9,7 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.directives.OtelDirectives.*
 import ai.senscience.nexus.delta.sdk.permissions.model.Permission
+import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
 import cats.syntax.all.*
@@ -54,6 +55,13 @@ abstract class AuthDirectives(identities: Identities, aclCheck: AclCheck) extend
         authenticateOAuth2Async("*", authenticator(spanContext)).withAnonymousUser(Caller.Anonymous)
       )
     }
+
+  /**
+    * Authenticates the HTTP call like [[extractCaller]] and runs `route` with the resulting [[Caller]] and its
+    * [[Subject]] in scope as givens.
+    */
+  def usingCaller(route: (Caller, Subject) ?=> Route)(using Tracer[IO]): Route =
+    extractCaller { caller => route(using caller, caller.subject) }
 
   /**
     * Checks whether given [[Caller]] has the [[Permission]] on the [[AclAddress]].

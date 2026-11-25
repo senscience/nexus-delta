@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteClassifier, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling.{jsonCodecDropNull, jsonSourceCodec}
 import ai.senscience.nexus.delta.sdk.model.ResourceRepresentation
@@ -36,7 +35,7 @@ class MultiFetchRoutes(
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("multi-fetch") {
         pathPrefix("resources") {
-          extractCaller { case given Caller =>
+          usingCaller {
             ((get | post) & entity(as[MultiFetchRequest])) { request =>
               given JsonValueCodec[Json] = selectCodec(request)
               emit(multiFetch(request).flatMap(_.asJson))

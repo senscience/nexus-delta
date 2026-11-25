@@ -10,7 +10,6 @@ import ai.senscience.nexus.delta.rdf.utils.JsonKeyOrdering
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
@@ -44,7 +43,7 @@ class SearchRoutes(
     baseUriPrefix(baseUri.prefix) {
       handleExceptions(searchExceptionHandler) {
         pathPrefix("search") {
-          extractCaller { case given Caller =>
+          usingCaller {
             concat(
               // Query the underlying aggregate elasticsearch view for global search
               (pathPrefix("query") & post & elasticSearchRequest) { request =>

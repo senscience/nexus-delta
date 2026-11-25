@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{baseUriPrefix, emitJson, timeRange}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
@@ -31,7 +30,7 @@ final class IndexingSupervisionRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       (pathPrefix("supervision") & pathPrefix("indexing")) {
-        extractCaller { case given Caller =>
+        usingCaller {
           pathPrefix("errors") {
             authorizeFor(AclAddress.Root, supervision.read) {
               concat(

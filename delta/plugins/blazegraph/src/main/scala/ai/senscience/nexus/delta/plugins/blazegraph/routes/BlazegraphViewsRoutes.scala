@@ -18,7 +18,6 @@ import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -57,8 +56,7 @@ class BlazegraphViewsRoutes(
     handleExceptions(BlazegraphExceptionHandler.apply) {
       concat(
         pathPrefix("views") {
-          extractCaller { case caller @ given Caller =>
-            given Subject = caller.subject
+          usingCaller {
             projectRef { project =>
               val authorizeRead  = authorizeFor(project, Read)
               val authorizeWrite = authorizeFor(project, Write)
@@ -124,7 +122,7 @@ class BlazegraphViewsRoutes(
         },
         // Handle all other incoming and outgoing links
         pathPrefix(Segment) { segment =>
-          extractCaller { case given Caller =>
+          usingCaller {
             projectRef { project =>
               // if we are on the path /resources/{org}/{proj}/ we need to consume the {schema} segment before consuming the {id}
               consumeIdSegmentIf(segment == "resources") {

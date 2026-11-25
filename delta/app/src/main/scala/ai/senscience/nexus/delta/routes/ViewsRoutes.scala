@@ -7,7 +7,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.ResourceF
@@ -29,7 +28,7 @@ final class ViewsRoutes(
     searchResultsJsonLdEncoder(ContextEmpty)
   def routes: Route                                           =
     baseUriPrefix(ctx.baseUri.prefix) {
-      extractCaller { case given Caller =>
+      usingCaller {
         pathPrefix("views") {
           projectRef { project =>
             (get & authorizeFor(project, Read) & pathEndOrSingleSlash) {

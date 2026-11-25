@@ -59,7 +59,7 @@ final class ResourcesTrialRoutes(
 
   private def validateRoute: Route =
     pathPrefix("resources") {
-      extractCaller { case given Caller =>
+      usingCaller {
         projectRef { project =>
           (idSegment & idSegmentRef & pathPrefix("validate") & pathEndOrSingleSlash & get) { (schema, id) =>
             authorizeFor(project, Write).apply {
@@ -73,7 +73,7 @@ final class ResourcesTrialRoutes(
 
   private def generateRoute: Route =
     (pathPrefix("trial") & pathPrefix("resources") & post) {
-      extractCaller { case given Caller =>
+      usingCaller {
         (projectRef & pathEndOrSingleSlash) { project =>
           authorizeFor(project, Write).apply {
             entity(as[GenerationInput]) { input =>

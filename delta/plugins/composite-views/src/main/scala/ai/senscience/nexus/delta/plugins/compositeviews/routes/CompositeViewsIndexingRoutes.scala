@@ -13,7 +13,6 @@ import ai.senscience.nexus.delta.rdf.jsonld.encoder.JsonLdEncoder
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
@@ -59,8 +58,7 @@ class CompositeViewsIndexingRoutes(
   def routes: Route =
     handleExceptions(CompositeViewExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           fetchActiveView { view =>
             val project        = view.project
             val authorizeRead  = authorizeFor(project, Read)

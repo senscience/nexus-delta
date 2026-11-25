@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import cats.effect.IO
@@ -25,7 +24,7 @@ class SparqlSupervisionRoutes(
 
   def routes: Route =
     pathPrefix("supervision") {
-      extractCaller { case given Caller =>
+      usingCaller {
         authorizeFor(AclAddress.Root, Permissions.supervision.read).apply {
           pathPrefix("blazegraph") {
             concat(

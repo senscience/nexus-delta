@@ -48,7 +48,7 @@ class VersionRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("version") {
-        extractCaller { case given Caller =>
+        usingCaller {
           (get & pathEndOrSingleSlash) {
             emit(fullOrDegraded)
           }

@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.Response.Reject
 import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
@@ -22,7 +21,6 @@ import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.{delete a
 import ai.senscience.nexus.delta.sdk.resources.model.ResourceRejection.*
 import ai.senscience.nexus.delta.sdk.resources.model.{Resource, ResourceRejection}
 import ai.senscience.nexus.delta.sdk.resources.{NexusSource, Resources}
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -86,8 +84,7 @@ final class ResourcesRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("resources") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeDelete = authorizeFor(project, Delete)
             val authorizeRead   = authorizeFor(project, Read)

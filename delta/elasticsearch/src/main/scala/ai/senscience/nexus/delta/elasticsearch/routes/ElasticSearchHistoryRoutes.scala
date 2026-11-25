@@ -9,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.iriSegment
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsEncoder
@@ -36,7 +35,7 @@ class ElasticSearchHistoryRoutes(identities: Identities, aclCheck: AclCheck, fet
     handleExceptions(ElasticSearchExceptionHandler.apply) {
       pathPrefix("history") {
         pathPrefix("resources") {
-          extractCaller { case given Caller =>
+          usingCaller {
             projectRef.apply { project =>
               authorizeFor(project, Read).apply {
                 (get & iriSegment & pathEndOrSingleSlash) { id =>

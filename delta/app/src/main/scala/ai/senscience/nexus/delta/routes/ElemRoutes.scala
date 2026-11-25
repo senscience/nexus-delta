@@ -4,7 +4,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseElemStream
 import ai.senscience.nexus.delta.sourcing.model.Tag.Latest
@@ -36,7 +35,7 @@ class ElemRoutes(
 
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
-      extractCaller { case given Caller =>
+      usingCaller {
         lastEventId { offset =>
           pathPrefix("elems") {
             projectRef { project =>

@@ -17,7 +17,6 @@ import ai.senscience.nexus.delta.sdk.model.ResourceF
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.permissions as permissionsPerms
 import ai.senscience.nexus.delta.sdk.permissions.model.{Permission, PermissionsRejection}
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -61,10 +60,9 @@ final class PermissionsRoutes(identities: Identities, aclCheck: AclCheck, permis
   def routes: Route =
     (baseUriPrefix(ctx.baseUri.prefix) & handleExceptions(exceptionHandler)) {
       pathPrefix("permissions") {
-        extractCaller { case caller =>
-          val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)(using caller)
-          val authorizeWrite = authorizeFor(AclAddress.Root, permissionsPerms.write)(using caller)
-          given Subject      = caller.subject
+        usingCaller {
+          val authorizeRead  = authorizeFor(AclAddress.Root, permissionsPerms.read)
+          val authorizeWrite = authorizeFor(AclAddress.Root, permissionsPerms.write)
           concat(
             pathEndOrSingleSlash {
               concat(

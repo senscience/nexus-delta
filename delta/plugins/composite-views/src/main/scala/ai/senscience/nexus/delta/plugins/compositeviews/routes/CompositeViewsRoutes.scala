@@ -8,9 +8,7 @@ import ai.senscience.nexus.delta.plugins.compositeviews.{BlazegraphQuery, Compos
 import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.StatusCode
@@ -46,8 +44,7 @@ class CompositeViewsRoutes(
   def routes: Route = {
     handleExceptions(CompositeViewExceptionHandler.apply) {
       pathPrefix("views") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)

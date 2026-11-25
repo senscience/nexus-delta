@@ -12,8 +12,6 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
-import ai.senscience.nexus.delta.sdk.implicits.given
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.IdSegment
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -47,8 +45,7 @@ final class MainIndexRoutes(
     }
 
   private def views = pathPrefix("views") {
-    extractCaller { caller =>
-      given Caller = caller
+    usingCaller {
       projectRef { project =>
         val authorizeRead  = authorizeFor(project, Read)
         val authorizeWrite = authorizeFor(project, Write)
@@ -73,9 +70,7 @@ final class MainIndexRoutes(
                 },
                 // Remove an main indexing offset (restart the view)
                 (delete & authorizeWrite & offset("from")) { fromOffset =>
-                  projectionDirectives.scheduleRestart(mainIndexingProjectionMetadata(project), fromOffset)(using
-                    caller
-                  )
+                  projectionDirectives.scheduleRestart(mainIndexingProjectionMetadata(project), fromOffset)
                 }
               )
             },
@@ -97,12 +92,12 @@ final class MainIndexRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("main") & pathPrefix("reindex")) {
-      extractCaller { caller =>
-        val authorizeRootWrite = authorizeFor(Root, Write)(using caller)
+      usingCaller {
+        val authorizeRootWrite = authorizeFor(Root, Write)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
             StatusCodes.Accepted,
-            restartScheduler.run(offset)(using caller).start.void
+            restartScheduler.run(offset).start.void
           )
         }
       }

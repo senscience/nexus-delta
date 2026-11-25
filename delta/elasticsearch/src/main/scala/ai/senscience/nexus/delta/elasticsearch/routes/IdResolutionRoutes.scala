@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.directives.RouteClassifier
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.model.{StatusCodes, Uri}
 import org.apache.pekko.http.scaladsl.server.Route
@@ -30,7 +29,7 @@ class IdResolutionRoutes(
 
   private def resolutionRoute: Route =
     pathPrefix("resolve") {
-      extractCaller { case given Caller =>
+      usingCaller {
         (get & iriSegment & pathEndOrSingleSlash) { iri =>
           emit(idResolution.apply(iri))
         }
