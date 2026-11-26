@@ -19,7 +19,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.indexing.{IndexingMode, SyncIndexingAction}
 import ai.senscience.nexus.delta.sdk.model.routes.Tag
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import io.circe.parser
@@ -60,8 +59,7 @@ final class FilesRoutes(
   def routes: Route =
     (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("files", schemas.files)) {
       (handleStorageExceptions & pathPrefix("files")) {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             extension (io: IO[FileResource]) {
               private def index(m: IndexingMode): IO[FileResource] = io.flatTap(self.index(project, _, m))

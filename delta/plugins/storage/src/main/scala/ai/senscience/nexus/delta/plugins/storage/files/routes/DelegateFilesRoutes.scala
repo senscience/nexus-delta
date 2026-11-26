@@ -40,7 +40,7 @@ final class DelegateFilesRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       (pathPrefix("delegate" / "files") & handleStorageExceptions) {
-        extractCaller { case given Caller =>
+        usingCaller {
           concat(
             (pathPrefix("generate") & projectRef) { project =>
               concat(

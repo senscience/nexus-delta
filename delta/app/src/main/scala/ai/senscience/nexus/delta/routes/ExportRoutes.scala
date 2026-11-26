@@ -5,7 +5,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.permissions.Permissions
 import ai.senscience.nexus.delta.sdk.resources.ResourcesExporter
 import ai.senscience.nexus.delta.sourcing.exporter.{ExportEventQuery, Exporter}
@@ -29,7 +28,7 @@ class ExportRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("export") {
-        extractCaller { case given Caller =>
+        usingCaller {
           authorizeFor(AclAddress.Root, Permissions.exporter.run).apply {
             pathPrefix("events") {
               (post & pathEndOrSingleSlash & entity(as[ExportEventQuery])) { query =>

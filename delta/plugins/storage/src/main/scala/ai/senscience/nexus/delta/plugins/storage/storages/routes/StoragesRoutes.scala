@@ -10,14 +10,12 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{given, *}
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaSchemeDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.model.{IdSegment, IdSegmentRef}
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.model.source.OriginalSource
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -68,8 +66,7 @@ final class StoragesRoutes(
   private def storageRoutes =
     (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("storages", schemas.storage)) {
       (handleStorageExceptions & pathPrefix("storages")) {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)
@@ -137,7 +134,7 @@ final class StoragesRoutes(
       pathPrefix("user") {
         pathPrefix("permissions") {
           projectRef { project =>
-            extractCaller { case given Caller =>
+            usingCaller {
               head {
                 parameters("storage".as[IdSegment], "type".as[AccessType]) { (storageId, accessType) =>
                   fetchStoragePermission(project, storageId, accessType) { permission =>

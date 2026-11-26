@@ -8,7 +8,6 @@ import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives
 import ai.senscience.nexus.delta.sdk.directives.RouteClassifier.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.effect.unsafe.implicits.*
@@ -43,12 +42,11 @@ class BlazegraphViewsIndexingRoutes(
 
   private def views =
     pathPrefix("views") {
-      extractCaller { case caller =>
-        given Subject = caller.subject
+      usingCaller {
         fetchActiveView { view =>
           val project        = view.ref.project
-          val authorizeRead  = authorizeFor(project, Read)(using caller)
-          val authorizeWrite = authorizeFor(project, Write)(using caller)
+          val authorizeRead  = authorizeFor(project, Read)
+          val authorizeWrite = authorizeFor(project, Write)
           concat(
             // Fetch a blazegraph view statistics
             (pathPrefix("statistics") & get & pathEndOrSingleSlash) {
@@ -86,9 +84,8 @@ class BlazegraphViewsIndexingRoutes(
 
   private def jobs =
     (pathPrefix("jobs") & pathPrefix("sparql") & pathPrefix("reindex")) {
-      extractCaller { case caller =>
-        val authorizeRootWrite = authorizeFor(Root, Write)(using caller)
-        given Subject          = caller.subject
+      usingCaller {
+        val authorizeRootWrite = authorizeFor(Root, Write)
         (post & authorizeRootWrite & offset("from") & pathEndOrSingleSlash) { offset =>
           emit(
             StatusCodes.Accepted,

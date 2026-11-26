@@ -9,7 +9,6 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.resources.read as Read
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
@@ -42,7 +41,7 @@ class GraphAnalyticsRoutes(
     baseUriPrefix(ctx.baseUri.prefix) {
       handleExceptions(graphAnalyticsExceptionHandler) {
         pathPrefix("graph-analytics") {
-          extractCaller { case given Caller =>
+          usingCaller {
             projectRef { project =>
               val authorizeRead  = authorizeFor(project, Read)
               val authorizeQuery = authorizeFor(project, query)

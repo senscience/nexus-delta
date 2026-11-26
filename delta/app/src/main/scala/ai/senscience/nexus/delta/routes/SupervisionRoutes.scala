@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.*
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.{projects, supervision}
 import ai.senscience.nexus.delta.sdk.projects.{ProjectHealer, ProjectsHealth}
@@ -36,7 +35,7 @@ class SupervisionRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("supervision") {
-        extractCaller { case given Caller =>
+        usingCaller {
           concat(
             authorizeFor(AclAddress.Root, supervision.read).apply {
               concat(

@@ -12,7 +12,6 @@ import ai.senscience.nexus.delta.sdk.identities.Identities
 import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.implicits.*
 import ai.senscience.nexus.delta.sdk.model.IdSegment
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -50,8 +49,7 @@ class ArchiveRoutes(
   def routes: Route =
     (baseUriPrefix(ctx.baseUri.prefix) & handleStorageExceptions & archivesExceptionHandler) {
       pathPrefix("archives") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, permissions.read)
             val authorizeWrite = authorizeFor(project, permissions.write)

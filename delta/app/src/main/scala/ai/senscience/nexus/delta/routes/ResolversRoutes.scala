@@ -23,7 +23,6 @@ import ai.senscience.nexus.delta.sdk.resolvers.model.ResolverRejection.ResolverN
 import ai.senscience.nexus.delta.sdk.resolvers.model.{MultiResolutionResult, Resolver, ResolverRejection}
 import ai.senscience.nexus.delta.routes.ResolversRoutes.*
 import ai.senscience.nexus.delta.sdk.resolvers.{MultiResolution, Resolvers}
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.ProjectRef
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -96,8 +95,7 @@ final class ResolversRoutes(
   def routes: Route =
     (baseUriPrefix(ctx.baseUri.prefix) & replaceUri("resolvers", schemas.resolvers)) {
       pathPrefix("resolvers") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           projectRef { project =>
             val authorizeRead  = authorizeFor(project, Read)
             val authorizeWrite = authorizeFor(project, Write)

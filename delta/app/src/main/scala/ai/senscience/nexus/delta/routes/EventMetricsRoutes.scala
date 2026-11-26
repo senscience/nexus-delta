@@ -5,11 +5,9 @@ import ai.senscience.nexus.delta.sdk.acls.AclCheck
 import ai.senscience.nexus.delta.sdk.acls.model.AclAddress
 import ai.senscience.nexus.delta.sdk.directives.{AuthDirectives, DeltaDirectives, ProjectionsDirectives, RouteContext}
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.marshalling.RdfMarshalling
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.supervision
 import ai.senscience.nexus.delta.sourcing.Scope.Root
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.query.SelectFilter
 import cats.effect.IO
 import org.apache.pekko.http.scaladsl.server.Route
@@ -32,8 +30,7 @@ final class EventMetricsRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("event-metrics") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           authorizeFor(AclAddress.Root, supervision.read).apply {
             concat(
               pathPrefix("statistics") {

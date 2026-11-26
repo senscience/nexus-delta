@@ -6,7 +6,6 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.{emit, lastEventId}
 import ai.senscience.nexus.delta.sdk.directives.UriDirectives.*
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.BaseUri
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.events
 import ai.senscience.nexus.delta.sdk.sse.SseEventLog
@@ -43,7 +42,7 @@ class EventsRoutes(
 
   def routes: Route =
     baseUriPrefix(baseUri.prefix) {
-      extractCaller { case given Caller =>
+      usingCaller {
         lastEventId { offset =>
           concat(
             concat(

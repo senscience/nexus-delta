@@ -80,6 +80,18 @@ class AuthDirectivesSpec
       }
     }
 
+  // Echoes the given Caller and Subject that `usingCaller` puts in scope
+  private val usingCallerRoute: Route =
+    handleExceptions(RdfExceptionHandler.apply) {
+      path("user") {
+        directives.usingCaller {
+          get {
+            complete(s"${summon[Caller].subject} ${summon[Subject]}")
+          }
+        }
+      }
+    }
+
   private val authExceptionHandler: ExceptionHandler = ExceptionHandler { case AuthorizationFailed(_) =>
     complete(StatusCodes.Forbidden)
   }
@@ -132,6 +144,20 @@ class AuthDirectivesSpec
       Get("/user") ~> addCredentials(BasicHttpCredentials("alice")) ~> callerRoute ~> check {
         response.status shouldEqual StatusCodes.Unauthorized
         response.asJson shouldEqual jsonContentOf("identities/authentication-failed.json")
+      }
+    }
+
+    "provide the caller and its subject as givens to a route" in {
+      Get("/user") ~> addCredentials(OAuth2BearerToken("alice")) ~> usingCallerRoute ~> check {
+        response.status shouldEqual StatusCodes.OK
+        response.asString shouldEqual s"${user} ${user}"
+      }
+    }
+
+    "provide Anonymous as givens to a route without credentials" in {
+      Get("/user") ~> usingCallerRoute ~> check {
+        response.status shouldEqual StatusCodes.OK
+        response.asString shouldEqual s"${Anonymous.subject} ${Anonymous.subject}"
       }
     }
 

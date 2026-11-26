@@ -18,7 +18,6 @@ import ai.senscience.nexus.delta.sdk.projects.model.*
 import ai.senscience.nexus.delta.sdk.projects.model.ProjectRejection.ProjectNotFound
 import ai.senscience.nexus.delta.sdk.projects.{ProjectScopeResolver, Projects, ProjectsStatistics}
 import ai.senscience.nexus.delta.sourcing.Scope
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.Label
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.data.OptionT
@@ -72,8 +71,7 @@ final class ProjectsRoutes(
 
   def routes: Route =
     (baseUriPrefix & pathPrefix("projects")) {
-      extractCaller { case caller @ given Caller =>
-        given Subject = caller.subject
+      usingCaller {
         concat(
           // List projects
           (get & pathEndOrSingleSlash & extractHttp4sUri & fromPaginated & projectsSearchParams(None) &

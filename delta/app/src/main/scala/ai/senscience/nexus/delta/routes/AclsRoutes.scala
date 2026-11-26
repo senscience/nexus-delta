@@ -20,7 +20,6 @@ import ai.senscience.nexus.delta.sdk.marshalling.RdfRejectionHandler.given
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.searchResultsJsonLdEncoder
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.acls as aclsPermissions
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.delta.sourcing.model.{Label, ProjectRef}
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
@@ -111,8 +110,7 @@ class AclsRoutes(identities: Identities, aclCheck: AclCheck, acls: Acls)(using c
   def routes: Route = {
     (baseUriPrefix & handleExceptions(exceptionHandler)) {
       pathPrefix("acls") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           concat(
             extractAclAddress { address =>
               val authorizeRead  = authorizeFor(address, aclsPermissions.read)

@@ -8,14 +8,12 @@ import ai.senscience.nexus.delta.sdk.directives.AuthDirectives
 import ai.senscience.nexus.delta.sdk.directives.DeltaDirectives.*
 import ai.senscience.nexus.delta.sdk.directives.RouteContext
 import ai.senscience.nexus.delta.sdk.identities.Identities
-import ai.senscience.nexus.delta.sdk.identities.model.Caller
 import ai.senscience.nexus.delta.sdk.model.search.SearchParams.RealmSearchParams
 import ai.senscience.nexus.delta.sdk.model.search.SearchResults.*
 import ai.senscience.nexus.delta.sdk.model.search.{PaginationConfig, SearchResults}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.realms as realmsPermissions
 import ai.senscience.nexus.delta.sdk.realms.Realms
 import ai.senscience.nexus.delta.sdk.realms.model.{Realm, RealmFields, RealmRejection}
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -52,8 +50,7 @@ class RealmsRoutes(identities: Identities, realms: Realms, aclCheck: AclCheck)(u
   def routes: Route =
     (baseUriPrefix(ctx.baseUri.prefix) & exceptionHandler) {
       pathPrefix("realms") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           concat(
             // List realms
             (get & extractHttp4sUri & fromPaginated & realmsSearchParams & sort[Realm] & pathEndOrSingleSlash) {

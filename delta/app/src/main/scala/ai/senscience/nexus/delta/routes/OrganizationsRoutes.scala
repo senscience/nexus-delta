@@ -18,7 +18,6 @@ import ai.senscience.nexus.delta.sdk.organizations.model.OrganizationRejection.*
 import ai.senscience.nexus.delta.sdk.organizations.model.{Organization, OrganizationRejection}
 import ai.senscience.nexus.delta.sdk.organizations.{OrganizationDeleter, Organizations}
 import ai.senscience.nexus.delta.sdk.permissions.Permissions.*
-import ai.senscience.nexus.delta.sourcing.model.Identity.Subject
 import ai.senscience.nexus.pekko.marshalling.CirceUnmarshalling
 import cats.effect.IO
 import cats.syntax.all.*
@@ -75,8 +74,7 @@ final class OrganizationsRoutes(
   def routes: Route =
     baseUriPrefix(ctx.baseUri.prefix) {
       pathPrefix("orgs") {
-        extractCaller { case caller @ given Caller =>
-          given Subject = caller.subject
+        usingCaller {
           concat(
             // List organizations
             (get & extractHttp4sUri & fromPaginated & orgsSearchParams & sort[Organization] & pathEndOrSingleSlash) {
